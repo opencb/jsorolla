@@ -34,18 +34,11 @@ export default class VariantModalOntology extends LitElement {
 
     static get properties() {
         return {
-            // there will be 2 instances of this component, so it inherit the prefix from the related father (hpo-accessions-filter/go-accessions-filter)
-            _prefix: {
-                type: String
-            },
-            ontologyFilter: {
-                type: String
-            },
-            term: {
+            config: {
                 type: String
             },
             selectedTerms: {
-                type: Array
+                type: String
             },
         };
     }
@@ -74,8 +67,7 @@ export default class VariantModalOntology extends LitElement {
         };
         this.rootTree = [{text: "All", nodes: [], selectable: false}];
 
-        this.selectedTerms = [];
-        this.selectedTermsFull = [];
+        this.selectedTerms = null;
     }
 
 
@@ -83,7 +75,7 @@ export default class VariantModalOntology extends LitElement {
         if (changedProperties.has("selectedTerms")) {
             // selectedTerm observer to handle subsequent reopening of the modal after a first selection
         }
-        if (changedProperties.has("ontologyFilter")) {
+        if (changedProperties.has("config")) {
             this.ontologyFilterObserver();
         }
     }
@@ -96,29 +88,32 @@ export default class VariantModalOntology extends LitElement {
     selectTerm(selected) {
     }
 
-    filterChange(e) {
-        this.selectedTerms = e.detail.value ? e.detail.value.split(",") : [];
+    updateTerms(e) {
+        this.selectedTerms = e.detail.value;
+        this.onFilterChange();
     }
 
     addTerm(oboId) {
         if (oboId) {
-            this.selectedTerms = [...new Set([...this.selectedTerms, oboId])];
+            const elms = this.selectedTerms ? this.selectedTerms.split(",") : [];
+            const arr = [...new Set([...elms, oboId])];
+            this.selectedTerms = arr.join(",");
         }
-        this.selectedTerms = [...this.selectedTerms];
-        this.requestUpdate();
+        // this.requestUpdate();
+        this.onFilterChange();
     }
 
-    clickOkModal() {
-        this.dispatchEvent(new CustomEvent("clickOkModal", {
+    onFilterChange() {
+        const event = new CustomEvent("filterChange", {
             detail: {
-                result: this.selectedTerms,
-                resultFull: this.selectedTermsFull,
-            },
-        }));
+                value: this.selectedTerms
+            }
+        });
+        this.dispatchEvent(event);
     }
 
     async loadTermsTree() {
-        const defaultsNodes = this.ebiConfig.tree[this.ontologyFilter];
+        const defaultsNodes = this.ebiConfig.tree[this._config.ontologyFilter];
         if (defaultsNodes?.length) {
             const requests = defaultsNodes.map(nodeUrl => fetch(this.ebiConfig.root + nodeUrl));
             try {
@@ -215,7 +210,7 @@ export default class VariantModalOntology extends LitElement {
                         _params.data.page = params.data.page || 1;
                         const q = _params?.data?.term ? _params.data.term : "";
                         try {
-                            const request = await fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + q + "*&ontology=" + this.ontologyFilter + "&rows=" + this._config.limit + "&queryFields=label,obo_id");
+                            const request = await fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + q + "*&ontology=" + this._config.ontologyFilter + "&rows=" + this._config.limit + "&queryFields=label,obo_id");
                             const json = await request.json();
                             const results = json.response.docs.map(i => ({text: i.label, id: i.obo_id, iri: i.iri}));
                             success(results);
@@ -266,7 +261,7 @@ export default class VariantModalOntology extends LitElement {
 
     render() {
         return html`
-            <div class="modal fade" id="${this._prefix}ontologyModal" tabindex="-1" role="dialog"
+            <div class="modal fade" id="${this._config.ontologyFilter}_ontologyModal" tabindex="-1" role="dialog"
                  aria-labelledby="ontologyLabel">
                 <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                     <div class="modal-content">
@@ -283,8 +278,8 @@ export default class VariantModalOntology extends LitElement {
                                         <select-token-filter
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .config=${this._config}
-                                                .value="${this.selectedTerms?.join(",")}"
-                                                @filterChange="${this.filterChange}">
+                                                .value="${this.selectedTerms}"
+                                                @filterChange="${this.updateTerms}">
                                         </select-token-filter>
                                     </div>
                                 </div>
@@ -311,7 +306,7 @@ export default class VariantModalOntology extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary ripple" @click="${this.clickOkModal}">OK</button>
+                            <button type="button" class="btn btn-primary ripple" data-dismiss="modal">OK</button>
                         </div>
                     </div>
                 </div>
