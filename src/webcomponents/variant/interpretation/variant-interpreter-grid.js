@@ -111,11 +111,9 @@ export default class VariantInterpreterGrid extends LitElement {
             ].filter(f => ~visibleColumns.indexOf(f.id));
             this.toolbarConfig = {
                 ...this._config.toolbar,
-                download: ["JSON"],
+                resource: "VARIANT",
                 columns: columns
             };
-            // Nacho (14/11/2020) - Commented since it does not look necessary
-            // this.requestUpdate();
         }
     }
 
