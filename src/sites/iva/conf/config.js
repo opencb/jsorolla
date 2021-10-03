@@ -178,17 +178,21 @@ const suite = {
             visibility: "public",
             welcomePage: {
                 title: {
-                    display: {
-                        style: "text-align:center "
-                    },
                     text: "Variant Analysis",
-                    subtitle: "Interactive Variant Analysis",
+                    subtitle: "Interactive Variant Analysis1",
+                    display: {
+                        className: "",
+                        style: "text-align:center"
+                    },
 
                 },
                 logo: {
                     path: "./img/iva.svg",
-                    style: "text-align: center",
-                    subtitle: "Interactive Variant Analysis"
+                    subtitle: "Interactive Variant Analysis2",
+                    display: {
+                        className: "",
+                        style: "text-align: center"
+                    },
                 },
                 content: `
                     <p class="text-center">
