@@ -34,6 +34,9 @@ export default class ClinicalListUpdate extends LitElement {
 
     static get properties() {
         return {
+            entity: {
+                type: String
+            },
             items: {
                 type: Array
             },
@@ -55,67 +58,10 @@ export default class ClinicalListUpdate extends LitElement {
     }
 
     _init() {
+        this.status = {};
         this._prefix = UtilsNew.randomString(8);
     }
 
-    onShowPhenotypeManager(e, manager) {
-        this._manager = manager;
-        if (manager.action === "ADD") {
-            this.phenotype = {};
-        } else {
-            this.phenotype = manager.phenotype;
-        }
-        this.requestUpdate();
-        $("#phenotypeManagerModal"+ this._prefix).modal("show");
-    }
-
-    onActionPhenotype(e) {
-        e.stopPropagation();
-        if (this._manager.action === "ADD") {
-            this.addPhenotype(e.detail.value);
-        } else {
-            this.editPhenotype(e.detail.value);
-        }
-        $("#phenotypeManagerModal" + this._prefix).modal("hide");
-        this.requestUpdate();
-    }
-
-    addPhenotype(phenotype) {
-        this.phenotypes = [...this.phenotypes, phenotype];
-        LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
-    }
-
-    editPhenotype(phenotype) {
-        const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
-        this.phenotypes[indexPheno] = phenotype;
-        this.phenotype = {};
-        LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
-        this.requestUpdate();
-    }
-
-    onRemovePhenotype(e, item) {
-        e.stopPropagation();
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
-                this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
-                LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
-                Swal.fire(
-                    "Deleted!",
-                    "The phenotype has been deleted.",
-                    "success"
-                );
-            }
-        });
-    }
 
     onCloseForm(e) {
         e.stopPropagation();
@@ -123,26 +69,184 @@ export default class ClinicalListUpdate extends LitElement {
         $("#phenotypeManagerModal"+ this._prefix).modal("hide");
     }
 
-    renderConfig(itemConfigs) {
+    // TODO: Refactor
+    configClinical(isNew, entity) {
+
+        // TODO
+        // Save by each config or save by all things
+
+        // Conditions
+        // 2 Fields, - done
+        // 3 Fields, - done
+        // 5 fields, - done
+
+        // Data-form modal: btn-groups - delete (pasa a event to remove item) and Edit (Open the modal)
+        // Button style elements
+        // Title Style
+        // Study-clinical will listen events to save data
+
+        // Add Button (Open the dialog)
+        // Save new configs
+
+        const configModal = isNew => {
+            return isNew ? {
+                type: "modal",
+                title: "Add Config",
+                buttonStyle: "margin-top:6px"
+            } : {
+                type: "modal",
+                title: "Edit Config",
+                buttonClass: "pull-right",
+                btnGroups: [
+                    {
+                        title: "Edit",
+                        openModal: true,
+                    },
+                    {
+                        title: "Delete",
+                        btnClass: "btn-danger",
+                        event: "removeItem"
+                    }
+                ]
+            };
+        };
+
+        const configSection = entity => {
+            switch (entity) {
+                case "clinical":
+                case "interpretation":
+                case "flags":
+                    return {
+                        elements: [
+                            {
+                                name: "Id",
+                                field: "id",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                display: {
+                                    rows: 3,
+                                    placeholder: "Add a description..."
+                                }
+                            },
+                        ]
+                    };
+                case "priorities":
+                    return {
+                        elements: [
+                            {
+                                name: "Id",
+                                field: "id",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                display: {
+                                    rows: 3,
+                                    placeholder: "Add a description..."
+                                }
+                            },
+                            {
+                                name: "Rank",
+                                field: "rank",
+                                type: "input-text",
+                            },
+                            {
+                                name: "Default priority",
+                                field: "defaultPriority",
+                                type: "checkbox",
+                            },
+                        ]
+                    };
+                case "consent":
+                    return {
+                        elements: [
+                            {
+                                name: "Id",
+                                field: "id",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Name",
+                                field: "name",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                display: {
+                                    rows: 3,
+                                    placeholder: "Add a description..."
+                                }
+                            },
+                        ]
+                    };
+            }
+        };
+
+        const configStatus = {
+            title: "Edit",
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                classes: "btn btn-primary ripple pull-right",
+                okText: "Save"
+            },
+            display: {
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultLayout: "horizontal",
+                mode: configModal(isNew),
+                defaultValue: ""
+            },
+            sections: [configSection(entity)]
+        };
+
+        return configStatus;
+
+    }
+
+    renderConfig(itemConfigs, key) {
         return html`
-            ${itemConfigs?.map(item => html`
-                <div class="list-group-item">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div style="padding-bottom:2px">
-                                <b>${item.id}</b>
-                                <p class="text-muted">${item.description}</p>
+            ${itemConfigs?.map(item => {
+                const status = {...item, parent: key? key : ""};
+                return html`
+                    <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div style="padding-bottom:2px">
+                                    <b>${status.id}</b>
+                                    <p class="text-muted">${status.description}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
-                                <button type="button" class="btn btn-primary btn-xs">Edit</button>
-                                <button type="button" class="btn btn-danger btn-xs">Delete</button>
+                            <div class="col-md-4">
+                                    <data-form
+                                        .data="${status}"
+                                        .config="${this.configClinical(false, this.entity)}">
+                                    </data-form>
                             </div>
                         </div>
                     </div>
-                </div>
-            `)}
+            `;
+})}
         `;
     }
 
@@ -159,10 +263,13 @@ export default class ClinicalListUpdate extends LitElement {
                         return html`
                             <div class="col-md-6">
                                 <div class="list-group">
-                                ${this.renderConfig(this.items[key])}
-                                    <button type="button" style="margin-top:6px" class="btn btn-primary btn-sm">
-                                        Add
-                                    </button>
+                                    <!-- Edit Config -->
+                                    ${this.renderConfig(this.items[key], key)}
+                                    <!-- Add New Config -->
+                                    <data-form
+                                        .data="${this.status}"
+                                        .config="${this.configClinical(true, this.entity)}">
+                                    </data-form>
                                 </div>
                             </div>`;
                     }
@@ -179,10 +286,13 @@ export default class ClinicalListUpdate extends LitElement {
                     .mode="${DetailTabs.PILLS_VERTICAL_MODE}">
                 </detail-tabs>`:
                 html `
+                <!-- Edit Config -->
                 ${this.renderConfig(this.items)}
-                <button type="button" style="margin-top:6px" class="btn btn-primary btn-sm">
-                    Add
-                </button>
+                <!-- Add New Config -->
+                <data-form
+                    .data="${this.status}"
+                    .config="${this.configClinical(true, this.entity)}">
+                </data-form>
                 `}
             `;
     }
