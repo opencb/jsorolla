@@ -47,10 +47,6 @@ export default class AccessionsAutocompleteFilter extends LitElement {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
 
-        // this.ontologyTerm = "GO";
-        // this.ontologyFilter = "go";
-
-        // TODO move in hpo-accession and go-accessions
         this.ebiConfig = {
             root: "https://www.ebi.ac.uk/ols/api",
             tree: {
@@ -97,7 +93,8 @@ export default class AccessionsAutocompleteFilter extends LitElement {
             select2Config: {
                 tags: true,
                 maximumSelectionLength: 100,
-                tokenSeparators: [";"], // some labels has commas
+                // NOTE some labels in HPO has commas. We ignore that at the moment and keep using "," and ";" as separators, otherwise the operators OR and AND won't work.
+                tokenSeparators: this._config?.separator ?? [","],
                 ajax: {
                     transport: async (params, success, failure) => {
                         const _params = params;

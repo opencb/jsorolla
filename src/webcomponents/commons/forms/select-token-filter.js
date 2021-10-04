@@ -47,7 +47,6 @@ export default class SelectTokenFilter extends LitElement {
 
     _init() {
         this._prefix = "select-" + UtilsNew.randomString(6) + "_";
-        this.separator = ",";
     }
 
     connectedCallback() {
@@ -141,9 +140,9 @@ export default class SelectTokenFilter extends LitElement {
 
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
-            this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(this.separator) : "");
+            this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(new RegExp("[" + this._config.separator.join("") + "]")) : "");
 
-            // const selection = this.value ? this.value.split(this.separator) : null;
+            // const selection = this.value ? this.value.split(this._config.separator) : null;
             // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source
             // this.select.trigger('change');
             // this.requestUpdate();
@@ -168,7 +167,10 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     filterChange(e) {
-        const selection = this.select.select2("data").map(el => el.id).join(this.separator);
+        // join by "," only as the operator (, or ;) is not a concern of this component.
+        // this component only needs to split by all separators (defined in config) in updated() fn,
+        // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
+        const selection = this.select.select2("data").map(el => el.id).join(",");
         console.log("filterChange", selection);
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -180,6 +182,7 @@ export default class SelectTokenFilter extends LitElement {
 
     getDefaultConfig() {
         return {
+            separator: [","],
             limit: 10,
             minimumInputLength: 0,
             maxItems: 0,

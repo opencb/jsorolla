@@ -55,7 +55,7 @@ export default class HpoAccessionsFilter extends LitElement {
         if (_changedProperties.has("annot-hpo")) {
             if (this["annot-hpo"]) {
                 // parse operator
-                if (this["annot-hpo"].split(",").length > 2) {
+                if (this["annot-hpo"].split(/[,;]/).length) {
                     let operator;
                     const or = this["annot-hpo"].split(",");
                     const and = this["annot-hpo"].split(";");
@@ -83,12 +83,11 @@ export default class HpoAccessionsFilter extends LitElement {
     }
 
     onFilterChange(e) {
-        // TODO FIX operator AND/OR
         console.log("filterChange", e || null);
         let terms = e.detail?.value;
         this.warnMessage = null;
         if (terms) {
-            let arr = terms.split(/[;,]/);
+            let arr = terms.split(this.operator);
             if (arr.length > 100) {
                 console.log("more than 100 terms");
                 this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
@@ -101,13 +100,23 @@ export default class HpoAccessionsFilter extends LitElement {
 
         this.selectedTerms = terms;
         this.requestUpdate();
+        this.notifyChange();
+    }
 
+    notifyChange() {
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: terms ?? null
+                value: this.selectedTerms ?? null
             }
         });
         this.dispatchEvent(event);
+    }
+
+    changeOperator(e) {
+        this.operator = e.currentTarget.dataset.value;
+        this.selectedTerms = this._selectedTermsArr.join(this.operator);
+        this.requestUpdate();
+        this.notifyChange();
     }
 
     openModal(e) {
@@ -116,23 +125,9 @@ export default class HpoAccessionsFilter extends LitElement {
 
     getDefaultConfig() {
         return {
+            separator: [",", ";"], // this is being used in select-token-filter updated() fn and select2 config itself
             ontologyFilter: "hp",
-            placeholder: "HP:0000001, HP:3000079",
-            ebiConfig: {
-                root: "https://www.ebi.ac.uk/ols/api",
-                tree: {
-                    "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823",
-                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
-                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005",
-                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
-                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118",
-                        /* "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"*/],
-                    "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150",
-                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
-                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"],
-                },
-                search: "/search",
-            }
+            placeholder: "HP:0000001, HP:3000079"
         };
     }
 
@@ -149,12 +144,12 @@ export default class HpoAccessionsFilter extends LitElement {
             <fieldset class="switch-toggle-wrapper">
                     <label style="font-weight: normal;">Logical Operator</label>
                     <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}hpoOrRadio" name="hpoRadio" type="radio" value="or"
+                        <input id="${this._prefix}hpoOrRadio" name="hpoRadio" type="radio" value="or" data-value=","
                                    class="radio-or" ?checked="${this.operator === ","}" ?disabled="${this._selectedTermsArr.length < 2}"
                                    @change="${this.changeOperator}">
                             <label for="${this._prefix}hpoOrRadio"
                                    class="rating-label rating-label-or">OR</label>
-                        <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and"
+                        <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and" data-value=";"
                                    class="radio-and" ?checked="${this.operator === ";"}" ?disabled="${this._selectedTermsArr.length < 2}" @change="${this.changeOperator}">
                             <label for="${this._prefix}hpoAndRadio"
                                    class="rating-label rating-label-and">AND</label>
@@ -162,7 +157,6 @@ export default class HpoAccessionsFilter extends LitElement {
                     </div>
             </fieldset>
 
-            this._selectedTermsArr ${JSON.stringify(this._selectedTermsArr)}
             <variant-modal-ontology term="HPO"
                                     .config="${this._config}"
                                     .selectedTerms="${this.selectedTerms}"
