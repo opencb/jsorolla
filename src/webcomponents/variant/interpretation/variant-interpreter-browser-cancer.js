@@ -353,9 +353,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     // Check if dataFilter are indexed
                     for (const dataFilter of caller.dataFilters) {
                         if (indexedFields[dataFilter.id]) {
-                            dataFilter.comparators = indexedFields[dataFilter.id].type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                            dataFilter.allowedValues = indexedFields[dataFilter.id].type
-                                .startsWith("RANGE_") ? indexedFields[dataFilter.id].thresholds : indexedFields[dataFilter.id].values;
+                            const field = indexedFields[dataFilter.id];
+                            if (field.type.startsWith("RANGE_")) {
+                                dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                dataFilter.allowedValues = field.thresholds;
+                            } else {
+                                dataFilter.allowedValues = field.values;
+                            }
                         }
                     }
 
