@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "lit"
+import {html, LitElement} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
@@ -69,7 +69,7 @@ export default class StudyAdminAudit extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -85,7 +85,7 @@ export default class StudyAdminAudit extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = { ...study };
+                        this.study = {...study};
                         break;
                     }
                 }
@@ -115,16 +115,16 @@ export default class StudyAdminAudit extends LitElement {
             } else {
                 for (const group of response.responses[0].results) {
                     this.groupsMap.set(group.id, group.userIds.map(u => {
-                        return { id: u, name: u }
+                        return {id: u, name: u};
                     }));
                 }
             }
             this.users = this.groupsMap.get("@members");
             this.sortedUserIds = [...this.groupsMap.get("@members").map(user => user.id).sort()];
             // With the requestUpdate, work to get users for the filter
-            this.requestUpdate()
+            this.requestUpdate();
         } catch (err) {
-            console.log("An error occurred fetching users: ", err)
+            console.log("An error occurred fetching users: ", err);
         }
         this.renderRemoteTable();
     }
@@ -173,7 +173,7 @@ export default class StudyAdminAudit extends LitElement {
                     // this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.studies().searchAudit(this.study.fqn, query)
                         .then(res => {
-                            params.success(res)
+                            params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
@@ -243,7 +243,7 @@ export default class StudyAdminAudit extends LitElement {
             {
                 title: "Date",
                 field: "date",
-                formatter: (value) => value ? UtilsNew.dateFormatter(UtilsNew.getDatetime(value)) : "NA"
+                formatter: value => value ? UtilsNew.dateFormatter(UtilsNew.getDatetime(value)) : "NA"
             },
             {
                 title: "Status",
@@ -254,10 +254,10 @@ export default class StudyAdminAudit extends LitElement {
 
     onFilterChange(key, value) {
         if (value && value !== "") {
-            this.query = { ...this.query, ...{ [key]: value } };
+            this.query = {...this.query, ...{[key]: value}};
         } else {
             delete this.query[key];
-            this.query = { ...this.query };
+            this.query = {...this.query};
         }
     }
 
@@ -267,11 +267,11 @@ export default class StudyAdminAudit extends LitElement {
                 sections: [
                     {
                         title: "",
-                        fields: [
-                            { id: "userId" },
-                            { id: "resource" },
-                            { id: "action" },
-                            { id: "status" },
+                        filters: [
+                            {id: "userId"},
+                            {id: "resource"},
+                            {id: "action"},
+                            {id: "status"},
                         ]
                     }
                 ],
@@ -358,19 +358,19 @@ export default class StudyAdminAudit extends LitElement {
     render() {
 
 
-        if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
             return html`
             <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>
                 <h3>No permission to view this page</h3>
-            </div>`
+            </div>`;
         }
 
         return html`
             <div class="pull-left" style="margin: 10px 0px">
                 <div class="lhs">
 
-                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "userId") ? html`
+                    ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
                         <div class="btn-group">
                             <select-field-filter
@@ -385,7 +385,7 @@ export default class StudyAdminAudit extends LitElement {
                         </div>
                     `: null}
 
-                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "action") ? html`
+                    ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
                         <div class="btn-group">
                             <select-field-filter
@@ -400,7 +400,7 @@ export default class StudyAdminAudit extends LitElement {
                         </div>
                     ` : null}
 
-                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "resource") ? html`
+                    ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
                         <div class="btn-group">
                             <select-field-filter
@@ -412,7 +412,7 @@ export default class StudyAdminAudit extends LitElement {
                         </div>
                     ` : null}
 
-                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
+                    ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
                         <div class="btn-group">
                             <select-field-filter
@@ -471,6 +471,7 @@ export default class StudyAdminAudit extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("study-admin-audit", StudyAdminAudit);

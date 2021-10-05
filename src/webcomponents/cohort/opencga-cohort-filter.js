@@ -154,7 +154,7 @@ export default class OpencgaCohortFilter extends LitElement {
     }
 
     _createSection(section) {
-        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
+        const htmlFields = section.filters?.length ? section.filters.map(subsection => this._createSubSection(subsection)) : "";
         return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
@@ -269,9 +269,7 @@ export default class OpencgaCohortFilter extends LitElement {
             ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                <div class="">
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
-                </div>
+                ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
         `;
     }

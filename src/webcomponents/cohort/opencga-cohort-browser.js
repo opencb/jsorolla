@@ -130,7 +130,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                     {
                         title: "Section title",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "id",
                                 name: "ID",
@@ -226,7 +226,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                 sections: [
                     {
                         name: "Cohort Attributes",
-                        fields: [
+                        filters: [
                             {
                                 id: "studyId",
                                 name: "Study id",

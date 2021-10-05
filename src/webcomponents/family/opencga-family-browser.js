@@ -127,7 +127,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     {
                         title: "Section title",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "id",
                                 name: "Family ID",

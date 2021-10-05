@@ -304,7 +304,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     {
                         title: "Filters",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "file-quality",
                                 title: "File Quality Filters",

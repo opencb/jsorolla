@@ -106,7 +106,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 sections: [
                     {
                         name: "section title",
-                        fields: [
+                        filters: [
                             {
                                 id: "id",
                                 name: "Clinical Analysis ID",

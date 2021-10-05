@@ -65,10 +65,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.save = {};
@@ -146,16 +146,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
                     // Prepare a map from caller to File
                     this.callerToFile = {};
-                    for (let file of this.files) {
+                    for (const file of this.files) {
                         if (file.software?.name) {
-                            let softwareName = file.software.name.toLowerCase();
+                            const softwareName = file.software.name.toLowerCase();
                             this.callerToFile[softwareName] = file;
                         }
                     }
 
                     // Init the default caller INFO filters
-                    let fileDataFilters = [];
-                    for (let caller of this._config.filter.callers) {
+                    const fileDataFilters = [];
+                    for (const caller of this._config.filter.callers) {
                         if (this.callerToFile[caller.id]) {
                             fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
                         }
@@ -212,13 +212,13 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     }
 
     parseFileDataQuery(query) {
-        let fileData = query?.fileData;
+        const fileData = query?.fileData;
         if (fileData) {
-            let fileFilters = fileData.split(",");
-            for (let fileFilter of fileFilters) {
-                let [fileName, filter] = fileFilter.split(":");
-                let callerId = Object.entries(this.callerToFile).find(([k, v]) => v.name === fileName);
-                let caller = this._config.filter.callers.find(c => c.id === callerId[0]);
+            const fileFilters = fileData.split(",");
+            for (const fileFilter of fileFilters) {
+                const [fileName, filter] = fileFilter.split(":");
+                const callerId = Object.entries(this.callerToFile).find(([k, v]) => v.name === fileName);
+                const caller = this._config.filter.callers.find(c => c.id === callerId[0]);
                 this.queries[caller.type] = {fileData: fileName + ":" + filter};
             }
         }
@@ -276,14 +276,14 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
      */
     onChangeAggregationStatsResults(e) {
         // Parse aggregationStatsResults and create a sampleVariantStats
-        let aggregationStatsResults = e.detail.aggregationStatsResults;
+        const aggregationStatsResults = e.detail.aggregationStatsResults;
         if (aggregationStatsResults) {
             this.sampleVariantStats = {
                 id: this.sample.id
             };
-            for (let aggregatedResult of aggregationStatsResults) {
-                let values = {};
-                for (let bucket of aggregatedResult.buckets) {
+            for (const aggregatedResult of aggregationStatsResults) {
+                const values = {};
+                for (const bucket of aggregatedResult.buckets) {
                     values[bucket.value] = bucket.count;
                 }
                 switch (aggregatedResult.name) {
@@ -317,7 +317,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     }
 
     onSave(e) {
-        let variantStats = {
+        const variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
             description: this.save.description || "",
@@ -364,7 +364,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
-            .then( restResponse => {
+            .then(restResponse => {
                 console.log(restResponse);
                 Swal.fire({
                     title: "Success",
@@ -372,12 +372,12 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     html: "Variant Stats saved successfully"
                 });
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
                 console.error(restResponse);
             })
-            .finally( () => {
+            .finally(() => {
                 this.requestUpdate();
-            })
+            });
     }
 
     getSettingsConfig() {
@@ -427,7 +427,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
     getSaveConfig() {
@@ -475,7 +475,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
     /*
@@ -547,11 +547,11 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         // queryString: "FILTER=PASS;QUAL>=250"
                     }
                 ],
-                sections: [     // sections and subsections, structure and order is respected
+                sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Genomic Filters",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             // {
                             //     id: "file-quality",
                             //     title: "Quality Filter",
@@ -583,7 +583,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     },
                     {
                         title: "SNV Filters",
-                        fields: [
+                        filters: [
                             {
                                 id: "caveman",
                                 title: "Caveman Filters",
@@ -608,7 +608,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     {
                         title: "INDEL Filters",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "pindel",
                                 title: "Pindel Filters",
@@ -634,7 +634,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     {
                         title: "CNV Filters",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "ascat",
                                 title: "ASCAT Filters",
@@ -660,7 +660,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     {
                         title: "Rearrangement Filters",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "brass",
                                 title: "BRASS Filters",
@@ -700,7 +700,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 detail: {
                 }
             }
-        }
+        };
     }
 
     render() {
@@ -709,9 +709,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         }
 
         return html`
-            ${this.sample && this._config.showTitle
-                ? html`<tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
-                : null
+            ${this.sample && this._config.showTitle ?
+                html`<tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>` :
+                null
             }
             <div class="row">
                 <div class="col-md-2 left-menu">
@@ -768,8 +768,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         </div>
 
                         <div class="main-view">
-                            ${this.executedQuery
-                                ? html`
+                            ${this.executedQuery ?
+                                html`
                                     <div class="" style="padding: 0px 15px">
                                         <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
                                                                                 .query="${this.executedQuery}"
@@ -779,8 +779,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                                                                 @changeSignature="${this.onChangeSignature}"
                                                                                 @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                                         </sample-cancer-variant-stats-plots>
-                                    </div>`
-                                : html`
+                                    </div>` :
+                                html`
                                     <div class="alert alert-info" role="alert" style="margin: 0px 15px">
                                         <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
                                     </div>`
@@ -791,7 +791,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             </div>
         `;
     }
-// .active="${this.active}"
+    // .active="${this.active}"
+
 }
 
 customElements.define("sample-cancer-variant-stats-browser", SampleCancerVariantStatsBrowser);

@@ -521,7 +521,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Sample And File",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
@@ -567,7 +567,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Genomic",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -595,7 +595,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Clinical",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
@@ -611,7 +611,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Consequence Type",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
@@ -622,7 +622,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Population Frequency",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
@@ -658,7 +658,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Phenotype",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -674,7 +674,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Deleteriousness",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
@@ -690,7 +690,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Conservation",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "conservation",
                                 title: "Conservation Score",

@@ -302,11 +302,17 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     _createSection(section) {
+        const htmlFields = section.filters?.length ? section.filters.map(subsection => this._createSubSection(subsection)) : "";
+        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+    }
+
+    /*
+    _createSection(section) {
         const id = section.title.replace(/ /g, "");
         const collapsed = section.collapsed ? "" : "in";
 
         // whole section is hidden if there are no filters to show
-        if (section?.fields?.length) {
+        if (section?.filters?.length) {
             return html`
             <div class="panel panel-default filter-section shadow-sm">
                 <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
@@ -319,17 +325,16 @@ export default class OpencgaVariantFilter extends LitElement {
                 </div>
                 <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                     <div class="panel-body" style="padding-top: 5px">
-                        ${section.fields.map(field => html`${this._isFilterVisible(field) ? this._createSubSection(field) : ""}`)}
+                        ${section.filters.map(filter => html`${this._isFilterVisible(filter) ? this._createSubSection(filter) : ""}`)}
                     </div>
                 </div>
             </div>
         `;
         }
-    }
+    }*/
 
     _createSubSection(subsection) {
         let content = "";
-
         // We allow to pass a render function
         if (subsection.render) {
             content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
@@ -615,9 +620,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     null
                 }
                 <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                    <div id="FilterMenu">
-                        ${this.renderFilterMenu()}
-                    </div>
+                    ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
                 </div>
             </div>
         `;

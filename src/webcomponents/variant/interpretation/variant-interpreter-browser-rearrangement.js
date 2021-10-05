@@ -200,7 +200,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         // this.requestUpdate();
     }
 
-    /**
+    /*
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
@@ -344,7 +344,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     {
                         title: "Sample And File",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             // {
                             //     id: "sample-genotype",
                             //     title: "Sample Genotype",
@@ -384,7 +384,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     {
                         title: "Genomic",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "region",
                                 title: "Genomic Location",

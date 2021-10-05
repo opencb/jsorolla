@@ -129,7 +129,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                     {
                         title: "Section title",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "id",
                                 name: "Sample ID",

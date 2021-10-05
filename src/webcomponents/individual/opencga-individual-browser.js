@@ -135,7 +135,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     {
                         title: "Section title",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "id",
                                 name: "Individual ID",
