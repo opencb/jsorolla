@@ -95,6 +95,148 @@ export default class StudyClinicalConfig extends LitElement {
 
     }
 
+    configClinical(entity) {
+
+        const configModal = isNew => {
+            return isNew ? {
+                type: "modal",
+                title: "Add Config",
+                buttonStyle: "margin-top:6px"
+            } : {
+                type: "modal",
+                title: "Edit Config",
+                buttonClass: "pull-right",
+                btnGroups: [
+                    {
+                        title: "Edit",
+                        openModal: true,
+                    },
+                    {
+                        title: "Delete",
+                        btnClass: "btn-danger",
+                        event: "removeItem"
+                    }
+                ]
+            };
+        };
+
+        const configSection = entity => {
+            switch (entity) {
+                case "clinical":
+                case "interpretation":
+                case "flags":
+                    return {
+                        elements: [
+                            {
+                                name: "Id",
+                                field: "id",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                display: {
+                                    rows: 3,
+                                    placeholder: "Add a description..."
+                                }
+                            },
+                        ]
+                    };
+                case "priorities":
+                    return {
+                        elements: [
+                            {
+                                name: "Id",
+                                field: "id",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                display: {
+                                    rows: 3,
+                                    placeholder: "Add a description..."
+                                }
+                            },
+                            {
+                                name: "Rank",
+                                field: "rank",
+                                type: "input-text",
+                            },
+                            {
+                                name: "Default priority",
+                                field: "defaultPriority",
+                                type: "checkbox",
+                            },
+                        ]
+                    };
+                case "consent":
+                    return {
+                        elements: [
+                            {
+                                name: "Id",
+                                field: "id",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Name",
+                                field: "name",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Name ..."
+                                }
+                            },
+                            {
+                                name: "Description",
+                                field: "description",
+                                type: "input-text",
+                                display: {
+                                    rows: 3,
+                                    placeholder: "Add a description..."
+                                }
+                            },
+                        ]
+                    };
+            }
+        };
+
+        const configStatus = isNew => {
+            return {
+                title: "Edit",
+                buttons: {
+                    show: true,
+                    cancelText: "Cancel",
+                    classes: "btn btn-primary ripple pull-right",
+                    okText: "Save"
+                },
+                display: {
+                    labelWidth: 3,
+                    labelAlign: "right",
+                    defaultLayout: "horizontal",
+                    mode: configModal(isNew),
+                    defaultValue: ""
+                },
+                sections: [configSection(entity)]
+            };
+        };
+
+        return {
+            edit: configStatus(false),
+            new: configStatus(true)
+        };
+    }
+
     getDefaultConfig() {
         return {
             type: "form",
@@ -130,6 +272,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         entity="clinical"
                                         .items="${clinical.status}"
                                         .tabs="${true}"
+                                        .config=${this.configClinical("clinical")}
                                         @removeItem=${this.removeItem}>
                                     </clinical-list-update>`
                             }
@@ -151,6 +294,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         entity="interpretation"
                                         .items="${clinical.interpretation.status}"
                                         .tabs="${true}"
+                                        .config=${this.configClinical("interpretation")}
                                         @removeItem=${this.removeItem}>
                                     </clinical-list-update>`
                             }
@@ -172,6 +316,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         entity="priorities"
                                         .items="${clinical.priorities}"
                                         .tabs="${false}"
+                                        .config=${this.configClinical("priorities")}
                                         @removeItem=${this.removeItem}>
                                     </clinical-list-update>`
                             }
@@ -193,6 +338,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         entity="flags"
                                         .items="${clinical.flags}"
                                         .tabs="${true}"
+                                        .config=${this.configClinical("flags")}
                                         @removeItem=${this.removeItem}>
                                     </clinical-list-update>`
                             }
@@ -214,6 +360,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         entity="consent"
                                         .items="${clinical.consent.consents}"
                                         .tabs="${false}"
+                                        .config=${this.configClinical("consent")}
                                         @removeItem=${this.removeItem}>
                                     </clinical-list-update>`
                             }

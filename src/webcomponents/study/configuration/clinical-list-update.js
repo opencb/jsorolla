@@ -42,6 +42,9 @@ export default class ClinicalListUpdate extends LitElement {
             },
             tabs: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -62,168 +65,6 @@ export default class ClinicalListUpdate extends LitElement {
         this._prefix = UtilsNew.randomString(8);
     }
 
-
-    onCloseForm(e) {
-        e.stopPropagation();
-        this.phenotype = {};
-        $("#phenotypeManagerModal"+ this._prefix).modal("hide");
-    }
-
-    // TODO: Refactor
-    configClinical(isNew, entity) {
-
-        // TODO
-        // Save by each config or save by all things
-
-        // Conditions
-        // 2 Fields, - done
-        // 3 Fields, - done
-        // 5 fields, - done
-
-        // Data-form modal: btn-groups - delete (pasa a event to remove item) and Edit (Open the modal)
-        // Button style elements
-        // Title Style
-        // Study-clinical will listen events to save data
-
-        // Add Button (Open the dialog)
-        // Save new configs
-
-        const configModal = isNew => {
-            return isNew ? {
-                type: "modal",
-                title: "Add Config",
-                buttonStyle: "margin-top:6px"
-            } : {
-                type: "modal",
-                title: "Edit Config",
-                buttonClass: "pull-right",
-                btnGroups: [
-                    {
-                        title: "Edit",
-                        openModal: true,
-                    },
-                    {
-                        title: "Delete",
-                        btnClass: "btn-danger",
-                        event: "removeItem"
-                    }
-                ]
-            };
-        };
-
-        const configSection = entity => {
-            switch (entity) {
-                case "clinical":
-                case "interpretation":
-                case "flags":
-                    return {
-                        elements: [
-                            {
-                                name: "Id",
-                                field: "id",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "Name ..."
-                                }
-                            },
-                            {
-                                name: "Description",
-                                field: "description",
-                                type: "input-text",
-                                display: {
-                                    rows: 3,
-                                    placeholder: "Add a description..."
-                                }
-                            },
-                        ]
-                    };
-                case "priorities":
-                    return {
-                        elements: [
-                            {
-                                name: "Id",
-                                field: "id",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "Name ..."
-                                }
-                            },
-                            {
-                                name: "Description",
-                                field: "description",
-                                type: "input-text",
-                                display: {
-                                    rows: 3,
-                                    placeholder: "Add a description..."
-                                }
-                            },
-                            {
-                                name: "Rank",
-                                field: "rank",
-                                type: "input-text",
-                            },
-                            {
-                                name: "Default priority",
-                                field: "defaultPriority",
-                                type: "checkbox",
-                            },
-                        ]
-                    };
-                case "consent":
-                    return {
-                        elements: [
-                            {
-                                name: "Id",
-                                field: "id",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "Name ..."
-                                }
-                            },
-                            {
-                                name: "Name",
-                                field: "name",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "Name ..."
-                                }
-                            },
-                            {
-                                name: "Description",
-                                field: "description",
-                                type: "input-text",
-                                display: {
-                                    rows: 3,
-                                    placeholder: "Add a description..."
-                                }
-                            },
-                        ]
-                    };
-            }
-        };
-
-        const configStatus = {
-            title: "Edit",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                classes: "btn btn-primary ripple pull-right",
-                okText: "Save"
-            },
-            display: {
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                mode: configModal(isNew),
-                defaultValue: ""
-            },
-            sections: [configSection(entity)]
-        };
-
-        return configStatus;
-
-    }
-
     renderConfig(itemConfigs, key) {
         return html`
             ${itemConfigs?.map(item => {
@@ -240,7 +81,7 @@ export default class ClinicalListUpdate extends LitElement {
                             <div class="col-md-4">
                                     <data-form
                                         .data="${status}"
-                                        .config="${this.configClinical(false, this.entity)}">
+                                        .config="${this.config.edit}">
                                     </data-form>
                             </div>
                         </div>
@@ -268,7 +109,7 @@ export default class ClinicalListUpdate extends LitElement {
                                     <!-- Add New Config -->
                                     <data-form
                                         .data="${this.status}"
-                                        .config="${this.configClinical(true, this.entity)}">
+                                        .config="${this.config.new}">
                                     </data-form>
                                 </div>
                             </div>`;
@@ -289,10 +130,12 @@ export default class ClinicalListUpdate extends LitElement {
                 <!-- Edit Config -->
                 ${this.renderConfig(this.items)}
                 <!-- Add New Config -->
-                <data-form
-                    .data="${this.status}"
-                    .config="${this.configClinical(true, this.entity)}">
-                </data-form>
+                <div class="btn-groups">
+                    <data-form
+                        .data="${this.status}"
+                        .config="${this.config.new}">
+                    </data-form>
+                </div>
                 `}
             `;
     }
