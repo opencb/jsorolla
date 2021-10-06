@@ -15,9 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import "./clinical-list-update.js";
+import "./config-list-update.js";
 
 export default class StudyClinicalConfig extends LitElement {
 
@@ -95,7 +93,7 @@ export default class StudyClinicalConfig extends LitElement {
 
     }
 
-    configClinical(entity) {
+    configClinical(entity, heading) {
 
         const configModal = isNew => {
             return isNew ? {
@@ -105,6 +103,10 @@ export default class StudyClinicalConfig extends LitElement {
             } : {
                 type: "modal",
                 title: "Edit Config",
+                heading: {
+                    title: heading?.title,
+                    subtitle: heading?.subtitle
+                },
                 buttonClass: "pull-right",
                 btnGroups: [
                     {
@@ -268,13 +270,13 @@ export default class StudyClinicalConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: clinical => html`
-                                    <clinical-list-update
+                                    <config-list-update
                                         entity="clinical"
                                         .items="${clinical.status}"
                                         .tabs="${true}"
                                         .config=${this.configClinical("clinical")}
                                         @removeItem=${this.removeItem}>
-                                    </clinical-list-update>`
+                                    </config-list-update>`
                             }
                         },
                     ]
@@ -290,13 +292,13 @@ export default class StudyClinicalConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: clinical => html`
-                                    <clinical-list-update
+                                    <config-list-update
                                         entity="interpretation"
                                         .items="${clinical.interpretation.status}"
                                         .tabs="${true}"
                                         .config=${this.configClinical("interpretation")}
                                         @removeItem=${this.removeItem}>
-                                    </clinical-list-update>`
+                                    </config-list-update>`
                             }
                         },
                     ]
@@ -312,13 +314,13 @@ export default class StudyClinicalConfig extends LitElement {
                                 width: 8,
                                 style: "padding-left: 0px",
                                 render: clinical => html`
-                                    <clinical-list-update
+                                    <config-list-update
                                         entity="priorities"
                                         .items="${clinical.priorities}"
                                         .tabs="${false}"
                                         .config=${this.configClinical("priorities")}
                                         @removeItem=${this.removeItem}>
-                                    </clinical-list-update>`
+                                    </config-list-update>`
                             }
                         },
                     ]
@@ -334,13 +336,13 @@ export default class StudyClinicalConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: clinical => html`
-                                    <clinical-list-update
+                                    <config-list-update
                                         entity="flags"
                                         .items="${clinical.flags}"
                                         .tabs="${true}"
                                         .config=${this.configClinical("flags")}
                                         @removeItem=${this.removeItem}>
-                                    </clinical-list-update>`
+                                    </config-list-update>`
                             }
                         },
                     ]
@@ -356,13 +358,13 @@ export default class StudyClinicalConfig extends LitElement {
                                 width: 8,
                                 style: "padding-left: 0px",
                                 render: clinical => html`
-                                    <clinical-list-update
+                                    <config-list-update
                                         entity="consent"
                                         .items="${clinical.consent.consents}"
                                         .tabs="${false}"
                                         .config=${this.configClinical("consent")}
                                         @removeItem=${this.removeItem}>
-                                    </clinical-list-update>`
+                                    </config-list-update>`
                             }
                         },
                     ]

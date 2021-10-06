@@ -17,7 +17,6 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/forms/text-field-filter.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
 
@@ -66,7 +65,11 @@ export default class ClinicalListUpdate extends LitElement {
     }
 
     renderConfig(itemConfigs, key) {
-        return html`
+
+        if (itemConfigs.constructor === Array) {
+            const title = this.config.edit.display.mode?.heading?.title || "id";
+            const subtitle = this.config.edit.display.mode?.heading?.subtitle || "description";
+            return html`
             ${itemConfigs?.map(item => {
                 const status = {...item, parent: key? key : ""};
                 return html`
@@ -74,8 +77,8 @@ export default class ClinicalListUpdate extends LitElement {
                         <div class="row">
                             <div class="col-md-8">
                                 <div style="padding-bottom:2px">
-                                    <b>${status.id}</b>
-                                    <p class="text-muted">${status.description}</p>
+                                    <b>${status[title]}</b>
+                                    <p class="text-muted">${status[subtitle]}</p>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -86,17 +89,43 @@ export default class ClinicalListUpdate extends LitElement {
                             </div>
                         </div>
                     </div>
-            `;
-})}
+                `;
+            })}
+            <data-form
+                .data="${this.status}"
+                .config="${this.config.new}">
+            </data-form>
         `;
+        }
+
+        if (itemConfigs.constructor === Object) {
+
+            if ("populations" in itemConfigs && "thresholds" in itemConfigs) {
+                return "Work in construction";
+            }
+
+            return html `
+                <data-form
+                    .data=${itemConfigs}
+                    .config=${this.config.edit}>
+                </data-form>
+            `;
+        }
+
+        return "Others Configs";
     }
 
     getDefaultConfig() {
+    // Object.keys(configsVariant).filter(key => configsVariant[key].constructor !== Object)
+    // Object.keys(configsVariant).filter(key => configsVariant[key] instanceof Object)
+
+        const configKeys = Object.keys(this.items).filter(key => this.items[key] instanceof Object);
         return {
             display: {
                 contentStyle: "",
             },
-            items: Object.keys(this.items).map(key => {
+
+            items: configKeys.map(key => {
                 return {
                     id: key,
                     name: key,
@@ -107,10 +136,7 @@ export default class ClinicalListUpdate extends LitElement {
                                     <!-- Edit Config -->
                                     ${this.renderConfig(this.items[key], key)}
                                     <!-- Add New Config -->
-                                    <data-form
-                                        .data="${this.status}"
-                                        .config="${this.config.new}">
-                                    </data-form>
+
                                 </div>
                             </div>`;
                     }
@@ -127,19 +153,11 @@ export default class ClinicalListUpdate extends LitElement {
                     .mode="${DetailTabs.PILLS_VERTICAL_MODE}">
                 </detail-tabs>`:
                 html `
-                <!-- Edit Config -->
                 ${this.renderConfig(this.items)}
-                <!-- Add New Config -->
-                <div class="btn-groups">
-                    <data-form
-                        .data="${this.status}"
-                        .config="${this.config.new}">
-                    </data-form>
-                </div>
                 `}
             `;
     }
 
 }
 
-customElements.define("clinical-list-update", ClinicalListUpdate);
+customElements.define("config-list-update", ClinicalListUpdate);
