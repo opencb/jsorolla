@@ -562,12 +562,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     files: this.files
                                 }
                             },
-                            {
-                                id: "file-quality",
-                                title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                visible: UtilsNew.isEmpty(this.callerToFile)
-                            },
+                            // {
+                            //     id: "file-quality",
+                            //     title: "Quality Filters",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            //     visible: UtilsNew.isEmpty(this.callerToFile)
+                            // },
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant File Caller Filter",
