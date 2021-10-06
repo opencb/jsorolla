@@ -93,7 +93,8 @@ export default class VariantFileInfoFilter extends LitElement {
             return {
                 title: caller.id,
                 display: {
-                    titleHeader: "h4"
+                    titleHeader: "h4",
+                    titleStyle: "margin: 20px 20px 0px 20px"
                 },
                 elements: caller.dataFilters.map(field => ({
                     name: field.name || field.id,
