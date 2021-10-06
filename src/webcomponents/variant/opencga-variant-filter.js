@@ -381,13 +381,9 @@ export default class OpencgaVariantFilter extends LitElement {
                         </sample-genotype-filter>`;
                     break;
                 case "variant-file":
-                    let files = [];
-                    if (subsection.params?.files) {
-                        files = Object.entries(subsection.params.files).map(([key, value]) => value.name);
-                    }
                     content = html`
                         <variant-file-filter
-                                .files="${files}"
+                                .files="${subsection.params?.files}"
                                 .value="${this.preparedQuery.file}"
                                 @filterChange="${e => this.onFilterChange("file", e.detail.value)}">
                         </variant-file-filter>`;

@@ -557,9 +557,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "variant-file",
-                                title: "VCF File",
+                                title: "VCF File Filter",
                                 params: {
-                                    files: this.callerToFile
+                                    files: this.files
                                 }
                             },
                             {
