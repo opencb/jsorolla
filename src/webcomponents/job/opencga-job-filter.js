@@ -37,21 +37,21 @@ export default class OpencgaJobFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             query: {
-                type: Object
+                type: Object,
             },
             // todo check
             variableSets: {
-                type: Array
+                type: Array,
             },
             variables: {
-                type: Array
+                type: Array,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -62,7 +62,7 @@ export default class OpencgaJobFilter extends LitElement {
         this.annotationFilterConfig = {
             class: "small",
             buttonClass: "btn-sm",
-            inputClass: "input-sm"
+            inputClass: "input-sm",
         };
 
         this.query = {};
@@ -115,134 +115,143 @@ export default class OpencgaJobFilter extends LitElement {
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     _createSection(section) {
-        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
-        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+        const htmlFields = section.filters?.length ? section.filters.map(subsection => this._createSubSection(subsection)) : "";
+        return this.config.sections.length > 1 ? html`
+            <section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<jobs-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></jobs-id-autocomplete>`;
+                content = html`
+                    <jobs-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                          @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></jobs-id-autocomplete>`;
                 break;
             case "input":
-                content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
+                content = html`
+                    <file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
                 break;
             case "tool":
-                content = html`<analysis-tool-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></analysis-tool-id-autocomplete>`;
+                content = html`
+                    <analysis-tool-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></analysis-tool-id-autocomplete>`;
                 break;
             case "tags":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`
+                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}"
+                                       @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "internal.status.name":
             case "visited":
             case "priority":
-                content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`
+                    <select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}"
+                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "creationDate":
-                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                content = html`
+                    <date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
         }
 
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                        </div>
-                    </div>
-                `;
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <div class="tooltip-div pull-right">
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </div>` : null}
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>
+        `;
     }
 
     render() {
         return html`
-        <style>
-            .label-opencga-file-filter {
-                padding-top: 10px;
-            }
+            <style>
+                .label-opencga-file-filter {
+                    padding-top: 10px;
+                }
 
-            .browser-ct-scroll {
-                /*max-height: 450px;*/
-                /*overflow-y: scroll;*/
-                overflow-x: scroll;
-            }
+                .browser-ct-scroll {
+                    /*max-height: 450px;*/
+                    /*overflow-y: scroll;*/
+                    overflow-x: scroll;
+                }
 
-            .browser-ct-tree-view,
-            .browser-ct-tree-view * {
-                padding: 0;
-                margin: 0;
-                list-style: none;
-            }
+                .browser-ct-tree-view,
+                .browser-ct-tree-view * {
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
+                }
 
-            .browser-ct-tree-view li ul {
-                margin: 0 0 0 22px;
-            }
+                .browser-ct-tree-view li ul {
+                    margin: 0 0 0 22px;
+                }
 
-            .browser-ct-tree-view * {
-                vertical-align: middle;
-            }
+                .browser-ct-tree-view * {
+                    vertical-align: middle;
+                }
 
-            .browser-ct-tree-view {
-                /*font-size: 14px;*/
-            }
+                .browser-ct-tree-view {
+                    /*font-size: 14px;*/
+                }
 
-            .browser-ct-tree-view input[type="checkbox"] {
-                cursor: pointer;
-            }
+                .browser-ct-tree-view input[type="checkbox"] {
+                    cursor: pointer;
+                }
 
-            .browser-ct-item {
-                white-space: nowrap;
-                display: inline
-            }
+                .browser-ct-item {
+                    white-space: nowrap;
+                    display: inline
+                }
 
-            span.searchingSpan{
-                background-color: #286090;
-            }
-            .searchingButton{
-                color: #fff;
-            }
-        </style>
+                span.searchingSpan {
+                    background-color: #286090;
+                }
 
-        ${this.config?.searchButton ? html`
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Search
-                </button>
+                .searchingButton {
+                    color: #fff;
+                }
+            </style>
+
+            ${this.config?.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> Search
+                    </button>
+                </div>
+            ` : null}
+
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+                ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
-        ` : null}
-
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- File field attributes -->
-            <div class="">
-                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
-            </div>
-        </div>
         `;
     }
 

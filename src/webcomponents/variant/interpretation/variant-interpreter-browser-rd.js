@@ -216,7 +216,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         // this.requestUpdate();
     }
 
-    /**
+    /*
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
@@ -338,7 +338,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Sample",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
@@ -385,7 +385,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Genomic",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -418,7 +418,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Clinical",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
@@ -439,7 +439,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Consequence Type",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
@@ -450,7 +450,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Population Frequency",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
@@ -486,7 +486,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Phenotype",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             // {
                             //     id: "clinvar",
                             //     title: "ClinVar Accessions",
@@ -507,7 +507,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Deleteriousness",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
@@ -523,7 +523,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     {
                         title: "Conservation",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "conservation",
                                 title: "Conservation Score",

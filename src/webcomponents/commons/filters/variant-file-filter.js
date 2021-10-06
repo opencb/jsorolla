@@ -52,12 +52,6 @@ export default class VariantFileFilter extends LitElement {
 
     filterChange(e) {
         // select-field-filter already emits a bubbled filterChange event.
-
-        // Prepare sample query filter
-        // let sampleFilter = this.sampleId;
-        // if (e.detail.value) {
-        //     sampleFilter += ":" + e.detail.value;
-        // }
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: e.detail.value
@@ -70,8 +64,7 @@ export default class VariantFileFilter extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
     render() {
@@ -79,6 +72,7 @@ export default class VariantFileFilter extends LitElement {
             <select-field-filter
                     .data="${this.files}"
                     .value="${this.value}"
+                    .multiple="${true}"
                     @filterChange="${this.filterChange}">
             </select-field-filter>
         `;

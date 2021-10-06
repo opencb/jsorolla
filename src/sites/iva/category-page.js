@@ -137,29 +137,25 @@ export default class CategoryPage extends LitElement {
         <tool-header title="${this.config.name}" icon="${this.config.icon}"></tool-header>
 
         <div id="category-page">
-            ${this.config.submenu && this.config.submenu.length ? this.config.submenu.map((item, i) => item.category ? html`
-                <div class="section-title">${item.name}</div>
-                ` : item.separator ? null : html`
-
-                    <a class="item ${item.disabled ? "disabled" : ""}" href="${ !item.disabled ? `#${item.id}` : "javascript: void 0"}">
-                    ${item.disabled ? html`
-                        <div class="lock-overlay">
-                            <i class="fas fa-4x fa-lock"></i>
-                        </div>
-                    ` : null}
-
-                            <div class="text-icon-wrapper">
-                                <text-icon title="${item.name}" color="${i % 2 === 0 ? "green" : i % 3 === 0 ? "red": ""}" acronym="${item.acronym ?? item.name[0] + item.name[1] + item.name[2].toLowerCase()}"></text-icon>
-                                <!--<div class="text-icon ${i % 2 === 0 ? "green": i % 3 === 0 ? "red": ""}">
-                                    ${item.acronym ? item.acronym : item.name[0] + item.name[1] + item.name[2].toLowerCase()}
-
-                                </div> -->
-                            </div>
-                            <div class="content">
-                                <div class="title uppercase">${item.name}</div>
-                                <div class="description">${this.renderHTML(item.description || "")}</div>
-                            </div>
-                    </a>
+            ${this.config.submenu && this.config.submenu.length ? this.config.submenu.filter(this.isVisible).map((item, i) => item.category ? html`
+                <div class="section-title">${item.name}</div>` :
+                    item.separator ? null :
+                        html`
+                            <a class="item ${item.disabled ? "disabled" : ""}" href="${ !item.disabled ? `#${item.id}` : "javascript: void 0"}">
+                                ${item.disabled ? html`
+                                    <div class="lock-overlay">
+                                        <i class="fas fa-4x fa-lock"></i>
+                                    </div>
+                                ` :
+                                null}
+                                <div class="text-icon-wrapper">
+                                    <text-icon title="${item.name}" color="${i % 2 === 0 ? "green" : i % 3 === 0 ? "red": ""}" acronym="${item.acronym ?? item.name[0] + item.name[1] + item.name[2].toLowerCase()}"></text-icon>
+                                </div>
+                                <div class="content">
+                                    <div class="title uppercase">${item.name}</div>
+                                    <div class="description">${this.renderHTML(item.description || "")}</div>
+                                </div>
+                            </a>
                     `) : null}
         </div>
         `;

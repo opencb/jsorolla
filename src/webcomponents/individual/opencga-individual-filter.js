@@ -22,6 +22,7 @@ import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
 import "../commons/filters/phenotype-id-autocomplete.js";
+import "../commons/filters/ethnicity-autocomplete.js";
 import "../commons/forms/date-filter.js";
 
 
@@ -40,14 +41,14 @@ export default class OpencgaIndividualFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             query: {
-                type: Object
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -58,7 +59,7 @@ export default class OpencgaIndividualFilter extends LitElement {
         this.annotationFilterConfig = {
             class: "small",
             buttonClass: "btn-sm",
-            inputClass: "input-sm"
+            inputClass: "input-sm",
         };
 
         this.query = {};
@@ -90,9 +91,9 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     onAnnotationChange(e) {
         if (e.detail.value) {
-            this.preparedQuery.annotation = e.detail.value
+            this.preparedQuery.annotation = e.detail.value;
         } else {
-            delete this.preparedQuery.annotation
+            delete this.preparedQuery.annotation;
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
@@ -122,25 +123,25 @@ export default class OpencgaIndividualFilter extends LitElement {
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     _createSection(section) {
-        const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
+        const htmlFields = section.filters?.length ? section.filters.map(subsection => this._createSubSection(subsection)) : "";
         return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
@@ -150,53 +151,67 @@ export default class OpencgaIndividualFilter extends LitElement {
             case "id":
             case "father":
             case "mother":
-                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`
+                content = html`
+                    <individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
                 break;
             case "samples":
-                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
+                content = html`
+                    <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
                 break;
             case "disorders":
-                content = html`<disorder-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-autocomplete>`
+                content = html`
+                    <disorder-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                              @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-autocomplete>`;
                 break;
             case "phenotypes":
-                content = html`<phenotype-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-id-autocomplete>`
+                content = html`
+                    <phenotype-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                               @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-id-autocomplete>`;
                 break;
             case "ethnicity":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`
+                    <ethnicity-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></ethnicity-autocomplete>`;
                 break;
             case "sex":
             case "karyotypicSex":
             case "affectationStatus":
             case "lifeStatus":
-                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`
+                    <select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}"
+                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                      resource="INDIVIDUAL"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                      @annotationChange="${this.onAnnotationChange}">
-                        </opencga-annotation-filter-modal>`;
+                content = html`
+                    <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
+                                                     resource="INDIVIDUAL"
+                                                     .config="${this.annotationFilterConfig}"
+                                                     .selectedVariablesText="${this.preparedQuery.annotation}"
+                                                     @annotationChange="${this.onAnnotationChange}">
+                    </opencga-annotation-filter-modal>`;
                 break;
             case "date":
-                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                content = html`
+                    <date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
         }
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                        </div>
-                    </div>
-                `;
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <div class="tooltip-div pull-right">
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </div>` : null}
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>
+        `;
     }
 
     render() {
@@ -210,12 +225,7 @@ export default class OpencgaIndividualFilter extends LitElement {
             ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-                <!-- Individual field attributes -->
-                    <div class="">
-                        ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
-                    </div>
-                </div>
+                ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
         `;
     }

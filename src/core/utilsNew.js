@@ -313,7 +313,7 @@ export default class UtilsNew {
         if (response?.getEvents?.("ERROR")?.length) {
             const errors = response.getEvents("ERROR");
             errors.forEach(error => {
-                new NotificationQueue().push(error.name, error.message, "ERROR")
+                new NotificationQueue().push(error.name, error.message, "ERROR");
             });
         } else if (response instanceof Error) {
             new NotificationQueue().push(response.name, response.message, "ERROR");
@@ -415,12 +415,12 @@ export default class UtilsNew {
 
         if (external) {
             // flattening the whole list of filters
-            const allFilters = internal.flatMap(section => section.fields);
+            const allFilters = internal.flatMap(section => section.filters);
             const sections = external.map(section => {
                 // const internalSection = internal.sections.find(s => s.id === section.id);
-                // hydrates all the fields of each external section from the pool of fields.
-                const fields = UtilsNew.mergeConfigById(allFilters, section.filters);
-                return {...section, fields: fields};
+                // hydrates all the fields of each external section from the pool of filters.
+                const filters = UtilsNew.mergeConfigById(allFilters, section.filters);
+                return {...section, filters: filters};
             });
             return sections;
         }

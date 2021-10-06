@@ -246,7 +246,7 @@ export default class RgaBrowser extends LitElement {
                     {
                         title: "Gene",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "geneName",
                                 name: "Gene",
@@ -262,7 +262,7 @@ export default class RgaBrowser extends LitElement {
                     {
                         title: "Individual",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "individualId",
                                 name: "Individual",
@@ -272,7 +272,7 @@ export default class RgaBrowser extends LitElement {
                     },
                     {
                         title: "Confidence",
-                        fields: [
+                        filters: [
                             {
                                 id: "numParents",
                                 name: "Include families with",
@@ -292,7 +292,7 @@ export default class RgaBrowser extends LitElement {
                     },
                     {
                         title: "Variants",
-                        fields: [
+                        filters: [
                             /* {
                                 id: "cohort",
                                 name: "Cohort",

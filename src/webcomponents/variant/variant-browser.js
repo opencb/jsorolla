@@ -341,7 +341,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Study and Cohorts",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "study",
                                 title: "Study Filter",
@@ -360,7 +360,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Genomic",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -388,7 +388,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Consequence Type",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             // {
                             //     id: "consequenceType",
                             //     title: "Select SO terms",
@@ -404,7 +404,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Population Frequency",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
@@ -418,7 +418,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Clinical",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
@@ -444,7 +444,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Phenotype",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -460,7 +460,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Deleteriousness",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
@@ -476,7 +476,7 @@ export default class VariantBrowser extends LitElement {
                     {
                         title: "Conservation",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "conservation",
                                 title: "Conservation Score",

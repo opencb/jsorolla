@@ -356,7 +356,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     {
                         id: "main",
                         title: "",
-                        fields: [
+                        filters: [
                             {
                                 id: "case"
                             },
@@ -545,7 +545,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 ` : null}
                                             </ul>
                                         </div>
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "case") ? html`
                                             <!-- Case ID -->
                                             <div class="btn-group" data-cy="form-case">
                                                 <clinical-analysis-id-autocomplete .config=${{placeholder: "Case Id"}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
@@ -567,7 +567,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "sample") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "sample") ? html`
                                             <!-- Sample -->
                                             <div class="btn-group" data-cy="form-sample">
                                                 <sample-id-autocomplete .config=${{placeholder: "Sample Id"}}  .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
@@ -589,7 +589,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "proband") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "proband") ? html`
                                             <!-- Proband -->
                                             <div class="btn-group" data-cy="form-proband">
                                                 <proband-id-autocomplete .config=${{placeholder: "Proband Id"}}  .value="${this.query?.proband}" .opencgaSession="${this.opencgaSession}"
@@ -610,7 +610,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "family") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "family") ? html`
                                             <!-- Family -->
                                             <div class="btn-group" data-cy="form-family">
                                                 <family-id-autocomplete .config=${{placeholder: "Family Id"}}  .value="${this.query?.family}" .opencgaSession="${this.opencgaSession}"
@@ -632,7 +632,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "disorder") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "disorder") ? html`
                                             <!-- Disorder -->
                                             <div class="btn-group" data-cy="form-disorder">
                                                 <disorder-id-autocomplete .config=${{placeholder: "Disorders", freeTag: true}} .value="${this.query?.disorder}" .opencgaSession="${this.opencgaSession}"
@@ -654,7 +654,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "type") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "type") ? html`
                                             <!-- Type -->
                                             <div class="btn-group" data-cy="form-type">
                                                 <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" .value=${this.query?.type}
@@ -662,14 +662,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                                             <!-- Status -->
                                             <div class="btn-group" data-cy="form-status">
                                                 <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.internal?.configuration?.clinical?.status ?? []}"
                                                                         .value=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "priority") ? html`
                                             <!-- Priority -->
                                             <div class="btn-group" data-cy="form-priority">
                                                 <clinical-priority-filter placeholder="${"Priority: All"}"
@@ -678,7 +678,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </div>
                                         ` : null}
 
-                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "assignee") ? html`
+                                        ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "assignee") ? html`
                                             <!-- Assignees -->
                                             <div class="btn-group" data-cy="form-assignees">
                                                 <select-field-filter placeholder="Assignee: All" multiple .data="${this.users}"

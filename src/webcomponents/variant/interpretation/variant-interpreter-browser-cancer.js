@@ -317,9 +317,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     getVariantCallers() {
         const variantCallers = [];
-        const fieldToCaller = {};
+        const fieldToCaller = {"PASS": []}; // PASS is always there
 
-        // Generate a map of fields to callerIds and fileIds
+        // Generate a map of of INFO fields to callerIds and fileIds
         this.files.forEach(file => {
             file.attributes.variantFileMetadata.header.complexLines
                 .filter(line => line.key === "INFO")
@@ -333,9 +333,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         fileId: file.id
                     });
                 });
+
+            // Add PASS automatically to all files
+            fieldToCaller["PASS"].push({
+                callerId: file.software?.name,
+                fileId: file.id
+            });
         });
 
         const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
+
         // Check if variantCallers have been configured
         if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
             const indexedFields = {};
@@ -353,9 +360,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     // Check if dataFilter are indexed
                     for (const dataFilter of caller.dataFilters) {
                         if (indexedFields[dataFilter.id]) {
-                            dataFilter.comparators = indexedFields[dataFilter.id].type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                            dataFilter.allowedValues = indexedFields[dataFilter.id].type
-                                .startsWith("RANGE_") ? indexedFields[dataFilter.id].thresholds : indexedFields[dataFilter.id].values;
+                            const field = indexedFields[dataFilter.id];
+                            if (field.type.startsWith("RANGE_")) {
+                                dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                dataFilter.allowedValues = field.thresholds;
+                            } else {
+                                dataFilter.allowedValues = field.values;
+                            }
                         }
                     }
 
@@ -394,39 +405,45 @@ class VariantInterpreterBrowserCancer extends LitElement {
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 const callerToDataFilters = {};
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
-                    // At the moment we only support FILE
-                    if (customField.source === "FILE") {
-                        // We ONLY add custom indexed fields from VCF INFO column
-                        if (customField.key !== "FILTER" && customField.key !== "QUAL") {
-                            // Parse sample index config
-                            let fieldType, fieldValues, fieldComparators;
+                    // At the moment we support all FILE fields but QUAL, since the values do not follow any standard
+                    if (customField.source === "FILE" && customField.key !== "QUAL") {
+                        let fieldName, fieldType, fieldValues, fieldComparators;
+
+                        // Check if field id is FILTER and has only PASS value
+                        if (customField.key === "FILTER") {
+                            if (customField.values?.length === 1 && customField.values[0] === "PASS") {
+                                fieldName = "PASS",
+                                fieldType = "BOOLEAN";
+                            } else {
+                                fieldType = "CATEGORICAL";
+                                fieldValues = customField.values;
+                            }
+                        } else {
+                            // All other fields are processed normally
                             if (customField.type.startsWith("RANGE_")) {
                                 fieldType = "NUMERIC";
                                 fieldValues = customField.thresholds;
                                 fieldComparators = customField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
                             } else {
                                 fieldType = "CATEGORICAL";
-                                fieldValues = customField.values || null;
-                                fieldComparators = [];
+                                fieldValues = customField.values;
                             }
-
-                            // Add this field to each caller
-                            (fieldToCaller[customField.key] || []).forEach(caller => {
-                                if (!callerToDataFilters[caller.callerId]) {
-                                    callerToDataFilters[caller.callerId] = [];
-                                }
-
-                                // Register this field in the caller
-                                callerToDataFilters[caller.callerId].push({
-                                    id: customField.key,
-                                    name: customField.key,
-                                    type: fieldType,
-                                    source: customField.source,
-                                    allowedValues: fieldValues,
-                                    comparators: fieldComparators,
-                                });
-                            });
                         }
+
+                        // Add this field to each caller dataFilter
+                        (fieldToCaller[fieldName || customField.key] || []).forEach(caller => {
+                            if (!callerToDataFilters[caller.callerId]) {
+                                callerToDataFilters[caller.callerId] = [];
+                            }
+                            callerToDataFilters[caller.callerId].push({
+                                id: customField.key,
+                                name: fieldName || customField.key,
+                                type: fieldType,
+                                source: customField.source,
+                                allowedValues: fieldValues,
+                                comparators: fieldComparators || [],
+                            });
+                        });
                     }
                 }
 
@@ -517,7 +534,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Sample And File",
                         collapsed: false,
-                        fields: [
+                        filters: [
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
@@ -540,17 +557,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "variant-file",
-                                title: "VCF File",
+                                title: "VCF File Filter",
                                 params: {
-                                    files: this.callerToFile
+                                    files: this.files
                                 }
                             },
-                            {
-                                id: "file-quality",
-                                title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                visible: UtilsNew.isEmpty(this.callerToFile)
-                            },
+                            // {
+                            //     id: "file-quality",
+                            //     title: "Quality Filters",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            //     visible: UtilsNew.isEmpty(this.callerToFile)
+                            // },
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant File Caller Filter",
@@ -563,7 +580,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Genomic",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -591,7 +608,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Clinical",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
@@ -607,7 +624,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Consequence Type",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
@@ -618,7 +635,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Population Frequency",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
@@ -654,7 +671,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Phenotype",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -670,7 +687,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Deleteriousness",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "proteinSubstitutionScore",
                                 title: "Protein Substitution Score",
@@ -686,7 +703,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         title: "Conservation",
                         collapsed: true,
-                        fields: [
+                        filters: [
                             {
                                 id: "conservation",
                                 title: "Conservation Score",
