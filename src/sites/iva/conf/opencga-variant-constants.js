@@ -63,15 +63,39 @@ const CONSEQUENCE_TYPES = {
         modifier: "green"
     },
 
-    // Loss-of-function SO terms
-    lof: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-        "splice_donor_variant", "feature_truncation", "transcript_ablation"],
-
-    pa: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-        "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"],
+    // lof: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+    //                 "splice_donor_variant", "feature_truncation", "transcript_ablation"],
+    // pa: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+    //     "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"],
 
     // This is filled below from the 'categories' array
     impact: {},
+
+    alias: [
+        {
+            name: "Loss-of-Function (LoF)",
+            description: "Filter Loss-of-Function variants",
+            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation"]
+        },
+        {
+            name: "Missense",
+            description: "Filter Missense variants",
+            terms: ["missense_variant"]
+        },
+        {
+            name: "Protein Altering",
+            description: "Filter Protein Altering variants",
+            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"]
+        },
+        {
+            name: "Coding Sequence",
+            description: "Filter Coding variants",
+            terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
+                "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+        }
+    ],
 
     // 'Title' is optional. if there is not title provided then 'name' will be used.
     //  There are two more optional properties - 'checked' and 'impact'. They can be set to display them default in web application.

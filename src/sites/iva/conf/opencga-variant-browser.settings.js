@@ -14,7 +14,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
             {
                 title: "Consequence Type",
                 collapsed: true,
-                filters: ["consequenceTypeSelect"]
+                filters: ["consequence-type"]
             },
             {
                 title: "Population Frequency",

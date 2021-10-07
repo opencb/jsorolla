@@ -389,15 +389,13 @@ export default class VariantBrowser extends LitElement {
                         title: "Consequence Type",
                         collapsed: true,
                         filters: [
-                            // {
-                            //     id: "consequenceType",
-                            //     title: "Select SO terms",
-                            //     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            // },
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
+                                tooltip: tooltips.consequenceTypeSelect,
+                                params: {
+                                    consequenceTypes: CONSEQUENCE_TYPES
+                                }
                             }
                         ]
                     },
