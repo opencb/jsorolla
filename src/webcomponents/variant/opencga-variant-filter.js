@@ -68,9 +68,6 @@ export default class OpencgaVariantFilter extends LitElement {
             populationFrequencies: {
                 type: Object
             },
-            consequenceTypes: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -413,18 +410,11 @@ export default class OpencgaVariantFilter extends LitElement {
                                                      @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;
                     break;
-                case "consequenceType":
-                    content = html`
-                        <consequence-type-filter
-                                .consequenceTypes="${this.consequenceTypes}"
-                                .ct="${this.preparedQuery.ct}"
-                                @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
-                        </consequence-type-filter>`;
-                    break;
+                case "consequence-type":
                 case "consequenceTypeSelect":
                     content = html`
                         <consequence-type-select-filter .ct="${this.preparedQuery.ct}"
-                                                        .config="${this.consequenceTypes}"
+                                                        .config="${subsection.params?.consequenceTypes || CONSEQUENCE_TYPES}"
                                                         @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
                         </consequence-type-select-filter>`;
                     break;

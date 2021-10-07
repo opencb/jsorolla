@@ -146,32 +146,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            alias: [
-                {
-                    name: "Loss-of-Function (LoF)",
-                    description: "Filter Loss-of-Function variants",
-                    terms: CONSEQUENCE_TYPES.lof
-                },
-                {
-                    name: "Missense",
-                    description: "Filter Missense variants",
-                    terms: ["missense_variant"]
-                },
-                {
-                    name: "Protein Altering",
-                    description: "Filter Protein Altering variants",
-                    terms: CONSEQUENCE_TYPES.pa
-                },
-                {
-                    name: "Coding Sequence",
-                    description: "Filter Coding variants",
-                    terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
-                        "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
-                }
-            ],
-            categories: CONSEQUENCE_TYPES.categories
-        };
+        return CONSEQUENCE_TYPES;
     }
 
     render() {
