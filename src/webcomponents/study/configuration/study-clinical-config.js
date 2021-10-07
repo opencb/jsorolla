@@ -93,6 +93,11 @@ export default class StudyClinicalConfig extends LitElement {
 
     }
 
+    editItem(e) {
+        console.log("EditChanges: ", e.detail.value);
+        e.stopPropagation();
+    }
+
     configClinical(entity, heading) {
 
         const configModal = isNew => {
@@ -273,8 +278,8 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         entity="clinical"
                                         .items="${clinical.status}"
-                                        .tabs="${true}"
                                         .config=${this.configClinical("clinical")}
+                                        @editChange=${this.editItem}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
@@ -295,7 +300,6 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         entity="interpretation"
                                         .items="${clinical.interpretation.status}"
-                                        .tabs="${true}"
                                         .config=${this.configClinical("interpretation")}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
@@ -317,7 +321,6 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         entity="priorities"
                                         .items="${clinical.priorities}"
-                                        .tabs="${false}"
                                         .config=${this.configClinical("priorities")}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
@@ -339,7 +342,6 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         entity="flags"
                                         .items="${clinical.flags}"
-                                        .tabs="${true}"
                                         .config=${this.configClinical("flags")}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
@@ -361,7 +363,6 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         entity="consent"
                                         .items="${clinical.consent.consents}"
-                                        .tabs="${false}"
                                         .config=${this.configClinical("consent")}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`

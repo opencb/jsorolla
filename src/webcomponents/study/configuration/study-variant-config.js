@@ -15,8 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import FormUtils from "../../commons/forms/form-utils.js";
+import "./config-list-update.js";
 
 export default class StudyVariantConfig extends LitElement {
 
@@ -53,10 +52,14 @@ export default class StudyVariantConfig extends LitElement {
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("study")) {
-        // }
 
         super.update(changedProperties);
+    }
+
+
+    editItem(e, entity) {
+        console.log("EditChanges: ", e.detail.value, "entity", entity);
+        e.stopPropagation();
     }
 
     removeItem(e) {
@@ -158,6 +161,21 @@ export default class StudyVariantConfig extends LitElement {
                                 name: "Nullable",
                                 field: "nullable",
                                 type: "checkbox",
+                            },
+                        ]
+                    };
+                case "populationFrequency":
+                    return {
+                        elements: [
+                            {
+                                name: "Study",
+                                field: "study",
+                                type: "input-text",
+                            },
+                            {
+                                name: "Population",
+                                field: "population",
+                                type: "input-text",
                             },
                         ]
                     };
@@ -290,8 +308,8 @@ export default class StudyVariantConfig extends LitElement {
                                     <config-list-update
                                         entity="fileIndex"
                                         .items="${variantEngine.sampleIndex.fileIndexConfiguration.customFields}"
-                                        .tabs=${false}
                                         .config=${this.configVariant("fileIndexConfiguration", {title: "source", subtitle: "key"}, true)}
+                                        @editChange=${e => this.editItem(e, "fileIndex")}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
@@ -306,16 +324,44 @@ export default class StudyVariantConfig extends LitElement {
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
+                                width: 8,
+                                style: "padding-left: 0px",
+                                render: variantEngine => {
+                                    const annConfigs = variantEngine.sampleIndex.annotationIndexConfiguration;
+                                    const populationConfig = Object.fromEntries(Object.entries(annConfigs)
+                                        .filter(([key, value]) => key === "populationFrequency"));
+                                    return html`
+                                    <h4>Population Frequency</h4>
+                                        <config-list-update
+                                            entity="annotationIndex"
+                                            .items="${populationConfig.populationFrequency.populations}"
+                                            .config=${this.configVariant("populationFrequency", {title: "study", subtitle: "population"}, true)}
+                                            @removeItem=${this.removeItem}>
+                                        </config-list-update>`;
+                                }
+                            }
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: variantEngine => html`
-                                    <config-list-update
-                                        entity="annotationIndex"
-                                        .items="${variantEngine.sampleIndex.annotationIndexConfiguration}"
-                                        .tabs=${true}
-                                        .config=${this.configVariant("annotationIndexConfiguration", {title: "source", subtitle: "key"}, false)}
-                                        @removeItem=${this.removeItem}>
-                                    </config-list-update>`
+                                render: variantEngine => {
+                                    const annConfigs = variantEngine.sampleIndex.annotationIndexConfiguration;
+                                    const indexFieldConfigs = Object.fromEntries(Object.entries(annConfigs)
+                                        .filter(([key, value]) => key !== "populationFrequency"));
+                                    return html`
+                                    <h4>Index Field Configuration</h4>
+                                        <config-list-update
+                                            entity="annotationIndex"
+                                            .items="${indexFieldConfigs}"
+                                            .config=${this.configVariant("annotationIndexConfiguration", {title: "source", subtitle: "key"}, false)}
+                                            @editChange=${e => this.editItem(e, "annotationIndex")}
+                                            @removeItem=${this.removeItem}>
+                                        </config-list-update>`;
+                                }
                             }
                         },
                     ]
@@ -334,7 +380,7 @@ export default class StudyVariantConfig extends LitElement {
             <div style="margin: 25px 40px">
                 <data-form
                     .data=${this.study.internal.configuration.variantEngine}
-                    .config="${this._config}"
+                    .config=${this._config}
                     @fieldChange="${e => this.onFieldChange(e)}"
                     @clear="${this.onClear}"
                     @submit="${this.onSubmit}">
