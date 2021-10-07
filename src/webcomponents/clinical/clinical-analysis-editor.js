@@ -176,6 +176,7 @@ class ClinicalAnalysisEditor extends LitElement {
     onFieldChange(e) {
         switch (e.detail.param) {
             case "locked":
+            case "panelLock":
             case "description":
                 if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis[e.detail.param] = e.detail.value;
@@ -422,6 +423,15 @@ class ClinicalAnalysisEditor extends LitElement {
                             display: {
                                 render: panels => this.renderPanels(panels),
                                 updated: this.updateParams.panels ?? false
+                            }
+                        },
+                        {
+                            name: "Disease Panel Lock",
+                            field: "panelLock",
+                            type: "toggle-switch",
+                            display: {
+                                width: "9",
+                                updated: this.updateParams.panelLock ?? false
                             }
                         },
                         {
