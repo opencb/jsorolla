@@ -24,6 +24,7 @@ export default class SectionFilter extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -33,41 +34,40 @@ export default class SectionFilter extends LitElement {
 
     static get properties() {
         return {
-            config: {
-                type: Object
-            },
             filters: {
+                type: Array
+            },
+            config: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this.id = this.config.title.replace(/ /g, "");
+    firstUpdated() {
+        UtilsNew.initTooltip(this);
     }
 
     render() {
-        return this.config && this.filters?.length ? html`
-                <div class="panel panel-default filter-section shadow-sm">
-                    <div class="panel-heading" role="tab" id="${this._prefix}${this.id}Heading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                                    href="#${this._prefix}${this.id}" aria-expanded="true" aria-controls="${this._prefix}${this.id}">
-                                    ${this.config.title}
-                                </a>
-                            </h4>
-                    </div>
-                    <div id="${this._prefix}${this.id}" class="panel-collapse collapse ${this.config.collapsed ? "" : "in"}" role="tabpanel" aria-labelledby="${this._prefix}${this.id}Heading">
-                        <div class="panel-body">
-                            ${this.filters?.map(filter => html`${filter}`)}
-                        </div>
+        return this.config && this.filters?.length > 0 ? html`
+            <div class="panel panel-default filter-section shadow-sm">
+                <div class="panel-heading" role="tab" id="${this._prefix}Heading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                           href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">
+                            ${this.config.name || this.config.title}
+                        </a>
+                    </h4>
+                </div>
+                <div id="${this._prefix}" class="panel-collapse collapse ${this.config.collapsed ? "" : "in"}" role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                    <div class="panel-body">
+                        ${this.filters?.map(filter => html`${filter}`)}
                     </div>
                 </div>
+            </div>
         ` : "";
     }
 
