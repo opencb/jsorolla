@@ -205,6 +205,48 @@ export class OpenCGAClient {
         return this.clients.get("ga4gh");
     }
 
+    /*
+     * Convenient function to create a client from the entity name, this is case insensitive.
+     */
+    getClient(entity) {
+        switch (entity?.toUpperCase()) {
+            case "USER":
+                return this.users();
+            case "PROJECT":
+                return this.projects();
+            case "STUDY":
+                return this.studies();
+            case "JOB":
+                return this.jobs();
+            case "FILE":
+                return this.files();
+            case "SAMPLE":
+                return this.samples();
+            case "INDIVIDUAL":
+                return this.individuals();
+            case "FAMILY":
+                return this.families();
+            case "COHORT":
+                return this.cohorts();
+            case "PANEL":
+            case "DISEASE_PANEL":
+                return this.panels();
+            case "ALIGNMENT":
+                return this.alignments();
+            case "VARIANT":
+                return this.variants();
+            case "VARIANT_OPERATIONS":
+                return this.variantOperations();
+            case "CLINICAL":
+            case "CLINICAL_ANALYSIS":
+                return this.clinical();
+            case "META":
+                return this.meta();
+            default:
+                throw new Error("Resource not recognized");
+        }
+    }
+
     async login(userId, password) {
         try {
             const restResponse = await this.users().login({user: userId, password: password});

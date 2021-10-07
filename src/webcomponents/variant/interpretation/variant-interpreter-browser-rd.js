@@ -178,6 +178,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                     break;
             }
             this.query.sample = this._sampleId;
+
+            // Add case panels to query object
+            // TODO should we also check main interpretation panels?
+            if (this.clinicalAnalysis.panels?.length > 0) {
+                this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+            }
         }
 
         // Check if QC filters exist and add them to active filter
@@ -314,6 +320,13 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     getDefaultConfig() {
+        // Add case panels to query object
+        // TODO should we also check main interpretation panels?
+        const lockedFields = [{id: "sample"}];
+        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
+            lockedFields.push({id: "panel"});
+        }
+
         return {
             title: "RD Case Interpreter",
             showSaveInterpretation: true,
@@ -332,7 +345,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     },
                     complexFields: ["sample", "fileData"],
                     hiddenFields: [],
-                    lockedFields: [{id: "sample"}]
+                    lockedFields: lockedFields
                 },
                 sections: [
                     {

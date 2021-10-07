@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
+
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
@@ -57,13 +58,10 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "ia-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "int-audit";
-        this.timeline = {};
-        this._timeline = {};
-        this.activeTab = {timeline: true};
-        this.timelinePageSize = 20;
-        this.timelineEnd = this.timelinePageSize;
+        this.activeTab = "timeline";
+        // this.timelineEnd = 0; // this.timelinePageSize;
     }
 
     connectedCallback() {
@@ -71,6 +69,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.timelineEnd = this._config.timelinePageSize;
     }
 
     updated(changedProperties) {
@@ -90,15 +89,13 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
     }
 
 
-    /**
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-     */
+    // Fetch the CinicalAnalysis object from REST and trigger the observer call.
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    //this.clinicalAnalysisObserver();
+                    // this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -108,122 +105,107 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        if(this.clinicalAnalysis) {
-            if(this.clinicalAnalysis.audit?.length) {
-                let dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
-                $("#" + this._prefix + "PickerDate").datetimepicker({
-                    format: "DD/MM/YYYY",
-                    //defaultDate: moment.max(dates),
-                    enabledDates: dates,
-                    showClear: true
-                }).on("dp.change", e => this.onDateFilterChange(e));
+        if (this.clinicalAnalysis && this.clinicalAnalysis.audit) {
+            const dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
+            $("#" + this._prefix + "PickerDate").datetimepicker({
+                format: "DD/MM/YYYY",
+                // defaultDate: moment.max(dates),
+                enabledDates: dates,
+                showClear: true
+            }).on("dp.change", e => this.onDateFilterChange(e));
 
-                this._audit = [...this.clinicalAnalysis.audit].sort((a,b) => b - a);
-                this._timeline = {...this.timeline};
-                this.renderLocalTable(this._audit);
-                this.requestUpdate();
-            }
-        } else {
-            this.timeline = {};
-            this._timeline = {};
+            this._audit = [...this.clinicalAnalysis.audit].sort((a, b) => b.date - a.date);
+            this.updateTable(); // Manually update table
             this.requestUpdate();
         }
     }
 
     _changeTab(e) {
         e.preventDefault();
-        const tabId = e.currentTarget.dataset.id;
-        //the selectors are strictly defined to avoid conflics in tabs in children components
-        $("#interpretation-audit .buttons-wrapper > .view-button", this).removeClass("active");
-        $("#interpretation-audit .content-tab-wrapper > .content-tab", this).hide();
-        $("#" + this._prefix + tabId, this).show();
-        $("#" + this._prefix + tabId).addClass("active");
-        for (const tab in this.activeTab) {
-            this.activeTab[tab] = false;
-        }
-        this.activeTab[tabId] = true;
+        this.activeTab = e.currentTarget.dataset.id;
         this.requestUpdate();
     }
 
-    renderTimeline(data = []) {
+    renderTimeline() {
         const timeline = {};
-        data.slice(0, this.timelineEnd).forEach(event => {
-            const d = timeline[event.date.substr(0,8)];
-            if (d) {
-                d.push(event);
-            } else {
-                timeline[event.date.substr(0,8)] = [event];
+        (this._audit || []).slice(0, this.timelineEnd).forEach(event => {
+            const date = event.date.substr(0, 8);
+            if (!timeline[date]) {
+                timeline[date] = [];
             }
+            timeline[date].push(event);
         });
+
         return html`
-            ${Object.keys(timeline).sort().reverse().map( date => html`
+            ${Object.keys(timeline).sort().reverse().map(date => html`
                 <ul class="">
-                ${timeline[date].length ? html`
                     <li class="date">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
-                    ${timeline[date].map( entry => html`
+                    ${timeline[date].map(entry => html`
                         <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
                             <span class="author">${entry.author}</span>
                             <h3>${entry.action}</h3>
                             <p>${entry.message}</p>
                         </li>
                     `)}
-                ` : null}
-            </ul>
-        `)}`;
-
+                </ul>
+            `)}
+        `;
     }
 
     onDateFilterChange(e) {
         let date;
-        this.timelineEnd = this.timelinePageSize;
         if (e.date) {
             // custom event fired by datepicker
-            date = e.date.format("YYYYMMDD")
+            date = e.date.format("YYYYMMDD");
         } else if (e.target.value) {
             // native @input event
-            date = moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD")
+            date = moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD");
         }
-        //console.log("date", date)
+        // console.log("date", date)
         if (date) {
-            this._audit = this.clinicalAnalysis.audit.filter( event => {
-                return ~event.date.toLowerCase().indexOf(date)
+            this._audit = this.clinicalAnalysis.audit.filter(event => {
+                return event.date.toLowerCase().includes(date);
             });
         } else {
-            this._audit = this.clinicalAnalysis.audit;
+            this._audit = [...this.clinicalAnalysis.audit];
         }
-        this.renderLocalTable(this._audit);
+        // Sort the audit logs by date
+        this._audit.sort((a, b) => b.date - a.date);
+        this.updateTable();
         this.requestUpdate();
     }
 
     filter(e) {
-        this.timelineEnd = this.timelinePageSize;
-        let keyword = e.target.value ? e.target.value.trim().toLowerCase() : null;
+        this.timelineEnd = this._config.timelinePageSize;
+        const keyword = e.target.value ? e.target.value.trim().toLowerCase() : null;
         if (keyword) {
-            this._audit = this.clinicalAnalysis.audit.filter( event => {
-                return ~event.author.toLowerCase().indexOf(keyword)
-                    || ~event.action.toLowerCase().indexOf(keyword)
-                    || ~event.message.toLowerCase().indexOf(keyword)
-                    || ~event.author.toLowerCase().indexOf(keyword)
-                    || ~event.date.toLowerCase().indexOf(keyword)
+            this._audit = this.clinicalAnalysis.audit.filter(event => {
+                return event.author.toLowerCase().includes(keyword) ||
+                        event.action.toLowerCase().includes(keyword) ||
+                        event.message.toLowerCase().includes(keyword) ||
+                        event.author.toLowerCase().includes(keyword) ||
+                        event.date.toLowerCase().includes(keyword);
             });
         } else {
-            this._audit = this.clinicalAnalysis.audit;
+            this._audit = [...this.clinicalAnalysis.audit];
         }
-        this.renderLocalTable(this._audit);
+        // Sort the audit logs by date
+        this._audit.sort((a, b) => b.date - a.date);
+        this.updateTable();
         this.requestUpdate();
     }
 
     showNextEvents() {
-        this.timelineEnd += this.timelinePageSize;
+        this.timelineEnd += this._config.timelinePageSize;
         this.requestUpdate();
     }
 
-    renderLocalTable(data = []) {
+    updateTable() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: data,
-            columns: this._initTableColumns(),
+            data: this._audit,
+            columns: this._getTableColumns(),
             sidePagination: "local",
             // Set table properties, these are read from config property
             uniqueId: "id",
@@ -233,13 +215,13 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement)
         });
     }
 
-    _initTableColumns() {
-        this._columns = [
+    _getTableColumns() {
+        return [
             {
                 title: "Date",
                 field: "date",
@@ -260,9 +242,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                 title: "Message",
                 field: "message"
             },
-
         ];
-        return this._columns;
     }
 
     getDefaultConfig() {
@@ -270,7 +250,8 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             pagination: true,
             pageSize: 25,
             pageList: [25, 50, 100],
-        }
+            timelinePageSize: 20,
+        };
     }
 
     render() {
@@ -278,59 +259,72 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             return "";
         }
 
+        // Check if we do not have audits yet
+        if (!this.clinicalAnalysis.audit?.length) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> No Audit available yet.
+                </div>
+            `;
+        }
+
         return html`
-            ${this.clinicalAnalysis.audit?.length ? html`
-                <style>
-                    .load-next-event-button {
-                        display: block;
-                        margin-left: 100px;
-                    }
-                </style>
-                <div class="row" id="interpretation-audit">
-                    <div class="col-md-8">
-                        <div class="form-inline control-bar-wrapper">
-                            <div class="btn-group view-button-wrapper">
-                                <span data-id="timeline" class="view-button btn btn-default ${classMap({active: this.activeTab["timeline"] || UtilsNew.isEmpty(this.activeTab)})}" @click="${this._changeTab}">
-                                    <i class="fas fa-th-list icon-padding"></i>
-                                </span>
-                                <span data-id="table" class="view-button btn btn-default ${classMap({active: this.activeTab["table"]})}" @click="${this._changeTab}">
-                                    <i class="fas fa-table icon-padding"></i>
-                                </span>
-                            </div>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-addon"><i class="fas fa-search"></i></div>
-                                    <input type="text" class="form-control" placeholder="Filter events.." @input="${this.filter}">
+            <style>
+                .load-next-event-button {
+                    display: block;
+                    margin-left: 100px;
+                }
+            </style>
+            <div class="row" id="interpretation-audit">
+                <div class="col-md-8">
+                    <div class="form-inline control-bar-wrapper">
+                        <div class="btn-group view-button-wrapper">
+                            <span data-id="timeline" class="view-button btn btn-default ${classMap({active: this.activeTab === "timeline"})}" @click="${this._changeTab}">
+                                <i class="fas fa-th-list icon-padding"></i>
+                            </span>
+                            <span data-id="table" class="view-button btn btn-default ${classMap({active: this.activeTab === "table"})}" @click="${this._changeTab}">
+                                <i class="fas fa-table icon-padding"></i>
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-search"></i>
                                 </div>
-                            </div>
-                            <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
-                                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
-                                <span class="input-group-addon">
-                                        <span class="fa fa-calendar"></span>
-                                </span>
+                                <input type="text" class="form-control" placeholder="Filter events.." @input="${this.filter}">
                             </div>
                         </div>
+                        <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
+                            <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
+                            <span class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </span>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <div class="interpretation-audit">
-                            <div class="content-tab-wrapper">
-                                <div id="${this._prefix}timeline" role="tabpanel" class="active tab-pane content-tab">
-                                    <div class="interpretation-audit-timeline">
-                                        ${this.renderTimeline(this._audit)}
+                </div>
+                <div class="col-md-8">
+                    <div class="interpretation-audit">
+                        <div class="content-tab-wrapper">
+                            <div id="${this._prefix}timeline" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab === "timeline"})}">
+                                <div class="interpretation-audit-timeline">
+                                    ${this.renderTimeline()}
+                                </div>
+                                ${this._audit && this._audit.length > this.timelineEnd ? html`
+                                    <div class="btn btn-default ripple load-next-event-button" @click="${this.showNextEvents}">
+                                        Load next ${Math.min(this._config.timelinePageSize, this._audit.length - this.timelineEnd)} events..
                                     </div>
-                                    ${this._audit && this._audit.length > this.timelineEnd ? html`<div><a href="javascript: void 0" class="btn btn-default ripple load-next-event-button" @click="${this.showNextEvents}"> Load next ${this._audit.length - this.timelinePageSize > this.timelineEnd ? this.timelinePageSize : this._audit.length - this.timelineEnd} events..</a></div>` : null}
-                                </div>
-                                <div id="${this._prefix}table" role="tabpanel" class="tab-pane content-tab">
-                                    <table id="${this.gridId}"></table>
-                                </div>
+                                ` : null}
+                            </div>
+                            <div id="${this._prefix}table" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab === "table"})}">
+                                <table id="${this.gridId}"></table>
                             </div>
                         </div>
                     </div>
-                </div>` : html`
-            <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Audit available yet.</div>
-            `}
+                </div>
+            </div>
         `;
     }
+
 }
 
 customElements.define("clinical-analysis-audit-browser", ClinicalAnalysisAuditBrowser);
