@@ -83,7 +83,7 @@ context("6 - Case Interpreter", () => {
                     cy.get("sample-variant-stats-view simple-chart").should("be.visible").and("have.length", 9);
 
                     // select PASS filter
-                    cy.get("opencga-variant-filter file-quality-filter input[data-cy='filter-pass']").click();
+                    cy.get("variant-browser-filter file-quality-filter input[data-cy='filter-pass']").click();
                     cy.get("opencga-active-filters button[data-filter-name='filter']").contains("FILTER = PASS");
                     cy.get("div.search-button-wrapper button").click();
 
@@ -99,7 +99,7 @@ context("6 - Case Interpreter", () => {
                     checkResults("variant-interpreter-grid");
 
                     cy.get("opencga-active-filters button[data-filter-name='sample']").contains("Sample Genotype");
-                    cy.get("opencga-variant-filter file-quality-filter input[data-cy='filter-pass']").click();
+                    cy.get("variant-browser-filter file-quality-filter input[data-cy='filter-pass']").click();
                     cy.get("opencga-active-filters button[data-filter-name='filter']").contains("FILTER = PASS");
                     cy.get("div.search-button-wrapper button").click();
                     checkResults("variant-interpreter-grid");
@@ -112,7 +112,7 @@ context("6 - Case Interpreter", () => {
                     cy.get("disease-panel-filter button").click();
 
                     // query LoF
-                    cy.get("opencga-variant-filter a[data-accordion-id='ConsequenceType'].collapsed").click();
+                    cy.get("variant-browser-filter a[data-accordion-id='ConsequenceType'].collapsed").click();
                     cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
                     cy.get("opencga-active-filters button[data-filter-name='ct']").contains("Consequence Types");
                     cy.get("div.search-button-wrapper button").click();
