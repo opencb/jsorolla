@@ -290,7 +290,13 @@ export default class VariantBrowserFilter extends LitElement {
 
         let content = "";
         // We allow to pass a render function
-        if (subsection.render) {
+        if (subsection.disabled?.check && subsection.disabled.check()) {
+            content = html`
+                <div class="alert alert-warning" role="alert">
+                    ${subsection.disabled.message || "This filter has been disabled."}
+                </div>
+            `;
+        } else if (subsection.render) {
             content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
         } else {
             switch (subsection.id) {
