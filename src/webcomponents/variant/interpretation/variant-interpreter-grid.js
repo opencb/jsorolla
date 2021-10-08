@@ -609,7 +609,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "frequencies",
-                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
@@ -924,7 +924,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 const results = restResponse.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    const dataString = VariantUtils.jsonToTabConvert(results, populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
+                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
                     console.log("dataString", dataString);
                     UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {

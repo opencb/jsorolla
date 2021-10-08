@@ -21,6 +21,7 @@ export default class DetailTabs extends LitElement {
 
     static TABS_MODE = "tabs";
     static PILLS_MODE = "pills";
+    static PILLS_VERTICAL_MODE = "pills_vertical";
 
     constructor() {
         super();
@@ -139,7 +140,7 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
-        if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE) {
+        if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`<h3>No valid mode: ${this.mode !== ""}</h3>`;
         }
 
@@ -169,6 +170,15 @@ export default class DetailTabs extends LitElement {
                     <ul class="nav nav-pills" role="tablist">
                         ${this.renderTabTitle()}
                     </ul>
+                ` : null}
+
+                <!-- PILLS -->
+                ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
+                <div class="col-md-2">
+                    <ul class="nav nav-pills nav-stacked" role="tablist">
+                        ${this.renderTabTitle()}
+                    </ul>
+                </div>
                 ` : null}
 
                 <!-- TAB CONTENT -->

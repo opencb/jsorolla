@@ -279,7 +279,7 @@ export default class RgaVariantAllelePairs extends LitElement {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style);
         } else {
             return "-";
         }

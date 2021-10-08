@@ -116,7 +116,7 @@ const filterMenu = {
                 {
                     id: "populationFrequency",
                     title: "Select Population Frequency",
-                    tooltip: populationFrequencies.tooltip,
+                    tooltip: POPULATION_FREQUENCIES.tooltip,
                     showSetAll: true,
                 },
             ],

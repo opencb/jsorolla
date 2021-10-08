@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "lit"
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js"
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import "./configuration/study-variant-config.js";
+import "./configuration/study-clinical-config.js";
 
 export default class StudyAdminConfiguration extends LitElement {
 
@@ -53,12 +55,7 @@ export default class StudyAdminConfiguration extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
-    firstUpdated(changedProperties) {
-
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -79,11 +76,10 @@ export default class StudyAdminConfiguration extends LitElement {
                     active: true,
                     render: () => {
                         return html`
-                            <div class="guard-page">
-                                <i class="fas fa-pencil-ruler fa-5x"></i>
-                                <h3>Component under construction</h3>
-                                <h3>(Coming Soon)</h3>
-                            </div>`;
+                            <study-clinical-config
+                                .study=${this.study}
+                                .opencgaSession=${this.opencgaSession}>
+                            </study-clinical-config>`;
                     }
                 },
                 {
@@ -93,30 +89,30 @@ export default class StudyAdminConfiguration extends LitElement {
                     // active: false,
                     render: () => {
                         return html`
-                            <div class="guard-page">
-                                <i class="fas fa-pencil-ruler fa-5x"></i>
-                                <h3>Component under construction</h3>
-                                <h3>(Coming Soon)</h3>
-                            </div>`;
+                            <study-variant-config
+                                .study=${this.study}
+                                .opencgaSession=${this.opencgaSession}>
+                            </study-variant-config>
+                        `;
                     }
                 }
             ]
-    };
-}
+        };
+    }
 
 
-render() {
+    render() {
 
 
-    if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
-        return html`
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+            return html`
         <div class="guard-page">
             <i class="fas fa-lock fa-5x"></i>
             <h3>No permission to view this page</h3>
-        </div>`
-    }
+        </div>`;
+        }
 
-    return html`
+        return html`
         <div style="margin: 20px">
             <detail-tabs
                     .config="${this._config}"
@@ -126,7 +122,8 @@ render() {
         </div>
 
         `;
-}
+    }
+
 }
 
 customElements.define("study-admin-configuration", StudyAdminConfiguration);

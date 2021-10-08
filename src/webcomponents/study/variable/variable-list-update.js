@@ -235,11 +235,11 @@ export default class VariableListUpdate extends LitElement {
 
     renderVariableTitle(variable) {
         return html `${variable?.variableSet?.length > 0 ? html`
-        <span class="fas fa-caret-right" @click="${this.onShowNode}">
-            <span>${variable.id} (${variable.type})</span>
-        </span>` :
-        html `<span style="margin-left:14px">${variable.id} (${variable.type})</span>`
-        }`;
+            <span class="fas fa-caret-right" @click="${this.onShowNode}">
+                <span>${variable.id} (${variable.type})</span>
+            </span>` :
+            html `<span style="margin-left:14px">${variable.id} (${variable.type})</span>`
+            }`;
     }
 
     renderVariables(variables, parentId) {

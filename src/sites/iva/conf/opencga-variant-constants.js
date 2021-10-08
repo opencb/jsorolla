@@ -63,15 +63,39 @@ const CONSEQUENCE_TYPES = {
         modifier: "green"
     },
 
-    // Loss-of-function SO terms
-    lof: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-        "splice_donor_variant", "feature_truncation", "transcript_ablation"],
-
-    pa: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-        "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"],
+    // lof: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+    //                 "splice_donor_variant", "feature_truncation", "transcript_ablation"],
+    // pa: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+    //     "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"],
 
     // This is filled below from the 'categories' array
     impact: {},
+
+    alias: [
+        {
+            name: "Loss-of-Function (LoF)",
+            description: "Filter Loss-of-Function variants",
+            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation"]
+        },
+        {
+            name: "Missense",
+            description: "Filter Missense variants",
+            terms: ["missense_variant"]
+        },
+        {
+            name: "Protein Altering",
+            description: "Filter Protein Altering variants",
+            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"]
+        },
+        {
+            name: "Coding Sequence",
+            description: "Filter Coding variants",
+            terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
+                "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+        }
+    ],
 
     // 'Title' is optional. if there is not title provided then 'name' will be used.
     //  There are two more optional properties - 'checked' and 'impact'. They can be set to display them default in web application.
@@ -354,6 +378,72 @@ for (const category of CONSEQUENCE_TYPES.categories) {
         CONSEQUENCE_TYPES.impact[category.name] = category.impact;
     }
 }
+
+const POPULATION_FREQUENCIES = {
+    style: {
+        // This is based on this figure:
+        // http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+        veryRare: "#ff0000",
+        rare: "#ff8080",
+        average: "#8080ff",
+        common: "#0000ff",
+        unobserved: "black"
+    },
+    studies: [
+        {
+            id: "1kG_phase3",
+            title: "1000 Genomes",
+            populations: [
+                {
+                    id: "ALL", title: "All populations [ALL]"
+                },
+                {
+                    id: "AFR", title: "African [AFR]"
+                },
+                {
+                    id: "AMR", title: "American [AMR]"
+                },
+                {
+                    id: "EAS", title: "East Asian [EAS]"
+                },
+                {
+                    id: "EUR", title: "European [EUR]"
+                },
+                {
+                    id: "SAS", title: "South Asian [SAS]"
+                }
+            ]
+        },
+        {
+            id: "GNOMAD_GENOMES",
+            title: "gnomAD Genomes",
+            populations: [
+                {
+                    id: "ALL", title: "gnomAD [ALL]"
+                },
+                {
+                    id: "AFR", title: "African/African American [AFR]"
+                },
+                {
+                    id: "AMR", title: "American [AMR]"
+                },
+                {
+                    id: "EAS", title: "East Asian [EAS]"
+                },
+                {
+                    id: "FIN", title: "Finnish[FIN]"
+                },
+                {
+                    id: "NFE", title: "Non-Finnish European [NFE]"
+                }
+                // {
+                //     id: "SAS", title: "South Asian [SAS]"
+                // }
+            ]
+        }
+    ]
+};
+
 
 // sample variant stats biotypes
 const SAMPLE_STATS_BIOTYPES = ["nonsense_mediated_decay", "miRNA", "retained_intron", "snRNA", "snoRNA", "protein_coding"];
@@ -678,74 +768,6 @@ for (const category of SAMPLE_STATS_CONSEQUENCE_TYPES.categories) {
     }
 }
 
-const populationFrequencies = {
-    style: {
-        // This is based on this figure:
-        // http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-        veryRare: "#ff0000",
-        rare: "#ff8080",
-        average: "#8080ff",
-        common: "#0000ff",
-        unobserved: "black"
-    },
-    studies: [
-        {
-            id: "1kG_phase3",
-            title: "1000 Genomes",
-            // tooltip: "Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database is below (or above) " +
-            //     "the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.",
-            populations: [
-                {
-                    id: "ALL", title: "All populations [ALL]"
-                },
-                {
-                    id: "AFR", title: "African [AFR]"
-                },
-                {
-                    id: "AMR", title: "American [AMR]"
-                },
-                {
-                    id: "EAS", title: "East Asian [EAS]"
-                },
-                {
-                    id: "EUR", title: "European [EUR]"
-                },
-                {
-                    id: "SAS", title: "South Asian [SAS]"
-                }
-            ]
-        },
-        {
-            id: "GNOMAD_GENOMES",
-            title: "gnomAD Genomes",
-            // tooltip: "Only considers variants whose observed allelic frequency in the gnomAD Genomes database is below (or above) the " +
-            //     "defined value. Frequencies were calculated from about 15,000 unrelated individuals.",
-            populations: [
-                {
-                    id: "ALL", title: "gnomAD [ALL]"
-                },
-                {
-                    id: "AFR", title: "African/African American [AFR]"
-                },
-                {
-                    id: "AMR", title: "American [AMR]"
-                },
-                {
-                    id: "EAS", title: "East Asian [EAS]"
-                },
-                {
-                    id: "FIN", title: "Finnish[FIN]"
-                },
-                {
-                    id: "NFE", title: "Non-Finnish European [NFE]"
-                }
-                // {
-                //     id: "SAS", title: "South Asian [SAS]"
-                // }
-            ]
-        }
-    ]
-};
 
 const tooltips = {
     conservation: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +

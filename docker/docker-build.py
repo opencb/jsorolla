@@ -11,6 +11,7 @@ from pathlib import Path
 ## Configure command-line options
 parser = argparse.ArgumentParser()
 parser.add_argument('action', help="Action to execute", choices=["build", "push", "delete"], default="build")
+parser.add_argument('--organisation', help="Organisation, e.g. opencb", default="opencb")
 parser.add_argument('--images', help="comma separated list of images to be made, e.g. app", default="app")
 parser.add_argument('--tag', help="the tag for this code, e.g. v2.0.0")
 parser.add_argument('--build-folder', help="the location of the build folder, if not default location")
@@ -64,27 +65,27 @@ def package_json():
 def build():
     print_header('Building docker images: ' + ', '.join(images))
     for image in images:
-        print(shell_colors['blue'] + "Building opencb/iva-" + image + ":" + tag + " ..." + shell_colors['reset'])
-        run("docker build -t opencb/iva-" + image + ":" + tag + " -f " + build_folder + "/docker/iva-" + image + "/Dockerfile " + build_folder)
+        print(shell_colors['blue'] + "Building " + organisation + "/iva-" + image + ":" + tag + " ..." + shell_colors['reset'])
+        run("docker build -t " + organisation + "/iva-" + image + ":" + tag + " -f " + build_folder + "/docker/iva-app/Dockerfile " + build_folder)
 
 def tag_latest(image):
-    latest_tag = os.popen(("curl -s https://registry.hub.docker.com/v1/repositories/opencb/iva-" + image + "/tags"
+    latest_tag = os.popen(("curl -s https://registry.hub.docker.com/v1/repositories/" + organisation + "/iva-" + image + "/tags"
                            + " | jq -r .[].name"
                            + " | grep -v latest"
                            + " | sort -h"
                            + " | head"))
     if tag >= latest_tag.read():
-        print(shell_colors['blue'] + "Pushing opencb/iva-" + image + ":latest" + shell_colors['reset'])
-        run("docker tag opencb/iva-" + image + ":" + tag + " opencb/iva-" + image + ":latest")
-        run("docker push opencb/iva-" + image + ":latest")
+        print(shell_colors['blue'] + "Pushing " + organisation + "/iva-" + image + ":latest" + shell_colors['reset'])
+        run("docker tag " + organisation + "/iva-" + image + ":" + tag + " " + organisation + "/iva-" + image + ":latest")
+        run("docker push " + organisation + "/iva-" + image + ":latest")
 
 
 def push():
     print_header('Pushing to DockerHub: ' + ', '.join(images))
-    for i in images:
+    for image in images:
         print()
-        print(shell_colors['blue'] + "Pushing opencb/iva-" + i + ":" + tag + " ..." + shell_colors['reset'])
-        run("docker push opencb/iva-" + i + ":" + tag)
+        print(shell_colors['blue'] + "Pushing " + organisation + "/iva-" + image + ":" + tag + " ..." + shell_colors['reset'])
+        run("docker push " + organisation + "/iva-" + image + ":" + tag)
         tag_latest(i)
 
 
@@ -102,11 +103,11 @@ def delete():
         error("dockerhub login failed")
     for i in images:
         print()
-        print(shell_colors['blue'] + 'Deleting image on Docker hub for opencb/iva-' + i + ':' + tag + shell_colors['reset'])
+        print(shell_colors['blue'] + "Deleting image on Docker hub for " + organisation + "/iva-" + i + ":" + tag + shell_colors['reset'])
         headers = {
             'Authorization': 'JWT ' + json_response["token"]
         }
-        requests.delete('https://hub.docker.com/v2/repositories/opencb/iva-' + i + '/tags/' + tag + '/', headers=headers)
+        requests.delete("https://hub.docker.com/v2/repositories/" + organisation + "/iva-" + i + "/tags/" + tag + "/", headers=headers)
 
 
 ## Parse command-line parameters and init basedir, tag and build_folder
@@ -114,6 +115,12 @@ args = parser.parse_args()
 
 # 1. init basedir: root of the iva repo
 basedir = str(Path(__file__).resolve().parents[1])
+
+# 2. init tag: set tag to default value if not set
+if args.organisation is not None:
+    organisation = args.organisation
+else:
+    organisation = "opencb"
 
 # 2. init tag: set tag to default value if not set
 if args.tag is not None:

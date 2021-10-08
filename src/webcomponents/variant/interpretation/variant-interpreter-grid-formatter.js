@@ -49,7 +49,7 @@ export default class VariantInterpreterGridFormatter {
                 cohorts.push(s);
                 cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, populationFrequencies?.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, POPULATION_FREQUENCIES?.style);
         } else {
             return "-";
         }
@@ -63,7 +63,7 @@ export default class VariantInterpreterGridFormatter {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style);
         } else {
             return "-";
         }

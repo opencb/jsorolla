@@ -49,10 +49,10 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[3].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[3].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -149,7 +149,6 @@ const suite = {
     },
     welcomePage: {
         display: {
-            titleHeader: "h1",
             titleStyle: "text-align:center"
         },
         title: "OpenCGA Suite",
@@ -176,18 +175,25 @@ const suite = {
             // logo: "img/tools/icons/variant_browser.svg",
             // alt: "This is the old IVA tool",
             icon: "img/tools/icons/variant_browser.svg",
+            visibility: "public",
             welcomePage: {
-                title: `
-                    <h1 style="text-align: center">
-                        Variant Analysis
-                    </h1>`,
-                logo: `
-                    <h1 id="welcome-page-title">
-                        <div class="iva-logo">
-                            <img alt="IVA" src="./img/iva.svg" />
-                            <span class="subtitle">Interactive Variant Analysis</span>
-                        </div>
-                    </h1>`,
+                title: {
+                    text: "Variant Analysis",
+                    subtitle: "Interactive Variant Analysis1",
+                    display: {
+                        className: "",
+                        style: "text-align:center"
+                    },
+
+                },
+                logo: {
+                    path: "./img/iva.svg",
+                    subtitle: "Interactive Variant Analysis2",
+                    display: {
+                        className: "",
+                        style: "text-align: center"
+                    },
+                },
                 content: `
                     <p class="text-center">
                         Welcome to the Variant Analysis application.<br>
@@ -195,7 +201,6 @@ const suite = {
                     </p>
                     <br>`
             },
-            visibility: "public",
             menu: [
                 {
                     id: "browser",
@@ -644,6 +649,20 @@ const suite = {
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
+            welcomePage: {
+                title: {
+                    display: {
+                        style: "text-align:center "
+                    },
+                    text: "Clinical (XetaBase)",
+                    subtitle: "",
+                },
+                content: `
+                    <p class="text-center">
+                        Welcome to theClinical (XetaBase)
+                    </p>
+                    <br>`
+            },
             menu: [
                 {
                     id: "clinical",
@@ -800,18 +819,20 @@ const suite = {
             icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             welcomePage: {
-                title: `
-                    <h1 style="text-align: center">
-                        OpenCGA Admin
-                    </h1>`,
-                logo: "",
+                title: {
+                    display: {
+                        style: "text-align:center "
+                    },
+                    text: " OpenCGA Admin",
+                    subtitle: "",
+                },
                 content: `
-                <p class="text-center">
-                    Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                    This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                    pedigrees, case-controls or sporadic samples.
-                </p>
-                <br>`
+                    <p class="text-center">
+                        Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                        This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                        pedigrees, case-controls or sporadic samples.
+                    </p>
+                    <br>`
             },
             menu: [
                 {

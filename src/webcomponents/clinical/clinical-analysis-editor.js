@@ -99,7 +99,7 @@ class ClinicalAnalysisEditor extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
 
-            this.flags = this.opencgaSession.study.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+            this.flags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
             this.requestUpdate();
         }
     }
@@ -119,8 +119,9 @@ class ClinicalAnalysisEditor extends LitElement {
 
     renderStatus(status) {
         let statuses;
-        const configStatuses = this.opencgaSession.study?.configuration?.clinical?.status[this.clinicalAnalysis.type];
-        if (configStatuses && configStatuses.length > 0) {
+        const configStatuses = this.opencgaSession.study?.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type];
+        // TODO remove this code, status MUST come from server always.
+        if (configStatuses?.length > 0) {
             statuses = configStatuses;
         } else {
             statuses = ClinicalAnalysisUtils.getStatuses();
@@ -130,12 +131,13 @@ class ClinicalAnalysisEditor extends LitElement {
             <div class="">
                 <select-field-filter .data="${statuses}" .value="${status.id}"
                                      .classes="${this.updateParams.status ? "updated" : ""}"
-                                     @filterChange="${e => {e.detail.param = "status.id"; this.onFieldChange(e)}}">
+                                     @filterChange="${e => {
+                                         e.detail.param = "status.id"; this.onFieldChange(e);
+                                     }}">
                 </select-field-filter>
                 ${status.description ?
-            html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>` :
-            null
-        }
+                        html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>` : null
+                }
             </div>`;
     }
 
@@ -143,7 +145,7 @@ class ClinicalAnalysisEditor extends LitElement {
         const panels = this.opencgaSession.study.panels;
         const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
         return html`
-            <div class="">
+            <div>
                 <select-field-filter .data="${panels}"
                                      .value="${selectedValues}"
                                      .multiple="${true}"
@@ -157,10 +159,10 @@ class ClinicalAnalysisEditor extends LitElement {
     }
 
     renderFlags(flags) {
-        const studyFlags = this.opencgaSession.study.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+        const studyFlags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
         const selectedValues = flags.map(flag => flag.id).join(",");
         return html`
-            <div class="">
+            <div>
                 <select-field-filter .data="${studyFlags}"
                                      .value="${selectedValues}"
                                      .multiple="${true}"
@@ -531,6 +533,14 @@ class ClinicalAnalysisEditor extends LitElement {
             icon: "success",
             html: "Case info updated successfully"
         });
+
+        // Reset values after success update
+        this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+        this.updateParams = {};
+
+        // Refresh form
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
 
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {

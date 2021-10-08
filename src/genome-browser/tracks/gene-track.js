@@ -66,7 +66,12 @@ export default class GeneTrack extends FeatureTrack {
 
         // set a default geneRenderer
         if (typeof this.renderer === "undefined") {
-            this.renderer = new GeneRenderer({});
+            this.renderer = new GeneRenderer({handlers: {
+                'feature:click': function (e) {
+                    console.log(e);
+                    console.log("He pinchado un gen");
+                }
+            }});
         }
     }
 

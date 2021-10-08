@@ -104,8 +104,11 @@ class VariantInterpreterLanding extends LitElement {
     // non-bootstrap tabs
     _changeTab(e) {
         e.preventDefault();
-        this.activeTab = e.currentTarget.dataset.id;
-        this.requestUpdate();
+        // Only allow tab change if we have a clinical analysis
+        if (this.clinicalAnalysis) {
+            this.activeTab = e.currentTarget.dataset.id;
+            this.requestUpdate();
+        }
     }
 
     onCloseClinicalAnalysis() {
@@ -392,7 +395,7 @@ class VariantInterpreterLanding extends LitElement {
                 </div>
 
                 <div class="content-tab-wrapper">
-                    ${this.activeTab === "General" ? html`
+                    ${this.activeTab === "General" || this.activeTab === "" ? html`
                         <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">

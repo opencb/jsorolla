@@ -51,7 +51,6 @@ export default class DisorderManager extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("evidences")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            console.log("update disorder manager", this.evidences);
         }
         super.update(changedProperties);
     }

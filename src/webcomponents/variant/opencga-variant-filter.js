@@ -65,12 +65,6 @@ export default class OpencgaVariantFilter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            populationFrequencies: {
-                type: Object
-            },
-            consequenceTypes: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -80,7 +74,7 @@ export default class OpencgaVariantFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this._initialised = false;
+        // this._initialised = false;
 
         // When no query param (or undefined) is passed to this component, this initialization is replaced with undefined value
         this.query = {};
@@ -94,18 +88,12 @@ export default class OpencgaVariantFilter extends LitElement {
         let isCtrl = false;
         document.addEventListener("keyup", e => {
             if (e.key.toUpperCase() === "CONTROL") {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-
                 isCtrl = false;
             }
         });
 
         document.addEventListener("keydown", e => {
             if (e.key.toUpperCase() === "CONTROL") {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-
                 isCtrl = true;
             }
 
@@ -120,9 +108,9 @@ export default class OpencgaVariantFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    firstUpdated() {
-        this._initialised = true;
-    }
+    // firstUpdated() {
+    //     this._initialised = true;
+    // }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
@@ -137,9 +125,10 @@ export default class OpencgaVariantFilter extends LitElement {
     opencgaSessionObserver() {
         if (this.opencgaSession.study) {
             // Render filter menu and add event and tooltips
-            if (this._initialised) {
-                this.renderFilterMenu();
-            }
+            // if (this._initialised) {
+            //     this.renderFilterMenu();
+            // }
+            this.renderFilterMenu();
         }
     }
 
@@ -291,8 +280,7 @@ export default class OpencgaVariantFilter extends LitElement {
         return this.config.sections.length > 1 ? html`
             <section-filter .filters="${htmlFields}"
                             .config="${section}">
-            </section-filter>
-        ` : htmlFields;
+            </section-filter>` : htmlFields;
     }
 
     _createSubSection(subsection) {
@@ -406,25 +394,18 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "populationFrequency":
                     content = html`
-                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies}"
+                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies || POPULATION_FREQUENCIES}"
                                                      .allowedFrequencies="${subsection.allowedFrequencies}"
                                                      ?showSetAll="${subsection.showSetAll}"
                                                      .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
                                                      @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;
                     break;
-                case "consequenceType":
-                    content = html`
-                        <consequence-type-filter
-                                .consequenceTypes="${this.consequenceTypes}"
-                                .ct="${this.preparedQuery.ct}"
-                                @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
-                        </consequence-type-filter>`;
-                    break;
+                case "consequence-type":
                 case "consequenceTypeSelect":
                     content = html`
                         <consequence-type-select-filter .ct="${this.preparedQuery.ct}"
-                                                        .config="${this.consequenceTypes}"
+                                                        .config="${subsection.params?.consequenceTypes || CONSEQUENCE_TYPES}"
                                                         @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
                         </consequence-type-select-filter>`;
                     break;
@@ -435,12 +416,10 @@ export default class OpencgaVariantFilter extends LitElement {
                         </protein-substitution-score-filter>`;
                     break;
                 case "cadd":
-                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch37") {
-                        content = html`
-                            <cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
-                                         @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
-                            </cadd-filter>`;
-                    }
+                    content = html`
+                        <cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
+                                     @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
+                        </cadd-filter>`;
                     break;
                 case "conservation":
                     content = html`
@@ -567,6 +546,7 @@ export default class OpencgaVariantFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("opencga-variant-filter", OpencgaVariantFilter);

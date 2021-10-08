@@ -19,6 +19,7 @@
 import {LitElement, html} from "lit";
 import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../utils/lit-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
@@ -650,6 +651,30 @@ export default class DataForm extends LitElement {
         `;
     }
 
+    renderBtnGroup(element) {
+        // const value = this.getValue(element.field) || this._getDefaultValue(element);
+        // consft names = element.allowedValues;
+
+        return html`
+            <div class="btn-group ${element?.buttonClass}">
+                ${element.btnGroups.map(btn => html `
+                    ${btn.openModal ?
+                        html `
+                            <button type="button" class="btn ${btn.btnClass? btn.btnClass : "btn-primary" }"
+                                    data-toggle="modal" data-target="#${this._prefix}DataModal">
+                                ${btn.title}
+                            </button>
+                        `:
+                        html `
+                            <button type="button" class="btn ${btn.btnClass}" @click="${e => this.onCustomEvent(e, btn.event, this.data)}">
+                                ${btn.title}
+                            </button>
+                        `}
+                    `)}
+            </div>
+        `;
+    }
+
     /**
      * Creates a select element given some values. You can provide:
      * i) 'allowedValues' is an array, optionally 'defaultValue' and 'display.apply'.
@@ -1011,6 +1036,10 @@ export default class DataForm extends LitElement {
         }));
     }
 
+    onCustomEvent(e, eventName, data) {
+        LitUtils.dispatchEventCustom(this, eventName, data);
+    }
+
     renderButtons() {
         // By default OK is disabled if the input object is empty
         return html`
@@ -1063,17 +1092,29 @@ export default class DataForm extends LitElement {
 
         if (this.config.display && this.config.display?.mode?.type === "modal") {
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
+            const buttonStyle = this.config.display.mode.buttonStyle ? this.config.display.mode.buttonStyle : "";
             const isDisabled = this.config.display.mode.disabled === true;
             return html`
-                <button type="button" class="btn ${buttonClass} ${isDisabled ? "disabled" : null}" data-toggle="modal" disabled="${isDisabled ? "disabled" : undefined}" data-target="#${this._prefix}DataModal">
-                    <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
-                </button>
+                ${this.config.display.mode.btnGroups ?
+                    html `
+                    ${this.renderBtnGroup(this.config.display.mode)}
+                `: html `
+                    <button type="button" class="btn ${buttonClass} ${isDisabled ? "disabled" : null}" style=${buttonStyle} data-toggle="modal" ?disabled="${isDisabled}" data-target="#${this._prefix}DataModal">
+                        ${this.config.display.mode.title ?
+                            html `${this.config.display.mode.title}`:
+                            html `
+                            <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
+                            ${this.config.title}
+                            ` }
+                    </button>
+                `}
+
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 768}px">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h3 class="${titleClass}" id="${this._prefix}exampleModalLabel">${title}</h3>
+                                <h4 class="modal-title ${titleClass}" id="${this._prefix}exampleModalLabel">${title}</h4>
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
@@ -1083,12 +1124,14 @@ export default class DataForm extends LitElement {
                             ${this.config.buttons && this.config.buttons.show ?
                                 html`
                                     <div class="modal-footer">
-                                        <button type="button" class="${buttonClasses}" data-dismiss="modal" @click="${this.onClear}">
-                                            ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
-                                        </button>
-                                        <button type="button" class="${buttonClasses}" data-dismiss="modal" @click="${this.onSubmit}">
-                                            ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
-                                        </button>
+                                        <div style="padding: 10px 20px">
+                                            <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onSubmit}">
+                                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
+                                            </button>
+                                            <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onClear}">
+                                                ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
+                                            </button>
+                                        </div>
                                     </div>` :
                                 null
                             }

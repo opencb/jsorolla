@@ -904,7 +904,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 const results = restResponse.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    const dataString = VariantUtils.jsonToTabConvert(results, populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
+                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
                     console.log("dataString", dataString);
                     UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {

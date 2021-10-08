@@ -73,28 +73,24 @@ export default class StudyAdminPermissions extends LitElement {
     //     // console.log("Rendering permission table firstUpdated:", document.querySelector(`#${this.gridId}`))
     // }
 
-    update(changedProperties) {
-        if (changedProperties.has("studyId")) {
-            for (const project of this.opencgaSession.projects) {
-                for (const study of project.studies) {
-                    if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = {...study};
-                        break;
-                    }
-                }
-            }
-        }
+    // update(changedProperties) {
+    //     if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
+    //         for (const project of this.opencgaSession.projects) {
+    //             for (const study of project.studies) {
+    //                 if (study.id === this.studyId || study.fqn === this.studyId) {
+    //                     this.study = {...study};
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        if (changedProperties.has("study")) {
-            this.studyObserver();
-        }
+    //     if (changedProperties.has("study")) {
+    //         this.studyObserver();
+    //     }
 
-        super.update(changedProperties);
-    }
-
-    studyObserver() {
-
-    }
+    //     super.update(changedProperties);
+    // }
 
     getDefaultConfig() {
         return {

@@ -196,7 +196,8 @@ input[type="number"] {
     width: 35em;
 }
 
-.iva-logo span.subtitle {
+.iva-logo span.subtitle,
+span.subtitle {
     font-size: 2em;
     display: block;
     font-variant: all-small-caps;
