@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../opencga-variant-filter.js";
+import "../variant-browser-filter.js";
 import "./deprecated/opencga-variant-interpretation-grid.js";
 import "../interpretation/variant-interpreter-detail.js";
 import "../../commons/opencga-active-filters.js";
@@ -416,7 +416,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             ${this.existParent ? html`
             <div class="col-md-12" style="padding: 10px 0px">
                     <div class="col-md-2">
-                        <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
+                        <variant-browser-filter .opencgaSession="${this.opencgaSession}"
                                                 .query="${this.query}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                 .cellbaseClient="${this.cellbaseClient}"
@@ -427,13 +427,10 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                                 @querySearch="${this.onVariantFilterSearch}"
                                                 @samplechange="${this.onSampleChange}"
                                                 @inheritancemode="${this._onInheritanceMode}">
-                        </opencga-variant-filter>
+                        </variant-browser-filter>
                     </div>
 
                     <div class="col-md-10">
-
-
-
                         <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"

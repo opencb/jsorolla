@@ -21,7 +21,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
-import "../variant/opencga-variant-filter.js";
+import "../variant/variant-browser-filter.js";
 import GridCommons from "../commons/grid-commons.js";
 
 class ClinicalAnalysisAuditBrowser extends LitElement {

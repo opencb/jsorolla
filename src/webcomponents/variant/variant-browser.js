@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
-import "./opencga-variant-filter.js";
+import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/opencb-facet-results.js";
@@ -698,7 +698,7 @@ export default class VariantBrowser extends LitElement {
 
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <opencga-variant-filter .opencgaSession=${this.opencgaSession}
+                            <variant-browser-filter .opencgaSession=${this.opencgaSession}
                                                     .query="${this.query}"
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .config="${this._config.filter}"
@@ -706,7 +706,7 @@ export default class VariantBrowser extends LitElement {
                                                     @querySearch="${this.onVariantFilterSearch}"
                                                     @activeFacetChange="${this.onActiveFacetChange}"
                                                     @activeFacetClear="${this.onActiveFacetClear}">
-                            </opencga-variant-filter>
+                            </variant-browser-filter>
                         </div>
 
                         <div role="tabpanel" class="tab-pane" id="facet_tab">

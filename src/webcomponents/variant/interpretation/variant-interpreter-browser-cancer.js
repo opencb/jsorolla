@@ -22,7 +22,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
-import "../opencga-variant-filter.js";
+import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
@@ -932,7 +932,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
             <div class="row">
                 <div class="col-md-2">
-                    <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
+                    <variant-browser-filter .opencgaSession="${this.opencgaSession}"
                                             .query="${this.query}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
@@ -941,7 +941,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">
-                    </opencga-variant-filter>
+                    </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
                 <div class="col-md-10">
