@@ -276,7 +276,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <config-list-update
-                                        entity="clinical"
+                                        key="clinical"
                                         .items="${clinical.status}"
                                         .config=${this.configClinical("clinical")}
                                         @editChange=${this.editItem}
@@ -298,7 +298,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <config-list-update
-                                        entity="interpretation"
+                                        key="interpretation"
                                         .items="${clinical.interpretation.status}"
                                         .config=${this.configClinical("interpretation")}
                                         @removeItem=${this.removeItem}>
@@ -319,7 +319,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <config-list-update
-                                        entity="priorities"
+                                        key="priorities"
                                         .items="${clinical.priorities}"
                                         .config=${this.configClinical("priorities")}
                                         @removeItem=${this.removeItem}>
@@ -340,7 +340,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <config-list-update
-                                        entity="flags"
+                                        key="flags"
                                         .items="${clinical.flags}"
                                         .config=${this.configClinical("flags")}
                                         @removeItem=${this.removeItem}>
@@ -361,7 +361,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <config-list-update
-                                        entity="consent"
+                                        key="consent"
                                         .items="${clinical.consent.consents}"
                                         .config=${this.configClinical("consent")}
                                         @removeItem=${this.removeItem}>

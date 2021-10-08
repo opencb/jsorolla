@@ -35,7 +35,7 @@ export default class ConfigListUpdate extends LitElement {
 
     static get properties() {
         return {
-            entity: {
+            key: {
                 type: String
             },
             items: {},
@@ -70,62 +70,12 @@ export default class ConfigListUpdate extends LitElement {
         e.stopPropagation();
     }
 
-    renderConfig(itemConfigs, key) {
-
-        if (itemConfigs.constructor === Array) {
-            const title = this.config.edit.display.mode?.heading?.title || "id";
-            const subtitle = this.config.edit.display.mode?.heading?.subtitle || "description";
-            return html`
-            ${itemConfigs?.map(item => {
-                const status = {...item, parent: key? key : ""};
-                return html`
-                    <div class="list-group-item">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div style="padding-bottom:2px">
-                                    <b>${status[title]}</b>
-                                    <p class="text-muted">${status[subtitle]}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                    <data-form
-                                        .data="${status}"
-                                        @fieldChange=${ e => this.editItem(e, {parent: key, entity: this.entity})}
-                                        .config="${this.config.edit}">
-                                    </data-form>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            })}
-            <data-form
-                .data="${this.status}"
-                @fieldChange=${ e => this.editItem(e, {parent: key, entity: this.entity, new: true})}
-                .config="${this.config.new}">
-            </data-form>
-        `;
-        }
-
-        if (itemConfigs.constructor === Object) {
-            return html `
-                <data-form
-                    .data=${itemConfigs}
-                    @fieldChange=${ e => this.editItem(e, {parent: key, entity: this.entity})}
-                    .config=${this.config.edit}>
-                </data-form>
-            `;
-        }
-
-        return "Others Configs";
-    }
-
     getDefaultConfig() {
         const configKeys = Object.keys(this.items).filter(key => this.items[key] instanceof Object);
         return {
             display: {
                 contentStyle: "",
             },
-
             items: configKeys.map(key => {
                 return {
                     id: key,
@@ -137,7 +87,7 @@ export default class ConfigListUpdate extends LitElement {
                                     <list-update
                                         .key=${this.key}
                                         .data=${{items: this.items[key]}}
-                                        .config=${this.config}>
+                                        .config=${this.config[key]||this.config}>
                                     </list-update>
                                 </div>
                             </div>`;
@@ -158,7 +108,7 @@ export default class ConfigListUpdate extends LitElement {
                 <list-update
                     .key=${this.key}
                     .data=${{items: this.items}}
-                    .config=${this.config}>
+                    .config=${this.config[this.key] || this.config}>
                 </list-update>
                 `}
         `;

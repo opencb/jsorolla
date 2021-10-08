@@ -46,11 +46,7 @@ export default class ListUpdate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // this._config = {...this.getDefaultConfig()};
 
-        if (UtilsNew.isUndefined(this.items)) {
-            this.items = [];
-        }
     }
 
     _init() {
@@ -70,8 +66,8 @@ export default class ListUpdate extends LitElement {
 
     render() {
         if (this.data.items.constructor === Array) {
-            const title = this.config.edit.display.mode?.heading?.title || "id";
-            const subtitle = this.config.edit.display.mode?.heading?.subtitle || "description";
+            const title = this.config.edit?.display?.mode?.heading?.title || "id";
+            const subtitle = this.config.edit?.display?.mode?.heading?.subtitle || "description";
             return html`
             ${this.data.items?.map(item => {
                 const status = {...item, parent: this.key? this.key : ""};
@@ -103,6 +99,7 @@ export default class ListUpdate extends LitElement {
         }
 
         if (this.data.items.constructor === Object) {
+            // debugger;
             return html `
                 <data-form
                     .data=${this.data.items}
@@ -111,8 +108,6 @@ export default class ListUpdate extends LitElement {
                 </data-form>
             `;
         }
-
-        return "Others Configs";
     }
 
 }
