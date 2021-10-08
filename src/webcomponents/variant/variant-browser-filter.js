@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
@@ -42,7 +42,7 @@ import "../commons/filters/variant-file-info-filter.js";
 import "../commons/filters/variant-type-filter.js";
 import "../commons/filters/variant-ext-svtype-filter.js";
 
-export default class OpencgaVariantFilter extends LitElement {
+export default class VariantBrowserFilter extends LitElement {
 
     constructor() {
         super();
@@ -549,4 +549,4 @@ export default class OpencgaVariantFilter extends LitElement {
 
 }
 
-customElements.define("opencga-variant-filter", OpencgaVariantFilter);
+customElements.define("variant-browser-filter", VariantBrowserFilter);
