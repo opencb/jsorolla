@@ -48,16 +48,16 @@ export default class VariantBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            populationFrequencies: {
+            query: {
                 type: Object
             },
             consequenceTypes: {
                 type: Object
             },
-            proteinSubstitutionScores: {
+            populationFrequencies: {
                 type: Object
             },
-            query: {
+            proteinSubstitutionScores: {
                 type: Object
             },
             // query object sent to Opencga client (includes this.selectedFacet serialised)
@@ -406,9 +406,8 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                populationFrequencies: populationFrequencies,
-                                // allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
                                 tooltip: tooltips.populationFrequencies,
+                                populationFrequencies: this.populationFrequencies || POPULATION_FREQUENCIES,
                                 showSetAll: true
                             }
                         ]
@@ -518,7 +517,7 @@ export default class VariantBrowser extends LitElement {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                            .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
                                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
                                     </cellbase-variant-annotation-summary>`;
                             }
@@ -537,7 +536,6 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "annotationPropFreq",
                             name: "Population Frequencies",
-                            // mode: "",
                             render: (variant, active) => {
                                 return html`
                                     <cellbase-population-frequency-grid
@@ -660,17 +658,15 @@ export default class VariantBrowser extends LitElement {
                     {
                         name: "Population Frequency",
                         fields: [
-                            ...this.populationFrequencies.studies.map(study =>
+                            ...(this.populationFrequencies || POPULATION_FREQUENCIES).studies.map(study =>
                                 study.populations.map(population => (
                                     {
                                         id: `popFreq__${study.id}__${population.id}`,
-                                        // value: `popFreq__${study.id}__${population.id}`,
                                         name: `${study.id} - ${population.id}`,
                                         defaultValue: "[0..1]:0.1",
                                         type: "number"
                                     }
-                                )
-                                )
+                                ))
                             ).flat()
                         ]
                     }
@@ -680,15 +676,6 @@ export default class VariantBrowser extends LitElement {
     }
 
     render() {
-        // Check if there is any project available
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>`;
-        }
-
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
@@ -714,7 +701,6 @@ export default class VariantBrowser extends LitElement {
                             <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                                     .query="${this.query}"
                                                     .cellbaseClient="${this.cellbaseClient}"
-                                                    .populationFrequencies="${this.populationFrequencies}"
                                                     .config="${this._config.filter}"
                                                     @queryChange="${this.onQueryFilterChange}"
                                                     @querySearch="${this.onVariantFilterSearch}"
@@ -773,9 +759,9 @@ export default class VariantBrowser extends LitElement {
                                                       .query="${this.executedQuery}"
                                                       .cohorts="${this.opencgaSession?.project?.studies ?? []}"
                                                       .cellbaseClient="${this.cellbaseClient}"
-                                                      .populationFrequencies="${this.populationFrequencies}"
+                                                      .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                                      .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                      .consequenceTypes="${this.consequenceTypes}"
                                                       .config="${this._config.filter.result.grid}"
                                                       @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
@@ -802,6 +788,15 @@ export default class VariantBrowser extends LitElement {
                 </div>
             </div>
         `;
+        // Check if there is any project available
+        if (!this.opencgaSession?.study) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>`;
+
+        }
     }
 
 }

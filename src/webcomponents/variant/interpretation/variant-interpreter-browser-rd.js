@@ -768,7 +768,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             .query="${this.query}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${populationFrequencies}"
+                                            .populationFrequencies="${POPULATION_FREQUENCIES}"
                                             .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"

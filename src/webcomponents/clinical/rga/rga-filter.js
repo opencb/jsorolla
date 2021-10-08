@@ -194,7 +194,7 @@ export default class RgaFilter extends LitElement {
                 break;
             case "populationFrequency":
                 content = html`
-                    <population-frequency-filter .populationFrequencies="${populationFrequencies}"
+                    <population-frequency-filter .populationFrequencies="${POPULATION_FREQUENCIES}"
                                                  .allowedFrequencies=${this.allowedPopFrequencies}
                                                  ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
                                                  .populationFrequencyAlt="${this.preparedQuery[subsection.id]}"

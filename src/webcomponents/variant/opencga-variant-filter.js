@@ -65,9 +65,6 @@ export default class OpencgaVariantFilter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            populationFrequencies: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -269,9 +266,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     renderFilterMenu() {
-        debugger
         if (this.config?.sections?.length > 0) {
-            debugger
             return this.config.sections.map(section => this._createSection(section));
         } else {
             return html`No filter has been configured.`;
@@ -399,7 +394,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "populationFrequency":
                     content = html`
-                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies}"
+                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies || POPULATION_FREQUENCIES}"
                                                      .allowedFrequencies="${subsection.allowedFrequencies}"
                                                      ?showSetAll="${subsection.showSetAll}"
                                                      .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
@@ -421,12 +416,10 @@ export default class OpencgaVariantFilter extends LitElement {
                         </protein-substitution-score-filter>`;
                     break;
                 case "cadd":
-                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch37") {
-                        content = html`
-                            <cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
-                                         @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
-                            </cadd-filter>`;
-                    }
+                    content = html`
+                        <cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
+                                     @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
+                        </cadd-filter>`;
                     break;
                 case "conservation":
                     content = html`

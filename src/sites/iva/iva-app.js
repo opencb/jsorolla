@@ -140,9 +140,9 @@ class IvaApp extends LitElement {
         _config.opencga = opencga;
         _config.cellbase = cellbase;
         _config.tools = tools;
-        _config.populationFrequencies = populationFrequencies;
-        _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
         _config.consequenceTypes = CONSEQUENCE_TYPES;
+        _config.populationFrequencies = POPULATION_FREQUENCIES;
+        _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
 
         // We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
@@ -1085,9 +1085,9 @@ class IvaApp extends LitElement {
                             .reactomeClient="${this.reactomeClient}"
                             .query="${this.queries.variant}"
                             .settings="${OPENCGA_VARIANT_BROWSER_SETTINGS}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
                             .populationFrequencies="${this.config.populationFrequencies}"
                             .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                            .consequenceTypes="${this.config.consequenceTypes}"
                             @onGene="${this.geneSelected}"
                             @onSamplechange="${this.onSampleChange}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "variant")}"
@@ -1117,9 +1117,9 @@ class IvaApp extends LitElement {
                                                 .cellbaseClient="${this.cellbaseClient}"
                                                 .clinicalAnalysisId="${this.clinicalAnalysisId}"
                                                 .query="${this.interpretationSearchQuery}"
+                                                .consequenceTypes="${this.config.consequenceTypes}"
                                                 .populationFrequencies="${this.config.populationFrequencies}"
                                                 .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                                .consequenceTypes="${this.config.consequenceTypes}"
                                                 .config="${true}"
                                                 @gene="${this.geneSelected}"
                                                 @samplechange="${this.onSampleChange}">
@@ -1133,9 +1133,9 @@ class IvaApp extends LitElement {
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .clinicalAnalysisId="${this.clinicalAnalysisId}"
                                                     .query="${this.interpretationSearchQuery}"
+                                                    .consequenceTypes="${this.config.consequenceTypes}"
                                                     .populationFrequencies="${this.config.populationFrequencies}"
                                                     .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                                    .consequenceTypes="${this.config.consequenceTypes}"
                                                     @gene="${this.geneSelected}"
                                                     @samplechange="${this.onSampleChange}">
                         </variant-cancer-interpreter>
@@ -1560,7 +1560,7 @@ class IvaApp extends LitElement {
                         </opencga-job-view>
                     </div>
                 ` : null
-                }
+}
 
                 <!-- Admin -->
                 ${this.config.enabledComponents["projects-admin"] ? html`

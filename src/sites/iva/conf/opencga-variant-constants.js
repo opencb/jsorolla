@@ -379,6 +379,72 @@ for (const category of CONSEQUENCE_TYPES.categories) {
     }
 }
 
+const POPULATION_FREQUENCIES = {
+    style: {
+        // This is based on this figure:
+        // http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+        veryRare: "#ff0000",
+        rare: "#ff8080",
+        average: "#8080ff",
+        common: "#0000ff",
+        unobserved: "black"
+    },
+    studies: [
+        {
+            id: "1kG_phase3",
+            title: "1000 Genomes",
+            populations: [
+                {
+                    id: "ALL", title: "All populations [ALL]"
+                },
+                {
+                    id: "AFR", title: "African [AFR]"
+                },
+                {
+                    id: "AMR", title: "American [AMR]"
+                },
+                {
+                    id: "EAS", title: "East Asian [EAS]"
+                },
+                {
+                    id: "EUR", title: "European [EUR]"
+                },
+                {
+                    id: "SAS", title: "South Asian [SAS]"
+                }
+            ]
+        },
+        {
+            id: "GNOMAD_GENOMES",
+            title: "gnomAD Genomes",
+            populations: [
+                {
+                    id: "ALL", title: "gnomAD [ALL]"
+                },
+                {
+                    id: "AFR", title: "African/African American [AFR]"
+                },
+                {
+                    id: "AMR", title: "American [AMR]"
+                },
+                {
+                    id: "EAS", title: "East Asian [EAS]"
+                },
+                {
+                    id: "FIN", title: "Finnish[FIN]"
+                },
+                {
+                    id: "NFE", title: "Non-Finnish European [NFE]"
+                }
+                // {
+                //     id: "SAS", title: "South Asian [SAS]"
+                // }
+            ]
+        }
+    ]
+};
+
+
 // sample variant stats biotypes
 const SAMPLE_STATS_BIOTYPES = ["nonsense_mediated_decay", "miRNA", "retained_intron", "snRNA", "snoRNA", "protein_coding"];
 
@@ -702,74 +768,6 @@ for (const category of SAMPLE_STATS_CONSEQUENCE_TYPES.categories) {
     }
 }
 
-const populationFrequencies = {
-    style: {
-        // This is based on this figure:
-        // http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-        veryRare: "#ff0000",
-        rare: "#ff8080",
-        average: "#8080ff",
-        common: "#0000ff",
-        unobserved: "black"
-    },
-    studies: [
-        {
-            id: "1kG_phase3",
-            title: "1000 Genomes",
-            // tooltip: "Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database is below (or above) " +
-            //     "the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.",
-            populations: [
-                {
-                    id: "ALL", title: "All populations [ALL]"
-                },
-                {
-                    id: "AFR", title: "African [AFR]"
-                },
-                {
-                    id: "AMR", title: "American [AMR]"
-                },
-                {
-                    id: "EAS", title: "East Asian [EAS]"
-                },
-                {
-                    id: "EUR", title: "European [EUR]"
-                },
-                {
-                    id: "SAS", title: "South Asian [SAS]"
-                }
-            ]
-        },
-        {
-            id: "GNOMAD_GENOMES",
-            title: "gnomAD Genomes",
-            // tooltip: "Only considers variants whose observed allelic frequency in the gnomAD Genomes database is below (or above) the " +
-            //     "defined value. Frequencies were calculated from about 15,000 unrelated individuals.",
-            populations: [
-                {
-                    id: "ALL", title: "gnomAD [ALL]"
-                },
-                {
-                    id: "AFR", title: "African/African American [AFR]"
-                },
-                {
-                    id: "AMR", title: "American [AMR]"
-                },
-                {
-                    id: "EAS", title: "East Asian [EAS]"
-                },
-                {
-                    id: "FIN", title: "Finnish[FIN]"
-                },
-                {
-                    id: "NFE", title: "Non-Finnish European [NFE]"
-                }
-                // {
-                //     id: "SAS", title: "South Asian [SAS]"
-                // }
-            ]
-        }
-    ]
-};
 
 const tooltips = {
     conservation: "<strong>PhyloP</strong> scores measure evolutionary conservation at individual alignment sites. The scores " +
