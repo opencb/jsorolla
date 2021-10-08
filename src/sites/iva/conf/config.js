@@ -49,10 +49,10 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[0].url,
+    host: hosts[3].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[0].id
+        prefix: "iva-" + hosts[3].id
     }
 
     // This forces the following projects to be used instead of the user's project
