@@ -509,6 +509,12 @@ h3.page-title {
     background: #337ab7;
 }
 
+.ripple:active:hover, .ripple.active:hover  {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    outline: 0;
+}
+
 .ripple.no-transform {
     text-transform: none;
 }
