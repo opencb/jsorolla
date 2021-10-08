@@ -43,7 +43,7 @@ export default class OpencgaJobGrid extends LitElement {
                 type: Array
             },
             filters: {
-                type: Object
+                type: Object,
             },
             query: {
                 type: Object
@@ -57,7 +57,7 @@ export default class OpencgaJobGrid extends LitElement {
             },
             active: {
                 type: Boolean
-            }
+            },
         };
     }
 
@@ -76,9 +76,9 @@ export default class OpencgaJobGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
+                changedProperties.has("query") ||
+                changedProperties.has("config") ||
+                changedProperties.has("active")) &&
             this.active) {
             this.propertyObserver();
         }
@@ -112,17 +112,26 @@ export default class OpencgaJobGrid extends LitElement {
 
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
+
             this.table.bootstrapTable({
                 columns: this._initTableColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
+
+                // NOTE native Bootstrap table autorefresh doesn't clear interval correctly
+                // showRefresh: true,
+                // autoRefresh: true,
+                // autoRefreshSilent: false,
+                // autoRefreshStatus: true,
+                // autoRefreshInterval: 5,
+
                 // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autorefreshMsg(),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter.bind(this),
@@ -179,78 +188,79 @@ export default class OpencgaJobGrid extends LitElement {
                 },
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
+                    this.enableAutorefresh();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
             });
         }
     }
 
-    /* /!**
-     * If filters have been removed, clean the values from the form.
-     *!/
-    onFilterUpdate() {
-        this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
-    }*/
+    autorefreshMsg() {
+        return ` <i class="fas fa-sync-alt ${this.autorefresh === true ? "anim-rotate" : "disabled"}"
+                    title="Autorefresh of results every ${(this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming) / 1000}s"></i>`;
+    }
 
-    /* // TODO adapt to jobs
-    onSearch() {
-        // Convert the filters to an objectParam that can be directly send to the file search
-        const filterParams = {};
-
-        const keys = Object.keys(this.filters);
-        for (let i = 0; i < keys.length; i++) {
-            // Some filters can come as an array of things.
-            // annotation = [{name: name, value: Smith}, {name: age, value: >5}]
-            if (Array.isArray(this.filters[keys[i]])) {
-                const myArray = this.filters[keys[i]];
-
-                let myArrayFilter = [];
-
-                // The elements in the array can be either an object
-                if (Object.getPrototypeOf(myArray[0]) === Object.prototype) {
-                    const myArray = this.filters[keys[i]];
-                    for (let j = 0; j < myArray.length; j++) {
-                        // TODO: We have to check if the value already has an operand
-                        myArrayFilter.push(myArray[j].name + "=" + myArray[j].value);
-                    }
-                } else {
-                    // Or an array of strings or numbers
-                    myArrayFilter = this.filters[keys[i]];
-                }
-
-                filterParams[keys[i]] = myArrayFilter.join(";");
-            } else {
-                filterParams[keys[i]] = this.filters[keys[i]];
-            }
-        }
-
-        if (this.filters.hasOwnProperty("annotation")) {
-            // Add the variable set whose annotations will be queried
-            filterParams["variableSetId"] = this.filteredVariables.variableSet;
-        }
-        this.query = filterParams;
-    }*/
-
-
-    setAutorefresh() {
+    enableAutorefresh() {
         if (this.autorefresh) {
-            clearInterval(this.interval);
-            this.autorefresh = false;
-            this.requestUpdate();
+            return;
         } else {
             this.autorefresh = true;
-            this.renderTable();
+            // this.renderTable();
+            this.table.bootstrapTable("refresh", {silent: true});
+            // this.requestUpdate();
+
+            clearInterval(this.interval);
             this.interval = setInterval(() => {
                 if (!this?.opencgaSession?.token || !$(`#${this.gridId}`).is(":visible")) {
                     this.autorefresh = false;
                     clearInterval(this.interval);
                 } else {
                     this.autorefresh = true;
-                    this.renderTable();
+                    // this.renderTable();
+                    this.table.bootstrapTable("refresh", {silent: true});
+                    // this.requestUpdate();
                 }
             }, this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
         }
     }
+
+    /* setAutorefresh(force = false) {
+        if (force) {
+            if (this.autorefresh) {
+                return;
+            } else {
+                this.autorefresh = false;
+            }
+        } else {
+
+            if (this.autorefresh) {
+                clearInterval(this.interval);
+                this.autorefresh = false;
+                this.requestUpdate();
+            } else {
+                this.autorefresh = true;
+                // this.renderTable();
+                this.table.bootstrapTable("refresh", {silent: false});
+                this.requestUpdate();
+
+                clearInterval(this.interval);
+                this.interval = setInterval(() => {
+                    if (!this?.opencgaSession?.token || !$(`#${this.gridId}`).is(":visible")) {
+                        this.autorefresh = false;
+                        clearInterval(this.interval);
+                    } else {
+                        this.autorefresh = true;
+
+                        // this.renderTable();
+                        console.log("refreshed", this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
+                        this.table.bootstrapTable("refresh", {silent: false});
+
+                        this.requestUpdate();
+                    }
+                }, this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
+            }
+        }
+    }*/
 
     _initTableColumns() {
         let _columns = [
@@ -330,7 +340,7 @@ export default class OpencgaJobGrid extends LitElement {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter
+                formatter: CatalogGridFormatter.dateFormatter,
             }
         ];
 
@@ -468,12 +478,12 @@ export default class OpencgaJobGrid extends LitElement {
             {
                 render: () => html`
                     <div class="btn-group" role="group">
-                        <button type="button"
+                            <!-- <button type="button"
                                 class="btn btn-default btn-sm ripple ${this.autorefresh === true ? "active" : ""}"
-                                @click="${() => this.setAutorefresh()}" title="Autorefresh of results every ${(this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming)/1000}s">
+                                @click="${() => this.setAutorefresh()}" title="Autorefresh of results every ${(this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming) / 1000}s">
                             Autorefresh <i class="fas fa-sync-alt ${this.autorefresh === true ? "anim-rotate" : "disabled"}"></i>
-                        </button>
-                        <button type="button" class="btn btn-default btn-sm ripple" @click="${() => this.renderTable()}" title="Force a refresh of results">
+                        </button> -->
+                        <button type="button" class="btn btn-default btn-sm ripple" @click="${() => this.table.bootstrapTable("refresh")}" title="Force a refresh of results">
                             <i class="fas fa-bolt"></i>
                         </button>
                     </div>
@@ -506,16 +516,16 @@ export default class OpencgaJobGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                          .query="${this.query}"
-                                          .opencgaSession="${this.opencgaSession}"
-                                          .rightToolbar="${this.getRightToolbar()}"
-                                          @columnChange="${this.onColumnChange}"
-                                          @download="${this.onDownload}"
-                                          @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` :
-                ""
+                    html`
+                        <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                                             .query="${this.query}"
+                                             .opencgaSession="${this.opencgaSession}"
+                                             .rightToolbar="${this.getRightToolbar()}"
+                                             @columnChange="${this.onColumnChange}"
+                                             @download="${this.onDownload}"
+                                             @export="${this.onDownload}">
+                        </opencb-grid-toolbar>` :
+                    ""
             }
             <div>
                 <table id="${this.gridId}"></table>
