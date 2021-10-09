@@ -345,6 +345,7 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "study",
                                 title: "Study Filter",
+                                visible: () => this.opencgaSession.project.studies.length > 1,
                                 tooltip: tooltips.study
                             },
                             {
@@ -421,11 +422,6 @@ export default class VariantBrowser extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accessions",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
