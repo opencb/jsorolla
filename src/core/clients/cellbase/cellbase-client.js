@@ -62,11 +62,11 @@ export class CellBaseClient {
         };
         this.getMeta("about")
             .then(response => {
-                if (response?.response?.[0]?.result[0]["Program: "] !== "CellBase (OpenCB)") {
+                if (response?.response?.[0]?.result[0]["Program"] !== "CellBase (OpenCB)") {
                     globalEvent("signingInError", {value: "Cellbase host not available."});
                     globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
                 } else {
-                    globalEvent("hostInit", {host: "cellbase", value: "v" + response.response[0].result[0]["Version: "]});
+                    globalEvent("hostInit", {host: "cellbase", value: "v" + response.response[0].result[0]["Version"]});
                 }
             })
             .catch(e => {
