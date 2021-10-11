@@ -672,6 +672,15 @@ export default class VariantBrowser extends LitElement {
     }
 
     render() {
+        // Check if there is any project available
+        if (!this.opencgaSession?.study) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue.</h3>
+                </div>`;
+        }
+
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
@@ -733,7 +742,7 @@ export default class VariantBrowser extends LitElement {
                         <opencga-active-filters facetActive
                                                 resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.fqn}"
+                                                .defaultStudy="${this.opencgaSession.study?.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .executedQuery="${this.executedQuery}"
                                                 .facetQuery="${this.preparedFacetQueryFormatted}"
@@ -784,15 +793,6 @@ export default class VariantBrowser extends LitElement {
                 </div>
             </div>
         `;
-        // Check if there is any project available
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>`;
-
-        }
     }
 
 }
