@@ -339,7 +339,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 tooltip: tooltips.type
                             },
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Consequence Type",
                                 tooltip: tooltips.consequenceTypeSelect
                             }

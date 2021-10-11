@@ -16,7 +16,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             },
             {
                 title: "Consequence Type",
-                filters: ["consequenceTypeSelect"]
+                filters: ["consequence-type"]
             },
             {
                 title: "Population Frequency",

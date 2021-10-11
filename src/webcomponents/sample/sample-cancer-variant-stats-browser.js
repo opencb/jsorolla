@@ -569,7 +569,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 tooltip: tooltips.biotype
                             },
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
                             }

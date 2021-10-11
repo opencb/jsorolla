@@ -286,7 +286,7 @@ export default class VariantBrowserFilter extends LitElement {
     }
 
     _createSection(section) {
-        const htmlFields = section.filters?.length ? section.filters.map(subsection => this._createSubSection(subsection)) : "";
+        const htmlFields = section.filters?.length ? section.filters.map(filter => this._createSubSection(filter)) : "";
         // We only display section accordion when more than section exists,
         // otherwise we just render all filters without an accordion box.
         return this.config.sections.length > 1 ? html`
@@ -296,6 +296,11 @@ export default class VariantBrowserFilter extends LitElement {
     }
 
     _createSubSection(subsection) {
+        if (!subsection?.id) {
+            console.error("Filter definition error", subsection);
+            return;
+        }
+
         if (!this._isFilterVisible(subsection)) {
             return null;
         }
@@ -510,7 +515,7 @@ export default class VariantBrowserFilter extends LitElement {
                     case "variant-file-info-filter":
                         content = html`
                         <variant-file-info-filter .files="${subsection.params.files}"
-                                                  // .study="${subsection.params.study || this.opencgaSession.study}"
+                                                  .study="${subsection.params.study || this.opencgaSession.study}"
                                                   .fileData="${this.preparedQuery.fileData}"
                                                   .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
                                                   @filterChange="${

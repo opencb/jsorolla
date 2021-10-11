@@ -488,7 +488,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         collapsed: true,
                         filters: [
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
