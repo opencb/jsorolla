@@ -63,17 +63,12 @@ export class CellBaseClient {
         this.getMeta("about")
             .then(response => {
                 const result = response?.response?.[0]?.result[0];
-                // Older versions of cellbase are using 'Program: ' as the key instead of 'Program' (Issue #185).
+                // Older versions of cellbase are using 'Version: ' as the key instead of 'Version' (Issue #185).
                 // To keep compatibility, we will check for both keys, but in the future only the newest key will be used.
-                if (!result || (result["Program"] !== "CellBase (OpenCB)" && result["Program: "] !== "CellBase (OpenCB)")) {
-                    globalEvent("signingInError", {value: "Cellbase host not available."});
-                    globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
-                } else {
-                    globalEvent("hostInit", {
-                        host: "cellbase",
-                        value: "v" + (result["Version"] || result["Version: "]),
-                    });
-                }
+                globalEvent("hostInit", {
+                    host: "cellbase",
+                    value: "v" + (result["Version"] || result["Version: "]),
+                });
             })
             .catch(e => {
                 console.error(e);
