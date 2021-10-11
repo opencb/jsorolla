@@ -241,7 +241,7 @@ export default class VariantBrowserFilter extends LitElement {
                 visible = subsection.visible;
             } else {
                 if (typeof subsection.visible === "function") {
-                    visible = subsection.visible();
+                    visible = subsection.visible(this); // injecting context
                 } else {
                     console.error(`Field 'visible' not boolean or function: ${typeof subsection.visible}`);
                 }
@@ -286,8 +286,10 @@ export default class VariantBrowserFilter extends LitElement {
     }
 
     _createSection(section) {
-        const htmlFields = section.filters?.length ? section.filters.map(filter => this._createSubSection(filter)) : "";
-        // We only display section accordion when more than section exists,
+        // TODO replicate in all filters components
+        const filters = section.filters.filter(filter => this._isFilterVisible(filter)) ?? [];
+        const htmlFields = filters.map(filter => this._createSubSection(filter));
+        // We only display section accordions when more than a section exists,
         // otherwise we just render all filters without an accordion box.
         return this.config.sections.length > 1 ? html`
             <section-filter .filters="${htmlFields}"
@@ -299,10 +301,6 @@ export default class VariantBrowserFilter extends LitElement {
         if (!subsection?.id) {
             console.error("Filter definition error", subsection);
             return;
-        }
-
-        if (!this._isFilterVisible(subsection)) {
-            return null;
         }
 
         let content = "";
