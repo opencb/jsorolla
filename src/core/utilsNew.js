@@ -556,7 +556,7 @@ export default class UtilsNew {
      * `external` is a plain list of IDs.
      *
      * @param {Array} internal Array of objects
-     * @param {Array} external List of IDs
+     * @param {Array} external Mixed array of IDs or objects (with id property)
      * @param {Boolean} subtractive set true if the external array lists the fields to hide
      * @returns {Array} hydrated array
      */
@@ -564,12 +564,13 @@ export default class UtilsNew {
         // it doesn't check for external.length because it supports empty array
         if (external) {
             if (!subtractive) {
-                const section = external.map(id => {
+                const section = external.map(o => {
+                    const id = typeof o === "object" ? o.id : o; // support both string ID or object
                     const obj = internal.find(e => id === e.id);
                     if (!obj) {
                         console.error(`Config Merge failed. ${id} not found in internal config`);
                     } else {
-                        return {...obj};
+                        return typeof o === "object" ? {...o, ...obj} : {...obj};
                     }
                 });
                 return section;
@@ -579,7 +580,7 @@ export default class UtilsNew {
                 });
             }
         }
-        console.warn("external config not available");
+        console.error("External config not available");
         return internal;
     }
 
