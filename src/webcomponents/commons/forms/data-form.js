@@ -371,7 +371,7 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        // Templates are allowed in the titles
+        // Templates are allowed in the names
         let title = element.name;
         if (title && title.includes("${")) {
             title = this.applyTemplate(element.name);
@@ -519,7 +519,7 @@ export default class DataForm extends LitElement {
 
     _createTitleElement(element) {
         return html`
-            <div class="${element.display.textClass ? element.display.textClass : ""}" style="${element.display?.textStyle ? element.display.textStyle : ""}">
+            <div class="${element.display?.textClass ? element.display.textClass : ""}" style="${element.display?.textStyle ? element.display.textStyle : ""}">
                 <span>${element.text}</span>
             </div>
         `;

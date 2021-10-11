@@ -504,16 +504,18 @@ export default class VariantBrowserFilter extends LitElement {
                         break;
                     case "ext-svtype":
                         content = html`
-                        <variant-ext-svtype-filter @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
-                        </variant-ext-svtype-filter>`;
+                            <variant-ext-svtype-filter @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
+                            </variant-ext-svtype-filter>`;
                         break;
                     case "variant-file-info-filter":
                         content = html`
-                        <variant-file-info-filter .callers="${subsection.params.callers}"
+                        <variant-file-info-filter .files="${subsection.params.files}"
+                                                  // .study="${subsection.params.study || this.opencgaSession.study}"
                                                   .fileData="${this.preparedQuery.fileData}"
+                                                  .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
                                                   @filterChange="${
-                            e => this.onFilterChange("fileData", e.detail.value)
-                        }">
+                                                          e => this.onFilterChange("fileData", e.detail.value)
+                                                  }">
                         </variant-file-info-filter>`;
                         break;
                     default:

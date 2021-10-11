@@ -34,15 +34,20 @@ export default class VariantFileInfoFilter extends LitElement {
 
     static get properties() {
         return {
-            // Mandatory
-            callers: {
+            sampleId: {
+                type: String
+            },
+            files: {
                 type: Array
             },
-            // fileId: {
-            //     type: String
+            // callers: {
+            //     type: Array
             // },
             fileData: {
                 type: String
+            },
+            opencgaSession: {
+                type: Object
             },
             // config: {
             //     type: Object
@@ -60,8 +65,8 @@ export default class VariantFileInfoFilter extends LitElement {
         };
 
         this.fileDataSeparator = ",";
-        this.fileToCaller = {};
-        this._config = this.getDefaultConfig();
+        // this.fileToCaller = {};
+        // this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -71,44 +76,194 @@ export default class VariantFileInfoFilter extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("callers")) {
-            this.callersObserver();
+        // if (changedProperties.has("callers")) {
+        //     this.callersObserver();
+        // }
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
         }
-
+        if (changedProperties.has("files")) {
+            this.filesObserver();
+        }
         if (changedProperties.has("fileData")) {
             this.fileDataObserver();
         }
         super.update(changedProperties);
     }
 
-    callersObserver() {
-        this.fileToCaller = {};
-        this.callerToFile = {};
+    sampleIdObserver() {
+        if (this.sampleId && this.opencgaSession) {
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this.sampleId, format: "VCF", study: this.opencgaSession.study.fqn})
+                .then(fileResponse => {
+                    this.files = fileResponse.response[0].results;
+                })
+                .catch(response => {
+                    console.error(`An error occurred fetching files for sample: ${this.sampleId}`, response);
+                });
+        }
+    }
 
-        this._sections = this.callers.map(caller => {
-            this.fileToCaller[caller.fileId] = caller.id;
-            this.callerToFile[caller.id] = caller.fileId;
+    filesObserver() {
+        // Get all caller IDs and map them to the file objects
+        this.callerIdToFile = {};
+        this.fileNameToCallerId = {};
+        for (const file of this.files) {
+            // If software.name does not exist then we use file.name
+            const softwareName = file.software?.name ? file.software.name.toLowerCase() : file.name;
+            this.callerIdToFile[softwareName] = file;
+            this.fileNameToCallerId[file.name] = softwareName;
+        }
 
-            // Generate the caller section
-            return {
-                title: caller.id,
-                display: {
-                    titleHeader: "h4",
-                    titleStyle: "margin: 20px 20px 0px 20px"
-                },
-                elements: caller.dataFilters.map(field => ({
-                    name: field.name || field.id,
-                    field: caller.id + "." + field.id,
-                    type: this.callerParamTypeToDataForm[field.type],
-                    comparators: (field.comparators || []).join(","),
-                    allowedValues: field.allowedValues,
-                    defaultValue: "",
-                })),
-            };
+        // Generate a map of all INFO fields to the callerIds, fileIds and the description2
+        const infoFieldToBasicInfo = {"PASS": []}; // PASS is always there
+        this.files.forEach(file => {
+            // Add PASS automatically to all files
+            infoFieldToBasicInfo["PASS"].push({
+                fileName: file.name,
+                callerId: file.software?.name,
+                description: "PASS variant"
+            });
+
+            // Add the other fields to the files where they exist
+            file.attributes.variantFileMetadata.header.complexLines
+                .filter(line => line.key === "INFO")
+                .forEach(line => {
+                    if (!infoFieldToBasicInfo[line.id]) {
+                        infoFieldToBasicInfo[line.id] = [];
+                    }
+
+                    infoFieldToBasicInfo[line.id].push({
+                        fileName: file.name,
+                        callerId: file.software?.name,
+                        description: line.description
+                    });
+                });
         });
 
-        // Update this._config to update changes
+        // Check if variantCallers have been configured
+        const variantCallers = [];
+        const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
+        if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
+            const indexedFields = {};
+            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
+                for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
+                    if (customField.source === "FILE") {
+                        indexedFields[customField.key] = customField;
+                    }
+                }
+            }
+
+            // TODO check if this work
+            for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
+                if (this.callerIdToFile?.[caller.id]) {
+                    // Check if dataFilter are indexed
+                    for (const dataFilter of caller.dataFilters) {
+                        if (indexedFields[dataFilter.id]) {
+                            const field = indexedFields[dataFilter.id];
+                            if (field.type.startsWith("RANGE_")) {
+                                dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                dataFilter.allowedValues = field.thresholds;
+                            } else {
+                                dataFilter.allowedValues = field.values;
+                            }
+                        }
+                    }
+
+                    variantCallers.push({
+                        ...caller,
+                        fileId: this.callerIdToFile[caller.id]?.name
+                    });
+                }
+            }
+        } else {
+            // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
+            // Example:
+            // "customFields": [
+            //     {
+            //         "source": "FILE",
+            //         "key": "FILTER",
+            //         "type": "CATEGORICAL",
+            //         "values": [
+            //             "PASS"
+            //         ],
+            //         "nullable": true
+            //     },
+            //     {
+            //         "source": "FILE",
+            //         "key": "ASMD",
+            //         "type": "RANGE_LT",
+            //         "thresholds": [
+            //             20,
+            //             30,
+            //             250,
+            //             300
+            //         ],
+            //         "nullable": true
+            //     }
+            // ]
+
+            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
+                const callerToDataFilters = {};
+                for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
+                    // At the moment we support all FILE fields but QUAL, since the values do not follow any standard
+                    if (customField.source === "FILE" && customField.key !== "QUAL") {
+                        let fieldName, fieldType, fieldValues, fieldComparators;
+
+                        // Check if field id is FILTER and has only PASS value
+                        if (customField.key === "FILTER") {
+                            if (customField.values?.length === 1 && customField.values[0] === "PASS") {
+                                fieldName = "PASS",
+                                fieldType = "BOOLEAN";
+                            } else {
+                                fieldType = "CATEGORICAL";
+                                fieldValues = customField.values;
+                            }
+                        } else {
+                            // All other fields are processed normally
+                            if (customField.type.startsWith("RANGE_")) {
+                                fieldType = "NUMERIC";
+                                fieldValues = customField.thresholds;
+                                fieldComparators = customField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                            } else {
+                                fieldType = "CATEGORICAL";
+                                fieldValues = customField.values;
+                            }
+                        }
+
+                        // Add this field to each caller dataFilter
+                        (infoFieldToBasicInfo[fieldName || customField.key] || []).forEach(caller => {
+                            const callerId = caller.callerId || caller.fileName; // replace . by _
+                            if (!callerToDataFilters[callerId]) {
+                                callerToDataFilters[callerId] = [];
+                            }
+                            callerToDataFilters[callerId].push({
+                                id: customField.key,
+                                name: fieldName || customField.key,
+                                type: fieldType,
+                                source: customField.source,
+                                allowedValues: fieldValues,
+                                comparators: fieldComparators || [],
+                            });
+                        });
+                    }
+                }
+
+                const entries = Object.entries(this.callerIdToFile);
+                for (const entry of entries) {
+                    if (callerToDataFilters[entry[0]]) {
+                        variantCallers.push({
+                            id: entry[0],
+                            dataFilters: callerToDataFilters[entry[0]],
+                            fileId: entry[1].name,
+                        });
+                    }
+                }
+            }
+        }
+
+        this.callers = variantCallers;
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     /*
@@ -123,7 +278,7 @@ export default class VariantFileInfoFilter extends LitElement {
             for (const fileDataItem of this.fileDataArray) {
                 if (fileDataItem.includes(":")) {
                     const [fileId, filters] = fileDataItem.split(":");
-                    _fileDataQuery[this.fileToCaller[fileId]] = {};
+                    _fileDataQuery[this.fileNameToCallerId[fileId]] = {};
                     for (const filter of filters.split(";")) {
                         let key, comparator, value;
                         if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
@@ -138,7 +293,7 @@ export default class VariantFileInfoFilter extends LitElement {
                                 isNaN(value) ? comparator = "" : comparator = "=";
                             }
                         }
-                        _fileDataQuery[this.fileToCaller[fileId]][key] = comparator + value;
+                        _fileDataQuery[this.fileNameToCallerId[fileId]][key] = comparator + value;
                     }
                 } else {
                     console.warn("No fileId provided");
@@ -173,7 +328,7 @@ export default class VariantFileInfoFilter extends LitElement {
         const fileData = Object.entries(this.fileDataQuery)
             .map(callerEntry => {
                 // Translate caller to file
-                const fileId = this.callerToFile[callerEntry[0]];
+                const fileId = this.callerIdToFile[callerEntry[0]].name;
                 const filterString = Object.entries(callerEntry[1])
                     .map(filterEntry => {
                         // FILTER requires a PASS value when true
@@ -196,6 +351,33 @@ export default class VariantFileInfoFilter extends LitElement {
     }
 
     getDefaultConfig() {
+        const _sections = this.callers?.map(caller => {
+            // Generate the caller section
+            return {
+                title: caller.id,
+                display: {
+                    titleHeader: "h4",
+                    titleStyle: "margin: 20px 20px 0px 20px"
+                },
+                elements: [
+                    // {
+                    //     name: "",
+                    //     field: "",
+                    //     type: "title",
+                    //     text: "VCF file " + caller.fileId,
+                    // },
+                    ...caller.dataFilters.map(field => ({
+                        name: field.name || field.id,
+                        field: caller.id + "." + field.id,
+                        type: this.callerParamTypeToDataForm[field.type],
+                        comparators: (field.comparators || []).join(","),
+                        allowedValues: field.allowedValues,
+                        defaultValue: "",
+                    }))
+                ],
+            };
+        });
+
         return {
             title: "",
             icon: "",
@@ -207,7 +389,7 @@ export default class VariantFileInfoFilter extends LitElement {
                 defaultValue: "-",
                 defaultLayout: "vertical"
             },
-            sections: this._sections
+            sections: _sections
         };
     }
 

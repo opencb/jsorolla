@@ -156,24 +156,22 @@ export default class CohortStatsFilter extends LitElement {
                         <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
                     </div>
 
-                    <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
-                        ${study.cohorts
-                                .map(cohort => html`
-                                    <div class="form-group" style="margin: 5px 0px">
-                                        <number-field-filter
-                                                .value="${this.state?.[study.id]?.value ?
+                    <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}">
+                        ${study.cohorts.map(cohort => html`
+                            <div class="form-group" style="margin: 5px 0px">
+                                <number-field-filter
+                                        .value="${this.state?.[study.id]?.value ?
                                                         (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") :
                                                         ""}"
-                                                .config="${{comparator: true, layout: [4, 3, 5]}}"
-                                                .label="${cohort.id}"
-                                                type="text"
-                                                data-study="${study.id}"
-                                                data-cohort="${cohort.id}"
-                                                data-action="comparator"
-                                                @filterChange="${e => this.filterChange(e, study.id, cohort.id)}">
-                                        </number-field-filter>
-                                    </div>
-                                `)
+                                        .config="${{comparator: true, layout: [3, 4, 5]}}"
+                                        .label="${cohort.id}"
+                                        type="text"
+                                        data-study="${study.id}"
+                                        data-cohort="${cohort.id}"
+                                        data-action="comparator"
+                                        @filterChange="${e => this.filterChange(e, study.id, cohort.id)}">
+                                </number-field-filter>
+                            </div>`)
                         }
                     </div>
                 </div>

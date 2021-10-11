@@ -45,11 +45,11 @@ class VariantInterpreterBrowserRd extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysis: {
-                type: Object
-            },
             clinicalAnalysisId: {
                 type: String
+            },
+            clinicalAnalysis: {
+                type: Object
             },
             query: {
                 type: Object
@@ -69,7 +69,6 @@ class VariantInterpreterBrowserRd extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        // this.samples = [];
         this.variant = null;
         this.reportedVariants = [];
 
@@ -101,8 +100,6 @@ class VariantInterpreterBrowserRd extends LitElement {
         }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
-            // this.config has a clinicalAnalysis reference in it, we need to updated it once clinicalAnalysis is available
-            this.settingsObserver();
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -133,20 +130,16 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession) {
-            if (this.query) {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            } else {
-                // this.preparedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
-                // this.executedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
-            }
+        if (this.opencgaSession && this.query) {
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
         this.requestUpdate();
     }
 
     clinicalAnalysisObserver() {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        let isSettingsObserverCalled = false;
 
         // If sample is not defined and proband exists then we set the default samples
         if (!this.query?.sample && this.clinicalAnalysis.proband?.samples?.length > 0) {
@@ -184,6 +177,47 @@ class VariantInterpreterBrowserRd extends LitElement {
             if (this.clinicalAnalysis.panels?.length > 0) {
                 this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
             }
+
+            // Object to map callers ID to Files
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this._sampleId, format: "VCF", study: this.opencgaSession.study.fqn})
+                .then(fileResponse => {
+                    this.files = fileResponse.response[0].results;
+
+                    // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
+                    if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                        const fileDataFilters = [];
+                        this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers.forEach(variantCaller => {
+                            const filters = variantCaller.dataFilters
+                                .filter(filter => !!filter.defaultValue)
+                                .map(filter => {
+                                    // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                    return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                                });
+
+                            // Only add this file to the filter if we have at least one default value
+                            if (filters.length > 0) {
+                                // We need to find the file for that caller
+                                const fileId = this.files.find(file => file.software.name === variantCaller.id)?.name;
+                                if (fileId) {
+                                    fileDataFilters.push(fileId + ":" + filters.join(";"));
+                                }
+                            }
+                        });
+
+                        // Update query with default 'fileData' parameters
+                        this.query = {
+                            ...this.query,
+                            fileData: fileDataFilters.join(","),
+                        };
+                    }
+                    this.queryObserver();
+
+                    this.settingsObserver();
+                    isSettingsObserverCalled = true;
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching sample: ", response);
+                });
         }
 
         // Check if QC filters exist and add them to active filter
@@ -219,7 +253,11 @@ class VariantInterpreterBrowserRd extends LitElement {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
 
-        // this.requestUpdate();
+        // No need to call to settingsObserver() again if already called in files.search.
+        if (!isSettingsObserverCalled) {
+            this.settingsObserver();
+            isSettingsObserverCalled = true;
+        }
     }
 
     /*
@@ -384,7 +422,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "file-quality",
                                 title: "Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters"
-                                // showDepth: false
+                            },
+                            {
+                                id: "variant-file-info-filter",
+                                title: "Variant File Caller Filter",
+                                params: {
+                                    // study: this.opencgaSession?.study,
+                                    // callers: this.variantCallers,
+                                    files: this.files,
+                                    opencgaSession: this.opencgaSession
+                                }
                             },
                             {
                                 id: "cohort",
