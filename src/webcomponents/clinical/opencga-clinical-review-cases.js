@@ -539,8 +539,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 </li>
                                                 ${this.isLoggedIn() ? html`
                                                     <li>
-                                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save
-                                                            filter...</strong></a>
+                                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong></a>
                                                     </li>
                                                 ` : null}
                                             </ul>

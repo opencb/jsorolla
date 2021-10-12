@@ -91,21 +91,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
-
-        // If there is any active filter we set the first one in the initialisation
-        if (typeof this.filters !== "undefined" && UtilsNew.isEmpty(this.query)) {
-            for (const filter of this.filters) {
-                if (filter.active) {
-                    const _queryList = Object.assign({}, filter.query);
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: _queryList,
-                        bubbles: true,
-                        composed: true
-                    }));
-                    break;
-                }
-            }
-        }
     }
 
     updated(changedProperties) {
@@ -129,6 +114,18 @@ export default class OpencgaActiveFilters extends LitElement {
         if (changedProperties.has("facetQuery")) {
             // TODO review queryObserver and unify the behaviour of the Warning alert
             this.facetQueryObserver();
+        }
+
+        if (changedProperties.has("filters")) {
+            // If there is any active filter we set the first one in the initialisation
+            if (this.filters) {
+                const activeFilter = this.filters.find(f => f.active);
+                if (activeFilter) {
+                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
+                        detail: activeFilter.query,
+                    }));
+                }
+            }
         }
     }
 
@@ -259,7 +256,8 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     clear() {
-        // TODO do not trigger event if there are no active filters
+        this._filters = this._filters.map(f => ({...f, active: false}));
+        // this.requestUpdate();
         // Trigger clear event
         this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {} /* bubbles: true, composed: true*/}));
     }
@@ -690,7 +688,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save filter...</strong></a>
+                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong></a>
                                     </li>
                                 ` : null}
                             </ul>

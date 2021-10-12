@@ -481,7 +481,7 @@ export default class VariantBrowser extends LitElement {
                 examples: [
                     {
                         id: "BRCA2 missense variants",
-                        active: true,
+                        active: false,
                         query: {
                             gene: "BRCA2",
                             ct: "missense_variant"
