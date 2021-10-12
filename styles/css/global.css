@@ -165,6 +165,15 @@ input[type="number"] {
 .bg-white {
     background: white !important;
 }
+
+.rotate-90 {
+    transform: rotate(90deg);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
 /* TODO input material effect continue*/
 .input {
     border: 0;
@@ -715,7 +724,7 @@ h3.page-title {
     line-height: 34px;
     margin: 0;
     border: none;
-    padding: 2px 10px;
+    padding: 0px 10px;
     vertical-align: middle;
 }
 

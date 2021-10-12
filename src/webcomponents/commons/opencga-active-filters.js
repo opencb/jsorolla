@@ -802,20 +802,25 @@ export default class OpencgaActiveFilters extends LitElement {
                     <!-- aggregation stat section -->
                     ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
-                            <p class="active-filter-label">Aggregation fields</p>
-                                <div class="button-list">
-                                    ${Object.entries(this.facetQuery).map(([name, facet]) => html`
-                                        <button type="button" class="btn btn-danger btn-sm ${name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${name}" data-filter-value=""
-                                                     @click="${this.onQueryFacetDelete}">
-                                            ${facet.formatted}
-                                        </button>
-                                `)}
-                                </div>
-                                <div class="rhs">
-                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clearFacet}">
-                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
+                            <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
+                                <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                                    <i class="fas fa-project-diagram rotate-180"></i> Aggregation fields <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu saved-filter-wrapper">
+                                    <li>
+                                        <a href="javascript: void 0" @click="${this.clearFacet}" data-action="active-filter-clear">
+                                            <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="button-list">
+                                ${Object.entries(this.facetQuery).map(([name, facet]) => html`
+                                    <button type="button" class="btn btn-danger btn-sm ${name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${name}" data-filter-value=""
+                                                 @click="${this.onQueryFacetDelete}">
+                                        ${facet.formatted}
                                     </button>
-                                </div>
+                                `)}
                             </div>
                     ` : null}
                 </div>
