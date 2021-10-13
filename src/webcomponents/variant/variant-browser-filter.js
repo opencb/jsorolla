@@ -87,17 +87,17 @@ export default class VariantBrowserFilter extends LitElement {
         // Add event to allow Ctrl+Enter to fire the Search
         let isCtrl = false;
         document.addEventListener("keyup", e => {
-            if (e.key.toUpperCase() === "CONTROL") {
+            if (e.key?.toUpperCase() === "CONTROL") {
                 isCtrl = false;
             }
         });
 
         document.addEventListener("keydown", e => {
-            if (e.key.toUpperCase() === "CONTROL") {
+            if (e.key?.toUpperCase() === "CONTROL") {
                 isCtrl = true;
             }
 
-            if (e.key.toUpperCase() === "ENTER" && isCtrl) {
+            if (e.key?.toUpperCase() === "ENTER" && isCtrl) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
 
