@@ -130,6 +130,8 @@ export default class CustomWelcome extends LitElement {
                     -moz-transition: all 0.3s;
                     transition: all 0.3s;
                     border-radius: 30px;
+                    margin-left: 16px;
+                    margin-right: 16px;
                 }
 
                 .getting-started:hover {
