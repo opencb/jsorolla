@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "./utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 
@@ -65,6 +65,39 @@ export default class ListUpdate extends LitElement {
     }
 
     render() {
+
+        if (this.key === "valuesMapping") {
+            const valuesMapping = this.data.items;
+            return html`
+                ${valuesMapping ?
+                    Object.keys(valuesMapping)?.map(key => {
+                    const status = {key: key, values: valuesMapping[key], parent: this.key? this.key : ""};
+                    return html`
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div style="padding-bottom:2px">
+                                        <b>${key}</b>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                        <data-form
+                                            .data="${status}"
+                                            @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
+                                            .config="${this.config.edit}">
+                                        </data-form>
+                                </div>
+                            </div>
+                        </div> `;
+                    }) : nothing}
+                <data-form
+                    .data="${this.status}"
+                    @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity, new: true})}
+                    .config="${this.config.new}">
+                </data-form>`;
+
+        }
+
         if (this.data.items.constructor === Array) {
             const title = this.config.edit?.display?.mode?.heading?.title || "id";
             const subtitle = this.config.edit?.display?.mode?.heading?.subtitle || "description";

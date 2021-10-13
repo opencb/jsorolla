@@ -48,7 +48,6 @@ export default class StudyVariantConfig extends LitElement {
         super.connectedCallback();
         this.updateParams = {};
         this._config = {...this.getDefaultConfig()};
-        console.log("config study", this.study.internal.configuration.variantEngine);
     }
 
     update(changedProperties) {
@@ -180,6 +179,30 @@ export default class StudyVariantConfig extends LitElement {
                             },
                         ]
                     };
+                case "valuesMapping":
+                    return {
+                        elements: [
+                            {
+                                name: "key",
+                                field: "key",
+                                type: "input-text",
+                            },
+                            {
+                                name: "Values",
+                                field: "values",
+                                type: "custom",
+                                display: {
+                                    render: data => {
+                                        return html `
+                                            <select-field-token
+                                                .values="${data}">
+                                            </select-field-token>
+                                            `;
+                                    }
+                                }
+                            }
+                        ]
+                    };
                 case "populationFrequency":
                     return {
                         elements: [
@@ -269,22 +292,14 @@ export default class StudyVariantConfig extends LitElement {
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
-                                    render: variant => {
-                                        return variant ?
-                                            Object.keys(variant).map(key =>
-                                                html `
-                                                    <b>${key}</b>
-                                                    <select-field-token
-                                                        .values="${variant[key]}">
-                                                    </select-field-token>
-                                            `) : html`
-                                            <select-field-token
-                                                    .values="${variant}">
-                                            </select-field-token>
-                                            `;
-                                    }
+                                    render: valuesMapping => html`
+                                        <list-update
+                                            key="valuesMapping"
+                                            .data="${{items: valuesMapping}}"
+                                            .config=${this.configVariant("valuesMapping", {}, true)}>
+                                        </list-update>`
                                 }
-                            }
+                            },
                         ]
                     };
             }
@@ -294,10 +309,10 @@ export default class StudyVariantConfig extends LitElement {
             return {
                 title: "Edit",
                 buttons: {
-                    show: true,
+                    show: modal,
                     cancelText: "Cancel",
                     classes: modal ? "btn btn-primary ripple pull-right": "pull-right",
-                    okText: "Save"
+                    okText: isNew? "Add" : "Edit"
                 },
                 display: {
                     labelWidth: 3,
@@ -394,6 +409,14 @@ export default class StudyVariantConfig extends LitElement {
                                             @removeItem=${this.removeItem}>
                                         </config-list-update>`;
                                 }
+                            }
+                        },
+                        {
+                            name: "Transcript Combination",
+                            field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
+                            type: "checkbox",
+                            display: {
+                                with: 2
                             }
                         },
                     ]
