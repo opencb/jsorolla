@@ -157,6 +157,10 @@ export default class CustomNavBar extends LitElement {
                     justify-content: center;
                 }
 
+                .app-logo {
+                    display: flex;
+                    align-items: center;
+                }
 
                 /*#progress-bar {
                     width: 100%;
@@ -185,17 +189,20 @@ export default class CustomNavBar extends LitElement {
 
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="navbar-header">
-                        ${this.config?.companyLogo ? html`
-                            <a href="#home" class="navbar-brand company-logo" @click="${this.onChangeTool}">
-                                <img src="${this.config?.companyLogo}" alt="companyLogo">
-                            </a>
-                        ` : null}
-                        ${this.app?.logo ? html`
-                            <a href="#home" class="navbar-brand app-logo" @click="${this.onChangeTool}">
+                        <a href="#home" class="navbar-brand app-logo" @click="${this.onChangeTool}">
+                            <!-- Application logo provided -->
+                            ${this.app?.logo ? html`
                                 <img src="${this.app?.logo}" alt="logo">
                                 <b><sup>${this.config.version}</sup></b>
-                            </a>
-                        ` : null}
+                            ` : null}
+                            <!-- No application logo provided -->
+                            ${!this.app?.logo && this.app?.name ? html`
+                                <span style="color:white;font-size:24px;margin-right:4px;">
+                                    <strong>${this.app.name}</strong>
+                                </span>
+                                <b><sup>${this.config.version}</sup></b>
+                            `: null}
+                        </a>
                     </div>
 
                     <!-- Collect the nav links, form, and other content for toggling -->
