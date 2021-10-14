@@ -36,18 +36,20 @@ export default class StudyVariantConfig extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            config: {
+                type: Object
+            }
         };
     }
 
     _init() {
         console.log("init study variant config");
-        // console.log("study selected ", this.study);
     }
 
     connectedCallback() {
         super.connectedCallback();
         this.updateParams = {};
-        this._config = {...this.getDefaultConfig()};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -56,8 +58,8 @@ export default class StudyVariantConfig extends LitElement {
     }
 
 
-    editItem(e, entity) {
-        console.log("EditChanges: ", e.detail.value, "entity", entity);
+    editItem(e) {
+        console.log("EditChanges: ", e.detail.value);
         e.stopPropagation();
     }
 
@@ -98,7 +100,7 @@ export default class StudyVariantConfig extends LitElement {
 
     }
 
-    configVariant(key, heading, modal) {
+    configVariant(key, item, modal) {
 
         // Type
         // RANGE_LT, RANGE_GT. CATEGORICAL, CATEGORICAL_MULTI_VALUE
@@ -118,9 +120,9 @@ export default class StudyVariantConfig extends LitElement {
             } : {
                 type: "modal",
                 title: "Edit Config",
-                heading: {
-                    title: heading?.title,
-                    subtitle: heading?.subtitle
+                item: {
+                    title: item?.title,
+                    subtitle: item?.subtitle
                 },
                 buttonClass: "pull-right",
                 btnGroups: [
@@ -305,7 +307,7 @@ export default class StudyVariantConfig extends LitElement {
             }
         };
 
-        const configStatus = (key, isNew) => {
+        const configForm = (key, isNew) => {
             return {
                 title: "Edit",
                 buttons: {
@@ -325,22 +327,21 @@ export default class StudyVariantConfig extends LitElement {
             };
         };
 
-
         if (key.constructor === Array) {
             const configs = {};
             key.forEach(key => {
                 configs[key] = {
                     ...configs[key],
-                    edit: configStatus(key, false),
-                    new: configStatus(key, true),
+                    edit: configForm(key, false),
+                    new: configForm(key, true),
                 };
             });
             return configs;
         }
 
         return {
-            edit: configStatus(key, false),
-            new: configStatus(key, true)
+            edit: configForm(key, false),
+            new: configForm(key, true)
         };
     }
 
@@ -369,18 +370,19 @@ export default class StudyVariantConfig extends LitElement {
                     title: "File Index Configuration",
                     elements: [
                         {
+                            field: "sampleIndex.fileIndexConfiguration.customFields",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 8,
                                 style: "padding-left: 0px",
-                                render: variantEngine => html`
+                                render: customFields => html`
                                     <list-update
                                         key="fileIndexConfiguration"
-                                        .data="${{items: variantEngine.sampleIndex.fileIndexConfiguration.customFields}}"
+                                        .data="${{items: customFields}}"
                                         .config=${this.configVariant("fileIndexConfiguration", {title: "source", subtitle: "key"}, true)}
-                                        @editChange=${e => this.editItem(e, "fileIndex")}
+                                        @editChange=${this.editItem}
                                         @removeItem=${this.removeItem}>
                                     </list-update>`
                             }
@@ -391,21 +393,21 @@ export default class StudyVariantConfig extends LitElement {
                     title: "Annotation Index Configuration",
                     elements: [
                         {
+                            field: "sampleIndex.annotationIndexConfiguration",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: variantEngine => {
-                                    const items = variantEngine.sampleIndex.annotationIndexConfiguration;
-                                    const itemKeys = Object.keys(items).filter(key => items[key] instanceof Object);
+                                render: annotationIndexConfiguration => {
+                                    const itemKeys = Object.keys(annotationIndexConfiguration)
+                                        .filter(key => annotationIndexConfiguration[key] instanceof Object);
                                     return html`
                                         <config-list-update
-                                            entity="annotationIndex"
-                                            .items="${variantEngine.sampleIndex.annotationIndexConfiguration}"
+                                            .items="${annotationIndexConfiguration}"
                                             .config=${this.configVariant(itemKeys, {}, false)}
-                                            @editChange=${e => this.editItem(e, "annotationIndex")}
+                                            @editChange=${this.editIteme}
                                             @removeItem=${this.removeItem}>
                                         </config-list-update>`;
                                 }
@@ -414,10 +416,7 @@ export default class StudyVariantConfig extends LitElement {
                         {
                             name: "Transcript Combination",
                             field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
-                            type: "checkbox",
-                            display: {
-                                with: 2
-                            }
+                            type: "checkbox"
                         },
                     ]
                 },
@@ -427,11 +426,6 @@ export default class StudyVariantConfig extends LitElement {
 
     render() {
         return html`
-            <!-- <div class="guard-page">
-                <i class="fas fa-pencil-ruler fa-5x"></i>
-                <h3>Variant Engine Config under construction</h3>
-                <h3>(Coming Soon)</h3>
-            </div> -->
             <div style="margin: 25px 40px">
                 <data-form
                     .data=${this.study.internal.configuration.variantEngine}

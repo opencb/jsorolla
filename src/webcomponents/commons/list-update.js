@@ -66,12 +66,13 @@ export default class ListUpdate extends LitElement {
 
     render() {
 
+        // TODO: Add a condition to know it's a key with values array
         if (this.key === "valuesMapping") {
             const valuesMapping = this.data.items;
             return html`
                 ${valuesMapping ?
                     Object.keys(valuesMapping)?.map(key => {
-                    const status = {key: key, values: valuesMapping[key], parent: this.key? this.key : ""};
+                    const itemData = {key: key, values: valuesMapping[key], parent: this.key? this.key : ""};
                     return html`
                         <div class="list-group-item">
                             <div class="row">
@@ -82,7 +83,7 @@ export default class ListUpdate extends LitElement {
                                 </div>
                                 <div class="col-md-4">
                                         <data-form
-                                            .data="${status}"
+                                            .data="${itemData}"
                                             @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
                                             .config="${this.config.edit}">
                                         </data-form>
@@ -91,31 +92,31 @@ export default class ListUpdate extends LitElement {
                         </div> `;
                     }) : nothing}
                 <data-form
-                    .data="${this.status}"
+                    .data="${this.itemData}"
                     @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity, new: true})}
                     .config="${this.config.new}">
                 </data-form>`;
-
         }
 
+
         if (this.data.items.constructor === Array) {
-            const title = this.config.edit?.display?.mode?.heading?.title || "id";
-            const subtitle = this.config.edit?.display?.mode?.heading?.subtitle || "description";
+            const title = this.config.edit?.display?.mode?.item?.title || "id";
+            const subtitle = this.config.edit?.display?.mode?.item?.subtitle || "description";
             return html`
             ${this.data.items?.map(item => {
-                const status = {...item, parent: this.key? this.key : ""};
+                const itemData = {...item, parent: this.key? this.key : ""};
                 return html`
                     <div class="list-group-item">
                         <div class="row">
                             <div class="col-md-8">
                                 <div style="padding-bottom:2px">
-                                    <b>${status[title]}</b>
-                                    <p class="text-muted">${status[subtitle]}</p>
+                                    <b>${itemData[title]}</b>
+                                    <p class="text-muted">${itemData[subtitle]}</p>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                     <data-form
-                                        .data="${status}"
+                                        .data="${itemData}"
                                         @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
                                         .config="${this.config.edit}">
                                     </data-form>
@@ -125,7 +126,7 @@ export default class ListUpdate extends LitElement {
                 `;
             })}
             <data-form
-                .data="${this.status}"
+                .data="${this.itemData}"
                 @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity, new: true})}
                 .config="${this.config.new}">
             </data-form>`;

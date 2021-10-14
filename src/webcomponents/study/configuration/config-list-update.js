@@ -16,7 +16,6 @@
 
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/text-field-filter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
