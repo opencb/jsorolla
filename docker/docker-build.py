@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import shutil
 import requests
 import sys
 import json
@@ -64,9 +65,23 @@ def package_json():
 
 def build():
     print_header('Building docker images: ' + ', '.join(images))
+
+    ## IMPORTANT: we camnot build Docker images using directories outside the file context.
+    ## As imple solution is to copy 'custom-sites' into 'build' folder and the run 'docker build' from there.
+    print(shell_colors['blue'] + "Copying 'custom-sites' folder into 'build' ...\n" + shell_colors['reset'])
+    shutil.rmtree("build/custom-sites")
+    shutil.copytree("custom-sites", "build/custom-sites")
+
     for image in images:
+        if image == "app":
+            site = "src/sites"
+        else:
+            ## We must create 'img' if not exist, otherwise Dockerfile build will fail
+            Path("build/custom-sites/" + image + "/iva/img").mkdir(exist_ok=True)
+            site = "build/custom-sites" + "/" + image
+
         print(shell_colors['blue'] + "Building " + organisation + "/iva-" + image + ":" + tag + " ..." + shell_colors['reset'])
-        run("docker build -t " + organisation + "/iva-" + image + ":" + tag + " -f " + build_folder + "/docker/iva-app/Dockerfile " + build_folder)
+        run("docker build -t " + organisation + "/iva-" + image + ":" + tag + " --build-arg SITE=" + site + " -f " + build_folder + "/docker/iva-app/Dockerfile " + build_folder)
 
 def tag_latest(image):
     latest_tag = os.popen(("curl -s https://registry.hub.docker.com/v1/repositories/" + organisation + "/iva-" + image + "/tags"
@@ -86,7 +101,7 @@ def push():
         print()
         print(shell_colors['blue'] + "Pushing " + organisation + "/iva-" + image + ":" + tag + " ..." + shell_colors['reset'])
         run("docker push " + organisation + "/iva-" + image + ":" + tag)
-        tag_latest(i)
+        tag_latest(image)
 
 
 def delete():
