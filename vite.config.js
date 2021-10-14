@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import {defineConfig} from "vite";
 
 const env = process.env || {};
@@ -18,6 +20,20 @@ const transformHtmlContent = html => {
     return html;
 };
 
+const configureServer = server => {
+    server.middlewares.use((req, res, next) => {
+        if (env.npm_config_custom_site && req.url.startsWith("/src/sites") && req.url.includes("img")) {
+            const customUrl = req.url.replace("/src/sites", `/custom-sites/${env.npm_config_custom_site}`);
+            const originalPath = path.join(process.cwd(), req.url);
+            const customPath = path.join(process.cwd(), customUrl);
+            if (!fs.existsSync(originalPath) && fs.existsSync(customPath)) {
+                req.url = customUrl; // Replace the url with the correct image path
+            }
+        }
+        return next();
+    });
+};
+
 export default defineConfig({
     mode: env.NODE_ENV || "development",
     root: "./",
@@ -31,6 +47,11 @@ export default defineConfig({
             name: "html-transform",
             transformIndexHtml: transformHtmlContent,
             apply: "serve",
-        }
+        },
+        {
+            name: "configure-server",
+            configureServer,
+            apply: "serve",
+        },
     ],
 });
