@@ -99,7 +99,7 @@ context("4. Variant Browser", () => {
     });
 
     it("4.5 Filters. Genomic: Genomic Location", () => {
-        cy.get("opencga-variant-filter a[data-accordion-id='Genomic']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='Genomic']").click();
         cy.get("region-filter textarea").type("1:5000000-10000000");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
@@ -166,7 +166,7 @@ context("4. Variant Browser", () => {
 
     it("4.10 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
-        cy.get("opencga-variant-filter a[data-accordion-id='ConsequenceType']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
@@ -186,7 +186,7 @@ context("4. Variant Browser", () => {
 
     it("4.12 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
         // Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001
-        cy.get("opencga-variant-filter a[data-accordion-id='PopulationFrequency']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='PopulationFrequency']").click();
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1kG_phase3']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3']").should("be.visible");
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
@@ -214,7 +214,7 @@ context("4. Variant Browser", () => {
 
     it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
         // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
-        cy.get("opencga-variant-filter a[data-accordion-id='Clinical']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='Clinical']").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
         cy.get("div.search-button-wrapper button").click();
@@ -250,7 +250,7 @@ context("4. Variant Browser", () => {
 
     it("4.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
-        cy.get("opencga-variant-filter a[data-accordion-id='Deleteriousness']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='Deleteriousness']").click();
         cy.get("protein-substitution-score-filter .sift input[type='text']").type("0.1");
         cy.get("protein-substitution-score-filter .polyphen input[type='text']").type("0.1");
         cy.get("div.search-button-wrapper button").click();
@@ -272,7 +272,7 @@ context("4. Variant Browser", () => {
 
     it("4.19 Filters. Conservation: PhyloP", () => {
         // Conservation: PhyloP Use example
-        cy.get("opencga-variant-filter a[data-accordion-id='Conservation']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='Conservation']").click();
         cy.get("conservation-filter .cf-phylop input[type='text']").type("1");
         cy.get("conservation-filter .cf-phastCons input[type='text']").type("1");
         cy.get("div.search-button-wrapper button").click();
@@ -319,7 +319,7 @@ context("4. Variant Browser", () => {
 
     it("4.22 aggregated query", () => {
 
-        cy.get("opencga-variant-filter a[data-accordion-id='ConsequenceType']").click();
+        cy.get("variant-browser-filter a[data-accordion-id='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
 
         cy.get("a[href='#facet_tab']").click({force: true});

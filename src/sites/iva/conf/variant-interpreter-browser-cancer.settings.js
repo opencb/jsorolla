@@ -18,7 +18,7 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SETTINGS = {
             },
             {
                 title: "Consequence Type",
-                filters: ["consequenceTypeSelect"]
+                filters: ["consequence-type"]
             },
             {
                 title: "Population Frequency",

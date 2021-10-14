@@ -150,7 +150,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     <span style="font-weight: bold">Primary Findings</span>
                                 </div>
                                 <div>
-                                    ${this.clinicalAnalysis.interpretation.primaryFindings?.length > 0
+                                    ${this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0
                                         ? this.clinicalAnalysis.interpretation.primaryFindings.map(variant => html`
                                             ${this.renderVariant(variant)}
                                         `)
@@ -161,7 +161,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.clinicalAnalysis.interpretation.primaryFindings?.length ? "" : "disabled"}"
+                                    <button type="button" class="btn btn-primary ${this.clinicalAnalysis.interpretation?.primaryFindings?.length ? "" : "disabled"}"
                                         @click="${this.onFilterPrimaryFindingVariants}" style="margin: 5px">Filter
                                     </button>
                                 </div>

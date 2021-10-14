@@ -130,6 +130,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     clear(e) {
+        this._filters = this._filters.map(f => ({...f, active: false}));
         this.query = {};
     }
 
@@ -143,14 +144,16 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
-
-        for (const filter of this._filters) {
-            if (e.currentTarget.dataset.filterId === filter.id) {
-                this.query = filter.query;
-                this.requestUpdate();
-                break;
+        const {filterId} = e.currentTarget.dataset;
+        this._filters = this._filters.map(f => {
+            if (f.id === filterId) {
+                this.query = f.query;
+                return ({...f, active: true});
+            } else {
+                return ({...f, active: false});
             }
-        }
+        });
+        this.requestUpdate();
     }
 
     serverFilterDelete(e) {
@@ -539,8 +542,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 </li>
                                                 ${this.isLoggedIn() ? html`
                                                     <li>
-                                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save
-                                                            filter...</strong></a>
+                                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong></a>
                                                     </li>
                                                 ` : null}
                                             </ul>

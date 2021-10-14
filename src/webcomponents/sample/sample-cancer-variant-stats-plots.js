@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 // import Circos from "./test/circos.js";
-import "../variant/opencga-variant-filter.js";
+// import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/visualisation/circos-view.js";
 import "../commons/view/signature-view.js";

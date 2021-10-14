@@ -4,7 +4,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             {
                 title: "Sample",
                 // TODO file-quality: showDepth: false
-                filters: ["sample-genotype", "sample", "file-quality", "cohort"]
+                filters: ["sample-genotype", "sample", "file-quality", "variant-file-info-filter", "cohort"]
             },
             {
                 title: "Genomic",
@@ -16,7 +16,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             },
             {
                 title: "Consequence Type",
-                filters: ["consequenceTypeSelect"]
+                filters: ["consequence-type"]
             },
             {
                 title: "Population Frequency",

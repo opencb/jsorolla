@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "./sample-cancer-variant-stats-plots.js";
-import "../variant/opencga-variant-filter.js";
+import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/view/signature-view.js";
 import "../commons/filters/variant-caller-info-filter.js";
@@ -270,10 +270,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     onSettingsOk(e) {
     }
 
-    /**
-     * Prepare sampleVariantStats data for the onSave function.
-     * @param e
-     */
+    // Prepare sampleVariantStats data for the onSave function.
     onChangeAggregationStatsResults(e) {
         // Parse aggregationStatsResults and create a sampleVariantStats
         const aggregationStatsResults = e.detail.aggregationStatsResults;
@@ -308,10 +305,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         }
     }
 
-    /**
-     * Save signature for onSave function.
-     * @param e
-     */
+    // Save signature for onSave function.
     onChangeSignature(e) {
         this.signature = e.detail.signature;
     }
@@ -575,7 +569,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 tooltip: tooltips.biotype
                             },
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
@@ -715,7 +709,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             }
             <div class="row">
                 <div class="col-md-2 left-menu">
-                    <opencga-variant-filter .opencgaSession=${this.opencgaSession}
+                    <variant-browser-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
@@ -725,7 +719,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">
-                    </opencga-variant-filter>
+                    </variant-browser-filter>
                 </div>
 
                 <div class="col-md-10">

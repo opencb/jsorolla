@@ -22,7 +22,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
-import "../opencga-variant-filter.js";
+import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
@@ -52,9 +52,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            // query: {
-            //     type: Object
-            // },
+            query: {
+                type: Object
+            },
             cellbaseClient: {
                 type: Object
             },
@@ -80,6 +80,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.savedVariants = [];
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -98,17 +99,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
 
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
 
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
     }
 
     settingsObserver() {
@@ -141,6 +142,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     clinicalAnalysisObserver() {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        let isSettingsObserverCalled = false;
+
         this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this._sample) {
             // Set query object
@@ -152,43 +155,87 @@ class VariantInterpreterBrowserCancer extends LitElement {
             }
 
             // Object to map callers ID to Files
-            this.callerToFile = {};
             this.opencgaSession.opencgaClient.files().search({sampleIds: this._sample.id, format: "VCF", study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
-                    for (const file of this.files) {
-                        if (file.software?.name) {
-                            const softwareName = file.software.name.toLowerCase();
-                            this.callerToFile[softwareName] = file;
-                        }
+
+                    // FIXME remove this temporary code ASAP
+                    if (!this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers) {
+                        this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers = [];
+                        // this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers.push({
+                        //     id: "caveman",
+                        //     columns: ["ASMD"],
+                        //     dataFilters: [
+                        //         {
+                        //             id: "FILTER",
+                        //             name: "PASS",
+                        //             type: "BOOLEAN",
+                        //             defaultValue: "PASS"
+                        //         },
+                        //         {
+                        //             id: "CLPM",
+                        //             name: "CLPM name",
+                        //             type: "NUMERIC",
+                        //             defaultValue: ">=0"
+                        //         },
+                        //         {
+                        //             id: "ASMD",
+                        //             name: "ASMD name",
+                        //             type: "NUMERIC",
+                        //             source: "FILE",
+                        //             comparators: ["<", ">="],
+                        //             allowedValues: ["120", "130", "140"],
+                        //             defaultValue: ">=140"
+                        //         }
+                        //     ],
+                        //     fileId: this.callerIdToFile["caveman"]?.name
+                        // });
+                        this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers.push({
+                            id: "pindel",
+                            columns: ["REP"],
+                            dataFilters: [
+                                {
+                                    id: "FILTER",
+                                    name: "PASS",
+                                    type: "BOOLEAN",
+                                    defaultValue: "PASS"
+                                }
+                            ],
+                            // fileId: this.callerToFile["pindel"]?.name
+                        });
                     }
 
                     // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
-                    const fileDataFilters = [];
-                    this.variantCallers = this.getVariantCallers();
-                    this.variantCallers.forEach(caller => {
-                        const filters = caller.dataFilters
-                            .filter(filter => !!filter.defaultValue)
-                            .map(filter => {
-                                // Notice that defaultValue includes the comparator, eg. =, >, ...
-                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
-                            });
+                    if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                        const fileDataFilters = [];
+                        this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers.forEach(variantCaller => {
+                            const filters = variantCaller.dataFilters
+                                .filter(filter => !!filter.defaultValue)
+                                .map(filter => {
+                                    // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                    return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                                });
 
-                        // Only add this file to the filter if we have at least one default value
-                        if (filters.length > 0) {
-                            fileDataFilters.push(caller.fileId + ":" + filters.join(";"));
-                        }
-                    });
+                            // Only add this file to the filter if we have at least one default value
+                            if (filters.length > 0) {
+                                // We need to find the file for that caller
+                                const fileId = this.files.find(file => file.software.name === variantCaller.id)?.name;
+                                if (fileId) {
+                                    fileDataFilters.push(fileId + ":" + filters.join(";"));
+                                }
+                            }
+                        });
 
-                    // Add study caller default 'fileData' query
-                    // TODO add sampleData.
-                    this.query = {
-                        ...this.query,
-                        fileData: fileDataFilters.join(","),
-                    };
+                        // Update query with default 'fileData' parameters
+                        this.query = {
+                            ...this.query,
+                            fileData: fileDataFilters.join(","),
+                        };
+                    }
+                    this.queryObserver();
 
                     this.settingsObserver();
-                    this.queryObserver();
+                    isSettingsObserverCalled = true;
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
@@ -228,10 +275,15 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
+
+        // No need to call to settingsObserver() again if already called in files.search.
+        if (!isSettingsObserverCalled) {
+            this.settingsObserver();
+        }
     }
 
     /*
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
+     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
@@ -315,199 +367,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.queryObserver();
     }
 
-    getVariantCallers() {
-        const variantCallers = [];
-        const fieldToCaller = {"PASS": []}; // PASS is always there
-
-        // Generate a map of of INFO fields to callerIds and fileIds
-        this.files.forEach(file => {
-            file.attributes.variantFileMetadata.header.complexLines
-                .filter(line => line.key === "INFO")
-                .forEach(line => {
-                    if (!fieldToCaller[line.id]) {
-                        fieldToCaller[line.id] = [];
-                    }
-
-                    fieldToCaller[line.id].push({
-                        callerId: file.software?.name,
-                        fileId: file.id
-                    });
-                });
-
-            // Add PASS automatically to all files
-            fieldToCaller["PASS"].push({
-                callerId: file.software?.name,
-                fileId: file.id
-            });
-        });
-
-        const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
-
-        // Check if variantCallers have been configured
-        if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
-            const indexedFields = {};
-            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
-                for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
-                    if (customField.source === "FILE") {
-                        indexedFields[customField.key] = customField;
-                    }
-                }
-            }
-
-            // TODO check if this work
-            for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
-                if (this.callerToFile?.[caller.id]) {
-                    // Check if dataFilter are indexed
-                    for (const dataFilter of caller.dataFilters) {
-                        if (indexedFields[dataFilter.id]) {
-                            const field = indexedFields[dataFilter.id];
-                            if (field.type.startsWith("RANGE_")) {
-                                dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                                dataFilter.allowedValues = field.thresholds;
-                            } else {
-                                dataFilter.allowedValues = field.values;
-                            }
-                        }
-                    }
-
-                    variantCallers.push({
-                        ...caller,
-                        fileId: this.callerToFile[caller.id]?.name
-                    });
-                }
-            }
-        } else {
-            // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
-            // Example:
-            // "customFields": [
-            //     {
-            //         "source": "FILE",
-            //         "key": "FILTER",
-            //         "type": "CATEGORICAL",
-            //         "values": [
-            //             "PASS"
-            //         ],
-            //         "nullable": true
-            //     },
-            //     {
-            //         "source": "FILE",
-            //         "key": "ASMD",
-            //         "type": "RANGE_LT",
-            //         "thresholds": [
-            //             20,
-            //             30,
-            //             250,
-            //             300
-            //         ],
-            //         "nullable": true
-            //     }
-            // ]
-            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
-                const callerToDataFilters = {};
-                for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
-                    // At the moment we support all FILE fields but QUAL, since the values do not follow any standard
-                    if (customField.source === "FILE" && customField.key !== "QUAL") {
-                        let fieldName, fieldType, fieldValues, fieldComparators;
-
-                        // Check if field id is FILTER and has only PASS value
-                        if (customField.key === "FILTER") {
-                            if (customField.values?.length === 1 && customField.values[0] === "PASS") {
-                                fieldName = "PASS",
-                                fieldType = "BOOLEAN";
-                            } else {
-                                fieldType = "CATEGORICAL";
-                                fieldValues = customField.values;
-                            }
-                        } else {
-                            // All other fields are processed normally
-                            if (customField.type.startsWith("RANGE_")) {
-                                fieldType = "NUMERIC";
-                                fieldValues = customField.thresholds;
-                                fieldComparators = customField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                            } else {
-                                fieldType = "CATEGORICAL";
-                                fieldValues = customField.values;
-                            }
-                        }
-
-                        // Add this field to each caller dataFilter
-                        (fieldToCaller[fieldName || customField.key] || []).forEach(caller => {
-                            if (!callerToDataFilters[caller.callerId]) {
-                                callerToDataFilters[caller.callerId] = [];
-                            }
-                            callerToDataFilters[caller.callerId].push({
-                                id: customField.key,
-                                name: fieldName || customField.key,
-                                type: fieldType,
-                                source: customField.source,
-                                allowedValues: fieldValues,
-                                comparators: fieldComparators || [],
-                            });
-                        });
-                    }
-                }
-
-                const entries = Object.entries(this.callerToFile);
-                for (const entry of entries) {
-                    if (callerToDataFilters[entry[0]]) {
-                        variantCallers.push({
-                            id: entry[0],
-                            dataFilters: callerToDataFilters[entry[0]],
-                            fileId: entry[1].name,
-                        });
-                    }
-                }
-            }
-        }
-
-        // FIXME remove this temporary code ASAP
-        if (variantCallers.length === 0 && this.opencgaSession?.study?.id === "test") {
-            variantCallers.push({
-                id: "caveman",
-                columns: ["ASMD"],
-                dataFilters: [
-                    {
-                        id: "FILTER",
-                        name: "PASS",
-                        type: "BOOLEAN",
-                        defaultValue: "PASS"
-                    },
-                    {
-                        id: "CLPM",
-                        name: "CLPM name",
-                        type: "NUMERIC",
-                        defaultValue: ">=0"
-                    },
-                    {
-                        id: "ASMD",
-                        name: "ASMD name",
-                        type: "NUMERIC",
-                        source: "FILE",
-                        comparators: ["<", ">="],
-                        allowedValues: ["120", "130", "140"],
-                        defaultValue: ">=140"
-                    }
-                ],
-                fileId: this.callerToFile["caveman"]?.name
-            });
-            variantCallers.push({
-                id: "pindel",
-                columns: ["REP"],
-                dataFilters: [
-                    {
-                        id: "FILTER",
-                        name: "PASS",
-                        type: "BOOLEAN",
-                        defaultValue: "PASS"
-                    }
-                ],
-                fileId: this.callerToFile["pindel"]?.name
-            });
-        }
-
-        return variantCallers;
-    }
-
     getDefaultConfig() {
         return {
             title: "Cancer Case Interpreter",
@@ -572,7 +431,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "variant-file-info-filter",
                                 title: "Variant File Caller Filter",
                                 params: {
-                                    callers: this.variantCallers
+                                    // study: this.opencgaSession?.study,
+                                    // callers: this.variantCallers,
+                                    files: this.files,
+                                    opencgaSession: this.opencgaSession
                                 }
                             }
                         ]
@@ -626,7 +488,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         collapsed: true,
                         filters: [
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
@@ -932,7 +794,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
             <div class="row">
                 <div class="col-md-2">
-                    <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
+                    <variant-browser-filter .opencgaSession="${this.opencgaSession}"
                                             .query="${this.query}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
@@ -941,7 +803,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">
-                    </opencga-variant-filter>
+                    </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
                 <div class="col-md-10">

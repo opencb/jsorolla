@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "../variant/opencga-variant-filter.js";
+import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
@@ -339,7 +339,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 tooltip: tooltips.type
                             },
                             {
-                                id: "consequenceTypeSelect",
+                                id: "consequence-type",
                                 title: "Consequence Type",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
@@ -423,7 +423,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
             <div class="row">
                 <div class="col-md-2 left-menu">
-                    <opencga-variant-filter .opencgaSession=${this.opencgaSession}
+                    <variant-browser-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
@@ -433,7 +433,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">
-                    </opencga-variant-filter>
+                    </variant-browser-filter>
                 </div>
 
                 <div class="col-md-10">

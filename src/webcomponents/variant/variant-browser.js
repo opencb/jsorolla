@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
-import "./opencga-variant-filter.js";
+import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
 import "../commons/opencb-facet-results.js";
@@ -345,6 +345,7 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "study",
                                 title: "Study Filter",
+                                visible: () => this.opencgaSession.project.studies.length > 1,
                                 tooltip: tooltips.study
                             },
                             {
@@ -421,11 +422,6 @@ export default class VariantBrowser extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accessions",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
@@ -485,7 +481,7 @@ export default class VariantBrowser extends LitElement {
                 examples: [
                     {
                         id: "BRCA2 missense variants",
-                        active: true,
+                        active: false,
                         query: {
                             gene: "BRCA2",
                             ct: "missense_variant"
@@ -676,6 +672,15 @@ export default class VariantBrowser extends LitElement {
     }
 
     render() {
+        // Check if there is any project available
+        if (!this.opencgaSession?.study) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue.</h3>
+                </div>`;
+        }
+
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
@@ -698,7 +703,7 @@ export default class VariantBrowser extends LitElement {
 
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <opencga-variant-filter .opencgaSession=${this.opencgaSession}
+                            <variant-browser-filter .opencgaSession=${this.opencgaSession}
                                                     .query="${this.query}"
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .config="${this._config.filter}"
@@ -706,7 +711,7 @@ export default class VariantBrowser extends LitElement {
                                                     @querySearch="${this.onVariantFilterSearch}"
                                                     @activeFacetChange="${this.onActiveFacetChange}"
                                                     @activeFacetClear="${this.onActiveFacetClear}">
-                            </opencga-variant-filter>
+                            </variant-browser-filter>
                         </div>
 
                         <div role="tabpanel" class="tab-pane" id="facet_tab">
@@ -737,7 +742,7 @@ export default class VariantBrowser extends LitElement {
                         <opencga-active-filters facetActive
                                                 resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.fqn}"
+                                                .defaultStudy="${this.opencgaSession.study?.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .executedQuery="${this.executedQuery}"
                                                 .facetQuery="${this.preparedFacetQueryFormatted}"
@@ -788,15 +793,6 @@ export default class VariantBrowser extends LitElement {
                 </div>
             </div>
         `;
-        // Check if there is any project available
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>`;
-
-        }
     }
 
 }

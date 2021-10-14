@@ -250,7 +250,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "geneName",
                                 name: "Gene",
-                                description: "Gene selection"
+                                tooltip: "Gene selection"
                             },
                             {
                                 id: "knockoutType",
@@ -266,7 +266,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "individualId",
                                 name: "Individual",
-                                description: "Individual selection"
+                                tooltip: "Individual selection"
                             }
                         ]
                     },
@@ -276,7 +276,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "numParents",
                                 name: "Include families with",
-                                description: "Confidence selection",
+                                tooltip: "Confidence selection",
                                 type: "checkbox",
                                 allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             }
@@ -296,7 +296,7 @@ export default class RgaBrowser extends LitElement {
                             /* {
                                 id: "cohort",
                                 name: "Cohort",
-                                description: "Cohort selection"
+                                tooltip: "Cohort selection"
                             },*/
                             {
                                 id: "variants",

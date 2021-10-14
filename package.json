@@ -57,7 +57,7 @@
     "bootstrap-colorpicker": "2.3.6",
     "bootstrap-notify": "git://github.com/mouse0270/bootstrap-notify.git#master",
     "bootstrap-select": "^1.13.18",
-    "bootstrap-table": "^1.18.0",
+    "bootstrap-table": "^1.18.3",
     "bootstrap-treeview": "git@github.com:jonmiles/bootstrap-treeview.git#develop",
     "bootstrap-validator": "~0.11.9",
     "client-line-navigator": "https://github.com/anpur/line-navigator.git",

@@ -21,7 +21,7 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "../../commons/tool-header.js";
 import "../interpretation/variant-interpreter-grid.js";
 import "../interpretation/variant-interpreter-detail.js";
-import "../opencga-variant-filter.js";
+import "../variant-browser-filter.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
 import "../../commons/filters/variant-caller-info-filter.js";
@@ -91,15 +91,13 @@ class InterpretationHistory extends LitElement {
     }
 
 
-    /**
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-     */
+    // Fetch the CinicalAnalysis object from REST and trigger the observer call.
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    //this.clinicalAnalysisObserver();
+                    // this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -109,16 +107,14 @@ class InterpretationHistory extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        if(this.clinicalAnalysis) {
-            this.renderLocalTable()
-        } else {
-
+        if (this.clinicalAnalysis) {
+            this.renderLocalTable();
         }
     }
 
     renderLocalTable() {
 
-        this.data = [{...this.clinicalAnalysis.interpretation}]; //safe in case of empty object;
+        this.data = [{...this.clinicalAnalysis.interpretation}]; // safe in case of empty object;
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -138,8 +134,8 @@ class InterpretationHistory extends LitElement {
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
-                //this.from = result.from || this.from;
-                //this.to = result.to || this.to;
+                // this.from = result.from || this.from;
+                // this.to = result.to || this.to;
             },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -238,6 +234,7 @@ class InterpretationHistory extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("interpretation-history", InterpretationHistory);
