@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lollipop</title>
+
+    <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
+
+</head>
+<body>
+
+<style>
+
+    .variant circle:hover {
+        stroke-opacity: 1;
+    }
+
+    .positionBar .tick text{
+        user-select:none;
+    }
+
+    .tick {
+        position: relative;
+        z-index: 100;
+    }
+    .range {
+        position: relative;
+        z-index: 1;
+    }
+</style>
+<div id="lollipop" style="width: 1000px"></div>
+<script type="module">
+    import Lollipop from "./lollipop.js";
+
+    const tracks = [
+
+        {
+            id: "variants",
+            variants: [
+                {
+                    id: "E81K",
+                    pos: 850,
+                    color: "#3987CC"
+                },
+                {
+                    id: "A55K",
+                    pos: 1300,
+                    color: "#3987CC"
+                },
+                {
+                    id: "B55K",
+                    pos: 2300,
+                    color: "#3987CC"
+                }
+            ]
+        },
+        {
+            id: "positionBar"
+        },
+    ];
+
+    new Lollipop("#lollipop", tracks)
+</script>
+</body>
+</html>
