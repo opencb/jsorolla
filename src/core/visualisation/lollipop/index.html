@@ -5,11 +5,16 @@
     <title>lollipop</title>
 
     <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
+    <script src="../../../../../../node_modules/@svgdotjs/svg.draggable.js/dist/svg.draggable.js"></script>
 
 </head>
 <body>
 
 <style>
+
+    #lollipop {
+        margin: 50px
+    }
 
     .variant circle:hover {
         stroke-opacity: 1;
@@ -27,8 +32,22 @@
         position: relative;
         z-index: 1;
     }
+
+    #console {
+        white-space: pre;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 500px;
+        height: 200px;
+        background: #6e6e6e;
+    }
+
 </style>
 <div id="lollipop" style="width: 1000px"></div>
+<div id="console">
+
+</div>
 <script type="module">
     import Lollipop from "./lollipop.js";
 

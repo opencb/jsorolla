@@ -39,9 +39,10 @@ export default class Lollipop {
         const height = scaleHeight + variantAreaHeight; // 30 for the scale
         this.draw.size(null, this.currentTrackOffset + height);
 
-        const scaleG = this.draw.group().addClass("scale").transform({translateY: this.currentTrackOffset});
-        scaleG.rect(this.canvasWidth, scaleHeight).attr({fill: "#fff", stroke: "#000"});
-        this.drawTicks(scaleG, 10, scaleHeight, this.proteinLength);
+        this.scaleG = this.draw.group().addClass("scale").transform({translateY: this.currentTrackOffset});
+        this.scaleG.rect(this.canvasWidth, scaleHeight).attr({fill: "#fff", stroke: "#000"});
+
+        this.drawTicks(this.scaleG, 10, scaleHeight, 0, this.proteinLength);
 
         const variantAreaG = this.draw.group().addClass(track.id).transform({translateY: this.currentTrackOffset + scaleHeight});
         const rect = variantAreaG.rect(this.canvasWidth, height).attr({fill: "#fff", stroke: "#000"});
@@ -61,11 +62,11 @@ export default class Lollipop {
                 .transform({translateX: x, translateY: y});
             this.edge(v, size/2, 0, y);
             v.circle(size).dx(-size/2).fill(variant.color).stroke({color: "#000", opacity: 0}).click(e => this.onClickVariant(e, v, variant));
-            v.text(variant.id).dy(size + 10).font({size: "10px"});
-
-
+            v.text(variant.id).dy(-5).font({size: "10px"});
         });
+    }
 
+    renderVariant() {
     }
 
     onClickVariant(e, parent, variantData) {
@@ -110,10 +111,13 @@ export default class Lollipop {
      * @param {SVGElement} g parent group
      * @param {Number} num Number of ticks
      * @param {Number} barHeight height of the bar
-     * @param {Number} length Original length of the scale (protein length)
-     * @returns void
+     * @param {Number} startPos Original start position
+     * @param {Number} endPos Original end position
+     * @return void
      */
-    drawTicks = (g, num, barHeight, length) => {
+    drawTicks = (g, num, barHeight, startPos, endPos) => {
+        // g.replace(this.draw.group().addClass("scale").transform({translateY: this.currentTrackOffset}))
+        // document.querySelector(".scale")
         const tickHeight = barHeight * .2; // * 0.2;
         const w = g.width(); // protein length
         const tickSpace = w/num;
@@ -125,7 +129,7 @@ export default class Lollipop {
                 color: "#000",
                 width: 1,
             }).attr({shapeRendering: "crispEdges", z: 120});
-            const label = this.rescaleLinear(i, 0, num, 0, length); // reverse normalisation
+            const label = this.rescaleLinear(i, 0, num, startPos, endPos); // reverse normalisation
             group.text(label).dy(barHeight - tickHeight).font({size: "10px"}).attr({z: 120});
         }
     };
@@ -140,7 +144,7 @@ export default class Lollipop {
 
         const bar = this.draw.group().addClass("positionBar").transform({translateY: this.currentTrackOffset});
         bar.rect(this.canvasWidth, height).attr({fill: "#e8e8e8", stroke: "black"});
-        this.drawTicks(bar, 10, height, this.proteinLength);
+        this.drawTicks(bar, 10, height, 0, this.proteinLength);
 
         this.currentTrackOffset += height;
 
@@ -152,41 +156,50 @@ export default class Lollipop {
             color: "#000",
             width: 0.2,
         }).attr({shapeRendering: "crispEdges"});
+
+        /* cursorStart.on('beforedrag', e => {
+            console.log("cursorStart drag")
+        })
+
+        bar.on('beforedrag', e => {
+            console.log("bar drag")
+        })*/
+
         let mouseDown = false;
         const rangeBar = bar.rect(0, height).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
+
+
         bar.mousemove(e => {
             cursorStart.show();
-            // cursorStart.move(e.clientX, 0);
-
-            // console.log(e.buttons)
+            const dim = e.currentTarget.getBoundingClientRect();
+            const mouseX = e.clientX - dim.left - 5; // little offset to avoid browser dragging action
             if (mouseDown) {
+
 
                 cursorEnd.show();
                 cursorEnd.move(cursorStart.x());
-                let w, start;
-                if (cursorStart.x() <= cursorEnd.x()) {
-                    start = cursorStart.x();
-                    w = Math.abs(cursorEnd.x() - cursorStart.x());
-                } else {
-                    start = cursorEnd.x();
-                    w = Math.abs(cursorStart.x() - cursorEnd.x());
-                }
-                this.range = [start, w];
+
+                const start = cursorStart.x() <= cursorEnd.x() ? cursorStart.x() : cursorEnd.x();
+                const w = Math.abs(cursorStart.x() - cursorEnd.x());
+
+                this.range = [start, start + w];
                 rangeBar.show();
                 cursorEnd.show();
                 // console.log("s", start, "w", w);
 
-                cursorEnd.move(Math.min(e.clientX, bar.width()), 0);
+                cursorEnd.move(Math.min(mouseX, bar.width()), 0);
                 rangeBar.size(Math.min(w, bar.width()), 50).move(start);
                 // console.log(start);
 
             } else {
-                cursorStart.move(e.clientX, 0);
+                cursorStart.move(mouseX, 0);
             }
+
+            this.log(cursorStart.x(), cursorEnd.x(), rangeBar.width(), mouseX);
         });
+
         bar.mouseout(e => {
             cursorStart.hide();
-            // range.hide();
         });
 
         bar.mousedown(e => {
@@ -196,33 +209,42 @@ export default class Lollipop {
 
         bar.mouseup(e => {
             mouseDown = false;
+            /* cursorStart.hide();
+            cursorEnd.hide();
+            rangeBar.hide();*/
+            this.resizeVariant(bar, e);
+        });
+
+        bar.dblclick(e => {
+            console.log("db click");
             cursorStart.hide();
             cursorEnd.hide();
             rangeBar.hide();
-            this.resizeVariant(bar, e);
         });
 
         document.addEventListener("mouseup", e => {
             console.log("mouseup");
             mouseDown = false;
-            cursorStart.hide();
+            /* cursorStart.hide();
             cursorEnd.hide();
-            rangeBar.hide();
+            rangeBar.hide();*/
             this.resizeVariant(bar, e);
         });
     }
 
     resizeVariant(g, e) {
         console.log(this.range);
-        console.log(g);
         const minScreen = 0;
         const maxScreen = g.width();
         const minProtein = 0;
         const maxProtein = this.proteinLength;
-        const minRange = this.range[0];
-        const maxRange = this.range[0] + this.range[1];
-        console.log(this.rescaleLinear(maxRange, minScreen, maxScreen, minRange, maxRange))
+        const minOldRange = this.range[0];
+        const maxOldRange = this.range[0] + this.range[1];
+        const newMinRange = this.rescaleLinear(minOldRange, minScreen, maxScreen, minProtein, maxProtein);
+        const newMaxRange = this.rescaleLinear(maxOldRange, minScreen, maxScreen, minProtein, maxProtein);
 
+        SVG.find("g.scale g.tick").remove(); // TODO temp solution
+        this.drawTicks(this.scaleG, 10, 30, newMinRange, newMaxRange);
     }
     variant(data) {
 
@@ -234,6 +256,16 @@ export default class Lollipop {
         const newRange = newMax - newMin;
         const rescaled = newMin + ((value - oldMin) * newRange / oldRange);
         return Math.round(rescaled);
+    }
+
+    log(start, end, range, mouseX, mouseY) {
+        document.querySelector("#console").innerHTML = `
+            start:  ${start}
+            end:    ${end}
+            range:  ${range}
+            mouseX: ${mouseX}
+            mouseY: ${mouseY}
+        `;
     }
 
 }
