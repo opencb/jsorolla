@@ -21,10 +21,6 @@
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
 import {LitElement, html} from "lit";
-import "./about.js";
-import "./contact.js";
-import "./faq.js";
-import "./terms.js";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
 import "./category-page.js";
@@ -94,6 +90,7 @@ import "../../webcomponents/Notification.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
+import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
@@ -140,6 +137,7 @@ class IvaApp extends LitElement {
         _config.opencga = opencga;
         _config.cellbase = cellbase;
         _config.tools = tools;
+        _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
@@ -158,10 +156,6 @@ class IvaApp extends LitElement {
         // console.log("this.config.enabledComponents",_config.enabledComponents)
         const components = [
             "home",
-            "about",
-            "contact",
-            "terms",
-            "faq",
             "gettingstarted",
             "login",
             "settings",
@@ -235,6 +229,10 @@ class IvaApp extends LitElement {
         for (const component of components) {
             _config.enabledComponents[component] = false;
         }
+
+        // Register custom page component
+        // Only will be displayed if no other component matches the current url
+        _config.enabledComponents["customPage"] = false;
 
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
@@ -707,13 +705,16 @@ class IvaApp extends LitElement {
             this.query = query;
         }
 
-        if (UtilsNew.isNotUndefined(this.config.enabledComponents[this.tool.replace("#", "")])) {
-            // debugger
-            this.config.enabledComponents[this.tool.replace("#", "")] = true;
+        const componentName = this.tool.replace("#", "");
+        if (UtilsNew.isNotUndefined(this.config.enabledComponents[componentName])) {
+            this.config.enabledComponents[componentName] = true;
+        } else {
+            // If the component does not exist, mark as custom page
+            this.config.enabledComponents["customPage"] = true;
         }
 
-        // debugger
         this.config = {...this.config};
+
         // TODO quickfix to avoid hash browser scroll
         $("body,html").animate({
             scrollTop: 0
@@ -947,6 +948,22 @@ class IvaApp extends LitElement {
         }
     }
 
+    renderCustomPage() {
+        const pageName = this.tool.replace("#", "");
+        const page = (this.config.pages || []).find(p => p.url === pageName);
+
+        if (page) {
+            return html`
+                <div class="content" id="page">
+                    <custom-page .page="${page}"></custom-page>
+                </div>
+            `;
+        }
+
+        // No page found --> Render a not found error page (TODO)
+        return html`Not found :(`;
+    }
+
     render() {
         return html`
             <style>
@@ -1034,11 +1051,8 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents.about ? html`
-                    <div class="content" id="about">
-                        <about-web version="${this.config.version}"></about-web>
-                    </div>
-                ` : null}
+                <!-- Render custom page content if enabled -->
+                ${this.config.enabledComponents.customPage ? this.renderCustomPage() : null}
 
                 ${this.config.enabledComponents.terms ? html`
                     <div class="content" id="terms">
