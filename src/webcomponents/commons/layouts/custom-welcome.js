@@ -208,7 +208,7 @@ export default class CustomWelcome extends LitElement {
                 <!-- Display custom links -->
                 <div align="center" class="row" style="margin-top:50px;">
                     ${(welcomePage?.links || []).map(link => html`
-                        <a class="getting-started" href="${link.url}" target="_blank"><span>${link.title}</span></a>
+                        <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
                     `)}
                 </div>
             </div>
