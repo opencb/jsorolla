@@ -163,7 +163,6 @@ const suite = {
             <br>
         </div>`,
     },
-    welcomePageFooter: "<p><img id=\"logo\" src=\"img/opencb-logo.png\" alt=\"opencb-logo\"/></p>",
 
     // The order, title and nested submenus are respected
     apps: [
@@ -177,29 +176,22 @@ const suite = {
             icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             welcomePage: {
-                title: {
-                    text: "Variant Analysis",
-                    subtitle: "Interactive Variant Analysis1",
-                    display: {
-                        className: "",
-                        style: "text-align:center"
-                    },
-
+                display: {
+                    titleStyle: "text-align:center;",
+                    subtitleStyle: "text-align:center;"
                 },
-                logo: {
-                    path: "./img/iva.svg",
-                    subtitle: "Interactive Variant Analysis2",
-                    display: {
-                        className: "",
-                        style: "text-align: center"
-                    },
-                },
+                title: "Variant Analysis",
+                subtitle: "Interactive Variant Analysis",
+                logo: "./img/iva.svg",
                 content: `
                     <p class="text-center">
                         Welcome to the Variant Analysis application.<br>
                         This interactive tool allows browse and run variant analysis.
                     </p>
-                    <br>`
+                `,
+                links: [
+                    {title: "Documentation", url: "http://docs.opencb.org/display/iva"},
+                ]
             },
             menu: [
                 {
@@ -650,13 +642,10 @@ const suite = {
             icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             welcomePage: {
-                title: {
-                    display: {
-                        style: "text-align:center "
-                    },
-                    text: "Clinical (XetaBase)",
-                    subtitle: "",
+                display: {
+                    titleStyle: "text-align:center "
                 },
+                title: "Clinical (XetaBase)",
                 content: `
                     <p class="text-center">
                         Welcome to theClinical (XetaBase)
@@ -819,13 +808,10 @@ const suite = {
             icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             welcomePage: {
-                title: {
-                    display: {
-                        style: "text-align:center "
-                    },
-                    text: " OpenCGA Admin",
-                    subtitle: "",
+                display: {
+                    titleStyle: "text-align:center "
                 },
+                title: " OpenCGA Admin",
                 content: `
                     <p class="text-center">
                         Welcome to the OpenCB Suite for whole genome variant analysis.<br />

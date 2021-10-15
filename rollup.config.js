@@ -45,11 +45,11 @@ const isInternalCss = name => {
     return name.match(internalCss) !== null;
 };
 
-const getSiteConfigPath = name => {
-    if (env.npm_config_custom_config) {
-        return `../../../custom-conf/${env.npm_config_custom_config}/${name}`;
+const getCustomSitePath = (name, from, folder) => {
+    if (env.npm_config_custom_site) {
+        return `${from}custom-sites/${env.npm_config_custom_site}/${name}/${folder}`;
     }
-    return "conf"; // Default path configuration
+    return folder; // Default path configuration
 };
 
 const transformHtmlContent = html => {
@@ -57,7 +57,7 @@ const transformHtmlContent = html => {
     let newHtml = html.replace("[build-signature]", revision()).replace(annihilator, "");
     sites.forEach(name => {
         const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        newHtml = newHtml.replace(regex, getSiteConfigPath(name)).replace(annihilator, "");
+        newHtml = newHtml.replace(regex, getCustomSitePath(name, "../../../", "conf")).replace(annihilator, "");
     });
     return newHtml;
 };
@@ -68,6 +68,25 @@ const getSiteContent = name => {
         name: "index.html",
         html: transformHtmlContent(content),
     };
+};
+
+const getCopyTargets = site => {
+    const targets = [
+        {src: `./src/sites/${site}/img`, dest: `${buildPath}/${site}/`},
+        {src: "./styles/img", dest: `${buildPath}/${site}/`},
+        // {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
+        // {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
+        {src: "./styles/fonts", dest: `${buildPath}/${site}/`},
+        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/${site}/vendors/`},
+        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/${site}/vendors/`},
+    ];
+    if (env.npm_config_custom_site) {
+        targets.push({
+            src: getCustomSitePath(site, "", "img"),
+            dest: `${buildPath}/${site}/`
+        });
+    }
+    return targets;
 };
 
 export default sites.map(site => ({
@@ -99,15 +118,7 @@ export default sites.map(site => ({
         }),
         summary(),
         copy({
-            targets: [
-                {src: `./src/sites/${site}/img`, dest: `${buildPath}/${site}/`},
-                {src: "./styles/img", dest: `${buildPath}/${site}/`},
-                // {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
-                // {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
-                {src: "./styles/fonts", dest: `${buildPath}/${site}/`},
-                {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/${site}/vendors/`},
-                {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/${site}/vendors/`},
-            ]
+            targets: getCopyTargets(site),
         }),
     ],
     output: {
@@ -123,10 +134,10 @@ export default sites.map(site => ({
                 return "lib/core.min";
             }
         },
-        chunkFileNames: chunkInfo => {
+        chunkFileNames: () => {
             return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
         },
-        entryFileNames: chunkInfo => {
+        entryFileNames: () => {
             return "lib/[name].js"; // configuration for entry script module and inline script
         },
         assetFileNames: assetInfo => {

@@ -21,7 +21,6 @@
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
 import {LitElement, html} from "lit";
-import "./welcome-suite.js";
 import "./about.js";
 import "./contact.js";
 import "./faq.js";
@@ -95,7 +94,8 @@ import "../../webcomponents/Notification.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
-import "../../webcomponents/commons/layouts/custom-sidebar";
+import "../../webcomponents/commons/layouts/custom-sidebar.js";
+import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
@@ -1024,15 +1024,13 @@ class IvaApp extends LitElement {
             <div class="container-fluid">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
-                        <welcome-suite
+                        <custom-welcome
                             .app="${this.app}"
+                            .config="${this.config}"
                             .opencgaSession="${this.opencgaSession}"
-                            version="${this.config.version}"
-                            .cellbaseClient=${this.cellbaseClient}
-                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}"
-                            @search="${this.quickSearch}"
-                            .config="${this.config}">
-                        </welcome-suite>
+                            .version="${this.config.version}"
+                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                        </custom-welcome>
                     </div>
                 ` : null}
 
