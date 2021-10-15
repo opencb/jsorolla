@@ -18,17 +18,33 @@
 export default class CatalogGridFormatter {
 
     static phenotypesFormatter(value, row) {
+        console.log(value);
         if (value && value.length === 0) {
             return "-";
         }
         const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
         const tooltip = [...value].sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status)).map(phenotype => {
-            return `
-                    <p>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
-                `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>` :
-                `<span>${phenotype.id} - ${phenotype.status}</span>`}
-                    </p>`;
+            const result = [];
+            if (phenotype.name) {
+                result.push(phenotype.name);
+                // Check if we have also the phenotype ID --> add the '-' separator
+                if (phenotype.id) {
+                    result.push("-");
+                }
+            }
+            // Add phenotype ID if exists
+            if (phenotype.id) {
+                if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
+                    result.push(`<a target="_blank" href="https://hpo.jax.org/app/browse/terms/${phenotype.id}">${phenotype.id}</a>`);
+                } else {
+                    result.push(phenotype.id);
+                }
+            }
+            // Add phenotype status if exists
+            if (phenotype.status) {
+                result.push(`(${phenotype.status})`);
+            }
+            return `<p>${result.join(" ")}</p>`;
         }).join("");
         if (value && value.length > 0) {
             return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
@@ -85,13 +101,11 @@ export default class CatalogGridFormatter {
         return panelHtml;
     }
 
-        /**
-     *  Formats the files for the Catalog grids
-     * @param {Array} files Either a list of fileIds or file objects
-     * @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
-     * @param {String} key The property to map onto in case `files` is an array of objects.
-     * @returns {string} html code
-     */
+    //  Formats the files for the Catalog grids
+    // @param {Array} files Either a list of fileIds or file objects
+    // @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
+    // @param {String} key The property to map onto in case `files` is an array of objects.
+    // @returns {string} html code
     static fileFormatter(files, extensions, key) {
         let results = [];
         if (files && files.length > 0) {
