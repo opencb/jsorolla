@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import "./config-list-update.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class StudyVariantConfig extends LitElement {
 
@@ -30,7 +32,7 @@ export default class StudyVariantConfig extends LitElement {
 
     static get properties() {
         return {
-            study: {
+            variantEngineConfig: {
                 type: Object
             },
             opencgaSession: {
@@ -44,27 +46,58 @@ export default class StudyVariantConfig extends LitElement {
 
     _init() {
         console.log("init study variant config");
+        this.updateParams = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
-
+        if (changedProperties.has("variantEngineConfig")) {
+            this.variantEngineConfigObserver();
+        }
         super.update(changedProperties);
     }
 
-
-    editItem(e) {
-        console.log("EditChanges: ", e.detail.value);
-        e.stopPropagation();
+    variantEngineConfigObserver() {
+        if (this.variantEngineConfig) {
+            this._variantEngineConfig = JSON.parse(JSON.stringify(this.variantEngineConfig));
+        }
     }
 
-    removeItem(e) {
-        console.log("Execute remove buttons:", e.detail.value);
+
+    onSyncItem(e) {
+        e.stopPropagation();
+        const {index, item} = e.detail.value;
+        if (index >= 0) {
+            this.editItem(index, item);
+        } else {
+            this.addItem(e.detail.value);
+        }
+    }
+
+    editItem(index, item) {
+        this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields[index] = item;
+        this.variantEngineConfig = {
+            ...this.variantEngineConfig
+        };
+        // it's not working with requestUpdate...
+        // this.requestUpdate();
+    }
+
+    addItem(item) {
+        // It's working this way.
+        this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields.push(item);
+        this.variantEngineConfig = {
+            ...this.variantEngineConfig
+        };
+        console.log("Add new item: ", this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields);
+    }
+
+    onRemoveItem(e) {
+        const item = e.detail.value;
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -77,7 +110,13 @@ export default class StudyVariantConfig extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                // TODO: add remove conditions by entity
+                const customFields = this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields;
+                this.variantEngineConfig.sampleIndex
+                    .fileIndexConfiguration.customFields = UtilsNew.removeArrayByIndex(customFields, item.index);
+                this.variantEngineConfig = {
+                    ...this.variantEngineConfig
+                };
+                console.log("Item removed: ", this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields);
                 Swal.fire(
                     "Deleted!",
                     "The config has been deleted. (Test UI)",
@@ -88,15 +127,15 @@ export default class StudyVariantConfig extends LitElement {
     }
 
     onFieldChange(e) {
-
+        console.log("on Field Change", e.detail);
     }
 
     onClear() {
 
-
     }
 
     onSubmit() {
+        // operation/variant/configure
 
     }
 
@@ -345,7 +384,6 @@ export default class StudyVariantConfig extends LitElement {
         };
     }
 
-
     getDefaultConfig() {
         return {
             type: "form",
@@ -382,8 +420,8 @@ export default class StudyVariantConfig extends LitElement {
                                         key="fileIndexConfiguration"
                                         .data="${{items: customFields}}"
                                         .config=${this.configVariant("fileIndexConfiguration", {title: "source", subtitle: "key"}, true)}
-                                        @editChange=${this.editItem}
-                                        @removeItem=${this.removeItem}>
+                                        @changeItem=${e => this.onSyncItem(e)}
+                                        @removeItem=${e => this.onRemoveItem(e)}>
                                     </list-update>`
                             }
                         },
@@ -407,8 +445,8 @@ export default class StudyVariantConfig extends LitElement {
                                         <config-list-update
                                             .items="${annotationIndexConfiguration}"
                                             .config=${this.configVariant(itemKeys, {}, false)}
-                                            @editChange=${this.editIteme}
-                                            @removeItem=${this.removeItem}>
+                                            @editChange=${this.onEditItem}
+                                            @removeItem=${this.onRemoveItem}>
                                         </config-list-update>`;
                                 }
                             }
@@ -428,7 +466,7 @@ export default class StudyVariantConfig extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <data-form
-                    .data=${this.study.internal.configuration.variantEngine}
+                    .data=${this.variantEngineConfig}
                     .config=${this._config}
                     @fieldChange="${e => this.onFieldChange(e)}"
                     @clear="${this.onClear}"

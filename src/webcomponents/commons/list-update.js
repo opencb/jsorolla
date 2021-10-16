@@ -46,21 +46,51 @@ export default class ListUpdate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
     }
 
     _init() {
         this.status = {};
         this._prefix = UtilsNew.randomString(8);
+        this.item = {};
     }
 
-    editItem(e, key) {
-        const filterChange = {
-            data: {
-                param: e.detail.param,
-                value: e.detail.value
-            }, key};
-        LitUtils.dispatchEventCustom(this, "editChange", filterChange);
+    onFieldChange(e, index) {
+        e.stopPropagation();
+        // Array
+        const {param, value} = e.detail;
+        if (index >= 0) {
+            if (value) {
+                this.data.items[index] = {
+                    ...this.data.items[index],
+                    [param]: value
+                };
+            } else {
+                delete this.data.items[index][param];
+            }
+            console.log("edited item", this.data.items[index]);
+        } else {
+            if (value) {
+                this.item = {
+                    ...this.item,
+                    [param]: value
+                };
+            } else {
+                delete this.item[param];
+            }
+            console.log("edited item", this.item);
+        }
+    }
+
+    onSendItem(e, index) {
+        e.stopPropagation();
+        LitUtils.dispatchEventCustom(
+            this,
+            "changeItem",
+            index >= 0 ? {index: index, item: this.data.items[index]} : this.item);
+    }
+
+    editItem(e, element) {
+        console.log("Edit Item");
         e.stopPropagation();
     }
 
@@ -84,7 +114,7 @@ export default class ListUpdate extends LitElement {
                                 <div class="col-md-4">
                                         <data-form
                                             .data="${itemData}"
-                                            @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
+                                            @submit=${ e => this.editItem(e, {parent: this.key})}
                                             .config="${this.config.edit}">
                                         </data-form>
                                 </div>
@@ -98,13 +128,13 @@ export default class ListUpdate extends LitElement {
                 </data-form>`;
         }
 
-
+        // applies when the data is an array
         if (this.data.items.constructor === Array) {
             const title = this.config.edit?.display?.mode?.item?.title || "id";
             const subtitle = this.config.edit?.display?.mode?.item?.subtitle || "description";
             return html`
-            ${this.data.items?.map(item => {
-                const itemData = {...item, parent: this.key? this.key : ""};
+            ${this.data.items?.map((item, i) => {
+                const itemData = {...item, index: i, parent: this.key? this.key : ""};
                 return html`
                     <div class="list-group-item">
                         <div class="row">
@@ -117,7 +147,8 @@ export default class ListUpdate extends LitElement {
                             <div class="col-md-4">
                                     <data-form
                                         .data="${itemData}"
-                                        @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
+                                        @fieldChange=${ e => this.onFieldChange(e, i)}
+                                        @submit=${e => this.onSendItem(e, i)}
                                         .config="${this.config.edit}">
                                     </data-form>
                             </div>
@@ -127,7 +158,8 @@ export default class ListUpdate extends LitElement {
             })}
             <data-form
                 .data="${this.itemData}"
-                @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity, new: true})}
+                @fieldChange=${ e => this.onFieldChange(e)}
+                @submit=${e => this.onSendItem(e)}
                 .config="${this.config.new}">
             </data-form>`;
         }
@@ -137,7 +169,7 @@ export default class ListUpdate extends LitElement {
             return html `
                 <data-form
                     .data=${this.data.items}
-                    @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
+                    @fieldChange=${ e => this.editItem(e, {parent: this.key})}
                     .config=${this.config.edit}>
                 </data-form>
             `;

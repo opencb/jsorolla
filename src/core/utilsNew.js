@@ -87,6 +87,10 @@ export default class UtilsNew {
         return false;
     }
 
+    static removeArrayByIndex(arr, index) {
+        return arr.filter((val, i) => i !== index);
+    }
+
     static removeDuplicates(array, prop) {
         const newArray = [];
         const lookupObject = {};

@@ -77,7 +77,7 @@ export default class StudyAdminConfiguration extends LitElement {
                     render: () => {
                         return html`
                             <study-clinical-config
-                                .study=${this.study}
+                                .clinicalConfig=${this.study.internal.configuration.clinical}
                                 .opencgaSession=${this.opencgaSession}>
                             </study-clinical-config>`;
                     }
@@ -90,7 +90,7 @@ export default class StudyAdminConfiguration extends LitElement {
                     render: () => {
                         return html`
                             <study-variant-config
-                                .study=${this.study}
+                                .variantEngineConfig=${this.study.internal.configuration.variantEngine}
                                 .opencgaSession=${this.opencgaSession}>
                             </study-variant-config>
                         `;

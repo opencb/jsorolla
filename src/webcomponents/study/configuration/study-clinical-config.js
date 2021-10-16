@@ -30,7 +30,7 @@ export default class StudyClinicalConfig extends LitElement {
 
     static get properties() {
         return {
-            study: {
+            clinicalConfig: {
                 type: Object
             },
             opencgaSession: {
@@ -48,7 +48,7 @@ export default class StudyClinicalConfig extends LitElement {
         super.connectedCallback();
         this.updateParams = {};
         this._config = {...this.getDefaultConfig()};
-        console.log("config study", this.study.internal.configuration.clinical);
+        console.log("config study", this.clinicalConfig);
     }
 
     update(changedProperties) {
@@ -86,7 +86,7 @@ export default class StudyClinicalConfig extends LitElement {
     }
 
     onSubmit() {
-
+        // analysis/clinical/clinical/configuration/update
     }
 
     onClear() {
@@ -383,7 +383,7 @@ export default class StudyClinicalConfig extends LitElement {
             </div> -->
             <div style="margin: 25px 40px">
                 <data-form
-                    .data=${this.study.internal.configuration.clinical}
+                    .data=${this.clinicalConfig}
                     .config="${this._config}"
                     @fieldChange="${e => this.onFieldChange(e)}"
                     @clear="${this.onClear}"
