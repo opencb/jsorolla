@@ -247,7 +247,7 @@ export default class FamilyView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("creationDate"), /* application.appConfig === "opencb" */
+                                visible: !this._config?.hiddenFields?.includes("creationDate"),
                                 render: field => html`${UtilsNew.dateFormatter(field)}`
                             }
                         },
@@ -255,7 +255,7 @@ export default class FamilyView extends LitElement {
                             name: "Description",
                             field: "description",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("description"), /* application.appConfig === "opencb" */
+                                visible: !this._config?.hiddenFields?.includes("description"),
                             }
                         }
                     ]
@@ -313,7 +313,7 @@ export default class FamilyView extends LitElement {
                             type: "custom",
                             display: {
                                 layout: "vertical",
-                                visible: !this._config?.hiddenFields?.includes("pedigree"), /* application.appConfig === "opencb" */
+                                visible: !this._config?.hiddenFields?.includes("pedigree"),
                                 render: data => html`<pedigree-view .family="${this.family}"></pedigree-view>`
                             }
                         }
