@@ -252,7 +252,7 @@ class VariantInterpreterQc extends LitElement {
                             ""
                         }
 
-                        ${ /* application.appConfig === "opencb" */ this._tabs.includes("geneCoverage") ?
+                        ${this._tabs.includes("geneCoverage") ?
                             html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats

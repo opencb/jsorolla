@@ -30,14 +30,11 @@ import "./obsolete/opencga-breadcrumb.js";
 import "./category-page.js";
 import "./iva-profile.js";
 import "./iva-settings.js";
-// import "./progress-bar.js";
 
 // @dev[jsorolla]
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
-
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
-
 
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../../webcomponents/NotificationUtils.js";
@@ -68,7 +65,6 @@ import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analys
 import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-knockout-analysis-result.js";
 import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-relatedness-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-mendelian-error-analysis.js";
@@ -100,9 +96,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
 // import "../../webcomponents/commons/loading-bar.js";
-
 // import "./loading-bar.js";
-
 // import "../../webcomponents/alignment/analysis/opencga-alignment-stats-analysis.js";
 // /@dev
 
@@ -168,7 +162,7 @@ class IvaApp extends LitElement {
             "account",
             "projects",
             "file-manager",
-            // "beacon",
+            "beacon",
             "project",
             "sample",
             "file",
@@ -190,6 +184,7 @@ class IvaApp extends LitElement {
             "cat-browser",
             "cat-analysis",
             "cat-clinical",
+            "cat-tools",
             "cat-catalog",
             "cat-alignment",
             "cat-ga4gh",
@@ -203,8 +198,6 @@ class IvaApp extends LitElement {
             "cohort-variant-stats",
             "sample-eligibility",
             "knockout",
-            "recessive-gene",
-            "knockout-result",
             "inferred-sex",
             "mutational-signature",
             "individual-relatedness",
@@ -1332,6 +1325,13 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["cat-tools"] ? html`
+                    <div class="content" id="cat-tools">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "tools")}">
+                        </category-page>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["cat-catalog"] ? html`
                     <div class="content" id="cat-catalog">
                         <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "catalog")}">
@@ -1392,16 +1392,6 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["knockout"] ? html`
                     <div class="content" id="opencga-knockout-analysis">
                         ${AnalysisRegistry.get("knockout").form(this.opencgaSession, this.cellbaseClient)}
-                    </div>
-                ` : null}
-
-                ${this.config.enabledComponents["knockout-result"] ? html`
-                    <div class="content" id="opencga-knockout-analysis-result">
-                        <opencga-knockout-analysis-result
-                            .jobId="${"knockout_1521_01122020"}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}" >
-                        </opencga-knockout-analysis-result>
                     </div>
                 ` : null}
 
@@ -1480,12 +1470,6 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["rd-tiering"] ? html`
                     <div class="content" id="opencga-rd-tiering-analysis">
                         <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
-                    </div>
-                ` : null}
-
-                ${this.config.enabledComponents["recessive-gene"] ? html`
-                    <div class="content" id="opencga-knockout-analysis">
-                        ${AnalysisRegistry.get("recessive-gene").form(this.opencgaSession, this.cellbaseClient)}
                     </div>
                 ` : null}
 
