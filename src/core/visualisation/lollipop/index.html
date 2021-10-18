@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>lollipop</title>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
     <script src="../../../../../../node_modules/@svgdotjs/svg.draggable.js/dist/svg.draggable.js"></script>
+    <script src="../../../../../../node_modules/svg.path.js/svg.path.js"></script>
 
 </head>
 <body>
@@ -13,8 +15,10 @@
 <style>
 
     #lollipop {
-        margin: 50px
+        margin: 50px;
+        user-select: none; /* avoid <text> selection on dbclick */
     }
+
 
     .variant circle:hover {
         stroke-opacity: 1;
@@ -43,6 +47,23 @@
         background: #6e6e6e;
     }
 
+    .edge-anim ate {
+        stroke-dasharray: 450;
+        stroke-dashoffset: 450;
+        animation: draw 2s linear alternate;
+    }
+
+/*    path {
+        transition: 2s;
+        d: path("M15,10 L121,127");
+    }*/
+
+    @keyframes draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
 </style>
 <div id="lollipop" style="width: 1000px"></div>
 <div id="console">
@@ -55,6 +76,10 @@
 
         {
             id: "variants",
+            view: {
+                scaleHeight: 30,
+                variantAreaHeight: 500,
+            },
             variants: [
                 {
                     id: "E81K",
@@ -74,11 +99,17 @@
             ]
         },
         {
-            id: "positionBar"
+            id: "positionBar",
+            view: {
+                height: 50
+            }
         },
     ];
 
-    new Lollipop("#lollipop", tracks)
+    const config = {
+        // width: 1000
+    };
+    new Lollipop("#lollipop", tracks, config)
 </script>
 </body>
 </html>
