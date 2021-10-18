@@ -133,7 +133,7 @@ export default class Lollipop {
         parent.path(`m 50 ${y2} v -140 L ${x2} 100 V ${y1}`).fill("none").addClass("edge-animate").stroke("#3a3a3a");
     }
 
-    /**
+    /*
      * Draw the ticks of the progressBar track and the scale in Variants track
      * @param {SVGElement} g parent group
      * @param {Number} num Number of ticks
