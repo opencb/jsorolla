@@ -54,20 +54,17 @@ export default class ConfigListUpdate extends LitElement {
         }
     }
 
+    update(changedProperties) {
+        console.log("Updating ... Detail tabs");
+        this._config = {...this.getDefaultConfig()};
+        super.update(changedProperties);
+    }
+
     _init() {
         this.status = {};
         this._prefix = UtilsNew.randomString(8);
     }
 
-    editItem(e, key) {
-        const filterChange = {
-            data: {
-                param: e.detail.param,
-                value: e.detail.value
-            }, key};
-        LitUtils.dispatchEventCustom(this, "editChange", filterChange);
-        e.stopPropagation();
-    }
 
     getDefaultConfig() {
         const configKeys = Object.keys(this.items).filter(key => this.items[key] instanceof Object);
@@ -76,6 +73,7 @@ export default class ConfigListUpdate extends LitElement {
                 contentStyle: "",
             },
             items: configKeys.map(key => {
+                const node = {parent: this.key, child: key};
                 return {
                     id: key,
                     name: key,
@@ -84,7 +82,7 @@ export default class ConfigListUpdate extends LitElement {
                             <div class="col-md-6">
                                 <div class="list-group">
                                     <list-update
-                                        .key=${this.key}
+                                        .node=${node}
                                         .data=${{items: this.items[key]}}
                                         .config=${this.config[key]||this.config}>
                                     </list-update>
@@ -97,6 +95,7 @@ export default class ConfigListUpdate extends LitElement {
     }
 
     render() {
+        const node = {parent: this.key, child: ""};
         return html`
             ${this.items.constructor === Object ? html `
                 <detail-tabs
@@ -105,7 +104,7 @@ export default class ConfigListUpdate extends LitElement {
                 </detail-tabs>`:
                 html `
                 <list-update
-                    .key=${this.key}
+                    .node=${node}
                     .data=${{items: this.items}}
                     .config=${this.config[this.key] || this.config}>
                 </list-update>

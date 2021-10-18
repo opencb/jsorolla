@@ -70,6 +70,7 @@ export default class StudyVariantConfig extends LitElement {
 
     onSyncItem(e) {
         e.stopPropagation();
+        console.log("onSyncItem variant: ", e.detail);
         const {index, item} = e.detail.value;
         if (index >= 0) {
             this.editItem(index, item);
@@ -80,15 +81,13 @@ export default class StudyVariantConfig extends LitElement {
 
     editItem(index, item) {
         this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields[index] = item;
+        // To trigger the update automatically.
         this.variantEngineConfig = {
             ...this.variantEngineConfig
         };
-        // it's not working with requestUpdate...
-        // this.requestUpdate();
     }
 
     addItem(item) {
-        // It's working this way.
         this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields.push(item);
         this.variantEngineConfig = {
             ...this.variantEngineConfig
@@ -179,6 +178,7 @@ export default class StudyVariantConfig extends LitElement {
         };
 
         const configSection = key => {
+            let node = {};
             switch (key) {
                 case "fileIndexConfiguration":
                     return {
@@ -245,6 +245,7 @@ export default class StudyVariantConfig extends LitElement {
                         ]
                     };
                 case "populationFrequency":
+                    node = {parent: "populationFrequency", child: "populations"};
                     return {
                         elements: [
                             {
@@ -258,7 +259,7 @@ export default class StudyVariantConfig extends LitElement {
                                     style: "padding-left: 0px",
                                     render: variant => html`
                                         <list-update
-                                            key="populationFrequency"
+                                            .node=${node}
                                             .data="${{items: variant}}"
                                             .config=${this.configVariant("populations", {title: "study", subtitle: "population"}, true)}>
                                         </list-update>`
@@ -287,6 +288,7 @@ export default class StudyVariantConfig extends LitElement {
                 case "clinicalSignificance":
                 case "transcriptFlagIndexConfiguration":
                 case "annotationIndexConfiguration":
+                    node = {parent: key, child: "valuesMapping"};
                     return {
                         elements: [
                             {
@@ -335,7 +337,7 @@ export default class StudyVariantConfig extends LitElement {
                                     style: "padding-left: 0px",
                                     render: valuesMapping => html`
                                         <list-update
-                                            key="valuesMapping"
+                                            .node=${node}
                                             .data="${{items: valuesMapping}}"
                                             .config=${this.configVariant("valuesMapping", {}, true)}>
                                         </list-update>`

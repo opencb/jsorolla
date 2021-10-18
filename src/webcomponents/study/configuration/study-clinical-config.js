@@ -52,9 +52,16 @@ export default class StudyClinicalConfig extends LitElement {
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("study")) {
-        // }
+        if (changedProperties.has("clinicalConfig")) {
+            this.clinicalConfigObserver();
+        }
         super.update(changedProperties);
+    }
+
+    clinicalConfigObserver() {
+        if (this.clinicalConfig) {
+            this._clinicalConfig = JSON.parse(JSON.stringify(this.clinicalConfig));
+        }
     }
 
     removeItem(e) {
@@ -81,9 +88,6 @@ export default class StudyClinicalConfig extends LitElement {
         });
     }
 
-    onFieldChange(e) {
-
-    }
 
     onSubmit() {
         // analysis/clinical/clinical/configuration/update
@@ -93,12 +97,36 @@ export default class StudyClinicalConfig extends LitElement {
 
     }
 
-    editItem(e) {
-        console.log("EditChanges: ", e.detail.value);
+    onSyncItem(e) {
         e.stopPropagation();
+        console.log("Updated: ", e.detail.value);
+        const {index, node, item} = e.detail.value;
+
+        if (index === -1) {
+            console.log("Test New Item:", node);
+            switch (node.parent) {
+                case "interpretation":
+                    this.clinicalConfig[node.parent]["status"][node.child].push(item);
+                    break;
+                case "priorities":
+                    this.clinicalConfig[node.parent].push(item);
+                    break;
+                case "consent":
+                    this.clinicalConfig[node.parent]["consents"].push(item);
+                    break;
+                default:
+                    this.clinicalConfig[node.parent][node.child].push(item);
+                    break;
+            }
+        }
+
+        // trigger update
+        this.clinicalConfig = {
+            ...this.clinicalConfig
+        };
     }
 
-    configClinical(entity, heading) {
+    configClinical(key, item, modal) {
 
         const configModal = isNew => {
             return isNew ? {
@@ -108,9 +136,9 @@ export default class StudyClinicalConfig extends LitElement {
             } : {
                 type: "modal",
                 title: "Edit Config",
-                heading: {
-                    title: heading?.title,
-                    subtitle: heading?.subtitle
+                item: {
+                    title: item?.title,
+                    subtitle: item?.subtitle
                 },
                 buttonClass: "pull-right",
                 btnGroups: [
@@ -127,8 +155,8 @@ export default class StudyClinicalConfig extends LitElement {
             };
         };
 
-        const configSection = entity => {
-            switch (entity) {
+        const configSection = key => {
+            switch (key) {
                 case "clinical":
                 case "interpretation":
                 case "flags":
@@ -218,7 +246,7 @@ export default class StudyClinicalConfig extends LitElement {
             }
         };
 
-        const configStatus = isNew => {
+        const configForm = (key, isNew) => {
             return {
                 title: "Edit",
                 buttons: {
@@ -231,16 +259,28 @@ export default class StudyClinicalConfig extends LitElement {
                     labelWidth: 3,
                     labelAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: configModal(isNew),
+                    mode: modal ? configModal(isNew): {},
                     defaultValue: ""
                 },
-                sections: [configSection(entity)]
+                sections: [configSection(key)]
             };
         };
 
+        if (key.constructor === Array) {
+            const configs = {};
+            key.forEach(key => {
+                configs[key] = {
+                    ...configs[key],
+                    edit: configForm(key, false),
+                    new: configForm(key, true)
+                };
+            });
+            return configs;
+        }
+
         return {
-            edit: configStatus(false),
-            new: configStatus(true)
+            edit: configForm(key, false),
+            new: configForm(key, true)
         };
     }
 
@@ -276,10 +316,10 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <config-list-update
-                                        key="clinical"
+                                        key="status"
                                         .items="${clinical.status}"
-                                        .config=${this.configClinical("clinical")}
-                                        @editChange=${this.editItem}
+                                        .config=${this.configClinical("clinical", {title: "id", subtitle: "description"}, true)}
+                                        @changeItem=${e => this.onSyncItem(e)}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
@@ -300,7 +340,8 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         key="interpretation"
                                         .items="${clinical.interpretation.status}"
-                                        .config=${this.configClinical("interpretation")}
+                                        .config=${this.configClinical("interpretation", {title: "id", subtitle: "description"}, true)}
+                                        @changeItem=${e => this.onSyncItem(e)}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
@@ -321,7 +362,8 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         key="priorities"
                                         .items="${clinical.priorities}"
-                                        .config=${this.configClinical("priorities")}
+                                        .config=${this.configClinical("priorities", {title: "id", subtitle: "description"}, true)}
+                                        @changeItem=${e => this.onSyncItem(e)}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
@@ -342,7 +384,8 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         key="flags"
                                         .items="${clinical.flags}"
-                                        .config=${this.configClinical("flags")}
+                                        .config=${this.configClinical("flags", {title: "id", subtitle: "description"}, true)}
+                                        @changeItem=${e => this.onSyncItem(e)}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
@@ -363,7 +406,8 @@ export default class StudyClinicalConfig extends LitElement {
                                     <config-list-update
                                         key="consent"
                                         .items="${clinical.consent.consents}"
-                                        .config=${this.configClinical("consent")}
+                                        .config=${this.configClinical("consent", {title: "id", subtitle: "description"}, true)}
+                                        @changeItem=${e => this.onSyncItem(e)}
                                         @removeItem=${this.removeItem}>
                                     </config-list-update>`
                             }
