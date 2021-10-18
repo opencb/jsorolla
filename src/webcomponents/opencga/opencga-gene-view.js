@@ -210,7 +210,7 @@ export default class OpencgaGeneView extends LitElement {
                                     <th class="gene-summary-title col-sm-4">Location</th>
                                     <td>${this.gene.chromosome}:${this.gene.start}-${this.gene.end} (${this.gene.strand})</td>
                                 </tr>
-                                ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
+                                ${this.settings.externalLinks ? html`
                                     <tr>
                                         <th class="gene-summary-title col-sm-4">Genome Browser</th>
                                         <td>
@@ -248,7 +248,7 @@ export default class OpencgaGeneView extends LitElement {
                                         </td>
                                         <td>${transcript.name}</td>
                                         <td>
-                                            ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
+                                            ${this.settings.externalLinks ? html`
                                                 <a target="_blank"
                                                    href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
                                                     ${transcript.chromosome}:${transcript.start}-${transcript.end}
@@ -257,7 +257,7 @@ export default class OpencgaGeneView extends LitElement {
                                         <td>${transcript.biotype}</td>
                                         <!--
                                         <td>
-                                            ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
+                                            ${this.settings.externalLinks ? html`
                                                 <a target="_blank"
                                                    href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
                                                     ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
@@ -275,7 +275,7 @@ export default class OpencgaGeneView extends LitElement {
                         </div>
                     </div>
 
-                    ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
+                    ${this.settings.externalLinks ? html`
                         <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                             <li role="presentation" class="active">
                                 <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="gene-variant-tab-title">Variants</a>

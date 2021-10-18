@@ -236,7 +236,7 @@ export default class CustomNavBar extends LitElement {
                                     </li>
                                 ` : html`
                                     <li>
-                                        <a href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
+                                        <a href="#${item.id}" role="button" title="${item.description || ""}" @click="${this.onChangeTool}">${item.name}</a>
                                     </li>`
                                 }`
                             )}

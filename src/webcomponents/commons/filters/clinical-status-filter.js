@@ -17,6 +17,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../forms/select-field-filter.js";
 
 
 export default class ClinicalStatusFilter extends LitElement {
@@ -66,7 +67,6 @@ export default class ClinicalStatusFilter extends LitElement {
     }
 
     filterChange(e) {
-        e.stopPropagation();
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: e.detail.value

@@ -396,7 +396,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
                 halign: this._config.header.horizontalAlign,
-                /* visible: application.appConfig === "opencb" */
             }
         ];
 

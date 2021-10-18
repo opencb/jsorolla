@@ -48,7 +48,15 @@ const CLINICAL_SIGNIFICANCE = [
     }
 ];
 
-const MODE_OF_INHERITANCE = ["AUTOSOMAL_DOMINANT", "AUTOSOMAL_RECESSIVE", "X_LINKED_DOMINANT", "X_LINKED_RECESSIVE", "Y_LINKED", "MITOCHONDRIAL"];
+// const MODE_OF_INHERITANCE = ["AUTOSOMAL_DOMINANT", "AUTOSOMAL_RECESSIVE", "X_LINKED_DOMINANT", "X_LINKED_RECESSIVE", "Y_LINKED", "MITOCHONDRIAL"];
+const MODE_OF_INHERITANCE = [
+    {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
+    {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
+    {id: "X_LINKED_DOMINANT", name: "X-linked Dominant"},
+    {id: "X_LINKED_RECESSIVE", name: "X-linked Recessive"},
+    {id: "Y_LINKED", name: "Y-linked"},
+    {id: "MITOCHONDRIAL", name: "Mitochondrial"}
+];
 
 const ROLE_IN_CANCER = ["ONCOGENE", "TUMOR_SUPPRESSOR_GENE", "FUSION"];
 

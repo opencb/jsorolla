@@ -5,6 +5,6 @@ const OPENCGA_FAMILY_VIEW_SETTINGS = {
      * - `fields` an explicit list of ids. In this case each field in DataForm needs an id.
      * - `hiddenFields` a list of fields to exclude
      */
-    // GEL settings
-    hiddenFields: ["pedigree", "creationDate", "description"]
+    // Example
+    // hiddenFields: ["pedigree", "creationDate", "description"]
 };
