@@ -28,12 +28,12 @@ export default class CatalogGridFormatter {
             if (phenotype.name) {
                 result.push(phenotype.name);
                 // Check if we have also the phenotype ID --> add the '-' separator
-                if (phenotype.id) {
+                if (phenotype.id && phenotype.id !== phenotype.name) {
                     result.push("-");
                 }
             }
             // Add phenotype ID if exists
-            if (phenotype.id) {
+            if (phenotype.id && phenotype.id !== phenotype.name) {
                 if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
                     result.push(`<a target="_blank" href="https://hpo.jax.org/app/browse/terms/${phenotype.id}">${phenotype.id}</a>`);
                 } else {
