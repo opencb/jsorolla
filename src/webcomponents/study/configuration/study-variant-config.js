@@ -70,13 +70,20 @@ export default class StudyVariantConfig extends LitElement {
 
     onSyncItem(e) {
         e.stopPropagation();
-        console.log("onSyncItem variant: ", e.detail);
-        const {index, item} = e.detail.value;
-        if (index >= 0) {
-            this.editItem(index, item);
-        } else {
-            this.addItem(e.detail.value);
+        console.log("onSyncItem variant: ", e.detail.value);
+        const {index, node, item} = e.detail.value;
+
+        if (index === -1) {
+            this.variantEngineConfig.sampleIndex[node.parent][node.child].push(item);
+            this.variantEngineConfig = {
+                ...this.variantEngineConfig
+            };
+            console.log("Add new item: ", this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields);
         }
+
+        this.variantEngineConfig = {
+            ...this.variantEngineConfig
+        };
     }
 
     editItem(index, item) {
@@ -87,16 +94,9 @@ export default class StudyVariantConfig extends LitElement {
         };
     }
 
-    addItem(item) {
-        this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields.push(item);
-        this.variantEngineConfig = {
-            ...this.variantEngineConfig
-        };
-        console.log("Add new item: ", this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields);
-    }
-
     onRemoveItem(e) {
         const item = e.detail.value;
+        console.log("To remove: ", item);
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -417,14 +417,17 @@ export default class StudyVariantConfig extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 8,
                                 style: "padding-left: 0px",
-                                render: customFields => html`
+                                render: customFields => {
+                                    const node = {parent: "fileIndexConfiguration", child: "customFields"};
+                                    return html`
                                     <list-update
-                                        key="fileIndexConfiguration"
+                                        .node=${node}
                                         .data="${{items: customFields}}"
                                         .config=${this.configVariant("fileIndexConfiguration", {title: "source", subtitle: "key"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
                                         @removeItem=${e => this.onRemoveItem(e)}>
-                                    </list-update>`
+                                    </list-update>`;
+                                }
                             }
                         },
                     ]
