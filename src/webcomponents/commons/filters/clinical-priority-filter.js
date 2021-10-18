@@ -65,7 +65,6 @@ export default class ClinicalPriorityFilter extends LitElement {
     // }
 
     filterChange(e) {
-        e.stopPropagation();
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: e.detail.value

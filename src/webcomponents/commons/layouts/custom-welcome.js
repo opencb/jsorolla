@@ -204,7 +204,7 @@ export default class CustomWelcome extends LitElement {
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                     ${this.renderApplicationsOrTools()}
                 </div>
-                
+
                 <!-- Display custom links -->
                 <div align="center" class="row" style="margin-top:50px;">
                     ${(welcomePage?.links || []).map(link => html`
