@@ -33,13 +33,14 @@ export default class CustomPage extends LitElement {
 
     render() {
         return html`
-            <div class="container" style="margin-top:50px;margin-bottom:50px;">
+            <div class="container" style="margin-top:48px;margin-bottom:48px;">
                 <!-- Page title -->
-                ${this.page.title ? html`
+                ${this.page.title && this.page.display?.showTitle !== false ? html`
                     <h1 class="${this.page.display?.titleClass}" style="${this.page.display?.titleStyle}">
                         ${this.page.title}
                     </h1>
                 ` : null}
+                ${this.page.display?.showTitleRule !== false ? html`<hr></hr>` : null}
                 <!-- Page content -->
                 ${this.page.content ? html`
                     <div>${UtilsNew.renderHTML(this.page.content)}</div>
