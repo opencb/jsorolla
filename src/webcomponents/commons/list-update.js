@@ -135,7 +135,7 @@ export default class ListUpdate extends LitElement {
             const subtitle = this._config.edit?.display?.mode?.item?.subtitle || "description";
             return html`
             ${this.data.items?.map((item, i) => {
-                // const itemData = {...item, index: i, parent: this.key? this.key : ""};
+                const itemData = {...item, node: this.node, index: i};
                 return html`
                     <div class="list-group-item">
                         <div class="row">
@@ -147,7 +147,7 @@ export default class ListUpdate extends LitElement {
                             </div>
                             <div class="col-md-4">
                                     <data-form
-                                        .data="${item}"
+                                        .data="${itemData}"
                                         @fieldChange=${ e => this.onFieldChange(e, i)}
                                         @submit=${e => this.onSendItem(e, i, this.node)}
                                         .config="${this._config.edit}">
