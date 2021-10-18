@@ -47,6 +47,7 @@
     "@polymer/polymer": "2.6.1",
     "@svgdotjs/svg.draggable.js": "^3.0.2",
     "@svgdotjs/svg.js": "^3.1.1",
+    "svg.path.js": "git+https://github.com/otm/svg.path.js.git",
     "@vaadin/router": "^1.7.2",
     "@webcomponents/webcomponentsjs": "^1.1.0",
     "animate.css": "^3.5.2",
