@@ -248,8 +248,10 @@ span.subtitle {
 }
 
 .app-logo img{
-    width: 70px;
     display: inline-block;
+    height: 100%;
+    margin-right: 4px;
+    /* width: 70px; */
 }
 
 .app-logo sup{
