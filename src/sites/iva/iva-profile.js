@@ -138,7 +138,7 @@ export default class IvaProfile extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: studies => {
-                                                return studies.map( study => study.name).join(", ")
+                                                return UtilsNew.renderHTML(`${studies.map(study => study.name).join("<br>")}`);
                                             }
                                         }
                                     }
