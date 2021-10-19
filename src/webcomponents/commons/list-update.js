@@ -56,8 +56,8 @@ export default class ListUpdate extends LitElement {
         this.item = {};
     }
 
-
     onFieldChange(e, index) {
+        // debugger;
         e.stopPropagation();
         // Array
         const {param, value} = e.detail;
@@ -84,14 +84,32 @@ export default class ListUpdate extends LitElement {
         }
     }
 
+    onAddValues(e) {
+        e.stopPropagation();
+        console.log("Change values token");
+    }
+
+
     onSendItem(e, index, node) {
         e.stopPropagation();
-        console.log("exist?: ", this.item);
+        console.log("Data....list-update", this.data.items);
         const itemData = {index: index, node, item: index >= 0 ? this.data.items[index] : this.item};
         LitUtils.dispatchEventCustom(
             this,
             "changeItem",
             itemData);
+        // trigger a update .. it's work for all items.
+        this.requestUpdate();
+    }
+
+    onRemoveItem(e, i, node) {
+        e.stopPropagation();
+        const items = this.data.items;
+        console.log("modification: ", items);
+        this.data.items = UtilsNew.removeArrayByIndex(items, i);
+        const itemData = {index: i, node, item: this.data.items};
+        LitUtils.dispatchEventCustom(this, "removeItem", itemData);
+        this.requestUpdate();
     }
 
     render() {
@@ -101,9 +119,8 @@ export default class ListUpdate extends LitElement {
             const valuesMapping = this.data.items;
             return html`
                 ${valuesMapping ?
-                    Object.keys(valuesMapping)?.map(key => {
-                    // const itemData = {key: key, values: valuesMapping[key], parent: this.key? this.key : ""};
-                    const itemData = {key: key, values: valuesMapping[key]};
+                    Object.keys(valuesMapping)?.map((key, i) => {
+                    const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
                     return html`
                         <div class="list-group-item">
                             <div class="row">
@@ -115,7 +132,8 @@ export default class ListUpdate extends LitElement {
                                 <div class="col-md-4">
                                         <data-form
                                             .data="${itemData}"
-                                            @submit=${ e => this.editItem(e, this.node)}
+                                            @fieldChange=${e => this.onFieldChange(e)}
+                                            @submit=${ e => this.onSendItem(e, i, this.node)}
                                             .config="${this._config.edit}">
                                         </data-form>
                                 </div>
@@ -149,6 +167,7 @@ export default class ListUpdate extends LitElement {
                                     <data-form
                                         .data="${itemData}"
                                         @fieldChange=${ e => this.onFieldChange(e, i)}
+                                        @removeItem=${e => this.onRemoveItem(e, i, this.node)}
                                         @submit=${e => this.onSendItem(e, i, this.node)}
                                         .config="${this._config.edit}">
                                     </data-form>

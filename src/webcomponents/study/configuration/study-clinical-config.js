@@ -54,6 +54,7 @@ export default class StudyClinicalConfig extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("clinicalConfig")) {
+            console.log("copy internal clinicalConfig");
             this.clinicalConfigObserver();
         }
         super.update(changedProperties);
@@ -103,8 +104,6 @@ export default class StudyClinicalConfig extends LitElement {
     }
 
     onRemoveItem(e) {
-        // const {index, node, item} = e.detail.value;
-        console.log("To remove:", e.detail);
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -129,7 +128,6 @@ export default class StudyClinicalConfig extends LitElement {
 
     removeItem(itemData) {
         const {node, ...item} = itemData;
-
         switch (node.parent) {
             case "interpretation":
                 const interpretations = this.clinicalConfig.interpretation.status[node.child];

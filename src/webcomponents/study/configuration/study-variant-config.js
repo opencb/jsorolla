@@ -74,11 +74,18 @@ export default class StudyVariantConfig extends LitElement {
         const {index, node, item} = e.detail.value;
 
         if (index === -1) {
-            this.variantEngineConfig.sampleIndex[node.parent][node.child].push(item);
-            this.variantEngineConfig = {
-                ...this.variantEngineConfig
-            };
-            console.log("Add new item: ", this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields);
+            switch (node.parent) {
+                case "fileIndexConfiguration":
+                    // customFields
+                    this.variantEngineConfig.sampleIndex[node.parent][node.child].push(item);
+                    break;
+                case "populationFrequency":
+                    this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child].push(item);
+                    break;
+                default:
+                // this.clinicalConfig[node.parent][node.child].push(item);
+                    break;
+            }
         }
 
         this.variantEngineConfig = {
@@ -86,18 +93,10 @@ export default class StudyVariantConfig extends LitElement {
         };
     }
 
-    editItem(index, item) {
-        this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields[index] = item;
-        // To trigger the update automatically.
-        this.variantEngineConfig = {
-            ...this.variantEngineConfig
-        };
-    }
-
     onRemoveItem(e) {
-        const item = e.detail.value;
-        console.log("To remove: ", item);
         e.stopPropagation();
+        // this.requestUpdate();
+        // console.log("removeItem variant", e.detail.value);
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -109,13 +108,7 @@ export default class StudyVariantConfig extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                const customFields = this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields;
-                this.variantEngineConfig.sampleIndex
-                    .fileIndexConfiguration.customFields = UtilsNew.removeArrayByIndex(customFields, item.index);
-                this.variantEngineConfig = {
-                    ...this.variantEngineConfig
-                };
-                console.log("Item removed: ", this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields);
+                this.removeItem(e.detail.value);
                 Swal.fire(
                     "Deleted!",
                     "The config has been deleted. (Test UI)",
@@ -123,6 +116,28 @@ export default class StudyVariantConfig extends LitElement {
                 );
             }
         });
+    }
+
+    removeItem(itemData) {
+        const {node, item} = itemData;
+        switch (node.parent) {
+            case "fileIndexConfiguration":
+                this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields = item;
+                break;
+            case "populationFrequency":
+                this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = item;
+                // const populations = this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child];
+                // this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = UtilsNew.removeArrayByIndex(populations, item.index);
+                break;
+            default:
+                // const items = this.clinicalConfig[node.parent][node.child];
+                // this.clinicalConfig[node.parent][node.child] = UtilsNew.removeArrayByIndex(items, item.index);
+                break;
+        }
+
+        this.variantEngineConfig = {
+            ...this.variantEngineConfig
+        };
     }
 
     onFieldChange(e) {
@@ -448,10 +463,11 @@ export default class StudyVariantConfig extends LitElement {
                                         .filter(key => annotationIndexConfiguration[key] instanceof Object);
                                     return html`
                                         <config-list-update
+                                            key="annotationIndexConfiguration"
                                             .items="${annotationIndexConfiguration}"
                                             .config=${this.configVariant(itemKeys, {}, false)}
-                                            @editChange=${this.onEditItem}
-                                            @removeItem=${this.onRemoveItem}>
+                                            @changeItem=${e => this.onSyncItem(e)}
+                                            @removeItem=${e => this.onRemoveItem(e)}>
                                         </config-list-update>`;
                                 }
                             }
