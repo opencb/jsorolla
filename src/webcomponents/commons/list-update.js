@@ -104,16 +104,35 @@ export default class ListUpdate extends LitElement {
 
     onRemoveItem(e, i, node) {
         e.stopPropagation();
-        const items = this.data.items;
-        console.log("modification: ", items);
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                const itemData = this.removeItem(this.data.items, i, node);
+                LitUtils.dispatchEventCustom(this, "removeItem", itemData);
+                this.requestUpdate();
+                Swal.fire(
+                    "Deleted!",
+                    "The config has been deleted. (Test UI)",
+                    "success"
+                );
+            }
+        });
+    }
+
+    removeItem(items, i, node) {
         this.data.items = UtilsNew.removeArrayByIndex(items, i);
-        const itemData = {index: i, node, item: this.data.items};
-        LitUtils.dispatchEventCustom(this, "removeItem", itemData);
-        this.requestUpdate();
+        return {index: i, node, item: this.data.items};
     }
 
     render() {
-
         // TODO: Add a condition to know it's a key with values array
         if (this.node?.child === "valuesMapping") {
             const valuesMapping = this.data.items;

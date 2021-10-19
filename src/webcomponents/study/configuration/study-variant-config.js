@@ -93,33 +93,9 @@ export default class StudyVariantConfig extends LitElement {
         };
     }
 
-    onRemoveItem(e) {
+    onSyncRemoveItem(e) {
         e.stopPropagation();
-        // this.requestUpdate();
-        // console.log("removeItem variant", e.detail.value);
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
-                this.removeItem(e.detail.value);
-                Swal.fire(
-                    "Deleted!",
-                    "The config has been deleted. (Test UI)",
-                    "success"
-                );
-            }
-        });
-    }
-
-    removeItem(itemData) {
-        const {node, item} = itemData;
+        const {node, item} = e.detail.value;
         switch (node.parent) {
             case "fileIndexConfiguration":
                 this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields = item;
@@ -440,7 +416,7 @@ export default class StudyVariantConfig extends LitElement {
                                         .data="${{items: customFields}}"
                                         .config=${this.configVariant("fileIndexConfiguration", {title: "source", subtitle: "key"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onRemoveItem(e)}>
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
                                     </list-update>`;
                                 }
                             }
@@ -467,7 +443,7 @@ export default class StudyVariantConfig extends LitElement {
                                             .items="${annotationIndexConfiguration}"
                                             .config=${this.configVariant(itemKeys, {}, false)}
                                             @changeItem=${e => this.onSyncItem(e)}
-                                            @removeItem=${e => this.onRemoveItem(e)}>
+                                            @removeItem=${e => this.onSyncRemoveItem(e)}>
                                         </config-list-update>`;
                                 }
                             }
