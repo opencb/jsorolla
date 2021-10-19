@@ -93,7 +93,7 @@ jobs:
   docker:
     name: Publish Docker image
     runs-on: ubuntu-20.04
-    needs: test
+#    needs: test
     steps:
       - uses: actions/checkout@v2
       - id: package
@@ -111,7 +111,7 @@ jobs:
   deploy:
     name: Deploy development application
     runs-on: ubuntu-20.04
-    needs: test
+#    needs: test
     steps:
       - uses: actions/download-artifact@v2
         with:
