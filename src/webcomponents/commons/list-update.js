@@ -104,6 +104,7 @@ export default class ListUpdate extends LitElement {
 
     onRemoveItem(e, i, node) {
         e.stopPropagation();
+        console.log("Item to remove:", this.data.items[i]);
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -129,7 +130,7 @@ export default class ListUpdate extends LitElement {
 
     removeItem(items, i, node) {
         this.data.items = UtilsNew.removeArrayByIndex(items, i);
-        return {index: i, node, item: this.data.items};
+        return {index: i, node, items: this.data.items};
     }
 
     render() {

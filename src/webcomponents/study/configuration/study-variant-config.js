@@ -95,13 +95,13 @@ export default class StudyVariantConfig extends LitElement {
 
     onSyncRemoveItem(e) {
         e.stopPropagation();
-        const {node, item} = e.detail.value;
+        const {node, items} = e.detail.value;
         switch (node.parent) {
             case "fileIndexConfiguration":
-                this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields = item;
+                this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields = items;
                 break;
             case "populationFrequency":
-                this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = item;
+                this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = items;
                 // const populations = this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child];
                 // this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = UtilsNew.removeArrayByIndex(populations, item.index);
                 break;

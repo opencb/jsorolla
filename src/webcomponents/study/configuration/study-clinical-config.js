@@ -103,47 +103,29 @@ export default class StudyClinicalConfig extends LitElement {
         };
     }
 
-    onRemoveItem(e) {
+    onSyncRemoveItem(e) {
         e.stopPropagation();
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
-                this.removeItem(e.detail.value);
-                Swal.fire(
-                    "Deleted!",
-                    "The config has been deleted. (Test UI)",
-                    "success"
-                );
-            }
-        });
-    }
-
-    removeItem(itemData) {
-        const {node, ...item} = itemData;
+        const {node, items} = e.detail.value;
         switch (node.parent) {
             case "interpretation":
-                const interpretations = this.clinicalConfig.interpretation.status[node.child];
-                this.clinicalConfig.interpretation.status[node.child] = UtilsNew.removeArrayByIndex(interpretations, item.index);
+                // const interpretations = this.clinicalConfig.interpretation.status[node.child];
+                // this.clinicalConfig.interpretation.status[node.child] = UtilsNew.removeArrayByIndex(interpretations, item.index);
+                this.clinicalConfig.interpretation.status[node.child] = items;
                 break;
             case "priorities":
-                const priorities = this.clinicalConfig[node.parent];
-                this.clinicalConfig[node.parent] = UtilsNew.removeArrayByIndex(priorities, item.index);
+                // const priorities = this.clinicalConfig[node.parent];
+                // this.clinicalConfig[node.parent] = UtilsNew.removeArrayByIndex(priorities, item.index);
+                this.clinicalConfig[node.parent] = items;
                 break;
             case "consent":
-                const consents = this.clinicalConfig.consent.consents;
-                this.clinicalConfig.consent.consents = UtilsNew.removeArrayByIndex(consents, item.index);
+                // const consents = this.clinicalConfig.consent.consents;
+                // this.clinicalConfig.consent.consents = UtilsNew.removeArrayByIndex(consents, item.index);
+                this.clinicalConfig.consent.consents = items;
                 break;
             default:
-                const items = this.clinicalConfig[node.parent][node.child];
-                this.clinicalConfig[node.parent][node.child] = UtilsNew.removeArrayByIndex(items, item.index);
+                // const items = this.clinicalConfig[node.parent][node.child];
+                // this.clinicalConfig[node.parent][node.child] = UtilsNew.removeArrayByIndex(items, item.index);
+                this.clinicalConfig[node.parent][node.child] = items;
                 break;
         }
 
@@ -151,7 +133,6 @@ export default class StudyClinicalConfig extends LitElement {
         this.clinicalConfig = {
             ...this.clinicalConfig
         };
-
     }
 
     configClinical(key, item, modal) {
@@ -348,7 +329,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         .items="${clinical.status}"
                                         .config=${this.configClinical("clinical", {title: "id", subtitle: "description"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onRemoveItem(e)}>
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
                                     </config-list-update>`
                             }
                         },
@@ -370,7 +351,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         .items="${clinical.interpretation.status}"
                                         .config=${this.configClinical("interpretation", {title: "id", subtitle: "description"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onRemoveItem(e)}>
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
                                     </config-list-update>`
                             }
                         },
@@ -392,7 +373,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         .items="${clinical.priorities}"
                                         .config=${this.configClinical("priorities", {title: "id", subtitle: "description"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onRemoveItem(e)}>
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
                                     </config-list-update>`
                             }
                         },
@@ -414,7 +395,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         .items="${clinical.flags}"
                                         .config=${this.configClinical("flags", {title: "id", subtitle: "description"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onRemoveItem(e)}>
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
                                     </config-list-update>`
                             }
                         },
@@ -436,7 +417,7 @@ export default class StudyClinicalConfig extends LitElement {
                                         .items="${clinical.consent.consents}"
                                         .config=${this.configClinical("consent", {title: "id", subtitle: "description"}, true)}
                                         @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onRemoveItem(e)}>
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
                                     </config-list-update>`
                             }
                         },
