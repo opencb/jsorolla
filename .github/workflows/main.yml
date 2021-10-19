@@ -113,12 +113,13 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build
     steps:
+      - uses: actions/checkout@v2
+      - id: package
+        uses: tyankatsu0105/read-package-version-actions@v1
       - uses: actions/download-artifact@v2
         with:
           name: jsorolla-build
           path: build
-      - id: package
-        uses: tyankatsu0105/read-package-version-actions@v1
       - uses: garygrossgarten/github-action-scp@release
         with:
           local: build
