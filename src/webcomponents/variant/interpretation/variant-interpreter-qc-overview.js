@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "./variant-interpreter-qc-ascat-stats.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
@@ -185,6 +186,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Summary"
                             },
                             {
+                                id: "AscatStats",
+                                title: "ASCAT Stats",
+                            },
+                            {
                                 id: "VariantStats",
                                 title: "QC Plot Files",
                             },
@@ -241,7 +246,6 @@ class VariantInterpreterQcOverview extends LitElement {
         }
 
         return html`
-            <!--<tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>-->
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => {
@@ -260,6 +264,13 @@ class VariantInterpreterQcOverview extends LitElement {
                             <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession}
                                                             .clinicalAnalysis=${this.clinicalAnalysis}>
                             </variant-interpreter-qc-summary>
+                        </div>
+
+                        <div id="${this._prefix}AscatStats" role="tabpanel" class="tab-pane content-tab">
+                            <variant-interpreter-qc-ascat-stats
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis=${this.clinicalAnalysis}>
+                            </variant-interpreter-qc-ascat-stats>
                         </div>
 
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
