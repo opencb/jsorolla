@@ -61,7 +61,7 @@ export default class Lollipop {
         this.scaleG.rect(this.canvasWidth - this.canvasPadding * 2, track.view.scaleHeight).attr({fill: "#fff", stroke: "#9d9d9d"});
 
 
-        // if proteinRange is defined we only render the scale accordingly and only the variants within the position range are rendered
+        // if proteinRange is defined we only render the scale accordingly. Only the variants within the position range are rendered
         this.viewFrame = viewFrame ?? [0, this.proteinLength];
         this.drawTicks(this.scaleG, 10, track.view.scaleHeight, this.viewFrame[0], this.viewFrame[1]);
 
@@ -74,7 +74,7 @@ export default class Lollipop {
 
         this.circles = this.preProcessVariants(track);
 
-        this.circles.forEach(variant => {
+        this.circles.forEach((variant, i) => {
 
             if (variant.pos >= this.viewFrame[0] && variant.pos <= this.viewFrame[1]) {
                 const y = height/2; // TODO y coord is dynamic on collisions
@@ -85,12 +85,27 @@ export default class Lollipop {
                 const v = variantAreaG.group()
                     .addClass("variant")
                     .attr({"text-anchor": "middle"})
-                    .transform({translateX: x, translateY: y});
+                    .transform({translateX: x, translateY: height});
+                v.delay(i * 100);
+                v.animate({duration: 1000}).dy(-height/2).ease(">");
+
                 this.edge(v, size, 0, y);
-                v.circle(size).dx(-size/2).fill(variant.color ?? "#6872ff").stroke({color: "#000", opacity: 0}).click(e => this.onClickVariant(e, v, variant));
-                v.text(variant.id).dy(-5).font({size: "10px"});
+
+                v.circle(size)
+                    .dx(-size/2)
+                    .fill(variant.color ?? "#6872ff")
+                    .stroke({color: "#000", opacity: 0})
+                    .scale(1)
+                    .click(e => this.onClickVariant(e, v, variant))
+                    //.delay(i * 200)
+                    //.animate()
+                    //.size(size).dx(-size/2)*/;
+
                 if (variant.type === "cluster") {
                     v.text(variant.variants.length).dy(size/2 + 5).font({size: variant.variants.length + 20 + "px"});
+                } else {
+                    // single variant
+                    v.text(variant.id).dy(-5).font({size: "10px"});
                 }
             }
 
@@ -99,46 +114,136 @@ export default class Lollipop {
         this.currentTrackOffset += height;
     }
 
+    positionBar(track) {
+        if (this.bar) {
+            this.bar.clear();
+        } else {
+            this.bar = this.draw.group().addClass("positionBar").transform({translateY: this.positionBarOrigin, translateX: this.canvasPadding});
+        }
+
+        this.bar.rect(this.canvasWidth - this.canvasPadding*2, track.view.height).attr({fill: "#e8e8e8", stroke: "#000"});
+
+        // this.bar.draggable();
+
+        this.drawTicks(this.bar, 10, track.view.height, 0, this.proteinLength);
+
+        const cursorStart = this.bar.line(0, 0, 0, track.view.height).stroke({
+            color: "#000",
+            width: 0.2,
+        }).attr({shapeRendering: "crispEdges"});
+
+        /* cursorStart.on('beforedrag', e => {
+            console.log("cursorStart drag")
+        })
+
+        bar.on('beforedrag', e => {
+            console.log("bar drag")
+        })*/
+
+        let mouseDown = false;
+        const rangeBar = this.bar.rect(0, track.view.height).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
+
+
+        this.bar.mousemove(e => {
+            cursorStart.show();
+            const dim = e.currentTarget.getBoundingClientRect();
+            const mouseX = e.clientX - dim.left;
+            if (mouseDown) {
+
+                const start = cursorStart.x() <= mouseX ? cursorStart.x() : mouseX;
+                const w = Math.abs(cursorStart.x() - mouseX);
+
+                this.viewFrame = [start, start + w];
+                rangeBar.show();
+                rangeBar.size(Math.min(w + 1, this.canvasWidth - this.canvasPadding*2), 50).move(start); // +1 is for avoid 0 range
+                // console.log(start);
+
+            } else {
+                cursorStart.move(mouseX, 0);
+            }
+
+            this.log(cursorStart.x(), rangeBar.width(), mouseX, this.viewFrame);
+        });
+
+        this.bar.mouseout(e => {
+            cursorStart.hide();
+        });
+
+        this.bar.mousedown(e => {
+            console.log(e);
+            mouseDown = true;
+        });
+
+        this.bar.mouseup(e => {
+            mouseDown = false;
+            this.resizeVariant(this.bar, e);
+        });
+
+        this.bar.dblclick(e => {
+            e.preventDefault();
+            console.log("db click");
+            cursorStart.hide();
+            rangeBar.hide();
+            this.viewFrame = [0, this.canvasWidth];
+            // console.log("this.proteinLength", this.proteinLength)
+            this.resizeVariant(this.bar, e);
+
+        });
+
+
+        this.currentTrackOffset += track.view.height;
+
+    }
+
+    /*
+     * return the object in the structure expected for the plot (either a single variant or a cluster)
+    */
     preProcessVariants(track) {
+        const addResult = pool => {
+            if (pool.length > 1) {
+                const id = pool[0].id + "_" + pool[pool.length-1].id;
+                const poolPos = pool.reduce((acc, curr) => curr.pos + acc, 0) / pool.length; // (unweighted avg linkage)
+                return {id: "cluster_" + id, pos: poolPos, variants: [...pool], type: "cluster"};
+            } else {
+                return {...pool[0], type: "variant"};
+            }
+        };
+
+
         const points = [];
         const _variants = [...track.variants].sort((a, b) => a.pos - b.pos);
-        // console.log(_variants)
-        let currentOffset = 0;
         let pool = [];
-
+        let poolViewFramePos = 0;
         // TODO collision algorithm in progress
         _variants.forEach(variant => {
             // 1. check and generate clusters (dynamic on current viewFrame). Collision detection to get what datapoint merge
             // 2. calculate x coordinate (keeping original and new). Collision detection to get where to render the circles
 
-            // convert original position into viewFrame coords
-            const viewFramePos = this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
+            // convert original gene position into viewFrame position
+            const variantViewFramePos = this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
 
-            // collision
-            if (viewFramePos < currentOffset + track.view.circleSize) {
-                // console.error("collision ", variant.id);
+            if (!pool.length) {
                 pool.push(variant);
+                poolViewFramePos = variantViewFramePos;
             } else {
-                // no collision.
-                // add the single variant to the results and check the pool
-                pool.push(variant);
-                if (pool.length > 1) {
-                    // adding a cluster
-                    const id = pool[0].id + "_" + pool[pool.length-1].id;
-                    // the position of the cluster is the avg of the positions of its members
-                    const pos = pool.reduce((acc, curr) => curr.pos + acc, 0) / pool.length;
-                    points.push({id: "cluster_" + id, pos: pos, variants: [...pool], type: "cluster"});
+                if (variantViewFramePos < poolViewFramePos + track.view.circleSize) {
+                    pool.push(variant);
+                    poolViewFramePos = (poolViewFramePos + variantViewFramePos) / 2;
                 } else {
-                    points.push({...variant, type: "variant"});
+                    points.push(addResult(pool));
+                    pool = [variant];
+                    poolViewFramePos = variantViewFramePos;
 
                 }
-                pool = [];
             }
-            currentOffset = viewFramePos + track.view.circleSize;
-
-
         });
-        console.log("points", points);
+
+        // TODO temp solution. there is still something in the pool
+        if (pool.length) {
+            points.push(addResult(pool));
+        }
+
+
         return points;
     }
 
@@ -216,87 +321,6 @@ export default class Lollipop {
             group.text(label).dy(barHeight - tickHeight - 2).font({size: "10px"}).attr({z: 120});
         }
     };
-
-    positionBar(track) {
-        if (this.bar) {
-            this.bar.clear();
-        } else {
-            this.bar = this.draw.group().addClass("positionBar").transform({translateY: this.positionBarOrigin, translateX: this.canvasPadding});
-        }
-
-        this.bar.rect(this.canvasWidth - this.canvasPadding*2, track.view.height).attr({fill: "#e8e8e8", stroke: "#000"});
-
-        // this.bar.draggable();
-
-        this.drawTicks(this.bar, 10, track.view.height, 0, this.proteinLength);
-
-        const cursorStart = this.bar.line(0, 0, 0, track.view.height).stroke({
-            color: "#000",
-            width: 0.2,
-        }).attr({shapeRendering: "crispEdges"});
-
-        /* cursorStart.on('beforedrag', e => {
-            console.log("cursorStart drag")
-        })
-
-        bar.on('beforedrag', e => {
-            console.log("bar drag")
-        })*/
-
-        let mouseDown = false;
-        const rangeBar = this.bar.rect(0, track.view.height).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
-
-
-        this.bar.mousemove(e => {
-            cursorStart.show();
-            const dim = e.currentTarget.getBoundingClientRect();
-            const mouseX = e.clientX - dim.left - 5; // little offset to avoid browser dragging action
-            if (mouseDown) {
-
-                const start = cursorStart.x() <= mouseX ? cursorStart.x() : mouseX;
-                const w = Math.abs(cursorStart.x() - mouseX);
-
-                this.viewFrame = [start, start + w];
-                rangeBar.show();
-                rangeBar.size(Math.min(w, this.bar.width()), 50).move(start);
-                // console.log(start);
-
-            } else {
-                cursorStart.move(mouseX, 0);
-            }
-
-            this.log(cursorStart.x(), rangeBar.width(), mouseX, this.viewFrame);
-        });
-
-        this.bar.mouseout(e => {
-            cursorStart.hide();
-        });
-
-        this.bar.mousedown(e => {
-            console.log(e);
-            mouseDown = true;
-        });
-
-        this.bar.mouseup(e => {
-            mouseDown = false;
-            this.resizeVariant(this.bar, e);
-        });
-
-        this.bar.dblclick(e => {
-            e.preventDefault();
-            console.log("db click");
-            cursorStart.hide();
-            rangeBar.hide();
-            this.viewFrame = [0, this.canvasWidth];
-            // console.log("this.proteinLength", this.proteinLength)
-            this.resizeVariant(this.bar, e);
-
-        });
-
-
-        this.currentTrackOffset += track.view.height;
-
-    }
 
     resizeVariant(g, e) {
         console.log("resizeVariant"); // range is in screen pixels
