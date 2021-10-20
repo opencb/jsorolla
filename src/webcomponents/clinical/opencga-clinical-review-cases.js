@@ -668,7 +668,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <!-- Status -->
                                             <div class="btn-group" data-cy="form-status">
                                                 <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.internal?.configuration?.clinical?.status ?? []}"
-                                                                        .value=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
+                                                                        .status=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
                                         ` : null}
 
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "priority") ? html`
@@ -676,6 +676,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <div class="btn-group" data-cy="form-priority">
                                                 <clinical-priority-filter placeholder="${"Priority: All"}"
                                                                           .priorities="${Object.values(this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities ?? {})}"
+                                                                          .priority=${this.query?.priority}
                                                                           @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></clinical-priority-filter>
                                             </div>
                                         ` : null}
@@ -684,6 +685,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <!-- Assignees -->
                                             <div class="btn-group" data-cy="form-assignees">
                                                 <select-field-filter placeholder="Assignee: All" multiple .data="${this.users}"
+                                                                     .value=${this.query?.analystAssignee}
                                                                      @filterChange="${e => this.onFilterChange("analystAssignee", e.detail.value)}"></select-field-filter>
                                             </div>
                                         ` : null}
@@ -697,7 +699,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 </div>
                             </div>
                         </form>
-
                         <div style="margin-top: 25px">
                             <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
                                                             .query="${this.query}"

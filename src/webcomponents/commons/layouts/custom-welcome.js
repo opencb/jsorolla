@@ -204,11 +204,11 @@ export default class CustomWelcome extends LitElement {
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                     ${this.renderApplicationsOrTools()}
                 </div>
-                
+
                 <!-- Display custom links -->
                 <div align="center" class="row" style="margin-top:50px;">
                     ${(welcomePage?.links || []).map(link => html`
-                        <a class="getting-started" href="${link.url}" target="_blank"><span>${link.title}</span></a>
+                        <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
                     `)}
                 </div>
             </div>

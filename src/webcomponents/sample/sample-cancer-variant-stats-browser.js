@@ -22,12 +22,6 @@ import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/view/signature-view.js";
 import "../commons/filters/variant-caller-info-filter.js";
-// import "../commons/filters/deprecated/strelka-caller-filter.js";
-// import "../commons/filters/deprecated/pindel-caller-filter.js";
-// import "../commons/filters/deprecated/ascat-caller-filter.js";
-// import "../commons/filters/deprecated/canvas-caller-filter.js";
-// import "../commons/filters/deprecated/brass-caller-filter.js";
-// import "../commons/filters/deprecated/manta-caller-filter.js";
 import "../loading-spinner.js";
 
 export default class SampleCancerVariantStatsBrowser extends LitElement {
@@ -550,7 +544,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             //     id: "file-quality",
                             //     title: "Quality Filter",
                             //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     showDepth: application.appConfig === "opencb"
                             // },
                             {
                                 id: "region",

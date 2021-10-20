@@ -1,4 +1,4 @@
-name: "release"
+name: "Release"
 
 on:
   push:
@@ -7,13 +7,11 @@ on:
 
 jobs:
   build:
-    name: Jsorolla Build
+    name: Build JSorolla
     runs-on: ubuntu-20.04
     steps:
-      - name: Clone Jsorolla repository
-        uses: actions/checkout@v2
-      - name: Cache dependencies
-        uses: actions/cache@v2
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
         env:
           cache-name: cache-node-modules
         with:
@@ -24,44 +22,77 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install bower dependecy
-        run: npm install bower
-      - name: Run npm ci
-        run: npm ci
-      - name: Run npm install
-        run: npm init -y && npm install
-      - name: Build Jsorolla
-        run: npm run build
-      - name: Read package.json
-        uses: "tyankatsu0105/read-package-version-actions@v1"
-        id: package-version
-      - name: Upload webpack artifact
-        uses: actions/upload-artifact@v2
+      - run: npm install
+      - run: npm run build
+      - uses: tyankatsu0105/read-package-version-actions@v1
+        id: package
+      - uses: actions/upload-artifact@v2
         with:
-          name: release-artifact
-          path: jsorolla-${{ steps.package-version.outputs.version }}.tar.gz
-          retention-days: 2
+          name: jsorolla-release
+          path: jsorolla-${{ steps.package.outputs.version }}.tar.gz
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: jsorolla-build
+          path: build
+          retention-days: 1
 
   release:
-    name: release jsorolla
+    name: Release JSorolla
     runs-on: ubuntu-20.04
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - name: Download webpack artifact
-        uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
-          name: release-artifact
-      - id: package-version
-        name: Read package.json
-        uses: "tyankatsu0105/read-package-version-actions@v1"
-      - name: Create release
-        uses: "marvinpinto/action-automatic-releases@latest"
+          name: jsorolla-release
+      - uses: tyankatsu0105/read-package-version-actions@v1
+        id: package
+      - uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          draft: ${{ contains(steps.package-version.outputs.version,'-') }}
-          automatic_release_tag: "v${{ steps.package-version.outputs.version }}"
-          title: "v${{ steps.package-version.outputs.version }}"
+          draft: ${{ contains(steps.package.outputs.version,'-') }}
+          automatic_release_tag: "v${{ steps.package.outputs.version }}"
+          title: "v${{ steps.package.outputs.version }}"
           prerelease: false
           files: |
-            jsorolla-${{ steps.package-version.outputs.version }}.tar.gz
+            jsorolla-${{ steps.package.outputs.version }}.tar.gz
+  
+  docker:
+    name: Publish JSorolla Docker
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: tyankatsu0105/read-package-version-actions@v1
+        id: package
+      - uses: actions/download-artifact@v2
+        with:
+          name: jsorolla-build
+          path: build
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - run: python3 ./docker/docker-build.py push --images app --tag ${{ steps.package.outputs.version }}
+
+  deploy:
+    name: Deploy public JSorolla application
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: tyankatsu0105/read-package-version-actions@v1
+        id: package
+      - uses: actions/download-artifact@v2
+        with:
+          name: jsorolla-build
+          path: build
+      - uses: garygrossgarten/github-action-scp@release
+        with:
+          local: build
+          remote: /mnt/data/WEB-APPS/dev/jsorolla-${{ steps.package.outputs.version }}
+          rmRemote: true
+          host: ${{ secrets.SSH_SWDEV_IP }}
+          username: ${{ secrets.SSH_SWDEV_USER }}
+          password: ${{ secrets.SSH_SWDEV_PASSWORD }}

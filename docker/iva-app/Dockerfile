@@ -20,11 +20,12 @@ LABEL org.label-schema.vendor="OpenCB" \
 ARG     SITE=src/sites
 
 ## Copy files
-COPY    ./docker/iva-app/entrypoint.sh      /usr/local/bin
+#COPY    ./docker/iva-app/entrypoint.sh      /usr/local/bin
 COPY    ./build/iva                         /usr/local/apache2/htdocs/iva
 COPY    ./$SITE/iva/conf                    /usr/local/apache2/htdocs/iva/conf/
 COPY    ./$SITE/iva/img                     /usr/local/apache2/htdocs/iva/img/
 
 EXPOSE 80
 
-ENTRYPOINT ["entrypoint.sh", "httpd-foreground"]
+#ENTRYPOINT ["entrypoint.sh", "httpd-foreground"]
+ENTRYPOINT ["httpd-foreground"]

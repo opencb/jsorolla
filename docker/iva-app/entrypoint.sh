@@ -4,6 +4,7 @@
 #echo "first:" $1
 #echo "second:" $2
 #sed -i 's/host:".*"/host: "val" /g' /usr/local/apache2/htdocs/iva/conf/conf.js
+echo "Executing entrypoint.sh ..."
 
 # launch command (httpd-foreground)
 cmd=$1
