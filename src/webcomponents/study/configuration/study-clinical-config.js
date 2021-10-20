@@ -68,6 +68,7 @@ export default class StudyClinicalConfig extends LitElement {
 
     onSubmit() {
         // analysis/clinical/clinical/configuration/update
+        console.log("onSubmit ", this.clinicalConfig);
     }
 
     onClear() {

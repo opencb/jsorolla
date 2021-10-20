@@ -54,11 +54,12 @@ export default class ConfigListUpdate extends LitElement {
         }
     }
 
-    update(changedProperties) {
-        console.log("Updating ... Detail tabs");
-        this._config = {...this.getDefaultConfig()};
-        super.update(changedProperties);
-    }
+    // update(changedProperties) {
+    //     console.log("Updating ...config-list-update");
+    //     // Updating....
+    //     // this._config = {...this.getDefaultConfig()};
+    //     super.update(changedProperties);
+    // }
 
     _init() {
         this.status = {};

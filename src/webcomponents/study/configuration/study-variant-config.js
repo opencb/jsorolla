@@ -82,10 +82,27 @@ export default class StudyVariantConfig extends LitElement {
                 case "populationFrequency":
                     this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child].push(item);
                     break;
-                default:
-                // this.clinicalConfig[node.parent][node.child].push(item);
+                case "biotype":
+                case "consequenceType":
+                case "clinicalSource":
+                case "clinicalSignificance":
+                case "transcriptFlagIndexConfiguration":
+                    this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child][item.key] = item.values;
+
+                    // Don't detect the change to update the component valuesMapping
+                    // const valuesMapping = this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child];
+                    // this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = {
+                    //     ...valuesMapping,
+                    //     [item.key]: item.values
+                    // };
                     break;
             }
+        }
+
+        // edited valuesMapping (add or delete values)
+        if (node?.child === "valuesMapping" && index !== -1) {
+            this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child][index] = item.values;
+            console.log("edited.....", this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child]);
         }
 
         this.variantEngineConfig = {
@@ -105,9 +122,12 @@ export default class StudyVariantConfig extends LitElement {
                 // const populations = this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child];
                 // this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = UtilsNew.removeArrayByIndex(populations, item.index);
                 break;
-            default:
-                // const items = this.clinicalConfig[node.parent][node.child];
-                // this.clinicalConfig[node.parent][node.child] = UtilsNew.removeArrayByIndex(items, item.index);
+            case "biotype":
+            case "consequenceType":
+            case "clinicalSource":
+            case "clinicalSignificance":
+            case "transcriptFlagIndexConfiguration":
+                this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = items;
                 break;
         }
 
@@ -117,7 +137,30 @@ export default class StudyVariantConfig extends LitElement {
     }
 
     onFieldChange(e) {
+        e.stopPropagation();
         console.log("on Field Change", e.detail);
+        const {param} = e.detail;
+
+        if (param?.includes("transcriptCombination")) {
+            const val = e.detail.value;
+            this.variantEngineConfig.sampleIndex.annotationIndexConfiguration.transcriptCombination = val;
+        } else {
+            // debugger
+            const {node, param, value} = e.detail.value;
+            this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child] = {
+                ...this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child],
+                [param]: value
+            };
+        }
+
+        console.log("edited", this.variantEngineConfig);
+
+    }
+
+    onAddValues(e) {
+        e.stopPropagation();
+        const {node, values} = e.detail.value;
+        this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child].values = values;
     }
 
     onClear() {
@@ -126,6 +169,7 @@ export default class StudyVariantConfig extends LitElement {
 
     onSubmit() {
         // operation/variant/configure
+        console.log("submit variant configs", this.variantEngineConfig);
 
     }
 
@@ -226,10 +270,10 @@ export default class StudyVariantConfig extends LitElement {
                                 display: {
                                     render: data => {
                                         return html `
-                                            <select-field-token
-                                                .values="${data}">
-                                            </select-field-token>
-                                            `;
+                                            <select-token-filter-static
+                                                .data=${data}
+                                                .value="${data?.join(",")}">
+                                            </select-token-filter-static>`;
                                     }
                                 }
                             }
@@ -266,9 +310,10 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: data => html`
-                                        <select-field-token
-                                            .values="${data}">
-                                        </select-field-token>`
+                                        <select-token-filter-static
+                                            .data=${data}
+                                            .value="${data?.join(",")}">
+                                        </select-token-filter-static>`
                                 }
                             },
                         ]
@@ -312,9 +357,10 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: variant => html`
-                                        <select-field-token
-                                            .values="${variant}">
-                                        </select-field-token>`
+                                        <select-token-filter-static
+                                            .data=${variant}
+                                            .value="${variant?.join(",")}">
+                                        </select-token-filter-static>`
                                 }
                             },
                             {
@@ -466,6 +512,7 @@ export default class StudyVariantConfig extends LitElement {
                     .data=${this.variantEngineConfig}
                     .config=${this._config}
                     @fieldChange="${e => this.onFieldChange(e)}"
+                    @addValues="${e => this.onAddValues(e)}"
                     @clear="${this.onClear}"
                     @submit="${this.onSubmit}">
                 </data-form>

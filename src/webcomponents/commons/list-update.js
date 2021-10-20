@@ -20,6 +20,7 @@ import LitUtils from "./utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "./forms/data-form.js";
 
+
 export default class ListUpdate extends LitElement {
 
     constructor() {
@@ -57,7 +58,6 @@ export default class ListUpdate extends LitElement {
     }
 
     onFieldChange(e, index) {
-        // debugger;
         e.stopPropagation();
         // Array
         const {param, value} = e.detail;
@@ -80,31 +80,44 @@ export default class ListUpdate extends LitElement {
             } else {
                 delete this.item[param];
             }
-            console.log("edited item", this.item);
+
+            if (this.node?.parent === "annotationIndexConfiguration") {
+                const itemData = {...e.detail, node: this.node, item: this.item};
+                LitUtils.dispatchEventCustom(this, "fieldChange", itemData);
+            }
         }
     }
 
-    onAddValues(e) {
+    onAddValues(e, key) {
         e.stopPropagation();
-        console.log("Change values token");
+        console.log("Add Values", e.detail.value);
+        this.values = e.detail.value;
+        if (this.node?.parent === "annotationIndexConfiguration") {
+            const itemData = {values: this.values.split(","), node: this.node};
+            LitUtils.dispatchEventCustom(this, "addValues", itemData);
+        }
     }
 
 
     onSendItem(e, index, node) {
         e.stopPropagation();
-        console.log("Data....list-update", this.data.items);
+        if (node?.child === "valuesMapping") {
+            this.item = {
+                ...this.item,
+                values: this.values ? this.values.split(",") : this.data.items[index]
+            };
+        }
         const itemData = {index: index, node, item: index >= 0 ? this.data.items[index] : this.item};
         LitUtils.dispatchEventCustom(
             this,
             "changeItem",
             itemData);
-        // trigger a update .. it's work for all items.
+        // trigger a update .. it's work for all use case.
         this.requestUpdate();
     }
 
     onRemoveItem(e, i, node) {
         e.stopPropagation();
-        console.log("Item to remove:", this.data.items[i]);
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -118,6 +131,7 @@ export default class ListUpdate extends LitElement {
             if (result.isConfirmed) {
                 const itemData = this.removeItem(this.data.items, i, node);
                 LitUtils.dispatchEventCustom(this, "removeItem", itemData);
+                // trigger a update... refresh the list inside annotationFileConfigs
                 this.requestUpdate();
                 Swal.fire(
                     "Deleted!",
@@ -129,6 +143,11 @@ export default class ListUpdate extends LitElement {
     }
 
     removeItem(items, i, node) {
+        if (node?.child === "valuesMapping") {
+            delete this.data.items[i];
+            return {index: i, node, items: this.data.items};
+        }
+
         this.data.items = UtilsNew.removeArrayByIndex(items, i);
         return {index: i, node, items: this.data.items};
     }
@@ -141,6 +160,7 @@ export default class ListUpdate extends LitElement {
                 ${valuesMapping ?
                     Object.keys(valuesMapping)?.map((key, i) => {
                     const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
+                    // this.values[key] = itemData.values;
                     return html`
                         <div class="list-group-item">
                             <div class="row">
@@ -153,7 +173,9 @@ export default class ListUpdate extends LitElement {
                                         <data-form
                                             .data="${itemData}"
                                             @fieldChange=${e => this.onFieldChange(e)}
-                                            @submit=${ e => this.onSendItem(e, i, this.node)}
+                                            @filterChange=${e => this.onAddValues(e, key)}
+                                            @removeItem=${e => this.onRemoveItem(e, key, this.node)}
+                                            @submit=${e => this.onSendItem(e, key, this.node)}
                                             .config="${this._config.edit}">
                                         </data-form>
                                 </div>
@@ -161,8 +183,9 @@ export default class ListUpdate extends LitElement {
                         </div> `;
                     }) : nothing}
                 <data-form
-                    .data="${this.itemData}"
-                    @fieldChange=${ e => this.editItem(e, this.node)}
+                    @fieldChange=${ e => this.onFieldChange(e)}
+                    @filterChange=${e => this.onAddValues(e)}
+                    @submit=${e => this.onSendItem(e, -1, this.node)}
                     .config="${this._config.new}">
                 </data-form>`;
         }
@@ -209,6 +232,7 @@ export default class ListUpdate extends LitElement {
             return html `
                 <data-form
                     .data=${this.data.items}
+                    @filterChange=${e => this.onAddValues(e)}
                     @fieldChange=${ e => this.onFieldChange(e)}
                     .config=${this._config.edit}>
                 </data-form>

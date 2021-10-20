@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import {classMap} from "lit/directives/class-map.js";
-
+import LitUtils from "../utils/lit-utils.js";
 /**
  * Tokel filter. Select2 version with static datasource
  *
@@ -74,8 +74,9 @@ export default class SelectTokenFilterStatic extends LitElement {
         if (_changedProperties.has("value")) {
             this.select.val(null).trigger("change");
             const selection = this.value ? this.value.split(this._config.separator) : null;
-            this.select.val(selection);
-            this.select.trigger("change");
+            this.select.val(selection).trigger("change");
+
+            // this.select.trigger("change");
         }
 
     }
@@ -106,13 +107,17 @@ export default class SelectTokenFilterStatic extends LitElement {
 
     filterChange(e) {
         const selection = this.select.select2("data").map(el => el.id).join(this._config.separator);
-        console.log("filterChange", selection);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: selection
-            }
-        });
-        this.dispatchEvent(event);
+        // console.log("filterChange", selection);
+        // const event = new CustomEvent("filterChange", {
+        //     detail: {
+        //         value: selection
+        //     }
+        // });
+        // this.dispatchEvent(event);
+        LitUtils.dispatchEventCustom(
+            this,
+            "filterChange",
+            selection);
     }
 
     getDefaultConfig() {
