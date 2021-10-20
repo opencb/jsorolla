@@ -19,7 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 import "../../sample/sample-files-view.js";
 
-class VariantInterpreterQcAscatStats extends LitElement {
+class FileQcAscatMetrics extends LitElement {
 
     constructor() {
         super();
@@ -33,8 +33,8 @@ class VariantInterpreterQcAscatStats extends LitElement {
 
     static get properties() {
         return {
-            clinicalAnalysisId: {
-                type: String
+            ascatMetrics: {
+                type: Object
             },
             clinicalAnalysis: {
                 type: Object
@@ -60,34 +60,34 @@ class VariantInterpreterQcAscatStats extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
+    update(changedProperties) {
+        if (changedProperties.has("ascatMetrics")) {
+            this.ascatMetricsObserver();
         }
 
-        if (changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-    }
 
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
+        super.update(changedProperties);
     }
 
     clinicalAnalysisObserver() {
-        if (this.opencgaSession && this.clinicalAnalysis) {
+        if (this.clinicalAnalysis) {
+            this.ascatMetrics = this.clinicalAnalysis.files
+                .find(file => file.software?.name?.toUpperCase() === "ASCAT").qualityControl.variant.ascatMetrics;
+            debugger
+        }
+    }
+
+    ascatMetricsObserver() {
+        if (this.opencgaSession && this.ascatMetrics) {
+            debugger
+            // const fileIds = this.ascatMetrics.images.join(",");
             const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
             // const germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
             if (somaticSample) {
@@ -108,6 +108,8 @@ class VariantInterpreterQcAscatStats extends LitElement {
             }
         }
     }
+
+
 
 
     getDefaultConfig() {
@@ -206,7 +208,7 @@ class VariantInterpreterQcAscatStats extends LitElement {
         return html`
             <div class="container" style="margin: 20px 10px">
                 <h3>ASCAT Stats</h3>
-                <data-form 
+                <data-form
                     .data=${this.clinicalAnalysis}
                     .config="${this._config.stats}">
                 </data-form>
@@ -223,4 +225,4 @@ class VariantInterpreterQcAscatStats extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-ascat-stats", VariantInterpreterQcAscatStats);
+customElements.define("file-qc-ascat-metrics", FileQcAscatMetrics);

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "./variant-interpreter-qc-ascat-stats.js";
+import "../../file/qc/file-qc-ascat-metrics.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
@@ -261,16 +261,17 @@ class VariantInterpreterQcOverview extends LitElement {
                     <div class="content-tab-wrapper interpreter-content-tab" style="margin: 0px 10px">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
                             <h3>Summary</h3>
-                            <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession}
-                                                            .clinicalAnalysis=${this.clinicalAnalysis}>
+                            <variant-interpreter-qc-summary
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis=${this.clinicalAnalysis}>
                             </variant-interpreter-qc-summary>
                         </div>
 
                         <div id="${this._prefix}AscatStats" role="tabpanel" class="tab-pane content-tab">
-                            <variant-interpreter-qc-ascat-stats
+                            <file-qc-ascat-metrics
                                 .opencgaSession=${this.opencgaSession}
                                 .clinicalAnalysis=${this.clinicalAnalysis}>
-                            </variant-interpreter-qc-ascat-stats>
+                            </file-qc-ascat-metrics>
                         </div>
 
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
