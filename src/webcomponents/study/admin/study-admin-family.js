@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import DetailTabs from "../commons/view/detail-tabs.js";
-import UtilsNew from "./../../core/utilsNew.js";
-import "./../family/family-create.js";
-import "./../family/family-update.js";
-import "./../family/family-view.js";
+import DetailTabs from "../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import "../../family/family-create.js";
+import "../../family/family-update.js";
+import "../../family/family-view.js";
 
 
 export default class StudyAdminFamily extends LitElement {

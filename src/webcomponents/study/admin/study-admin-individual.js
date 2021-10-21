@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import DetailTabs from "../commons/view/detail-tabs.js";
-import UtilsNew from "../../core/utilsNew.js";
-import "../individual/individual-update.js";
-import "../individual/individual-create.js";
-import "../individual/individual-view.js";
+import DetailTabs from "../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import "../../individual/individual-update.js";
+import "../../individual/individual-create.js";
+import "../../individual/individual-view.js";
 
 export default class StudyAdminIndividual extends LitElement {
 

@@ -15,12 +15,13 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import DetailTabs from "../commons/view/detail-tabs.js";
-import UtilsNew from "../../core/utilsNew.js";
-import "../sample/sample-view.js";
-import "../sample/sample-update.js";
-import "../sample/sample-create.js";
-export default class StudyAdminSample extends LitElement {
+import DetailTabs from "../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import "../../cohort/opencga-cohort-view.js";
+import "../../cohort/cohort-create.js";
+import "../../cohort/cohort-update.js";
+
+export default class StudyAdminCohort extends LitElement {
 
     constructor() {
         super();
@@ -49,10 +50,9 @@ export default class StudyAdminSample extends LitElement {
     }
 
     _init() {
-        // I can't use this.mode because override the existing mode inside detailsTabs component
-        this.editSample = false;
-        this.sampleId = "";
-        this.sample = {};
+        this.editCohort = false;
+        this.cohortId = "";
+        this.cohort = {};
     }
 
     connectedCallback() {
@@ -65,65 +65,64 @@ export default class StudyAdminSample extends LitElement {
     }
 
     editForm(e) {
-        this.editSample = !this.editSample;
+        this.editCohort = !this.editCohort;
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
     clearForm(e) {
-        this.editSample = false;
-        this.sample = {};
-        this.sampleId = "";
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("Clean....");
-        this.requestUpdate();
+        this.editCohort = false;
+        this.fetchCohortId("");
     }
 
-    changeSampleId(e) {
-        // console.log("Value", e.detail.value);
-        // this.sampleId = e.detail.value;
-        this.fetchSampleId(e.detail.value);
+    changeCohortId(e) {
+        this.fetchCohortId(e.detail.value);
     }
 
-    fetchSampleId(sampleId) {
+    fetchCohortId(cohortId) {
         if (this.opencgaSession) {
-            if (sampleId) {
+            if (cohortId) {
                 const query = {
-                    study: this.opencgaSession.study.fqn,
-                    includeIndividual: true
+                    study: this.opencgaSession.study.fqn
                 };
-                this.opencgaSession.opencgaClient.samples().info(sampleId, query)
+                this.opencgaSession.opencgaClient.cohorts().info(cohortId, query)
                     .then(response => {
-                        this.sample = response.responses[0].results[0];
+                        this.cohort = response.responses[0].results[0];
+                        console.log("Cohort id: ", this.cohort);
                     })
                     .catch(reason => {
-                        this.sample = {};
+                        this.cohort = {};
                         console.error(reason);
                     })
                     .finally(() => {
                         this._config = {...this.getDefaultConfig(), ...this.config};
                         this.requestUpdate();
                     });
+            } else {
+                this.cohort = {};
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.requestUpdate();
             }
         }
     }
 
-    onSampleSearch(e) {
-        if (e.detail.status?.error) {
+    onCohortSearch(e) {
+        if (e.detail.status.error) {
             // inform
         } else {
-            this.sample = e.detail.value;
+            this.cohort = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
     }
 
+
     getDefaultConfig() {
         return {
             items: [
                 {
-                    id: "view-sample",
-                    name: "Sample Info",
+                    id: "view-cohort",
+                    name: "View Cohort",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
@@ -133,38 +132,36 @@ export default class StudyAdminSample extends LitElement {
                                         <span style="padding-right:5px">
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
-                                        ${UtilsNew.isNotEmpty(this.sample) ? html `<span style="padding-left:5px">
+                                        ${UtilsNew.isNotEmpty? html ` <span style="padding-left:5px">
                                             <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>`: nothing}
+                                        </span> `: nothing }
                                     </div>
-                                    ${this.editSample? html`
-                                        <sample-update
-                                            .sample="${this.sample}"
+                                    ${this.editCohort? html`
+                                        <cohort-update
+                                            .cohort="${this.cohort}"
                                             .opencgaSession="${opencgaSession}"
-                                            @updateSampleId="${e => this.changeSampleId(e)}">
-                                        </sample-update>
+                                            @updateCohortId="${e => this.changeCohortId(e)}">
+                                        </cohort-update>
                                     ` : html`
-                                        <sample-view
-                                            .sample="${this.sample}"
+                                        <opencga-cohort-view
+                                            .cohort="${this.cohort}"
                                             .opencgaSession="${opencgaSession}"
-                                            @sampleSearch="${e => this.onSampleSearch(e)}">
-                                        </sample-view>`}
+                                            @cohortSearch="${e => this.onCohortSearch(e)}">
+                                        </opencga-cohort-view>`}
                                 </div>
                             </div>`;
                     }
                 },
                 {
-                    id: "create-sample",
-                    name: "Create Sample",
-                    // icon: "fas fa-dna",
-                    // active: false,
+                    id: "create-cohort",
+                    name: "Create Cohort",
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <sample-create
-                                            .opencgaSession="${opencgaSession}">
-                                    </sample-create>
+                                    <cohort-create
+                                        .opencgaSession="${opencgaSession}">
+                                    </cohort-create>
                                 </div>
                             </div>`;
                     }
@@ -186,4 +183,4 @@ export default class StudyAdminSample extends LitElement {
 
 }
 
-customElements.define("study-admin-sample", StudyAdminSample);
+customElements.define("study-admin-cohort", StudyAdminCohort);

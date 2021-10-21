@@ -15,11 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "../commons/forms/text-field-filter.js";
-import NotificationUtils from "../NotificationUtils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import GridCommons from "../../commons/grid-commons.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../../NotificationUtils.js";
+
+import "../../commons/forms/text-field-filter.js";
 
 export default class StudyAdminUsers extends LitElement {
 

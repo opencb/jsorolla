@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
 import "./study-admin-variable.js";

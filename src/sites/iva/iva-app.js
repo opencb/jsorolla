@@ -81,7 +81,7 @@ import "../../webcomponents/file/opencga-file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
-import "../../webcomponents/study/study-admin.js";
+import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/Notification.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
