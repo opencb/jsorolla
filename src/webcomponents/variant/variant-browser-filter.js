@@ -424,10 +424,11 @@ export default class VariantBrowserFilter extends LitElement {
                     case "consequence-type":
                     case "consequenceTypeSelect":
                         content = html`
-                        <consequence-type-select-filter .ct="${this.preparedQuery.ct}"
-                                                        .config="${subsection.params?.consequenceTypes || CONSEQUENCE_TYPES}"
-                                                        @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
-                        </consequence-type-select-filter>`;
+                            <consequence-type-select-filter
+                                .ct="${this.preparedQuery.ct}"
+                                .config="${subsection.params?.consequenceTypes || CONSEQUENCE_TYPES}"
+                                @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                            </consequence-type-select-filter>`;
                         break;
                     case "proteinSubstitutionScore":
                         content = html`
