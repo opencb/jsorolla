@@ -19,8 +19,10 @@ import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../NotificationUtils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 import "../../commons/forms/text-field-filter.js";
+
 
 export default class StudyAdminUsers extends LitElement {
 
@@ -256,21 +258,19 @@ export default class StudyAdminUsers extends LitElement {
                     colspan: groupColumns.length,
                     align: "center",
                 },
-                // {
-                //     title: "Actions",
-                //     formatter: (value, row) => `
-                //         <div class="dropdown">
-                //             <button class="btn btn-danger btn-small ripple" type="button" data-toggle="dropdown">
-                //                 <span><i class="fas fa-times icon-padding" aria-hidden="true"></i> Remove</span>
-                //             </button>
-                //         </div>`,
-                //     events: {
-                //         "click a": this.onActionClick.bind(this)
-                //     },
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     visible: !this._config.columns?.hidden?.includes("actions")
-                // }
+                {
+                    title: "Action",
+                    formatter: (value, row) => `
+                        <a class="${!this.study.fqn.startsWith(row.id + "@")? "removeUser text-danger ocb-pointer" : "disabled text-muted"}">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>`,
+                    events: {
+                        "click .removeUser": (e, value, row, index) => this.onRemoveUserTest(e, row)
+                    },
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center"
+                }
             ],
             [
                 ...groupColumns
@@ -365,6 +365,35 @@ export default class StudyAdminUsers extends LitElement {
             this.removeUserSet.add(e.currentTarget.value);
         }
         this.requestUpdate();
+    }
+
+    onRemoveUserTest(e, row) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [row.id]}, {action: "REMOVE"})
+                    .then(res => {
+                        this.requestUpdate();
+                        LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+                        this.requestUpdate();
+                        Swal.fire(
+                            "User Removed",
+                            "User removed correctly.",
+                            "success"
+                        );
+                    }).catch(err => {
+                        console.error(err);
+                    });
+            }
+        });
     }
 
     onUserRemove(e) {
@@ -555,7 +584,7 @@ export default class StudyAdminUsers extends LitElement {
                     </div>
 
                     <!-- REMOVE USER -->
-                    <div class="btn-group">
+                    <!-- <div class="btn-group">
                         <button type="button" id="${this._prefix}RemoveUserMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false" title="Remove user from ${this.study?.name} study">
                             <i class="fas fa-user-slash icon-padding" aria-hidden="true"></i> Remove User
@@ -591,7 +620,7 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                             </li>
                         </ul>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div style="display:inline-block">
