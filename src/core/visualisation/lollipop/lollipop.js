@@ -95,30 +95,32 @@ export default class Lollipop {
                     .attr({"text-anchor": "middle"});
                     // .transform({translateX: variant.viewPos, translateY: y});
 
-                v.transform({translateX: variant.viewPos, translateY: height});
+                v.transform({translateX: variant.viewPos, translateY: height + variant.size});
                 v.delay(i * 100);
-                v.animate({duration: 1000}).dy(-height/2).ease(">");
+                v.animate({duration: 500}).dy(-height/2 - variant.size).ease(">");
 
                 const offset = variant.offset ?? 0; // expected to be a property after preProcessVariants()
-                this.edge(v, height/2, variant.viewPos, offset, variant.size);
+                this.edge(v, variant, height/2, variant.viewPos, offset);
 
-                v.circle(variant.size)
+                const circle = v.circle(variant.size)
                     .dx(-variant.size/2 + offset)
                     .dy(-variant.size/2)
                     .fill(variant.color ?? "#6872ff")
                     .stroke({color: "#000", opacity: 0})
-                    .scale(1)
-                    .click(e => this.onClickVariant(e, v, variant));
+                    .scale(1);
+
                 // .delay(i * 200)
                 // .animate()
                 // .size(size).dx(-size/2)*/;
 
                 if (variant.type === "cluster") {
-                    v.text(variant.variants.length).dy(5).dx(offset).font({size: variant.size * .3 + "px"});
+                    v.text(variant.variants.length).dy(5).dx(offset).font({size: variant.size * .5 + "px"});
                 } else {
                     // single variant
                     v.text(variant.id).dy(-variant.size/2 - 5).dx(offset).font({size: "10px"});
                 }
+
+                v.click(e => this.onClickVariantGroup(e, circle, variant));
             }
 
         });
@@ -327,15 +329,15 @@ export default class Lollipop {
     renderVariant() {
     }
 
-    onClickVariant(e, parent, variantData) {
+    onClickVariantGroup(e, circle, variantData) {
         console.log(e);
-        console.log(parent);
+        console.log(circle);
         console.log(variantData);
 
+        // circle.animate().ease(SVG.easing.beziere(10,20,30,40)).scale(1.1);
 
         this.clearTooltips();
-
-        parent.addClass("active");
+        // parent.addClass("active");
         const tooltip = parent.group().addClass("tooltip");
 
         tooltip.text("Tooltip").font({size: "20px"});
@@ -361,10 +363,10 @@ export default class Lollipop {
         SVG.find(".tooltip").remove();
     }
 
-    edge(parent, height, position, offset, circleSize) {
+    edge(parent, circle, height, position, offset) {
         // path is drawn from bottom to top
         // last 30 is last point of the path
-        parent.path(`M ${0} ${height} V ${height * .5} L ${offset} ${height * .4} V ${circleSize/2 + 5}`).fill("none").addClass("edge-animate").stroke("#3a3a3a");
+        parent.path(`M ${0} ${height} V ${height * .5} L ${offset} ${height * .4} V ${circle.size/2 + 5}`).fill("none").addClass("edge-animate").stroke(circle.color ?? "#000");
     }
 
     /*
