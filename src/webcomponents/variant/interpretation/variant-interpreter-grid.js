@@ -25,6 +25,7 @@ import "./variant-interpreter-grid-config.js";
 import "../../clinical/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
+import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 
 
 export default class VariantInterpreterGrid extends LitElement {
@@ -65,6 +66,12 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
+
+        this.cellbaseClient = new CellBaseClient({
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5",
+            species: "hsapiens"
+        });
 
         // Set colors
         // consequenceTypesImpact;
@@ -268,7 +275,55 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-                            params.success(res);
+
+                            // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
+                            const geneSet = new Set();
+                            for (const variant of res.responses[0].results) {
+                                variant.annotation.consequenceTypes
+                                    .filter(ct => ct.transcriptFlags?.includes("MANE Select"))
+                                    .map(ct => geneSet.add(ct.geneName));
+                            }
+                            const geneNamesString = Array.from(geneSet).join(",");
+                            this.cellbaseClient.get("feature", "gene", geneNamesString, "info", {
+                                exclude: "transcripts.exons,transcripts.tfbs,transcripts.annotation,annotation",
+                                source: "ensembl"
+                            })
+                                .then(genes => {
+                                    const refseqManeSelectSet = new Set();
+                                    const refseqManePlusClinicalSet = new Set();
+                                    for (const gene of genes.responses) {
+                                        const transcripts = gene.results[0].transcripts
+                                            .filter(t => t.flags?.includes("MANE Select") || t.flags?.includes("MANE Plus Clinical"));
+                                        for (const transcript of transcripts) {
+                                            const xref = transcript.xrefs.find(x => x.dbName === "mane_select_refseq");
+                                            if (xref) {
+                                                if (transcript.flags.includes("MANE Select")) {
+                                                    refseqManeSelectSet.add(xref.id);
+                                                } else {
+                                                    refseqManePlusClinicalSet.add(xref.id);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    for (const variant of res.responses[0].results) {
+                                        for (const ct of variant.annotation.consequenceTypes) {
+                                            if (!ct.transcriptFlags) {
+                                                ct.transcriptFlags = [];
+                                            }
+                                            if (refseqManeSelectSet.has(ct.transcriptId)) {
+                                                ct.transcriptFlags.push("MANE Select");
+                                            }
+                                            if (refseqManePlusClinicalSet.has(ct.transcriptId)) {
+                                                ct.transcriptFlags.push("MANE Plus Clinical");
+                                            }
+                                        }
+                                    }
+
+                                    params.success(res);
+                                })
+                                .catch(e =>{
+                                    console.error(e);
+                                });
                         })
                         .catch(e => {
                             console.error(e);
