@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import "../file/opencga-file-preview.js";
 
+import "../file/file-preview.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class SampleFilesView extends LitElement {
 
@@ -142,7 +142,11 @@ export default class SampleFilesView extends LitElement {
                 <div class="col-md-12" style="padding: 15px 5px">
                     <h4>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h4>
                     <div style="padding: 5px 20px">
-                        <opencga-file-preview .opencgaSession=${this.opencgaSession} .file=${file} .active="${true}"></opencga-file-preview>
+                        <file-preview
+                            .active="${true}"
+                            .file=${file}
+                            .opencgaSession=${this.opencgaSession}>
+                        </file-preview>
                     </div>
                 </div>
             `)}
@@ -152,7 +156,11 @@ export default class SampleFilesView extends LitElement {
                 <div class="col-md-12" style="padding: 15px 5px">
                     <h4>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h4>
                     <div style="padding: 5px 20px">
-                        <opencga-file-preview .opencgaSession=${this.opencgaSession} .file=${file} .active="${true}"></opencga-file-preview>
+                        <file-preview
+                            .active="${true}"
+                            .file=${file}
+                            .opencgaSession=${this.opencgaSession}>
+                        </file-preview>
                     </div>
                 </div>
             `)}

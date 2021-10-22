@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
+
+import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
-import UtilsNew from "../../core/utilsNew.js";
 
-
-export default class OpencgaFilePreview extends LitElement {
+export default class FilePreview extends LitElement {
 
     constructor() {
         super();
@@ -58,10 +58,6 @@ export default class OpencgaFilePreview extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-
-    firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
@@ -136,8 +132,9 @@ export default class OpencgaFilePreview extends LitElement {
                 // this.title = "Image";
                 this.opencgaSession.opencgaClient.files().image(this.file.id, params)
                     .then(response => {
+                        this.content = response.getResult(0).content;
                         this.requestUpdate();
-                        this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
+                        // this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
                     })
                     .catch(response => {
                         console.error(response);
@@ -185,15 +182,18 @@ export default class OpencgaFilePreview extends LitElement {
         ${this.file ? html`
             <div class="row">
                 <div class="col-md-12">
-<!--                    ${this.title ? html`<h4>${this.title}</h4>` : ""}-->
-
                     ${this.contentType === "unsupported" ? html`
-                        <p class="alert alert-warning">${this.content}</p>` : null}
+                        <p class="alert alert-warning">${this.content}</p>
+                    ` : null}
                     ${this.contentType === "text" ? html`
-                        <pre class="cmd">${this.content}</pre>` : null}
+                        <pre class="cmd">${this.content}</pre>
+                    ` : null}
                     ${this.contentType === "image" ? html`
-                        <img class="img-thumbnail" id="thumbnail" />` : null}
-                    ${this.contentType === "json" ? html`<json-viewer .data="${this.content}"></json-viewer>` : null}
+                        <image-viewer .data="${this.content}"></image-viewer>
+                    ` : null}
+                    ${this.contentType === "json" ? html`
+                        <json-viewer .data="${this.content}"></json-viewer>
+                    ` : null}
                 </div>
             </div>
         ` : null }
@@ -202,5 +202,5 @@ export default class OpencgaFilePreview extends LitElement {
 
 }
 
-customElements.define("opencga-file-preview", OpencgaFilePreview);
+customElements.define("file-preview", FilePreview);
 
