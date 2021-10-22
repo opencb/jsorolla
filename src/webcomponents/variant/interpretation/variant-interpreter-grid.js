@@ -25,6 +25,7 @@ import "./variant-interpreter-grid-config.js";
 import "../../clinical/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
+// FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 
 
@@ -67,6 +68,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.checkedVariants = new Map();
         this.review = false;
 
+        // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
         this.cellbaseClient = new CellBaseClient({
             host: "https://ws.zettagenomics.com/cellbase",
             version: "v5",
@@ -74,7 +76,6 @@ export default class VariantInterpreterGrid extends LitElement {
         });
 
         // Set colors
-        // consequenceTypesImpact;
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
@@ -283,47 +284,52 @@ export default class VariantInterpreterGrid extends LitElement {
                                     .filter(ct => ct.transcriptFlags?.includes("MANE Select"))
                                     .map(ct => geneSet.add(ct.geneName));
                             }
-                            const geneNamesString = Array.from(geneSet).join(",");
-                            this.cellbaseClient.get("feature", "gene", geneNamesString, "info", {
-                                exclude: "transcripts.exons,transcripts.tfbs,transcripts.annotation,annotation",
-                                source: "ensembl"
-                            })
-                                .then(genes => {
-                                    const refseqManeSelectSet = new Set();
-                                    const refseqManePlusClinicalSet = new Set();
-                                    for (const gene of genes.responses) {
-                                        const transcripts = gene.results[0].transcripts
-                                            .filter(t => t.flags?.includes("MANE Select") || t.flags?.includes("MANE Plus Clinical"));
-                                        for (const transcript of transcripts) {
-                                            const xref = transcript.xrefs.find(x => x.dbName === "mane_select_refseq");
-                                            if (xref) {
-                                                if (transcript.flags.includes("MANE Select")) {
-                                                    refseqManeSelectSet.add(xref.id);
-                                                } else {
-                                                    refseqManePlusClinicalSet.add(xref.id);
+                            // make sure there are some genes to query
+                            if (geneSet.size > 0) {
+                                const geneNamesString = Array.from(geneSet).join(",");
+                                this.cellbaseClient.get("feature", "gene", geneNamesString, "info", {
+                                    exclude: "transcripts.exons,transcripts.tfbs,transcripts.annotation,annotation",
+                                    source: "ensembl"
+                                })
+                                    .then(genes => {
+                                        const refseqManeSelectSet = new Set();
+                                        const refseqManePlusClinicalSet = new Set();
+                                        for (const gene of genes.responses) {
+                                            const transcripts = gene.results[0].transcripts
+                                                .filter(t => t.flags?.includes("MANE Select") || t.flags?.includes("MANE Plus Clinical"));
+                                            for (const transcript of transcripts) {
+                                                const xref = transcript.xrefs.find(x => x.dbName === "mane_select_refseq");
+                                                if (xref) {
+                                                    if (transcript.flags.includes("MANE Select")) {
+                                                        refseqManeSelectSet.add(xref.id);
+                                                    } else {
+                                                        refseqManePlusClinicalSet.add(xref.id);
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    for (const variant of res.responses[0].results) {
-                                        for (const ct of variant.annotation.consequenceTypes) {
-                                            if (!ct.transcriptFlags) {
-                                                ct.transcriptFlags = [];
-                                            }
-                                            if (refseqManeSelectSet.has(ct.transcriptId)) {
-                                                ct.transcriptFlags.push("MANE Select");
-                                            }
-                                            if (refseqManePlusClinicalSet.has(ct.transcriptId)) {
-                                                ct.transcriptFlags.push("MANE Plus Clinical");
+                                        for (const variant of res.responses[0].results) {
+                                            for (const ct of variant.annotation.consequenceTypes) {
+                                                if (!ct.transcriptFlags) {
+                                                    ct.transcriptFlags = [];
+                                                }
+                                                if (refseqManeSelectSet.has(ct.transcriptId)) {
+                                                    ct.transcriptFlags.push("MANE Select");
+                                                }
+                                                if (refseqManePlusClinicalSet.has(ct.transcriptId)) {
+                                                    ct.transcriptFlags.push("MANE Plus Clinical");
+                                                }
                                             }
                                         }
-                                    }
 
-                                    params.success(res);
-                                })
-                                .catch(e =>{
-                                    console.error(e);
-                                });
+                                        params.success(res);
+                                    })
+                                    .catch(e =>{
+                                        console.error(e);
+                                    });
+                            } else {
+                                params.success(res);
+                            }
                         })
                         .catch(e => {
                             console.error(e);

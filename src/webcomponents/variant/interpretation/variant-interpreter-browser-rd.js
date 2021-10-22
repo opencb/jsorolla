@@ -209,6 +209,13 @@ class VariantInterpreterBrowserRd extends LitElement {
                             ...this.query,
                             fileData: fileDataFilters.join(","),
                         };
+
+                        this.activeFilterFilters.push(
+                            {
+                                id: "Default query",
+                                query: this.query
+                            }
+                        );
                     }
                     this.queryObserver();
 
