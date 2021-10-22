@@ -186,8 +186,8 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Summary"
                             },
                             {
-                                id: "AscatStats",
-                                title: "ASCAT Stats",
+                                id: "AscatMetrics",
+                                title: "ASCAT Metrics",
                             },
                             {
                                 id: "VariantStats",
@@ -267,10 +267,10 @@ class VariantInterpreterQcOverview extends LitElement {
                             </variant-interpreter-qc-summary>
                         </div>
 
-                        <div id="${this._prefix}AscatStats" role="tabpanel" class="tab-pane content-tab">
+                        <div id="${this._prefix}AscatMetrics" role="tabpanel" class="tab-pane content-tab">
                             <file-qc-ascat-metrics
                                 .opencgaSession=${this.opencgaSession}
-                                .clinicalAnalysis=${this.clinicalAnalysis}>
+                                .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}">
                             </file-qc-ascat-metrics>
                         </div>
 

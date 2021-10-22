@@ -15,9 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+
+import "../file-preview.js";
 import "../../commons/forms/data-form.js";
 import "../../sample/sample-files-view.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 class FileQcAscatMetrics extends LitElement {
 
@@ -33,24 +35,23 @@ class FileQcAscatMetrics extends LitElement {
 
     static get properties() {
         return {
-            ascatMetrics: {
-                type: Object
-            },
-            clinicalAnalysis: {
-                type: Object
-            },
             opencgaSession: {
-                type: Object
+                type: Object,
+            },
+            sampleId: {
+                type: String,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
+        this._ascatMetrics = null;
+        this._ascatImages = [];
         this._config = this.getDefaultConfig();
     }
 
@@ -61,12 +62,8 @@ class FileQcAscatMetrics extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("ascatMetrics")) {
-            this.ascatMetricsObserver();
-        }
-
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -76,112 +73,88 @@ class FileQcAscatMetrics extends LitElement {
         super.update(changedProperties);
     }
 
-    clinicalAnalysisObserver() {
-        if (this.clinicalAnalysis) {
-            this.ascatMetrics = this.clinicalAnalysis.files
-                .find(file => file.software?.name?.toUpperCase() === "ASCAT").qualityControl.variant.ascatMetrics;
-            debugger
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.files().search({
+                format: "VCF",
+                sampleIds: this.sampleId,
+                softwareName: "ascat",
+                study: this.opencgaSession.study.fqn,
+            }).then(response => {
+                const file = response.responses[0].results[0];
+                this._ascatMetrics = file.qualityControl.variant.ascatMetrics;
+                this._ascatMetrics.file = file.name;
+                const images = file.qualityControl.variant.ascatMetrics.images.join(",");
+                return this.opencgaSession.opencgaClient.files().info(images, {
+                    study: this.opencgaSession.study.fqn,
+                });
+            }).then(response => {
+                this._ascatImages = response.responses[0].results;
+                this.requestUpdate();
+            }).catch(error => {
+                console.error(error);
+            });
         }
     }
-
-    ascatMetricsObserver() {
-        if (this.opencgaSession && this.ascatMetrics) {
-            debugger
-            // const fileIds = this.ascatMetrics.images.join(",");
-            const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
-            // const germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
-            if (somaticSample) {
-                const bamFile = somaticSample.fileIds.filter(f => f.endsWith(".bam"));
-                if (bamFile.length) {
-                    const vcfFiles = [somaticSample.fileIds.find(f => f.endsWith(".vcf.gz"))];
-                    this.opencgaSession.opencgaClient.files().info(vcfFiles.join(","), {study: this.opencgaSession.study.fqn})
-                        .then(response => {
-                            this.clinicalAnalysis.ascat = [response.responses[0].results[0].attributes];
-                            this.clinicalAnalysis.ascat[0].file = vcfFiles[0];
-                            this._config = {...this.getDefaultConfig(), ...this.config};
-                            this.requestUpdate();
-                        })
-                        .catch(response => {
-                            console.error("An error occurred fetching clinicalAnalysis: ", response);
-                        });
-                }
-            }
-        }
-    }
-
-
-
 
     getDefaultConfig() {
         return {
-            stats: {
-                title: "",
-                icon: "",
-                display: {
-                    collapsable: true,
-                    showTitle: false,
-                    labelWidth: 2,
-                    defaultValue: "-",
-                    defaultLayout: "horizontal",
-                },
-                sections: [
-                    {
-                        // title: "ASCAT Stats",
-                        collapsed: false,
-                        elements: [
-                            {
-                                name: "ASCAT Stats",
-                                field: "ascat",
-                                type: "table",
-                                display: {
-                                    columns: [
-                                        {
-                                            name: "ASCAT File",
-                                            type: "custom",
-                                            display: {
-                                                render: data => html` <div>
-                                                    <span
-                                                        style="font-weight: bold"
-                                                        >${data.file}</span
-                                                    >
-                                                </div>`,
-                                            },
+            title: "",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultValue: "-",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    // title: "ASCAT Stats",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "ASCAT Stats",
+                            field: "ascat",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "ASCAT File",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html` <div>
+                                                <span
+                                                    style="font-weight: bold"
+                                                    >${data.file}</span
+                                                >
+                                            </div>`,
                                         },
-                                        {
-                                            name: "ASCAT Aberrant Fraction",
-                                            type: "custom",
-                                            display: {
-                                                render: data => html` <div>
-                                                    ${data.ascatAberrantCellFraction}
-                                                </div>`,
-                                            },
+                                    },
+                                    {
+                                        name: "ASCAT Aberrant Fraction",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html` <div>
+                                                ${data.aberrantCellFraction}
+                                            </div>`,
                                         },
-                                        {
-                                            name: "ASCAT Ploidy",
-                                            type: "custom",
-                                            display: {
-                                                render: data => html` <div>
-                                                    ${data.ascatPloidy}
-                                                </div>`,
-                                            },
+                                    },
+                                    {
+                                        name: "ASCAT Ploidy",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html` <div>
+                                                ${data.ploidy}
+                                            </div>`,
                                         },
-                                    ],
-                                },
+                                    },
+                                ],
                             },
-                        ],
-                    },
-                ],
-            },
-            plots: {
-                imageOrder: [
-                    "sunrise.png",
-                    "rawprofile.png",
-                    "ASCATprofile.png",
-                    "ASPCF.png",
-                    "germline.png",
-                    "tumour.png"
-                ],
-            },
+                        },
+                    ],
+                },
+            ],
         };
     }
 
@@ -195,30 +168,32 @@ class FileQcAscatMetrics extends LitElement {
             `;
         }
 
-        // Check Clinical Analysis exist
-        if (!this.clinicalAnalysis) {
-            return html`
-                <div>
-                    <h3><i class="fas fa-lock"></i> No Case found</h3>
-                </div>
-            `;
+        // Check if sampleId and ascat metrics exist
+        if (!this._ascatMetrics) {
+            return html``;
         }
 
         // Display ASCAT stats
         return html`
             <div class="container" style="margin: 20px 10px">
-                <h3>ASCAT Stats</h3>
+                <h3>ASCAT Metrics</h3>
                 <data-form
-                    .data=${this.clinicalAnalysis}
-                    .config="${this._config.stats}">
+                    .config="${this._config}"
+                    .data="${{ascat: [this._ascatMetrics]}}">
                 </data-form>
-                <h3>ASCAT QC Plots</h3>
-                <sample-files-view
-                    .config="${this._config.plots}"
-                    .mode="${"sample-qc"}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}">
-                </sample-files-view>
+                ${this._ascatImages?.length > 0 ? html`
+                    <h3>ASCAT QC Plots</h3>
+                    ${this._ascatImages.map(image => html`
+                        <h5 style="font-weight:bold;">
+                            ${image.name}
+                        </h5>
+                        <file-preview
+                            .active="${true}"
+                            .file=${image}
+                            .opencgaSession=${this.opencgaSession}>
+                        </file-preview>
+                    `)}
+                ` : null}
             </div>
         `;
     }
