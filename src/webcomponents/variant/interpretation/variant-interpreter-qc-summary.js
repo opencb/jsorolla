@@ -117,18 +117,6 @@ class VariantInterpreterQcSummary extends LitElement {
                         .catch(response => {
                             console.error("An error occurred fetching clinicalAnalysis: ", response);
                         });
-
-                    // const vcfFiles = [somaticSample.fileIds.find(f => f.endsWith(".vcf.gz"))];
-                    // this.opencgaSession.opencgaClient.files().info(vcfFiles.join(","), {study: this.opencgaSession.study.fqn})
-                    //     .then(response => {
-                    //         this.clinicalAnalysis.ascat = [response.responses[0].results[0].attributes];
-                    //         this.clinicalAnalysis.ascat[0].file = vcfFiles[0];
-                    //         this._config = {...this.getDefaultConfig(), ...this.config};
-                    //         this.requestUpdate();
-                    //     })
-                    //     .catch(response => {
-                    //         console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    //     });
                 }
             }
         }
@@ -243,39 +231,6 @@ class VariantInterpreterQcSummary extends LitElement {
                                 ]
                             }
                         },
-                        // {
-                        //     name: "ASCAT Stats",
-                        //     field: "ascat",
-                        //     type: "table",
-                        //     display: {
-                        //         columns: [
-                        //             {
-                        //                 name: "ASCAT File",
-                        //                 type: "custom",
-                        //                 display: {
-                        //                     render: data => html`
-                        //                         <div><span style="font-weight: bold">${data.file}</span></div>`
-                        //                 }
-                        //             },
-                        //             {
-                        //                 name: "ASCAT Aberrant Fraction",
-                        //                 type: "custom",
-                        //                 display: {
-                        //                     render: data => html`
-                        //                         <div>${data.ascatAberrantCellFraction}</div>`
-                        //                 }
-                        //             },
-                        //             {
-                        //                 name: "ASCAT Ploidy",
-                        //                 type: "custom",
-                        //                 display: {
-                        //                     render: data => html`
-                        //                         <div>${data.ascatPloidy}</div>`
-                        //                 }
-                        //             }
-                        //         ]
-                        //     }
-                        // }
                     ]
                 }
             ]
