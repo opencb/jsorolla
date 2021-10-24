@@ -21,6 +21,7 @@ import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
 import "./clinical-analysis-comment-editor.js";
 import "../commons/forms/data-form.js";
 import "../commons/forms/text-field-filter.js";
+import FormUtils from "../commons/forms/form-utils";
 
 
 class ClinicalAnalysisEditor extends LitElement {
@@ -142,11 +143,11 @@ class ClinicalAnalysisEditor extends LitElement {
     }
 
     renderPanels(selectedPanels) {
-        const panels = this.opencgaSession.study.panels;
+        const studyPanels = this.opencgaSession.study.panels;
         const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
         return html`
             <div>
-                <select-field-filter .data="${panels}"
+                <select-field-filter .data="${studyPanels}"
                                      .value="${selectedValues}"
                                      .multiple="${true}"
                                      .classes="${this.updateParams.panels ? "updated" : ""}"
@@ -159,7 +160,8 @@ class ClinicalAnalysisEditor extends LitElement {
     }
 
     renderFlags(flags) {
-        const studyFlags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+        // const studyFlags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+        const studyFlags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()];
         const selectedValues = flags.map(flag => flag.id).join(",");
         return html`
             <div>
@@ -202,59 +204,22 @@ class ClinicalAnalysisEditor extends LitElement {
                     delete this.updateParams[field];
                 }
                 break;
-            case "flags.id":
-                if (!this._clinicalAnalysis?.flags) {
-                    this._clinicalAnalysis = {
-                        flags: []
-                    };
-                }
-
-                const index = this._clinicalAnalysis.flags.findIndex(flag => flag.id === e.detail.value);
-                if (index === -1 && e.detail.value !== null) {
-                    this.clinicalAnalysis.flags.push({id: e.detail.value});
-                    if (!this.updateParams?.flags) {
-                        this.updateParams.flags = [];
-                    }
-                    for (const flag of this.clinicalAnalysis.flags) {
-                        this.updateParams.flags.push({id: flag.id});
-                    }
-                } else {
-                    this.updateParams.flags.splice(index, 1);
-                }
-                if (this.updateParams.flags?.length === 0) {
-                    delete this.updateParams.flags;
-                }
-                break;
             case "panels.id":
-                if (!this._clinicalAnalysis?.panels) {
-                    this._clinicalAnalysis = {
-                        panels: []
-                    };
-                }
-
-                const panelIndex = this._clinicalAnalysis.panels.findIndex(panel => panel.id === e.detail.value);
-                if (panelIndex === -1 && e.detail.value !== null) {
-                    this.clinicalAnalysis.panels.push({id: e.detail.value});
-                    if (!this.updateParams?.panels) {
-                        this.updateParams.panels = [];
-                    }
-                    for (const panel of this.clinicalAnalysis.panels) {
-                        this.updateParams.panels.push(panel.id);
-                    }
-                } else {
-                    this.updateParams.panels.splice(panelIndex, 1);
-                }
-                if (this.updateParams.panels?.length === 0) {
-                    delete this.updateParams.panels;
-                }
+            case "flags.id":
+                FormUtils.updateObjectArray(
+                    this.clinicalAnalysis,
+                    this._clinicalAnalysis,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
         }
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.requestUpdate();
     }
 
     onCommentChange(e) {
-        this.commentsUpdate = e.detail
+        this.commentsUpdate = e.detail;
     }
 
     getDefaultConfig() {
@@ -327,13 +292,18 @@ class ClinicalAnalysisEditor extends LitElement {
                                     let panelHtml = "-";
                                     if (panels?.length > 0) {
                                         panelHtml = html`
-                                            ${panels.map(panel => html`
-                                                <div style="margin: 5px 0px">
-                                                    <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
-                                                        ${panel.name} (${panel.source.project} v${panel.source.version})
-                                                    </a>
-                                                </div>
-                                            `)}`;
+                                            ${panels.map(panel => {
+                                                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                                                    return html`
+                                                        <div style="margin: 5px 0px">
+                                                            <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                                                                ${panel.name} (${panel.source.project} v${panel.source.version})
+                                                            </a>
+                                                        </div>`;
+                                                } else {
+                                                    panelHtml = panel.id;
+                                                }
+                                        })}`;
                                     }
                                     return html`<div>${panelHtml}</div>`;
                                 }
@@ -490,7 +460,7 @@ class ClinicalAnalysisEditor extends LitElement {
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
             this._updateOrDeleteComments(false);
 
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn, flagsAction: "SET"})
                 .then(response => {
                     this._postUpdate(response);
                 })
@@ -539,8 +509,8 @@ class ClinicalAnalysisEditor extends LitElement {
         this.updateParams = {};
 
         // Refresh form
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate();
 
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
