@@ -1233,23 +1233,24 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sampleUpdate"] ? html`
-
-                    <div class="container" id="sampleUpdate">
-                        <sample-update
-                            .sampleId="${this.sampleId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${{display: {
-                                width: "8",
-                                style: "margin: 10px",
-                                labelWidth: 3,
-                                labelAlign: "right",
-                                defaultLayout: "horizontal",
-                                defaultValue: "",
-                                help: {
-                                    mode: "block" // icon
-                                }}}}>
-                        </sample-update>
-                    </div>
+                    <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                        <div class="container" id="sampleUpdate">
+                            <sample-update
+                                .sampleId="${this.sampleId}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config=${{display: {
+                                    showBtnSampleBrowser: true,
+                                    width: "8",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }}}}>
+                            </sample-update>
+                        </div>
                 ` : null}
 
 
