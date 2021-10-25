@@ -49,8 +49,8 @@ export default class FilePreview extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
         this.file = {};
+
         this._config = this.getDefaultConfig();
     }
 
@@ -75,11 +75,11 @@ export default class FilePreview extends LitElement {
             includeIndividual: true,
             lines: 200
         };
-        this.content = null;
+        // this.content = null;
         // this.title = "";
-        this.contentType = null;
-        this.requestUpdate();
-        await this.updateComplete;
+        // this.contentType = null;
+        // this.requestUpdate();
+        // await this.updateComplete;
         switch (this.file.format) {
             case "PLAIN":
             case "VCF":
@@ -130,7 +130,7 @@ export default class FilePreview extends LitElement {
             case "IMAGE":
                 this.contentType = "image";
                 // this.title = "Image";
-                this.opencgaSession.opencgaClient.files().image(this.file.id, params)
+                this.opencgaSession.opencgaClient.files().image(this.file.id, {study: this.opencgaSession.study.fqn})
                     .then(response => {
                         this.content = response.getResult(0).content;
                         this.requestUpdate();
@@ -146,7 +146,7 @@ export default class FilePreview extends LitElement {
                 this.contentType = "unsupported";
                 this.content = "Format not recognized: " + this.file.format;
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     fileIdObserver() {

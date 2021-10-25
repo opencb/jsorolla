@@ -37,10 +37,10 @@ import "../commons/filters/sample-filter.js";
 import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
-import "../commons/filters/variant-caller-info-filter.js";
 import "../commons/filters/variant-file-info-filter.js";
 import "../commons/filters/variant-type-filter.js";
 import "../commons/filters/variant-ext-svtype-filter.js";
+import "../commons/filters/variant-caller-info-filter.js";
 
 export default class VariantBrowserFilter extends LitElement {
 
@@ -522,8 +522,25 @@ export default class VariantBrowserFilter extends LitElement {
                                                   }">
                         </variant-file-info-filter>`;
                         break;
+                    case "caveman":
+                    case "strelka":
+                    case "pindel":
+                    case "ascat":
+                    case "canvas":
+                    case "brass":
+                    case "manta":
+                    case "tnhaplotyper2":
+                    case "pisces":
+                    case "craft":
+                        content = html`
+                        <variant-caller-info-filter .caller="${subsection.id}"
+                                                    .fileId="${subsection.params.fileId}"
+                                                    .fileData="${this.preparedQuery.fileData}"
+                                                    @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)}">
+                        </variant-caller-info-filter>`;
+                        break;
                     default:
-                        console.error("Filter component not found");
+                        console.error("Filter component not found: " + subsection.id);
                 }
             }
         }

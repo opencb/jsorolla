@@ -16,7 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import "../../commons/forms/data-form.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 
 class VariantInterpreterReport extends LitElement {
 
@@ -33,13 +34,13 @@ class VariantInterpreterReport extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysisId: {
                 type: String
             },
             clinicalAnalysis: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -49,31 +50,122 @@ class VariantInterpreterReport extends LitElement {
     }
 
     _init() {
-        this._prefix = "rep-" + UtilsNew.randomString(6);
+        // this._prefix = UtilsNew.randomString(8);
+
+        this.updateParams = {};
+
+        this.typeToCaller = {
+            "SNV": "caveman"
+        };
+
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
     }
 
     getDefaultConfig() {
         return {
-            title: "Report",
-            icon: "",
-        }
+            id: "clinical-analysis",
+            title: "Case Editor",
+            icon: "fas fa-user-md",
+            type: "form",
+            buttons: {
+                show: true,
+                clearText: "Cancel",
+                okText: "Save",
+                classes: "col-md-offset-4 col-md-3"
+            },
+            display: {
+                width: "8",
+                showTitle: false,
+                infoIcon: "",
+                labelAlign: "left",
+                labelWidth: "4",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    id: "qc-metrics",
+                    title: "1. QC Metrics",
+                    display: {
+                        // style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; margin: 15px 0px; padding-top: 10px",
+                        // elementLabelStyle: "padding-top: 0px", // form add control-label which has an annoying top padding
+                    },
+                    elements: [
+                        {
+                            name: "Genome plot interpretation",
+                            field: "description",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 3,
+                                updated: this.updateParams.description ?? false
+                            }
+                        },
+                    ]
+                },
+                {
+                    id: "results",
+                    title: "2. Results",
+                    elements: [
+
+                    ]
+                },
+                {
+                    id: "mutational-signatures",
+                    title: "3. Mutational Signatures",
+                    elements: [
+
+                    ]
+                },
+                {
+                    id: "final-summary",
+                    title: "4. Final Summary",
+                    elements: [
+
+                    ]
+                }
+            ]
+        };
     }
 
     render() {
+        if (!this.clinicalAnalysis) {
+            return "";
+        }
+
         return html`
-            <div class="guard-page">
-                <i class="fas fa-file fa-5x"></i>
-                <h3>In development</h3>
-            </div>
+            <data-form  .data="${this.clinicalAnalysis}"
+                        .config="${this._config}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
+                        @clear="${this.onClear}"
+                        @submit="${this.onRun}">
+            </data-form>
         `;
     }
 

@@ -105,10 +105,10 @@ class VariantInterpreter extends LitElement {
 
             // To delete
             // this.clinicalAnalysisId = "NA12877";
-            // this.clinicalAnalysisId = "AN-1";
+            this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
-            // this.clinicalAnalysisIdObserver();
+            this.clinicalAnalysisIdObserver();
         }
     }
 
@@ -213,7 +213,7 @@ class VariantInterpreter extends LitElement {
                     title: "Report",
                     acronym: "VB",
                     description: "",
-                    disabled: true,
+                    // disabled: true,
                     icon: "fa fa-file-alt"
                 }
             ]
@@ -341,8 +341,10 @@ class VariantInterpreter extends LitElement {
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                                <div id="${this._prefix}report" class="clinical-portal-content col-md-10 col-md-offset-1">
-                                    <variant-interpreter-report .opencgaSession="${this.opencgaSession}">
+                                <div id="${this._prefix}report" class="clinical-portal-content">
+                                    <variant-interpreter-report
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .opencgaSession="${this.opencgaSession}">
                                     </variant-interpreter-report>
                                 </div>
                             ` : null}

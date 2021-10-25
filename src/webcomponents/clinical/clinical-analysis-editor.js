@@ -63,7 +63,7 @@ class ClinicalAnalysisEditor extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.updateParams = {};
+        // this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
