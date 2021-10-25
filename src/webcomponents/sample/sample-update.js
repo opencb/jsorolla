@@ -61,6 +61,7 @@ export default class SampleUpdate extends LitElement {
 
         this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     update(changedProperties) {
@@ -184,6 +185,16 @@ export default class SampleUpdate extends LitElement {
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+    }
+
+    onShowBtnSampleBrowser() {
+        return html `
+            <div style="float: right;padding: 10px 5px 10px 5px">
+                <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
+                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Sample Browser
+                </button>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -391,9 +402,9 @@ export default class SampleUpdate extends LitElement {
                                 style: "padding-left: 0px",
                                 render: () => html`
                                     <annotation-form
-                                            .sample="${this.sample}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @fieldChange="${e => this.onFieldChange(e)}">
+                                        .sample="${this.sample}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @fieldChange="${e => this.onFieldChange(e)}">
                                     </annotation-form>
                                 `
                             }
@@ -407,11 +418,11 @@ export default class SampleUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                    .data=${this.sample}
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
+                .data=${this.sample}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }

@@ -370,7 +370,8 @@ export default class OpencgaSampleGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" href="javascript: void 0" class="btn force-text-left disabled">
+                                <a data-action="edit" class="btn force-text-left "
+                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
                                 </a>
                             </li>

@@ -48,6 +48,7 @@ import "../../webcomponents/sample/opencga-sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
+import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
@@ -172,6 +173,7 @@ class IvaApp extends LitElement {
             "transcript",
             "protein",
             "sample-grid",
+            "sampleUpdate",
             "browser",
             "family",
             "job",
@@ -666,6 +668,7 @@ class IvaApp extends LitElement {
                     break;
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
+                case "#sampleUpdate":
                     this.sampleId = feature;
                     break;
                 case "#study-admin":
@@ -1226,6 +1229,26 @@ class IvaApp extends LitElement {
                         <opencga-sample-view    .opencgaSession="${this.opencgaSession}"
                                                 .config="${this.config.sampleView}">
                         </opencga-sample-view>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["sampleUpdate"] ? html`
+
+                    <div class="container" id="sampleUpdate">
+                        <sample-update
+                            .sampleId="${this.sampleId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{display: {
+                                width: "8",
+                                style: "margin: 10px",
+                                labelWidth: 3,
+                                labelAlign: "right",
+                                defaultLayout: "horizontal",
+                                defaultValue: "",
+                                help: {
+                                    mode: "block" // icon
+                                }}}}>
+                        </sample-update>
                     </div>
                 ` : null}
 
