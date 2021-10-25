@@ -199,8 +199,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     }
                                 }
                             });
-                        this.opencgaSession.study.internal.configuration.variantEngine
-debugger
+                        // this.opencgaSession.study.internal.configuration.variantEngine
                         // Update query with default 'fileData' parameters
                         this.query = {
                             ...this.query,
