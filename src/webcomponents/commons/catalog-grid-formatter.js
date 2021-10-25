@@ -18,7 +18,6 @@
 export default class CatalogGridFormatter {
 
     static phenotypesFormatter(value, row) {
-        console.log(value);
         if (value && value.length === 0) {
             return "-";
         }
@@ -142,7 +141,7 @@ export default class CatalogGridFormatter {
                     <div>
                         <a title="Go to Case Interpreter" class="btn btn-default btn-small ripple dropdown-toggle one-line" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
                             <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                       </a>              
+                       </a>
                     </div>
                 `;
             }
