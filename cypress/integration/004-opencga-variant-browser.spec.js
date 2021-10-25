@@ -276,14 +276,22 @@ context("4. Variant Browser", () => {
     });
 
     it("4.19 Filters. Conservation: PhyloP", () => {
-        // Conservation: PhyloP Use example
-        cy.get("variant-browser-filter a[data-accordion-id='Conservation']").click();
-        cy.get("conservation-filter .cf-phylop input[type='text']").type("1");
-        cy.get("conservation-filter .cf-phastCons input[type='text']").type("1");
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='conservation']").click();
-        checkResults("variant-browser-grid");
+        cy.get("variant-browser-filter")
+            .then($div => {
+                // Conservation Score is visible
+                if (Cypress.$("div[data-cy-section-id='Conservation']", $div).length) {
+                    // Conservation: PhyloP Use example
+                    cy.get("variant-browser-filter a[data-cy-section-title='Conservation']").click();
+                    cy.get("conservation-filter .cf-phylop input[type='text']").type("1");
+                    cy.get("conservation-filter .cf-phastCons input[type='text']").type("1");
+                    cy.get("div.search-button-wrapper button").click();
+                    checkResults("variant-browser-grid");
+                    cy.get("opencga-active-filters button[data-filter-name='conservation']").click();
+                    checkResults("variant-browser-grid");
+                } else {
+                    cy.get("div[data-cy-section-id='Conservation']").should("not.exist");
+                }
+            });
     });
 
     it("4.20 Check gene-view", () => {
