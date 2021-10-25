@@ -126,8 +126,7 @@ class FileQcAscatMetrics extends LitElement {
                                             render: data => html` <div>
                                                 <span
                                                     style="font-weight: bold"
-                                                    >${data.file}</span
-                                                >
+                                                    >${data.file}</span>
                                             </div>`,
                                         },
                                     },

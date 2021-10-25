@@ -68,7 +68,7 @@ class VariantInterpreterLanding extends LitElement {
             }
         };
 
-        this.activeTab = "";
+        this.activeTab = "Select";
     }
 
     connectedCallback() {
@@ -95,10 +95,9 @@ class VariantInterpreterLanding extends LitElement {
             }
         } else {
             this.activeTab = "Select";
+            this.getLastClinicalAnalysis();
         }
         // this.onCloseClinicalAnalysis();
-
-        this.getLastClinicalAnalysis();
     }
 
     // non-bootstrap tabs
@@ -395,7 +394,7 @@ class VariantInterpreterLanding extends LitElement {
                 </div>
 
                 <div class="content-tab-wrapper">
-                    ${this.activeTab === "General" || this.activeTab === "" ? html`
+                    ${this.activeTab === "General" ? html`
                         <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
@@ -403,6 +402,18 @@ class VariantInterpreterLanding extends LitElement {
                                                             .clinicalAnalysis="${this.clinicalAnalysis}">
                                 </clinical-analysis-editor>
                             </div>
+                        </div>
+                    ` : null}
+                    ${this.activeTab === "Overview" ? html`
+                        <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            ${this.clinicalAnalysis ? html`
+                                <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                    </opencga-clinical-analysis-view>
+                                </div>
+                            ` : null}
                         </div>
                     ` : null}
                     ${this.activeTab === "Clinical" ? html`
@@ -446,18 +457,6 @@ class VariantInterpreterLanding extends LitElement {
                                     .active="${this.activeTab === "Audit"}">
                                 </clinical-analysis-audit-browser>
                             </div>
-                        </div>
-                    ` : null}
-                    ${this.activeTab === "Overview" ? html`
-                        <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            ${this.clinicalAnalysis ? html`
-                                <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
-                                    <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                                    </opencga-clinical-analysis-view>
-                                </div>
-                            ` : null}
                         </div>
                     ` : null}
                     ${this.activeTab === "Select" ? html`

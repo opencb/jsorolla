@@ -171,14 +171,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
             }
 
             // Fetch files and set init query
+            // FIXME remove specific code for ASCAT and BRASS!
             this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, format: "VCF", study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
-                    this.files = fileResponse.responses[0].results;
+                    this.files = fileResponse.responses[0].results
+                        .filter(file => file.software?.name?.toUpperCase() !== "ASCAT" && file.software?.name?.toUpperCase() !== "BRASS");
 
                     // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
                     if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                         const fileDataFilters = [];
                         this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                            .filter(variantCaller => variantCaller.id.toUpperCase() !== "ASCAT" && variantCaller.id.toUpperCase() !== "BRASS")
                             .forEach(variantCaller => {
                                 const filters = variantCaller.dataFilters
                                     .filter(filter => !!filter.defaultValue)
@@ -196,7 +199,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     }
                                 }
                             });
-
+                        this.opencgaSession.study.internal.configuration.variantEngine
+debugger
                         // Update query with default 'fileData' parameters
                         this.query = {
                             ...this.query,

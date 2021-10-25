@@ -50,8 +50,15 @@ export const login = () => {
  * @returns {void}
  */
 export const goTo = toolId => {
-    cy.get("#waffle-icon").click();
-    cy.get(`#side-nav > nav > ul > li > a[data-id='${toolId}']`).click();
+    cy.get("nav.main-navbar").then($div => {
+        if (Cypress.$("#waffle-icon", $div).length) {
+            cy.get("#waffle-icon").should("be.visible");
+            cy.get("#waffle-icon").click();
+            cy.get(`#side-nav > nav > ul > li > a[data-id='${toolId}']`).click();
+        } else {
+            cy.get("#waffle-icon").should("not.exist");
+        }
+    });
 };
 
 export const randomString = length => {

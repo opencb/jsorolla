@@ -105,10 +105,10 @@ class VariantInterpreter extends LitElement {
 
             // To delete
             // this.clinicalAnalysisId = "NA12877";
-            // this.clinicalAnalysisId = "AN-1";
+            this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
-            // this.clinicalAnalysisIdObserver();
+            this.clinicalAnalysisIdObserver();
         }
     }
 
@@ -213,7 +213,7 @@ class VariantInterpreter extends LitElement {
                     title: "Report",
                     acronym: "VB",
                     description: "",
-                    disabled: true,
+                    // disabled: true,
                     icon: "fa fa-file-alt"
                 }
             ]
@@ -261,15 +261,15 @@ class VariantInterpreter extends LitElement {
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                    ${this._config.tools && this._config.tools.map(item => html`
-                                    ${!item.hidden ? html`
-                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                           href="javascript: void 0" data-view="${item.id}"
-                                           @click="${this.onClickSection}">
-                                            <div class="hi-icon ${item.icon}"></div>
-                                            <p>${item.title}</p>
-                                            <span class="smaller"></span>
-                                        </a>` :
+                                    ${this._config?.tools?.map(item => html`
+                                        ${!item.hidden ? html`
+                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                               href="javascript: void 0" data-view="${item.id}"
+                                               @click="${this.onClickSection}">
+                                                <div class="hi-icon ${item.icon}"></div>
+                                                <p>${item.title}</p>
+                                                <span class="smaller"></span>
+                                            </a>` :
                                         ""}
                                 `)}
                                 </div>
@@ -341,8 +341,10 @@ class VariantInterpreter extends LitElement {
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                                <div id="${this._prefix}report" class="clinical-portal-content col-md-10 col-md-offset-1">
-                                    <variant-interpreter-report .opencgaSession="${this.opencgaSession}">
+                                <div id="${this._prefix}report" class="clinical-portal-content">
+                                    <variant-interpreter-report
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .opencgaSession="${this.opencgaSession}">
                                     </variant-interpreter-report>
                                 </div>
                             ` : null}
