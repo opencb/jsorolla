@@ -280,7 +280,7 @@ class VariantInterpreterQc extends LitElement {
                     ${this._tabs.includes("sampleVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "SINGLE" ?
                         html`
                             <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
-                                 <tool-header title="Samlpe Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
+                                 <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                  <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}"
                                                                .cellbaseClient="${this.cellbaseClient}"
                                                                .sample="${this.sample}"
