@@ -315,7 +315,18 @@ context("4. Variant Browser", () => {
         checkResults("variant-consequence-type-view");
 
         cy.get("variant-browser-detail [data-id='annotationPropFreq']").click();
-        checkResultsOrNot("cellbase-population-frequency-grid");
+
+        cy.wait(1000);
+        cy.get("cellbase-population-frequency-grid")
+            .then($div => {
+                // check CB data are available
+                if (Cypress.$("cellbase-population-frequency-table", $div).length) {
+                    checkResultsOrNot("cellbase-population-frequency-grid");
+                } else {
+                    cy.get("cellbase-population-frequency-grid").contains("No population frequencies found");
+                }
+            });
+
 
         cy.get("variant-browser-detail [data-id='annotationClinical']").click();
         checkResultsOrNot("variant-annotation-clinical-view");
