@@ -108,6 +108,8 @@ export default class DataForm extends LitElement {
             } else {
                 value = defaultValue;
             }
+        } else if (defaultValue) {
+            value = defaultValue;
         }
         return value;
     }
@@ -846,7 +848,7 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        const array = this.getValue(element.field);
+        let array = this.getValue(element.field);
         const errorMessage = this._getErrorMessage(element);
         const errorClasses = element.display.errorClasses ?? "text-danger";
 
@@ -864,16 +866,21 @@ export default class DataForm extends LitElement {
         if (!element.display && !element.display.columns) {
             return html`<span class="${errorClasses}">Type 'table' requires a 'columns' array</span>`;
         }
+        if (typeof element.display?.transform === "function") {
+            array = element.display.transform(array);
+        }
 
         return html`
             <table class="table" style="display: inline">
-                <thead>
-                    <tr>
-                        ${element.display.columns.map(elem => html`
-                            <th scope="col">${elem.name}</th>
-                        `)}
-                    </tr>
-                </thead>
+                ${!element.display.hideHeader ? html`
+                    <thead>
+                        <tr>
+                            ${element.display.columns.map(elem => html`
+                                <th scope="col">${elem.name}</th>
+                            `)}
+                        </tr>
+                    </thead>
+                ` : null}
                 <tbody>
                     ${array.map(row => html`
                         <tr scope="row">
