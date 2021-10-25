@@ -523,7 +523,7 @@ export default class VariantBrowserFilter extends LitElement {
                         </variant-file-info-filter>`;
                         break;
                     default:
-                        console.error("Filter component not found");
+                        console.error("Filter component not found: " + subsection.id);
                 }
             }
         }

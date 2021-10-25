@@ -35,6 +35,10 @@ export default class ImageViewer extends LitElement {
     }
 
     render() {
+        if (!this.data) {
+            return html`<div>No base64 data provided</div>`;
+        }
+
         // TODO: add the download button and the optional title
         return html`
             <img
