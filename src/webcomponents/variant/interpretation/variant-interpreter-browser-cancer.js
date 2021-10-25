@@ -200,7 +200,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 }
                             });
                         this.opencgaSession.study.internal.configuration.variantEngine
-
+debugger
                         // Update query with default 'fileData' parameters
                         this.query = {
                             ...this.query,
