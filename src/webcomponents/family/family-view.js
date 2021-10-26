@@ -181,8 +181,9 @@ export default class FamilyView extends LitElement {
                                         .value="${this.family?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            addButton: false,
-                                            multiple: false
+                                            select2Config: {
+                                                multiple: false
+                                            }
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </family-id-autocomplete>`

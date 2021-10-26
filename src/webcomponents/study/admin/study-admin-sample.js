@@ -50,7 +50,6 @@ export default class StudyAdminSample extends LitElement {
     }
 
     _init() {
-        // I can't use this.mode because override the existing mode inside detailsTabs component
         this.editSample = false;
         this.sampleId = "";
         this.sample = {};
@@ -76,13 +75,10 @@ export default class StudyAdminSample extends LitElement {
         this.sample = {};
         this.sampleId = "";
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("Clean....");
         this.requestUpdate();
     }
 
     changeSampleId(e) {
-        // console.log("Value", e.detail.value);
-        // this.sampleId = e.detail.value;
         this.fetchSampleId(e.detail.value);
     }
 
@@ -111,7 +107,7 @@ export default class StudyAdminSample extends LitElement {
 
     onSampleSearch(e) {
         if (e.detail.status?.error) {
-            // inform
+            console.log(this, "error:", e.detail.status?.error);
         } else {
             this.sample = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -135,7 +131,7 @@ export default class StudyAdminSample extends LitElement {
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
                                         ${UtilsNew.isNotEmpty(this.sample) ? html `<span style="padding-left:5px">
-                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
+                                            <i class="${this.editSample? "far fa-eye": "fa fa-edit"} icon-hover" @click="${e => this.editForm(e)}"></i>
                                         </span>`: nothing}
                                     </div>
                                     ${this.editSample? html`
@@ -157,8 +153,6 @@ export default class StudyAdminSample extends LitElement {
                 {
                     id: "create-sample",
                     name: "Create Sample",
-                    // icon: "fas fa-dna",
-                    // active: false,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">

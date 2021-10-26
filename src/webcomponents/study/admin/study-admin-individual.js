@@ -132,7 +132,7 @@ export default class StudyAdminIndividual extends LitElement {
                                         </span>
                                         ${UtilsNew.isNotEmpty(this.individual)? html`
                                             <span style="padding-left:5px">
-                                                <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
+                                                <i class="${this.editIndividual? "far fa-eye": "fa fa-edit"} icon-hover" @click="${e => this.editForm(e)}"></i>
                                             </span>` : nothing}
 
                                     </div>

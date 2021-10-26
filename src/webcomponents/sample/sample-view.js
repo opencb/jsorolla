@@ -18,8 +18,8 @@ import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/sample-id-autocomplete.js";
 import "../study/annotationset/annotation-sets-view.js";
-
 
 export default class SampleView extends LitElement {
 
@@ -264,7 +264,10 @@ export default class SampleView extends LitElement {
         }
 
         return html`
-            <data-form .data=${this.sample} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.sample}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 

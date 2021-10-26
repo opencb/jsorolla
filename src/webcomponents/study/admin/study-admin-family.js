@@ -132,7 +132,7 @@ export default class StudyAdminFamily extends LitElement {
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
                                         ${UtilsNew.isNotEmpty(this.family)?html`<span style="padding-left:5px">
-                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
+                                            <i class="${this.editFamily? "far fa-eye": "fa fa-edit"} icon-hover" @click="${e => this.editForm(e)}"></i>
                                         </span>`: nothing}
                                     </div>
                                     ${this.editFamily ? html`

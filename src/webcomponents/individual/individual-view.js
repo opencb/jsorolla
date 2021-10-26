@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/individual-id-autocomplete.js";
 
 export default class IndividualView extends LitElement {
 
@@ -135,8 +136,9 @@ export default class IndividualView extends LitElement {
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            addButton: false,
-                                            multiple: false
+                                            select2Config: {
+                                                multiple: false
+                                            }
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </individual-id-autocomplete>`
