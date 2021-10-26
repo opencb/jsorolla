@@ -105,7 +105,7 @@ class VariantInterpreter extends LitElement {
 
             // To delete
             // this.clinicalAnalysisId = "NA12877";
-            this.clinicalAnalysisId = "CA-2";
+            // this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
             this.clinicalAnalysisIdObserver();

@@ -233,6 +233,10 @@ class VariantInterpreterReport extends LitElement {
 
     getDefaultConfig() {
         const SEPARATOR = {type: "separator", display: {style: "border-top: 1px solid lightgrey;"}};
+        const SUBSTITUTIONS_AND_INDELS_TYPES = ["SNV", "MNV", "INDEL"];
+        const REARRANGEMENTS_TYPES = ["BREAKEND", "SV", "DUPLICATION", "TANDEM_DUPLICATION", "TRANSLOCATION", "DELETION", "INSERTION", "INVERSION"];
+        const COPY_NUMBER_TYPES = ["COPY_NUMBER", "COPY_NUMBER_GAIN", "COPY_NUMBER_LOSS"];
+
         return {
             id: "clinical-analysis",
             title: "AcademicGenome.SNZ.v4 CONFIDENTIAL FOR RESEARCH PURPOSES ONLY",
@@ -590,7 +594,13 @@ class VariantInterpreterReport extends LitElement {
                                     {name: "LOH", field: "loh", defaultValue: "-"},
                                 ],
                                 transform: variants => {
-                                    return variants.filter(v => ["SNV", "MNV", "INDEL"].indexOf(v.type) > -1);
+                                    return variants
+                                        .filter(v => {
+                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                            return sample && !sample.somatic;
+                                        })
+                                        .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
                                 },
                             },
                             defaultValue: "No variants found in this category",
@@ -619,7 +629,13 @@ class VariantInterpreterReport extends LitElement {
                                     {name: "LOH", field: "loh", defaultValue: "-"},
                                 ],
                                 transform: variants => {
-                                    return variants.filter(v => ["SNV", "MNV", "INDEL"].indexOf(v.type) > -1);
+                                    return variants
+                                        .filter(v => {
+                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                            return sample && !sample.somatic;
+                                        })
+                                        .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
                                 },
                             },
                             defaultValue: "No variants found in this category",
@@ -640,18 +656,46 @@ class VariantInterpreterReport extends LitElement {
                         },
                         {
                             name: "Substitutions and indels",
-                            type: "title",
+                            type: "table",
+                            field: "primaryFindings",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Gene",
+                                        type: "custom",
+                                        display: {
+                                            render: row => UtilsNew.renderHTML(VariantGridFormatter.geneFormatter(row, null, null, this.opencgaSession)),
+                                        },
+                                    },
+                                    {name: "Chr", field: "chromosome"},
+                                    {name: "Position", field: "start"},
+                                    {name: "Ref", field: "annotation.reference"},
+                                    {name: "Alt", field: "annotation.alternate"},
+                                    {name: "CDS", field: "cds", defaultValue: "-"},
+                                    {name: "Protein", field: "protein", defaultValue: "-"},
+                                    {name: "Type", field: "type"},
+                                    {name: "Effect", field: "annotation.displayConsequenceType"},
+                                    {name: "LOH", field: "loh", defaultValue: "-"},
+                                ],
+                                transform: variants => {
+                                    return variants
+                                        .filter(v => {
+                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                            return sample && sample.somatic;
+                                        })
+                                        .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+                                },
+                            },
                             defaultValue: "No variants found in this category",
 
                         },
                         {
                             name: "Structural rearrangements",
-                            type: "title",
                             defaultValue: "No variants found in this category",
                         },
                         {
                             name: "Copy number",
-                            type: "title",
                             defaultValue: "No variants found in this category",
                         },
                         {
@@ -663,12 +707,10 @@ class VariantInterpreterReport extends LitElement {
                         },
                         {
                             name: "Substitutions and indels",
-                            type: "title",
                             defaultValue: "No variants found in this category",
                         },
                         {
                             name: "Structural rearrangements",
-                            type: "title",
                             defaultValue: "No variants found in this category",
                         },
                         {
