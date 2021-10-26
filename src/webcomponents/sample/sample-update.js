@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-// import "../commons/manager/phenotype-manager.js";
 import "../study/phenotype/phenotype-list-update.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -61,6 +61,7 @@ export default class SampleUpdate extends LitElement {
 
         this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     update(changedProperties) {
@@ -184,6 +185,28 @@ export default class SampleUpdate extends LitElement {
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+    }
+
+    onShowBtnSampleBrowser() {
+        const query = {
+            xref: this.sampleId
+        };
+
+        const showBrowser = () => {
+            console.log("click showBrowser", this);
+            LitUtils.dispatchEventCustom(this, "querySearch", null, null, {query: query});
+            const hash = window.location.hash.split("/");
+            const newHash = "#sample/" + hash[1] + "/" + hash[2];
+            window.location.hash = newHash;
+        };
+
+        return html `
+            <div style="float: right;padding: 10px 5px 10px 5px">
+                <button type="button" class="btn btn-primary" @click="${showBrowser}">
+                    <i class="fa fa-hand-o-left" aria-hidden="true"></i> Sample Browser
+                </button>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -391,9 +414,9 @@ export default class SampleUpdate extends LitElement {
                                 style: "padding-left: 0px",
                                 render: () => html`
                                     <annotation-form
-                                            .sample="${this.sample}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @fieldChange="${e => this.onFieldChange(e)}">
+                                        .sample="${this.sample}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @fieldChange="${e => this.onFieldChange(e)}">
                                     </annotation-form>
                                 `
                             }
@@ -406,12 +429,13 @@ export default class SampleUpdate extends LitElement {
 
     render() {
         return html`
+            ${this._config.display.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
             <data-form
-                    .data=${this.sample}
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
+                .data=${this.sample}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }

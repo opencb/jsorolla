@@ -17,8 +17,8 @@
 export default class FormUtils {
 
 
-    static updateObject(original, _original, updateParams, params, value) {
-        const [field, prop] = params.split(".");
+    static updateObject(original, _original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
         if (_original?.[field]?.[prop] !== value && value !== null) {
 
             original[field] = {
@@ -32,6 +32,47 @@ export default class FormUtils {
             };
         } else {
             delete updateParams[field][prop];
+        }
+    }
+
+    // This function implements a general method for object array updates in forms.
+    // Usage example, updating: panels.id or flags.id
+    static updateObjectArray(original, _original, updateParams, param, values) {
+        const [field, prop] = param.split(".");
+
+        if (!_original?.[field]) {
+            _original = {
+                [field]: []
+            };
+        }
+
+        if (!updateParams?.[field]) {
+            updateParams[field] = [];
+        }
+
+        const valuesSplit = values.split(",");
+        for (const value of valuesSplit) {
+            const index = _original[field].findIndex(item => item[prop] === value);
+            if (index === -1 && value !== null) {
+                original[field].push(
+                    {
+                        [prop]: value
+                    }
+                );
+                for (const item of original[field]) {
+                    updateParams[field].push(
+                        {
+                            [prop]: item[prop]
+                        }
+                    );
+                }
+            } else {
+                updateParams[field].splice(index, 1);
+            }
+        }
+
+        if (updateParams[field]?.length === 0) {
+            delete updateParams[field];
         }
     }
 

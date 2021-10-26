@@ -258,7 +258,7 @@ class VariantInterpreterBrowser extends LitElement {
                                 null
                             }
 
-                            ${this._germlineSample ? // Check Germline sample exist
+                            ${false && this._germlineSample ? // Check Germline sample exist
                                 html`
                                     <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane content-tab">
                                         <tool-header title="Germline Variant Browser - ${this._germlineSample?.id}" class="bg-white"></tool-header>

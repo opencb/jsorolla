@@ -96,7 +96,7 @@ class VariantInterpreter extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this?.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.study?.fqn) {
             // With each property change we must updated config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
@@ -105,34 +105,32 @@ class VariantInterpreter extends LitElement {
 
             // To delete
             // this.clinicalAnalysisId = "NA12877";
-            // this.clinicalAnalysisId = "AN-1";
+            // this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
-            // this.clinicalAnalysisIdObserver();
+            this.clinicalAnalysisIdObserver();
         }
     }
 
     async clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            this._config = {...this._config, loading: true};
-            this.requestUpdate();
-            await this.updateComplete;
-            if (this.clinicalAnalysisId) {
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then(async response => {
-                        this.clinicalAnalysis = response.getResult(0);
-                    })
-                    .catch(response => {
-                        console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    })
-                    .finally(async () => {
-                        this._config = {...this._config, loading: false};
-                        // await this.updateComplete;
-                        this.requestUpdate();
-                    });
-            } else {
-                this.clinicalAnalysis = null;
-            }
+        if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
+            // this._config = {...this._config, loading: true};
+            // this.requestUpdate();
+            // await this.updateComplete;
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+            // .finally(async () => {
+            // this._config = {...this._config, loading: false};
+            // await this.updateComplete;
+            // this.requestUpdate();
+            // });
+        } else {
+            this.clinicalAnalysis = null;
         }
     }
 
@@ -144,17 +142,6 @@ class VariantInterpreter extends LitElement {
     }
 
     _changeView(tabId) {
-        // console.log("changing to ", tabId)
-        /* $(`.variant-interpreter-step`, this).removeClass("active");
-        $(`.clinical-portal-content`, this).hide(); // hides all content divs
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-
-        $(`.variant-interpreter-step[data-view=${tabId}]`, this).addClass("active");
-        $("#" + this._prefix + tabId, this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();*/
-
-
         $(".variant-interpreter-step", this).removeClass("active");
         // $(".clinical-portal-content", this).removeClass("active");
         for (const tab in this.activeTab) {
@@ -170,9 +157,8 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisUpdate(e) {
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
-            .then(restResponse => {
-                this.clinicalAnalysis = restResponse.responses[0].results[0];
-                this.requestUpdate();
+            .then(response => {
+                this.clinicalAnalysis = response.responses[0].results[0];
             });
     }
 
@@ -180,12 +166,6 @@ class VariantInterpreter extends LitElement {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
         this.requestUpdate();
     }
-
-    /* async closeClinicalAnalysis() {
-        // after a while clinicalAnalysis reappears as it is defined in the hash
-        this.clinicalAnalysisId = null;
-        this.clinicalAnalysis = null;
-    }*/
 
     getDefaultConfig() {
         return {
@@ -233,7 +213,7 @@ class VariantInterpreter extends LitElement {
                     title: "Report",
                     acronym: "VB",
                     description: "",
-                    disabled: true,
+                    // disabled: true,
                     icon: "fa fa-file-alt"
                 }
             ]
@@ -254,19 +234,14 @@ class VariantInterpreter extends LitElement {
         return html`
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                    <tool-header icon="${this._config.icon}"
-                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
-                                 .rhs="${html`
+                    <tool-header
+                        icon="${this._config.icon}"
+                        .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
+                        .rhs="${html`
                                     <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
                                     <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                         <i class="fas fa-times"></i> Close
                                     </a>
-                                    <!--<div class="dropdown more-button">
-                                        <a class="btn btn-default ripple dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></a>
-                                        <ul class="dropdown-menu pull-right">
-                                            <li><a title="Lock Case" href="#"><i class="fas fa-lock"></i> Lock Case</a></li>
-                                        </ul>
-                                    </div>-->
                                  `}"></tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
@@ -286,15 +261,15 @@ class VariantInterpreter extends LitElement {
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                    ${this._config.tools && this._config.tools.map(item => html`
-                                    ${!item.hidden ? html`
-                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                           href="javascript: void 0" data-view="${item.id}"
-                                           @click="${this.onClickSection}">
-                                            <div class="hi-icon ${item.icon}"></div>
-                                            <p>${item.title}</p>
-                                            <span class="smaller"></span>
-                                        </a>` :
+                                    ${this._config?.tools?.map(item => html`
+                                        ${!item.hidden ? html`
+                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                               href="javascript: void 0" data-view="${item.id}"
+                                               @click="${this.onClickSection}">
+                                                <div class="hi-icon ${item.icon}"></div>
+                                                <p>${item.title}</p>
+                                                <span class="smaller"></span>
+                                            </a>` :
                                         ""}
                                 `)}
                                 </div>
@@ -366,8 +341,10 @@ class VariantInterpreter extends LitElement {
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                                <div id="${this._prefix}report" class="clinical-portal-content col-md-10 col-md-offset-1">
-                                    <variant-interpreter-report .opencgaSession="${this.opencgaSession}">
+                                <div id="${this._prefix}report" class="col-md-10 col-md-offset-1 clinical-portal-content">
+                                    <variant-interpreter-report
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .opencgaSession="${this.opencgaSession}">
                                     </variant-interpreter-report>
                                 </div>
                             ` : null}

@@ -52,13 +52,14 @@ export default class SectionFilter extends LitElement {
     }
 
     render() {
+        const id = this.config.title.replace(/ /g, "");
         return this.config && this.filters?.length > 0 ? html`
-            <div class="panel panel-default filter-section shadow-sm">
+            <div class="panel panel-default filter-section shadow-sm" data-cy-section-id="${id}">
                 <div class="panel-heading" role="tab" id="${this._prefix}Heading">
                     <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion" data-cy-section-title="${id}"
                            href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">
-                            ${this.config.name || this.config.title}
+                            ${this.config.title}
                         </a>
                     </h4>
                 </div>

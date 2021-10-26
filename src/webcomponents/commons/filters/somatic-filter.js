@@ -69,7 +69,7 @@ export default class SomaticFilter extends LitElement {
         console.log("filterChange", e.target.value);
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: e.target.value || null
+                value: e.target.value === "none" ? null : e.target.value
             }
         });
         this.dispatchEvent(event);
@@ -82,21 +82,21 @@ export default class SomaticFilter extends LitElement {
             <fieldset>
                 <div class="switch-toggle text-white">
                     <input id="${this._prefix}-somatic-option-none"
-                                   class="form-group-sm ${this._prefix}FilterRadio"
-                                   type="radio" name="${this._prefix}-somatic-options" value=""
-                                   @change="${this.filterChange}" checked>
+                        class="form-group-sm ${this._prefix}FilterRadio"
+                        type="radio" name="${this._prefix}-somatic-options" value="none"
+                        @change="${this.filterChange}" checked>
                     <label for="${this._prefix}-somatic-option-none"><span class="small">None</span></label>
 
                     <input id="${this._prefix}-somatic-option-true"
-                                                   class="form-group-sm ${this._prefix}FilterRadio"
-                                                   type="radio" name="${this._prefix}-somatic-options" value="True"
-                                                   @change="${this.filterChange}">
+                            class="form-group-sm ${this._prefix}FilterRadio"
+                            type="radio" name="${this._prefix}-somatic-options" value="True"
+                            @change="${this.filterChange}">
                     <label for="${this._prefix}-somatic-option-true"><span class="small">True</span></label>
 
                     <input id="${this._prefix}-somatic-option-false"
-                                                   class="form-group-sm ${this._prefix}FilterRadio"
-                                                   type="radio" name="${this._prefix}-somatic-options" value="False"
-                                                   @change="${this.filterChange}">
+                            class="form-group-sm ${this._prefix}FilterRadio"
+                            type="radio" name="${this._prefix}-somatic-options" value="False"
+                            @change="${this.filterChange}">
                     <label for="${this._prefix}-somatic-option-false"><span class="small">False</span></label>
 
                     <a class="btn btn-primary ripple"></a>

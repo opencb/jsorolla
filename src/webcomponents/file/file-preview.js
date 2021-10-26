@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
+
+import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
-import UtilsNew from "../../core/utilsNew.js";
 
-
-export default class OpencgaFilePreview extends LitElement {
+export default class FilePreview extends LitElement {
 
     constructor() {
         super();
@@ -49,8 +49,8 @@ export default class OpencgaFilePreview extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
         this.file = {};
+
         this._config = this.getDefaultConfig();
     }
 
@@ -60,17 +60,15 @@ export default class OpencgaFilePreview extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-
-    firstUpdated(_changedProperties) {
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if ((changedProperties.has("file") || changedProperties.has("active")) && this.active) {
             this.fileObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     async fileObserver() {
@@ -79,11 +77,11 @@ export default class OpencgaFilePreview extends LitElement {
             includeIndividual: true,
             lines: 200
         };
-        this.content = null;
+        // this.content = null;
         // this.title = "";
-        this.contentType = null;
-        this.requestUpdate();
-        await this.updateComplete;
+        // this.contentType = null;
+        // this.requestUpdate();
+        // await this.updateComplete;
         switch (this.file.format) {
             case "PLAIN":
             case "VCF":
@@ -134,10 +132,11 @@ export default class OpencgaFilePreview extends LitElement {
             case "IMAGE":
                 this.contentType = "image";
                 // this.title = "Image";
-                this.opencgaSession.opencgaClient.files().image(this.file.id, params)
+                this.opencgaSession.opencgaClient.files().image(this.file.id, {study: this.opencgaSession.study.fqn})
                     .then(response => {
+                        this.content = response.getResult(0).content;
                         this.requestUpdate();
-                        this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
+                        // this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
                     })
                     .catch(response => {
                         console.error(response);
@@ -149,7 +148,7 @@ export default class OpencgaFilePreview extends LitElement {
                 this.contentType = "unsupported";
                 this.content = "Format not recognized: " + this.file.format;
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     fileIdObserver() {
@@ -182,18 +181,21 @@ export default class OpencgaFilePreview extends LitElement {
         </style>
 
 
-        ${this.file ? html`
+        ${this.content ? html`
             <div class="row">
                 <div class="col-md-12">
-<!--                    ${this.title ? html`<h4>${this.title}</h4>` : ""}-->
-
                     ${this.contentType === "unsupported" ? html`
-                        <p class="alert alert-warning">${this.content}</p>` : null}
+                        <p class="alert alert-warning">${this.content}</p>
+                    ` : null}
                     ${this.contentType === "text" ? html`
-                        <pre class="cmd">${this.content}</pre>` : null}
+                        <pre class="cmd">${this.content}</pre>
+                    ` : null}
                     ${this.contentType === "image" ? html`
-                        <img class="img-thumbnail" id="thumbnail" />` : null}
-                    ${this.contentType === "json" ? html`<json-viewer .data="${this.content}"></json-viewer>` : null}
+                        <image-viewer .data="${this.content}"></image-viewer>
+                    ` : null}
+                    ${this.contentType === "json" ? html`
+                        <json-viewer .data="${this.content}"></json-viewer>
+                    ` : null}
                 </div>
             </div>
         ` : null }
@@ -202,5 +204,5 @@ export default class OpencgaFilePreview extends LitElement {
 
 }
 
-customElements.define("opencga-file-preview", OpencgaFilePreview);
+customElements.define("file-preview", FilePreview);
 

@@ -83,6 +83,7 @@ export default class FeatureFilter extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
+            freeTag: true,
             fields: item => {
                 // item is the object from the list from `preprocessResults()`
                 return {

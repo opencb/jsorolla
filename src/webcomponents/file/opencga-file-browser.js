@@ -16,9 +16,10 @@
 
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import "../commons/opencga-browser.js";
 
+import "./file-preview.js";
+import "../commons/opencga-browser.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class OpencgaFileBrowser extends LitElement {
 
@@ -237,7 +238,11 @@ export default class OpencgaFileBrowser extends LitElement {
                                 }
                                 return html`
                                     <div><h3>${title}</h3></div>
-                                    <opencga-file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></opencga-file-preview>
+                                    <file-preview
+                                        .active="${active}"
+                                        .file="${file}"
+                                        .opencgaSession=${opencgaSession}>
+                                    </file-preview>
                                 `;
                             }
                         },
@@ -245,9 +250,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (file, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer .data="${file}" .active="${active}"></json-viewer>`;
+                            render: (file, active) => {
+                                return html`<json-viewer .data="${file}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]

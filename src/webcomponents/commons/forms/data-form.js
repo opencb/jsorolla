@@ -108,6 +108,8 @@ export default class DataForm extends LitElement {
             } else {
                 value = defaultValue;
             }
+        } else if (defaultValue) {
+            value = defaultValue;
         }
         return value;
     }
@@ -846,7 +848,7 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        const array = this.getValue(element.field);
+        let array = this.getValue(element.field);
         const errorMessage = this._getErrorMessage(element);
         const errorClasses = element.display.errorClasses ?? "text-danger";
 
@@ -856,6 +858,9 @@ export default class DataForm extends LitElement {
         }
         if (!Array.isArray(array)) {
             return html`<span class="${errorClasses}">Field '${element.field}' is not an array</span>`;
+        }
+        if (typeof element.display?.transform === "function") {
+            array = element.display.transform(array);
         }
         if (!array.length) {
             // return this.getDefaultValue(element);
@@ -867,21 +872,25 @@ export default class DataForm extends LitElement {
 
         return html`
             <table class="table" style="display: inline">
-                <thead>
-                    <tr>
-                        ${element.display.columns.map(elem => html`
-                            <th scope="col">${elem.name}</th>
-                        `)}
-                    </tr>
-                </thead>
+                ${!element.display.hideHeader ? html`
+                    <thead>
+                        <tr>
+                            ${element.display.columns.map(elem => html`
+                                <th scope="col">${elem.name}</th>
+                            `)}
+                        </tr>
+                    </thead>
+                ` : null}
                 <tbody>
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>
-                                   ${elem.type === "complex" ? this._createComplexElement(elem, row) :
-                                    elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row)) :
-                                    this.getValue(elem.field, row, elem.defaultValue, elem.format)}
+                                <td class="${elem.display?.classes || ""}" style="${elem.display?.style || ""}">
+                                   ${elem.type === "complex" ?
+                                       this._createComplexElement(elem, row) :
+                                       elem.type === "custom" ?
+                                           elem.display.render(this.getValue(elem.field, row)) :
+                                           this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>
                             `)}
                         </tr>
@@ -1071,6 +1080,7 @@ export default class DataForm extends LitElement {
 
         const title = this.config.display?.mode?.title ? this.config.display.mode.title : this.config.title;
         const titleClass = this.config.display?.title?.class ?? "";
+        const titleStyle = this.config.display?.title?.style ?? "";
         const buttonClasses = this.config.buttons?.classes ? this.config.buttons.classes : "btn btn-primary ripple";
 
         if (this.config.display && this.config.display?.mode?.type === "card") {
@@ -1145,8 +1155,13 @@ export default class DataForm extends LitElement {
             <!-- Header -->
             ${this.config.title && this.config.display && this.config.display.showTitle ?
                 html`
-                    <div>
-                        <h2 class="${titleClass}" >${this.config.title}</h2>
+                    <div style="margin: 25px">
+                        <div style="float: left">
+                            <h2 class="${titleClass}" style="${titleStyle}">${this.config.title}</h2>
+                        </div>
+                        <div style="float: right">
+                            <img src="${this.config.logo}"/>
+                        </div>
                     </div>` :
                 null
             }

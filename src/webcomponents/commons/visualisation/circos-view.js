@@ -131,20 +131,26 @@ export default class CircosView extends LitElement {
                     }
                 }
             ]
-        }
+        };
 
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
-            .then( restResult => {
-                debugger
+            .then(restResult => {
                 document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
                 this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
+                this.dispatchEvent(new CustomEvent("changeCircosPlot", {
+                    detail: {
+                        circosPlot: this.circosImage
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
                 console.error(restResponse);
             })
-            .finally( () => {
-            this.requestUpdate();
-        })
+            .finally(() => {
+                this.requestUpdate();
+            });
     }
 
     getDefaultConfig() {
