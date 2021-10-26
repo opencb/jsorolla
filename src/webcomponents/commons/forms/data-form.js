@@ -885,10 +885,12 @@ export default class DataForm extends LitElement {
                     ${array.map(row => html`
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
-                                <td>
-                                   ${elem.type === "complex" ? this._createComplexElement(elem, row) :
-                                    elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row)) :
-                                    this.getValue(elem.field, row, elem.defaultValue, elem.format)}
+                                <td class="${elem.display?.classes || ""}" style="${elem.display?.style || ""}">
+                                   ${elem.type === "complex" ?
+                                       this._createComplexElement(elem, row) :
+                                       elem.type === "custom" ?
+                                           elem.display.render(this.getValue(elem.field, row)) :
+                                           this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>
                             `)}
                         </tr>
@@ -1078,6 +1080,7 @@ export default class DataForm extends LitElement {
 
         const title = this.config.display?.mode?.title ? this.config.display.mode.title : this.config.title;
         const titleClass = this.config.display?.title?.class ?? "";
+        const titleStyle = this.config.display?.title?.style ?? "";
         const buttonClasses = this.config.buttons?.classes ? this.config.buttons.classes : "btn btn-primary ripple";
 
         if (this.config.display && this.config.display?.mode?.type === "card") {
@@ -1152,8 +1155,13 @@ export default class DataForm extends LitElement {
             <!-- Header -->
             ${this.config.title && this.config.display && this.config.display.showTitle ?
                 html`
-                    <div>
-                        <h2 class="${titleClass}" >${this.config.title}</h2>
+                    <div style="margin: 25px">
+                        <div style="float: left">
+                            <h2 class="${titleClass}" style="${titleStyle}">${this.config.title}</h2>
+                        </div>
+                        <div style="float: right">
+                            <img src="${this.config.logo}"/>
+                        </div>
                     </div>` :
                 null
             }

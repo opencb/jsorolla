@@ -60,13 +60,15 @@ export default class FilePreview extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if ((changedProperties.has("file") || changedProperties.has("active")) && this.active) {
             this.fileObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     async fileObserver() {
@@ -179,7 +181,7 @@ export default class FilePreview extends LitElement {
         </style>
 
 
-        ${this.file ? html`
+        ${this.content ? html`
             <div class="row">
                 <div class="col-md-12">
                     ${this.contentType === "unsupported" ? html`

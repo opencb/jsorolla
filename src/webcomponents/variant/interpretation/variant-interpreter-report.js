@@ -51,12 +51,12 @@ class VariantInterpreterReport extends LitElement {
 
     _init() {
         this.callersInfo = {
-            "caveman": {type: "Substitutions", group: "somatic"},
-            "pindel": {type: "Indels", group: "somatic"},
-            "brass": {type: "Rearrangements", group: "somatic"},
-            "ascat": {type: "Copy Number", group: "somatic"},
-            "strelka": {type: "Substitutions and indels", group: "germline"},
-            "manta": {type: "Rearrangements", group: "germline"},
+            "caveman": {type: "Substitutions", group: "somatic", rank: 1},
+            "pindel": {type: "Indels", group: "somatic", rank: 2},
+            "brass": {type: "Rearrangements", group: "somatic", rank: 3},
+            "ascat": {type: "Copy Number", group: "somatic", rank: 4},
+            "strelka": {type: "Substitutions and Indels", group: "germline", rank: 1},
+            "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
 
         this._config = this.getDefaultConfig();
@@ -104,6 +104,7 @@ class VariantInterpreterReport extends LitElement {
             // TODO: check if both samples exists
             const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
             const germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
+
             // Initialize report data
             this._data = {
                 info: {
@@ -150,17 +151,18 @@ class VariantInterpreterReport extends LitElement {
             };
             return this.opencgaSession.opencgaClient.files().search(filesQuery)
                 .then(response => {
-                    const files = response.responses[0].result;
-                    console.log(files);
+                    const files = response.responses[0].results;
+
                     // Get processing alignment info from one BAM file
                     const bamFile = files.find(f => f.format === "BAM");
                     if (bamFile) {
-                        this._data.processingInfo.push({
+                        this._data.processingInfo.unshift({
                             field: "Alignment",
                             value: `${bamFile.software.name} ${bamFile.software.version || ""}`,
                         });
                     }
-                    // Fill tomour and normal stats fields
+
+                    // Fill tumour and normal stats fields
                     Object.entries({tumour: somaticSample, normal: germlineSample}).forEach(([field, sample]) => {
                         const sampleBamName = sample.fileIds.find(f => f.endsWith(".bam"));
                         const file = files.find(f => f.id === sampleBamName);
@@ -168,20 +170,23 @@ class VariantInterpreterReport extends LitElement {
                         const annotationSet = file.annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
                         if (annotationSet) {
                             this._data[`${field}Stats`] = [
-                                {field: "Sequence coverage", value: annotationSet.annotations.avgSequenceDepth},
+                                {field: "Sequence coverage", value: `${annotationSet.annotations.avgSequenceDepth}X`},
                                 {field: "Duplicate reads rate", value: annotationSet.annotations.duplicateReadRate},
-                                {field: "Insert size", value: `${annotationSet.annotations.avgInsertSize}bp`},
+                                {field: "Insert size", value: `${annotationSet.annotations.avgInsertSize} bp`},
                             ];
                         }
                     });
+
                     // Fill somatic and germline Calling info
                     files.filter(f => f.format === "VCF").forEach(file => {
                         const info = this.callersInfo[file.software.name];
                         this._data[`${info.group}CallingInfo`].push({
                             type: info.type,
+                            rank: info.rank,
                             ...file.software,
                         });
                     });
+
                     // Fill ASCAT metrics
                     const ascatFile = files.find(f => f.software.name.toUpperCase() === "ASCAT");
                     if (ascatFile) {
@@ -209,9 +214,11 @@ class VariantInterpreterReport extends LitElement {
     }
 
     getDefaultConfig() {
+        const SEPARATOR = {type: "separator", display: {style: "border-top: 1px solid lightgrey;"}};
         return {
             id: "clinical-analysis",
-            title: "Case Editor",
+            title: "AcademicGenome.SNZ.v4 CONFIDENTIAL FOR RESEARCH PURPOSES ONLY",
+            logo: "img/opencb-logo.png",
             icon: "fas fa-user-md",
             type: "form",
             buttons: {
@@ -221,19 +228,55 @@ class VariantInterpreterReport extends LitElement {
                 classes: "col-md-offset-4 col-md-3"
             },
             display: {
-                width: "8",
-                showTitle: false,
+                width: "12",
+                labelWidth: "3",
+                showTitle: true,
+                title: {
+                    style: "padding: 20px 5px"
+                },
                 infoIcon: "",
                 labelAlign: "left",
-                labelWidth: "4",
                 defaultLayout: "horizontal",
+                layout: [
+                    {
+                        id: "",
+                        classes: "row",
+                        sections: [
+                            {
+                                id: "qc-metrics",
+                                classes: "col-md-8"
+                            },
+                            {
+                                id: "case-info",
+                                classes: "col-md-4"
+                            }
+                        ]
+                    },
+                    {
+                        id: "qc-metrics-plots",
+                        classes: ""
+                    },
+                    {
+                        id: "results",
+                        classes: ""
+                    },
+                    {
+                        id: "mutational-signatures",
+                        classes: ""
+                    },
+                    {
+                        id: "final-summary",
+                        classes: ""
+                    }
+                ]
             },
             sections: [
                 {
-                    id: "info",
-                    title: "",
+                    id: "case-info",
+                    title: "Case Info",
                     display: {
-                        style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; margin: 16px 0px; padding-top: 10px; padding-left: 16px;",
+                        style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 15px 0px; padding: 25px",
+                        labelWidth: "4",
                     },
                     elements: [
                         {
@@ -272,7 +315,7 @@ class VariantInterpreterReport extends LitElement {
                             display: {
                                 hideHeader: true,
                                 columns: [
-                                    {field: "field"},
+                                    {field: "field", display: {style: "font-weight: bold"}},
                                     {field: "value"},
                                 ],
                             },
@@ -282,9 +325,13 @@ class VariantInterpreterReport extends LitElement {
                 {
                     id: "qc-metrics",
                     title: "1. QC Metrics",
+                    display: {
+                        labelWidth: "3",
+                    },
                     elements: [
                         {
                             name: "Sequence metrics",
+                            field: "sequenceMetrics",
                             type: "table",
                             display: {
                                 hideHeader: true,
@@ -293,10 +340,10 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "value"},
                                 ],
                             },
-                            field: "sequenceMetrics",
                         },
                         {
                             name: "Tumour",
+                            field: "tumourStats",
                             type: "table",
                             display: {
                                 hideHeader: true,
@@ -305,10 +352,10 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "value"},
                                 ],
                             },
-                            field: "tumourStats",
                         },
                         {
                             name: "Normal",
+                            field: "normalStats",
                             type: "table",
                             display: {
                                 hideHeader: true,
@@ -317,10 +364,10 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "value"},
                                 ],
                             },
-                            field: "normalStats",
                         },
                         {
                             name: "Processing",
+                            field: "processingInfo",
                             type: "table",
                             display: {
                                 hideHeader: true,
@@ -329,12 +376,15 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "value"},
                                 ],
                             },
-                            field: "processingInfo",
                         },
                         {
                             name: "Somatic Calling",
+                            field: "somaticCallingInfo",
                             type: "table",
                             display: {
+                                transform: somaticCallingInfo => somaticCallingInfo.sort((a, b) => {
+                                    return a.rank - b.rank;
+                                }),
                                 hideHeader: true,
                                 columns: [
                                     {field: "type"},
@@ -342,10 +392,10 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "version"},
                                 ],
                             },
-                            field: "somaticCallingInfo",
                         },
                         {
                             name: "Custom filtering",
+                            field: "customFilteringInfo",
                             type: "table",
                             display: {
                                 hideHeader: true,
@@ -354,12 +404,15 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "value"},
                                 ],
                             },
-                            field: "customFilteringInfo",
                         },
                         {
                             name: "Germline Calling",
+                            field: "germlineCallingInfo",
                             type: "table",
                             display: {
+                                transform: germlineCallingInfo => germlineCallingInfo.sort((a, b) => {
+                                    return a.rank - b.rank;
+                                }),
                                 hideHeader: true,
                                 columns: [
                                     {field: "type"},
@@ -367,31 +420,50 @@ class VariantInterpreterReport extends LitElement {
                                     {field: "version"},
                                 ],
                             },
-                            field: "germlineCallingInfo",
                         },
                         {
                             name: "Overall",
+                            field: "overallText",
                             type: "input-text",
                             display: {
                                 rows: 3,
                             },
-                            field: "overallText",
                         },
-                        {type: "separator"},
+                    ]
+                },
+                {
+                    id: "qc-metrics-plots",
+                    title: "",
+                    display: {
+                        labelWidth: "2",
+                    },
+                    elements: [
+                        SEPARATOR,
                         {
-                            name: "ASCAT copy number plots",
+                            name: "ASCAT Copy Number Plots",
+                            field: "ascatPlots",
                             type: "custom",
                             display: {
                                 render: images => images.length > 0 ? html`
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-5">
                                             <file-preview
                                                 .active="${true}"
                                                 .file="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
+                                            <file-preview
+                                                .active="${true}"
+                                                .file="${images[0]}"
+                                                .opencgaSession="${this.opencgaSession}">
+                                            </file-preview>
+                                            <file-preview
+                                                .active="${true}"
+                                                .file="${images[1]}"
+                                                .opencgaSession="${this.opencgaSession}">
+                                            </file-preview>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <file-preview
                                                 .active="${true}"
                                                 .file="${images[2]}"
@@ -403,28 +475,42 @@ class VariantInterpreterReport extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
+                                        <div class="col-md-12 help-block" style="padding: 10px">
+                                            <p>
+                                                Sunrise plot (left) the cross indicates the highest probability solutions for aberrant
+                                                cell fraction and ploidy. Copy number plot (top right) Major copy number in red,
+                                                minor copy number in green. Raw copy number profile (bottom right) total copy number in purple,
+                                                minor copy number in blue.
+                                            </p>
+                                        </div>
                                     </div>
                                 ` : html``,
                             },
-                            field: "ascatPlots",
                         },
                         {
-                            name: "ASCAT plot interpretation",
+                            name: "ASCAT Plot Interpretation",
+                            field: "ascatInterpretation",
                             type: "input-text",
                             display: {
                                 rows: 3,
                             },
-                            field: "ascatInterpretation",
                         },
-                        {type: "separator"},
+                        SEPARATOR,
+                        {
+                            name: "Genome Plot",
+                            field: "",
+                            type: "custom",
+                            display: {
+
+                            }
+                        },
                         {
                             name: "Genome plot interpretation",
-                            field: "description",
+                            field: "genomePlotInterpretation",
                             type: "input-text",
-                            defaultValue: "",
+                            defaultValue: "Free text",
                             display: {
                                 rows: 3,
-                                // updated: this.updateParams.description ?? false
                             },
                         },
                     ]
@@ -460,7 +546,7 @@ class VariantInterpreterReport extends LitElement {
         }
 
         return html`
-            <data-form 
+            <data-form
                 .data="${this._data}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
