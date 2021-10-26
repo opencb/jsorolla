@@ -74,9 +74,10 @@ context("5 - Case Portal", () => {
                 const span = Cypress.$("span[data-cy='disorder-name']", $td).first();
                 const disorderName = span.text().trim();
                 console.log("disorderName", disorderName);
-                selectToken("div[data-cy='form-disorder']", disorderName);
-                checkResults("opencga-clinical-analysis-grid");
-
+                if (disorderName) {
+                    selectToken("div[data-cy='form-disorder']", disorderName);
+                    checkResults("opencga-clinical-analysis-grid");
+                }
             });
     });
 
