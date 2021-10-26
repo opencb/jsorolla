@@ -97,7 +97,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             ...this.query,
             ...this.queries?.["SNV"]
         }).then(restResult => {
-            this.signature = restResult.getResult(0).signature;
+            this.signature = restResult.responses[0].results[0];
             this.dispatchEvent(new CustomEvent("changeSignature", {
                 detail: {
                     signature: this.signature
@@ -211,7 +211,14 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                         <div class="col-md-12">
                             <div class="col-md-7">
                                 <h2>Circos</h2>
-                                <circos-view .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .query="${this.query}" .queries="${this.queries}" .active="${this.active}"></circos-view>
+                                <circos-view
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .sampleId="${this.sampleId}"
+                                    .query="${this.query}"
+                                    .queries="${this.queries}"
+                                    .active="${this.active}"
+                                    @changeCircosPlot="${this.onChangeCircosPlot}">
+                                </circos-view>
                                         <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
                             </div>
                             <div class="col-md-5">

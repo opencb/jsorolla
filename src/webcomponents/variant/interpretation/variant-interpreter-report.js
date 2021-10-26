@@ -100,6 +100,7 @@ class VariantInterpreterReport extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             console.log(this.opencgaSession);
             console.log(this.clinicalAnalysis);
+
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
             const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
@@ -144,11 +145,13 @@ class VariantInterpreterReport extends LitElement {
                 ].join(" "),
 
             };
+
             const filesQuery = {
                 sampleIds: [somaticSample.id, germlineSample.id].join(","),
                 limit: 100,
                 study: this.opencgaSession.study.fqn,
             };
+
             return this.opencgaSession.opencgaClient.files().search(filesQuery)
                 .then(response => {
                     const files = response.responses[0].results;
@@ -199,6 +202,15 @@ class VariantInterpreterReport extends LitElement {
                             .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
                             .map(id => files.find(f => f.id === id));
                     }
+
+                    this._data.qcPlots = {};
+                    if (somaticSample.qualityControl?.variant?.genomePlots?.length > 0) {
+                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.genomePlots;
+                    }
+                    if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
+                        this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
+                    }
+
                     // End filling report data
                     this._ready = true;
                     return this.requestUpdate();
@@ -484,7 +496,7 @@ class VariantInterpreterReport extends LitElement {
                                             </p>
                                         </div>
                                     </div>
-                                ` : html``,
+                                ` : null,
                             },
                         },
                         {
@@ -498,10 +510,32 @@ class VariantInterpreterReport extends LitElement {
                         SEPARATOR,
                         {
                             name: "Genome Plot",
-                            field: "",
+                            field: "qcPlots",
                             type: "custom",
                             display: {
-
+                                render: qcPlots => qcPlots ? html`
+                                    <div class="row">
+                                        <div class="col-md-7">
+<!--                                            <image-viewer .data="${qcPlots.genomePlots?.[0].file}"></image-viewer>-->
+                                            <img class="img-responsive" src="${qcPlots.genomePlots?.[0].file}"/>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                        </div>
+                                        <div class="col-md-12 help-block" style="padding: 10px">
+                                            <p>
+                                                Whole genome circos plot (left) depicting from outermost rings heading inwards:
+                                                Karyotypic ideogram outermost. Base substitutions next, plotted as rainfall plots (log10
+                                                inter-mutation distance on radial axis, dot colours: blue, C>A; black, C>G; red, C>T; grey, T>A;
+                                                green, T>C; pink, T>G). Ring with short green lines, insertions; ring with short red lines, deletions.
+                                                Major copy number allele ring (green, gain), minor copy number allele ring (red, loss).
+                                                Structural rearrangements shown as central lines (green, tandem duplications; red, deletions;
+                                                blue, inversions; grey, inter-chromosomal events). Top right, 96-trinculeotide substitution profile.
+                                                Middle right, small insertion and deletion sub-types. Bottom right, structural rearrangement sub-types.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ` : null,
                             }
                         },
                         {

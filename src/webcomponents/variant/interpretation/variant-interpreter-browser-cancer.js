@@ -114,7 +114,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             return;
         }
         // merge filters
-        this._config = this.getDefaultConfig();
+        this._config = {...this.getDefaultConfig()};
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {

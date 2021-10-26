@@ -292,6 +292,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.signature = e.detail.signature;
     }
 
+    onChangeCircosPlot(e) {
+        this.circosPlot = e.detail.circosPlot;
+    }
+
     onSave(e) {
         const variantStats = {
             id: this.save.id,
@@ -312,6 +316,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.sample.qualityControl.variant.variantStats.push(variantStats);
         } else {
             this.sample.qualityControl.variant.variantStats = [variantStats];
+        }
+
+        if (this.sample.qualityControl.variant.signatures) {
+            this.sample.qualityControl.variant.signatures.push({id: this.save.id, ...this.signature});
+        } else {
+            this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
+        }
+
+        if (this.sample.qualityControl.variant.genomePlots) {
+            this.sample.qualityControl.variant.genomePlots.push({id: this.save.id, file: this.circosPlot});
+        } else {
+            this.sample.qualityControl.variant.genomePlots = [{id: this.save.id, file: this.circosPlot}];
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
@@ -462,38 +478,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 ],
                 sections: [ // sections and subsections, structure and order is respected
                     {
-                        title: "Genomic Filters",
-                        collapsed: false,
-                        filters: [
-                            // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filter",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            // },
-                            {
-                                id: "region",
-                                title: "Genomic Location",
-                                tooltip: tooltips.region
-                            },
-                            {
-                                id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
-                            },
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: SAMPLE_STATS_BIOTYPES,
-                                tooltip: tooltips.biotype
-                            },
-                            {
-                                id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
-                    {
                         title: "SNV Filters",
                         filters: [
                             {
@@ -594,7 +578,39 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 }
                             }
                         ]
-                    }
+                    },
+                    {
+                        title: "Genomic Filters",
+                        collapsed: false,
+                        filters: [
+                            // {
+                            //     id: "file-quality",
+                            //     title: "Quality Filter",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            // },
+                            {
+                                id: "region",
+                                title: "Genomic Location",
+                                tooltip: tooltips.region
+                            },
+                            {
+                                id: "feature",
+                                title: "Feature IDs (gene, SNPs, ...)",
+                                tooltip: tooltips.feature
+                            },
+                            {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: SAMPLE_STATS_BIOTYPES,
+                                tooltip: tooltips.biotype
+                            },
+                            {
+                                id: "consequence-type",
+                                title: "Select SO terms",
+                                tooltip: tooltips.consequenceTypeSelect
+                            }
+                        ]
+                    },
                 ],
                 examples: [
                     {
@@ -689,6 +705,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                             .queries="${this.queries}"
                                             .sampleId="${this.sample?.id}"
                                             @changeSignature="${this.onChangeSignature}"
+                                            @changeCircosPlot="${this.onChangeCircosPlot}"
                                             @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                                         </sample-cancer-variant-stats-plots>
                                     </div>` :
