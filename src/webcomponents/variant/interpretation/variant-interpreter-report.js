@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 import "../../file/file-preview.js";
@@ -143,7 +144,12 @@ class VariantInterpreterReport extends LitElement {
                     "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
                     "with an interpretation of this report.",
                 ].join(" "),
-
+                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
+                    return item.status.toUpperCase() === "REPORTED";
+                }),
+                analyst: this.clinicalAnalysis.analyst.name,
+                signedBy: "",
+                discussion: "",
             };
 
             const filesQuery = {
@@ -516,7 +522,7 @@ class VariantInterpreterReport extends LitElement {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-<!--                                            <image-viewer .data="${qcPlots.genomePlots?.[0].file}"></image-viewer>-->
+                                            <!-- <image-viewer .data="${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
                                             <img class="img-responsive" src="${qcPlots.genomePlots?.[0].file}"/>
                                         </div>
                                         <div class="col-md-5">
@@ -553,7 +559,130 @@ class VariantInterpreterReport extends LitElement {
                     id: "results",
                     title: "2. Results",
                     elements: [
+                        {
+                            name: "Driver mutations",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:20px;",
+                            },
+                        },
+                        {
+                            name: "Germline substitutions and indels",
+                            type: "table",
+                            field: "primaryFindings",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Gene",
+                                        type: "custom",
+                                        display: {
+                                            render: row => UtilsNew.renderHTML(VariantGridFormatter.geneFormatter(row, null, null, this.opencgaSession)),
+                                        },
+                                    },
+                                    {name: "Chr", field: "chromosome"},
+                                    {name: "Position", field: "start"},
+                                    {name: "Ref", field: "annotation.reference"},
+                                    {name: "Alt", field: "annotation.alternate"},
+                                    {name: "CDS", field: "cds", defaultValue: "-"},
+                                    {name: "Protein", field: "protein", defaultValue: "-"},
+                                    {name: "Type", field: "type"},
+                                    {name: "Effect", field: "annotation.displayConsequenceType"},
+                                    {name: "LOH", field: "loh", defaultValue: "-"},
+                                ],
+                                transform: variants => {
+                                    return variants.filter(v => ["SNV", "MNV", "INDEL"].indexOf(v.type) > -1);
+                                },
+                            },
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
+                            name: "Germline structural rearrangement drivers",
+                            type: "table",
+                            field: "primaryFindings",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Gene",
+                                        type: "custom",
+                                        display: {
+                                            render: row => UtilsNew.renderHTML(VariantGridFormatter.geneFormatter(row, null, null, this.opencgaSession)),
+                                        },
+                                    },
+                                    {name: "Chr", field: "chromosome"},
+                                    {name: "Position", field: "start"},
+                                    {name: "Ref", field: "annotation.reference"},
+                                    {name: "Alt", field: "annotation.alternate"},
+                                    {name: "CDS", field: "cds", defaultValue: "-"},
+                                    {name: "Protein", field: "protein", defaultValue: "-"},
+                                    {name: "Type", field: "type"},
+                                    {name: "Effect", field: "annotation.displayConsequenceType"},
+                                    {name: "LOH", field: "loh", defaultValue: "-"},
+                                ],
+                                transform: variants => {
+                                    return variants.filter(v => ["SNV", "MNV", "INDEL"].indexOf(v.type) > -1);
+                                },
+                            },
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
+                            name: "Somatic mutations",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:20px;",
+                            },
+                        },
+                        {
+                            name: "High-confidence (category 1) driver events in this tumour include:",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            name: "Substitutions and indels",
+                            type: "title",
+                            defaultValue: "No variants found in this category",
 
+                        },
+                        {
+                            name: "Structural rearrangements",
+                            type: "title",
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
+                            name: "Copy number",
+                            type: "title",
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
+                            name: "Variants of interest with lower confidence as drivers (category 2) in this tumour include:",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            name: "Substitutions and indels",
+                            type: "title",
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
+                            name: "Structural rearrangements",
+                            type: "title",
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
+                            name: "",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div class="help-block">
+                                        Variant Allele Fraction (VAF). Loss of Heterozygosity (LOH) (Chr, start position of segment, 
+                                        stop position of segment, total copy number, minor copy number).
+                                    </div>
+                                `,
+                            },
+                        },
                     ]
                 },
                 {
@@ -567,7 +696,33 @@ class VariantInterpreterReport extends LitElement {
                     id: "final-summary",
                     title: "4. Final Summary",
                     elements: [
-
+                        {
+                            name: "Discussion",
+                            type: "input-text",
+                            field: "discussion",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            name: "Analysed by",
+                            field: "analyst",
+                        },
+                        {
+                            name: "Signed off by",
+                            type: "input-text",
+                            field: "signedBy",
+                            defaultValue: "",
+                        },
+                        {
+                            name: "Date",
+                            type: "input-date",
+                            field: "date",
+                            display: {
+                                disabled: false,
+                            },
+                        },
                     ]
                 }
             ]
