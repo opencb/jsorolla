@@ -859,15 +859,15 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(array)) {
             return html`<span class="${errorClasses}">Field '${element.field}' is not an array</span>`;
         }
+        if (typeof element.display?.transform === "function") {
+            array = element.display.transform(array);
+        }
         if (!array.length) {
             // return this.getDefaultValue(element);
             return html`<span>${this._getDefaultValue(element)}</span>`;
         }
         if (!element.display && !element.display.columns) {
             return html`<span class="${errorClasses}">Type 'table' requires a 'columns' array</span>`;
-        }
-        if (typeof element.display?.transform === "function") {
-            array = element.display.transform(array);
         }
 
         return html`
