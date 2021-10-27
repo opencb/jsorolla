@@ -18,7 +18,7 @@
 export default class CatalogGridFormatter {
 
     static phenotypesFormatter(value, row) {
-        if (value && value.length === 0) {
+        if (!value || !value?.length) {
             return "-";
         }
         const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
