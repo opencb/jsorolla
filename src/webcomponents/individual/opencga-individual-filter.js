@@ -21,7 +21,7 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
-import "../commons/filters/phenotype-id-autocomplete.js";
+import "../commons/filters/phenotype-name-autocomplete.js";
 import "../commons/filters/ethnicity-autocomplete.js";
 import "../commons/forms/date-filter.js";
 
@@ -167,8 +167,8 @@ export default class OpencgaIndividualFilter extends LitElement {
                 break;
             case "phenotypes":
                 content = html`
-                    <phenotype-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                               @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-id-autocomplete>`;
+                    <phenotype-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                               @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-name-autocomplete>`;
                 break;
             case "ethnicity":
                 content = html`
