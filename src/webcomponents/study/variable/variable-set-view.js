@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
+import "../../loading-spinner.js";
+import "./variable-list-update.js";
 
 export default class VariableSetView extends LitElement {
 
@@ -50,6 +51,7 @@ export default class VariableSetView extends LitElement {
 
     _init() {
         this.variableSet = {};
+        this.isLoading = false;
     }
 
     connectedCallback() {
@@ -69,10 +71,12 @@ export default class VariableSetView extends LitElement {
 
     variableSetIdObserver() {
         if (this.variableSetId && this.opencgaSession) {
+            this.isLoading = true;
             let error;
             this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, {id: this.variableSetId})
                 .then(response => {
                     this.variableSet = response.responses[0].results[0];
+                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.variableSet = {};
@@ -169,17 +173,17 @@ export default class VariableSetView extends LitElement {
                             name: "Variables",
                             field: "variables",
                             type: "custom",
+                            defaultValue: "N/A",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <variable-list-manager
-                                        .opencgaSession=${this.opencgaSession}
+                                    <variable-list-update
                                         .variables=${this.variableSet?.variables}
                                         .readOnly=${true}>
-                                    </variable-list-manager>
+                                    </variable-list-update>
                                 `
                             }
                         }
@@ -190,9 +194,9 @@ export default class VariableSetView extends LitElement {
     }
 
     render() {
-        if (!this.variableSet) {
+        if (this.isLoading) {
             return html`
-                <h2>VariableSet not found</h2>
+                <loading-spinner></loading-spinner>
             `;
         }
 

@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variable-manager.js";
@@ -32,6 +32,9 @@ export default class VariableListUpdate extends LitElement {
             variables: {
                 type: Array
             },
+            readOnly: {
+                type: Boolean
+            }
         };
     }
 
@@ -254,11 +257,11 @@ export default class VariableListUpdate extends LitElement {
                             </div>
                             <div class="col-md-4">
                                 <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
-                                    <button type="button" class="btn btn-primary btn-xs"
+                                    <button type="button" class="btn btn-primary btn-xs ${this.readOnly?"hidden":""}"
                                         @click="${e => this.onShowVariableManager(e, {parent: parentVariableId(variable), action: "ADD", variable: variable})}">Add</button>
-                                    <button type="button" class="btn btn-primary btn-xs"
+                                    <button type="button" class="btn btn-primary btn-xs ${this.readOnly?"hidden":""}"
                                         @click="${e => this.onShowVariableManager(e, {parent: parentVariableId(variable), action: "EDIT", variable: variable})}">Edit</button>
-                                    <button type="button" class="btn btn-danger btn-xs"
+                                    <button type="button" class="btn btn-danger btn-xs ${this.readOnly?"hidden":""}"
                                         @click="${e => this.onRemoveVariable(e, parentVariableId(variable))}">Delete</button>
                                 </div>
                             </div>
@@ -275,9 +278,9 @@ export default class VariableListUpdate extends LitElement {
                             </div>
                             <div class="col-md-4" >
                                 <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
-                                    <button type="button" class="btn btn-primary btn-xs"
+                                    <button type="button" class="btn btn-primary btn-xs ${this.readOnly?"hidden":""}"
                                         @click="${e => this.onShowVariableManager(e, {parent: parentVariableId(variable), action: "EDIT", variable: variable})}">Edit</button>
-                                    <button type="button" class="btn btn-danger btn-xs"
+                                    <button type="button" class="btn btn-danger btn-xs ${this.readOnly?"hidden":""}"
                                         @click="${e => this.onRemoveVariable(e, parentVariableId(variable))}">Delete</button>
                                 </div>
                             </div>
@@ -340,9 +343,12 @@ export default class VariableListUpdate extends LitElement {
                 <ul id="myUL">
                     ${this.renderVariables(this.variables)}
                 </ul>
-                <button type="button" class="btn btn-primary btn-sm"
-                @click="${e => this.onShowVariableManager(e, {parent: "", action: "ADD"})}">
-                Add Variable</button>
+                ${!this.readOnly ? html `
+                    <button type="button" class="btn btn-primary btn-sm"
+                        @click="${e => this.onShowVariableManager(e, {parent: "", action: "ADD"})}">
+                        Add Variable
+                    </button>` : nothing}
+
             </div>
         </div>
         <div id="variableManagerModal" class="modal fade" tabindex="-1" role="dialog">

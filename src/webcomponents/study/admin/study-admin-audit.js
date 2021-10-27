@@ -72,13 +72,6 @@ export default class StudyAdminAudit extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
-    // firstUpdated(changedProperties) {
-    //     if (changedProperties.has("study")) {
-    //         this.studyObserver();
-    //     }
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("studyId")) {
             for (const project of this.opencgaSession.projects) {
@@ -94,11 +87,9 @@ export default class StudyAdminAudit extends LitElement {
         if (changedProperties.has("study")) {
             this.studyObserver();
         }
-
         if (changedProperties.has("query")) {
             this.propertyObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -134,14 +125,6 @@ export default class StudyAdminAudit extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.study) {
-            // const filters = {...this.query};
-            // // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
-            // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-            //     JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-            //     // Abort destroying and creating again the grid. The filters have not changed
-            //     return;
-            // }
-
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -280,7 +263,7 @@ export default class StudyAdminAudit extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: true,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
+            detailFormatter: this.detailFormatter,
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,

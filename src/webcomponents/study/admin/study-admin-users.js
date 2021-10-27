@@ -20,9 +20,7 @@ import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../NotificationUtils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-
 import "../../commons/forms/text-field-filter.js";
-
 
 export default class StudyAdminUsers extends LitElement {
 
@@ -184,7 +182,9 @@ export default class StudyAdminUsers extends LitElement {
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
             NotificationUtils.showNotify(messageAlert, "SUCCESS");
-            this.notifyStudyUpdateRequest();
+
+            // this.notifyStudyUpdateRequest();
+            LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
         } catch (err) {
             console.error("Message error: ", err);
@@ -441,9 +441,8 @@ export default class StudyAdminUsers extends LitElement {
             .then(res => {
                 this.addGroupId = "";
                 this.requestUpdate();
-
-                this.notifyStudyUpdateRequest();
-
+                // this.notifyStudyUpdateRequest();
+                LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
                 Swal.fire(
                     "Group Add",
                     "Group created correctly.",
@@ -499,11 +498,11 @@ export default class StudyAdminUsers extends LitElement {
         // this.showMessage("Message", messageAlert, "info");
         NotificationUtils.showNotify(messageAlert, "INFO");
 
-        this.notifyStudyUpdateRequest();
+        // this.notifyStudyUpdateRequest();
+        LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
         this.requestUpdate();
     }
 
-    // TODO move to a Utils
     notifyStudyUpdateRequest() {
         this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
             detail: {
@@ -583,7 +582,7 @@ export default class StudyAdminUsers extends LitElement {
                         </ul>
                     </div>
 
-                    <!-- REMOVE USER -->
+                    <!-- REMOVE USER (DEPRECATED)-->
                     <!-- <div class="btn-group">
                         <button type="button" id="${this._prefix}RemoveUserMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false" title="Remove user from ${this.study?.name} study">
