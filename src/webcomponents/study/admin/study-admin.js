@@ -31,8 +31,6 @@ export default class StudyAdmin extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -63,7 +61,6 @@ export default class StudyAdmin extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -334,7 +331,6 @@ export default class StudyAdmin extends LitElement {
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-cog"></i></span>
                                     </a>
                                 </li>
-
                                 <li>
                                     <p class="navbar-text">Data Management</p>
                                 </li>

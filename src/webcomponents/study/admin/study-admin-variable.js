@@ -20,7 +20,6 @@ import DetailTabs from "../../commons/view/detail-tabs.js";
 import "../permission/permission-browser-grid.js";
 import "../variable/variable-set-create.js";
 import "../variable/variable-set-view.js";
-import "../variable/variable-set-update.js";
 
 export default class StudyAdminVariable extends LitElement {
 
@@ -104,7 +103,7 @@ export default class StudyAdminVariable extends LitElement {
 
     onVariableSearch(e) {
         if (e.detail.status?.error) {
-            // inform
+            console.error(this, "Error Message:", e.detail.status.error);
         } else {
             this.variableSet = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
