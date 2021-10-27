@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/individual-id-autocomplete.js";
 
 export default class IndividualView extends LitElement {
 
@@ -48,6 +49,7 @@ export default class IndividualView extends LitElement {
 
     _init() {
         this.individual = {};
+        this.isLoading = false;
     }
 
     connectedCallback() {
@@ -57,6 +59,7 @@ export default class IndividualView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("individualId")) {
+            this.isLoading = true;
             this.individualIdObserver();
         }
         if (changedProperties.has("config")) {
@@ -74,6 +77,7 @@ export default class IndividualView extends LitElement {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
+                    this.isLoading = false;
                 })
                 .catch(function (reason) {
                     this.individual = {};
@@ -135,8 +139,9 @@ export default class IndividualView extends LitElement {
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            addButton: false,
-                                            multiple: false
+                                            select2Config: {
+                                                multiple: false
+                                            }
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </individual-id-autocomplete>`
@@ -300,9 +305,9 @@ export default class IndividualView extends LitElement {
     }
 
     render() {
-        if (!this.individual && this.individualId) {
+        if (this.isLoading) {
             return html`
-                <h2>Individual not found</h2>
+                <h2>Loading Info...</h2>
             `;
         }
 

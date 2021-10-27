@@ -173,8 +173,6 @@ export default class SampleUpdate extends LitElement {
             .then(res => {
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
                 FormUtils.showAlert("Edit Sample", "Sample updated correctly", "success");
             })
             .catch(err => {
@@ -384,10 +382,9 @@ export default class SampleUpdate extends LitElement {
                         }
                     ]
                 },
-                {
+                {title: "Phenotypes",
                     elements: [
                         {
-                            name: "Phenotypes",
                             field: "phenotype",
                             type: "custom",
                             display: {

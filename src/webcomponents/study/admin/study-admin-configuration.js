@@ -15,11 +15,11 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import DetailTabs from "../commons/view/detail-tabs.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "./configuration/study-variant-config.js";
-import "./configuration/study-clinical-config.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import DetailTabs from "../../commons/view/detail-tabs.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "../configuration/study-variant-config.js";
+import "../configuration/study-clinical-config.js";
 
 export default class StudyAdminConfiguration extends LitElement {
 

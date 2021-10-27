@@ -49,6 +49,7 @@ export default class OpencgaCohortView extends LitElement {
 
     _init() {
         this.cohort = {};
+        this.isLoading = false;
     }
 
     connectedCallback() {
@@ -68,10 +69,12 @@ export default class OpencgaCohortView extends LitElement {
 
     cohortIdObserver() {
         if (this.cohortId && this.opencgaSession) {
+            this.isLoading = true;
             let error;
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
                 .then(res => {
                     this.cohort = res.responses[0].results[0];
+                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.cohort = {};
@@ -171,7 +174,7 @@ export default class OpencgaCohortView extends LitElement {
     }
 
     render() {
-        if (!this.cohort && this.cohortId) {
+        if (this.isLoading) {
             return html`
                 <h2>Loading info... </h2>
             `;

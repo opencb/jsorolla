@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
-import DetailTabs from "../commons/view/detail-tabs.js";
-import UtilsNew from "./../../core/utilsNew.js";
-import "./../family/family-create.js";
-import "./../family/family-update.js";
-import "./../family/family-view.js";
+import {LitElement, html} from "lit";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import DetailTabs from "../../commons/view/detail-tabs.js";
+import "../permission/permission-browser-grid.js";
+import "../variable/variable-set-create.js";
+import "../variable/variable-set-view.js";
+import "../variable/variable-set-update.js";
 
-
-export default class StudyAdminFamily extends LitElement {
+export default class StudyAdminVariable extends LitElement {
 
     constructor() {
         super();
@@ -51,14 +51,15 @@ export default class StudyAdminFamily extends LitElement {
     }
 
     _init() {
-        this.editFamily = false;
-        this.familyId = "";
-        this.family = {};
+        this.editVariableSet = false;
+        this.variableSetId = "";
+        this.variableSet = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     update(changedProperties) {
@@ -66,51 +67,46 @@ export default class StudyAdminFamily extends LitElement {
     }
 
     editForm(e) {
-        this.editFamily = !this.editFamily;
+        this.editVariableSet = !this.editVariableSet;
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
-    clearForm(e) {
-        this.editFamily = false;
-        this.fetchFamilyId("");
+    clearForm() {
+        this.editVariableSet = false;
+        this.variableSet = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
-    changeFamilyId(e) {
-        this.fetchFamilyId(e.detail.value);
+    changeVariableSetId(e) {
+        this.fetchVariableSetId(e.detail.value);
     }
 
-    fetchFamilyId(familyId) {
+    fetchVariableSetId(variableSetId) {
         if (this.opencgaSession) {
-            if (familyId) {
-                const query = {
-                    study: this.opencgaSession.study.fqn
-                };
-                this.opencgaSession.opencgaClient.families().info(familyId, query)
+            if (variableSetId) {
+                this.opencgaSession.opencgaClient.studies().variableSet(this.opencgaSession.study.fqn, {id: variableSetId})
                     .then(response => {
-                        this.family = response.responses[0].results[0];
+                        this.variableSet = response.responses[0].results[0];
                     })
                     .catch(reason => {
-                        this.family = {};
+                        this.variableSet = {};
                         console.error(reason);
                     })
                     .finally(() => {
                         this._config = {...this.getDefaultConfig(), ...this.config};
                         this.requestUpdate();
                     });
-            } else {
-                this.family = {};
-                this._config = {...this.getDefaultConfig(), ...this.config};
-                this.requestUpdate();
             }
         }
     }
 
-    onFamilySearch(e) {
-        if (e.detail.status.error) {
+    onVariableSearch(e) {
+        if (e.detail.status?.error) {
             // inform
         } else {
-            this.family = e.detail.value;
+            this.variableSet = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
@@ -120,8 +116,9 @@ export default class StudyAdminFamily extends LitElement {
         return {
             items: [
                 {
-                    id: "view-family",
-                    name: "View Family",
+                    id: "view-variable",
+                    name: "View Variable",
+                    icon: "fa fa-table icon-padding",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
@@ -131,35 +128,28 @@ export default class StudyAdminFamily extends LitElement {
                                         <span style="padding-right:5px">
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
-                                        ${UtilsNew.isNotEmpty(this.family)?html`<span style="padding-left:5px">
-                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>`: nothing}
                                     </div>
-                                    ${this.editFamily ? html`
-                                        <family-update
-                                            .family="${this.family}"
-                                            .opencgaSession="${opencgaSession}">
-                                        </family-update>
-                                    ` : html`
-                                        <family-view
-                                            .family="${this.family}"
-                                            .opencgaSession="${opencgaSession}"
-                                            @familySearch="${e => this.onFamilySearch(e)}">
-                                        </family-view>`}
+                                    <variable-set-view
+                                        .variableSet="${this.variableSet}"
+                                        .opencgaSession="${opencgaSession}"
+                                        @variableSetSearch="${e => this.onVariableSearch(e)}">
+                                    </variable-set-view>
                                 </div>
                             </div>`;
                     }
                 },
                 {
-                    id: "create-family",
-                    name: "Create Family",
+                    id: "create-variable",
+                    name: "Create Variable",
+                    icon: "fas fa-clipboard-list",
+                    active: false,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <family-create
-                                        .opencgaSession="${opencgaSession}">
-                                    </family-create>
+                                    <variable-set-create
+                                            .opencgaSession="${opencgaSession}">
+                                    </variable-set-create>
                                 </div>
                             </div>`;
                     }
@@ -169,17 +159,26 @@ export default class StudyAdminFamily extends LitElement {
     }
 
     render() {
+
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+            return html`
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No permission to view this page</h3>
+            </div>`;
+        }
+
         return html`
-            <div style="margin: 25px 40px">
+            <div style="margin: 20px">
                 <detail-tabs
-                        .config="${this._config}"
-                        .mode="${DetailTabs.PILLS_MODE}"
-                        .opencgaSession="${this.opencgaSession}">
+                    .config="${this._config}"
+                    .mode=${DetailTabs.PILLS_MODE}
+                    .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
             </div>
-        `;
+            `;
     }
 
 }
 
-customElements.define("study-admin-family", StudyAdminFamily);
+customElements.define("study-admin-variable", StudyAdminVariable);

@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
-import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "./permission/permission-browser-grid.js";
-
+import UtilsNew from "../../../core/utilsNew.js";
+import GridCommons from "../../commons/grid-commons.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "../permission/permission-browser-grid.js";
+import {construction} from "../../commons/under-construction.js";
 
 export default class StudyAdminPermissions extends LitElement {
 
@@ -116,7 +116,8 @@ export default class StudyAdminPermissions extends LitElement {
                     active: false,
                     render: () => {
                         return html`
-                            <h1>Permission rules Component</h1>`;
+                            ${construction}
+                        `;
                     }
                 }
             ]
