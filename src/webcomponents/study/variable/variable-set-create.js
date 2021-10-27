@@ -119,7 +119,7 @@ export default class VariableSetCreate extends LitElement {
                 show: true,
                 top: true,
                 classes: "pull-right",
-                cancelText: "Cancel",
+                cancelText: "Clear",
                 okText: "Save"
             },
             display: {
