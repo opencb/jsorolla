@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 
 
-export default class PhenotypeIdAutocomplete extends LitElement {
+export default class PhenotypeNameAutocomplete extends LitElement {
 
     constructor() {
         super();
@@ -47,6 +47,13 @@ export default class PhenotypeIdAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    endpoint(resource) {
+        return {
+            INDIVIDUAL: this.opencgaSession.opencgaClient.individuals(),
+            SAMPLE: this.opencgaSession.opencgaClient.samples(),
+        }[resource];
+    }
+
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -58,6 +65,7 @@ export default class PhenotypeIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            resource: "INDIVIDUAL",
             limit: 10,
             /* fields: item => ({
                 name: item
@@ -80,7 +88,7 @@ export default class PhenotypeIdAutocomplete extends LitElement {
                     ...phenotypes
                 };
                 try {
-                    const restResponse = await this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.name", filters);
+                    const restResponse = await this.endpoint(this._config.resource).distinct("phenotypes.name", filters);
                     success(restResponse);
                 } catch (e) {
                     failure(e);
@@ -102,4 +110,4 @@ export default class PhenotypeIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("phenotype-id-autocomplete", PhenotypeIdAutocomplete);
+customElements.define("phenotype-name-autocomplete", PhenotypeNameAutocomplete);

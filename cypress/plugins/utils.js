@@ -56,7 +56,8 @@ export const goTo = toolId => {
             cy.get("#waffle-icon").click();
             cy.get(`#side-nav > nav > ul > li > a[data-id='${toolId}']`).click();
         } else {
-            cy.get("#waffle-icon").should("not.exist");
+            cy.get("#waffle-icon", {timeout: 5000}).should("not.exist");
+            cy.get(".navbar-header .app-logo").click();
         }
     });
 };
@@ -268,6 +269,7 @@ export const annotationFilterCheck = gridSelector => {
  */
 export const selectToken = (filterSelector, value, tags) => {
     cy.get(filterSelector + " textarea").first().type(value, {force: true});
+    // cy.get(filterSelector + " textarea").first().invoke("val", value);
     cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
     cy.get("span.select2-dropdown ul li").first().should("be.visible").and("not.contain", "Searching");
     cy.get(filterSelector + " textarea").first().focus().type(`${tags ? "{downarrow}" : ""}{enter}`).blur({force: true});

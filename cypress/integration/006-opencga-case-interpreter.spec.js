@@ -38,8 +38,8 @@ context("6 - Case Interpreter", () => {
         checkResults("opencga-clinical-analysis-grid");
 
         // reading from the first row the case Id, the proband Id, and the Family Id and use them as filters
-        cy.get("opencga-clinical-analysis-grid table", {timeout: 60000})
-            .find("tr[data-index=0]", {timeout: 60000})
+        cy.get("opencga-clinical-analysis-grid table", {timeout: TIMEOUT})
+            .find("tr[data-index=0]", {timeout: TIMEOUT})
             .then($tr => {
                 const $caseId = Cypress.$("td:nth-child(1) a[data-cy='case-id']", $tr);
                 const caseId = $caseId.text().trim();
@@ -80,7 +80,7 @@ context("6 - Case Interpreter", () => {
                     cy.get("variant-interpreter-qc .nav-tabs a[data-id=SampleVariantStats]").click();
                     cy.get("variant-interpreter-qc .content-tab-wrapper .content-tab.active .page-title h2").contains(`Sample Variant Stats - ${caseId} (${probandSampleId})`);
                     // checks there are 9 charts
-                    cy.get("sample-variant-stats-view simple-chart").should("be.visible").and("have.length", 9);
+                    cy.get("sample-variant-stats-view simple-chart").should("be.visible", {timeout: 120000}).and("have.length", 9);
 
                     // select PASS filter
                     cy.get("variant-browser-filter file-quality-filter input[data-cy='filter-pass']").click();
@@ -90,7 +90,7 @@ context("6 - Case Interpreter", () => {
                     cy.wait(1000);
                     cy.get("sample-variant-stats-browser loading-spinner", {timeout: 120000}).should("not.exist");
                     // checks there are 9 charts after the search
-                    cy.get("sample-variant-stats-view simple-chart").should("be.visible").and("have.length", 9);
+                    cy.get("sample-variant-stats-view simple-chart").should("be.visible", {timeout: 120000}).and("have.length", 9);
 
                     /**
                      * Sample Variant Browser test

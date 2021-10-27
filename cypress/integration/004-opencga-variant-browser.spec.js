@@ -320,10 +320,10 @@ context("4. Variant Browser", () => {
         cy.get("cellbase-population-frequency-grid")
             .then($div => {
                 // check CB data are available
-                if (Cypress.$("cellbase-population-frequency-table", $div).length) {
+                if (Cypress.$("div[data-cy='cellbase-population-frequency-table']", $div).length) {
                     checkResultsOrNot("cellbase-population-frequency-grid");
                 } else {
-                    cy.get("cellbase-population-frequency-grid").contains("No population frequencies found");
+                    cy.get("cellbase-population-frequency-grid .alert-info").contains("No population frequencies found");
                 }
             });
 
