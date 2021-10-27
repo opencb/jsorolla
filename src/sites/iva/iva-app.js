@@ -1115,7 +1115,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["rga"] ? html`
                     <div class="content" id="rga">
-                        <rga-browser  .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" ></rga-browser>
+                        <rga-browser  .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" .settings="${RGA_BROWSER_SETTINGS}" ></rga-browser>
                     </div>
                 ` : null}
 

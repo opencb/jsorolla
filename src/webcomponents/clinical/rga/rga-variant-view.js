@@ -101,6 +101,10 @@ export default class RgaVariantView extends LitElement {
                     field: "type"
                 },
                 {
+                    title: "Allele count",
+                    field: "allelePairs"
+                },
+                {
                     title: "Consequence type",
                     field: "sequenceOntologyTerms"
                 },
@@ -129,7 +133,10 @@ export default class RgaVariantView extends LitElement {
                     title: "CH - Possible",
                     field: "individualStats.missingParents.numCompHet"
                 }
-            ]
+            ],
+            showColumns: true,
+            showExport: false,
+            showDownload: true
         };
     }
 
@@ -145,7 +152,6 @@ export default class RgaVariantView extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-
         // prevent the render of the table in case neither geneName or individual are in query
         if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
             return;
@@ -192,7 +198,7 @@ export default class RgaVariantView extends LitElement {
     }
 
     _initTableColumns() {
-        return [
+        this._columns = [
             [
                 {
                     title: "Variant",
@@ -307,6 +313,9 @@ export default class RgaVariantView extends LitElement {
                 };
             })*/]
         ];
+
+        return this._columns;
+
     }
 
     // TODO move this into utils class
@@ -569,9 +578,9 @@ export default class RgaVariantView extends LitElement {
                                 _.genes ? _.genes.join(",") : "",
                                 _.dbSnp,
                                 _.type,
-                                _.alleleCount ? _.alleleCount.length : "",
+                                _.allelePairs ? _.allelePairs.length : "",
                                 _.sequenceOntologyTerms?.length ? _.sequenceOntologyTerms.map(ct => `${ct.name} (${ct.accession})`) : "",
-                                _.clinicalSignificance ? _.clinicalSignificance?.join(",") : "-",
+                                _.clinicalSignificances ? _.clinicalSignificances?.join(",") : "-",
                                 _.individualStats?.numHomAlt,
                                 _.individualStats?.bothParents?.numCompHet,
                                 _.individualStats?.singleParent?.numCompHet,
