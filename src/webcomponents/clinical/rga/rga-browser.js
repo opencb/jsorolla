@@ -24,6 +24,8 @@ import "./rga-gene-view.js";
 import "./rga-filter.js";
 import "./rga-individual-view.js";
 import "./rga-variant-view.js";
+import "../../commons/opencb-grid-toolbar.js";
+
 
 export default class RgaBrowser extends LitElement {
 
@@ -50,6 +52,9 @@ export default class RgaBrowser extends LitElement {
                 type: Object
             },
             config: {
+                type: Object
+            },
+            settings: {
                 type: Object
             }
         };
@@ -90,6 +95,9 @@ export default class RgaBrowser extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -97,6 +105,20 @@ export default class RgaBrowser extends LitElement {
             this.queryObserver();
         }
         super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        if (!this.opencgaSession) {
+            return;
+        }
+        // merge filters
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // TODO only filter configuration is supported at the moment (no columns nor details)
+        // filter list, canned filters
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -333,29 +355,7 @@ export default class RgaBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "BRCA2 missense variants",
-                        active: false,
-                        query: {
-                            geneName: "BRCA2",
-                            ct: "missense_variant"
-                        }
-                    }
-                ],
-                result: {
-                    grid: {}
-                },
-                detail: {
-                    title: "Selected Variant",
-                    views: [
-                        {
-                            id: "annotationSummary",
-                            title: "Summary",
-                            active: true
-                        }
-                    ]
-                }
+                examples: []
             }
         };
     }
@@ -445,11 +445,19 @@ export default class RgaBrowser extends LitElement {
 
                         <div class="main-view">
                             <div id="gene-tab" class="content-tab">
-                                <rga-gene-view .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-view>
+                                <rga-gene-view .query=${this.executedQuery}
+                                               .config=${this._config}
+                                               .opencgaSession="${this.opencgaSession}"
+                                               .active="${this.activeTab["gene-tab"]}">
+                                </rga-gene-view>
                             </div>
 
                             <div id="individual-tab" class="content-tab">
-                                <rga-individual-view .query=${this.executedQuery} .config=${this._config} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-view>
+                                <rga-individual-view .query=${this.executedQuery}
+                                                     .config=${this._config}
+                                                     .opencgaSession="${this.opencgaSession}"
+                                                     .active="${this.activeTab["individual-tab"]}">
+                                </rga-individual-view>
                             </div>
 
                             <div id="variant-tab" class="content-tab active">
