@@ -223,7 +223,10 @@ export default class OpencgaVariantSamples extends LitElement {
                     // Fetch clinical analysis to display the Case ID
                     const caseResponse = await this.opencgaSession.opencgaClient.clinical().search(
                         {
-                            individual: sampleChunk.map(sample => sample.individualId).join(","),
+                            individual: sampleChunk
+                                .map(sample => sample.individualId)
+                                .filter(id => id && id.length > 0)
+                                .join(","),
                             limit: batch,
                             study: this.opencgaSession.study.fqn,
                             include: "id,proband.id,family.members"
