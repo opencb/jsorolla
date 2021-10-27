@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/individual-id-autocomplete.js";
+import "../loading-spinner.js";
 
 export default class IndividualView extends LitElement {
 
@@ -307,7 +308,7 @@ export default class IndividualView extends LitElement {
     render() {
         if (this.isLoading) {
             return html`
-                <h2>Loading Info...</h2>
+                <loading-spinner></loading-spinner>
             `;
         }
 

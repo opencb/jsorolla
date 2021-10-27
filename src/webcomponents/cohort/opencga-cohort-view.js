@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
+import "../loading-spinner.js";
 
 
 export default class OpencgaCohortView extends LitElement {
@@ -176,7 +177,7 @@ export default class OpencgaCohortView extends LitElement {
     render() {
         if (this.isLoading) {
             return html`
-                <h2>Loading info... </h2>
+                <loading-spinner></loading-spinner>
             `;
         }
 
