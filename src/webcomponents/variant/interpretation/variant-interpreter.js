@@ -108,7 +108,7 @@ class VariantInterpreter extends LitElement {
             // this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
-            this.clinicalAnalysisIdObserver();
+            // this.clinicalAnalysisIdObserver();
         }
     }
 
