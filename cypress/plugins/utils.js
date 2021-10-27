@@ -268,9 +268,15 @@ export const annotationFilterCheck = gridSelector => {
  * @param {Boolean} tags Indicates whether the autocomplete is in "freeTag" mode: if so (select2 tags=true), we need to explicitly press {downarrow} to select the right entry.
  */
 export const selectToken = (filterSelector, value, tags) => {
-    cy.get(filterSelector + " textarea").first().type(value, {force: true});
-    // cy.get(filterSelector + " textarea").first().invoke("val", value);
+    // cy.get(filterSelector + " textarea").first().type(value, {force: true});
+
+    // the combination of invoke("val") and left arrow avoids flooding the server with 1 request for each character,
+    // also it seems more stable selecting cy.get("span.select2-dropdown ul li") because the dropdown is not re-rendered multiple time
+    // e.g. Timed out retrying after 4000ms: cy.should() failed because this element is detached from the DOM. on cy.get("span.select2-dropdown ul li", {timeout: 5000}).first().should("be.visible").
+    cy.get(filterSelector + " textarea").first().invoke("val", value);
+    cy.get(filterSelector + " textarea").first().type("{leftarrow}", {force: true});
+
     cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
-    cy.get("span.select2-dropdown ul li").first().should("be.visible").and("not.contain", "Searching");
+    cy.get("span.select2-dropdown ul li", {timeout: 5000}).first().should("be.visible").and("not.contain", "Searching");
     cy.get(filterSelector + " textarea").first().focus().type(`${tags ? "{downarrow}" : ""}{enter}`).blur({force: true});
 };
