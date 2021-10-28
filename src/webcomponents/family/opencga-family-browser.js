@@ -46,7 +46,9 @@ export default class OpencgaFamilyBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },*/
-            settings: {}
+            settings: {
+                type: Object
+            }
         };
     }
 
@@ -91,7 +93,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
@@ -115,7 +116,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar"
-                }/*
+                }
+                /*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
@@ -230,7 +232,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     {
                         name: "Family Attributes",
                         fields: [
-
                             {
                                 id: "studyId",
                                 name: "Study id",
