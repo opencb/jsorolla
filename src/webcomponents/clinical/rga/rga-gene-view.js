@@ -450,7 +450,7 @@ export default class RgaGeneView extends LitElement {
                  @download="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" data-cy="gene-view-grid">
                 <table id="${this._prefix}RgaGeneBrowserGrid"></table>
             </div>
 

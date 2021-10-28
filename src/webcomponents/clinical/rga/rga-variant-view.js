@@ -692,7 +692,7 @@ export default class RgaVariantView extends LitElement {
                                      @download="${this.onDownload}">
                 </opencb-grid-toolbar>
 
-                <div class="row">
+                <div id="${this._prefix}GridTableDiv" class="row" data-cy="variant-view-grid">
                     <table id="${this.gridId}"></table>
                 </div>
                 ${this.variant ? html`
