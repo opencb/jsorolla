@@ -78,7 +78,6 @@ context("9 - Family Browser", () => {
     });
 
     it("9.2 - aggregated query", () => {
-        cy.get("a[data-id=family]").click({force: true});
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser");
 
@@ -89,6 +88,7 @@ context("9 - Family Browser", () => {
                 // in case there are actually results, run the aggregated tests
                 cy.get("a[href='#facet_tab']").click({force: true});
 
+                cy.wait(500); // TODO recheck. this avoids a strange selection in 'Select a Term or Range Facet' dropdown: ", , ,"
                 Facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "phenotypes", "expectedSize", "numMembers[0..20]:2"
 
                 Facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
@@ -102,15 +102,8 @@ context("9 - Family Browser", () => {
                 cy.get("div.search-button-wrapper button").click();
                 Facet.checkResultLength(5);
 
-                cy.get("[data-id='status'] ul.dropdown-menu a").contains("READY").click({force: true}); // status=READY
-                Facet.checkActiveFacet("status", "status[READY]");
-
-                Facet.select("Status"); // removing status
-                Facet.select("Expected Size"); // removing status
-
-                Facet.checkActiveFacetLength(3);
-                cy.get("div.search-button-wrapper button").click();
-                Facet.checkResultLength(3);
+                Facet.removeActive("status"); // removing status
+                Facet.checkResultLength(4);
 
             }
         });

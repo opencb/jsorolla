@@ -67,12 +67,6 @@ context("8 - Individual Browser", () => {
         cy.get("a[data-id=individual]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
 
-        cy.get("button.default-facets-button").click();
-        cy.get("div.search-button-wrapper button").click();
-        cy.get(".facet-wrapper .button-list button").should("have.length", 8);
-        cy.get("opencb-facet-results opencga-facet-result-view", {timeout: TIMEOUT}).should("have.length", 8);
-
-
         Facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"
         // cy.get("button.default-facets-button").click(); // "creationYear>>creationMonth", "status", "phenotypes", "somatic"
 
