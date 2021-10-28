@@ -81,7 +81,6 @@ export default class IndividualCreate extends LitElement {
                 delete this.individual[field];
             }
         }
-        // this.requestUpdate();
     }
 
     onClear(e) {
@@ -149,7 +148,7 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 help: {
-                                    text: "short individual id for..."
+                                    text: "short individual id"
                                 }
                             }
                         },
@@ -158,7 +157,7 @@ export default class IndividualCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "individual name "
                             }
                         },
                         {
@@ -166,7 +165,7 @@ export default class IndividualCreate extends LitElement {
                             field: "father",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "individual father id"
                             }
                         },
                         {
@@ -174,7 +173,7 @@ export default class IndividualCreate extends LitElement {
                             field: "mother",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "individual mother id"
                             }
                         },
                         {

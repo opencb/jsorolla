@@ -87,7 +87,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add short id"
                             }
                         },
                         {
@@ -95,7 +95,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add a name"
                             }
                         },
                         {
@@ -103,7 +103,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "source",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add a source"
                             }
                         },
                         {
@@ -111,7 +111,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "ageOfOnset",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add an age of on set"
                             }
                         },
                         {
@@ -142,7 +142,6 @@ export default class PhenotypeManager extends LitElement {
 
     render() {
         return html`
-        <div class="subform-test">
             <data-form
                 .data=${this.phenotype}
                 .config="${this._config}"
@@ -150,7 +149,6 @@ export default class PhenotypeManager extends LitElement {
                 @clear="${this.onClearForm}"
                 @submit="${e => this.onSendPhenotype(e)}">
             </data-form>
-        </div>
     `;
     }
 
