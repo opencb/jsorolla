@@ -82,7 +82,7 @@ import "../../webcomponents/file/opencga-file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
-import "../../webcomponents/study/study-admin.js";
+import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/Notification.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -1115,7 +1115,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["rga"] ? html`
                     <div class="content" id="rga">
-                        <rga-browser  .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" ></rga-browser>
+                        <rga-browser  .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" .settings="${RGA_BROWSER_SETTINGS}" ></rga-browser>
                     </div>
                 ` : null}
 

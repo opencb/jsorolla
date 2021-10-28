@@ -103,13 +103,13 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-                if (this._individual[e.detail.param] !== e.detail.value &&
-                    e.detail.value !== null) {
-                    this.individual[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
+                [this.individual, this.updateParams] = FormUtils.updateScalar(
+                    this.individual,
+                    this._individual,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
                 break;
             case "location.address":
             case "location.postalCode":
@@ -121,7 +121,7 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
-                FormUtils.updateObject(
+                [this.individual, this.updateParams] = FormUtils.updateObject(
                     this.individual,
                     this._individual,
                     this.updateParams,
@@ -129,6 +129,7 @@ export default class IndividualUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
+        this.requestUpdate();
     }
 
     onClear() {
@@ -136,8 +137,8 @@ export default class IndividualUpdate extends LitElement {
     }
 
     onSubmit() {
-        this.opencgaSession.opencgaClient
-            .individuals().update(
+        this.opencgaSession.opencgaClient.individuals()
+            .update(
                 this.individual.id,
                 this.updateParams,
                 {study: this.opencgaSession.study.fqn}
@@ -348,6 +349,7 @@ export default class IndividualUpdate extends LitElement {
             <data-form
                 .data=${this.individual}
                 .config="${this._config}"
+                .updateParams=${this.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">

@@ -74,11 +74,11 @@ export default class SampleCreate extends LitElement {
                 case "id":
                 case "description":
                 case "somatic":
-                    this.sample[field] = e.detail.value;
-                    break;
                 case "individualId":
+                    // this.sample[field] = e.detail.value;
+                    // this.refreshForm();
+                    // break;
                     this.sample[field] = e.detail.value;
-                    this.refreshForm();
                     break;
                 case "status.name":
                 case "status.description":
@@ -139,6 +139,7 @@ export default class SampleCreate extends LitElement {
         //     .samples()
         //     .create(this.sample, {study: this.opencgaSession.study.fqn})
         //     .then(res => {
+        //         dispatchEvent(this.sample)
         //         this.sample = {};
         //         this.requestUpdate();
         //         // this.dispatchSessionUpdateRequest();

@@ -42,9 +42,9 @@ export default class SampleUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            // config: {
+            //     type: Object
+            // }
         };
     }
 
@@ -91,9 +91,7 @@ export default class SampleUpdate extends LitElement {
             };
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
-                    // No need to call to this.sampleObserver()
                     this.sample = response.responses[0].results[0];
-                    this.requestUpdate();
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -118,13 +116,12 @@ export default class SampleUpdate extends LitElement {
             case "description":
             case "individualId":
             case "somatic":
-                if (this._sample[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.sample[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    // this.sample[e.detail.param] = this._sample[e.detail.param];
-                    delete this.updateParams[e.detail.param];
-                }
+                [this.sample, this.updateParams] = FormUtils.updateScalar(
+                    this.sample,
+                    this._sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
             case "status.name":
             case "status.description":
@@ -139,7 +136,7 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                FormUtils.updateObject(
+                [this.sample, this.updateParams] = FormUtils.updateObject(
                     this.sample,
                     this._sample,
                     this.updateParams,
@@ -147,6 +144,7 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
+        this.requestUpdate();
     }
 
     onRemovePhenotype(e) {
@@ -173,12 +171,12 @@ export default class SampleUpdate extends LitElement {
             .then(res => {
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
-                FormUtils.showAlert("Edit Sample", "Sample updated correctly", "success");
+                FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
+                // dispatch
             })
             .catch(err => {
                 console.error(err);
+                FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
     }
 
@@ -220,14 +218,13 @@ export default class SampleUpdate extends LitElement {
                 okText: "Update"
             },
             display: {
-                // width: "8",
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block" // icon
+                    mode: "block"
                 }
             },
             sections: [
@@ -242,7 +239,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short Sample id"
+                                    text: "short sample id"
                                 }
                             }
                         },
@@ -254,7 +251,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short Sample id for thehis as;lsal"
+                                    text: "search individual to select"
                                 }
                             }
                         },
@@ -264,13 +261,7 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample name..."
-                                // render: (sample) => html`
-                                //     <sample-id-autocomplete
-                                //             .value="${sample?.individualId}"
-                                //             .opencgaSession="${this.opencgaSession}"
-                                //             @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
-                                //     </sample-id-autocomplete>`
+                                placeholder: "write a description..."
                             }
                         },
                         {
@@ -283,7 +274,7 @@ export default class SampleUpdate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                placeholder: "Sample description..."
+                                placeholder: "write a status name."
                             }
                         },
                         {
@@ -292,25 +283,25 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description..."
+                                placeholder: "write a description for the status..."
                             }
                         },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
-                            }
-                        },
-                        {
-                            name: "Modification Date",
-                            field: "modificationDate",
-                            type: "custom",
-                            display: {
-                                render: modificationDate => html`${UtilsNew.dateFormatter(modificationDate)}`
-                            }
-                        }
+                        // {
+                        //     name: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                        //     }
+                        // },
+                        // {
+                        //     name: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: modificationDate => html`${UtilsNew.dateFormatter(modificationDate)}`
+                        //     }
+                        // }
                     ]
                 },
                 {
@@ -319,27 +310,42 @@ export default class SampleUpdate extends LitElement {
                         {
                             name: "Product",
                             field: "processing.product",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a product"
+                            }
                         },
                         {
                             name: "Preparation Method",
                             field: "processing.preparationMethod",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a preparation method"
+                            }
                         },
                         {
                             name: "Extraction Method",
                             field: "processing.extrationMethod",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a extration method"
+                            }
                         },
                         {
                             name: "Lab Sample ID",
                             field: "processing.labSambpleId",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add the lab sample id"
+                            }
                         },
                         {
                             name: "Quantity",
                             field: "processing.quantity",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a quantity"
+                            }
                         },
                         {
                             name: "Date",
@@ -357,22 +363,34 @@ export default class SampleUpdate extends LitElement {
                         {
                             name: "Tissue",
                             field: "collection.tissue",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a tissue"
+                            }
                         },
                         {
                             name: "Organ",
                             field: "collection.organ",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a organ"
+                            }
                         },
                         {
                             name: "Quantity",
                             field: "collection.quantity",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a quantity"
+                            }
                         },
                         {
                             name: "Method",
                             field: "collection.method",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a method"
+                            }
                         },
                         {
                             name: "Date",
@@ -384,10 +402,9 @@ export default class SampleUpdate extends LitElement {
                         }
                     ]
                 },
-                {
+                {title: "Phenotypes",
                     elements: [
                         {
-                            name: "Phenotypes",
                             field: "phenotype",
                             type: "custom",
                             display: {
@@ -433,6 +450,7 @@ export default class SampleUpdate extends LitElement {
             <data-form
                 .data=${this.sample}
                 .config="${this._config}"
+                .updateParams=${this.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">

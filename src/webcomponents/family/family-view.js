@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
+import "../loading-spinner.js";
 
 
 export default class FamilyView extends LitElement {
@@ -54,6 +55,7 @@ export default class FamilyView extends LitElement {
 
     _init() {
         this.family = {};
+        this.isLoading = false;
     }
 
     connectedCallback() {
@@ -89,12 +91,14 @@ export default class FamilyView extends LitElement {
 
     familyIdObserver() {
         if (this.familyId && this.opencgaSession) {
+            this.isLoading = true;
             const query = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
             this.opencgaSession.opencgaClient.families().info(this.familyId, query)
                 .then(response => {
+                    this.isLoading = false;
                     this.family = response.getResult(0);
                 })
                 .catch(function (reason) {
@@ -181,8 +185,9 @@ export default class FamilyView extends LitElement {
                                         .value="${this.family?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            addButton: false,
-                                            multiple: false
+                                            select2Config: {
+                                                multiple: false
+                                            }
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </family-id-autocomplete>`
@@ -325,11 +330,17 @@ export default class FamilyView extends LitElement {
 
     render() {
 
-        if (!this.family && this.familyId) {
+        // if (!this.family && this.familyId) {
+        //     return html`
+        //         <div class="alert alert-info">
+        //             <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.
+        //         </div>
+        //     `;
+        // }
+
+        if (this.isLoading) {
             return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.
-                </div>
+                <loading-spinner></loading-spinner>
             `;
         }
 

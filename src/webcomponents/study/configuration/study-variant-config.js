@@ -481,7 +481,7 @@ export default class StudyVariantConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: annotationIndexConfiguration => {
-                                    const itemKeys = Object.keys(annotationIndexConfiguration)
+                                    const itemKeys = Object?.keys(annotationIndexConfiguration)
                                         .filter(key => annotationIndexConfiguration[key] instanceof Object);
                                     return html`
                                         <config-list-update

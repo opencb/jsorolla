@@ -15,18 +15,16 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import DetailTabs from "../commons/view/detail-tabs.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "./configuration/study-variant-config.js";
-import "./configuration/study-clinical-config.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import DetailTabs from "../../commons/view/detail-tabs.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "../configuration/study-variant-config.js";
+import "../configuration/study-clinical-config.js";
 
 export default class StudyAdminConfiguration extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -58,14 +56,6 @@ export default class StudyAdminConfiguration extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    update(changedProperties) {
-
-        // if (changedProperties.has("study")) {
-        // }
-
-        super.update(changedProperties);
-    }
-
     getDefaultConfig() {
         return {
             items: [
@@ -86,7 +76,6 @@ export default class StudyAdminConfiguration extends LitElement {
                     id: "variants",
                     name: "Variants",
                     icon: "fas fa-dna",
-                    // active: false,
                     render: () => {
                         return html`
                             <study-variant-config

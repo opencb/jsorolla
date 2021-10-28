@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
-import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "./permission/permission-browser-grid.js";
-
+import UtilsNew from "../../../core/utilsNew.js";
+import GridCommons from "../../commons/grid-commons.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "../permission/permission-browser-grid.js";
+import {construction} from "../../commons/under-construction.js";
 
 export default class StudyAdminPermissions extends LitElement {
 
@@ -58,39 +58,7 @@ export default class StudyAdminPermissions extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        // console.log("Rendering permission table connectedCallback:", document.querySelector(`#${this.gridId}`))
     }
-
-    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
-    // Note: Other solution just if the firstUpdated not work, updateComplete ()
-    // This is executed when all updates are finished including the render function that contains the rendered table
-    // More info about updateComplete: https://lit-element.polymer-project.org/guide/lifecycle#updatecomplete
-    //
-    // firstUpdated(changedProperties) {
-    //     if (changedProperties.has("study")) {
-    //         this.studyObserver();
-    //     }
-    //     // console.log("Rendering permission table firstUpdated:", document.querySelector(`#${this.gridId}`))
-    // }
-
-    // update(changedProperties) {
-    //     if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
-    //         for (const project of this.opencgaSession.projects) {
-    //             for (const study of project.studies) {
-    //                 if (study.id === this.studyId || study.fqn === this.studyId) {
-    //                     this.study = {...study};
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     if (changedProperties.has("study")) {
-    //         this.studyObserver();
-    //     }
-
-    //     super.update(changedProperties);
-    // }
 
     getDefaultConfig() {
         return {
@@ -116,7 +84,8 @@ export default class StudyAdminPermissions extends LitElement {
                     active: false,
                     render: () => {
                         return html`
-                            <h1>Permission rules Component</h1>`;
+                            ${construction}
+                        `;
                     }
                 }
             ]

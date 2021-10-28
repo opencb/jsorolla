@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
+import {has} from "lodash";
+
 export default class FormUtils {
 
+    static updateScalar(original, _original, updateParams, param, value) {
+        if (_original?.[param] !== value && value !== null) {
+            original[param] = value;
+            updateParams[param] = value;
+        } else {
+            delete updateParams[param];
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return [original, {...updateParams}];
+    }
 
     static updateObject(original, _original, updateParams, param, value) {
         const [field, prop] = param.split(".");
@@ -31,8 +44,12 @@ export default class FormUtils {
                 [prop]: value
             };
         } else {
+            // original[field][prop] = _original[field][prop];
             delete updateParams[field][prop];
         }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return [original, {...updateParams}];
     }
 
     // This function implements a general method for object array updates in forms.
@@ -40,40 +57,35 @@ export default class FormUtils {
     static updateObjectArray(original, _original, updateParams, param, values) {
         const [field, prop] = param.split(".");
 
-        if (!_original?.[field]) {
-            _original = {
-                [field]: []
-            };
-        }
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams,
+        };
 
-        if (!updateParams?.[field]) {
-            updateParams[field] = [];
-        }
+        const valuesSplit = values?.split(",") || [];
+        original[field] = valuesSplit.map(value => ({[prop]: value}));
+        _updateParams[field] = valuesSplit.map(value => ({[prop]: value}));
 
-        const valuesSplit = values.split(",");
-        for (const value of valuesSplit) {
-            const index = _original[field].findIndex(item => item[prop] === value);
-            if (index === -1 && value !== null) {
-                original[field].push(
-                    {
-                        [prop]: value
-                    }
-                );
-                for (const item of original[field]) {
-                    updateParams[field].push(
-                        {
-                            [prop]: item[prop]
-                        }
-                    );
+        let hasChanged = false;
+        if (original[field]?.length === _original[field]?.length) {
+            for (const v of original[field]) {
+                const index = _original[field].findIndex(vv => vv[prop] === v[prop]);
+                if (index === -1) {
+                    hasChanged = true;
+                    break;
                 }
-            } else {
-                updateParams[field].splice(index, 1);
             }
+        } else {
+            hasChanged = true;
         }
 
-        if (updateParams[field]?.length === 0) {
-            delete updateParams[field];
+        // Delete updateParams field if nothing has changed
+        if (!hasChanged) {
+            delete _updateParams[field];
         }
+
+        return [original, _updateParams];
     }
 
     static createObject(object, params, value, includeField=false) {

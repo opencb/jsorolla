@@ -182,31 +182,26 @@ class ClinicalAnalysisEditor extends LitElement {
             case "locked":
             case "panelLock":
             case "description":
-                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    this.clinicalAnalysis[e.detail.param] = this._clinicalAnalysis[e.detail.param].id;
-                    delete this.updateParams[e.detail.param];
-                }
+                [this.clinicalAnalysis, this.updateParams] = FormUtils.updateScalar(
+                    this.clinicalAnalysis,
+                    this._clinicalAnalysis,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
             case "status.id":
             case "priority.id":
             case "analyst.id":
-                const field = e.detail.param.split(".")[0];
-                if (this._clinicalAnalysis[field]?.id !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis[field].id = e.detail.value;
-                    this.updateParams[field] = {
-                        id: e.detail.value
-                    };
-                } else {
-                    this.clinicalAnalysis[field].id = this._clinicalAnalysis[field].id;
-                    delete this.updateParams[field];
-                }
+                [this.clinicalAnalysis, this.updateParams] = FormUtils.updateObject(
+                    this.sample,
+                    this._sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
             case "panels.id":
             case "flags.id":
-                FormUtils.updateObjectArray(
+                [this.clinicalAnalysis, this.updateParams] = FormUtils.updateObjectArray(
                     this.clinicalAnalysis,
                     this._clinicalAnalysis,
                     this.updateParams,
@@ -214,7 +209,6 @@ class ClinicalAnalysisEditor extends LitElement {
                     e.detail.value);
                 break;
         }
-        this._config = {...this.getDefaultConfig()};
         this.requestUpdate();
     }
 
@@ -336,7 +330,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             // defaultValue: false,
                             display: {
                                 width: "9",
-                                updated: this.updateParams.locked ?? false
+                                // updated: this.updateParams.locked ?? false
                                 // onText: "YES",
                                 // activeClass: "btn-danger"
                             }
@@ -347,7 +341,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 width: "9",
-                                updated: this.updateParams.status ?? false,
+                                // updated: this.updateParams.status ?? false,
                                 render: status => this.renderStatus(status)
                             }
                         },
@@ -359,7 +353,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             defaultValue: "MEDIUM",
                             display: {
                                 width: "9",
-                                updated: this.updateParams.priority ?? false
+                                // updated: this.updateParams.priority ?? false
                             }
                         },
                         {
@@ -370,7 +364,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             allowedValues: () => this._users,
                             display: {
                                 width: "9",
-                                updated: this.updateParams.analyst ?? false
+                                // updated: this.updateParams.analyst ?? false
                             }
                         },
                         {
@@ -394,7 +388,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: panels => this.renderPanels(panels),
-                                updated: this.updateParams.panels ?? false
+                                // updated: this.updateParams.panels ?? false
                             }
                         },
                         {
@@ -403,7 +397,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "toggle-switch",
                             display: {
                                 width: "9",
-                                updated: this.updateParams.panelLock ?? false
+                                // updated: this.updateParams.panelLock ?? false
                             }
                         },
                         {
@@ -412,7 +406,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: flags => this.renderFlags(flags),
-                                updated: this.updateParams.flags ?? false
+                                // updated: this.updateParams.flags ?? false
                             }
                         },
                         {
@@ -422,7 +416,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 3,
-                                updated: this.updateParams.description ?? false
+                                // updated: this.updateParams.description ?? false
                             }
                         },
                         {
@@ -529,6 +523,7 @@ class ClinicalAnalysisEditor extends LitElement {
         return html`
             <data-form  .data="${this.clinicalAnalysis}"
                         .config="${this._config}"
+                        .updateParams="${this.updateParams}"
                         @fieldChange="${e => this.onFieldChange(e)}"
                         @clear="${this.onClear}"
                         @submit="${this.onRun}">
