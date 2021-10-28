@@ -45,6 +45,9 @@ export default class DataForm extends LitElement {
             data: {
                 type: Object
             },
+            updateParams: {
+                type: Object
+            },
             mode: {
                 type: String
             },
@@ -213,7 +216,6 @@ export default class DataForm extends LitElement {
     }
 
     _getHelpIcon(element, section) {
-
         if (element.display?.help.icon) {
             return element.display.help.icon;
         } else {
@@ -226,6 +228,15 @@ export default class DataForm extends LitElement {
                     return "fas fa-info-circle";
                 }
             }
+        }
+    }
+
+    _isUpdated(element) {
+        if (this.updateParams) {
+            return this.updateParams[element.field] ?? false;
+        } else {
+            // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
+            return element.display?.updated;
         }
     }
 
@@ -537,7 +548,7 @@ export default class DataForm extends LitElement {
             <div class=${isValid? "" : "has-error"}>
                 <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled}
                                    ?required=${element.required} .value="${value}"
-                                   .classes="${element.display?.updated ? "updated" : ""}"
+                                   .classes="${this._isUpdated(element) ? "updated" : ""}"
                                    @blurChange="${e => this.onBlurChange(element.field, e.detail.value)}"
                                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
@@ -564,7 +575,7 @@ export default class DataForm extends LitElement {
                     .max=${max}
                     .step="${step}"
                     .placeholder="${element.display?.placeholder || ""}"
-                    .classes="${element.display?.updated ? "updated" : ""}"
+                    .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </number-field-filter>
             </div>
@@ -631,7 +642,7 @@ export default class DataForm extends LitElement {
             <div class="">
                 <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}"
                                .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
-                               .classes="${element.display?.updated ? "updated" : ""}"
+                               .classes="${this._isUpdated(element) ? "updated" : ""}"
                                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
             </div>
@@ -646,7 +657,7 @@ export default class DataForm extends LitElement {
             <div class="">
                 <toggle-buttons .names="${names}" .value="${value}"
                                 .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
-                                .classes="${element.display?.updated ? "updated" : ""}"
+                                .classes="${this._isUpdated(element) ? "updated" : ""}"
                                 @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-buttons>
             </div>
@@ -763,7 +774,7 @@ export default class DataForm extends LitElement {
                 <div class="">
                     <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled}
                                          ?required=${element.required} .value="${defaultValue}"
-                                         .classes="${element.display?.updated ? "updated" : ""}"
+                                         .classes="${this._isUpdated(element) ? "updated" : ""}"
                                          @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>

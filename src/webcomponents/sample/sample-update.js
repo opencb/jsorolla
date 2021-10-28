@@ -42,9 +42,9 @@ export default class SampleUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            // config: {
+            //     type: Object
+            // }
         };
     }
 
@@ -91,9 +91,7 @@ export default class SampleUpdate extends LitElement {
             };
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
-                    // No need to call to this.sampleObserver()
                     this.sample = response.responses[0].results[0];
-                    this.requestUpdate();
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -118,13 +116,12 @@ export default class SampleUpdate extends LitElement {
             case "description":
             case "individualId":
             case "somatic":
-                if (this._sample[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.sample[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    // this.sample[e.detail.param] = this._sample[e.detail.param];
-                    delete this.updateParams[e.detail.param];
-                }
+                FormUtils.updateScalar(
+                    this.sample,
+                    this._sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
             case "status.name":
             case "status.description":
@@ -147,6 +144,7 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
+        this.requestUpdate();
     }
 
     onRemovePhenotype(e) {
@@ -173,10 +171,12 @@ export default class SampleUpdate extends LitElement {
             .then(res => {
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
-                FormUtils.showAlert("Edit Sample", "Sample updated correctly", "success");
+                FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
+                // dispatch
             })
             .catch(err => {
                 console.error(err);
+                FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
     }
 
@@ -355,7 +355,7 @@ export default class SampleUpdate extends LitElement {
                         {
                             name: "Tissue",
                             field: "collection.tissue",
-                            type: "input-text"
+                            type: "input-text",
                         },
                         {
                             name: "Organ",
