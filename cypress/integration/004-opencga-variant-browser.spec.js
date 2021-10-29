@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken} from "../plugins/utils.js";
+import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 context("4. Variant Browser", () => {
@@ -239,7 +239,7 @@ context("4. Variant Browser", () => {
         // GO
         selectToken("go-accessions-filter", "dopamine", true); // dopamine secrection
         cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
-        cy.get("go-accessions-filter li[title='GO:0014046'] button[title='Remove item']").first().click(); // remove term
+        removeToken("go-accessions-filter", "GO:0014046");
 
         // HPO
         cy.get("[data-cy-section-id=Phenotype]")
@@ -248,7 +248,7 @@ context("4. Variant Browser", () => {
                 if (Cypress.$(".subsection-content[data-cy='hpo']", $div).length) {
                     selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant teratoma
                     cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0012226");
-                    cy.get("hpo-accessions-filter li[title='HP:0012226'] button[title='Remove item']").first().click(); // remove term
+                    removeToken("hpo-accessions-filter", "HP:0012226");
                 }
             });
     });
@@ -332,7 +332,7 @@ context("4. Variant Browser", () => {
         checkResultsOrNot("variant-annotation-clinical-view");
 
         cy.get("variant-browser-detail [data-id='cohortStats']").click();
-        checkResults("variant-cohort-stats-grid");
+        checkResultsOrNot("variant-cohort-stats-grid");
 
         cy.get("variant-browser-detail [data-id='samples']").click();
         checkResults("opencga-variant-samples");

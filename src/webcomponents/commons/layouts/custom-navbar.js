@@ -211,7 +211,6 @@ export default class CustomNavBar extends LitElement {
                         <ul class="nav navbar-nav">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
                             ${this.app?.menu?.filter?.(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
-                                <!-- If there is not submenu we just display a button -->
                                 ${item.submenu && item.submenu.some(sm => UtilsNew.isAppVisible(sm, this.opencgaSession)) ? html`
                                     <!-- If there is a submenu we create a dropdown menu item -->
                                     <li class="dropdown">
@@ -235,8 +234,9 @@ export default class CustomNavBar extends LitElement {
                                         </ul>
                                     </li>
                                 ` : html`
+                                    <!-- If there is not submenu we just display a button -->
                                     <li>
-                                        <a href="#${item.id}" role="button" title="${item.description || ""}" @click="${this.onChangeTool}">${item.name}</a>
+                                        <a href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
                                     </li>`
                                 }`
                             )}
