@@ -116,9 +116,9 @@ export default class SampleUpdate extends LitElement {
             case "description":
             case "individualId":
             case "somatic":
-                [this.sample, this.updateParams] = FormUtils.updateScalar(
-                    this.sample,
+                this.updateParams = FormUtils.updateScalar(
                     this._sample,
+                    this.sample,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
@@ -136,9 +136,9 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                [this.sample, this.updateParams] = FormUtils.updateObject(
-                    this.sample,
+                this.updateParams= FormUtils.updateObject(
                     this._sample,
+                    this.sample,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);

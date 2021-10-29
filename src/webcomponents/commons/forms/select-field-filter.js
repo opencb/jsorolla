@@ -151,7 +151,8 @@ export default class SelectFieldFilter extends LitElement {
         // this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: val ? val : null
+                value: val ? val : null,
+                data: this.data
             },
             // bubbles: true,
             // composed: true

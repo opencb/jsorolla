@@ -116,12 +116,7 @@ export default class CohortUpdate extends LitElement {
                 break;
             case "status.name":
             case "status.description":
-                FormUtils.updateObject(
-                    this.cohort,
-                    this._cohort,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value);
+                FormUtils.updateObject(this._cohort, this.cohort, this.updateParams, e.detail.param, e.detail.value);
                 break;
         }
     }

@@ -72,7 +72,7 @@ export default class StudyAdmin extends LitElement {
     }
 
     studyIdObserver() {
-        for (const project of this.opencgaSession.projects) {
+        for (const project of this.opencgaSession?.projects) {
             for (const study of project.studies) {
                 if (study.id === this.studyId || study.fqn === this.studyId) {
                     this.study = study;

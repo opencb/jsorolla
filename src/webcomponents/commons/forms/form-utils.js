@@ -18,55 +18,78 @@ import {has} from "lodash";
 
 export default class FormUtils {
 
-    static updateScalar(original, _original, updateParams, param, value) {
+    static updateScalar(_original, original, updateParams, param, value) {
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
         if (_original?.[param] !== value && value !== null) {
             original[param] = value;
-            updateParams[param] = value;
+            _updateParams[param] = value;
         } else {
-            delete updateParams[param];
+            delete _updateParams[param];
         }
 
         // We need to create a new 'updateParams' reference to force an update
-        return [original, {...updateParams}];
+        return _updateParams;
     }
 
-    static updateObject(original, _original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-        if (_original?.[field]?.[prop] !== value && value !== null) {
-
-            original[field] = {
-                ...original[field],
-                [prop]: value
-            };
-
-            updateParams[field] = {
-                ...updateParams[field],
-                [prop]: value
-            };
-        } else {
-            // original[field][prop] = _original[field][prop];
-            delete updateParams[field][prop];
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return [original, {...updateParams}];
-    }
-
-    // This function implements a general method for object array updates in forms.
-    // Usage example, updating: panels.id or flags.id
-    static updateObjectArray(original, _original, updateParams, param, values) {
+    static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
         const _updateParams = {
-            ...updateParams,
+            ...updateParams
+        };
+
+        if (_original?.[field]?.[prop] !== value && value !== null) {
+            original[field] = {
+                ...original[field],
+                [prop]: value
+            };
+
+            _updateParams[field] = {
+                [prop]: value
+            };
+        } else {
+            delete _updateParams[field];
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+    // This function implements a general method for object array updates in forms.
+    // Usage example, updating: panels.id or flags.id
+    static updateObjectArray(_original, original, updateParams, param, values, data) {
+        const [field, prop] = param.split(".");
+
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
         };
 
         const valuesSplit = values?.split(",") || [];
-        original[field] = valuesSplit.map(value => ({[prop]: value}));
+
+        // Set array of objects WITH only THE 'prop' field
         _updateParams[field] = valuesSplit.map(value => ({[prop]: value}));
 
+        // If possible we store the complete objects in 'original'
+        if (data) {
+            original[field] = [];
+            for (const value of valuesSplit) {
+                const item = data.find(d => d[prop] === value);
+                original[field].push(item);
+            }
+        } else {
+            original[field] = valuesSplit.map(value => ({[prop]: value}));
+        }
+
+        // Let's find out if the content of the array is different from the '_original' array in the server
         let hasChanged = false;
         if (original[field]?.length === _original[field]?.length) {
             for (const v of original[field]) {
@@ -85,7 +108,7 @@ export default class FormUtils {
             delete _updateParams[field];
         }
 
-        return [original, _updateParams];
+        return _updateParams;
     }
 
     static createObject(object, params, value, includeField=false) {

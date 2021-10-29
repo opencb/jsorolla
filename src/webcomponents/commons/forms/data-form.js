@@ -233,7 +233,8 @@ export default class DataForm extends LitElement {
 
     _isUpdated(element) {
         if (this.updateParams) {
-            return this.updateParams[element.field] ?? false;
+            const field = element.field.split(".")[0];
+            return this.updateParams[field] ?? false;
         } else {
             // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
             return element.display?.updated;
