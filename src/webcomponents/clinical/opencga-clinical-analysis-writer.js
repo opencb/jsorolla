@@ -499,11 +499,11 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                         //                     showToolbar: false
                         //                 };
                         //                 return html`
-                        //                     <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
+                        //                     <individual-grid .opencgaSession="${this.opencgaSession}"
                         //                                              .individuals="${family.members}"
                         //                                              .config="${individualGridConfig}"
                         //                                              @filterChange="${e => this.onFamilyChange(e)}">
-                        //                     </opencga-individual-grid>
+                        //                     </individual-grid>
                         //                 `;
                         //             }
                         //         },

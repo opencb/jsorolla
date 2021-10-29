@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import "./individual-view.js";
 import "./../commons/view/detail-tabs.js";
 
-export default class OpencgaIndividualDetail extends LitElement {
+export default class IndividualDetail extends LitElement {
 
     constructor() {
         super();
@@ -48,7 +47,6 @@ export default class OpencgaIndividualDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "id-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
     }
 
@@ -63,23 +61,18 @@ export default class OpencgaIndividualDetail extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
         }
     }
 
     individualIdObserver() {
-        if (this.opencgaSession) {
-            if (this.individualId) {
-                this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.individual = restResponse.getResult(0);
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                    });
-            } else {
-                this.individual = null;
-            }
+        if (this.opencgaSession && this.individualId) {
+            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this.individual = restResponse.getResult(0);
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
         }
     }
 
@@ -91,9 +84,15 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     render() {
         return this.opencgaSession && this.individual ?
-            html`<detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` : "";
+            html`
+                <detail-tabs
+                    .data="${this.individual}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            ` : "";
     }
 
 }
 
-customElements.define("opencga-individual-detail", OpencgaIndividualDetail);
+customElements.define("individual-detail", IndividualDetail);

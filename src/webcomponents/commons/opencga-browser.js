@@ -29,9 +29,9 @@ import "../file/opencga-file-detail.js";
 import "../sample/opencga-sample-grid.js";
 import "../sample/sample-browser-filter.js";
 import "../sample/opencga-sample-detail.js";
-import "../individual/opencga-individual-grid.js";
+import "../individual/individual-grid.js";
 import "../individual/opencga-individual-filter.js";
-import "../individual/opencga-individual-detail.js";
+import "../individual/individual-detail.js";
 import "../family/opencga-family-grid.js";
 import "../family/opencga-family-filter.js";
 import "../family/opencga-family-detail.js";
@@ -343,20 +343,22 @@ export default class OpencgaBrowser extends LitElement {
             case "INDIVIDUAL":
                 this.endpoint = this.opencgaSession.opencgaClient.individuals();
                 return html`
-                        <div id="table-tab" class="content-tab active">
-                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
-                                                     .config="${this.config.filter.result.grid}"
-                                                     .eventNotifyName="${this.eventNotifyName}"
-                                                     .query="${this.executedQuery}"
-                                                     .active="${true}"
-                                                     @selectrow="${e => this.onClickRow(e, "individual")}">
-                            </opencga-individual-grid>
-                            <opencga-individual-detail  .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this.config.filter.detail}"
-                                                        .individualId="${this.detail.individual?.id}">
-                            </opencga-individual-detail>
-                        </div>
-                        ${facetView}`;
+                    <div id="table-tab" class="content-tab active">
+                        <individual-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.result.grid}"
+                            .eventNotifyName="${this.eventNotifyName}"
+                            .query="${this.executedQuery}"
+                            .active="${true}"
+                            @selectrow="${e => this.onClickRow(e, "individual")}">
+                        </individual-grid>
+                        <individual-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .individualId="${this.detail.individual?.id}">
+                        </individual-detail>
+                    </div>
+                    ${facetView}`;
             case "COHORT":
                 this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                 return html`

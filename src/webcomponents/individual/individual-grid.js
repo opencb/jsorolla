@@ -16,14 +16,12 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 
-
-export default class OpencgaIndividualGrid extends LitElement {
+export default class IndividualGrid extends LitElement {
 
     constructor() {
         super();
@@ -46,17 +44,18 @@ export default class OpencgaIndividualGrid extends LitElement {
             individuals: {
                 type: Array
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "VarIndividualGrid" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this.catalogUiUtils = new CatalogWebUtils();
         this.gridId = this._prefix + "IndividualBrowserGrid";
         this.active = true;
@@ -64,6 +63,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -93,7 +93,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     renderTable() {
         // If this.individuals is provided as property we render the array directly
-        if (this.individuals && this.individuals.length > 0) {
+        if (this.individuals?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -226,10 +226,6 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     renderLocalTable() {
-        // this.from = 1;
-        // this.to = Math.min(this.individuals.length, this._config.pageSize);
-        // this.numTotalResultsText = this.individuals.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -245,16 +241,9 @@ export default class OpencgaIndividualGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
-
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPageChange: (page, size) => {
-            //     const result = this.gridCommons.onPageChange(page, size);
-            //     this.from = result.from || this.from;
-            //     this.to = result.to || this.to;
-            // },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -268,8 +257,8 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     detailFormatter(value, row) {
         let result = `<div class='row' style="padding: 5px 10px 20px 10px">
-                                <div class='col-md-12'>
-                                    <h5 style="font-weight: bold">Samples</h5>
+                        <div class='col-md-12'>
+                            <h5 style="font-weight: bold">Samples</h5>
                 `;
 
         if (UtilsNew.isNotEmptyArray(row.samples)) {
@@ -280,7 +269,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             }
 
             result += `<div style="width: 90%;padding-left: 20px">
-                                <table class="table table-hover table-no-bordered">
+                            <table class="table table-hover table-no-bordered">
                                     <thead>
                                         <tr class="table-header">
                                             ${tableCheckboxHeader}
@@ -346,7 +335,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     fatherFormatter(value, row) {
-        if (row.father && row.father.id) {
+        if (row.father?.id) {
             return row.father.id;
         } else {
             return "-";
@@ -354,8 +343,16 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     motherFormatter(value, row) {
-        if (row.mother && row.mother.id) {
+        if (row.mother?.id) {
             return row.mother.id;
+        } else {
+            return "-";
+        }
+    }
+
+    ethnicityFormatter(value) {
+        if (value) {
+            return value;
         } else {
             return "-";
         }
@@ -369,15 +366,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         }
     }
 
-    customAnnotationFormatter(value, row) {
-        // debugger
-    }
-
     _getDefaultColumns() {
-        // Check column visibility
-        // const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
-        //     UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
-
         let _columns = [
             {
                 id: "id",
@@ -439,18 +428,12 @@ export default class OpencgaIndividualGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
-                id: "lifeStatus",
-                title: "Life Status",
-                field: "lifeStatus",
+                id: "ethnicity",
+                title: "Ethnicity",
+                field: "ethnicity",
+                formatter: this.ethnicityFormatter,
                 halign: this._config.header.horizontalAlign
             },
-            // {
-            //     title: "Custom Annotations",
-            //     field: "customAnnotation",
-            //     formatter: this.customAnnotationFormatter,
-            //     visible: customAnnotationVisible,
-            //     halign: this._config.header.horizontalAlign
-            // },
             {
                 id: "dateOfBirth",
                 title: "Date of Birth",
@@ -550,14 +533,14 @@ export default class OpencgaIndividualGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                          .query="${this.query}"
-                                          .opencgaSession="${this.opencgaSession}"
-                                          @columnChange="${this.onColumnChange}"
-                                          @download="${this.onDownload}"
-                                          @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` :
-                ""
+                    <opencb-grid-toolbar
+                        .config="${this.toolbarConfig}"
+                        .query="${this.query}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}">
+                    </opencb-grid-toolbar>` : null
             }
 
             <div id="${this._prefix}GridTableDiv">
@@ -568,4 +551,4 @@ export default class OpencgaIndividualGrid extends LitElement {
 
 }
 
-customElements.define("opencga-individual-grid", OpencgaIndividualGrid);
+customElements.define("individual-grid", IndividualGrid);
