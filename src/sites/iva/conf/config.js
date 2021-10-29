@@ -41,10 +41,10 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[0].url,
+    host: hosts[1].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[0].id
+        prefix: "iva-" + hosts[1].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -93,12 +93,65 @@ const opencga = {
     // summary: true,
 };
 
-const MENU_SEPARATOR = {
-    separator: true,
-    visibility: "public"
+const CATALOG_NAVBAR_MENU = {
+    id: "catalog",
+    name: "Catalog",
+    visibility: "public",
+    icon: "img/tools/icons/aggregation2.svg",
+    submenu: [
+        {
+            id: "projects",
+            name: "Projects",
+            visibility: "public"
+        },
+        {
+            separator: true
+        },
+        {
+            name: "Browsers",
+            category: true,
+            id: "cat-catalog",
+            visibility: "public"
+        },
+        {
+            id: "file",
+            name: "File Browser",
+            visibility: "public"
+        },
+        {
+            id: "sample",
+            name: "Sample Browser",
+            visibility: "public"
+        },
+        {
+            id: "individual",
+            name: "Individual Browser",
+            visibility: "public"
+        },
+        {
+            id: "family",
+            name: "Family Browser",
+            visibility: "public"
+        },
+        {
+            id: "cohort",
+            name: "Cohort Browser",
+            visibility: "public"
+        },
+        {
+            id: "clinicalAnalysis",
+            name: "Clinical Analysis Browser",
+            visibility: "public"
+        },
+        {
+            id: "job",
+            name: "Job Browser",
+            visibility: "public"
+        }
+    ]
 };
 
-const suite = {
+const SUITE = {
     id: "suite",
     name: "OpenCGA Suite",
     version: "v2.2.0-dev",
@@ -226,11 +279,13 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
+                            separator: true
+                        },
+                        {
+                            id: "cat-analysis",
                             name: "Association Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -241,11 +296,13 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
+                            separator: true
+                        },
+                        {
+                            id: "cat-analysis",
                             name: "Sample Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -263,11 +320,13 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
+                            separator: true
+                        },
+                        {
+                            id: "cat-analysis",
                             name: "Individual Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -294,11 +353,13 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
+                            separator: true
+                        },
+                        {
+                            id: "cat-analysis",
                             name: "Cancer Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -309,11 +370,13 @@ const suite = {
                             icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
+                            separator: true
+                        },
+                        {
+                            id: "cat-analysis",
                             name: "Quality Control",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -337,11 +400,13 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
+                            separator: true
+                        },
+                        {
+                            id: "cat-analysis",
                             name: "Export",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -360,7 +425,9 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "External Tools",
                             category: true,
@@ -392,9 +459,9 @@ const suite = {
                     visibility: "public",
                     submenu: [
                         {
+                            id: "cat-clinical",
                             name: "Clinical Management",
                             category: true,
-                            id: "cat-clinical",
                             visibility: "public"
                         },
                         {
@@ -430,9 +497,9 @@ const suite = {
                     visibility: "none",
                     submenu: [
                         {
+                            id: "cat-alignment",
                             name: "Data Management",
                             category: true,
-                            id: "cat-alignment",
                             visibility: "public"
                         },
                         {
@@ -449,7 +516,9 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             id: "cat-alignment",
                             name: "Summary Stats",
@@ -508,61 +577,7 @@ const suite = {
                         // },
                     ]
                 },
-                {
-                    id: "catalog",
-                    name: "Catalog",
-                    visibility: "public",
-                    icon: "img/tools/icons/aggregation2.svg",
-                    submenu: [
-                        {
-                            id: "projects",
-                            name: "Projects",
-                            visibility: "public"
-                        },
-                        MENU_SEPARATOR,
-                        {
-                            name: "Browsers",
-                            category: true,
-                            id: "cat-catalog",
-                            visibility: "public"
-                        },
-                        {
-                            id: "file",
-                            name: "File Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample",
-                            name: "Sample Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "individual",
-                            name: "Individual Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "family",
-                            name: "Family Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "cohort",
-                            name: "Cohort Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "clinicalAnalysis",
-                            name: "Clinical Analysis Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "job",
-                            name: "Job Browser",
-                            visibility: "public"
-                        }
-                    ]
-                }
+                CATALOG_NAVBAR_MENU
             ],
             fileExplorer: {
                 visibility: "private"
@@ -638,7 +653,8 @@ const suite = {
                             visibility: "public"
                         }
                     ]
-                }
+                },
+                CATALOG_NAVBAR_MENU
                 // {
                 //     separator: true,
                 //     visibility: "public"
@@ -719,7 +735,7 @@ const suite = {
                 visibility: "private"
             },
             jobMonitor: {
-                visibility: "none"
+                visibility: "private"
             },
             search: {
                 placeholder: "Search",
@@ -806,3 +822,4 @@ const suite = {
         }
     ]
 };
+

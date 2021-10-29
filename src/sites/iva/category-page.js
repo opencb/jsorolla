@@ -134,10 +134,10 @@ export default class CategoryPage extends LitElement {
                 margin: -10px;
             }
         </style>
-        <tool-header title="${this.config.name}" icon="${this.config.icon}"></tool-header>
+        <tool-header title="${this.config?.name}" icon="${this.config?.icon}"></tool-header>
 
         <div id="category-page">
-            ${this.config.submenu && this.config.submenu.length ? this.config.submenu.filter(this.isVisible).map((item, i) => item.category ? html`
+            ${this.config?.submenu?.length > 0 ? this.config.submenu.filter(this.isVisible).map((item, i) => item.category ? html`
                 <div class="section-title">${item.name}</div>` :
                     item.separator ? null :
                         html`

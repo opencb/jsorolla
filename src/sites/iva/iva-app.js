@@ -128,7 +128,7 @@ class IvaApp extends LitElement {
      */
     _init() {
         // Create the 'config' , this objects contains all the different configuration
-        const _config = suite;
+        const _config = SUITE;
         _config.opencga = opencga;
         _config.cellbase = cellbase;
         _config.tools = tools;
@@ -1344,14 +1344,14 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["cat-browser"] ? html`
                     <div class="content" id="cat-browser">
-                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu.find(item => item.id === "browser")}">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "browser")}">
                         </category-page>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["cat-analysis"] ? html`
                     <div class="content" id="cat-analysis">
-                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu.find(item => item.id === "analysis")}">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "analysis")}">
                         </category-page>
                     </div>
                 ` : null}
