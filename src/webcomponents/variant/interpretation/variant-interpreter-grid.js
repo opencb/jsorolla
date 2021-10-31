@@ -980,27 +980,6 @@ export default class VariantInterpreterGrid extends LitElement {
             });
     }
 
-    onShare() {
-        const _this = this;
-        $("[data-toggle=popover]").popover({
-            content: function () {
-                const getUrlQueryParams = _this._getUrlQueryParams();
-                const query = ["limit=1000"];
-                for (const key in getUrlQueryParams.queryParams) {
-                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
-                    if (key === "sid" && getUrlQueryParams.queryParams[key] === undefined) {
-                        delete getUrlQueryParams.queryParams["sid"];
-                    } else {
-                        query.push(key + "=" + getUrlQueryParams.queryParams[key]);
-                    }
-                }
-                return getUrlQueryParams.host + "?" + query.join("&");
-            }
-        }).on("show.bs.popover", function () {
-            $(this).data("bs.popover").tip().css("max-width", "none");
-        });
-    }
-
     getDefaultConfig() {
         return {
             pagination: true,
@@ -1124,11 +1103,14 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             </style>
 
-            <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 .rightToolbar="${this.getRightToolbar()}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}"
-                                 @sharelink="${this.onShare}">
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                .query="${this.query}"
+                .opencgaSession="${this.opencgaSession}"
+                .rightToolbar="${this.getRightToolbar()}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}"
+                @export="${this.onDownload}">
             </opencb-grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
@@ -1166,8 +1148,9 @@ export default class VariantInterpreterGrid extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                <variant-interpreter-grid-config .config="${this._config}"
-                                                                 @configChange="${this.onGridConfigChange}">
+                                <variant-interpreter-grid-config
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>
                             </div>
                         </div>
