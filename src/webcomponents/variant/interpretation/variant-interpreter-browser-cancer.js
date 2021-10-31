@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -25,8 +24,6 @@ import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/filters/sample-genotype-filter.js";
-import "../../commons/filters/variant-caller-info-filter.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
 
@@ -388,9 +385,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
+                                visible: () => this.files?.length > 0,
                                 params: {
-                                    // study: this.opencgaSession?.study,
-                                    // callers: this.variantCallers,
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
                                 }

@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -25,7 +24,6 @@ import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
-
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -270,7 +268,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     /*
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
+     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
@@ -335,11 +333,6 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
-        // TODO quick fix to avoid warning message on sample
-        // if (!this.predefinedFilter) {
-        //     this.executedQuery = e.detail.query;
-        //     this.predefinedFilter = e.detail.query;
-        // }
         this.requestUpdate();
     }
 
@@ -350,26 +343,28 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        // this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
-        this.preparedQuery = {...e.detail};
-        // TODO is this really needed? it seems to work without this line.
-        this.executedQuery = {...e.detail};
+        // this.preparedQuery = {...e.detail};
+        // // TODO is this really needed? it seems to work without this line.
+        // this.executedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        // this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
         this.query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
-        this.preparedQuery = {...this.query};
-        this.executedQuery = {...this.query};
+        // this.preparedQuery = {...this.query};
+        // this.executedQuery = {...this.query};
         this.requestUpdate();
     }
 
     getDefaultConfig() {
         // Add case panels to query object
         // TODO should we also check main interpretation panels?
-        const lockedFields = [{id: "sample"}];
+        const lockedFields = [
+            {
+                id: "sample"
+            }
+        ];
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
         }
@@ -435,11 +430,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
+                                visible: () => this.files?.length > 0,
                                 params: {
-                                    // study: this.opencgaSession?.study,
-                                    // callers: this.variantCallers,
                                     files: this.files,
-                                    opencgaSession: this.opencgaSession
+                                    opencgaSession: this.opencgaSession,
                                 }
                             },
                             {
@@ -465,11 +459,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
                             },
-                            // {
-                            //     id: "diseasePanels",
-                            //     title: "Disease Panels",
-                            //     tooltip: tooltips.diseasePanels
-                            // },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
@@ -555,11 +544,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         title: "Phenotype",
                         collapsed: true,
                         filters: [
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accessions",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",

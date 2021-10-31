@@ -233,16 +233,17 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <div class="variant-interpreter-tool">
-                ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
+                ${this.clinicalAnalysis?.id ? html`
                     <tool-header
                         icon="${this._config.icon}"
                         .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                         .rhs="${html`
-                                    <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                                    <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                        <i class="fas fa-times"></i> Close
-                                    </a>
-                                 `}"></tool-header>
+                            <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
+                            <a class="btn btn-default ripple text-black" title="Close Case"
+                               href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                <i class="fas fa-times"></i> Close
+                            </a>`}">
+                    </tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}
@@ -283,59 +284,63 @@ class VariantInterpreter extends LitElement {
                         ${this._config.tools ? html`
                             ${this.activeTab["select"] ? html`
                                 <div id="${this._prefix}select" class="clinical-portal-content">
-                                    <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
-                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                 .config="${this._config}"
-                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                 @selectClinicalAnalysis="${this.onClinicalAnalysis}">
+                                    <variant-interpreter-landing
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                        @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                     </variant-interpreter-landing>
-                                </div>
-                            ` : null}
+                                </div>` : null}
 
                             ${this.activeTab["qc"] ? html`
                                 <div id="${this._prefix}qc" class="clinical-portal-content">
-                                    <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .config="${this._config.tools.find(tool => tool.id === "qc")}"
-                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    <variant-interpreter-qc
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config.tools.find(tool => tool.id === "qc")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
                                 </div>
                             ` : null}
 
                             ${this.activeTab["methods"] ? html`
                                 <div id="${this._prefix}methods" class="clinical-portal-content">
-                                    <variant-interpreter-methods    .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .config="${this._config}">
+                                    <variant-interpreter-methods
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config}">
                                     </variant-interpreter-methods>
                                 </div>
                             ` : null}
 
                             ${this.activeTab["variant-browser"] ? html`
                                 <div id="${this._prefix}variant-browser" class="clinical-portal-content">
-                                    <variant-interpreter-browser    .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .query="${this.interpretationSearchQuery}"
-                                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                                    .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
-                                                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    <variant-interpreter-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .query="${this.interpretationSearchQuery}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser>
                                 </div>
                             ` : null}
 
                             ${this.activeTab["review"] ? html`
                                 <div id="${this._prefix}review" class="clinical-portal-content">
-                                <variant-interpreter-review .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .populationFrequencies="${this._config.populationFrequencies}"
-                                                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                                            .consequenceTypes="${this._config.consequenceTypes}"
-                                                            .config="${this._config}"
-                                                            @gene="${this.geneSelected}"
-                                                            @samplechange="${this.onSampleChange}"
-                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                <variant-interpreter-review
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .populationFrequencies="${this._config.populationFrequencies}"
+                                    .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                    .consequenceTypes="${this._config.consequenceTypes}"
+                                    .config="${this._config}"
+                                    @gene="${this.geneSelected}"
+                                    @samplechange="${this.onSampleChange}"
+                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                  </variant-interpreter-review>
                             </div>
                             ` : null}
