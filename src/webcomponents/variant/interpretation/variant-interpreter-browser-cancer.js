@@ -147,6 +147,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
+
             // Set query object
             if (!this.query?.sample) {
                 this.query = {
@@ -155,7 +156,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 };
             }
 
-            // Add variant stats saved queries to Active Filters menu
+            // Add variant stats saved queries to the Active Filters menu
             if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
                 _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
                 _activeFilterFilters.push(
@@ -170,67 +171,64 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 );
             }
 
-            // Fetch files and set init query
-            // FIXME remove specific code for ASCAT and BRASS!
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, format: "VCF", study: this.opencgaSession.study.fqn})
-                .then(fileResponse => {
-                    this.files = fileResponse.responses[0].results
-                        .filter(file => file.software?.name?.toUpperCase() !== "ASCAT" && file.software?.name?.toUpperCase() !== "BRASS");
+            // Fetch non SV somatic files and set init query
+            if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                // FIXME remove specific code for ASCAT!
+                const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                    .filter(vc => vc.somatic)
+                    .filter(vc => vc.id.toUpperCase() !== "ASCAT")
+                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") || vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
 
-                    // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
-                    if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                        const fileDataFilters = [];
-                        this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
-                            .filter(variantCaller => variantCaller.id.toUpperCase() !== "ASCAT" && variantCaller.id.toUpperCase() !== "BRASS")
-                            .forEach(variantCaller => {
-                                const filters = variantCaller.dataFilters
-                                    .filter(filter => !!filter.defaultValue)
-                                    .map(filter => {
-                                        // Notice that defaultValue includes the comparator, eg. =, >, ...
-                                        return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
-                                    });
+                this.files = this.clinicalAnalysis.files
+                    .filter(file => file.format.toUpperCase() === "VCF")
+                    .filter(file =>
+                        nonSvSomaticVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) >= 0);
 
-                                // Only add this file to the filter if we have at least one default value
-                                if (filters.length > 0) {
-                                    // We need to find the file for that caller
-                                    const fileId = this.files.find(file => file.software.name === variantCaller.id)?.name;
-                                    if (fileId) {
-                                        fileDataFilters.push(fileId + ":" + filters.join(";"));
-                                    }
-                                }
+                const fileDataFilters = [];
+                nonSvSomaticVariantCallers
+                    .forEach(vc => {
+                        const filters = vc.dataFilters
+                            .filter(filter => !!filter.defaultValue)
+                            .map(filter => {
+                                // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
                             });
-                        // this.opencgaSession.study.internal.configuration.variantEngine
-                        // Update query with default 'fileData' parameters
-                        this.query = {
-                            ...this.query,
-                            fileData: fileDataFilters.join(","),
-                        };
 
-                        // Add default initial query the the active filter menu
-                        _activeFilterFilters.unshift({separator: true});
-                        _activeFilterFilters.unshift(
-                            {
-                                id: "Default Initial Query",
-                                active: true,
-                                query: this.query
+                        // Only add this file to the filter if we have at least one default value
+                        if (filters.length > 0) {
+                            // We need to find the file for that caller
+                            const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                            if (fileId) {
+                                fileDataFilters.push(fileId + ":" + filters.join(";"));
                             }
-                        );
+                        }
+                    });
 
-                        // We need to update query
-                        this.queryObserver();
+                // Update query with default 'fileData' parameters
+                this.query = {
+                    ...this.query,
+                    fileData: fileDataFilters.join(","),
+                };
+
+                // Add default initial query the the active filter menu
+                _activeFilterFilters.unshift({separator: true});
+                _activeFilterFilters.unshift(
+                    {
+                        id: "Default Initial Query",
+                        active: true,
+                        query: this.query
                     }
+                );
 
-                    // Set active filters
-                    this.activeFilterFilters = _activeFilterFilters;
+                // We need to update query
+                this.queryObserver();
+            }
 
-                    this.settingsObserver();
-                    isSettingsObserverCalled = true;
-                })
-                .catch(response => {
-                    // We init active filters anyway.
-                    this.activeFilterFilters = _activeFilterFilters;
-                    console.error("An error occurred fetching sample files: ", response);
-                });
+            // Set active filters
+            this.activeFilterFilters = _activeFilterFilters;
+
+            this.settingsObserver();
+            isSettingsObserverCalled = true;
         } else {
             // No somatic sample found, this is weird scenario but can happen if a case is created empty.
             // We init active filters anyway.
@@ -393,7 +391,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             // },
                             {
                                 id: "variant-file-info-filter",
-                                title: "Variant File Caller Filter",
+                                title: "Variant Caller File Filter",
                                 params: {
                                     // study: this.opencgaSession?.study,
                                     // callers: this.variantCallers,
