@@ -87,26 +87,23 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -127,7 +124,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     queryObserver() {
@@ -147,31 +144,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
+            // Init query object if needed
+            if (!this.query) {
+                this.query = {};
+            }
 
-            // Set query object
+            // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
             if (!this.query?.sample) {
-                this.query = {
-                    ...this.query,
-                    sample: this.somaticSample.id + ":0/1,1/1,NA"
-                };
+                this.query.sample = this.somaticSample.id + ":0/1,1/1,NA";
             }
 
-            // Add variant stats saved queries to the Active Filters menu
-            if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
-                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
-                _activeFilterFilters.push(
-                    ...this.somaticSample.qualityControl.variant.variantStats
-                        .map(variantStat => (
-                            {
-                                id: variantStat.id,
-                                active: false,
-                                query: variantStat.query
-                            }
-                        ))
-                );
-            }
-
-            // Fetch non SV somatic files and set init query
+            // 2. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 // FIXME remove specific code for ASCAT!
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
@@ -205,27 +188,40 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     });
 
                 // Update query with default 'fileData' parameters
-                this.query = {
-                    ...this.query,
-                    fileData: fileDataFilters.join(","),
-                };
-
-                // Add default initial query the the active filter menu
-                _activeFilterFilters.unshift({separator: true});
-                _activeFilterFilters.unshift(
-                    {
-                        id: "Default Initial Query",
-                        active: true,
-                        query: this.query
-                    }
-                );
-
-                // We need to update query
-                this.queryObserver();
+                this.query.fileData = fileDataFilters.join(",");
             }
+
+            // Add filter to Active Filters menu
+            // 1. Add variant stats saved queries to the Active Filters menu
+            if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
+                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
+                _activeFilterFilters.push(
+                    ...this.somaticSample.qualityControl.variant.variantStats
+                        .map(variantStat => (
+                            {
+                                id: variantStat.id,
+                                active: false,
+                                query: variantStat.query
+                            }
+                        ))
+                );
+            }
+
+            // 2. Add default initial query the the active filter menu
+            _activeFilterFilters.unshift({separator: true});
+            _activeFilterFilters.unshift(
+                {
+                    id: "Default Initial Query",
+                    active: true,
+                    query: this.query
+                }
+            );
 
             // Set active filters
             this.activeFilterFilters = _activeFilterFilters;
+
+            // We need to update query
+            this.queryObserver();
 
             this.settingsObserver();
             isSettingsObserverCalled = true;
@@ -253,7 +249,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
+                    // this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
