@@ -62,6 +62,33 @@ export default class FormUtils {
         return _updateParams;
     }
 
+    static updateObjectWithProps(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+        if (_original?.[field]?.[prop] !== value && value !== null) {
+            original[field] = {
+                ...original[field],
+                [prop]: value
+            };
+
+            _updateParams[field] = {
+                ..._updateParams[field],
+                [prop]: value
+            };
+        } else {
+            delete _updateParams[field];
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
     // This function implements a general method for object array updates in forms.
     // Usage example, updating: panels.id or flags.id
     static updateObjectArray(_original, original, updateParams, param, values, data) {

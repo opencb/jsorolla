@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import "../study/phenotype/phenotype-list-update.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -42,9 +41,9 @@ export default class SampleUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // config: {
-            //     type: Object
-            // }
+            config: {
+                type: Object
+            }
         };
     }
 
@@ -58,10 +57,9 @@ export default class SampleUpdate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this.updateParams = {};
+        // it's not working well init or update,
+        // it's working well here.. connectedCallback
         this._config = {...this.getDefaultConfig(), ...this.config};
-
     }
 
     update(changedProperties) {
@@ -71,6 +69,12 @@ export default class SampleUpdate extends LitElement {
 
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
+        }
+
+        // it's just work on update or connectedCallback
+        // It's working here, it is not necessary put this on connectecCallback.
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
 
         super.update(changedProperties);
@@ -136,12 +140,13 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                this.updateParams= FormUtils.updateObject(
+                this.updateParams= FormUtils.updateObjectWithProps(
                     this._sample,
                     this.sample,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
+                console.log("updateParams:", this.updateParams);
                 break;
         }
         this.requestUpdate();
@@ -159,11 +164,14 @@ export default class SampleUpdate extends LitElement {
     onAddPhenotype(e) {
         this.sample.phenotypes.push(e.detail.value);
         this.updateParams.phenotypes = this.sample.phenotypes;
-
     }
 
     onClear() {
-        console.log("OnClear sample form");
+        this._config = this.getDefaultConfig();
+
+        this.sample = JSON.parse(JSON.stringify(this._sample));
+        this.updateParams = {};
+        this.sampleId = "";
     }
 
     onSubmit() {
@@ -446,7 +454,7 @@ export default class SampleUpdate extends LitElement {
 
     render() {
         return html`
-            ${this._config.display.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
+            ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
             <data-form
                 .data=${this.sample}
                 .config="${this._config}"
