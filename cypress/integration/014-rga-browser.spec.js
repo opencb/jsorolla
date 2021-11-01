@@ -37,7 +37,7 @@ context("14 - RGA Browser", () => {
         });
     });
 
-    it("14.3 - Variant View", () => {
+    it("14.1 - Variant View", () => {
         if (!ENABLED) {
             cy.log("RGA Variant View Test skipped");
             return;
@@ -60,6 +60,10 @@ context("14 - RGA Browser", () => {
         cy.get("button.active-filter-label").click();
         cy.get("a[data-action='active-filter-clear']").click();
 
+        checkResults("rga-variant-view");
+
+        cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
+        cy.get("div.search-button-wrapper button").click();
         checkResults("rga-variant-view");
 
         // variantId
@@ -122,9 +126,13 @@ context("14 - RGA Browser", () => {
             getResult("rga-variant-individual", 0).then($resultCell => {
                 cy.wrap($resultCell).should("contain", IndividualId);
             });
+
+            cy.get("opencga-active-filters button[data-filter-name='individualId']").click(); // remove individual id
+            cy.get("opencga-active-filters button[data-filter-name='type']").click(); // remove variant type
+
+            checkResults("rga-variant-individual");
         });
     });
-
 
     it("14.2 - Individual View", () => {
         if (!ENABLED) {
@@ -145,6 +153,10 @@ context("14 - RGA Browser", () => {
 
         cy.get("rga-individual-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
         cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+
+        selectToken("feature-filter", "CR1", true);
+        cy.get("div.search-button-wrapper button").click();
+        checkResults("rga-individual-view");
 
         // queries for the first gene and then check if the first result contains the gene.
         let IndividualId;
@@ -172,7 +184,7 @@ context("14 - RGA Browser", () => {
 
     });
 
-    it("14.1 - Gene View", () => {
+    it("14.3 - Gene View", () => {
         if (!ENABLED) {
             cy.log("RGA Gene View Test skipped");
             return;
