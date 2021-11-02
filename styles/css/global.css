@@ -2768,6 +2768,10 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
     color: #fff;
 }
 
+#notifications-queue .alert .close:hover {
+    opacity: .8;
+}
+
 #notifications-queue .alert .fa {
     margin-right: .3em;
 }
