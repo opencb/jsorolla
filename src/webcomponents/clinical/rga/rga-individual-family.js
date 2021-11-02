@@ -93,7 +93,7 @@ export default class RgaIndividualFamily extends LitElement {
                 trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
             } else {
                 // NOTE TODO clinicalAnalysis must be defined
-                new NotificationQueue().push("Clinical Analysis not available", "", "error", true, false);
+                new NotificationQueue().push("Clinical Analysis not available", "", "error");
             }
         } else {
             trio.proband = this.individual;
@@ -113,7 +113,7 @@ export default class RgaIndividualFamily extends LitElement {
         ];
 
         if (!this.sampleIds[0]) {
-            new NotificationQueue().push("Sample of the Proband not available", "", "error", true, false);
+            new NotificationQueue().push("Sample of the Proband not available", "", "error");
         }
 
         // in case father is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
