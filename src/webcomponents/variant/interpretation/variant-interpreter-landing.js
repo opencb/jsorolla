@@ -349,7 +349,6 @@ class VariantInterpreterLanding extends LitElement {
         if (this.config?.loading) {
             return html`<loading-spinner></loading-spinner>`;
         }
-        console.log(this.clinicalAnalysis);
 
         return html`
             <div id="variant-interpreter-landing">
