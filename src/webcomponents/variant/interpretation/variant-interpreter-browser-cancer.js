@@ -157,7 +157,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => vc.somatic)
                     .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") || vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
+                        // vc.types.includes("INSERTION") || vc.types.includes("DELETION") ||
+                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
 
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF")
@@ -168,6 +170,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 nonSvSomaticVariantCallers
                     .forEach(vc => {
                         const filters = vc.dataFilters
+                            .filter(filter => !filter.source || filter.source === "FILE")
                             .filter(filter => !!filter.defaultValue)
                             .map(filter => {
                                 // Notice that defaultValue includes the comparator, eg. =, >, ...
