@@ -69,7 +69,7 @@ export default class CustomNavBar extends LitElement {
         const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
         if (link.url) {
             return html`
-                <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
+                <a href="${url}" role="${button ? "button" : "link"}" target="${link.tab ? "_blank" : "_self"}">${iconHtml} ${link.name}</a>`;
         } else {
             return html`
                 <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;

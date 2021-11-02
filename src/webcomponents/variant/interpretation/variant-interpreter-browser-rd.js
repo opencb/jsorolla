@@ -587,29 +587,18 @@ class VariantInterpreterBrowserRd extends LitElement {
                 ],
                 examples: [
                     {
-                        id: "Example BRCA2",
-                        query: {
-                            gene: "BRCA2",
-                            ct: "missense_variant"
-                        }
-                    },
-                    {
-                        id: "LoF and missense",
+                        id: "Example 1 - BRCA2",
                         active: false,
                         query: {
-                            ct: "lof,missense_variant"
+                            gene: "BRCA2"
                         }
                     },
                     {
-                        id: "Full Example",
+                        id: "Example 2 - LoF and missense variants",
+                        active: false,
                         query: {
-                            "xref": "BRCA1,TP53",
-                            "biotype": "protein_coding",
-                            "type": "SNV,INDEL",
-                            "ct": "lof",
-                            "populationFrequencyAlt": "GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4",
-                            "conservation": "phylop>1;phastCons>2;gerp<=3"
+                            ct: "frameshift_variant,incomplete_terminal_codon_variant,start_lost,stop_gained,stop_lost," +
+                                "splice_acceptor_variant,splice_donor_variant,feature_truncation,transcript_ablation,missense_variant"
                         }
                     }
                 ],
