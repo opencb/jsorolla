@@ -177,12 +177,12 @@ export default class CohortStatsFilter extends LitElement {
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
                         <i id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
-                           data-cy="study-cohort-toggle" class="fa fa-minus" style="cursor: pointer;padding-right: 10px"
+                           data-cy="study-cohort-toggle" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"
                            @click="${this.handleCollapseAction}"></i>
                         <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
                     </div>
 
-                    <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}">
+                    <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
                         ${study.cohorts.map(cohort => {
                             const stateCohort = this.state?.[study.id]?.find(c => c.id === cohort.id);
                             return html`
