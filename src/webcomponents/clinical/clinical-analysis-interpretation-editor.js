@@ -81,9 +81,7 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
         }
     }
 
-    /**
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-     */
+    // Fetch the CinicalAnalysis object from REST and trigger the observer call.
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -184,7 +182,7 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}"
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}"
                                         @click="${this.onActionClick}">
                                     <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
                                 </a>
