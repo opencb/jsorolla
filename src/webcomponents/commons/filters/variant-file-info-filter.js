@@ -18,7 +18,9 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/data-form.js";
 
-
+/*
+ * This component takes a sampleID OR an array of files to render VCF INFO filters from the study configuration
+ */
 export default class VariantFileInfoFilter extends LitElement {
 
     constructor() {
@@ -40,24 +42,16 @@ export default class VariantFileInfoFilter extends LitElement {
             files: {
                 type: Array
             },
-            // callers: {
-            //     type: Array
-            // },
             fileData: {
                 type: String
             },
             opencgaSession: {
                 type: Object
             },
-            // config: {
-            //     type: Object
-            // }
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this.callerParamTypeToDataForm = {
             "NUMERIC": "input-number",
             "CATEGORICAL": "select",
@@ -65,20 +59,9 @@ export default class VariantFileInfoFilter extends LitElement {
         };
 
         this.fileDataSeparator = ",";
-        // this.fileToCaller = {};
-        // this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("callers")) {
-        //     this.callersObserver();
-        // }
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
@@ -153,26 +136,34 @@ export default class VariantFileInfoFilter extends LitElement {
                 }
             }
 
-            // TODO check if this work
+            // Add caller INDEXED-FILE filters from study configuration
             for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
                 if (this.callerIdToFile?.[caller.id]) {
-                    // Check if dataFilter are indexed
+                    const _dataFilters = [];
                     for (const dataFilter of caller.dataFilters) {
-                        if (indexedFields[dataFilter.id]) {
-                            const field = indexedFields[dataFilter.id];
+                        // Make sure that only FILE filters are added
+                        // Check if dataFilter are indexed
+                        if (dataFilter.source && dataFilter.source === "FILE" && indexedFields[dataFilter.id]) {
+                            const _dataFilter = {...dataFilter};
+                            const field = indexedFields[_dataFilter.id];
                             if (field.type.startsWith("RANGE_")) {
-                                dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                                dataFilter.allowedValues = field.thresholds;
+                                _dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                _dataFilter.allowedValues = field.thresholds;
                             } else {
-                                dataFilter.allowedValues = field.values;
+                                _dataFilter.allowedValues = field.values;
                             }
+                            _dataFilters.push(_dataFilter);
                         }
                     }
 
-                    variantCallers.push({
-                        ...caller,
-                        fileId: this.callerIdToFile[caller.id]?.name
-                    });
+                    // If at least one FILE filter has been found
+                    if (_dataFilters.length > 0) {
+                        variantCallers.push({
+                            ...caller,
+                            dataFilters: _dataFilters,
+                            fileId: this.callerIdToFile[caller.id]?.name
+                        });
+                    }
                 }
             }
         } else {
@@ -212,7 +203,7 @@ export default class VariantFileInfoFilter extends LitElement {
                         // Check if field id is FILTER and has only PASS value
                         if (customField.key === "FILTER") {
                             if (customField.values?.length === 1 && customField.values[0] === "PASS") {
-                                fieldName = "PASS",
+                                fieldName = "PASS";
                                 fieldType = "BOOLEAN";
                             } else {
                                 fieldType = "CATEGORICAL";
@@ -360,12 +351,6 @@ export default class VariantFileInfoFilter extends LitElement {
                     titleStyle: "margin: 20px 20px 0px 20px"
                 },
                 elements: [
-                    // {
-                    //     name: "",
-                    //     field: "",
-                    //     type: "title",
-                    //     text: "VCF file " + caller.fileId,
-                    // },
                     ...caller.dataFilters.map(field => ({
                         name: field.name || field.id,
                         field: caller.id + "." + field.id,
@@ -395,9 +380,10 @@ export default class VariantFileInfoFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.fileDataQuery}
-                       .config="${this._config}"
-                       @fieldChange="${this.filterChange}">
+            <data-form
+                .data=${this.fileDataQuery}
+                .config="${this._config}"
+                @fieldChange="${this.filterChange}">
             </data-form>
         `;
     }

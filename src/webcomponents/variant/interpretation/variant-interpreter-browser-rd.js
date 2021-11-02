@@ -182,11 +182,11 @@ class VariantInterpreterBrowserRd extends LitElement {
 
             // 3. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                // FIXME remove specific code for ASCAT!
                 const nonSvGermlineVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => !vc.somatic)
-                    .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") || vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
+                        vc.types.includes("INSERTION") || vc.types.includes("DELETION") ||
+                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
 
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF")
@@ -197,6 +197,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 nonSvGermlineVariantCallers
                     .forEach(vc => {
                         const filters = vc.dataFilters
+                            .filter(filter => !filter.source || filter.source === "FILE")
                             .filter(filter => !!filter.defaultValue)
                             .map(filter => {
                                 // Notice that defaultValue includes the comparator, eg. =, >, ...

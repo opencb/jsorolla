@@ -25,6 +25,7 @@ import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/forms/data-form.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
+import "../../individual/individual-view.js";
 
 class VariantInterpreterLanding extends LitElement {
 
@@ -74,10 +75,6 @@ class VariantInterpreterLanding extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    firstUpdated(_changedProperties) {
-        // this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -352,6 +349,7 @@ class VariantInterpreterLanding extends LitElement {
         if (this.config?.loading) {
             return html`<loading-spinner></loading-spinner>`;
         }
+        console.log(this.clinicalAnalysis);
 
         return html`
             <div id="variant-interpreter-landing">
@@ -420,9 +418,10 @@ class VariantInterpreterLanding extends LitElement {
                         <div id="${this._prefix}Clinical" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="Clinical" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
-                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </opencga-clinical-analysis-view>
+                                <individual-view
+                                    .individual="${this.clinicalAnalysis.proband}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </individual-view>
                             </div>
                         </div>
                     ` : null}

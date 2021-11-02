@@ -493,17 +493,26 @@ export default class VariantInterpreterGrid extends LitElement {
         return result;
     }
 
-    vcfDataFormatter(value, row, index) {
+    vcfDataFormatter(value, row) {
         if (row.studies?.length > 0) {
-            if (this.field.vcfColumn === "info") {
+            let source = "FILE";
+            if (this.field.variantCaller?.dataFilters) {
+                const dataFilter = this.field.variantCaller.dataFilters.find(filter => filter.id === this.field.key);
+                source = dataFilter?.source || "FILE";
+            } else {
+                // TODO Search in file.attributes to guess eh source
+            }
+
+            if (source === "FILE") {
                 for (const file of row.studies[0].files) {
                     if (file.data[this.field.key]) {
                         return file.data[this.field.key];
                     }
                 }
-            } else { // This must be FORMAT column
-                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
+            } else {
+                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sampleId);
                 const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
+                debugger
                 if (index >= 0) {
                     return row.studies[0].samples[sampleIndex].data[index];
                 }
@@ -514,7 +523,7 @@ export default class VariantInterpreterGrid extends LitElement {
         return "-";
     }
 
-    checkFormatter(value, row, index) {
+    checkFormatter(value, row) {
         const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
         return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
     }
@@ -544,7 +553,7 @@ export default class VariantInterpreterGrid extends LitElement {
         const vcfDataColumnNames = [];
         const fileCallers = this.clinicalAnalysis.files
             .filter(file => file.format === "VCF" && file.software?.name)
-            .map(file => file.software.name);
+            .map(file => file.software.name.toUpperCase());
 
         if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
             // FIXME remove specific code for ASCAT!
@@ -555,18 +564,19 @@ export default class VariantInterpreterGrid extends LitElement {
 
             if (variantCallers?.length > 0) {
                 for (const variantCaller of variantCallers) {
-                    if (fileCallers.includes(variantCaller.id)) {
+                    if (fileCallers.includes(variantCaller.id.toUpperCase())) {
                         // INFO column
                         if (!vcfDataColumnNames.includes(variantCaller.id)) {
                             vcfDataColumnNames.push(variantCaller.id);
                         }
                         if (variantCaller.columns?.length > 0) {
-                            for (let i = 0; i < variantCaller.columns?.length; i++) {
+                            for (const column of variantCaller.columns) {
                                 vcfDataColumns.push({
-                                    title: variantCaller.columns[i],
+                                    title: column,
                                     field: {
-                                        vcfColumn: "info",
-                                        key: variantCaller.columns[i]
+                                        key: column,
+                                        sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
+                                        variantCaller: variantCaller
                                     },
                                     rowspan: 1,
                                     colspan: 1,
