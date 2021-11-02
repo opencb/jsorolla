@@ -95,6 +95,9 @@ export default class VariantInterpreterReview extends LitElement {
     getDefaultConfig() {
         return {
             // title: "Interpretation review",
+            display: {
+                align: "center",
+            },
             items: [
                 {
                     id: "general-info",
@@ -102,15 +105,17 @@ export default class VariantInterpreterReview extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <tool-header
-                                class="bg-white"
-                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <clinical-interpretation-editor
-                                .active="${active}"
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </clinical-interpretation-editor>
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <clinical-interpretation-editor
+                                    .active="${active}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-interpretation-editor>
+                            </div>
                         `;
                     }
                 },
@@ -119,15 +124,17 @@ export default class VariantInterpreterReview extends LitElement {
                     name: "Primary Findings",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <tool-header
-                                class="bg-white"
-                                title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <variant-interpreter-review-primary
-                                .active="${active}"
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </variant-interpreter-review-primary>
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <variant-interpreter-review-primary
+                                    .active="${active}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-interpreter-review-primary>
+                            </div>
                         `;
                     },
                 },
