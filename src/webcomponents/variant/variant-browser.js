@@ -478,27 +478,7 @@ export default class VariantBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "BRCA2 missense variants",
-                        active: false,
-                        query: {
-                            gene: "BRCA2",
-                            ct: "missense_variant"
-                        }
-                    },
-                    {
-                        id: "Complex Example",
-                        query: {
-                            "xref": "BRCA1,TP53",
-                            "biotype": "protein_coding",
-                            "type": "SNV,INDEL",
-                            "ct": "lof",
-                            "populationFrequencyAlt": "GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {}
                 },

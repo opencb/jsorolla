@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import {join} from "lodash";
 
 
 export default class CohortStatsFilter extends LitElement {
@@ -64,7 +65,7 @@ export default class CohortStatsFilter extends LitElement {
         this.state = {};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("cohorts")) {
             this.state = {};
             this.cohortsPerStudy = this._getCohorts();
@@ -77,9 +78,11 @@ export default class CohortStatsFilter extends LitElement {
                 const cohorts = this.cohortStatsAlt.split(";");
                 cohorts.forEach(cohortStat => {
                     const [studyId, cohortFreq] = cohortStat.split(":");
-                    console.log(studyId, cohortFreq);
+                    if (!this.state[studyId]) {
+                        this.state[studyId] = [];
+                    }
                     const [cohort, comparator, value] = cohortFreq.split(/(<=?|>=?|=)/);
-                    this.state[studyId] = {cohort, comparator, value};
+                    this.state[studyId].push({cohort, comparator, value});
                 });
             }
             // this.requestUpdate();
@@ -123,15 +126,38 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     filterChange(e, study, cohort) {
+        e.stopPropagation();
+
         // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
+        const index = this.state[study]?.findIndex(c => c.cohort === cohort);
         if (e?.detail?.value) {
-            e.stopPropagation();
-            this.state[study] = {cohort: cohort, comparator: e.detail.comparator, value: e.detail.numValue};
+            if (index >= 0) {
+                this.state[study][index].comparator = e.detail.comparator;
+                this.state[study][index].value = e.detail.numValue;
+            } else {
+                if (!this.state[study]) {
+                    this.state[study] = [];
+                }
+                this.state[study].push({cohort: cohort, comparator: e.detail.comparator, value: e.detail.numValue});
+            }
         } else {
-            delete this.state[study];
+            if (index >= 0) {
+                this.state[study].splice(index, 1);
+            }
+
+            // If not cohort are left then we remove everything?
+            if (this.state[study].length === 0) {
+                delete this.state[study];
+            }
         }
+
         // serialize this.state in the form of "STUDY_ID:COHORT_ID<VALUE;.."
-        const value = Object.entries(this.state).filter(([, v]) => v.value).map(([studyId, v]) => `${studyId}:${v.cohort}${v.comparator}${v.value}`).join(";");
+        const value = Object.entries(this.state)
+            // .filter(([, v]) => v.value)
+            .map(([studyId, cohorts]) => {
+                return cohorts.map(c => `${studyId}:${c.cohort}${c.comparator}${c.value}`).join(";");
+            })
+            .join(";");
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
@@ -151,18 +177,20 @@ export default class CohortStatsFilter extends LitElement {
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
                         <i id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
-                           data-cy="study-cohort-toggle" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"
+                           data-cy="study-cohort-toggle" class="fa fa-minus" style="cursor: pointer;padding-right: 10px"
                            @click="${this.handleCollapseAction}"></i>
                         <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
                     </div>
 
                     <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}">
-                        ${study.cohorts.map(cohort => html`
-                            <div class="form-group" style="margin: 5px 0px">
-                                <number-field-filter
-                                        .value="${this.state?.[study.id]?.value ?
-                                                        (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") :
-                                                        ""}"
+                        ${study.cohorts.map(cohort => {
+                            const stateCohort = this.state?.[study.id]?.find(c => c.id === cohort.id);
+                            return html`
+                                <div class="form-group" style="margin: 5px 0px">
+                                    <number-field-filter
+                                        .value="${stateCohort?.value ?
+                                            (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") :
+                                            ""}"
                                         .config="${{comparator: true, layout: [3, 4, 5]}}"
                                         .label="${cohort.id}"
                                         type="text"
@@ -171,8 +199,8 @@ export default class CohortStatsFilter extends LitElement {
                                         data-action="comparator"
                                         @filterChange="${e => this.filterChange(e, study.id, cohort.id)}">
                                 </number-field-filter>
-                            </div>`)
-                        }
+                            </div>`;
+                        })}
                     </div>
                 </div>
             `)}`;

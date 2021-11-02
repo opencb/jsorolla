@@ -543,7 +543,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         id: "Example 2 - LoF and missense variants",
                         active: false,
                         query: {
-                            ct: "lof,missense_variant"
+                            ct: "frameshift_variant,incomplete_terminal_codon_variant,start_lost,stop_gained,stop_lost," +
+                                "splice_acceptor_variant,splice_donor_variant,feature_truncation,transcript_ablation,missense_variant"
                         }
                     }
                 ],
