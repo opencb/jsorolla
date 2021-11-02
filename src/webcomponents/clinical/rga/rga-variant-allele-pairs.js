@@ -205,6 +205,7 @@ export default class RgaVariantAllelePairs extends LitElement {
         } catch (e) {
             console.error(e);
             UtilsNew.notifyError(e);
+            return Promise.reject(e);
         }
 
     }
