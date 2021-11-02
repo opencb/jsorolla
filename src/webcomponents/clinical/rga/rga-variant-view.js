@@ -162,7 +162,7 @@ export default class RgaVariantView extends LitElement {
     /*
      * @deprecated
      */
-    prepareData() {
+    /* prepareData() {
         // console.log("preparedData", this.data);
         let i = 0;
         this._data = {};
@@ -195,7 +195,7 @@ export default class RgaVariantView extends LitElement {
         }));
         // this.renderTable();
 
-    }
+    }*/
 
     _initTableColumns() {
         this._columns = [
@@ -341,16 +341,16 @@ export default class RgaVariantView extends LitElement {
     /*
      * @deprecated
      */
-    geneFormatter(value, row) {
+    /* geneFormatter(value, row) {
         const genes = new Set();
         row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
         return Array.from(genes.keys()).join(", ");
-    }
+    }*/
 
     /*
      * @deprecated
      */
-    alleleCountFormatter(value, row) {
+    /* alleleCountFormatter(value, row) {
         const uniqueVariants = {};
         for (const individual of row.individuals) {
             for (const gene of individual.genes) {
@@ -362,7 +362,7 @@ export default class RgaVariantView extends LitElement {
             }
         }
         return Object.keys(uniqueVariants).length;
-    }
+    }*/
 
     clinicalPopulationFrequenciesFormatter(value, row) {
         if (row) {
@@ -381,7 +381,7 @@ export default class RgaVariantView extends LitElement {
     /*
      * @deprecated
      */
-    dbSNPFormatter(value, row) {
+    /* dbSNPFormatter(value, row) {
         const dbSNPs = new Set();
         for (const individual of row.individuals) {
             for (const gene of individual.genes) {
@@ -395,7 +395,7 @@ export default class RgaVariantView extends LitElement {
             }
         }
         return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
-    }
+    }*/
 
     consequenceTypeFormatter(value, row) {
         if (value) {
