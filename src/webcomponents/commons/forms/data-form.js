@@ -236,7 +236,7 @@ export default class DataForm extends LitElement {
                 const [field, prop] = element.field.split(".");
                 return this.updateParams[field]?.[prop] ?? false;
             } else {
-                const field = element.field.split[0];
+                const field = element.field.split(".")[0];
                 return this.updateParams[field] ?? false;
             }
         } else {
