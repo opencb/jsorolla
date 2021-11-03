@@ -35,9 +35,9 @@ import "../individual/individual-detail.js";
 import "../family/opencga-family-grid.js";
 import "../family/opencga-family-filter.js";
 import "../family/opencga-family-detail.js";
-import "../cohort/opencga-cohort-grid.js";
-import "../cohort/opencga-cohort-filter.js";
-import "../cohort/opencga-cohort-detail.js";
+import "../cohort/cohort-grid.js";
+import "../cohort/cohort-browser-filter.js";
+import "../cohort/cohort-detail.js";
 import "../job/opencga-job-grid.js";
 import "../job/opencga-job-filter.js";
 import "../job/opencga-job-detail.js";
@@ -363,18 +363,20 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                 return html`
                         <div id="table-tab" class="content-tab active">
-                            <opencga-cohort-grid   .opencgaSession="${this.opencgaSession}"
-                                                   .query="${this.executedQuery}"
-                                                   .search="${this.executedQuery}"
-                                                   .config="${this.config.filter.result.grid}"
-                                                   .eventNotifyName="${this.eventNotifyName}"
-                                                   .active="${true}"
-                                                   @selectrow="${e => this.onClickRow(e, "cohort")}">
-                            </opencga-cohort-grid>
-                            <opencga-cohort-detail  .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this.config.filter.detail}"
-                                                    .cohortId="${this.detail.cohort?.id}">
-                            </opencga-cohort-detail>
+                            <cohort-grid
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${this.executedQuery}"
+                                .search="${this.executedQuery}"
+                                .config="${this.config.filter.result.grid}"
+                                .eventNotifyName="${this.eventNotifyName}"
+                                .active="${true}"
+                                @selectrow="${e => this.onClickRow(e, "cohort")}">
+                            </cohort-grid>
+                            <cohort-detail
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${this.config.filter.detail}"
+                                .cohortId="${this.detail.cohort?.id}">
+                            </cohort-detail>
                         </div>
                         ${facetView}`;
             case "FAMILY":
@@ -504,13 +506,14 @@ export default class OpencgaBrowser extends LitElement {
                                 ` : null}
 
                                 ${this.resource === "COHORT" ? html`
-                                    <opencga-cohort-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            .variableSets="${this.variableSets}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-cohort-filter>
+                                    <cohort-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        .variableSets="${this.variableSets}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
+                                    </cohort-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "CLINICAL_ANALYSIS" ? html`

@@ -15,12 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-cohort-view.js";
 import "../sample/opencga-sample-grid.js";
 import "./../commons/view/detail-tabs.js";
 
-export default class OpencgaCohortDetail extends LitElement {
+export default class CohortDetail extends LitElement {
 
     constructor() {
         super();
@@ -49,39 +48,34 @@ export default class OpencgaCohortDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "ocd-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.cohort = null;
         }
-
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     cohortIdObserver() {
-        if (this.opencgaSession) {
-            if (this.cohortId) {
-                this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.cohort = restResponse.getResult(0);
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                    });
-            } else {
-                this.cohort = null;
-            }
-
+        if (this.opencgaSession && this.cohortId) {
+            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this.cohort = restResponse.getResult(0);
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
+        } else {
+            this.cohort = null;
         }
     }
 
@@ -92,12 +86,10 @@ export default class OpencgaCohortDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.cohort
-            ? html`
-                <detail-tabs .data="${this.cohort}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
-            : null;
+        return this.opencgaSession && this.cohort ? html`
+            <detail-tabs .data="${this.cohort}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` : null;
     }
 
 }
 
-customElements.define("opencga-cohort-detail", OpencgaCohortDetail);
+customElements.define("cohort-detail", CohortDetail);
