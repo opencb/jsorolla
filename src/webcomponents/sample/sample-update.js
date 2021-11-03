@@ -104,18 +104,7 @@ export default class SampleUpdate extends LitElement {
         }
     }
 
-    // TODO move to a generic Utils class
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     onFieldChange(e) {
-        console.log("Test:", e.detail.param, e.detail.value);
         switch (e.detail.param) {
             case "id":
             case "description":
@@ -160,26 +149,6 @@ export default class SampleUpdate extends LitElement {
         this.sampleId = "";
     }
 
-    // DEPRECATED
-    // removePhenotype() {
-    //     const params = {
-    //         study: this.opencgaSession.study.fqn,
-    //         phenotypesAction: "REMOVE"
-    //     };
-    //     console.log("Removed Phenotype: ", this.removedPhenotypes);
-    //     this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.removedPhenotypes, params)
-    //         .then(res => {
-    //             this.removedPhenotypes = [];
-    //             // this._sample = JSON.parse(JSON.stringify(this.sample));
-    //             // this.updateParams = {};
-    //             // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
-    //         })
-    //         .catch(err => {
-    //             console.error(err);
-    //             FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
-    //         });
-    // }
-
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -188,6 +157,7 @@ export default class SampleUpdate extends LitElement {
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, params)
             .then(res => {
+                // this.sample = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
                 FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
@@ -200,24 +170,11 @@ export default class SampleUpdate extends LitElement {
             });
     }
 
-    //
     onSyncPhenotypes(e) {
         e.stopPropagation();
         const newPhenotypes = e.detail.value;
         this.updateParams = {...this.updateParams, phenotypes: newPhenotypes};
         console.log("sample updated", this.updateParams);
-
-        // Deprecated
-        // this.removedPhenotypes = this.sample.phenotypes
-        //     .map(pheno => {
-        //         return {id: pheno.id};
-        //     })
-        //     .filter(pheno =>
-        //         !newPhenotypes.map(newPheno => newPheno.id)
-        //             .includes(pheno.id));
-
-        // console.log("Removed Phenotype:", this.removedPhenotypes);
-
     }
 
     // display a button to back sample browser.
@@ -227,8 +184,8 @@ export default class SampleUpdate extends LitElement {
         };
 
         const showBrowser = () => {
-            console.log("click showBrowser", this);
-            LitUtils.dispatchEventCustom(this, "querySearch", null, null, {query: query});
+            // console.log("click showBrowser", this);
+            LitUtils.dispatchEventCustom(this, "querySearch", null, {bubbles: true, composed: true}, null, {query: query});
             const hash = window.location.hash.split("/");
             const newHash = "#sample/" + hash[1] + "/" + hash[2];
             window.location.hash = newHash;
@@ -259,7 +216,7 @@ export default class SampleUpdate extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Edit",
+            title: "Sample Update",
             icon: "fas fa-edit",
             type: "form",
             buttons: {
@@ -336,14 +293,14 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "write a description for the status..."
                             }
                         },
-                        // {
-                        //     name: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
-                        //     }
-                        // },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                            }
+                        },
                         // {
                         //     name: "Modification Date",
                         //     field: "modificationDate",
@@ -370,7 +327,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.preparationMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "add a preparation method"
+                                placeholder: "Add a preparation method..."
                             }
                         },
                         {
@@ -378,7 +335,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.extrationMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "add a extration method"
+                                placeholder: "Add a extraction method..."
                             }
                         },
                         {
@@ -386,7 +343,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.labSambpleId",
                             type: "input-text",
                             display: {
-                                placeholder: "add the lab sample id"
+                                placeholder: "Add the lab sample ID..."
                             }
                         },
                         {
@@ -394,7 +351,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.quantity",
                             type: "input-text",
                             display: {
-                                placeholder: "add a quantity"
+                                placeholder: "Add a quantity..."
                             }
                         },
                         {
@@ -415,7 +372,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.tissue",
                             type: "input-text",
                             display: {
-                                placeholder: "add a tissue"
+                                placeholder: "Add a tissue..."
                             }
                         },
                         {
@@ -423,7 +380,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.organ",
                             type: "input-text",
                             display: {
-                                placeholder: "add a organ"
+                                placeholder: "Add an organ..."
                             }
                         },
                         {
@@ -431,7 +388,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.quantity",
                             type: "input-text",
                             display: {
-                                placeholder: "add a quantity"
+                                placeholder: "Add a quantity..."
                             }
                         },
                         {
@@ -439,7 +396,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.method",
                             type: "input-text",
                             display: {
-                                placeholder: "add a method"
+                                placeholder: "Add a method..."
                             }
                         },
                         {
