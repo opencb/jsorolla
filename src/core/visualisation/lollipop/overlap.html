@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
+
+
+</head>
+<body>
+
+<div id="circles"></div>
+<script>
+
+    const elements = [{pos: 10, radius: 5}, {pos: 15, radius: 20}, {pos: 20, radius: 10}, {pos: 150, radius: 5}];
+
+    const field_size = [0, 300];
+
+    const min_gap = 0;
+    const step = 1;
+
+    let draw = new SVG().addTo("#circles").size(1000, 500);
+
+    let drawPanel;
+    // moveIntersected(elements);
+
+    console.log(elements);
+
+    function detectCollisions(arr = []) {
+        const result = [];
+        for (let i = 0; i < arr.length - 1; i++) {
+            let dist = (arr[i + 1].pos - arr[i + 1].radius) - (arr[i].pos + arr[i].radius);
+            if (dist < min_gap) {
+                result.push([i + 0.5, dist]);
+            }
+        }
+        return result;
+    }
+
+    function moveIntersected(arr = []) {
+
+        const collisions = detectCollisions(arr);
+        if (collisions.length < 1) {
+            drawCircles()
+            return;
+        }
+
+        const most_intersected = collisions.sort((a, b) => a[1] - b[1])[0];
+        const left = arr[Math.floor(most_intersected[0])];
+        const right = arr[Math.ceil(most_intersected[0])];
+
+        if (left.pos - left.radius - step >= field_size[0]) {
+            left.pos -= step;
+        } else {
+            right.pos += step * 2;
+        }
+
+        if (right.pos + right.radius + step <= field_size[1]) {
+            right.pos += step;
+        } else {
+            left.pos -= step * 2;
+        }
+        moveIntersected(arr);
+
+
+    }
+
+
+    function drawCircles() {
+        if (drawPanel) {
+            drawPanel.clear();
+        } else {
+            drawPanel = draw.group();
+        }
+        elements.forEach((el, i) => {
+            drawPanel.circle(el.radius*2)
+                .dx(el.pos - el.radius)
+                .dy(100-el.radius)
+                .fill("#6872ff")
+                .stroke({color: "#000", opacity: 0})
+                .scale(1);
+
+            /*if (variant.type === "cluster") {
+                v.text(variant.variants.length).dy(5).dx(offset).font({size: variant.size * .5 + "px"});
+            } else {
+                // single variant
+                v.text(variant.id).dy(-variant.size / 2 - 5).dx(offset).font({size: "10px"});
+            }*/
+
+
+        });
+    }
+
+
+    drawCircles();
+</script>
+
+
+<button onclick="moveIntersected(elements)">apply</button>
+</body>
+</html>
