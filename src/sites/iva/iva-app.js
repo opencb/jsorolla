@@ -53,7 +53,7 @@ import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/individual/opencga-individual-browser.js";
-import "../../webcomponents/cohort/opencga-cohort-browser.js";
+import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/opencga-job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
@@ -1309,12 +1309,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.cohort ? html`
                     <div class="content" id="cohort">
-                        <opencga-cohort-browser     .opencgaSession="${this.opencgaSession}"
-                                                    .query="${this.queries.cohort}"
-                                                    .settings="${OPENCGA_COHORT_BROWSER_SETTINGS}"
-                                                    @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
-                                                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
-                        </opencga-cohort-browser>
+                        <cohort-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.cohort}"
+                            .settings="${OPENCGA_COHORT_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
+                        </cohort-browser>
                     </div>
                 ` : null}
 

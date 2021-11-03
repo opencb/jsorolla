@@ -20,6 +20,7 @@ import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+import {NotificationQueue} from "../../../core/NotificationQueue";
 
 
 export default class RgaIndividualFamily extends LitElement {
@@ -82,7 +83,7 @@ export default class RgaIndividualFamily extends LitElement {
         }
     }
 
-    async getTrio(individual) {
+    getTrio(individual) {
         const trio = {};
         if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
             const clinicalAnalysis = individual.attributes.OPENCGA_CLINICAL_ANALYSIS?.[0];
@@ -90,6 +91,9 @@ export default class RgaIndividualFamily extends LitElement {
                 trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
                 trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
                 trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
+            } else {
+                // NOTE TODO clinicalAnalysis must be defined
+                new NotificationQueue().push("Clinical Analysis not available", "", "error");
             }
         } else {
             trio.proband = this.individual;
@@ -99,13 +103,18 @@ export default class RgaIndividualFamily extends LitElement {
 
     async renderTable() {
 
-        this.trio = await this.getTrio(this.individual);
+        this.trio = this.getTrio(this.individual);
 
+        // NOTE in case there is no clinical analysis available all this will be undefined
         this.sampleIds = [
-            this.trio?.proband?.samples?.[0]?.id ?? this.individual.sampleId, // in case there is no clinical analysis available
+            this.trio?.proband?.samples?.[0]?.id,
             this.trio?.father?.samples?.[0]?.id,
             this.trio?.mother?.samples?.[0]?.id
         ];
+
+        if (!this.sampleIds[0]) {
+            new NotificationQueue().push("Sample of the Proband not available", "", "error");
+        }
 
         // in case father is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
         // this.sampleIds[1] is undefined
@@ -285,6 +294,7 @@ export default class RgaIndividualFamily extends LitElement {
 
         } catch (e) {
             UtilsNew.notifyError(e);
+            return Promise.reject(e);
         }
 
     }
@@ -302,19 +312,19 @@ export default class RgaIndividualFamily extends LitElement {
      * @deprecated
      * update tableData with new variant data (it happens on pagination)
      */
-    updateTableData(tableDataMap, variantData) {
+    /* updateTableData(tableDataMap, variantData) {
         const _tableDataMap = tableDataMap;
         variantData.forEach(variant => {
             _tableDataMap[variant.id].variantData = variant;
         });
         return Object.values(_tableDataMap);
-    }
+    }*/
 
     /*
      * @deprecated
      * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
      */
-    renderTableLocale() {
+    /* renderTableLocale() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -356,7 +366,7 @@ export default class RgaIndividualFamily extends LitElement {
                 console.error("page change", number, size);
             }
         });
-    }
+    }*/
 
     _initTableColumns() {
         return [

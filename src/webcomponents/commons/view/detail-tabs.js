@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 
 export default class DetailTabs extends LitElement {
@@ -110,43 +110,17 @@ export default class DetailTabs extends LitElement {
         `;
     }
 
-    getDefaultConfig() {
-        return {
-            title: "",
-            display: {
-                titleClass: "",
-                titleStyle: "",
-
-                tabTitleClass: "",
-                tabTitleStyle: "",
-
-                contentClass: "",
-                contentStyle: "padding: 10px",
-            },
-            // Example:
-            // items: [
-            //     {
-            //         id: "clinical",
-            //         name: "Clinical",
-            //         icon: "fas fa-notes-medical",
-            //         active: true,
-            //         render: () => {
-            //             return html`
-            //                 <h3>Clinical Component</h3>`;
-            //         }
-            //     },
-            // ]
-        };
-    }
-
     render() {
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
-            return html`<h3>No valid mode: ${this.mode !== ""}</h3>`;
+            return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }
 
         if (this._config?.items?.length === 0) {
-            return html`<h3>No items provided: ${this._config?.items}</h3>`;
+            return html`<h3>No items provided</h3>`;
         }
+
+        // Allow custom tabs alignment:  "center" or "justified"
+        const align = this._config?.display?.align || "";
 
         return html`
             ${this._config.title ?
@@ -160,7 +134,7 @@ export default class DetailTabs extends LitElement {
             <div class="detail-tabs">
                 <!-- TABS -->
                 ${this.mode === DetailTabs.TABS_MODE ? html`
-                    <ul class="nav nav-tabs" role="tablist">
+                    <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
                         ${this.renderTabTitle()}
                     </ul>
                 ` : null}
@@ -187,6 +161,37 @@ export default class DetailTabs extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "",
+            display: {
+                align: "", // "center" | "justified"
+
+                titleClass: "",
+                titleStyle: "",
+
+                tabTitleClass: "",
+                tabTitleStyle: "",
+
+                contentClass: "",
+                contentStyle: "padding: 10px",
+            },
+            // Example:
+            // items: [
+            //     {
+            //         id: "clinical",
+            //         name: "Clinical",
+            //         icon: "fas fa-notes-medical",
+            //         active: true,
+            //         render: () => {
+            //             return html`
+            //                 <h3>Clinical Component</h3>`;
+            //         }
+            //     },
+            // ]
+        };
     }
 
 }

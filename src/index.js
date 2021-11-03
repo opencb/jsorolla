@@ -14,7 +14,7 @@ export OpencgaProteinView from "./webcomponents/opencga/opencga-protein-view.js"
 export OpencgaLogin from "./webcomponents/user/opencga-login.js";
 export OpencgaIndividualBrowser from "./webcomponents/individual/opencga-individual-browser.js";
 export OpencgaFamilyBrowser from "./webcomponents/family/opencga-family-browser.js";
-export OpencgaCohortBrowser from "./webcomponents/cohort/opencga-cohort-browser.js";
+export OpencgaCohortBrowser from "./webcomponents/cohort/cohort-browser.js";
 export OpencgaClinicalAnalysisBrowser from "./webcomponents/clinical/opencga-clinical-analysis-browser.js";
 export OpencgaGwasAnalysis from "./webcomponents/variant/analysis/opencga-gwas-analysis.js";
 export VariantRdInterpreter from "./webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";

@@ -80,7 +80,7 @@ export default class RgaVariantIndividual extends LitElement {
      *  The map will be used merging Individuals and Clinical data.
      *  @deprecated
      */
-    prepareData() {
+    /* prepareData() {
         if (this.variant?.individuals?.length) {
             this.tableDataLn = this.variant.individuals.length;
             this.individualIds = this.variant.individuals.map(individual => individual.id);
@@ -96,7 +96,7 @@ export default class RgaVariantIndividual extends LitElement {
             this.tableDataMap = {};
         }
         this.requestUpdate();
-    }
+    }*/
 
     async renderTable() {
         this.hiddenIndividuals = 0;
@@ -210,7 +210,7 @@ export default class RgaVariantIndividual extends LitElement {
     /*
      * @deprecated
      */
-    renderTableLocale() {
+    /* renderTableLocale() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -255,7 +255,7 @@ export default class RgaVariantIndividual extends LitElement {
             }
 
         });
-    }
+    }*/
 
     /*
      * Get clinical info only for the subset of individual defined by startIndividual and endIndividual indexes.
@@ -278,6 +278,7 @@ export default class RgaVariantIndividual extends LitElement {
         } catch (e) {
             console.error(e);
             UtilsNew.notifyError(e);
+            return Promise.reject(e);
         }
 
     }

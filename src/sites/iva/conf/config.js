@@ -171,7 +171,8 @@ const SUITE = {
             {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"},
             {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
             {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
-            {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"}
+            {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
+            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
     userMenu: [
@@ -249,7 +250,6 @@ const SUITE = {
                                     <li>Filter by gene, consequence, frequency and much more</li>
                                 </ul>`,
                 },
-
                 {
                     id: "analysis",
                     name: "Variant Analysis",

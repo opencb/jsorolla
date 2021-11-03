@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 
-export default class OpencgaCohortGrid extends LitElement {
+export default class CohortGrid extends LitElement {
 
     constructor() {
         super();
@@ -70,6 +70,7 @@ export default class OpencgaCohortGrid extends LitElement {
             this.active) {
             this.propertyObserver();
         }
+        // super.update(changedProperties);
     }
 
     propertyObserver() {
@@ -92,16 +93,8 @@ export default class OpencgaCohortGrid extends LitElement {
         }
 
         this.cohorts = [];
-        const filters = {...this.query};
-
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             const filters = {...this.query};
-            // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
-            /* if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-                // Abort destroying and creating again the grid. The filters have not changed
-                return;
-            }*/
 
             // Make a copy of the cohorts (if they exist), we will use this private copy until it is assigned to this.cohorts
             if (UtilsNew.isNotUndefined(this.cohorts)) {
@@ -152,14 +145,14 @@ export default class OpencgaCohortGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: function (row, element, field) {
+                onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (_this._config.detailView) {
+                    if (this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $(PolymerUtils.getElementById(_this._prefix + "CohortBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
+                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $(PolymerUtils.getElementById(_this._prefix + "CohortBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
+                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
@@ -303,16 +296,15 @@ export default class OpencgaCohortGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar ?
-                    html`
-                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                          .query="${this.query}"
-                                          .opencgaSession="${this.opencgaSession}"
-                                          @columnChange="${this.onColumnChange}"
-                                          @download="${this.onDownload}"
-                                          @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` :
-                    ""
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>` : ""
             }
 
             <div id="${this._prefix}GridTableDiv">
@@ -323,4 +315,4 @@ export default class OpencgaCohortGrid extends LitElement {
 
 }
 
-customElements.define("opencga-cohort-grid", OpencgaCohortGrid);
+customElements.define("cohort-grid", CohortGrid);

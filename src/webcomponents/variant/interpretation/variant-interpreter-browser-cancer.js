@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -25,8 +24,6 @@ import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/filters/sample-genotype-filter.js";
-import "../../commons/filters/variant-caller-info-filter.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
 
@@ -87,26 +84,23 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -127,7 +121,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     queryObserver() {
@@ -147,15 +141,58 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
-            // Set query object
-            if (!this.query?.sample) {
-                this.query = {
-                    ...this.query,
-                    sample: this.somaticSample.id + ":0/1,1/1,NA"
-                };
+            // Init query object if needed
+            if (!this.query) {
+                this.query = {};
             }
 
-            // Add variant stats saved queries to Active Filters menu
+            // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
+            if (!this.query?.sample) {
+                this.query.sample = this.somaticSample.id + ":0/1,1/1,NA";
+            }
+
+            // 2. 'fileData' query param: fetch non SV files and set init query
+            if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                // FIXME remove specific code for ASCAT!
+                const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                    .filter(vc => vc.somatic)
+                    .filter(vc => vc.id.toUpperCase() !== "ASCAT")
+                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
+                        // vc.types.includes("INSERTION") || vc.types.includes("DELETION") ||
+                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+
+                this.files = this.clinicalAnalysis.files
+                    .filter(file => file.format.toUpperCase() === "VCF")
+                    .filter(file =>
+                        nonSvSomaticVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) >= 0);
+
+                const fileDataFilters = [];
+                nonSvSomaticVariantCallers
+                    .forEach(vc => {
+                        const filters = vc.dataFilters
+                            .filter(filter => !filter.source || filter.source === "FILE")
+                            .filter(filter => !!filter.defaultValue)
+                            .map(filter => {
+                                // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                            });
+
+                        // Only add this file to the filter if we have at least one default value
+                        if (filters.length > 0) {
+                            // We need to find the file for that caller
+                            const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                            if (fileId) {
+                                fileDataFilters.push(fileId + ":" + filters.join(";"));
+                            }
+                        }
+                    });
+
+                // Update query with default 'fileData' parameters
+                this.query.fileData = fileDataFilters.join(",");
+            }
+
+            // Add filter to Active Filters menu
+            // 1. Add variant stats saved queries to the Active Filters menu
             if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
                 _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
                 _activeFilterFilters.push(
@@ -170,67 +207,24 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 );
             }
 
-            // Fetch files and set init query
-            // FIXME remove specific code for ASCAT and BRASS!
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, format: "VCF", study: this.opencgaSession.study.fqn})
-                .then(fileResponse => {
-                    this.files = fileResponse.responses[0].results
-                        .filter(file => file.software?.name?.toUpperCase() !== "ASCAT" && file.software?.name?.toUpperCase() !== "BRASS");
+            // 2. Add default initial query the the active filter menu
+            _activeFilterFilters.unshift({separator: true});
+            _activeFilterFilters.unshift(
+                {
+                    id: "Default Initial Query",
+                    active: true,
+                    query: this.query
+                }
+            );
 
-                    // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
-                    if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                        const fileDataFilters = [];
-                        this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
-                            .filter(variantCaller => variantCaller.id.toUpperCase() !== "ASCAT" && variantCaller.id.toUpperCase() !== "BRASS")
-                            .forEach(variantCaller => {
-                                const filters = variantCaller.dataFilters
-                                    .filter(filter => !!filter.defaultValue)
-                                    .map(filter => {
-                                        // Notice that defaultValue includes the comparator, eg. =, >, ...
-                                        return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
-                                    });
+            // Set active filters
+            this.activeFilterFilters = _activeFilterFilters;
 
-                                // Only add this file to the filter if we have at least one default value
-                                if (filters.length > 0) {
-                                    // We need to find the file for that caller
-                                    const fileId = this.files.find(file => file.software.name === variantCaller.id)?.name;
-                                    if (fileId) {
-                                        fileDataFilters.push(fileId + ":" + filters.join(";"));
-                                    }
-                                }
-                            });
-                        // this.opencgaSession.study.internal.configuration.variantEngine
-                        // Update query with default 'fileData' parameters
-                        this.query = {
-                            ...this.query,
-                            fileData: fileDataFilters.join(","),
-                        };
+            // We need to update query
+            this.queryObserver();
 
-                        // Add default initial query the the active filter menu
-                        _activeFilterFilters.unshift({separator: true});
-                        _activeFilterFilters.unshift(
-                            {
-                                id: "Default Initial Query",
-                                active: true,
-                                query: this.query
-                            }
-                        );
-
-                        // We need to update query
-                        this.queryObserver();
-                    }
-
-                    // Set active filters
-                    this.activeFilterFilters = _activeFilterFilters;
-
-                    this.settingsObserver();
-                    isSettingsObserverCalled = true;
-                })
-                .catch(response => {
-                    // We init active filters anyway.
-                    this.activeFilterFilters = _activeFilterFilters;
-                    console.error("An error occurred fetching sample files: ", response);
-                });
+            this.settingsObserver();
+            isSettingsObserverCalled = true;
         } else {
             // No somatic sample found, this is weird scenario but can happen if a case is created empty.
             // We init active filters anyway.
@@ -255,7 +249,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
+                    // this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -393,10 +387,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             // },
                             {
                                 id: "variant-file-info-filter",
-                                title: "Variant File Caller Filter",
+                                title: "Variant Caller File Filter",
+                                visible: () => this.files?.length > 0,
                                 params: {
-                                    // study: this.opencgaSession?.study,
-                                    // callers: this.variantCallers,
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
                                 }
@@ -550,7 +543,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         id: "Example 2 - LoF and missense variants",
                         active: false,
                         query: {
-                            ct: "lof,missense_variant"
+                            ct: "frameshift_variant,incomplete_terminal_codon_variant,start_lost,stop_gained,stop_lost," +
+                                "splice_acceptor_variant,splice_donor_variant,feature_truncation,transcript_ablation,missense_variant"
                         }
                     }
                 ],

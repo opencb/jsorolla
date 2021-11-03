@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../commons/forms/date-filter.js";
@@ -25,7 +24,7 @@ import "../commons/forms/select-field-filter.js";
 import "../commons/filters/cohort-id-autocomplete.js";
 
 
-export default class OpencgaCohortFilter extends LitElement {
+export default class CohortBrowserFilter extends LitElement {
 
     constructor() {
         super();
@@ -53,9 +52,9 @@ export default class OpencgaCohortFilter extends LitElement {
             variables: {
                 type: Array
             },
-            compact: {
-                type: Boolean
-            },
+            // compact: {
+            //     type: Boolean
+            // },
             config: {
                 type: Object
             }
@@ -64,8 +63,7 @@ export default class OpencgaCohortFilter extends LitElement {
 
 
     _init() {
-        // super.ready();
-        this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
 
         this.annotationFilterConfig = {
             class: "small",
@@ -87,7 +85,7 @@ export default class OpencgaCohortFilter extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
@@ -97,6 +95,13 @@ export default class OpencgaCohortFilter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             // this.updateVariableSets();
         }
+        super.update(changedProperties);
+    }
+
+    queryObserver() {
+        console.log("queryObserver()", this.query);
+        this.preparedQuery = this.query || {};
+        // this.requestUpdate();
     }
 
     onSearch() {
@@ -111,12 +116,6 @@ export default class OpencgaCohortFilter extends LitElement {
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
-    }
-
-    queryObserver() {
-        console.log("queryObserver()", this.query);
-        this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 
@@ -163,10 +162,11 @@ export default class OpencgaCohortFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <cohort-id-autocomplete .config="${subsection}"
-                                           .opencgaSession="${this.opencgaSession}"
-                                           .value="${this.preparedQuery[subsection.id]}"
-                                           @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <cohort-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </cohort-id-autocomplete>`;
                 break;
             case "samples":
@@ -208,51 +208,19 @@ export default class OpencgaCohortFilter extends LitElement {
                 console.error("Filter component not found");
         }
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                        </div>
-                    </div>
-                `;
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <div class="tooltip-div pull-right">
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </div>` : null
+                    }
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>`;
     }
-
-    /* updateVariableSets() {
-        this.variables = [];
-        const _this = this;
-        this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-            .then(function (response) {
-                _this.variableSets = response.response[0].result[0].variableSets;
-                // debugger
-                if (_this.variableSets.length > 0) {
-                    _this.variables = _this.variableSets[0].variables; // setting first one by default
-                    _this.filteredVariables = {
-                        variableSet: _this.variableSets[0].id,
-                        variables: []
-                    };
-                } else {
-                    // _this.variableSets = [{name: "none"}];
-                    _this.variableSets = [];
-                }
-                _this.requestUpdate();
-            })
-            .catch(function () {
-                console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
-            });
-    }
-
-    renderVariableTemplate() {
-        const myTemplate = PolymerUtils.getElementById(this._prefix + "VariableTemplate");
-        if (UtilsNew.isNotNull(myTemplate)) {
-            myTemplate.render();
-        }
-    }
-    */
 
     variablesChanged() {
         this._areVariablesEmpty = (this.variables.length === 0);
@@ -276,4 +244,4 @@ export default class OpencgaCohortFilter extends LitElement {
 
 }
 
-customElements.define("opencga-cohort-filter", OpencgaCohortFilter);
+customElements.define("cohort-browser-filter", CohortBrowserFilter);
