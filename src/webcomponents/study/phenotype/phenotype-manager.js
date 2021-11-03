@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class PhenotypeManager extends LitElement {
 
@@ -32,6 +33,9 @@ export default class PhenotypeManager extends LitElement {
         return {
             phenotype: {
                 type: Object
+            },
+            mode: {
+                type: String
             }
         };
     }
@@ -43,7 +47,7 @@ export default class PhenotypeManager extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         // It must be in connectCallback for the display.disabled option in the input text to work.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
     }
 
     refreshForm() {
@@ -51,6 +55,14 @@ export default class PhenotypeManager extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
+
+    update(changedProperties) {
+        if (changedProperties.has("mode")) {
+            this.refreshForm();
+        }
+        super.update(changedProperties);
+    }
+
 
     onFieldChange(e) {
         e.stopPropagation();
@@ -87,7 +99,8 @@ export default class PhenotypeManager extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "add short id"
+                                placeholder: "add short id",
+                                disabled: this.mode === "EDIT",
                             }
                         },
                         {

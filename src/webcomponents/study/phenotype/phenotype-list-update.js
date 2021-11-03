@@ -16,9 +16,9 @@
 
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/text-field-filter.js";
 import "./phenotype-manager.js";
 
 export default class PhenotypeListUpdate extends LitElement {
@@ -60,8 +60,10 @@ export default class PhenotypeListUpdate extends LitElement {
         this._manager = manager;
         if (manager.action === "ADD") {
             this.phenotype = {};
+
         } else {
-            this.phenotype = manager.phenotype;
+            this.phenotype = this.phenotypes[manager.indexItem];
+
         }
         this.requestUpdate();
         $("#phenotypeManagerModal"+ this._prefix).modal("show");
@@ -84,6 +86,7 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     editPhenotype(phenotype) {
+        // TODO: change for the element inddex and not for id phenotype..
         const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
         this.phenotypes[indexPheno] = phenotype;
         this.phenotype = {};
@@ -91,7 +94,7 @@ export default class PhenotypeListUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    onRemovePhenotype(e, item) {
+    onRemovePhenotype(e, i) {
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -104,7 +107,8 @@ export default class PhenotypeListUpdate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
+                this.phenotypes = UtilsNew.removeArrayByIndex(this.phenotypes, i);
+                // this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
                 LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
                 Swal.fire(
                     "Deleted!",
@@ -129,7 +133,7 @@ export default class PhenotypeListUpdate extends LitElement {
                 </div>`;
         }
         return html`
-            ${phenotypes?.map(pheno => html`
+            ${phenotypes?.map((pheno, i) => html`
                 <li>
                     <div class="row">
                         <div class="col-md-8">
@@ -138,9 +142,9 @@ export default class PhenotypeListUpdate extends LitElement {
                         <div class="col-md-4">
                             <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                 <button type="button" class="btn btn-primary btn-xs"
-                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", phenotype: pheno})}">Edit</button>
+                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", indexItem: i})}">Edit</button>
                                 <button type="button" class="btn btn-danger btn-xs"
-                                    @click="${e => this.onRemovePhenotype(e, pheno)}">Delete</button>
+                                    @click="${e => this.onRemovePhenotype(e, i)}">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -186,6 +190,7 @@ export default class PhenotypeListUpdate extends LitElement {
                     <div class="modal-body">
                         <phenotype-manager
                             .phenotype="${this.phenotype}"
+                            .mode=${this._manager.action}
                             @closeForm="${e => this.onCloseForm(e)}"
                             @addItem="${this.onActionPhenotype}">
                         </phenotype-manager>

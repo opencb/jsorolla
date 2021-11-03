@@ -62,6 +62,7 @@ export default class FormUtils {
         return _updateParams;
     }
 
+    // updateNestedObject, updateMultipleObject... alternative function name.
     static updateObjectWithProps(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -82,7 +83,7 @@ export default class FormUtils {
                 [prop]: value
             };
         } else {
-            delete _updateParams[field];
+            delete _updateParams[field][prop];
         }
 
         // We need to create a new 'updateParams' reference to force an update

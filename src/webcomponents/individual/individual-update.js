@@ -103,7 +103,7 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-                [this.individual, this.updateParams] = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
                 break;
             case "location.address":
             case "location.postalCode":
@@ -115,7 +115,7 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
-                [this.individual, this.updateParams] = FormUtils.updateObject(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateObjectWithProps(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
                 break;
         }
         this.requestUpdate();

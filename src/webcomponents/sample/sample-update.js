@@ -59,6 +59,7 @@ export default class SampleUpdate extends LitElement {
         super.connectedCallback();
         // it's not working well init or update,
         // it's working well here.. connectedCallback
+        this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -152,35 +153,46 @@ export default class SampleUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    onRemovePhenotype(e) {
-        console.log("This is to remove a item ");
-        this.sample = {
-            ...this.sample,
-            phenotypes: this.sample.phenotypes
-                .filter(item => item !== e.detail.value)
-        };
-    }
-
-    onAddPhenotype(e) {
-        this.sample.phenotypes.push(e.detail.value);
-        this.updateParams.phenotypes = this.sample.phenotypes;
-    }
-
     onClear() {
         this._config = this.getDefaultConfig();
-
         this.sample = JSON.parse(JSON.stringify(this._sample));
         this.updateParams = {};
         this.sampleId = "";
     }
 
+    // DEPRECATED
+    // removePhenotype() {
+    //     const params = {
+    //         study: this.opencgaSession.study.fqn,
+    //         phenotypesAction: "REMOVE"
+    //     };
+    //     console.log("Removed Phenotype: ", this.removedPhenotypes);
+    //     this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.removedPhenotypes, params)
+    //         .then(res => {
+    //             this.removedPhenotypes = [];
+    //             // this._sample = JSON.parse(JSON.stringify(this.sample));
+    //             // this.updateParams = {};
+    //             // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
+    //         })
+    //         .catch(err => {
+    //             console.error(err);
+    //             FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
+    //         });
+    // }
+
     onSubmit() {
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            phenotypesAction: "SET"
+        };
+
+        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, params)
             .then(res => {
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
                 FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
-                // dispatch
+                // sessionUpdateRequest
+                // TODO: dispacth to the user the data is saved
             })
             .catch(err => {
                 console.error(err);
@@ -188,11 +200,27 @@ export default class SampleUpdate extends LitElement {
             });
     }
 
+    //
     onSyncPhenotypes(e) {
         e.stopPropagation();
-        this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+        const newPhenotypes = e.detail.value;
+        this.updateParams = {...this.updateParams, phenotypes: newPhenotypes};
+        console.log("sample updated", this.updateParams);
+
+        // Deprecated
+        // this.removedPhenotypes = this.sample.phenotypes
+        //     .map(pheno => {
+        //         return {id: pheno.id};
+        //     })
+        //     .filter(pheno =>
+        //         !newPhenotypes.map(newPheno => newPheno.id)
+        //             .includes(pheno.id));
+
+        // console.log("Removed Phenotype:", this.removedPhenotypes);
+
     }
 
+    // display a button to back sample browser.
     onShowBtnSampleBrowser() {
         const query = {
             xref: this.sampleId
@@ -212,6 +240,20 @@ export default class SampleUpdate extends LitElement {
                     <i class="fa fa-hand-o-left" aria-hidden="true"></i> Sample Browser
                 </button>
             </div>
+        `;
+    }
+
+    render() {
+        return html`
+            ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
+            <data-form
+                .data=${this.sample}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
+            </data-form>
         `;
     }
 
@@ -450,20 +492,6 @@ export default class SampleUpdate extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
-            <data-form
-                .data=${this.sample}
-                .config="${this._config}"
-                .updateParams=${this.updateParams}
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }
