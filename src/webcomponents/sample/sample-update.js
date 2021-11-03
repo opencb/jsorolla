@@ -105,14 +105,14 @@ export default class SampleUpdate extends LitElement {
     }
 
     // TODO move to a generic Utils class
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
+    // dispatchSessionUpdateRequest() {
+    //     this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
+    //         detail: {
+    //         },
+    //         bubbles: true,
+    //         composed: true
+    //     }));
+    // }
 
     onFieldChange(e) {
         console.log("Test:", e.detail.param, e.detail.value);
@@ -186,7 +186,8 @@ export default class SampleUpdate extends LitElement {
             phenotypesAction: "SET"
         };
 
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, params)
+        this.opencgaSession.opencgaClient.samples()
+            .update(this.sample.id, this.updateParams, params)
             .then(res => {
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
@@ -200,24 +201,9 @@ export default class SampleUpdate extends LitElement {
             });
     }
 
-    //
     onSyncPhenotypes(e) {
         e.stopPropagation();
-        const newPhenotypes = e.detail.value;
-        this.updateParams = {...this.updateParams, phenotypes: newPhenotypes};
-        console.log("sample updated", this.updateParams);
-
-        // Deprecated
-        // this.removedPhenotypes = this.sample.phenotypes
-        //     .map(pheno => {
-        //         return {id: pheno.id};
-        //     })
-        //     .filter(pheno =>
-        //         !newPhenotypes.map(newPheno => newPheno.id)
-        //             .includes(pheno.id));
-
-        // console.log("Removed Phenotype:", this.removedPhenotypes);
-
+        this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
     }
 
     // display a button to back sample browser.

@@ -123,30 +123,48 @@ export default class IndividualUpdate extends LitElement {
 
     onClear() {
         console.log("OnClear individual update");
+        this._config = this.getDefaultConfig();
+        this.individual = JSON.parse(JSON.stringify(this._individual));
+        this.updateParams = {};
+        this.individualId = "";
     }
 
     onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            phenotypesAction: "SET"
+        };
+
         this.opencgaSession.opencgaClient.individuals()
-            .update(
-                this.individual.id,
-                this.updateParams,
-                {study: this.opencgaSession.study.fqn}
-            )
+            .update(this.individual.id, this.updateParams, params)
             .then(res => {
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
                 FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
+                // this.dispatchSessionUpdateRequest();
             })
             .catch(err => {
                 console.error(err);
+                FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
             });
     }
 
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -331,19 +349,6 @@ export default class IndividualUpdate extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.individual}
-                .config="${this._config}"
-                .updateParams=${this.updateParams}
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }
