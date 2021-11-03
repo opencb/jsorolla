@@ -82,33 +82,35 @@ export default class CustomWelcome extends LitElement {
             `;
         } else {
             // Render tools list
-            const visibleTools = (this.app.menu || []).filter(item => {
-                return UtilsNew.isAppVisible(item, session);
+            const featuredTools = [];
+            (this.app.menu || []).forEach(item => {
+                if (UtilsNew.isAppVisible(item, session)) {
+                    // Check if the primary menu item is featured
+                    if (item.featured) {
+                        featuredTools.push(item);
+                    }
+
+                    // Check for submenu items
+                    (item.submenu || []).forEach(subitem => {
+                        if (UtilsNew.isAppVisible(subitem) && subitem.featured) {
+                            featuredTools.push(subitem);
+                        }
+                    });
+                }
             });
 
             return html`
-                ${visibleTools.map(item => {
+                ${featuredTools.map(item => {
                     const itemLink = `${item.id}/${session?.project ? `${session.project.id}/${session.study.id}`: ""}`;
                     return html`
-                        ${item.submenu ? html`
-                            <a class="icon-wrapper" data-cat-id="cat-${item.id}" data-title="${item.name}" href="#cat-${itemLink}">
-                                <div class="hi-icon">
-                                    <img alt="${item.name}" src="${item.icon}" />
-                                </div>
-                                <div style="margin-top:10px;">
-                                    <strong>${item.name}</strong>
-                                </div>
-                            </a>
-                        ` : html`
-                            <a class="icon-wrapper" href="#${itemLink}">
-                                <div class="hi-icon">
-                                    <img alt="${item.name}" src="${item.icon}" />
-                                </div>
-                                <div style="margin-top:10px;">
-                                    <strong>${item.name}</strong>
-                                </div>
-                            </a>
-                        `}
+                        <a class="icon-wrapper" href="#${itemLink}">
+                            <div class="hi-icon">
+                                <img alt="${item.name}" src="${item.icon}" />
+                            </div>
+                            <div style="margin-top:10px;">
+                                <strong>${item.name}</strong>
+                            </div>
+                        </a>
                     `;
                 })}
             `;
