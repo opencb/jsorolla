@@ -344,7 +344,7 @@ export default class VariantInterpreterGridFormatter {
                             </a>
                         </div>`;
                 }
-
+debugger
                 // Get the CT for this transcript ID
                 const ct = row.annotation?.consequenceTypes
                     ?.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId || ct.transcriptId === re.genomicFeature.transcriptId);

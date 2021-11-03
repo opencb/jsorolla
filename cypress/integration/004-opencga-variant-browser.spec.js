@@ -237,9 +237,9 @@ context("4. Variant Browser", () => {
         cy.get("[data-cy-section-title=Phenotype]").click();
 
         // GO
-        selectToken("go-accessions-filter", "dopamine", true); // dopamine secrection
-        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
-        removeToken("go-accessions-filter", "GO:0014046");
+        selectToken("go-accessions-filter", "guanyl", true); // guanyl-nucleotide exchange factor activity
+        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0005085");
+        removeToken("go-accessions-filter", "GO:0005085");
 
         // HPO
         cy.get("[data-cy-section-id=Phenotype]")

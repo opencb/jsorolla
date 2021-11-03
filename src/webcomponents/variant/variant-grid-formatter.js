@@ -158,25 +158,13 @@ export default class VariantGridFormatter {
         if (query?.ct) {
             const consequenceTypes = new Set();
             for (const ct of query.ct.split(",")) {
-                if (ct.toUpperCase() === "LOF") {
-                    CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
-                } else {
-                    consequenceTypes.add(ct);
-                }
+                consequenceTypes.add(ct);
             }
 
-            // const queryCtArray = query.ct.split(",");
             for (const ct of selectedConsequenceTypes) {
                 if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
                     geneHasQueryCt.add(ct.geneName);
                 }
-
-                // for (const so of ct.sequenceOntologyTerms) {
-                //     if (queryCtArray.includes(so.name)) {
-                //         geneHasQueryCt.add(ct.geneName);
-                //         break;
-                //     }
-                // }
             }
         }
 
@@ -330,12 +318,9 @@ export default class VariantGridFormatter {
             if (ctQuery) {
                 const consequenceTypes = new Set();
                 for (const ct of ctQuery.split(",")) {
-                    if (ct.toUpperCase() === "LOF") {
-                        CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
-                    } else {
-                        consequenceTypes.add(ct);
-                    }
+                    consequenceTypes.add(ct);
                 }
+
                 const newSelectedConsequenceTypes = [];
                 for (const ct of selectedConsequenceTypes) {
                     if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {

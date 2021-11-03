@@ -20,4 +20,15 @@ const CUSTOM_PAGES = [
         title: "Frequently Asked Questions",
         content: "Content of the <b>FAQ</b> page.",
     },
+    {
+        url: "getting-started",
+        title: "Getting Started",
+        content: `
+            <h3>Login</h3>
+            <p>Welcome to ....</p>
+
+            <h3>Menu</h3>
+            ...
+        `,
+    },
 ];

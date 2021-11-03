@@ -19,7 +19,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 
-export default class OpencgaCohortBrowser extends LitElement {
+export default class CohortBrowser extends LitElement {
 
     constructor() {
         super();
@@ -40,12 +40,6 @@ export default class OpencgaCohortBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -53,22 +47,6 @@ export default class OpencgaCohortBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "cb" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
-
         this._config = this.getDefaultConfig();
     }
 
@@ -92,7 +70,6 @@ export default class OpencgaCohortBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
@@ -190,7 +167,10 @@ export default class OpencgaCohortBrowser extends LitElement {
                             active: true,
                             render: (cohort, active, opencgaSession) => {
                                 return html`
-                                    <opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
+                                    <opencga-cohort-view
+                                        .opencgaSession="${opencgaSession}"
+                                        .cohort="${cohort}">
+                                    </opencga-cohort-view>`;
                             }
                         },
                         {
@@ -198,10 +178,11 @@ export default class OpencgaCohortBrowser extends LitElement {
                             name: "Samples",
                             render: (cohort, active, opencgaSession) => {
                                 return html`
-                                    <opencga-sample-grid .opencgaSession="${opencgaSession}"
-                                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                                         .config="${{showSelectCheckbox: false}}"
-                                                         .active="${active}">
+                                    <opencga-sample-grid
+                                        .opencgaSession="${opencgaSession}"
+                                        .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
+                                        .config="${{showSelectCheckbox: false}}"
+                                        .active="${active}">
                                     </opencga-sample-grid>
                                 `;
                             }
@@ -312,14 +293,14 @@ export default class OpencgaCohortBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-                    <opencga-browser resource="COHORT"
-                                     .opencgaSession="${this.opencgaSession}"
-                                     .query="${this.query}"
-                                     .config="${this._config}">
-                    </opencga-browser>` :
-            "";
+                <opencga-browser
+                    resource="COHORT"
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.query}"
+                    .config="${this._config}">
+                </opencga-browser>` : "";
     }
 
 }
 
-customElements.define("opencga-cohort-browser", OpencgaCohortBrowser);
+customElements.define("cohort-browser", CohortBrowser);

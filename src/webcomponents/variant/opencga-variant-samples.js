@@ -53,7 +53,11 @@ export default class OpencgaVariantSamples extends LitElement {
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
-        this.toolbarConfig = {};
+        this.toolbarConfig = {
+            showColumns: true,
+            showExport: false,
+            showDownload: true
+        };
     }
 
     connectedCallback() {
@@ -254,7 +258,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 };
             } else {
                 this.requestUpdate();
-                await Promise.reject("No samples found");
+                await Promise.reject(new Error("No samples found"));
             }
         } catch (e) {
             await Promise.reject(e);
