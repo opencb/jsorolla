@@ -58,7 +58,6 @@ export default class PhenotypeUpdate extends LitElement {
     }
 
     phenotypeObserver() {
-        console.log("Observer Phenotype");
         if (this.phenotype) {
             this._phenotype = JSON.parse(JSON.stringify(this.phenotype));
         }

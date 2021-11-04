@@ -41,7 +41,7 @@ export default class StudyClinicalConfig extends LitElement {
     }
 
     _init() {
-        console.log("init study clinical config");
+        // console.log("init study clinical config");
         // console.log("study selected ", this.study);
     }
 
@@ -49,12 +49,12 @@ export default class StudyClinicalConfig extends LitElement {
         super.connectedCallback();
         this.updateParams = {};
         this._config = {...this.getDefaultConfig()};
-        console.log("config study", this.clinicalConfig);
+        // console.log("config study", this.clinicalConfig);
     }
 
     update(changedProperties) {
         if (changedProperties.has("clinicalConfig")) {
-            console.log("copy internal clinicalConfig");
+            // console.log("copy internal clinicalConfig");
             this.clinicalConfigObserver();
         }
         super.update(changedProperties);

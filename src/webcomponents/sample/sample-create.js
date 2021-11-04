@@ -157,7 +157,7 @@ export default class SampleCreate extends LitElement {
 
     onSyncPhenotypes(e) {
         e.stopPropagation();
-        console.log("Updated list", this);
+        // console.log("Updated list", this);
         this.sample = {...this.sample, phenotypes: e.detail.value};
     }
 
@@ -270,27 +270,42 @@ export default class SampleCreate extends LitElement {
                         {
                             name: "Product",
                             field: "processing.product",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a product..."
+                            }
                         },
                         {
                             name: "Preparation Method",
                             field: "processing.preparationMethod",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a preparation method..."
+                            }
                         },
                         {
                             name: "Extraction Method",
                             field: "processing.extrationMethod",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a extraction method..."
+                            }
                         },
                         {
                             name: "Lab Sample ID",
                             field: "processing.labSambpleId",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add the lab sample ID..."
+                            }
                         },
                         {
                             name: "Quantity",
                             field: "processing.quantity",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a quantity..."
+                            }
                         },
                         {
                             id: "processing_date",
@@ -312,22 +327,34 @@ export default class SampleCreate extends LitElement {
                         {
                             name: "Tissue",
                             field: "collection.tissue",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a tissue..."
+                            }
                         },
                         {
                             name: "Organ",
                             field: "collection.organ",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add an organ..."
+                            }
                         },
                         {
                             name: "Quantity",
                             field: "collection.quantity",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a quantity..."
+                            }
                         },
                         {
                             name: "Method",
                             field: "collection.method",
-                            type: "input-text"
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a method..."
+                            }
                         },
                         {
                             id: "collection_date",

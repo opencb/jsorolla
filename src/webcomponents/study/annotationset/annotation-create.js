@@ -67,7 +67,7 @@ export default class AnnotationCreate extends LitElement {
 
     variableSetIdsObserver() {
         this.variableSetIds = this._variableSetIds?.filter(variableSetId => !this.variableSetIdsSelected?.includes(variableSetId));
-        console.log("selected", this.variableSetIdsSelected, "result: ", this.variableSetIds);
+        // console.log("selected", this.variableSetIdsSelected, "result: ", this.variableSetIds);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -80,7 +80,7 @@ export default class AnnotationCreate extends LitElement {
             this.variableSetIds = this._variableSetIds.filter(variableSetId => !this.variableSetIdsSelected.includes(variableSetId));
         } catch (error) {
             // TODO: Add Message to notify user;
-            console.log("######ERROR :", error);
+            // console.log("######ERROR :", error);
         } finally {
             this.refreshForm();
         }
@@ -99,6 +99,7 @@ export default class AnnotationCreate extends LitElement {
             };
         });
         this._config = {...this.getDefaultConfig(), ...this.config};
+        // console.log("Variables:", this.variableSet);
     }
 
     refreshForm() {
@@ -135,7 +136,7 @@ export default class AnnotationCreate extends LitElement {
                 delete this.annotationSet[field];
             }
         }
-        console.log("this.annotationSet", this.annotationSet);
+        // console.log("this.annotationSet", this.annotationSet);
     }
 
     getVariablesById(variableId) {
@@ -202,15 +203,13 @@ export default class AnnotationCreate extends LitElement {
 
     render() {
         return html`
-            <div class="subform-test">
-                <data-form
-                    .data=${this.annotationSet}
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClearForm}"
-                    @submit="${e => this.onSendAnnotationSet(e)}">
-                </data-form>
-            </div>
+            <data-form
+                .data=${this.annotationSet}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClearForm}"
+                @submit="${e => this.onSendAnnotationSet(e)}">
+            </data-form>
     `;
     }
 

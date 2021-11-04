@@ -19,6 +19,7 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../study/phenotype/phenotype-list-update.js";
+import "../study/annotationset/annotation-set-update.js";
 export default class SampleUpdate extends LitElement {
 
     constructor() {
@@ -84,6 +85,7 @@ export default class SampleUpdate extends LitElement {
         if (this.sample) {
             this._sample = JSON.parse(JSON.stringify(this.sample));
         }
+        console.log("Sample info:", this.sample);
     }
 
     sampleIdObserver() {
@@ -172,6 +174,12 @@ export default class SampleUpdate extends LitElement {
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+    }
+
+    onSyncAnnotationSets(e) {
+        e.stopPropagation();
+        console.log("Updated list ", this);
+        this.sample = {...this.updateParams, annotationSets: e.detail.value};
     }
 
     // display a button to back sample browser.
@@ -419,7 +427,6 @@ export default class SampleUpdate extends LitElement {
                                 render: () => html`
                                     <phenotype-list-update
                                         .phenotypes="${this.sample?.phenotypes}"
-                                        .updateManager="${true}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
                                     </phenotype-list-update>`
@@ -434,14 +441,13 @@ export default class SampleUpdate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <annotation-form
-                                        .sample="${this.sample}"
+                                    <annotation-set-update
+                                        .annotationSets="${this.sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @fieldChange="${e => this.onFieldChange(e)}">
-                                    </annotation-form>
-                                `
+                                        @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
+                                    </annotation-set-update>`
                             }
-                        }
+                        },
                     ]
                 }
             ]
