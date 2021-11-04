@@ -119,7 +119,7 @@ export default class SampleUpdate extends LitElement {
             case "status.description":
             case "processing.product":
             case "processing.preparationMethod":
-            case "processing.extrationMethod":
+            case "processing.extractionMethod":
             case "processing.labSambpleId":
             case "processing.quantity":
             case "processing.date":
@@ -243,7 +243,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short sample id"
+                                    text: "Add short sample id"
                                 }
                             }
                         },
@@ -255,7 +255,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "search individual to select"
+                                    text: "Search individual to select"
                                 }
                             }
                         },
@@ -264,8 +264,8 @@ export default class SampleUpdate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
+                                placeholder: "Add a description...",
                                 rows: 3,
-                                placeholder: "write a description..."
                             }
                         },
                         {
@@ -278,7 +278,7 @@ export default class SampleUpdate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                placeholder: "write a status name."
+                                placeholder: "Add a status name..."
                             }
                         },
                         {
@@ -287,7 +287,7 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "write a description for the status..."
+                                placeholder: "Add a description for the status..."
                             }
                         },
                         {
@@ -316,7 +316,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.product",
                             type: "input-text",
                             display: {
-                                placeholder: "add a product"
+                                placeholder: "Add a product..."
                             }
                         },
                         {
@@ -329,7 +329,7 @@ export default class SampleUpdate extends LitElement {
                         },
                         {
                             name: "Extraction Method",
-                            field: "processing.extrationMethod",
+                            field: "processing.extractionMethod",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a extraction method..."
