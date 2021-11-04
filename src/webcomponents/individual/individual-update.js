@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/tool-header.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
-
+import "../commons/tool-header.js";
+import LitUtils from "../commons/utils/lit-utils";
 export default class IndividualUpdate extends LitElement {
 
     constructor() {
@@ -127,6 +126,7 @@ export default class IndividualUpdate extends LitElement {
         this.individual = JSON.parse(JSON.stringify(this._individual));
         this.updateParams = {};
         this.individualId = "";
+        LitUtils.dispatchEventCustom(this, "cancelUpdateIndividual");
     }
 
     onSubmit() {

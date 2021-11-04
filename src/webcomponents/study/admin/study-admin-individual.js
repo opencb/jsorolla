@@ -139,7 +139,8 @@ export default class StudyAdminIndividual extends LitElement {
                                     ${this.editIndividual? html`
                                         <individual-update
                                             .individual="${this.individual}"
-                                            .opencgaSession="${opencgaSession}">
+                                            .opencgaSession="${opencgaSession}"
+                                            @cancelUpdateIndividual=${e => this.clearForm(e)}>
                                         </individual-update>
                                     ` : html`
                                         <individual-view

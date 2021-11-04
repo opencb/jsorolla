@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import "../study/phenotype/phenotype-list-update.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-
+import UtilsNew from "../../core/utilsNew.js";
+import "../study/phenotype/phenotype-list-update.js";
 export default class SampleUpdate extends LitElement {
 
     constructor() {
