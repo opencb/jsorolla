@@ -23,7 +23,7 @@
 import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
-import "./category-page.js";
+import "./obsolete/category-page.js";
 import "./iva-profile.js";
 import "./iva-settings.js";
 
