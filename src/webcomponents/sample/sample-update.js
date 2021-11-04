@@ -128,7 +128,7 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                this.updateParams= FormUtils.updateObjectWithProps(
+                this.updateParams = FormUtils.updateObjectWithProps(
                     this._sample,
                     this.sample,
                     this.updateParams,

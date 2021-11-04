@@ -20,6 +20,8 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/text-field-filter.js";
 import "./phenotype-manager.js";
+import "./phenotype-create.js";
+import "./phenotype-update.js";
 
 export default class PhenotypeListUpdate extends LitElement {
 
@@ -188,12 +190,24 @@ export default class PhenotypeListUpdate extends LitElement {
                         <h4 class="modal-title">Phenotype Information</h4>
                     </div>
                     <div class="modal-body">
-                        <phenotype-manager
-                            .phenotype="${this.phenotype}"
-                            .mode=${this._manager.action}
-                            @closeForm="${e => this.onCloseForm(e)}"
-                            @addItem="${this.onActionPhenotype}">
-                        </phenotype-manager>
+                        ${this._manager.action === "ADD" ? html`
+                            <phenotype-create
+                                @closeForm=${e => this.onCloseForm(e)}
+                                @addItem=${this.onActionPhenotype}
+                            ></phenotype-create>
+                            ` : html `
+                            <phenotype-update
+                                .phenotype=${this.phenotype}
+                                @closeForm=${e => this.onCloseForm(e)}
+                                @addItem=${this.onActionPhenotype}>
+                            </phenotype-update>
+                        `}
+                        <!-- <phenotype-manager
+                            .phenotype="\${this.phenotype}"
+                            .mode=\${this._manager.action}
+                            @closeForm="\${e => this.onCloseForm(e)}"
+                            @addItem="\${this.onActionPhenotype}">
+                        </phenotype-manager> -->
                     </div>
                 </div>
             </div>
