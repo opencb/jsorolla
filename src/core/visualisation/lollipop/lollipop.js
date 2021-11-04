@@ -85,16 +85,12 @@ export default class Lollipop {
 
 
         this.circles = this.prepareVariants(track); // add viewPos
-        console.log("this.circles prepared", JSON.stringify(this.circles));
-
         this.circles = this.clusterVariants(this.circles, track);
-
-        this.layoutVariants(this.circles, track);
-        console.log("this.circles layout", JSON.stringify(this.circles));
 
 
         // const path = variantArea.path('M 50 50 150 150').stroke("#000").animate({delay: 2000}).plot('M 50 50 50 0')
 
+        this.layoutVariants(this.circles, track);
 
         console.log("data", this.circles);
         this.edges = [];
@@ -114,11 +110,10 @@ export default class Lollipop {
                 v.delay(i * 100);
                 v.animate({duration: 500}).dy(-height/2 - variant.size).ease(">");
 
-                const offset = variant.offset ?? 0; // expected to be a property after preProcessVariants()
-                this.edges.push(this.edge(v, variant, height/2, variant.viewPos, offset));
+                const edge = this.edge(v, variant, height/2, variant.viewPos, variant.offset);
 
                 const circle = v.circle(variant.size)
-                    .dx(-variant.size/2 + offset)
+                    .dx(-variant.size/2 + variant.offset)
                     .dy(-variant.size/2)
                     .fill(variant.color ?? "#6872ff")
                     .stroke({color: "#000", opacity: 0})
@@ -129,18 +124,29 @@ export default class Lollipop {
                 // .size(size).dx(-size/2)*/;
 
                 if (variant.type === "cluster") {
-                    v.text(variant.variants.length).dy(5).dx(offset).font({size: variant.size * .5 + "px"});
+                    v.text(variant.variants.length).dy(5).dx(variant.offset).font({size: variant.size * .5 + "px"});
                 } else {
                     // single variant
-                    v.text(variant.id).dy(-variant.size/2 - 5).dx(offset).font({size: "10px"});
+                    v.text(variant.id).dy(-variant.size/2 - 5).dx(variant.offset).font({size: "10px"});
                 }
 
                 v.click(e => this.onClickVariantGroup(e, circle, variant));
+                variant.domRef = v;
+                variant.domRefEdge = edge;
             }
 
         });
+        // this.layoutVariants(this.circles, track);
+        // this.updateVariants();
 
         this.currentTrackOffset += height;
+    }
+
+    updateVariants() {
+        this.circles.forEach((variant, i) => {
+            variant.domRef.animate({delay: 1000}).dx(variant.offset);
+            // variant.domRefEdge.animate({delay: 1000}).plot(`M ${0} ${height} V ${height * .5} L ${offset} ${height * .4} V ${circle.size/2 + 5}`)
+        });
     }
 
     positionBarRender(track) {
@@ -319,6 +325,7 @@ export default class Lollipop {
          * Next steps:
          * 1. Turn recursion into iterative
          * 2. implement a backtracking mechanism and increase the clustering max distance (in case of no space for all the nodes)
+         * 3. implement updatable edges
           */
 
         const boundaries = [0, this.canvasWidth];
