@@ -49,8 +49,6 @@ export default class SampleUpdate extends LitElement {
 
     _init() {
         this.sample = {};
-        this.updateParams = {};
-
         this.phenotype = {};
         this.annotationSets = {};
     }

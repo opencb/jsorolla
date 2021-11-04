@@ -92,33 +92,63 @@ export default class CohortUpdate extends LitElement {
         }
     }
 
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     onFieldChange(e) {
         switch (e.detail.param) {
             case "id":
             case "name":
             case "description":
             case "type":
-                if (this._cohort[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.cohort[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
+                this.updateParams = FormUtils.updateScalar(
+                    this._cohort,
+                    this.cohort,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
             case "status.name":
             case "status.description":
-                FormUtils.updateObject(this._cohort, this.cohort, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateObjectWithProps(
+                    this._cohort,
+                    this.cohort,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
         }
+        this.requestUpdate();
+    }
+
+
+    onClear() {
+        this._config = this.getDefaultConfig();
+        this.cohort = JSON.parse(JSON.stringify(this._cohort));
+        this.updateParams = {};
+        this.cohortId = "";
+    }
+
+    onSubmit(e) {
+        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+            .then(res => {
+                this._cohort = JSON.parse(JSON.stringify(this.cohort));
+                this.updateParams = {};
+                FormUtils.showAlert("Edit Cohort", "Cohort updated correctly.", "success");
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.cohort}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear=${this.onClear}
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -198,36 +228,6 @@ export default class CohortUpdate extends LitElement {
                 }
             ]
         };
-    }
-
-    onSubmit(e) {
-        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this._cohort = JSON.parse(JSON.stringify(this.cohort));
-                this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
-                FormUtils.showAlert("Edit Cohort", "Cohort updated correctly.", "success");
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    }
-
-    onClear() {
-
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.cohort}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear=${this.onClear}
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }

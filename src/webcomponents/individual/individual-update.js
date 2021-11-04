@@ -126,7 +126,6 @@ export default class IndividualUpdate extends LitElement {
         this.individual = JSON.parse(JSON.stringify(this._individual));
         this.updateParams = {};
         this.individualId = "";
-        LitUtils.dispatchEventCustom(this, "cancelUpdateIndividual");
     }
 
     onSubmit() {
