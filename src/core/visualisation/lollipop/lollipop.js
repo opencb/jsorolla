@@ -67,6 +67,7 @@ export default class Lollipop {
 
 
         const main = this.variantsG.group().addClass("variants-area-wrapper").transform({translateY: this.variantsOrigin + track.view.scaleHeight});
+
         const variantAreaWrapper = main.rect(this.canvasWidth - this.canvasPadding, height).attr({fill: "#fff", stroke: "#9d9d9d"});
         const variantArea = main.group().addClass("variant-area").transform({translateX: this.canvasPadding});
         const variantAreaBackground = variantArea.rect(this.canvasWidth - this.canvasPadding * 2, height).addClass("variant-area-background").attr({fill: "#fff"}).transform({translateX: this.canvasPadding});
@@ -80,12 +81,23 @@ export default class Lollipop {
         });*/
 
 
-        this.circles = this.clusterVariants(track);
-        this.circles = this.layoutVariants(this.circles, track);
+        this.circles = this.prepareVariants(track); // add viewPos
+        console.log("this.circles prepared", JSON.stringify(this.circles));
+
+        // this.circles = this.clusterVariants(this.circles, track);
+
+        this.layoutVariants(this.circles, track);
+        console.log("this.circles layout", JSON.stringify(this.circles));
+
+
+        // const path = variantArea.path('M 50 50 150 150').stroke("#000").animate({delay: 2000}).plot('M 50 50 50 0')
+
 
         console.log("data", this.circles);
+        this.edges = [];
         this.circles.forEach((variant, i) => {
 
+            console.log("variant", variant);
             if (variant.pos >= this.viewFrame[0] && variant.pos <= this.viewFrame[1]) {
                 const y = height/2 - variant.size; // TODO y coord is dynamic on collisions
 
@@ -100,7 +112,7 @@ export default class Lollipop {
                 v.animate({duration: 500}).dy(-height/2 - variant.size).ease(">");
 
                 const offset = variant.offset ?? 0; // expected to be a property after preProcessVariants()
-                this.edge(v, variant, height/2, variant.viewPos, offset);
+                this.edges.push(this.edge(v, variant, height/2, variant.viewPos, offset));
 
                 const circle = v.circle(variant.size)
                     .dx(-variant.size/2 + offset)
@@ -208,25 +220,36 @@ export default class Lollipop {
 
     }
 
+    prepareVariants(track) {
+        const _variants = [...track.variants].sort((a, b) => a.pos - b.pos);
+        return _variants.map(variant => ({
+            ...variant,
+            size: track.view.circleSize,
+            viewPos: this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth),
+            offset: 0
+        }));
+    }
+
     /*
      * return the object in the structure expected for the plot (either a single variant or a cluster)
     */
-    clusterVariants(track) {
+    clusterVariants(variants, track) {
         const addResult = (pool, offset) => {
+
             if (pool.length > 1) {
                 const id = pool[0].id + "_" + pool[pool.length-1].id;
-                const poolPos = pool.reduce((acc, curr) => curr.pos + acc, 0) / pool.length; // (unweighted avg linkage)
+                const poolPos = pool.reduce((acc, curr) => curr.pos + acc, 0) / pool.length; // unweighted avg linkage
                 const variantViewFramePos = this.rescaleLinear(poolPos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
                 return {id: "cluster_" + id, viewPos: variantViewFramePos, pos: poolPos, variants: [...pool], type: "cluster", size: pool.length * 10 + track.view.circleSize};
             } else {
-                const variantViewFramePos = this.rescaleLinear(pool[0].pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
-                return {...pool[0], viewPos: variantViewFramePos, type: "variant", size: track.view.circleSize};
+                // const variantViewFramePos = this.rescaleLinear(pool[0].pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
+                return {...pool[0], type: "variant"};
             }
         };
 
 
         const points = [];
-        const _variants = [...track.variants].sort((a, b) => a.pos - b.pos);
+        const _variants = [...variants].sort((a, b) => a.pos - b.pos);
         let pool = [];
         let poolViewFramePos = 0;
         // TODO collision algorithm in progress
@@ -235,21 +258,21 @@ export default class Lollipop {
             // 2. calculate x coordinate (keeping original and new). Collision detection to get where to render the circles
 
             // convert original gene position into viewFrame position
-            const variantViewFramePos = this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
+            // const variantViewFramePos = this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
 
             const clusteringMaxDistance = poolViewFramePos + 20; /* + track.view.circleSize*/
             const offsetMaxDistance = poolViewFramePos + track.view.circleSize;
             if (!pool.length) {
                 pool.push(variant);
-                poolViewFramePos = variantViewFramePos;
+                poolViewFramePos = variant.viewPos;
             } else {
-                if (variantViewFramePos < clusteringMaxDistance) {
+                if (variant.viewPos < clusteringMaxDistance) {
                     pool.push(variant);
-                    poolViewFramePos = (poolViewFramePos + variantViewFramePos) / 2;
+                    poolViewFramePos = (poolViewFramePos + variant.viewPos) / 2;
                 } else {
                     points.push(addResult(pool));
                     pool = [variant];
-                    poolViewFramePos = variantViewFramePos;
+                    poolViewFramePos = variant.viewPos;
 
                 }
             }
@@ -273,57 +296,55 @@ export default class Lollipop {
      * // TODO in progress
      */
     layoutVariants(circles, track) {
-        // const offsetMaxDistance = poolViewFramePos + track.view.circleSize;
-        const addResult = (pool, offset) => {
-            console.log(pool);
-            if (pool.length > 1) {
-                // const groupSize = pool.reduce((acc, c) => acc + c.viewPos - pool[0].viewPos, 0);
-                const groupSize = pool.reduce((acc, c) => acc + c.size + 1, 0); // +1 is for keep space between reorganised circles
-                const groupMiddlePos = pool.reduce((acc, c) => acc + c.viewPos, 0) / pool.length;
-
-                const itemSize = groupSize / pool.length;
-                return pool.map((c, i) => {
-                    return {...c, offset: i * itemSize};
-                });
-                // return [...pool];
-            } else {
-                // check collision here too
-                return [{...pool[0]}];
-            }
-        };
 
 
-        const points = [];
-        let pool = [];
-        let poolViewFramePos = 0;
-        circles.forEach(variant => {
-            // convert original gene position into viewFrame position
-            const variantViewFramePos = this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
+        this.moveIntersected(circles);
+        return circles;
+    }
 
-            const offsetMaxDistance = poolViewFramePos + track.view.circleSize + 10; /* + track.view.circleSize*/
-            if (!pool.length) {
-                pool.push(variant);
-                poolViewFramePos = variantViewFramePos;
-            } else {
-                if (variantViewFramePos < offsetMaxDistance) {
-                    pool.push(variant);
-                    poolViewFramePos = (poolViewFramePos + variantViewFramePos) / 2;
-                } else {
-                    points.push(...addResult(pool));
-                    pool = [variant];
-                    poolViewFramePos = variantViewFramePos;
+    moveIntersected(arr = [], it = 0) {
 
-                }
-            }
-        });
+        const boundaries = [0, this.canvasWidth];
 
-        if (pool.length) {
-            points.push(...addResult(pool));
+        const step = 1;
+        const collisions = this.detectCollisions(arr);
+        if (collisions.length < 1 /* || it > 30*/) {
+            return;
         }
 
-        return points;
+        const mostIntersected = collisions.sort((a, b) => a[1] - b[1])[0];
+
+        const left = arr[Math.floor(mostIntersected[0])];
+        const right = arr[Math.ceil(mostIntersected[0])];
+
+        // check left boundary
+        if ((left.viewPos + left.offset) - (left.size * 2) - step >= boundaries[0]) {
+            left.offset -= step;
+        } else {
+            right.offset += step * 2;
+        }
+
+        // check right boundary
+        if ((right.viewPos + right.offset) + right.radius + step <= boundaries[1]) {
+            right.offset += step;
+        } else {
+            left.offset -= step * 2;
+        }
+        this.moveIntersected(arr, it+1);
 
 
+    }
+
+    detectCollisions(arr = []) {
+        const margin = 0; // margin between circles
+        const result = [];
+        for (let i = 0; i < arr.length - 1; i++) {
+            const dist = ((arr[i + 1].viewPos + arr[i + 1].offset) - (arr[i + 1].size * 2)) - ((arr[i].viewPos + arr[i].offset) + (arr[i].size * 2));
+            if (dist < margin) {
+                result.push([i + 0.5, dist]);
+            }
+        }
+        return result;
     }
 
     renderVariant() {
@@ -334,10 +355,10 @@ export default class Lollipop {
         console.log(circle);
         console.log(variantData);
 
+
         // circle.animate().ease(SVG.easing.beziere(10,20,30,40)).scale(1.1);
 
-        this.clearTooltips();
-        // parent.addClass("active");
+        /* this.clearTooltips();
         const tooltip = parent.group().addClass("tooltip");
 
         tooltip.text("Tooltip").font({size: "20px"});
@@ -352,7 +373,7 @@ export default class Lollipop {
             swing: true,
             times: 1,
             wait: 200
-        }).ease("<>").scale(2);
+        }).ease("<>").scale(2);*/
 
 
         // variantData.active = !variantData.active;
@@ -366,7 +387,12 @@ export default class Lollipop {
     edge(parent, circle, height, position, offset) {
         // path is drawn from bottom to top
         // last 30 is last point of the path
-        parent.path(`M ${0} ${height} V ${height * .5} L ${offset} ${height * .4} V ${circle.size/2 + 5}`).fill("none").addClass("edge-animate").stroke(circle.color ?? "#000");
+
+
+        return parent.path(`M ${0} ${height} V ${height * .5} L ${offset} ${height * .4} V ${circle.size/2 + 5}`)
+            .fill("none")
+            .addClass("edge-animate")
+            .stroke(circle.color ?? "#000");
     }
 
     /*
