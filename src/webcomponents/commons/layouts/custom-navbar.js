@@ -222,7 +222,9 @@ export default class CustomNavBar extends LitElement {
                                                     .filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession))
                                                     .map(subItem => subItem.category ? html`
                                                         <li>
-                                                            <a class="nav-item-category" href="${subItem.id ? "#" + subItem.id : "javascript: void 0"}">${subItem.name}</a>
+                                                            <a class="nav-item-category" style="background-color:white!important;cursor:auto!important;">
+                                                                <strong>${subItem.name}</strong>
+                                                            </a>
                                                         </li>
                                                     ` : subItem.separator ? html`
                                                         <li role="separator" class="divider"></li>
