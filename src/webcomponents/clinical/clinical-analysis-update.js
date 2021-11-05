@@ -414,7 +414,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 width: "9",
                                 render: status => this.renderStatus(status),
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -425,7 +425,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             defaultValue: "MEDIUM",
                             display: {
                                 width: "9",
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -436,7 +436,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             allowedValues: () => this.users,
                             display: {
                                 width: "9",
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -446,7 +446,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 width: "9",
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         }
                     ]
@@ -461,7 +461,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: panels => this.renderPanels(panels),
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -470,7 +470,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "toggle-switch",
                             display: {
                                 width: "9",
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -479,7 +479,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: flags => this.renderFlags(flags),
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -489,7 +489,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 3,
-                                disabled: () => !!this.clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
