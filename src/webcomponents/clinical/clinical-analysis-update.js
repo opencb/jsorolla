@@ -500,6 +500,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 render: comments => html`
                                     <clinical-analysis-comment-editor
                                         .comments="${comments}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
                                         @commentChange="${e => this.onCommentChange(e)}">
                                     </clinical-analysis-comment-editor>
                                 `,
