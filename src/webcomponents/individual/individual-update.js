@@ -19,6 +19,7 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../commons/tool-header.js";
 import LitUtils from "../commons/utils/lit-utils";
+
 export default class IndividualUpdate extends LitElement {
 
     constructor() {
@@ -69,7 +70,6 @@ export default class IndividualUpdate extends LitElement {
     }
 
     individualObserver() {
-        console.log("Individual: ", this.individual);
         if (this.individual) {
             this._individual = JSON.parse(JSON.stringify(this.individual));
         }
@@ -83,7 +83,7 @@ export default class IndividualUpdate extends LitElement {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
-                    this.requestUpdate();
+                    // this.requestUpdate();
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -121,8 +121,8 @@ export default class IndividualUpdate extends LitElement {
     }
 
     onClear() {
-        console.log("OnClear individual update");
-        this._config = this.getDefaultConfig();
+        // console.log("OnClear individual update");
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.individual = JSON.parse(JSON.stringify(this._individual));
         this.updateParams = {};
         this.individualId = "";
@@ -137,6 +137,7 @@ export default class IndividualUpdate extends LitElement {
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
             .then(res => {
+                // TODO get individual from database, ideally it should be returned by OpenCGA
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
                 FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
@@ -144,7 +145,8 @@ export default class IndividualUpdate extends LitElement {
             })
             .catch(err => {
                 console.error(err);
-                FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
+                // FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
+                FormUtils.notifyError(err);
             });
     }
 
