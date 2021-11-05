@@ -69,7 +69,7 @@ export default class OpencgaSampleGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
@@ -77,7 +77,7 @@ export default class OpencgaSampleGrid extends LitElement {
             this.active) {
             this.propertyObserver();
         }
-        super.update(changedProperties);
+        // super.update(changedProperties);
     }
 
     propertyObserver() {

@@ -175,7 +175,7 @@ class VariantInterpreter extends LitElement {
             tools: [
                 {
                     id: "select",
-                    title: "Case Info Manager",
+                    title: "Case Manager",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-folder-open"

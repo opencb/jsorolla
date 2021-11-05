@@ -23,7 +23,7 @@
 import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
-import "./category-page.js";
+import "./obsolete/category-page.js";
 import "./iva-profile.js";
 import "./iva-settings.js";
 
@@ -77,7 +77,7 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-c
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-writer.js";
+import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/opencga-file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
@@ -93,10 +93,6 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
-// import "../../webcomponents/commons/loading-bar.js";
-// import "./loading-bar.js";
-// import "../../webcomponents/alignment/analysis/opencga-alignment-stats-analysis.js";
-// /@dev
 
 
 class IvaApp extends LitElement {
@@ -207,7 +203,7 @@ class IvaApp extends LitElement {
             "individual-qc",
             "family-qc",
             // Clinical
-            "clinical-analysis-writer",
+            "clinical-analysis-create",
             "interpreter",
             "rd-tiering",
             // Alignment
@@ -1512,12 +1508,13 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["clinical-analysis-writer"] ? html`
+                ${this.config.enabledComponents["clinical-analysis-create"] ? html`
                     <tool-header title="${"Create Case"}" icon="${"fas fa-window-restore"}"></tool-header>
                     <div class="content container" id="opencga-clinical-analysis-create">
-                        <opencga-clinical-analysis-writer .opencgaSession="${this.opencgaSession}"
-                                                          @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                        </opencga-clinical-analysis-writer>
+                        <clinical-analysis-create
+                            .opencgaSession="${this.opencgaSession}"
+                            @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                        </clinical-analysis-create>
                     </div>
                 ` : null}
 
