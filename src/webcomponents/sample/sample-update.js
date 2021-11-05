@@ -414,7 +414,8 @@ export default class SampleUpdate extends LitElement {
                         }
                     ]
                 },
-                {title: "Phenotypes",
+                {
+                    title: "Phenotypes",
                     elements: [
                         {
                             field: "phenotype",
@@ -432,6 +433,11 @@ export default class SampleUpdate extends LitElement {
                                     </phenotype-list-update>`
                             }
                         },
+                    ]
+                },
+                {
+                    title: "Annotation Set",
+                    elements: [
                         {
                             field: "annotationSets",
                             type: "custom",
@@ -441,13 +447,13 @@ export default class SampleUpdate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <annotation-set-update
-                                        .annotationSets="${this.sample?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
-                                    </annotation-set-update>`
+                                <annotation-set-update
+                                    .annotationSets="${this.sample?.annotationSets}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
+                                </annotation-set-update>`
                             }
-                        },
+                        }
                     ]
                 }
             ]

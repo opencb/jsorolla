@@ -16,9 +16,9 @@
 
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/text-field-filter.js";
 import "./annotation-create.js";
 import "./annotation-update.js";
 
@@ -119,13 +119,12 @@ export default class AnnotationSetUpdate extends LitElement {
     }
 
     onCloseForm(e) {
+        e.stopPropagation();
         this.annotationSet = {};
         $("#annotationSetManagerModal"+ this._prefix).modal("hide");
-        e.stopPropagation();
     }
 
     renderAnnotationsSets(annotationSets) {
-
         if (UtilsNew.isEmptyArray(annotationSets)) {
             return html `
                 <div class="alert alert-info">

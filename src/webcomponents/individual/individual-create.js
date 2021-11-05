@@ -146,9 +146,9 @@ export default class IndividualCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a short ID...",
+                                placeholder: "Add an ID...",
                                 help: {
-                                    text: "short individual id"
+                                    text: "Add an ID"
                                 }
                             }
                         },
@@ -157,7 +157,7 @@ export default class IndividualCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name "
+                                placeholder: "Add the Individual name..."
                             }
                         },
                         {
@@ -165,7 +165,7 @@ export default class IndividualCreate extends LitElement {
                             field: "father",
                             type: "input-text",
                             display: {
-                                placeholder: "individual father id"
+                                placeholder: "Add the individual father ID..."
                             }
                         },
                         {
@@ -173,7 +173,7 @@ export default class IndividualCreate extends LitElement {
                             field: "mother",
                             type: "input-text",
                             display: {
-                                placeholder: "individual mother id"
+                                placeholder: "Add the individual mother ID..."
                             }
                         },
                         {
@@ -181,7 +181,9 @@ export default class IndividualCreate extends LitElement {
                             field: "sex",
                             type: "select",
                             allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
-                            display: {}
+                            display: {
+                                placeholder: "Select the sex..."
+                            }
                         },
                         {
                             name: "Birth",
@@ -198,7 +200,9 @@ export default class IndividualCreate extends LitElement {
                             name: "Ethnicity",
                             field: "ethnicity",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add an Ethnicity..."
+                            }
                         },
                         {
                             name: "Parental Consanguinity",
@@ -212,14 +216,18 @@ export default class IndividualCreate extends LitElement {
                             field: "karyotypicSex",
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
-                            display: {}
+                            display: {
+                                placeholder: "Select the Karyotypic Sex..."
+                            }
                         },
                         {
                             name: "Life Status",
                             field: "lifeStatus",
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                            display: {}
+                            display: {
+                                placeholder: "Select the life status..."
+                            }
                         }
                     ]
                 },
@@ -230,31 +238,41 @@ export default class IndividualCreate extends LitElement {
                             name: "Address",
                             field: "location.address",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the location info..."
+                            }
                         },
                         {
                             name: "Portal code",
                             field: "location.postalCode",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the portal code..."
+                            }
                         },
                         {
                             name: "City",
                             field: "location.city",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the city name..."
+                            }
                         },
                         {
                             name: "State",
                             field: "location.state",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the state name..."
+                            }
                         },
                         {
                             name: "Country",
                             field: "location.country",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the country name..."
+                            }
                         }
                     ]
                 },
@@ -265,13 +283,17 @@ export default class IndividualCreate extends LitElement {
                             name: "Population name",
                             field: "population.name",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the population name..."
+                            }
                         },
                         {
                             name: "Subpopulation",
                             field: "population.subpopulation",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the sub-population name..."
+                            }
                         },
                         {
                             name: "populaton description",
@@ -279,7 +301,7 @@ export default class IndividualCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "add a description..."
+                                placeholder: "Add a description about the population..."
                             }
                         }
                     ]

@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../commons/tool-header.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 export default class IndividualUpdate extends LitElement {
 
@@ -83,7 +82,6 @@ export default class IndividualUpdate extends LitElement {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
-                    // this.requestUpdate();
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -121,7 +119,6 @@ export default class IndividualUpdate extends LitElement {
     }
 
     onClear() {
-        // console.log("OnClear individual update");
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.individual = JSON.parse(JSON.stringify(this._individual));
         this.updateParams = {};
@@ -141,7 +138,6 @@ export default class IndividualUpdate extends LitElement {
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
                 FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
-                // this.dispatchSessionUpdateRequest();
             })
             .catch(err => {
                 console.error(err);
@@ -346,6 +342,28 @@ export default class IndividualUpdate extends LitElement {
                                 </phenotype-list-update>`
                             }
                         },
+                    ]
+                },
+                {
+                    title: "Disorder",
+                    elements: [
+                        {
+                            field: "disorder",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <disorder-list-update
+                                        .disorders="${this.individual?.disorders}"
+                                        .evidences="${this.individual?.phenotypes}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeDisorders="${e => this.onSync(e, "disorders")}">
+                                    </disorder-list-update>`
+                            }
+                        }
                     ]
                 }
             ]

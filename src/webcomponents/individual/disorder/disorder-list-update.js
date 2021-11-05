@@ -16,10 +16,13 @@
 
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/text-field-filter.js";
 import "./disorder-manager.js";
+import "./disorder-create.js";
+import "./disorder-update.js";
+import "../../../core/utilsNew.js";
 
 export default class DisorderListUpdate extends LitElement {
 
@@ -58,13 +61,11 @@ export default class DisorderListUpdate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.disorder = {};
-        this._manager = {
-            action: "",
-            disorder: ""
-        };
+        this.isAddItem = false;
     }
 
-    onShowDisorderManager(e, manager) {
+    onShowDisorderManager(e, isAdd, data) {
+        this.isAddItem = isAdd;
         if (UtilsNew.isEmptyArray(this.evidences)) {
             return Swal.fire(
                 "Message",
@@ -72,12 +73,10 @@ export default class DisorderListUpdate extends LitElement {
                 "warning"
             );
         }
-
-        this._manager = manager;
-        if (manager.action === "ADD") {
+        if (isAdd) {
             this.disorder = {};
         } else {
-            this.disorder = manager.disorder;
+            this.disorder = data;
         }
         this.requestUpdate();
         $("#disorderManagerModal"+ this._prefix).modal("show");
@@ -85,12 +84,13 @@ export default class DisorderListUpdate extends LitElement {
 
     onActionDisorder(e) {
         e.stopPropagation();
-        if (this._manager.action === "ADD") {
-            // TODO: rename addEvidenceAsObject
+        if (this.isAddItem) {
+            // To add disorder, must you have evidence?
             const disorder = this.addEvidencesAsObject(e.detail.value);
             this.addDisorder(disorder);
+
         } else {
-            this.editDisorders(e.detail.value);
+            this.updateDisorder(e.detail.value);
         }
         $("#disorderManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
@@ -110,7 +110,7 @@ export default class DisorderListUpdate extends LitElement {
         LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
     }
 
-    editDisorders(disorder) {
+    updateDisorder(disorder) {
         const indexItem = this.disorders.findIndex(item => item.id === this.disorder.id);
         this.disorders[indexItem] = disorder;
         this.disorder = {};
@@ -131,7 +131,7 @@ export default class DisorderListUpdate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                this.disorders = this.disorders.filter(pheno => pheno !== item);
+                this.disorders = this.disorders.filter(disorder => disorder !== item);
                 LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
                 Swal.fire(
                     "Deleted!",
@@ -160,12 +160,12 @@ export default class DisorderListUpdate extends LitElement {
                     <li>
                         <div class="row">
                             <div class="col-md-8">
-                                <span style="margin-left:14px">${item.description}</span>
+                                <span style="margin-left:14px">${item.name} (${item.id})</span>
                             </div>
                             <div class="col-md-4">
                                 <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                     <button type="button" class="btn btn-primary btn-xs"
-                                        @click="${e => this.onShowDisorderManager(e, {action: "EDIT", disorder: item})}">Edit</button>
+                                        @click="${e => this.onShowDisorderManager(e, false, item)}">Edit</button>
                                     <button type="button" class="btn btn-danger btn-xs"
                                         @click="${e => this.onRemoveDisorder(e, item)}">Delete</button>
                                 </div>
@@ -199,7 +199,7 @@ export default class DisorderListUpdate extends LitElement {
                     ${this.renderItems(this.disorders)}
                 </ul>
                 <button type="button" class="btn btn-primary btn-sm"
-                    @click="${e => this.onShowDisorderManager(e, {action: "ADD"})}">
+                    @click="${e => this.onShowDisorderManager(e, true)}">
                     Add Disorder
                 </button>
             </div>
@@ -213,12 +213,28 @@ export default class DisorderListUpdate extends LitElement {
                         <h4 class="modal-title">Disorder Information</h4>
                     </div>
                     <div class="modal-body">
-                        <disorder-manager
-                            .disorder="${this.disorder}"
-                            .evidences="${this.evidences}"
-                            @closeForm="${e => this.onCloseForm(e)}"
-                            @addItem="${this.onActionDisorder}">
-                        </disorder-manager>
+                        ${this.isAddItem?html `
+                            <disorder-create
+                                .evidences=${this.evidences}
+                                .opencgaSession="${this.opencgaSession}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onActionDisorder}">
+                            </disorder-create>
+                        `: html `
+                            <disorder-update
+                                .disorder=${this.disorder}
+                                .evidences=${this.evidences}
+                                .opencgaSession=${this.opencgaSession}
+                                @closeForm=${e => this.onCloseForm(e)}
+                                @addItem=${this.onActionDisorder}>
+                            </disorder-update>
+                            `}
+                        <!-- <disorder-manager
+                            .disorder="\${this.disorder}"
+                            .evidences="\${this.evidences}"
+                            @closeForm="\${e => this.onCloseForm(e)}"
+                            @addItem="\${this.onActionDisorder}">
+                        </disorder-manager> -->
                     </div>
                 </div>
             </div>

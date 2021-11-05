@@ -40,20 +40,12 @@ export default class AnnotationSetsView extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-    }
-
-    updated(changedProperties) {
-
-    }
-
     renderVariableSet(variableSet) {
         return html`
             <div class="">
                 <div class="">
                     <b>${variableSet.name}</b>
-                        <!-- <span class="text-muted font-smaller"><i class="far fa-calendar-alt"></i>  ${UtilsNew.dateFormatter(variableSet.creationDate)} </span>-->
+                        <!-- <span class="text-muted font-smaller"><i class="far fa-calendar-alt"></i>  \${UtilsNew.dateFormatter(variableSet.creationDate)} </span>-->
                 </div>
                 <div>
                     ${Object.entries(variableSet.annotations).map(([k, v]) => {
