@@ -19,7 +19,7 @@ import {classMap} from "lit/directives/class-map.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../clinical/clinical-analysis-editor.js";
-import "../../clinical/opencga-clinical-analysis-writer.js";
+import "../../clinical/obsolete/opencga-clinical-analysis-writer.js";
 import "../../clinical/clinical-analysis-interpretation-editor.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/forms/data-form.js";

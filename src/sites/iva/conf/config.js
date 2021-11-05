@@ -474,21 +474,21 @@ const SUITE = {
                             icon: "img/tools/icons/interpretation_portal.svg",
                             thumbnail: "interpretation_portal.png"
                         },
-                        {
-                            id: "clinical-analysis-writer",
-                            name: "Create Case",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
-                        },
+                        // {
+                        //     id: "clinical-analysis-writer",
+                        //     name: "Create Case",
+                        //     acronym: "",
+                        //     icon: "",
+                        //     description: "",
+                        //     visibility: "public"
+                        // },
                         {
                             id: "clinical-analysis-create",
-                            name: "Create Case new",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
+                            name: "Create Case",
+                            icon: "img/tools/icons/interpretation_portal.svg",
+                            description: "Create a new case",
+                            visibility: "public",
+                            featured: true,
                         }
                     ]
                 },
@@ -645,12 +645,20 @@ const SUITE = {
                             category: true,
                             visibility: "public"
                         },
+                        // {
+                        //     id: "clinical-analysis-writer",
+                        //     name: "Create Case",
+                        //     acronym: "",
+                        //     icon: "img/tools/icons/interpretation_portal.svg",
+                        //     description: "Create a new case.",
+                        //     visibility: "public",
+                        //     featured: true,
+                        // },
                         {
-                            id: "clinical-analysis-writer",
+                            id: "clinical-analysis-create",
                             name: "Create Case",
-                            acronym: "",
                             icon: "img/tools/icons/interpretation_portal.svg",
-                            description: "Create a new case.",
+                            description: "Create a new case",
                             visibility: "public",
                             featured: true,
                         }
