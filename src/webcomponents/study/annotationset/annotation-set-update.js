@@ -16,9 +16,9 @@
 
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/text-field-filter.js";
 import "./annotation-create.js";
 import "./annotation-update.js";
 
@@ -47,7 +47,6 @@ export default class AnnotationSetUpdate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         if (UtilsNew.isUndefined(this.annotationSets)) {
-            console.log("It's Undefined");
             this.annotationSets = [];
         }
     }
@@ -56,18 +55,16 @@ export default class AnnotationSetUpdate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.annotationSet = {};
-        this._manager = {
-            action: "",
-            data: ""
-        };
+        this.isAddItem = false;
     }
 
-    onShowManager(e, manager) {
-        this._manager = manager;
-        if (manager.action === "ADD") {
+
+    onShowManager(e, isAdd, data) {
+        this.isAddItem = isAdd;
+        if (isAdd) {
             this.annotationSet = {};
         } else {
-            this.annotationSet = manager.annotationSet;
+            this.annotationSet = data;
         }
         this.requestUpdate();
         $("#annotationSetManagerModal" + this._prefix).modal("show");
@@ -75,10 +72,10 @@ export default class AnnotationSetUpdate extends LitElement {
 
     onAction(e) {
         e.stopPropagation();
-        if (this._manager.action === "ADD") {
+        if (this.isAddItem) {
             this.addAnnotationSet(e.detail.value);
         } else {
-            this.editAnnotationSet(e.detail.value);
+            this.updateAnnotationSet(e.detail.value);
         }
         $("#annotationSetManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
@@ -89,7 +86,7 @@ export default class AnnotationSetUpdate extends LitElement {
         LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
     }
 
-    editAnnotationSet(annotationSet) {
+    updateAnnotationSet(annotationSet) {
         const index = this.annotationSets.findIndex(ann => ann.variableSetId === this.annotationSet.variableSetId);
         this.annotationSets[index] = annotationSet;
         this.annotationSet = {};
@@ -122,12 +119,18 @@ export default class AnnotationSetUpdate extends LitElement {
     }
 
     onCloseForm(e) {
+        e.stopPropagation();
         this.annotationSet = {};
         $("#annotationSetManagerModal"+ this._prefix).modal("hide");
-        e.stopPropagation();
     }
 
     renderAnnotationsSets(annotationSets) {
+        if (UtilsNew.isEmptyArray(annotationSets)) {
+            return html `
+                <div class="alert alert-info">
+                    <strong>Empty</strong>, create a new annotation set..
+                </div>`;
+        }
         return html`
             ${annotationSets?.map(item => html`
                 <li>
@@ -138,7 +141,7 @@ export default class AnnotationSetUpdate extends LitElement {
                         <div class="col-md-4">
                             <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                 <button type="button" class="btn btn-primary btn-xs"
-                                    @click="${e => this.onShowManager(e, {action: "EDIT", annotationSet: item})}">Edit</button>
+                                    @click="${e => this.onShowManager(e, false, item)}">Edit</button>
                                 <button type="button" class="btn btn-danger btn-xs"
                                     @click="${e => this.onRemoveAnnotationSet(e, item)}">Delete</button>
                             </div>
@@ -171,7 +174,7 @@ export default class AnnotationSetUpdate extends LitElement {
                     ${this.renderAnnotationsSets(this.annotationSets)}
                 </ul>
                 <button type="button" class="btn btn-primary btn-sm"
-                    @click="${e => this.onShowManager(e, {action: "ADD"})}">
+                    @click="${e => this.onShowManager(e, true)}">
                     Add AnnotationSet
                 </button>
             </div>
@@ -184,7 +187,7 @@ export default class AnnotationSetUpdate extends LitElement {
                         <h4 class="modal-title">Annotation Set Information</h4>
                     </div>
                     <div class="modal-body">
-                        ${this._manager.action === "ADD"? html `
+                        ${this.isAddItem? html `
                             <annotation-create
                                 .annotationSet="${this.annotationSet}"
                                 .variableSetIdsSelected="${this.annotationSets?.map(item => item.variableSetId)}"

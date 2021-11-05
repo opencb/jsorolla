@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 
-export default class PhenotypeUpdate extends LitElement {
+export default class DisorderUpdate extends LitElement {
 
     constructor() {
         super();
@@ -31,63 +31,66 @@ export default class PhenotypeUpdate extends LitElement {
 
     static get properties() {
         return {
-            phenotype: {
+            disorder: {
                 type: Object
             },
-            phenotypeId: {
-                type: String
+            evidences: {
+                types: Array
             }
         };
     }
 
     _init() {
-        this.phenotype = {};
+        this.disorder = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        // It must be in connectCallback for the display.disabled option in the input text to work.
         this._config = {...this.getDefaultConfig()};
     }
 
     update(changedProperties) {
-        if (changedProperties.has("phenotype")) {
-            this.phenotypeObserver();
+        if (changedProperties.has("evidences")) {
+            this._config = {...this.getDefaultConfig()};
         }
+
+        if (changedProperties.has("disorder")) {
+            this.disorderObserver();
+        }
+
         super.update(changedProperties);
     }
 
-    phenotypeObserver() {
-        if (this.phenotype) {
-            this._phenotype = JSON.parse(JSON.stringify(this.phenotype));
+    disorderObserver() {
+        if (this.disorder) {
+            this._disorder = JSON.parse(JSON.stringify(this.disorder));
         }
+
     }
 
     onFieldChange(e) {
         e.stopPropagation();
-        // No need to switch(field) since all of them are processed in the same way
         this.updateParams = FormUtils.updateScalar(
-            this._phenotype,
-            this.phenotype,
+            this._disorder,
+            this.disorder,
             this.updateParams,
             e.detail.param,
             e.detail.value);
+        this.disorder = {...this.disorder, ...this.updateParams};
 
-        this.phenotype = {...this.phenotype, ...this.updateParams};
-
+        // to render which data changed
         this.requestUpdate();
     }
 
-    onSendPhenotype(e) {
-        // Send the phenotype to the upper component
+    onSendDisorder(e) {
         e.stopPropagation();
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
+        LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
     }
 
     onClear(e) {
         e.stopPropagation();
-        this.phenotype = JSON.parse(JSON.stringify(this._phenotype));
+        this.disorder = JSON.parse(JSON.stringify(this._disorder));
         this.updateParams = {};
         LitUtils.dispatchEventCustom(this, "closeForm");
     }
@@ -95,14 +98,14 @@ export default class PhenotypeUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.phenotype}
+                .data=${this.disorder}
                 .config="${this._config}"
                 .updateParams=${this.updateParams}
-                @fieldChange="${e => this.onFieldChange(e)}"
+                @fieldChange="${e =>this.onFieldChange(e)}"
                 @clear="${this.onClear}"
-                @submit="${e => this.onSendPhenotype(e)}">
+                @submit="${e => this.onSendDisorder(e)}">
             </data-form>
-    `;
+            `;
     }
 
     getDefaultConfig() {
@@ -116,7 +119,7 @@ export default class PhenotypeUpdate extends LitElement {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: ""
+                defaultValue: "",
             },
             sections: [
                 {
@@ -126,8 +129,7 @@ export default class PhenotypeUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "add short id",
-                                disabled: true,
+                                placeholder: "add a description..."
                             }
                         },
                         {
@@ -135,7 +137,7 @@ export default class PhenotypeUpdate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "add a name"
+                                placeholder: "add a description..."
                             }
                         },
                         {
@@ -143,32 +145,35 @@ export default class PhenotypeUpdate extends LitElement {
                             field: "source",
                             type: "input-text",
                             display: {
-                                placeholder: "add a source"
+                                placeholder: "add a description..."
                             }
                         },
                         {
-                            name: "Age of on set",
-                            field: "ageOfOnset",
+                            name: "Description",
+                            field: "description",
                             type: "input-text",
                             display: {
-                                placeholder: "add an age of on set"
+                                placeholder: "add a description..."
                             }
                         },
                         {
-                            name: "Status",
-                            field: "status",
+                            name: "Evidences", // Phenotypes List
+                            field: "evidences",
                             type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                            multiple: true,
+                            allowedValues: this.evidences?.map(evidence => evidence.id),
                             display: {
-                                placeholder: "select a status..."
+                                visible: this.evidences?.length > 0,
+                                placeholder: "select an evidence...",
                             }
-                        }
+                        },
                     ]
                 }
             ]
         };
     }
 
+
 }
 
-customElements.define("phenotype-update", PhenotypeUpdate);
+customElements.define("disorder-update", DisorderUpdate);

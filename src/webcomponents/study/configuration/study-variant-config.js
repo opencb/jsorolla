@@ -45,7 +45,7 @@ export default class StudyVariantConfig extends LitElement {
     }
 
     _init() {
-        console.log("init study variant config");
+        // console.log("init study variant config");
         this.updateParams = {};
     }
 
