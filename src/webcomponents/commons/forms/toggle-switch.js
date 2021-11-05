@@ -108,18 +108,18 @@ export default class ToggleSwitch extends LitElement {
         }
     }
 
-    onToggleClick(buttonId, e) {
+    onToggleClick(buttonId) {
         // Check if there is anything to do
         if ((this.value && buttonId === "ON") || (!this.value && buttonId === "OFF")) {
             return;
         }
 
         // Support several classes
-        let activeClasses = this.activeClass.split(" ");
-        let inactiveClasses = this.inactiveClass.split(" ");
+        const activeClasses = this.activeClass.split(" ");
+        const inactiveClasses = this.inactiveClass.split(" ");
 
         // Fetch and reset buttons status
-        let buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
+        const buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
         buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
         let onIndex = 0;
         let offIndex = 1;
@@ -142,7 +142,7 @@ export default class ToggleSwitch extends LitElement {
         this.filterChange();
     }
 
-    filterChange(e) {
+    filterChange() {
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: this.value
@@ -157,10 +157,22 @@ export default class ToggleSwitch extends LitElement {
         return html`
             <div class="">
                 <div class="btn-group">
-                    <button type="button" class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}" data-id="ON"
-                        @click="${e => this.onToggleClick("ON", e)}">${this.onText}</button>
-                    <button type="button" class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}" data-id="OFF"
-                        @click="${e => this.onToggleClick("OFF", e)}">${this.offText}</button>
+                    <button
+                        class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}"
+                        data-id="ON"
+                        ?disabled="${this.disabled}"
+                        type="button"
+                        @click="${e => this.onToggleClick("ON", e)}">
+                        ${this.onText}
+                    </button>
+                    <button
+                        class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}"
+                        data-id="OFF"
+                        ?disabled="${this.disabled}"
+                        type="button"
+                        @click="${e => this.onToggleClick("OFF", e)}">
+                        ${this.offText}
+                    </button>
                 </div>
              </div>
         `;
