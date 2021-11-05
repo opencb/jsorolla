@@ -30,6 +30,8 @@ export default class FormUtils {
             original[param] = value;
             _updateParams[param] = value;
         } else {
+            // We need to restore the original value in our copy
+            original[param] = _original[param];
             delete _updateParams[param];
         }
 
