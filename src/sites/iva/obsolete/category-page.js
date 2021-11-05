@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import Utils from "../../core/utils.js";
-import UtilsNew from "../../core/utilsNew.js";
-import "../../webcomponents/commons/tool-header.js";
-import "../../webcomponents/text-icon.js";
+import Utils from "../../../core/utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import "../../../webcomponents/commons/tool-header.js";
+import "../../../webcomponents/text-icon.js";
 
 // TODO the property "disabled" in config have to be renamed in active (boolean for an user or an usergroup)
 

@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import "../study/phenotype/phenotype-list-update.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-
+import UtilsNew from "../../core/utilsNew.js";
+import "../study/phenotype/phenotype-list-update.js";
 export default class SampleUpdate extends LitElement {
 
     constructor() {
@@ -42,26 +41,24 @@ export default class SampleUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // config: {
-            //     type: Object
-            // }
+            config: {
+                type: Object
+            }
         };
     }
 
     _init() {
         this.sample = {};
-        this.updateParams = {};
-
         this.phenotype = {};
         this.annotationSets = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-
+        // it's not working well init or update,
+        // it's working well here.. connectedCallback
         this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
-
     }
 
     update(changedProperties) {
@@ -71,6 +68,12 @@ export default class SampleUpdate extends LitElement {
 
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
+        }
+
+        // it's just work on update or connectedCallback
+        // It's working here, it is not necessary put this on connectecCallback.
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
 
         super.update(changedProperties);
@@ -99,18 +102,7 @@ export default class SampleUpdate extends LitElement {
         }
     }
 
-    // TODO move to a generic Utils class
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     onFieldChange(e) {
-        console.log("Test:", e.detail.param, e.detail.value);
         switch (e.detail.param) {
             case "id":
             case "description":
@@ -127,7 +119,7 @@ export default class SampleUpdate extends LitElement {
             case "status.description":
             case "processing.product":
             case "processing.preparationMethod":
-            case "processing.extrationMethod":
+            case "processing.extractionMethod":
             case "processing.labSambpleId":
             case "processing.quantity":
             case "processing.date":
@@ -136,43 +128,40 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                this.updateParams= FormUtils.updateObject(
+                this.updateParams = FormUtils.updateObjectWithProps(
                     this._sample,
                     this.sample,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
+                console.log("updateParams:", this.updateParams);
                 break;
         }
         this.requestUpdate();
     }
 
-    onRemovePhenotype(e) {
-        console.log("This is to remove a item ");
-        this.sample = {
-            ...this.sample,
-            phenotypes: this.sample.phenotypes
-                .filter(item => item !== e.detail.value)
-        };
-    }
-
-    onAddPhenotype(e) {
-        this.sample.phenotypes.push(e.detail.value);
-        this.updateParams.phenotypes = this.sample.phenotypes;
-
-    }
-
     onClear() {
-        console.log("OnClear sample form");
+        this._config = this.getDefaultConfig();
+        this.sample = JSON.parse(JSON.stringify(this._sample));
+        this.updateParams = {};
+        this.sampleId = "";
     }
 
     onSubmit() {
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            phenotypesAction: "SET"
+        };
+
+        this.opencgaSession.opencgaClient.samples()
+            .update(this.sample.id, this.updateParams, params)
             .then(res => {
+                // this.sample = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
                 FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
-                // dispatch
+                // sessionUpdateRequest
+                // TODO: dispacth to the user the data is saved
             })
             .catch(err => {
                 console.error(err);
@@ -185,13 +174,14 @@ export default class SampleUpdate extends LitElement {
         this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
     }
 
+    // display a button to back sample browser.
     onShowBtnSampleBrowser() {
         const query = {
             xref: this.sampleId
         };
 
         const showBrowser = () => {
-            console.log("click showBrowser", this);
+            // console.log("click showBrowser", this);
             LitUtils.dispatchEventCustom(this, "querySearch", null, null, {query: query});
             const hash = window.location.hash.split("/");
             const newHash = "#sample/" + hash[1] + "/" + hash[2];
@@ -207,9 +197,23 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
+    render() {
+        return html`
+            ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
+            <data-form
+                .data=${this.sample}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
         return {
-            title: "Edit",
+            title: "Sample Update",
             icon: "fas fa-edit",
             type: "form",
             buttons: {
@@ -239,7 +243,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short sample id"
+                                    text: "Add short sample id"
                                 }
                             }
                         },
@@ -251,7 +255,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "search individual to select"
+                                    text: "Search individual to select"
                                 }
                             }
                         },
@@ -260,8 +264,8 @@ export default class SampleUpdate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
+                                placeholder: "Add a description...",
                                 rows: 3,
-                                placeholder: "write a description..."
                             }
                         },
                         {
@@ -274,7 +278,7 @@ export default class SampleUpdate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                placeholder: "write a status name."
+                                placeholder: "Add a status name..."
                             }
                         },
                         {
@@ -283,17 +287,17 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "write a description for the status..."
+                                placeholder: "Add a description for the status..."
                             }
                         },
-                        // {
-                        //     name: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
-                        //     }
-                        // },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                            }
+                        },
                         // {
                         //     name: "Modification Date",
                         //     field: "modificationDate",
@@ -312,7 +316,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.product",
                             type: "input-text",
                             display: {
-                                placeholder: "add a product"
+                                placeholder: "Add a product..."
                             }
                         },
                         {
@@ -320,15 +324,15 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.preparationMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "add a preparation method"
+                                placeholder: "Add a preparation method..."
                             }
                         },
                         {
                             name: "Extraction Method",
-                            field: "processing.extrationMethod",
+                            field: "processing.extractionMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "add a extration method"
+                                placeholder: "Add a extraction method..."
                             }
                         },
                         {
@@ -336,7 +340,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.labSambpleId",
                             type: "input-text",
                             display: {
-                                placeholder: "add the lab sample id"
+                                placeholder: "Add the lab sample ID..."
                             }
                         },
                         {
@@ -344,7 +348,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.quantity",
                             type: "input-text",
                             display: {
-                                placeholder: "add a quantity"
+                                placeholder: "Add a quantity..."
                             }
                         },
                         {
@@ -365,7 +369,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.tissue",
                             type: "input-text",
                             display: {
-                                placeholder: "add a tissue"
+                                placeholder: "Add a tissue..."
                             }
                         },
                         {
@@ -373,7 +377,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.organ",
                             type: "input-text",
                             display: {
-                                placeholder: "add a organ"
+                                placeholder: "Add an organ..."
                             }
                         },
                         {
@@ -381,7 +385,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.quantity",
                             type: "input-text",
                             display: {
-                                placeholder: "add a quantity"
+                                placeholder: "Add a quantity..."
                             }
                         },
                         {
@@ -389,7 +393,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.method",
                             type: "input-text",
                             display: {
-                                placeholder: "add a method"
+                                placeholder: "Add a method..."
                             }
                         },
                         {
@@ -442,20 +446,6 @@ export default class SampleUpdate extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.display.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
-            <data-form
-                .data=${this.sample}
-                .config="${this._config}"
-                .updateParams=${this.updateParams}
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }

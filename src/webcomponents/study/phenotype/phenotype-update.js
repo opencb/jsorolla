@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 
-// Deprecated
-export default class PhenotypeManager extends LitElement {
+export default class PhenotypeUpdate extends LitElement {
 
     constructor() {
         super();
@@ -34,7 +34,7 @@ export default class PhenotypeManager extends LitElement {
             phenotype: {
                 type: Object
             },
-            mode: {
+            phenotypeId: {
                 type: String
             }
         };
@@ -50,32 +50,70 @@ export default class PhenotypeManager extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    refreshForm() {
-        // When using data-form we need to update config object and render again
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("mode")) {
-            this.refreshForm();
+        if (changedProperties.has("phenotype")) {
+            this.phenotypeObserver();
         }
         super.update(changedProperties);
     }
 
+    phenotypeObserver() {
+        console.log("Observer Phenotype");
+        if (this.phenotype) {
+            this._phenotype = JSON.parse(JSON.stringify(this.phenotype));
+        }
+    }
 
     onFieldChange(e) {
         e.stopPropagation();
-        const field = e.detail.param;
-        if (e.detail.value) {
-            // No need to switch(field) since all of them are processed in the same way
-            this.phenotype = {
-                ...this.phenotype,
-                [field]: e.detail.value
-            };
-        } else {
-            delete this.phenotype[field];
-        }
+        // No need to switch(field) since all of them are processed in the same way
+        this.updateParams = FormUtils.updateScalar(
+            this._phenotype,
+            this.phenotype,
+            this.updateParams,
+            e.detail.param,
+            e.detail.value);
+
+        this.phenotype = {...this.phenotype, ...this.updateParams};
+
+        this.requestUpdate();
+        // const field = e.detail.param;
+        // if (e.detail.value) {
+        //     // No need to switch(field) since all of them are processed in the same way
+        //     this.phenotype = {
+        //         ...this.phenotype,
+        //         [field]: e.detail.value
+        //     };
+        // } else {
+        //     delete this.phenotype[field];
+        // }
+    }
+
+    onSendPhenotype(e) {
+        // Send the phenotype to the upper component
+        e.stopPropagation();
+        this.updateParams = {};
+        LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
+    }
+
+    onClear(e) {
+        e.stopPropagation();
+        this.phenotype = JSON.parse(JSON.stringify(this._phenotype));
+        this.updateParams = {};
+        LitUtils.dispatchEventCustom(this, "closeForm");
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.phenotype}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${e => this.onSendPhenotype(e)}">
+            </data-form>
+    `;
     }
 
     getDefaultConfig() {
@@ -100,7 +138,7 @@ export default class PhenotypeManager extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "add short id",
-                                disabled: this.mode === "EDIT",
+                                disabled: true,
                             }
                         },
                         {
@@ -142,29 +180,6 @@ export default class PhenotypeManager extends LitElement {
         };
     }
 
-    onSendPhenotype(e) {
-        // Send the phenotype to the upper component
-        e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
-    }
-
-    onClearForm(e) {
-        e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "closeForm");
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.phenotype}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClearForm}"
-                @submit="${e => this.onSendPhenotype(e)}">
-            </data-form>
-    `;
-    }
-
 }
 
-customElements.define("phenotype-manager", PhenotypeManager);
+customElements.define("phenotype-update", PhenotypeUpdate);

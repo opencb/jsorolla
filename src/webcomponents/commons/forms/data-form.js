@@ -17,7 +17,6 @@
  */
 
 import {LitElement, html} from "lit";
-import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../simple-chart.js";
@@ -232,9 +231,14 @@ export default class DataForm extends LitElement {
     }
 
     _isUpdated(element) {
-        if (this.updateParams) {
-            const field = element.field.split(".")[0];
-            return this.updateParams[field] ?? false;
+        if (!UtilsNew.isEmpty(this.updateParams)) {
+            if (element.field.includes(".")) {
+                const [field, prop] = element.field.split(".");
+                return this.updateParams[field]?.[prop] ?? false;
+            } else {
+                const field = element.field.split(".")[0];
+                return this.updateParams[field] ?? false;
+            }
         } else {
             // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
             return element.display?.updated;

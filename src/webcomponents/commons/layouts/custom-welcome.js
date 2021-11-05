@@ -69,6 +69,7 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
+                <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                 ${visibleApps.map(item => html`
                     <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
                         <div class="hi-icon">
@@ -79,38 +80,55 @@ export default class CustomWelcome extends LitElement {
                         </div>
                     </a>
                 `)}
+                </div>
             `;
         } else {
             // Render tools list
-            const visibleTools = (this.app.menu || []).filter(item => {
-                return UtilsNew.isAppVisible(item, session);
+            const featuredTools = [];
+            (this.app.menu || []).forEach(item => {
+                if (UtilsNew.isAppVisible(item, session)) {
+                    // Check if the primary menu item is featured
+                    if (item.featured) {
+                        featuredTools.push(item);
+                    }
+
+                    // Check for submenu items
+                    (item.submenu || []).forEach(subitem => {
+                        if (UtilsNew.isAppVisible(subitem) && subitem.featured) {
+                            featuredTools.push(subitem);
+                        }
+                    });
+                }
             });
 
             return html`
-                ${visibleTools.map(item => {
+                <div class="" style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:32px;">
+                ${featuredTools.map(item => {
                     const itemLink = `${item.id}/${session?.project ? `${session.project.id}/${session.study.id}`: ""}`;
                     return html`
-                        ${item.submenu ? html`
-                            <a class="icon-wrapper" data-cat-id="cat-${item.id}" data-title="${item.name}" href="#cat-${itemLink}">
-                                <div class="hi-icon">
-                                    <img alt="${item.name}" src="${item.icon}" />
+                        <div class="col-md-3">
+                            <div class="panel panel-default">
+                                <div class="panel-body" align="center" style="height:180px;">
+                                    <div align="center" class="">
+                                        <img alt="${item.name}" width="100px" src="${item.icon}" />
+                                    </div>
+                                    <h4 style="margin-bottom:0px;">
+                                        <strong>${item.name}</strong>
+                                    </h4>
                                 </div>
-                                <div style="margin-top:10px;">
-                                    <strong>${item.name}</strong>
+                                <div class="panel-body" style="height:150px;padding-top:0px;">
+                                    ${item.description ? UtilsNew.renderHTML(item.description) : ""}
                                 </div>
-                            </a>
-                        ` : html`
-                            <a class="icon-wrapper" href="#${itemLink}">
-                                <div class="hi-icon">
-                                    <img alt="${item.name}" src="${item.icon}" />
+                                <div class="panel-body">
+                                    <a class="btn btn-primary btn-block" href="#${itemLink}">
+                                        <strong style="color:white;">Enter</strong>
+                                    </a>
                                 </div>
-                                <div style="margin-top:10px;">
-                                    <strong>${item.name}</strong>
-                                </div>
-                            </a>
-                        `}
+                            </div>
+                        </div>
                     `;
                 })}
+                </div>
             `;
         }
     }
@@ -201,9 +219,7 @@ export default class CustomWelcome extends LitElement {
                 ` : null}
 
                 <!-- Applications or tools -->
-                <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
-                    ${this.renderApplicationsOrTools()}
-                </div>
+                ${this.renderApplicationsOrTools()}
 
                 <!-- Display custom links -->
                 <div align="center" class="row" style="margin-top:50px;">

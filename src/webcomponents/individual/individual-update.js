@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/tool-header.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
-
+import "../commons/tool-header.js";
+import LitUtils from "../commons/utils/lit-utils";
 export default class IndividualUpdate extends LitElement {
 
     constructor() {
@@ -103,7 +102,7 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-                [this.individual, this.updateParams] = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
                 break;
             case "location.address":
             case "location.postalCode":
@@ -115,7 +114,7 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
-                [this.individual, this.updateParams] = FormUtils.updateObject(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateObjectWithProps(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
                 break;
         }
         this.requestUpdate();
@@ -123,30 +122,48 @@ export default class IndividualUpdate extends LitElement {
 
     onClear() {
         console.log("OnClear individual update");
+        this._config = this.getDefaultConfig();
+        this.individual = JSON.parse(JSON.stringify(this._individual));
+        this.updateParams = {};
+        this.individualId = "";
     }
 
     onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            phenotypesAction: "SET"
+        };
+
         this.opencgaSession.opencgaClient.individuals()
-            .update(
-                this.individual.id,
-                this.updateParams,
-                {study: this.opencgaSession.study.fqn}
-            )
+            .update(this.individual.id, this.updateParams, params)
             .then(res => {
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
                 FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
+                // this.dispatchSessionUpdateRequest();
             })
             .catch(err => {
                 console.error(err);
+                FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
             });
     }
 
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -331,19 +348,6 @@ export default class IndividualUpdate extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.individual}
-                .config="${this._config}"
-                .updateParams=${this.updateParams}
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }

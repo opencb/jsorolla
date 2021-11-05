@@ -17,8 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
-// Deprecated
-export default class PhenotypeManager extends LitElement {
+export default class PhenotypeCreate extends LitElement {
 
     constructor() {
         super();
@@ -33,9 +32,6 @@ export default class PhenotypeManager extends LitElement {
         return {
             phenotype: {
                 type: Object
-            },
-            mode: {
-                type: String
             }
         };
     }
@@ -49,20 +45,6 @@ export default class PhenotypeManager extends LitElement {
         // It must be in connectCallback for the display.disabled option in the input text to work.
         this._config = {...this.getDefaultConfig()};
     }
-
-    refreshForm() {
-        // When using data-form we need to update config object and render again
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("mode")) {
-            this.refreshForm();
-        }
-        super.update(changedProperties);
-    }
-
 
     onFieldChange(e) {
         e.stopPropagation();
@@ -78,70 +60,7 @@ export default class PhenotypeManager extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                classes: "pull-right"
-            },
-            display: {
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                defaultValue: ""
-            },
-            sections: [
-                {
-                    elements: [
-                        {
-                            name: "Id",
-                            field: "id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "add short id",
-                                disabled: this.mode === "EDIT",
-                            }
-                        },
-                        {
-                            name: "Name",
-                            field: "name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "add a name"
-                            }
-                        },
-                        {
-                            name: "Source",
-                            field: "source",
-                            type: "input-text",
-                            display: {
-                                placeholder: "add a source"
-                            }
-                        },
-                        {
-                            name: "Age of on set",
-                            field: "ageOfOnset",
-                            type: "input-text",
-                            display: {
-                                placeholder: "add an age of on set"
-                            }
-                        },
-                        {
-                            name: "Status",
-                            field: "status",
-                            type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
-                            display: {
-                                placeholder: "select a status..."
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
-    }
-
+    // Submit to upper component.
     onSendPhenotype(e) {
         // Send the phenotype to the upper component
         e.stopPropagation();
@@ -165,6 +84,69 @@ export default class PhenotypeManager extends LitElement {
     `;
     }
 
+    getDefaultConfig() {
+        return {
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                classes: "pull-right"
+            },
+            display: {
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultLayout: "horizontal",
+                defaultValue: ""
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            name: "Id",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add short id...",
+                            }
+                        },
+                        {
+                            name: "Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a name..."
+                            }
+                        },
+                        {
+                            name: "Source",
+                            field: "source",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a source..."
+                            }
+                        },
+                        {
+                            name: "Age of on set",
+                            field: "ageOfOnset",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add an age of on set..."
+                            }
+                        },
+                        {
+                            name: "Status",
+                            field: "status",
+                            type: "select",
+                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                            display: {
+                                placeholder: "Select a status..."
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+
 }
 
-customElements.define("phenotype-manager", PhenotypeManager);
+customElements.define("phenotype-create", PhenotypeCreate);

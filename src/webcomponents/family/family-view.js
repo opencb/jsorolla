@@ -100,6 +100,7 @@ export default class FamilyView extends LitElement {
                 .then(response => {
                     this.isLoading = false;
                     this.family = response.getResult(0);
+                    console.log("Family", this.family);
                 })
                 .catch(function (reason) {
                     this.family = {};
@@ -246,6 +247,10 @@ export default class FamilyView extends LitElement {
                                 },
                                 defaultValue: "N/A"
                             }
+                        },
+                        {
+                            name: "Expected Size",
+                            field: "expectedSize"
                         },
                         {
                             name: "Creation Date",
