@@ -117,14 +117,17 @@ class ClinicalAnalysisUpdate extends LitElement {
                 <select-field-filter
                     .data="${statuses}" .value="${status.id}"
                     .classes="${this.updateParams.status ? "updated" : ""}"
+                    ?disabled="${!!this.clinicalAnalysis?.locked}"
                     @filterChange="${e => {
-                        e.detail.param = "status.id"; this.onFieldChange(e);
+                        e.detail.param = "status.id";
+                        this.onFieldChange(e);
                     }}">
                 </select-field-filter>
-                ${status.description ?
-                    html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>` : null
-                }
-            </div>`;
+                ${status.description ? html`
+                    <span class="help-block" style="padding: 0px 5px">${status.description}</span>
+                ` : null}
+            </div>
+        `;
     }
 
     renderPanels(selectedPanels) {
@@ -137,6 +140,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .value="${selectedValues}"
                     .multiple="${true}"
                     .classes="${this.updateParams.panels ? "updated" : ""}"
+                    ?disabled="${!!this.clinicalAnalysis?.locked}"
                     @filterChange="${e => {
                         e.detail.param = "panels.id";
                         this.onFieldChange(e);
@@ -155,6 +159,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .value="${selectedValues}"
                     .multiple="${true}"
                     .classes="${this.updateParams.flags ? "updated" : ""}"
+                    ?disabled="${!!this.clinicalAnalysis?.locked}"
                     @filterChange="${e => {
                         e.detail.param = "flags.id";
                         this.onFieldChange(e);
@@ -408,7 +413,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 width: "9",
-                                render: status => this.renderStatus(status)
+                                render: status => this.renderStatus(status),
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -419,6 +425,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             defaultValue: "MEDIUM",
                             display: {
                                 width: "9",
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -429,6 +436,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             allowedValues: () => this.users,
                             display: {
                                 width: "9",
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -438,6 +446,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 width: "9",
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         }
                     ]
@@ -452,6 +461,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: panels => this.renderPanels(panels),
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -460,6 +470,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "toggle-switch",
                             display: {
                                 width: "9",
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -468,6 +479,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: flags => this.renderFlags(flags),
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -477,6 +489,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 3,
+                                disabled: () => !!this.clinicalAnalysis?.locked,
                             }
                         },
                         {
@@ -488,7 +501,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                                     <clinical-analysis-comment-editor
                                         .comments="${comments}"
                                         @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>`
+                                    </clinical-analysis-comment-editor>
+                                `,
                             }
                         }
                     ]
