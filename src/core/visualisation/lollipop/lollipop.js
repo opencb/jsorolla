@@ -47,7 +47,7 @@ export default class Lollipop {
         }
     }
 
-    variantsRender(track, viewFrame) {
+    variantsRender(track, viewRange) {
         const height = track.view.scaleHeight + track.view.variantAreaHeight;
 
         if (this.variantsG) {
@@ -62,10 +62,14 @@ export default class Lollipop {
         this.scaleG = this.variantsG.group().addClass("scale").transform({translateY: this.variantsOrigin});
         this.scaleG.rect(this.canvasWidth - this.canvasPadding, track.view.scaleHeight).attr({fill: "#fff", stroke: "#9d9d9d"});
 
+        this.clusterFactor = .2; // cluster distance factor: merge 2 nodes if they overlap more than 80%
 
         // if proteinRange is defined we only render the scale accordingly. Only the variants within the position range are rendered
-        this.viewFrame = viewFrame ?? [this.proteinStart, this.proteinEnd];
-        this.drawTicks(this.scaleG, 10, track.view.scaleHeight, this.viewFrame[0], this.viewFrame[1]);
+        this.viewRange = viewRange ?? [0, this.canvasWidth];
+        // TODO review  viewRange and viewProteinRange on resize
+        this.viewProteinRange = viewRange ?? [this.proteinStart, this.proteinEnd];
+
+        this.drawTicks(this.scaleG, 10, track.view.scaleHeight, this.viewProteinRange[0], this.viewProteinRange[1]);
 
 
         const main = this.variantsG.group().addClass("variants-area-wrapper").transform({translateY: this.variantsOrigin + track.view.scaleHeight});
@@ -75,77 +79,93 @@ export default class Lollipop {
         const variantAreaBackground = variantArea.rect(this.canvasWidth - this.canvasPadding * 2, height).addClass("variant-area-background").attr({fill: "#fff"}).transform({translateX: this.canvasPadding});
         const width = variantAreaWrapper.width();
 
-        // drag horizontally variantArea
-        /* this.variantsG.draggable();
-        this.variantsG.on("dragmove.namespace", e => {
-            const {handler, box} = e.detail;
-            e.preventDefault();
-            handler.move(box.x, null);
-        });*/
+        this.resizedViewFrameBox = [];
+        // enable horizontal drag in variantArea only if this.viewProteinRange is different that default
+        if (this.viewProteinRange[0] !== this.proteinStart && this.viewProteinRange[1] !== this.proteinEnd) {
+            this.variantsG.draggable();
 
+            this.variantsG.on("dragstart", e => {
+                this.resizedViewFrameBox[0] = e.detail.event.offsetX;
+            });
 
-        this.circles = this.prepareVariants(track); // add viewPos
-        this.circles = this.clusterVariants(this.circles, track);
+            this.variantsG.on("dragend", e => {
+                this.resizedViewFrameBox[1] = e.detail.event.offsetX;
+            });
+
+            this.variantsG.on("dragmove", e => {
+                const {handler, box} = e.detail;
+                e.preventDefault();
+                handler.move(box.x, null);
+            });
+        } else {
+            this.variantsG.draggable(false);
+        }
+
+        this.circles = this.prepareVariants(track); // add viewPos, size (default) and offset (0)
+        this.clusterVariants(this.circles, track);
 
 
         // const path = variantArea.path('M 50 50 150 150').stroke("#000").animate({delay: 2000}).plot('M 50 50 50 0')
 
-        this.layoutVariants(this.circles, track);
 
-        console.log("data", this.circles);
         this.edges = [];
-        this.circles.forEach((variant, i) => {
+        this.filterVisible(this.circles).forEach((variant, i) => {
 
-            console.log("variant", variant);
-            if (variant.pos >= this.viewFrame[0] && variant.pos <= this.viewFrame[1]) {
-                const y = height/2 - variant.size; // TODO y coord is dynamic on collisions
+            // console.log("variant", variant);
+            const y = height/2 - variant.size; // TODO y coord is dynamic on collisions
 
 
-                const v = variantArea.group()
-                    .addClass("variant")
-                    .attr({"text-anchor": "middle"});
-                    // .transform({translateX: variant.viewPos, translateY: y});
+            const v = variantArea.group()
+                .addClass("variant")
+                .attr({"text-anchor": "middle"});
+            // .transform({translateX: variant.viewPos, translateY: y});
 
-                v.transform({translateX: variant.viewPos, translateY: height + variant.size});
-                v.delay(i * 100);
-                v.animate({duration: 500}).dy(-height/2 - variant.size).ease(">");
+            v.transform({translateX: variant.viewPos, translateY: height + variant.size});
+            v.delay(i * 100);
+            v.animate({duration: 500}).transform({translateX: variant.viewPos, translateY: height/2}).ease(">");
 
-                const edge = this.edge(v, variant, height/2, variant.viewPos, variant.offset);
 
-                const circle = v.circle(variant.size)
-                    .dx(-variant.size/2 + variant.offset)
-                    .dy(-variant.size/2)
-                    .fill(variant.color ?? "#6872ff")
-                    .stroke({color: "#000", opacity: 0})
-                    .scale(1);
+            const edge = this.edge(v, variant, height/2, variant.viewPos, variant.offset);
 
-                // .delay(i * 200)
-                // .animate()
-                // .size(size).dx(-size/2)*/;
+            const circleWrapper = v.group();
+            const circle = circleWrapper.circle(variant.size)
+                .dx(-variant.size/2 + variant.offset)
+                .dy(-variant.size/2)
+                .fill(variant.color ?? "#6872ff")
+                .stroke({color: "#000", opacity: 0})
+                .scale(1);
 
-                if (variant.type === "cluster") {
-                    v.text(variant.variants.length).dy(5).dx(variant.offset).font({size: variant.size * .5 + "px"});
-                } else {
-                    // single variant
-                    v.text(variant.id).dy(-variant.size/2 - 5).dx(variant.offset).font({size: "10px"});
-                }
+            // .delay(i * 200)
+            // .animate()
+            // .size(size).dx(-size/2)*/;
 
-                v.click(e => this.onClickVariantGroup(e, circle, variant));
-                variant.domRef = v;
-                variant.domRefEdge = edge;
+            if (variant.type === "cluster") {
+                circleWrapper.text(variant.variants.length).dy(5).dx(variant.offset).font({size: variant.size * .5 + "px"});
+            } else {
+                // single variant
+                circleWrapper.text(variant.id).dy(-variant.size/2 - 5).dx(variant.offset).font({size: "10px"});
             }
 
+            v.click(e => this.onClickVariantGroup(e, circle, variant));
+            variant.domRef = circleWrapper;
+            variant.domRefEdge = edge;
+
+
         });
-        // this.layoutVariants(this.circles, track);
-        // this.updateVariants();
+        this.layoutVariants(this.circles, track);
+        this.updateVariants(track);
 
         this.currentTrackOffset += height;
     }
 
-    updateVariants() {
-        this.circles.forEach((variant, i) => {
-            variant.domRef.animate({delay: 1000}).dx(variant.offset);
-            // variant.domRefEdge.animate({delay: 1000}).plot(`M ${0} ${height} V ${height * .5} L ${offset} ${height * .4} V ${circle.size/2 + 5}`)
+    updateVariants(track) {
+        const height = (track.view.scaleHeight + track.view.variantAreaHeight) /2;
+        // TODO maybe use svg.js timeline
+        const circles = this.filterVisible(this.circles);
+        const delay = circles.length * 100;
+        circles.forEach((variant, i) => {
+            variant.domRef.animate({delay, duration: 1000}).dx(variant.offset).ease("<");
+            variant.domRefEdge.animate({delay, duration: 1000}).plot(`M ${0} ${height} V ${height * .5} L ${variant.offset} ${height * .4} V ${variant.size/2 + 5}`);
         });
     }
 
@@ -188,15 +208,15 @@ export default class Lollipop {
                 const start = cursorStart.x() <= mouseX ? cursorStart.x() : mouseX;
                 const w = Math.abs(cursorStart.x() - mouseX);
 
-                this.viewFrame = [start, start + w];
+                this.viewRange = [start, start + w];
                 rangeBar.show();
-                rangeBar.size(Math.min(w + 1, this.canvasWidth), 50).move(start); // +1 is for avoid 0 range
+                rangeBar.size(Math.min(w + 1, this.canvasWidth), track.view.height).move(start); // +1 is for avoid 0 range
                 // console.log(start);
             } else {
                 cursorStart.move(mouseX + 1, 0);
             }
 
-            this.log(cursorStart.x(), rangeBar.width(), mouseX, this.viewFrame);
+            this.log(cursorStart.x(), rangeBar.width(), mouseX, this.viewRange);
         });
 
         this.bar.mouseout(e => {
@@ -218,7 +238,7 @@ export default class Lollipop {
             console.log("db click");
             cursorStart.hide();
             rangeBar.hide();
-            this.viewFrame = [0, this.canvasWidth];
+            this.viewRange = [0, this.canvasWidth];
             this.resizeVariant(this.bar, e);
 
         });
@@ -233,9 +253,13 @@ export default class Lollipop {
         return _variants.map(variant => ({
             ...variant,
             size: track.view.circleSize,
-            viewPos: this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth),
+            viewPos: this.rescaleLinear(variant.pos, this.viewProteinRange[0], this.viewProteinRange[1], 0, this.canvasWidth),
             offset: 0
         }));
+    }
+
+    filterVisible(variants) {
+        return variants.filter(variant => variant.pos >= this.viewProteinRange[0] && variant.pos <= this.viewProteinRange[1]);
     }
 
     /*
@@ -247,17 +271,16 @@ export default class Lollipop {
             if (pool.length > 1) {
                 const id = pool[0].id + "_" + pool[pool.length-1].id;
                 const poolPos = pool.reduce((acc, curr) => curr.pos + acc, 0) / pool.length; // unweighted avg linkage
-                const variantViewFramePos = this.rescaleLinear(poolPos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
+                const variantViewFramePos = this.rescaleLinear(poolPos, this.viewProteinRange[0], this.viewProteinRange[1], 0, this.canvasWidth);
                 return {id: "cluster_" + id,
                     viewPos: variantViewFramePos,
                     pos: poolPos,
                     variants: [...pool],
                     type: "cluster",
-                    size: pool.length * 10 + track.view.circleSize,
+                    size: Math.min((Math.log(pool.length) * 10) + track.view.circleSize, track.view.circleSize * 5), // max size is 3 times default
                     offset: 0
                 };
             } else {
-                // const variantViewFramePos = this.rescaleLinear(pool[0].pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
                 return {...pool[0], type: "variant"};
             }
         };
@@ -275,8 +298,7 @@ export default class Lollipop {
             // convert original gene position into viewFrame position
             // const variantViewFramePos = this.rescaleLinear(variant.pos, this.viewFrame[0], this.viewFrame[1], 0, this.canvasWidth);
 
-            const clusteringMaxDistance = poolViewFramePos + 10; /* + track.view.circleSize*/
-            const offsetMaxDistance = poolViewFramePos + track.view.circleSize;
+            const clusteringMaxDistance = poolViewFramePos + variant.size * this.clusterFactor;
             if (!pool.length) {
                 pool.push(variant);
                 poolViewFramePos = variant.viewPos;
@@ -299,7 +321,7 @@ export default class Lollipop {
         }
 
 
-        return points;
+        this.circles = points;
     }
 
 
@@ -311,30 +333,42 @@ export default class Lollipop {
      * // TODO in progress
      */
     layoutVariants(circles, track) {
-
-
-        this.moveIntersected(circles);
-        return circles;
+        const i = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            // console.log("it", i++);
+            const state = this.moveIntersected(this.circles);
+            if (state === -1) {
+                // increase cluster distance
+                console.error("no solution");
+                break;
+            }
+            if (state === 0) {
+                // console.log("collision solved")
+                break;
+            }
+        }
     }
 
+    // returns false until either collision are solved or there is no valid solution
     moveIntersected(arr = [], it = 0) {
 
         /**
          * TODO:
          * at the moment the case in which there is no space for all the nodes is not covered and it will result in an infinite recursion.
          * Next steps:
-         * 1. Turn recursion into iterative
-         * 2. implement a backtracking mechanism and increase the clustering max distance (in case of no space for all the nodes)
-         * 3. implement updatable edges
+         * 1. DONE Turn recursion into iterative
+         * 2. DONE implement a backtracking mechanism and increase the clustering max distance (in case of no valid solution available)
+         * 3. DONE implement updatable edges
           */
 
-        const boundaries = [0, this.canvasWidth];
+        const boundaries = [0, 1000];
 
         const step = 1;
         const collisions = this.detectCollisions(arr);
 
         if (collisions.length < 1 /* || it > 30*/) {
-            return;
+            return 0;
         }
 
         const mostIntersected = collisions.sort((a, b) => a[1] - b[1])[0];
@@ -342,20 +376,35 @@ export default class Lollipop {
         const left = arr[Math.floor(mostIntersected[0])];
         const right = arr[Math.ceil(mostIntersected[0])];
 
+        if (!this.mostIntersectedLeft) {
+            this.mostIntersectedLeft = left.offset;
+            this.mostIntersectedRight = right.offset;
+        } else {
+            // stored offset is the same as the prev iteration
+            // console.error("increasing", this.mostIntersectedLeft, this.mostIntersectedRight, left.offset, right.offset)
+            // TODO this exit condition is not correct. Find a safe way to get out of the loop in case of a solution doesnt exist.
+            if (this.mostIntersectedLeft === left.offset && this.mostIntersectedRight === right.offset) {
+                console.error("same offset");
+                // return -1;
+            }
+        }
+
         // check left boundary
-        if ((left.viewPos + left.offset) - (left.size / 2) - step >= boundaries[0]) {
+        // console.log(`${left.viewPos} ${left.offset} ${left.size}`);
+        if ((left.viewPos + left.offset) - (left.size) - step >= boundaries[0]) {
             left.offset -= step;
         } else {
             right.offset += step * 2;
         }
 
         // check right boundary
-        if ((right.viewPos + right.offset) + (right.size / 2) + step <= boundaries[1]) {
+        if ((right.viewPos + right.offset) + (right.size) + step <= boundaries[1]) {
             right.offset += step;
         } else {
             left.offset -= step * 2;
         }
-        this.moveIntersected(arr, it+1);
+        // this.moveIntersected(arr, it+1);
+        return 1;
 
 
     }
@@ -471,16 +520,17 @@ export default class Lollipop {
     };
 
     resizeVariant(g, e) {
-        console.log("resize"); // this.viewFrame is in screen pixels
+        console.log("resize");
         const minScreen = 0;
         const maxScreen = this.canvasWidth;
         const minProtein = this.proteinStart;
         const maxProtein = this.proteinEnd;
-        const minOldRange = this.viewFrame[0];
-        const maxOldRange = this.viewFrame[1];
+        const minOldRange = this.viewProteinRange[0];
+        const maxOldRange = this.viewProteinRange[1];
         const newMinRange = this.rescaleLinear(minOldRange, minScreen, maxScreen, minProtein, maxProtein);
         const newMaxRange = this.rescaleLinear(maxOldRange, minScreen, maxScreen, minProtein, maxProtein);
 
+        console.log("newMinRange", newMinRange);
         this.variantsRender(this.tracks.find(t => t.id === "variants"), [newMinRange, newMaxRange]); // TODO temp solution
     }
 
@@ -503,6 +553,14 @@ export default class Lollipop {
             range:  ${range}
             viewFrame: ${viewFrame}
         `;
+    }
+
+}
+
+class Variant {
+
+    constructor() {
+
     }
 
 }
