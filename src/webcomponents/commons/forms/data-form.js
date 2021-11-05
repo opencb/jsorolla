@@ -536,8 +536,11 @@ export default class DataForm extends LitElement {
     }
 
     _createTitleElement(element) {
+        const titleClass = element.display?.textClass ? element.display.textClass : "";
+        const titleStyle = element.display?.textStyle ? element.display.textStyle : "";
+
         return html`
-            <div class="${element.display?.textClass ? element.display.textClass : ""}" style="${element.display?.textStyle ? element.display.textStyle : ""}">
+            <div class="${titleClass}" style="${titleStyle}">
                 <span>${element.text}</span>
             </div>
         `;
@@ -551,14 +554,22 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class=${isValid? "" : "has-error"}>
-                <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled}
-                                   ?required=${element.required} .value="${value}"
-                                   .classes="${this._isUpdated(element) ? "updated" : ""}"
-                                   @blurChange="${e => this.onBlurChange(element.field, e.detail.value)}"
-                                   @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                <text-field-filter
+                    placeholder="${element.display?.placeholder}"
+                    .rows="${rows}"
+                    ?disabled="${disabled}"
+                    ?required="${element.required}"
+                    .value="${value}"
+                    .classes="${this._isUpdated(element) ? "updated" : ""}"
+                    @blurChange="${e => this.onBlurChange(element.field, e.detail.value)}"
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
-                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`<span class="help-block" style="margin: 5px">${element.display.help.text}</span>` : null}
-                ${!isValid ? html`<span class="help-block" style="margin: 5px">${element.display.validation.message}</span>` : null}
+                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
+                    <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
+                ` : null}
+                ${!isValid ? html`
+                    <span class="help-block" style="margin: 5px">${element.display.validation.message}</span>
+                ` : null}
             </div>
         `;
     }
@@ -604,7 +615,12 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
-                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}" >
+                <input 
+                    type="text"
+                    id="${this._prefix}DueDate"
+                    class="${this._prefix}Input form-control"
+                    data-field="${element.field}"
+                    ?disabled="${disabled}">
                 <span class="input-group-addon">
                         <span class="fa fa-calendar"></span>
                 </span>
@@ -626,8 +642,13 @@ export default class DataForm extends LitElement {
         }
         return html`
             <div class="">
-                <input type="checkbox" class="${this._prefix}FilterCheckbox" .checked="${value}" ?disabled=${disabled}
-                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" style="margin-right: 5px; margin-top: 12px">
+                <input
+                    type="checkbox"
+                    class="${this._prefix}FilterCheckbox"
+                    .checked="${value}"
+                    ?disabled=${disabled}
+                    @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}"
+                    style="margin-right: 5px; margin-top: 12px">
                 <span>${element.text}</span>
             </div>
         `;
@@ -645,10 +666,15 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="">
-                <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}"
-                               .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
-                               .classes="${this._isUpdated(element) ? "updated" : ""}"
-                               @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                <toggle-switch
+                    .disabled="${this._getBooleanValue(element.display?.disabled, false)}"
+                    .value="${value}"
+                    .onText="${element.display.onText}"
+                    .offText="${element.display.offText}"
+                    .activeClass="${element.display.activeClass}"
+                    .inactiveClass="${element.display.inactiveClass}"
+                    .classes="${this._isUpdated(element) ? "updated" : ""}"
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
             </div>
         `;
@@ -660,10 +686,13 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="">
-                <toggle-buttons .names="${names}" .value="${value}"
-                                .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
-                                .classes="${this._isUpdated(element) ? "updated" : ""}"
-                                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                <toggle-buttons
+                    .names="${names}"
+                    .value="${value}"
+                    .activeClass="${element.display.activeClass}"
+                    .inactiveClass="${element.display.inactiveClass}"
+                    .classes="${this._isUpdated(element) ? "updated" : ""}"
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-buttons>
             </div>
         `;
@@ -676,19 +705,23 @@ export default class DataForm extends LitElement {
         return html`
             <div class="btn-group ${element?.buttonClass}">
                 ${element.btnGroups.map(btn => html `
-                    ${btn.openModal ?
-                        html `
-                            <button type="button" class="btn ${btn.btnClass? btn.btnClass : "btn-primary" }"
-                                    data-toggle="modal" data-target="#${this._prefix}DataModal">
-                                ${btn.title}
-                            </button>
-                        `:
-                        html `
-                            <button type="button" class="btn ${btn.btnClass}" @click="${e => this.onCustomEvent(e, btn.event, this.data)}">
-                                ${btn.title}
-                            </button>
-                        `}
-                    `)}
+                    ${btn.openModal ? html `
+                        <button
+                            type="button"
+                            class="btn ${btn.btnClass? btn.btnClass : "btn-primary" }"
+                            data-toggle="modal"
+                            data-target="#${this._prefix}DataModal">
+                            ${btn.title}
+                        </button>
+                    `: html `
+                        <button
+                            type="button"
+                            class="btn ${btn.btnClass}"
+                            @click="${e => this.onCustomEvent(e, btn.event, this.data)}">
+                            ${btn.title}
+                        </button>
+                    `}
+                `)}
             </div>
         `;
     }
@@ -777,10 +810,14 @@ export default class DataForm extends LitElement {
         if (allowedValues && allowedValues.length > 0) {
             return html`
                 <div class="">
-                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled}
-                                         ?required=${element.required} .value="${defaultValue}"
-                                         .classes="${this._isUpdated(element) ? "updated" : ""}"
-                                         @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    <select-field-filter
+                        .data="${allowedValues}"
+                        ?multiple="${element.multiple}"
+                        ?disabled=${disabled}
+                        ?required=${element.required}
+                        .value="${defaultValue}"
+                        .classes="${this._isUpdated(element) ? "updated" : ""}"
+                        @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>
             `;
