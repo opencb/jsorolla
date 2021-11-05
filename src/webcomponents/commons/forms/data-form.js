@@ -234,10 +234,10 @@ export default class DataForm extends LitElement {
         if (!UtilsNew.isEmpty(this.updateParams)) {
             if (element.field.includes(".")) {
                 const [field, prop] = element.field.split(".");
-                return this.updateParams[field]?.[prop] ?? false;
+                return typeof this.updateParams[field]?.[prop] !== "undefined";
             } else {
                 const field = element.field.split(".")[0];
-                return this.updateParams[field] ?? false;
+                return typeof this.updateParams[field] !== "undefined";
             }
         } else {
             // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
