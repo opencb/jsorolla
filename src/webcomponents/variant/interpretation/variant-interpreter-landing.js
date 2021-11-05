@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../clinical/clinical-analysis-editor.js";
+import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/obsolete/opencga-clinical-analysis-writer.js";
 import "../../clinical/clinical-analysis-interpretation-editor.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
@@ -395,9 +395,10 @@ class VariantInterpreterLanding extends LitElement {
                         <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
-                                <clinical-analysis-editor   .opencgaSession=${this.opencgaSession}
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </clinical-analysis-editor>
+                                <clinical-analysis-update
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </clinical-analysis-update>
                             </div>
                         </div>
                     ` : null}

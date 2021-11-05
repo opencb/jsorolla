@@ -24,7 +24,7 @@ import "../commons/forms/data-form.js";
 import "../commons/forms/select-field-filter.js";
 
 
-class ClinicalAnalysisEditor extends LitElement {
+class ClinicalAnalysisUpdate extends LitElement {
 
     constructor() {
         super();
@@ -499,4 +499,4 @@ class ClinicalAnalysisEditor extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-editor", ClinicalAnalysisEditor);
+customElements.define("clinical-analysis-update", ClinicalAnalysisUpdate);
