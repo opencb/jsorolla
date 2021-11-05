@@ -78,6 +78,7 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-r
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-writer.js";
+import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/opencga-file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
@@ -208,6 +209,7 @@ class IvaApp extends LitElement {
             "family-qc",
             // Clinical
             "clinical-analysis-writer",
+            "clinical-analysis-create",
             "interpreter",
             "rd-tiering",
             // Alignment
@@ -1518,6 +1520,16 @@ class IvaApp extends LitElement {
                         <opencga-clinical-analysis-writer .opencgaSession="${this.opencgaSession}"
                                                           @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
                         </opencga-clinical-analysis-writer>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["clinical-analysis-create"] ? html`
+                    <tool-header title="${"Create Case new"}" icon="${"fas fa-window-restore"}"></tool-header>
+                    <div class="content container" id="opencga-clinical-analysis-create">
+                        <clinical-analysis-create
+                            .opencgaSession="${this.opencgaSession}"
+                            @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                        </clinical-analysis-create>
                     </div>
                 ` : null}
 

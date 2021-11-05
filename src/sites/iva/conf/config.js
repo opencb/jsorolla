@@ -481,6 +481,14 @@ const SUITE = {
                             icon: "",
                             description: "",
                             visibility: "public"
+                        },
+                        {
+                            id: "clinical-analysis-create",
+                            name: "Create Case new",
+                            acronym: "",
+                            icon: "",
+                            description: "",
+                            visibility: "public"
                         }
                     ]
                 },
