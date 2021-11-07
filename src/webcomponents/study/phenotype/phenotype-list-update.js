@@ -139,7 +139,7 @@ export default class PhenotypeListUpdate extends LitElement {
                 <li>
                     <div class="row">
                         <div class="col-md-8">
-                            <span style="margin-left:14px">${pheno.name}</span>
+                            <span style="margin-left:14px">${pheno.name} (${pheno.id})</span>
                         </div>
                         <div class="col-md-4">
                             <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
