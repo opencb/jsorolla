@@ -232,11 +232,10 @@ export default class DataForm extends LitElement {
 
     _isUpdated(element) {
         if (!UtilsNew.isEmpty(this.updateParams)) {
-            if (element.field.includes(".")) {
-                const [field, prop] = element.field.split(".");
+            const [field, prop] = element.field.split(".");
+            if (prop) {
                 return typeof this.updateParams[field]?.[prop] !== "undefined";
             } else {
-                const field = element.field.split(".")[0];
                 return typeof this.updateParams[field] !== "undefined";
             }
         } else {
@@ -615,7 +614,7 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
-                <input 
+                <input
                     type="text"
                     id="${this._prefix}DueDate"
                     class="${this._prefix}Input form-control"
