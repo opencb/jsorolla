@@ -77,8 +77,8 @@ export default class AnnotationSetUpdate extends LitElement {
         } else {
             this.updateAnnotationSet(e.detail.value);
         }
-        $("#annotationSetManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
+        $("#annotationSetManagerModal" + this._prefix).modal("hide");
     }
 
     addAnnotationSet(annotationSet) {

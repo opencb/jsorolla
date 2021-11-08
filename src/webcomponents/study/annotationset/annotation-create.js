@@ -53,7 +53,7 @@ export default class AnnotationCreate extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(changedProperties) {
+    firstUpdated() {
         this.variableSetObserver();
     }
 
@@ -90,8 +90,8 @@ export default class AnnotationCreate extends LitElement {
         const variableSorted = this.variableSet?.variables.sort((a, b) => a.rank > b.rank? 1 : -1);
         this.annotationsElements = variableSorted.map(item => {
             return {
-                name: item.id,
-                field: `annotation.${item.name}`,
+                name: item.name,
+                field: `annotation.${item.id}`,
                 type: "input-text",
                 display: {
                     placeholder: item.description,
@@ -110,6 +110,7 @@ export default class AnnotationCreate extends LitElement {
 
     onFieldChange(e) {
         // Prevent propagate the function to higher components
+        // TODO: Refactor onFieldChange
         e.stopPropagation();
         const [field, prop] = e.detail.param.split(".");
         if (e.detail.value) {
@@ -136,13 +137,36 @@ export default class AnnotationCreate extends LitElement {
                 delete this.annotationSet[field];
             }
         }
-        // console.log("this.annotationSet", this.annotationSet);
     }
 
     getVariablesById(variableId) {
         this.variableSet = this.variableSets.find(item => item.id === variableId);
         //     .variables.sort((a, b) => a.rank > b.rank? 1 : -1);
         this.renderVariables();
+    }
+
+    onSendAnnotationSet(e) {
+        e.stopPropagation();
+        LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
+        this.annotationSet = {};
+    }
+
+    onClear(e) {
+        e.stopPropagation();
+        this.annotationSet = {};
+        LitUtils.dispatchEventCustom(this, "closeForm");
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.annotationSet}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${e => this.onSendAnnotationSet(e)}">
+            </data-form>
+    `;
     }
 
     getDefaultConfig() {
@@ -189,28 +213,6 @@ export default class AnnotationCreate extends LitElement {
                 }
             ]
         };
-    }
-
-    onSendAnnotationSet(e) {
-        e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
-    }
-
-    onClearForm(e) {
-        e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "closeForm");
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.annotationSet}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClearForm}"
-                @submit="${e => this.onSendAnnotationSet(e)}">
-            </data-form>
-    `;
     }
 
 }

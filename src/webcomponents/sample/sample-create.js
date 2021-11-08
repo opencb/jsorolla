@@ -155,16 +155,16 @@ export default class SampleCreate extends LitElement {
         //     });
     }
 
-    onSyncPhenotypes(e) {
+    onSync(e, type) {
         e.stopPropagation();
-        // console.log("Updated list", this);
-        this.sample = {...this.sample, phenotypes: e.detail.value};
-    }
-
-    onSyncAnnotationSets(e) {
-        e.stopPropagation();
-        console.log("Updated list ", this);
-        this.sample = {...this.sample, annotationSets: e.detail.value};
+        switch (type) {
+            case "phenotypes":
+                this.sample = {...this.sample, phenotypes: e.detail.value};
+                break;
+            case "annotationsets":
+                this.sample = {...this.sample, annotationSets: e.detail.value};
+                break;
+        }
     }
 
     getDefaultConfig() {
@@ -383,7 +383,7 @@ export default class SampleCreate extends LitElement {
                                 render: () => html`
                                     <phenotype-list-update
                                         .phenotypes="${this.sample?.phenotypes}"
-                                        @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                        @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
                         },
@@ -404,7 +404,7 @@ export default class SampleCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${this.sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
                                     </annotation-set-update>
                                 `
                             }
