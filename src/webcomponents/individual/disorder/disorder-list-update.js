@@ -85,7 +85,8 @@ export default class DisorderListUpdate extends LitElement {
     onActionDisorder(e) {
         e.stopPropagation();
         if (this.isAddItem) {
-            // To add disorder, must you have evidence?
+            // ? To add disorder, must you have evidence?
+
             const disorder = this.addEvidencesAsObject(e.detail.value);
             this.addDisorder(disorder);
 
