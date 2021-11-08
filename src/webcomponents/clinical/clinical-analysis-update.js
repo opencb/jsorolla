@@ -441,7 +441,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             .showPanelTitle="${false}"
                                             .showExtendedFilters="${false}"
                                             .classes="${this.updateParams.panels ? "updated" : ""}"
-                                            .disabled="${!!this.clinicalAnalysis?.locked}"
+                                            .disabled="${!!this.clinicalAnalysis?.locked || !!this.clinicalAnalysis?.panelLock}"
                                             @filterChange="${e => {
                                                 e.detail.param = "panels.id";
                                                 this.onFieldChange(e);
