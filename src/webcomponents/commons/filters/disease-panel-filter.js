@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import "../forms/select-field-filter.js";
 
 /**
  * This class ....
@@ -59,6 +59,7 @@ export default class DiseasePanelFilter extends LitElement {
             diseasePanels: {
                 type: Array
             },
+            // Comma-separated list of selected panels
             panel: {
                 type: String
             },
@@ -71,23 +72,23 @@ export default class DiseasePanelFilter extends LitElement {
             panelRoleInCancer: {
                 type: String
             },
-            config: {
-                type: Object
-            }
+            showExtendedFilters: {
+                type: Boolean
+            },
+            classes: {
+                type: String
+            },
+            disabled: {
+                type: Boolean
+            },
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this.query = {};
         this.genes = [];
-    }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.showExtendedFilters = true;
     }
 
     update(changedProperties) {
@@ -124,16 +125,16 @@ export default class DiseasePanelFilter extends LitElement {
 
         this.diseasePanelsSelectOptions = this.diseasePanels.map(panel => ({
             id: panel.id,
-            name: ` ${panel.name}
-                    ${panel.source ? ` - ${panel.source.author} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                    ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
+            name: `${panel.name}
+                   ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                   ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
         }));
     }
 
     // Updates the gene list for the gene select
     panelObserver(panel) {
-        const _panel = panel ?? this.panel;
         this.genes = [];
+        const _panel = panel ?? this.panel;
         if (_panel) {
             const panelIds = _panel.split(",");
             for (const panelId of panelIds) {
@@ -163,61 +164,46 @@ export default class DiseasePanelFilter extends LitElement {
         }
 
         const event = new CustomEvent("filterChange", {
-            detail: this.query
+            detail: {
+                value: this.query?.panel,
+                query: this.query
+            }
         });
         this.dispatchEvent(event);
-    }
-
-    getDefaultConfig() {
-        return {
-            showPanelFilter: true,
-            // DEPRECATED
-            showGeneFilter: false,
-            showSummary: false
-        };
     }
 
     render() {
         return html`
             <div>
-                <div style="margin: 10px 0px">
-                    <span>Select Disease Panels</span>
+                <div>
+                    <!-- Only show the title when all filters are displayed -->
+                    ${this.showExtendedFilters ? html`
+                        <span>Select Disease Panels</span>` : null
+                    }
+
                     <div style="padding: 2px 0px">
-                        <select-field-filter    multiple
-                                                .liveSearch=${true}
-                                                .data="${this.diseasePanelsSelectOptions}"
-                                                .value=${this.panel}
-                                                @filterChange="${e => this.filterChange(e, "panel")}">
+                        <select-field-filter
+                            .data="${this.diseasePanelsSelectOptions}"
+                            .value=${this.panel}
+                            .liveSearch=${true}
+                            multiple
+                            .classes="${this.classes}"
+                            .disabled="${this.disabled}"
+                            @filterChange="${e => this.filterChange(e, "panel")}">
                         </select-field-filter>
                     </div>
                 </div>
 
-                ${this._config.showGeneFilter ? html`
-                    <div style="margin: 15px 0px">
-                        <span>Select Genes</span>
-                        <div style="padding: 2px 0px">
-                            <select-field-filter    .liveSearch=${true}
-                                                    .data="${this.genes.map(gene => (
-                                                            {
-                                                                id: gene.id || gene.name, name: `${gene.name ? `${gene.name} (${gene.id})`: `${gene.id}`}`
-                                                            })
-                                                    )}"
-                                                    .disabled="${this.genes?.length === 0}"
-                                                    @filterChange="${e => this.filterChange(e, "panelGene")}">
-                            </select-field-filter>
-                        </div>
-                    </div>` : null
-                }
-
-                ${this._config.showPanelFilter ? html`
+                ${this.showExtendedFilters ? html`
                     <div style="margin: 15px 0px">
                         <span>Filter Genes by Mode of Inheritance</span>
                         <div style="padding: 2px 0px">
-                            <select-field-filter    multiple
-                                                    .data="${MODE_OF_INHERITANCE}"
-                                                    .value=${this.panelModeOfInheritance}
-                                                    .disabled="${this.genes?.length === 0}"
-                                                    @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
+                            <select-field-filter
+                                .data="${MODE_OF_INHERITANCE}"
+                                .value=${this.panelModeOfInheritance}
+                                multiple
+                                .disabled="${this.genes?.length === 0}"
+                                @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
                             </select-field-filter>
                         </div>
                     </div>
@@ -225,11 +211,12 @@ export default class DiseasePanelFilter extends LitElement {
                     <div style="margin: 15px 0px">
                         <span>Filter Genes by Confidence</span>
                         <div style="padding: 2px 0px">
-                            <select-field-filter    multiple
-                                                    .data="${DISEASE_PANEL_CONFIDENCE}"
-                                                    .value=${this.panelConfidence}
-                                                    .disabled="${this.genes?.length === 0}"
-                                                    @filterChange="${e => this.filterChange(e, "panelConfidence")}">
+                            <select-field-filter
+                                .data="${DISEASE_PANEL_CONFIDENCE}"
+                                .value=${this.panelConfidence}
+                                multiple
+                                .disabled="${this.genes?.length === 0}"
+                                @filterChange="${e => this.filterChange(e, "panelConfidence")}">
                             </select-field-filter>
                         </div>
                     </div>
@@ -237,32 +224,14 @@ export default class DiseasePanelFilter extends LitElement {
                     <div style="margin: 15px 0px">
                         <span>Filter Genes by Role in Cancer</span>
                         <div style="padding: 2px 0px">
-                            <select-field-filter    multiple
-                                                    .data="${ROLE_IN_CANCER}"
-                                                    .value=${this.panelRoleInCancer}
-                                                    .disabled="${this.genes?.length === 0}"
-                                                    @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
+                            <select-field-filter
+                                .data="${ROLE_IN_CANCER}"
+                                .value=${this.panelRoleInCancer}
+                                multiple
+                                .disabled="${this.genes?.length === 0}"
+                                @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
                             </select-field-filter>
                         </div>
-                    </div>` : null
-                }
-
-                ${this._config.showSummary && this.panel ? html`
-                    <div class="selection-list">
-                        <label>aaa</label>
-                        <ul>
-                            ${this.panel.split(",").map(panel => {
-                                const p = this.diseasePanels.find(p => p.id === panel);
-                                return html`
-                                    <li>
-                                        <span class="badge break-spaces">
-                                            <a href="https://panelapp.genomicsengland.co.uk/panels/${p.source.id}" target="_blank">
-                                                ${p.name} <i class="fas fa-external-link-alt"></i>
-                                            </a>
-                                        </span>
-                                    </li>`;
-                            })}
-                        </ul>
                     </div>` : null
                 }
             </div>
