@@ -121,7 +121,10 @@ const CATALOG_NAVBAR_MENU = {
         {
             id: "sample",
             name: "Sample Browser",
-            visibility: "public"
+            visibility: "public",
+            icon: "img/tools/icons/interpretation_portal.svg",
+            description: "Explore all samples in Catalog",
+            featured: true,
         },
         {
             id: "individual",
@@ -294,7 +297,6 @@ const SUITE = {
                             description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
                             icon: "img/tools/icons/aggregation.svg",
                             visibility: "public",
-                            featured: true,
                         },
                         {
                             separator: true
@@ -380,7 +382,6 @@ const SUITE = {
                             name: "Sample Quality Control",
                             description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
                             icon: "img/tools/icons/aggregation.svg",
-                            featured: true,
                             visibility: "public"
                         },
                         {
@@ -470,18 +471,10 @@ const SUITE = {
                             `,
                             visibility: "public",
                             featured: true,
-                            fa_icon: "fas fa-folder-open",
+                            // fa_icon: "fas fa-folder-open",
                             icon: "img/tools/icons/interpretation_portal.svg",
                             thumbnail: "interpretation_portal.png"
                         },
-                        // {
-                        //     id: "clinical-analysis-writer",
-                        //     name: "Create Case",
-                        //     acronym: "",
-                        //     icon: "",
-                        //     description: "",
-                        //     visibility: "public"
-                        // },
                         {
                             id: "clinical-analysis-create",
                             name: "Create Case",
@@ -645,15 +638,6 @@ const SUITE = {
                             category: true,
                             visibility: "public"
                         },
-                        // {
-                        //     id: "clinical-analysis-writer",
-                        //     name: "Create Case",
-                        //     acronym: "",
-                        //     icon: "img/tools/icons/interpretation_portal.svg",
-                        //     description: "Create a new case.",
-                        //     visibility: "public",
-                        //     featured: true,
-                        // },
                         {
                             id: "clinical-analysis-create",
                             name: "Create Case",
