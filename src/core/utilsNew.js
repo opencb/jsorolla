@@ -275,10 +275,8 @@ export default class UtilsNew {
         return table;
     }
 
-    /*
-     * Download data in the browser.
-     * data can be a string, and arrays of string or an array of arrays
-     */
+    // Download data in the browser.
+    // data can be a string, and arrays of string or an array of arrays
     static downloadData(data, filename, mimeType = "application/json") {
         // data can be a string, and arrays of string or an array of arrays
         let dataString = data;
@@ -301,6 +299,11 @@ export default class UtilsNew {
         setTimeout(function () {
             document.body.removeChild(a);
         }, 0);
+    }
+
+    // Download the specified content as a JSON file
+    static downloadJSON(data, name) {
+        return UtilsNew.downloadData(JSON.stringify(data, null, "    "), name, "application/json");
     }
 
     static range(start, stop, step = 1) {
