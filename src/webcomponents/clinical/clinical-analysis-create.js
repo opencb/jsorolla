@@ -19,7 +19,9 @@ import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/clinical-priority-filter.js";
+import "../commons/filters/clinical-flag-filter.js";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -221,42 +223,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }));
     }
 
-    renderPanels(selectedPanels) {
-        const panels = this.opencgaSession.study.panels;
-        const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
-        return html`
-            <div class="">
-                <select-field-filter
-                    .data="${panels}"
-                    .value="${selectedValues}"
-                    .multiple="${true}"
-                    @filterChange="${e => {
-                        e.detail.param = "panels.id";
-                        this.onFieldChange(e);
-                    }}">
-                </select-field-filter>
-            </div>
-        `;
-    }
-
-    renderFlags(flags) {
-        const studyFlags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()];
-        const selectedValues = flags?.map(flag => flag.id).join(",");
-        return html`
-            <div>
-                <select-field-filter
-                    .data="${studyFlags}"
-                    .value="${selectedValues}"
-                    .multiple="${true}"
-                    @filterChange="${e => {
-                        e.detail.param = "flags.id";
-                        this.onFieldChange(e);
-                    }}">
-                </select-field-filter>
-            </div>
-        `;
-    }
-
     onClear() {
         this.initClinicalAnalysis();
         this.requestUpdate();
@@ -368,7 +334,21 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => this.renderPanels(panels)
+                                render: panels => {
+                                    return html`
+                                        <disease-panel-filter
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .diseasePanels="${this.opencgaSession.study?.panels}"
+                                            .panel="${panels}"
+                                            .showPanelTitle="${false}"
+                                            .showExtendedFilters="${false}"
+                                            @filterChange="${e => {
+                                                e.detail.param = "panels.id";
+                                                this.onFieldChange(e);
+                                            }}">
+                                        </disease-panel-filter>
+                                    `;
+                                }
                             }
                         },
                         {
@@ -376,7 +356,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "flags",
                             type: "custom",
                             display: {
-                                render: flags => this.renderFlags(flags),
+                                render: flags => html`
+                                    <clinical-flag-filter
+                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .flag="${flags?.map(panel => panel.id).join(",")}"
+                                        @filterChange="${e => {
+                                            e.detail.param = "flags.id";
+                                            this.onFieldChange(e);
+                                        }}">
+                                    </clinical-flag-filter>`
                             }
                         },
                         {
@@ -589,10 +577,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" .config=${{
-                                        addButton: false,
-                                        multiple: false
-                                    }} @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`;
+                                    return html`
+                                        <individual-id-autocomplete
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config=${{
+                                                addButton: false,
+                                                multiple: false
+                                            }} @filterChange="${e => this.onCancerChange(e)}">
+                                        </individual-id-autocomplete>`;
                                 }
                             }
                         },
@@ -648,15 +640,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             name: "Priority",
                             field: "priority",
                             type: "custom",
-                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-                            defaultValue: "MEDIUM",
                             display: {
                                 render: priority => html`
                                     <clinical-priority-filter
-                                        .config=${{multiple: false}}
-                                        .priorities="${[...Object.values(this.opencgaSession.study.configuration?.clinical?.priorities || {})]}"
-                                        @filterChange="${e => this.onCustomFieldChange("priority", e)}"
-                                        .priority="${priority}">
+                                        .priority="${priority}"
+                                        .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
+                                        .multiple=${false}
+                                        @filterChange="${e => this.onCustomFieldChange("priority", e)}">
                                     </clinical-priority-filter>`
                             }
                         },

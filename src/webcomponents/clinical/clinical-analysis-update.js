@@ -21,7 +21,9 @@ import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
 import FormUtils from "../commons/forms/form-utils";
 import "./clinical-analysis-comment-editor.js";
 import "../commons/forms/data-form.js";
-import "../commons/forms/select-field-filter.js";
+import "../commons/filters/disease-panel-filter.js";
+import "../commons/filters/clinical-priority-filter.js";
+import "../commons/filters/clinical-flag-filter.js";
 
 
 class ClinicalAnalysisUpdate extends LitElement {
@@ -128,44 +130,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                 ` : null}
             </div>
         `;
-    }
-
-    renderPanels(selectedPanels) {
-        const studyPanels = this.opencgaSession.study.panels;
-        const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
-        return html`
-            <div>
-                <select-field-filter
-                    .data="${studyPanels}"
-                    .value="${selectedValues}"
-                    .multiple="${true}"
-                    .classes="${this.updateParams.panels ? "updated" : ""}"
-                    ?disabled="${!!this.clinicalAnalysis?.locked}"
-                    @filterChange="${e => {
-                        e.detail.param = "panels.id";
-                        this.onFieldChange(e);
-                    }}">
-                </select-field-filter>
-            </div>`;
-    }
-
-    renderFlags(flags) {
-        const studyFlags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()];
-        const selectedValues = flags.map(flag => flag.id).join(",");
-        return html`
-            <div>
-                <select-field-filter
-                    .data="${studyFlags}"
-                    .value="${selectedValues}"
-                    .multiple="${true}"
-                    .classes="${this.updateParams.flags ? "updated" : ""}"
-                    ?disabled="${!!this.clinicalAnalysis?.locked}"
-                    @filterChange="${e => {
-                        e.detail.param = "flags.id";
-                        this.onFieldChange(e);
-                    }}">
-                </select-field-filter>
-            </div>`;
     }
 
     onCommentChange(e) {
@@ -420,12 +384,19 @@ class ClinicalAnalysisUpdate extends LitElement {
                         {
                             name: "Priority",
                             field: "priority.id",
-                            type: "select",
-                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-                            defaultValue: "MEDIUM",
+                            type: "custom",
                             display: {
                                 width: "9",
-                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                // disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                render: priority => html`
+                                    <clinical-priority-filter
+                                        .priority="${priority}"
+                                        .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
+                                        .multiple=${false}
+                                        .classes="${this.updateParams.priority ? "updated" : ""}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
+                                        @filterChange="${e => this.onFieldChange({detail: {value: e.detail.value, param: "priority.id"}})}">
+                                    </clinical-priority-filter>`
                             }
                         },
                         {
@@ -460,8 +431,24 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => this.renderPanels(panels),
-                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                // disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                render: panels => {
+                                    return html`
+                                        <disease-panel-filter
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .diseasePanels="${this.opencgaSession.study?.panels}"
+                                            .panel="${panels.map(panel => panel.id).join(",")}"
+                                            .showPanelTitle="${false}"
+                                            .showExtendedFilters="${false}"
+                                            .classes="${this.updateParams.panels ? "updated" : ""}"
+                                            .disabled="${!!this.clinicalAnalysis?.locked}"
+                                            @filterChange="${e => {
+                                                e.detail.param = "panels.id";
+                                                this.onFieldChange(e);
+                                            }}">
+                                        </disease-panel-filter>
+                                    `;
+                                }
                             }
                         },
                         {
@@ -478,8 +465,17 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "flags",
                             type: "custom",
                             display: {
-                                render: flags => this.renderFlags(flags),
-                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                render: flags => html`
+                                    <clinical-flag-filter
+                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .flag="${flags?.map(panel => panel.id).join(",")}"
+                                        .classes="${this.updateParams.flags ? "updated" : ""}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
+                                        @filterChange="${e => {
+                                            e.detail.param = "flags.id";
+                                            this.onFieldChange(e);
+                                        }}">
+                                    </clinical-flag-filter>`
                             }
                         },
                         {
