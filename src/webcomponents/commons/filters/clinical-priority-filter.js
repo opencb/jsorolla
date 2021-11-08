@@ -16,7 +16,6 @@
 
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/select-field-filter.js";
 
 export default class ClinicalPriorityFilter extends LitElement {
@@ -34,60 +33,54 @@ export default class ClinicalPriorityFilter extends LitElement {
 
     static get properties() {
         return {
-            priorities: {
-                type: Array
-            },
             priority: {
                 type: String
+            },
+            priorities: {
+                type: Array
             },
             placeholder: {
                 type: String
             },
-            config: {
-                type: Object
-            }
+            multiple: {
+                type: Boolean
+            },
+            classes: {
+                type: String
+            },
+            disabled: {
+                type: Boolean
+            },
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(6) + "_";
+        this.priorities = ["URGENT", "HIGH", "MEDIUM", "LOW"];
+        this.multiple = true;
+        this.disabled = false;
     }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    // update(changedProperties) {
-    //     if (changedProperties.has("priority")) {
-    //     }
-    //     super.update(changedProperties);
-    // }
 
     filterChange(e) {
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: e.detail.value
+                value: e.detail.value,
+                query: {
+                    priority: e.detail.value
+                }
             }
         });
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        return {
-            priorities: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-            multiple: true
-        };
-    }
-
     render() {
         return html`
             <select-field-filter
-                .placeholder="${this.placeholder}"
-                ?multiple="${this._config.multiple}"
-                .data="${this.priorities?.length ? this.priorities : this._config.priorities}"
+                .data="${this.priorities}"
                 .value=${this.priority}
-                multiple
+                .placeholder="${this.placeholder}"
+                ?multiple="${this.multiple}"
+                .classes="${this.classes}"
+                .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
         `;
