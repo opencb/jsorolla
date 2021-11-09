@@ -52,6 +52,9 @@ export default class VariantInterpreterGrid extends LitElement {
             query: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array
+            },
             review: {
                 type: Boolean
             },
@@ -167,10 +170,16 @@ export default class VariantInterpreterGrid extends LitElement {
 
     renderVariants() {
         if (this._config.renderLocal) {
-            this.renderLocalVariants();
+            // FIXME remove this ASAP
+            this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
+        }
+
+        if (this.clinicalVariants?.length > 0) {
+            this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
         }
+        this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -374,12 +383,12 @@ export default class VariantInterpreterGrid extends LitElement {
             return;
         }
 
-        const _variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        // const _variants = this.clinicalAnalysis.interpretation.primaryFindings;
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _variants,
+            data: this.clinicalVariants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
 
