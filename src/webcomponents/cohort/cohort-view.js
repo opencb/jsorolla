@@ -19,11 +19,11 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 
-
-export default class OpencgaCohortView extends LitElement {
+export default class CohortView extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -191,5 +191,5 @@ export default class OpencgaCohortView extends LitElement {
 
 }
 
-customElements.define("opencga-cohort-view", OpencgaCohortView);
+customElements.define("cohort-view", CohortView);
 
