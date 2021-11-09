@@ -694,7 +694,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     id: "interpretation",
                     title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
                     field: "interpretation",
-                    rowspan: 1,
+                    rowspan: 2,
                     colspan: this._config.showSelectCheckbox ? 2 : 1,
                     halign: "center"
                 },
