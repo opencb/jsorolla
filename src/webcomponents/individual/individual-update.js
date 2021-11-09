@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
+import "../individual/disorder/disorder-list-update.js";
 import "../commons/tool-header.js";
 
 export default class IndividualUpdate extends LitElement {
@@ -146,9 +147,18 @@ export default class IndividualUpdate extends LitElement {
             });
     }
 
-    onSyncPhenotypes(e) {
+    onSync(e, type) {
         e.stopPropagation();
-        this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+        switch (type) {
+            case "phenotype":
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.updateParams = {...this.updateParams, disorders: e.detail.value};
+                break;
+            case "annotationsets":
+                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
+        }
     }
 
     render() {
@@ -338,7 +348,7 @@ export default class IndividualUpdate extends LitElement {
                                     .phenotypes="${this.individual?.phenotypes}"
                                     .updateManager="${true}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                    @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
                                 </phenotype-list-update>`
                             }
                         },
