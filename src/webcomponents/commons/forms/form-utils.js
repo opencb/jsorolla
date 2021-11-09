@@ -142,20 +142,29 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    static createObject(object, params, value, includeField=false) {
+    static createObject(object, params, value) {
+        let data = {...object};
         const [field, prop] = params.split(".");
-        if (includeField) {
-            object[field] = {
-                ...object[field],
-                [prop]: value
-            };
+        if (value) {
+            if (prop) {
+                data[field] = {
+                    ...data[field],
+                    [prop]: value
+                };
+            } else {
+                data = {
+                    ...data,
+                    [field]: value
+                };
+            }
         } else {
-            object = {
-                ...object,
-                [prop]: value
-            };
-            console.log("Object:", object);
+            if (prop) {
+                delete data[field][prop];
+            } else {
+                delete data[field];
+            }
         }
+        return data;
     }
 
     static notifyError(response) {

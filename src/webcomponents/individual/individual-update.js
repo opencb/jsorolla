@@ -150,7 +150,7 @@ export default class IndividualUpdate extends LitElement {
     onSync(e, type) {
         e.stopPropagation();
         switch (type) {
-            case "phenotype":
+            case "phenotypes":
                 this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
                 break;
             case "disorders":
@@ -336,17 +336,16 @@ export default class IndividualUpdate extends LitElement {
                     title: "Phenotypes",
                     elements: [
                         {
-                            field: "phenotype",
+                            field: "phenotypes",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: individual => html`
                                 <phenotype-list-update
-                                    .phenotypes="${this.individual?.phenotypes}"
-                                    .updateManager="${true}"
+                                    .phenotypes="${individual?.phenotypes}"
                                     .opencgaSession="${this.opencgaSession}"
                                     @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
                                 </phenotype-list-update>`
@@ -358,20 +357,42 @@ export default class IndividualUpdate extends LitElement {
                     title: "Disorder",
                     elements: [
                         {
-                            field: "disorder",
+                            field: "disorders",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: individual => html`
                                     <disorder-list-update
-                                        .disorders="${this.individual?.disorders}"
-                                        .evidences="${this.individual?.phenotypes}"
+                                        .disorders="${individual?.disorders}"
+                                        .evidences="${individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changeDisorders="${e => this.onSync(e, "disorders")}">
                                     </disorder-list-update>`
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Annotations Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: individual => html`
+                                    <annotation-set-update
+                                        .annotationSets="${individual?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                    </annotation-set-update>
+                                `
                             }
                         }
                     ]
