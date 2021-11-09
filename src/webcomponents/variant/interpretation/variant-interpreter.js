@@ -167,6 +167,10 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
+    onClinicalAnalysisDownload() {
+        UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
+    }
+
     getDefaultConfig() {
         return {
             title: "Case Interpreter",
@@ -238,11 +242,26 @@ class VariantInterpreter extends LitElement {
                         icon="${this._config.icon}"
                         .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                         .rhs="${html`
-                            <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                            <a class="btn btn-default ripple text-black" title="Close Case"
-                               href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                <i class="fas fa-times"></i> Close
-                            </a>`}">
+                            <div class="dropdown">
+                                <button class="btn btn-default" data-toggle="dropdown">
+                                    <i class="fa fa-toolbox" aria-hidden="true"></i>
+                                    <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                            <i class="fa fa-download icon-padding"></i> Download Clinical Analysis
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                            <i class="fa fa-times icon-padding"></i> Close
+                                        </a>                                    
+                                    </li>
+                                </ul>
+                            </div>
+                        `}">
                     </tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
