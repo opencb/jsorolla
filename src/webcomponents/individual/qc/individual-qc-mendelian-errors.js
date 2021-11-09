@@ -15,10 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 
-export default class OpencgaIndividualMendelianErrorsView extends LitElement {
+export default class IndividualQcMendelianErrors extends LitElement {
 
     constructor() {
         super();
@@ -201,4 +200,4 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
 
 }
 
-customElements.define("opencga-individual-mendelian-errors-view", OpencgaIndividualMendelianErrorsView);
+customElements.define("individual-qc-mendelian-errors", IndividualQcMendelianErrors);

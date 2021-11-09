@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "./qc/opencga-individual-inferred-sex-view.js";
+import "./qc/individual-qc-inferred-sex.js";
 import "./individual-view.js";
-import "./qc/opencga-individual-inferred-sex-view.js";
-import "./qc/opencga-individual-mendelian-errors-view.js";
+import "./qc/individual-qc-inferred-sex.js";
+import "./qc/individual-qc-mendelian-errors.js";
 import "./../clinical/opencga-clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
@@ -265,14 +265,14 @@ export default class IndividualBrowser extends LitElement {
                             id: "individual-inferred-sex",
                             name: "Inferred Sex",
                             render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-inferred-sex-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-inferred-sex-view>`;
+                                return html`<individual-qc-inferred-sex .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-inferred-sex>`;
                             }
                         },
                         {
                             id: "individual-mendelian-error",
                             name: "Mendelian Error",
                             render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-mendelian-errors-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-mendelian-errors-view>`;
+                                return html`<individual-qc-mendelian-errors .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-mendelian-errors>`;
                             }
                         },
                         {

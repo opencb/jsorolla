@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 
-export default class OpencgaIndividualInferredSexView extends LitElement {
+export default class IndividualQcInferredSex extends LitElement {
 
     constructor() {
         super();
@@ -228,4 +228,4 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
 
 }
 
-customElements.define("opencga-individual-inferred-sex-view", OpencgaIndividualInferredSexView);
+customElements.define("individual-qc-inferred-sex", IndividualQcInferredSex);
