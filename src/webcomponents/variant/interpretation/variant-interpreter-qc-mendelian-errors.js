@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../individual/opencga-individual-mendelian-errors-view.js";
+import "../../individual/qc/opencga-individual-mendelian-errors-view.js";
 
 class VariantInterpreterQcMendelianErrors extends LitElement {
 

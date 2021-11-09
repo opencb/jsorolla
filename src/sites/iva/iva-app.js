@@ -52,7 +52,7 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
-import "../../webcomponents/individual/opencga-individual-browser.js";
+import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/opencga-job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
@@ -391,10 +391,10 @@ class IvaApp extends LitElement {
                 console.error(e);
                 UtilsNew.notifyError(e);
             }).finally(() => {
-                this.signingIn = false;
-                this.requestUpdate();
-                // this.updateComplete;
-            });
+            this.signingIn = false;
+            this.requestUpdate();
+            // this.updateComplete;
+        });
     }
 
     // TODO turn this into a Promise
@@ -1230,11 +1230,11 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["sampleUpdate"] ? html`
                     <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                        <div class="container" id="sampleUpdate">
-                            <sample-update
-                                .sampleId="${this.sampleId}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .config=${{display: {
+                    <div class="container" id="sampleUpdate">
+                        <sample-update
+                            .sampleId="${this.sampleId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${{display: {
                                     showBtnSampleBrowser: true,
                                     width: "8",
                                     style: "margin: 10px",
@@ -1245,60 +1245,64 @@ class IvaApp extends LitElement {
                                     help: {
                                         mode: "block" // icon
                                     }}}}>
-                            </sample-update>
-                        </div>
+                        </sample-update>
+                    </div>
                 ` : null}
 
 
                 ${this.config.enabledComponents.transcript ? html`
                     <div class="content feature-view" id="transcript">
-                        <opencga-transcript-view .opencgaSession="${this.opencgaSession}"
-                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                 .opencgaClient="${this.opencgaClient}"
-                                                 .transcript="${this.transcript}"
-                                                 .gene="${this.gene}"
-                                                 .populationFrequencies="${this.config.populationFrequencies}"
-                                                 .consequenceTypes="${this.config.consequenceTypes}"
-                                                 .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                                 .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
+                        <opencga-transcript-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .transcript="${this.transcript}"
+                            .gene="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
                         </opencga-transcript-view>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.protein ? html`
                     <div class="content feature-view" id="protein">
-                        <opencga-protein-view .opencgaSession="${this.opencgaSession}"
-                                              .cellbaseClient="${this.cellbaseClient}"
-                                              .opencgaClient="${this.opencgaClient}"
-                                              .project="${this.opencgaSession.project}"
-                                              .study="${this.opencgaSession.study}"
-                                              .protein="${this.protein}"
-                                              .populationFrequencies="${this.config.populationFrequencies}"
-                                              .consequenceTypes="${this.config.consequenceTypes}"
-                                              .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                              .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
+                        <opencga-protein-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .project="${this.opencgaSession.project}"
+                            .study="${this.opencgaSession.study}"
+                            .protein="${this.protein}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
                         </opencga-protein-view>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.individual ? html`
                     <div class="content" id="individual">
-                        <opencga-individual-browser .opencgaSession="${this.opencgaSession}"
-                                                    .query="${this.queries.individual}"
-                                                    .settings="${OPENCGA_INDIVIDUAL_BROWSER_SETTINGS}"
-                                                    @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
-                                                    @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
-                        </opencga-individual-browser>
+                        <individual-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.individual}"
+                            .settings="${OPENCGA_INDIVIDUAL_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
+                        </individual-browser>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.family ? html`
                     <div class="content" id="family">
-                        <opencga-family-browser .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.queries.family}"
-                                                .settings="${OPENCGA_FAMILY_BROWSER_SETTINGS}"
-                                                @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
-                                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
+                        <opencga-family-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.family}"
+                            .settings="${OPENCGA_FAMILY_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
                         </opencga-family-browser>
                     </div>
                 ` : null}
@@ -1578,15 +1582,15 @@ class IvaApp extends LitElement {
                         </opencga-job-view>
                     </div>
                 ` : null
-}
+                }
 
                 <!-- Admin -->
                 ${this.config.enabledComponents["projects-admin"] ? html`
                     <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div id="projects-admin" class="content col-md-10 col-md-offset-1">
                         <projects-admin
-                                .opencgaSession="${this.opencgaSession}"
-                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                         </projects-admin>
                     </div>
                 ` : null}
@@ -1595,8 +1599,8 @@ class IvaApp extends LitElement {
                     <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
                     <div id="opencga-admin" class="content col-md-10 col-md-offset-1">
                         <projects-admin
-                                .opencgaSession="${this.opencgaSession}"
-                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                         </projects-admin>
                     </div>
                 ` : null}
@@ -1605,9 +1609,9 @@ class IvaApp extends LitElement {
                     <tool-header title="Study Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div class="content">
                         <study-admin
-                                .study="${this.opencgaSession.study}"
-                                .opencgaSession="${this.opencgaSession}"
-                                @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                            .study="${this.opencgaSession.study}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
                     </div>
                 ` : null}

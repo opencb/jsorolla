@@ -15,9 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import "../commons/forms/data-form.js";
-
+import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/data-form.js";
 
 export default class OpencgaIndividualInferredSexView extends LitElement {
 
@@ -79,11 +78,10 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     this.individuals = response.responses[0].results;
-                    // this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(reason => {
                     console.error(reason);
                 });
         }
@@ -93,7 +91,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         // Check if user clicked in Tab or JSON format
         if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
             const data = this.individuals.map(individual => {
-                let inferredSex = individual?.qualityControl?.inferredSexReports[0];
+                const inferredSex = individual?.qualityControl?.inferredSexReports[0];
                 return [
                     individual.id,
                     individual?.qualityControl?.sampleId ?? "N/A",
@@ -154,7 +152,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                     </thead>
                     <tbody>
                         ${this.individuals.map(individual => {
-                            let inferredSex = individual?.qualityControl?.inferredSexReports[0];
+                            const inferredSex = individual?.qualityControl?.inferredSexReports[0];
                             return html`
                                 <tr>
                                     <td>
@@ -199,7 +197,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     getDefaultConfig() {
         return {
             download: ["Tab", "JSON"]
-        }
+        };
     }
 
     render() {

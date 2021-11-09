@@ -30,7 +30,7 @@ import "../sample/opencga-sample-grid.js";
 import "../sample/sample-browser-filter.js";
 import "../sample/opencga-sample-detail.js";
 import "../individual/individual-grid.js";
-import "../individual/opencga-individual-filter.js";
+import "../individual/individual-browser-filter.js";
 import "../individual/individual-detail.js";
 import "../family/opencga-family-grid.js";
 import "../family/opencga-family-filter.js";
@@ -446,7 +446,6 @@ export default class OpencgaBrowser extends LitElement {
 
     render() {
         return html`
-
             <!--<div class="alert alert-info">selectedFacet: \${JSON.stringify(this.selectedFacet)}</div>
             <div class="alert alert-info">preparedFacetQueryFormatted: \${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
             <div class="alert alert-info">executedFacetQueryFormatted:\${JSON.stringify(this.executedFacetQueryFormatted)}</div>-->
@@ -470,38 +469,42 @@ export default class OpencgaBrowser extends LitElement {
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
                                 ${this.resource === "FILE" ? html`
-                                    <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
+                                    <opencga-file-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-file-filter>
                                 ` : null}
 
                                 ${this.resource === "SAMPLE" ? html`
-                                    <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
+                                    <sample-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </sample-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "INDIVIDUAL" ? html`
-                                    <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
-                                                                .config="${this.config.filter}"
-                                                                .query="${this.query}"
-                                                                @queryChange="${this.onQueryFilterChange}"
-                                                                @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-individual-filter>
+                                    <individual-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
+                                    </individual-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "FAMILY" ? html`
-                                    <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
+                                    <opencga-family-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-family-filter>
                                 ` : null}
 
@@ -541,9 +544,10 @@ export default class OpencgaBrowser extends LitElement {
 
                             ${this.config.aggregation ? html`
                                 <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                    <facet-filter .config="${this.config.aggregation}"
-                                                  .selectedFacet="${this.selectedFacet}"
-                                                  @facetQueryChange="${this.onFacetQueryChange}">
+                                    <facet-filter
+                                        .config="${this.config.aggregation}"
+                                        .selectedFacet="${this.selectedFacet}"
+                                        @facetQueryChange="${this.onFacetQueryChange}">
                                     </facet-filter>
                                 </div>
                             ` : null}
@@ -563,21 +567,22 @@ export default class OpencgaBrowser extends LitElement {
                         </div>
 
                         <div>
-                            <opencga-active-filters facetActive
-                                                    .resource="${this.resource}"
-                                                    .opencgaSession="${this.opencgaSession}"
-                                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                                                    .query="${this.preparedQuery}"
-                                                    .executedQuery="${this.executedQuery}"
-                                                    .facetQuery="${this.preparedFacetQueryFormatted}"
-                                                    .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                                                    .alias="${this.activeFilterAlias}"
-                                                    .config="${this.config.activeFilters}"
-                                                    .filters="${this.config.filter.examples}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}">
+                            <opencga-active-filters
+                                facetActive
+                                .resource="${this.resource}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                                .query="${this.preparedQuery}"
+                                .executedQuery="${this.executedQuery}"
+                                .facetQuery="${this.preparedFacetQueryFormatted}"
+                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                                .alias="${this.activeFilterAlias}"
+                                .config="${this.config.activeFilters}"
+                                .filters="${this.config.filter.examples}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}"
+                                @activeFacetChange="${this.onActiveFacetChange}"
+                                @activeFacetClear="${this.onActiveFacetClear}">
                             </opencga-active-filters>
 
                             <div class="main-view">

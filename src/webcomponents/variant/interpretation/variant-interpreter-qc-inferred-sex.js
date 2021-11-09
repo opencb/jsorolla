@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../individual/opencga-individual-inferred-sex-view.js";
+import "../../individual/qc/opencga-individual-inferred-sex-view.js";
 
 class VariantInterpreterQcSummary extends LitElement {
 
