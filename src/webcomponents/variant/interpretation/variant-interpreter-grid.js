@@ -175,7 +175,7 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (this.clinicalVariants?.length > 0) {
-            this.renderFromLocal();
+            this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
         }
