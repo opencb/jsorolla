@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../individual/opencga-individual-inferred-sex-view.js";
+import "../../individual/qc/individual-qc-inferred-sex.js";
 
 class VariantInterpreterQcSummary extends LitElement {
 
@@ -129,9 +129,10 @@ class VariantInterpreterQcSummary extends LitElement {
         return html`
             <div style="margin: 20px 10px">
                 <h4>Individual Inferred Sex</h4>
-                <opencga-individual-inferred-sex-view   .individuals="${this.individuals}"
-                                                        .opencgaSession="${this.opencgaSession}">
-                </opencga-individual-inferred-sex-view>
+                <individual-qc-inferred-sex
+                    .individuals="${this.individuals}"
+                    .opencgaSession="${this.opencgaSession}">
+                </individual-qc-inferred-sex>
             </div>
         `;
     }

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
-import "../forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalPriorityFilter extends LitElement {
 
@@ -55,9 +54,16 @@ export default class ClinicalPriorityFilter extends LitElement {
     }
 
     _init() {
-        this.priorities = ["URGENT", "HIGH", "MEDIUM", "LOW"];
+        this.priorities = [];
         this.multiple = true;
         this.disabled = false;
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("priority")) {
+            this.priorityObject = this.priorities?.find(priority => priority.id === this.priority);
+        }
+        super.update(changedProperties);
     }
 
     filterChange(e) {
@@ -78,11 +84,16 @@ export default class ClinicalPriorityFilter extends LitElement {
                 .data="${this.priorities}"
                 .value=${this.priority}
                 .placeholder="${this.placeholder}"
-                ?multiple="${this.multiple}"
+                .multiple="${this.multiple}"
                 .classes="${this.classes}"
                 .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
+
+            <!-- Only show description when one single values is expected -->
+            ${!this.multiple && this.priorityObject?.description ? html`
+                <span class="help-block" style="padding: 0px 5px">${this.priorityObject.description}</span>` : null
+            }
         `;
     }
 

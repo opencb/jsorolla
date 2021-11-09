@@ -25,8 +25,8 @@ import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/family-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
 import "../commons/filters/proband-id-autocomplete.js";
-import "../commons/filters/clinical-priority-filter.js";
-import "../commons/filters/clinical-status-filter.js";
+import "./filters/clinical-priority-filter.js";
+import "./filters/clinical-status-filter.js";
 import "../commons/view/detail-tabs.js";
 
 

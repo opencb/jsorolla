@@ -25,8 +25,7 @@ import "../commons/filters/phenotype-name-autocomplete.js";
 import "../commons/filters/ethnicity-autocomplete.js";
 import "../commons/forms/date-filter.js";
 
-
-export default class OpencgaIndividualFilter extends LitElement {
+export default class IndividualBrowserFilter extends LitElement {
 
     constructor() {
         super();
@@ -53,8 +52,7 @@ export default class OpencgaIndividualFilter extends LitElement {
     }
 
     _init() {
-        // super.ready();
-        this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
 
         this.annotationFilterConfig = {
             class: "small",
@@ -199,6 +197,7 @@ export default class OpencgaIndividualFilter extends LitElement {
             default:
                 console.error("Filter component not found");
         }
+
         return html`
             <div class="form-group">
                 <div class="browser-subsection" id="${subsection.id}">${subsection.name}
@@ -232,4 +231,4 @@ export default class OpencgaIndividualFilter extends LitElement {
 
 }
 
-customElements.define("opencga-individual-filter", OpencgaIndividualFilter);
+customElements.define("individual-browser-filter", IndividualBrowserFilter);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ export default class DiosrderCreate extends LitElement {
     }
 
     update(changedProperties) {
-
         if (changedProperties.has("evidences")) {
             console.log("update", this.evidences);
             this._config = {...this.getDefaultConfig()};
@@ -73,11 +72,11 @@ export default class DiosrderCreate extends LitElement {
 
     onSendDisorder(e) {
         e.stopPropagation();
-        this.disorder = {};
         LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
+        this.disorder = {};
     }
 
-    onClearForm(e) {
+    onClear(e) {
         e.stopPropagation();
         this.disorder = {};
         LitUtils.dispatchEventCustom(this, "closeForm");
@@ -89,7 +88,7 @@ export default class DiosrderCreate extends LitElement {
                 .data=${this.disorder}
                 .config="${this._config}"
                 @fieldChange="${e =>this.onFieldChange(e)}"
-                @clear="${this.onClearForm}"
+                @clear="${this.onClear}"
                 @submit="${e => this.onSendDisorder(e)}">
             </data-form>
             `;

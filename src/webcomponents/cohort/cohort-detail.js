@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "./opencga-cohort-view.js";
+import "./cohort-view.js";
 import "../sample/opencga-sample-grid.js";
 import "./../commons/view/detail-tabs.js";
 

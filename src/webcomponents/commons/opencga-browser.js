@@ -30,7 +30,7 @@ import "../sample/opencga-sample-grid.js";
 import "../sample/sample-browser-filter.js";
 import "../sample/opencga-sample-detail.js";
 import "../individual/individual-grid.js";
-import "../individual/opencga-individual-filter.js";
+import "../individual/individual-browser-filter.js";
 import "../individual/individual-detail.js";
 import "../family/opencga-family-grid.js";
 import "../family/opencga-family-filter.js";
@@ -44,7 +44,7 @@ import "../job/opencga-job-detail.js";
 import "../job/opencga-job-browser.js";
 import "../job/job-timeline.js";
 import "../clinical/opencga-clinical-analysis-grid.js";
-import "../clinical/opencga-clinical-analysis-filter.js";
+import "../clinical/clinical-analysis-browser-filter.js";
 import "../clinical/opencga-clinical-analysis-detail.js";
 
 
@@ -158,8 +158,8 @@ export default class OpencgaBrowser extends LitElement {
                 }
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
-                    detail: this.preparedQuery
-                }
+                        detail: this.preparedQuery
+                    }
                 ));
                 this.detail = {};
             } else {
@@ -299,47 +299,47 @@ export default class OpencgaBrowser extends LitElement {
         const facetView = html`
             <div id="facet-tab" class="content-tab">
                 <opencb-facet-results
-                                resource="${this.resource}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .active="${this.activeTab["facet-tab"]}"
-                                .query="${this.facetQuery}"
-                                .data="${this.facetResults}">
+                    resource="${this.resource}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .active="${this.activeTab["facet-tab"]}"
+                    .query="${this.facetQuery}"
+                    .data="${this.facetResults}">
                 </opencb-facet-results>
             </div>`;
         switch (entity) {
             case "FILE":
                 this.endpoint = this.opencgaSession.opencgaClient.files();
                 return html`
-                            <div id="table-tab" class="content-tab active">
-                                <opencga-file-grid .opencgaSession="${this.opencgaSession}"
-                                                   .config="${this.config.filter.result.grid}"
-                                                   .query="${this.executedQuery}"
-                                                   .eventNotifyName="${this.eventNotifyName}"
-                                                    @selectrow="${e => this.onClickRow(e, "file")}">
-                                </opencga-file-grid>
-                                <opencga-file-detail    .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this.config.filter.detail}"
-                                                        .fileId="${this.detail.file?.id}">
-                                </opencga-file-detail>
-                            </div>
-                            ${facetView}
-                            `;
+                    <div id="table-tab" class="content-tab active">
+                        <opencga-file-grid .opencgaSession="${this.opencgaSession}"
+                                           .config="${this.config.filter.result.grid}"
+                                           .query="${this.executedQuery}"
+                                           .eventNotifyName="${this.eventNotifyName}"
+                                           @selectrow="${e => this.onClickRow(e, "file")}">
+                        </opencga-file-grid>
+                        <opencga-file-detail    .opencgaSession="${this.opencgaSession}"
+                                                .config="${this.config.filter.detail}"
+                                                .fileId="${this.detail.file?.id}">
+                        </opencga-file-detail>
+                    </div>
+                    ${facetView}
+                `;
             case "SAMPLE":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
-                        <div id="table-tab" class="content-tab active">
-                            <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
-                                                     .query="${this.executedQuery}"
-                                                     .config="${this.config.filter.result.grid}"
-                                                     .active="${true}"
-                                                     @selectrow="${e => this.onClickRow(e, "sample")}">
-                            </opencga-sample-grid>
-                            <opencga-sample-detail  .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this.config.filter.detail}"
-                                                    .sampleId="${this.detail.sample?.id}">
-                            </opencga-sample-detail>
-                        </div>
-                        ${facetView}`;
+                    <div id="table-tab" class="content-tab active">
+                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
+                                             .query="${this.executedQuery}"
+                                             .config="${this.config.filter.result.grid}"
+                                             .active="${true}"
+                                             @selectrow="${e => this.onClickRow(e, "sample")}">
+                        </opencga-sample-grid>
+                        <opencga-sample-detail  .opencgaSession="${this.opencgaSession}"
+                                                .config="${this.config.filter.detail}"
+                                                .sampleId="${this.detail.sample?.id}">
+                        </opencga-sample-detail>
+                    </div>
+                    ${facetView}`;
             case "INDIVIDUAL":
                 this.endpoint = this.opencgaSession.opencgaClient.individuals();
                 return html`
@@ -362,74 +362,74 @@ export default class OpencgaBrowser extends LitElement {
             case "COHORT":
                 this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                 return html`
-                        <div id="table-tab" class="content-tab active">
-                            <cohort-grid
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.executedQuery}"
-                                .search="${this.executedQuery}"
-                                .config="${this.config.filter.result.grid}"
-                                .eventNotifyName="${this.eventNotifyName}"
-                                .active="${true}"
-                                @selectrow="${e => this.onClickRow(e, "cohort")}">
-                            </cohort-grid>
-                            <cohort-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${this.config.filter.detail}"
-                                .cohortId="${this.detail.cohort?.id}">
-                            </cohort-detail>
-                        </div>
-                        ${facetView}`;
+                    <div id="table-tab" class="content-tab active">
+                        <cohort-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.executedQuery}"
+                            .search="${this.executedQuery}"
+                            .config="${this.config.filter.result.grid}"
+                            .eventNotifyName="${this.eventNotifyName}"
+                            .active="${true}"
+                            @selectrow="${e => this.onClickRow(e, "cohort")}">
+                        </cohort-grid>
+                        <cohort-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .cohortId="${this.detail.cohort?.id}">
+                        </cohort-detail>
+                    </div>
+                    ${facetView}`;
             case "FAMILY":
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
-                        <div id="table-tab" class="content-tab active">
-                            <opencga-family-grid .opencgaSession="${this.opencgaSession}"
-                                                 .query="${this.executedQuery}"
-                                                 .config="${this.config.filter.result.grid}"
-                                                 .active="${true}"
-                                                 .eventNotifyName="${this.eventNotifyName}"
-                                                 @selectrow="${e => this.onClickRow(e, "family")}">
-                            </opencga-family-grid>
-                            <opencga-family-detail  .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this.config.filter.detail}"
-                                                    .family="${this.detail.family}">
-                            </opencga-family-detail>
-                        </div>
-                        ${facetView}`;
+                    <div id="table-tab" class="content-tab active">
+                        <opencga-family-grid .opencgaSession="${this.opencgaSession}"
+                                             .query="${this.executedQuery}"
+                                             .config="${this.config.filter.result.grid}"
+                                             .active="${true}"
+                                             .eventNotifyName="${this.eventNotifyName}"
+                                             @selectrow="${e => this.onClickRow(e, "family")}">
+                        </opencga-family-grid>
+                        <opencga-family-detail  .opencgaSession="${this.opencgaSession}"
+                                                .config="${this.config.filter.detail}"
+                                                .family="${this.detail.family}">
+                        </opencga-family-detail>
+                    </div>
+                    ${facetView}`;
             case "CLINICAL_ANALYSIS":
                 this.endpoint = this.opencgaSession.opencgaClient.clinical();
                 return html`
-                        <div id="table-tab" class="content-tab active">
-                            <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter.result.grid}"
-                                                            .query="${this.executedQuery}"
-                                                            .search="${this.executedQuery}"
-                                                            .active="${true}"
-                                                            @selectanalysis="${this.onSelectClinicalAnalysis}"
-                                                            @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
-                            </opencga-clinical-analysis-grid>
-                            <opencga-clinical-analysis-detail   .opencgaSession="${this.opencgaSession}"
-                                                                .config="${this.config.filter.detail}"
-                                                                .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}">
-                            </opencga-clinical-analysis-detail>
-                        </div>
-                        `;
+                    <div id="table-tab" class="content-tab active">
+                        <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
+                                                        .config="${this.config.filter.result.grid}"
+                                                        .query="${this.executedQuery}"
+                                                        .search="${this.executedQuery}"
+                                                        .active="${true}"
+                                                        @selectanalysis="${this.onSelectClinicalAnalysis}"
+                                                        @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
+                        </opencga-clinical-analysis-grid>
+                        <opencga-clinical-analysis-detail   .opencgaSession="${this.opencgaSession}"
+                                                            .config="${this.config.filter.detail}"
+                                                            .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}">
+                        </opencga-clinical-analysis-detail>
+                    </div>
+                `;
             case "JOB":
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                         <opencga-job-grid .opencgaSession="${this.opencgaSession}"
-                                         .config="${this.config.filter.result.grid}"
-                                         .query="${this.executedQuery}"
-                                         .search="${this.executedQuery}"
-                                         .eventNotifyName="${this.eventNotifyName}"
-                                         .files="${this.files}"
-                                         @selectrow="${e => this.onClickRow(e, "job")}">
-                         </opencga-job-grid>
-                         <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.config.filter.detail}"
-                                                .jobId="${this.detail.job?.id}">
-                         </opencga-job-detail>
+                        <opencga-job-grid .opencgaSession="${this.opencgaSession}"
+                                          .config="${this.config.filter.result.grid}"
+                                          .query="${this.executedQuery}"
+                                          .search="${this.executedQuery}"
+                                          .eventNotifyName="${this.eventNotifyName}"
+                                          .files="${this.files}"
+                                          @selectrow="${e => this.onClickRow(e, "job")}">
+                        </opencga-job-grid>
+                        <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
+                                              .config="${this.config.filter.detail}"
+                                              .jobId="${this.detail.job?.id}">
+                        </opencga-job-detail>
                     </div>
                     ${facetView}
                     <div id="visual-browser-tab" class="content-tab">
@@ -446,7 +446,6 @@ export default class OpencgaBrowser extends LitElement {
 
     render() {
         return html`
-
             <!--<div class="alert alert-info">selectedFacet: \${JSON.stringify(this.selectedFacet)}</div>
             <div class="alert alert-info">preparedFacetQueryFormatted: \${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
             <div class="alert alert-info">executedFacetQueryFormatted:\${JSON.stringify(this.executedFacetQueryFormatted)}</div>-->
@@ -470,38 +469,42 @@ export default class OpencgaBrowser extends LitElement {
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
                                 ${this.resource === "FILE" ? html`
-                                    <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
+                                    <opencga-file-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-file-filter>
                                 ` : null}
 
                                 ${this.resource === "SAMPLE" ? html`
-                                    <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
+                                    <sample-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </sample-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "INDIVIDUAL" ? html`
-                                    <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
-                                                                .config="${this.config.filter}"
-                                                                .query="${this.query}"
-                                                                @queryChange="${this.onQueryFilterChange}"
-                                                                @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-individual-filter>
+                                    <individual-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
+                                    </individual-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "FAMILY" ? html`
-                                    <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter}"
-                                                            .query="${this.query}"
-                                                            @queryChange="${this.onQueryFilterChange}"
-                                                            @querySearch="${this.onQueryFilterSearch}">
+                                    <opencga-family-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-family-filter>
                                 ` : null}
 
@@ -517,31 +520,34 @@ export default class OpencgaBrowser extends LitElement {
                                 ` : null}
 
                                 ${this.resource === "CLINICAL_ANALYSIS" ? html`
-                                    <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
-                                                                        .config="${this.config.filter}"
-                                                                        .query="${this.query}"
-                                                                        @queryChange="${this.onQueryFilterChange}"
-                                                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-clinical-analysis-filter>
+                                    <clinical-analysis-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
+                                    </clinical-analysis-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "JOB" ? html`
-                                    <opencga-job-filter .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this.config.filter}"
-                                                        .files="${this.files}"
-                                                        .query="${this.query}"
-                                                        .variableSets="${this.variableSets}"
-                                                        @queryChange="${this.onQueryFilterChange}"
-                                                        @querySearch="${this.onQueryFilterSearch}">
+                                    <opencga-job-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this.config.filter}"
+                                        .files="${this.files}"
+                                        .query="${this.query}"
+                                        .variableSets="${this.variableSets}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-job-filter>
                                 ` : null}
                             </div>
 
                             ${this.config.aggregation ? html`
                                 <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                    <facet-filter .config="${this.config.aggregation}"
-                                                  .selectedFacet="${this.selectedFacet}"
-                                                  @facetQueryChange="${this.onFacetQueryChange}">
+                                    <facet-filter
+                                        .config="${this.config.aggregation}"
+                                        .selectedFacet="${this.selectedFacet}"
+                                        @facetQueryChange="${this.onFacetQueryChange}">
                                     </facet-filter>
                                 </div>
                             ` : null}
@@ -561,28 +567,29 @@ export default class OpencgaBrowser extends LitElement {
                         </div>
 
                         <div>
-                            <opencga-active-filters facetActive
-                                                    .resource="${this.resource}"
-                                                    .opencgaSession="${this.opencgaSession}"
-                                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                                                    .query="${this.preparedQuery}"
-                                                    .executedQuery="${this.executedQuery}"
-                                                    .facetQuery="${this.preparedFacetQueryFormatted}"
-                                                    .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                                                    .alias="${this.activeFilterAlias}"
-                                                    .config="${this.config.activeFilters}"
-                                                    .filters="${this.config.filter.examples}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}">
+                            <opencga-active-filters
+                                facetActive
+                                .resource="${this.resource}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                                .query="${this.preparedQuery}"
+                                .executedQuery="${this.executedQuery}"
+                                .facetQuery="${this.preparedFacetQueryFormatted}"
+                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                                .alias="${this.activeFilterAlias}"
+                                .config="${this.config.activeFilters}"
+                                .filters="${this.config.filter.examples}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}"
+                                @activeFacetChange="${this.onActiveFacetChange}"
+                                @activeFacetClear="${this.onActiveFacetClear}">
                             </opencga-active-filters>
 
                             <div class="main-view">
                                 ${this.renderView(this.resource)}
                             </div>
 
-                            <!-- Other option: return an {string, TemplateResult} map ${this.renderView(this.resource).facetView} -->
+                                <!-- Other option: return an {string, TemplateResult} map ${this.renderView(this.resource).facetView} -->
                             <div class="v-space"></div>
                         </div>
                     </div>

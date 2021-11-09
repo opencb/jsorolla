@@ -16,16 +16,15 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "./opencga-individual-inferred-sex-view.js";
+import "./qc/individual-qc-inferred-sex.js";
 import "./individual-view.js";
-import "./opencga-individual-inferred-sex-view.js";
-import "./opencga-individual-mendelian-errors-view.js";
+import "./qc/individual-qc-inferred-sex.js";
+import "./qc/individual-qc-mendelian-errors.js";
 import "./../clinical/opencga-clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
 
-
-export default class OpencgaIndividualBrowser extends LitElement {
+export default class IndividualBrowser extends LitElement {
 
     constructor() {
         super();
@@ -59,22 +58,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "ib" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
+        this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
@@ -273,22 +257,22 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                     readOnlyMode: true
                                 };
                                 return html`
-                            <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                            <opencga-clinical-analysis-grid .config=${config} .query="${{"proband": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
+                                    <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
+                                    <opencga-clinical-analysis-grid .config=${config} .query="${{"proband": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
                             }
                         },
                         {
                             id: "individual-inferred-sex",
                             name: "Inferred Sex",
                             render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-inferred-sex-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-inferred-sex-view>`;
+                                return html`<individual-qc-inferred-sex .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-inferred-sex>`;
                             }
                         },
                         {
                             id: "individual-mendelian-error",
                             name: "Mendelian Error",
                             render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-mendelian-errors-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-mendelian-errors-view>`;
+                                return html`<individual-qc-mendelian-errors .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-mendelian-errors>`;
                             }
                         },
                         {
@@ -498,13 +482,14 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-            <opencga-browser  resource="INDIVIDUAL"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}">
+            <opencga-browser
+                resource="INDIVIDUAL"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
             </opencga-browser>` : "";
     }
 
 }
 
-customElements.define("opencga-individual-browser", OpencgaIndividualBrowser);
+customElements.define("individual-browser", IndividualBrowser);

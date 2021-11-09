@@ -21,7 +21,7 @@ import "../../commons/forms/data-form.js";
 import "../../sample/sample-files-view.js";
 import UtilsNew from "../../../core/utilsNew.js";
 
-class FileQcAscatMetrics extends LitElement {
+export default class FileQcAscatMetrics extends LitElement {
 
     constructor() {
         super();

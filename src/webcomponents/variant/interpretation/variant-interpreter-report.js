@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import "./variant-interpreter-grid.js";
 import "../../commons/forms/data-form.js";
 import "../../file/file-preview.js";
 
@@ -236,6 +237,38 @@ class VariantInterpreterReport extends LitElement {
         const SUBSTITUTIONS_AND_INDELS_TYPES = ["SNV", "MNV", "INDEL"];
         const REARRANGEMENTS_TYPES = ["BREAKEND", "SV", "DUPLICATION", "TANDEM_DUPLICATION", "TRANSLOCATION", "DELETION", "INSERTION", "INVERSION"];
         const COPY_NUMBER_TYPES = ["COPY_NUMBER", "COPY_NUMBER_GAIN", "COPY_NUMBER_LOSS"];
+
+        // Default grid config
+        const defaultGridConfig = {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false,
+            detailView: true,
+            showReview: false,
+            showActions: false,
+
+            showSelectCheckbox: false,
+            multiSelection: false,
+            nucleotideGenotype: true,
+            alleleStringLengthMax: 10,
+
+            renderLocal: false,
+
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom",
+            },
+
+            quality: {
+                qual: 30,
+                dp: 20,
+            },
+            // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+            evidences: {
+                showSelectCheckbox: true,
+            },
+        };
 
         return {
             id: "clinical-analysis",
@@ -572,73 +605,55 @@ class VariantInterpreterReport extends LitElement {
                         },
                         {
                             name: "Germline substitutions and indels",
-                            type: "table",
+                            type: "custom",
                             field: "primaryFindings",
                             display: {
-                                columns: [
-                                    {
-                                        name: "Gene",
-                                        type: "custom",
-                                        display: {
-                                            render: row => UtilsNew.renderHTML(VariantGridFormatter.geneFormatter(row, null, null, this.opencgaSession)),
-                                        },
-                                    },
-                                    {name: "Chr", field: "chromosome"},
-                                    {name: "Position", field: "start"},
-                                    {name: "Ref", field: "annotation.reference"},
-                                    {name: "Alt", field: "annotation.alternate"},
-                                    {name: "CDS", field: "cds", defaultValue: "-"},
-                                    {name: "Protein", field: "protein", defaultValue: "-"},
-                                    {name: "Type", field: "type"},
-                                    {name: "Effect", field: "annotation.displayConsequenceType"},
-                                    {name: "LOH", field: "loh", defaultValue: "-"},
-                                ],
-                                transform: variants => {
-                                    return variants
+                                render: variants => {
+                                    const filteredVariants = variants
                                         .filter(v => {
                                             const sampleId = v.studies[0]?.samples[0]?.sampleId;
                                             const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
                                             return sample && !sample.somatic;
                                         })
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+                                    return filteredVariants.length > 0 ? html`
+                                        <variant-interpreter-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .clinicalVariants="${filteredVariants}"
+                                            .review="${false}"
+                                            .config="${defaultGridConfig}">
+                                        </variant-interpreter-grid>
+                                    `: null;
                                 },
+                                errorMessage: "No variants found in this category",
                             },
-                            defaultValue: "No variants found in this category",
                         },
                         {
                             name: "Germline structural rearrangement drivers",
-                            type: "table",
+                            type: "custom",
                             field: "primaryFindings",
                             display: {
-                                columns: [
-                                    {
-                                        name: "Gene",
-                                        type: "custom",
-                                        display: {
-                                            render: row => UtilsNew.renderHTML(VariantGridFormatter.geneFormatter(row, null, null, this.opencgaSession)),
-                                        },
-                                    },
-                                    {name: "Chr", field: "chromosome"},
-                                    {name: "Position", field: "start"},
-                                    {name: "Ref", field: "annotation.reference"},
-                                    {name: "Alt", field: "annotation.alternate"},
-                                    {name: "CDS", field: "cds", defaultValue: "-"},
-                                    {name: "Protein", field: "protein", defaultValue: "-"},
-                                    {name: "Type", field: "type"},
-                                    {name: "Effect", field: "annotation.displayConsequenceType"},
-                                    {name: "LOH", field: "loh", defaultValue: "-"},
-                                ],
-                                transform: variants => {
-                                    return variants
+                                render: variants => {
+                                    const filteredVariants = variants
                                         .filter(v => {
                                             const sampleId = v.studies[0]?.samples[0]?.sampleId;
                                             const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
                                             return sample && !sample.somatic;
                                         })
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+                                    return filteredVariants.length > 0 ? html`
+                                        <variant-interpreter-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .clinicalVariants="${filteredVariants}"
+                                            .review="${false}"
+                                            .config="${defaultGridConfig}">
+                                        </variant-interpreter-grid>
+                                    `: null;
                                 },
+                                errorMessage: "No variants found in this category",
                             },
-                            defaultValue: "No variants found in this category",
                         },
                         {
                             name: "Somatic mutations",
@@ -656,46 +671,82 @@ class VariantInterpreterReport extends LitElement {
                         },
                         {
                             name: "Substitutions and indels",
-                            type: "table",
+                            type: "custom",
                             field: "primaryFindings",
                             display: {
-                                columns: [
-                                    {
-                                        name: "Gene",
-                                        type: "custom",
-                                        display: {
-                                            render: row => UtilsNew.renderHTML(VariantGridFormatter.geneFormatter(row, null, null, this.opencgaSession)),
-                                        },
-                                    },
-                                    {name: "Chr", field: "chromosome"},
-                                    {name: "Position", field: "start"},
-                                    {name: "Ref", field: "annotation.reference"},
-                                    {name: "Alt", field: "annotation.alternate"},
-                                    {name: "CDS", field: "cds", defaultValue: "-"},
-                                    {name: "Protein", field: "protein", defaultValue: "-"},
-                                    {name: "Type", field: "type"},
-                                    {name: "Effect", field: "annotation.displayConsequenceType"},
-                                    {name: "LOH", field: "loh", defaultValue: "-"},
-                                ],
-                                transform: variants => {
-                                    return variants
+                                render: variants => {
+                                    const filteredVariants = variants
                                         .filter(v => {
                                             const sampleId = v.studies[0]?.samples[0]?.sampleId;
                                             const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
                                             return sample && sample.somatic;
                                         })
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+                                    return filteredVariants.length > 0 ? html`
+                                        <variant-interpreter-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .clinicalVariants="${filteredVariants}"
+                                            .review="${false}"
+                                            .config="${defaultGridConfig}">
+                                        </variant-interpreter-grid>
+                                    ` : null;
                                 },
+                                errorMessage: "No variants found in this category",
                             },
-                            defaultValue: "No variants found in this category",
-
                         },
                         {
                             name: "Structural rearrangements",
+                            type: "custom",
+                            field: "primaryFindings",
+                            display: {
+                                render: variants => {
+                                    const filteredVariants = variants
+                                        .filter(v => {
+                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                            return sample && sample.somatic;
+                                        })
+                                        .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+                                    return filteredVariants.length > 0 ? html`
+                                        <variant-interpreter-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .clinicalVariants="${filteredVariants}"
+                                            .review="${false}"
+                                            .config="${defaultGridConfig}">
+                                        </variant-interpreter-grid>
+                                    ` : null;
+                                },
+                                errorMessage: "No variants found in this category",
+                            },
                             defaultValue: "No variants found in this category",
                         },
                         {
                             name: "Copy number",
+                            type: "custom",
+                            field: "primaryFindings",
+                            display: {
+                                render: variants => {
+                                    const filteredVariants = variants
+                                        .filter(v => {
+                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                            return sample && sample.somatic;
+                                        })
+                                        .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1);
+                                    return filteredVariants.length > 0 ? html`
+                                        <variant-interpreter-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .clinicalVariants="${filteredVariants}"
+                                            .review="${false}"
+                                            .config="${defaultGridConfig}">
+                                        </variant-interpreter-grid>
+                                    ` : null;
+                                },
+                                errorMessage: "No variants found in this category",
+                            },
                             defaultValue: "No variants found in this category",
                         },
                         {

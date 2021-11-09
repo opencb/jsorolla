@@ -171,15 +171,16 @@ export default class SampleUpdate extends LitElement {
             });
     }
 
-    onSyncPhenotypes(e) {
+    onSync(e, type) {
         e.stopPropagation();
-        this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
-    }
-
-    onSyncAnnotationSets(e) {
-        e.stopPropagation();
-        console.log("Updated list ", this);
-        this.sample = {...this.updateParams, annotationSets: e.detail.value};
+        switch (type) {
+            case "phenotypes":
+                this.updateParams = {...this.updateParams, phenotypes: e.detai.value};
+                break;
+            case "annotationsets":
+                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
+                break;
+        }
     }
 
     // display a button to back sample browser.
@@ -189,7 +190,6 @@ export default class SampleUpdate extends LitElement {
         };
 
         const showBrowser = () => {
-            // console.log("click showBrowser", this);
             LitUtils.dispatchEventCustom(this, "querySearch", null, null, {query: query});
             const hash = window.location.hash.split("/");
             const newHash = "#sample/" + hash[1] + "/" + hash[2];
@@ -429,7 +429,7 @@ export default class SampleUpdate extends LitElement {
                                     <phenotype-list-update
                                         .phenotypes="${this.sample?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                        @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
                         },
@@ -450,7 +450,7 @@ export default class SampleUpdate extends LitElement {
                                 <annotation-set-update
                                     .annotationSets="${this.sample?.annotationSets}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
+                                    @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
                                 </annotation-set-update>`
                             }
                         }

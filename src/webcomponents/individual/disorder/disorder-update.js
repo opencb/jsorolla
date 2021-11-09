@@ -129,7 +129,8 @@ export default class DisorderUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "add a description..."
+                                placeholder: "add a description...",
+                                disabled: true
                             }
                         },
                         {

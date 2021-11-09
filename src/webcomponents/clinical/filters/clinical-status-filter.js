@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import "../forms/select-field-filter.js";
-
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalStatusFilter extends LitElement {
 
@@ -35,33 +32,38 @@ export default class ClinicalStatusFilter extends LitElement {
 
     static get properties() {
         return {
-            statuses: {
-                type: Array
-            },
             status: {
                 type: String
+            },
+            statuses: {
+                type: Array
             },
             placeholder: {
                 type: String
             },
-            config: {
-                type: Object
-            }
+            multiple: {
+                type: Boolean
+            },
+            classes: {
+                type: String
+            },
+            disabled: {
+                type: Boolean
+            },
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(6) + "_";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.multiple = true;
+        this.disabled = false;
     }
 
     update(changedProperties) {
+        if (changedProperties.has("status")) {
+            this.statusObject = this.statuses?.find(status => status.id === this.status);
+        }
         if (changedProperties.has("statuses")) {
-            this.data = [...new Set(Object.values(this.statuses).flatMap(status=>status).map(status => status.id))];
+            this.uniqueStatuses = [...new Set(Object.values(this.statuses).map(status => status.id))];
         }
         super.update(changedProperties);
     }
@@ -69,21 +71,31 @@ export default class ClinicalStatusFilter extends LitElement {
     filterChange(e) {
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: e.detail.value
+                value: e.detail.value,
+                query: {
+                    status: e.detail.value
+                }
             }
         });
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        return {
-            multiple: true
-        };
-    }
-
     render() {
         return html`
-            <select-field-filter .placeholder="${this.placeholder}" ?multiple="${this._config.multiple}" .data="${this.data}" .value=${this.status} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
+            <select-field-filter
+                .data="${this.uniqueStatuses}"
+                .value=${this.status}
+                .placeholder="${this.placeholder}"
+                .multiple="${this.multiple}"
+                .classes="${this.classes}"
+                .disabled="${this.disabled}"
+                @filterChange="${e => this.filterChange(e)}">
+            </select-field-filter>
+
+            <!-- Only show description when one single values is expected -->
+            ${!this.multiple && this.statusObject?.description ? html`
+                <span class="help-block" style="padding: 0px 5px">${this.statusObject.description}</span>` : null
+            }
         `;
     }
 

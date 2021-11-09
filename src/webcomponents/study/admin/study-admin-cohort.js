@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../../commons/view/detail-tabs.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../cohort/opencga-cohort-view.js";
+import "../../cohort/cohort-view.js";
 import "../../cohort/cohort-create.js";
 import "../../cohort/cohort-update.js";
 
@@ -143,11 +143,11 @@ export default class StudyAdminCohort extends LitElement {
                                             @updateCohortId="${e => this.changeCohortId(e)}">
                                         </cohort-update>
                                     ` : html`
-                                        <opencga-cohort-view
+                                        <cohort-view
                                             .cohort="${this.cohort}"
                                             .opencgaSession="${opencgaSession}"
                                             @cohortSearch="${e => this.onCohortSearch(e)}">
-                                        </opencga-cohort-view>`}
+                                        </cohort-view>`}
                                 </div>
                             </div>`;
                     }

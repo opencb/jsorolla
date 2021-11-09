@@ -72,13 +72,16 @@ export default class DiseasePanelFilter extends LitElement {
             panelRoleInCancer: {
                 type: String
             },
-            showExtendedFilters: {
+            multiple: {
                 type: Boolean
             },
             classes: {
                 type: String
             },
             disabled: {
+                type: Boolean
+            },
+            showExtendedFilters: {
                 type: Boolean
             },
         };
@@ -88,6 +91,8 @@ export default class DiseasePanelFilter extends LitElement {
         this.query = {};
         this.genes = [];
 
+        this.multiple = true;
+        this.disabled = false;
         this.showExtendedFilters = true;
     }
 
@@ -185,8 +190,8 @@ export default class DiseasePanelFilter extends LitElement {
                         <select-field-filter
                             .data="${this.diseasePanelsSelectOptions}"
                             .value=${this.panel}
-                            .liveSearch=${true}
-                            multiple
+                            .liveSearch=${this.diseasePanelsSelectOptions?.length > 5}
+                            .multiple="${this.multiple}"
                             .classes="${this.classes}"
                             .disabled="${this.disabled}"
                             @filterChange="${e => this.filterChange(e, "panel")}">
@@ -201,7 +206,7 @@ export default class DiseasePanelFilter extends LitElement {
                             <select-field-filter
                                 .data="${MODE_OF_INHERITANCE}"
                                 .value=${this.panelModeOfInheritance}
-                                multiple
+                                .multiple="${true}"
                                 .disabled="${this.genes?.length === 0}"
                                 @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
                             </select-field-filter>
@@ -214,7 +219,7 @@ export default class DiseasePanelFilter extends LitElement {
                             <select-field-filter
                                 .data="${DISEASE_PANEL_CONFIDENCE}"
                                 .value=${this.panelConfidence}
-                                multiple
+                                .multiple="${true}"
                                 .disabled="${this.genes?.length === 0}"
                                 @filterChange="${e => this.filterChange(e, "panelConfidence")}">
                             </select-field-filter>
@@ -227,7 +232,7 @@ export default class DiseasePanelFilter extends LitElement {
                             <select-field-filter
                                 .data="${ROLE_IN_CANCER}"
                                 .value=${this.panelRoleInCancer}
-                                multiple
+                                .multiple="${true}"
                                 .disabled="${this.genes?.length === 0}"
                                 @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
                             </select-field-filter>

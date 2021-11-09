@@ -15,11 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import "../commons/forms/data-form.js";
+import "../../commons/forms/data-form.js";
 
-
-export default class OpencgaIndividualMendelianErrorsView extends LitElement {
+export default class IndividualQcMendelianErrors extends LitElement {
 
     constructor() {
         super();
@@ -70,11 +68,11 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     this.individuals = response.responses[0].results;
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
@@ -82,23 +80,23 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
 
     renderTable() {
         if (this.individual && this.individual?.qualityControl?.mendelianErrorReport) {
-            let mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
-            let sampleAggregation = mendelianErrorReport.sampleAggregation
+            const mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
+            const sampleAggregation = mendelianErrorReport.sampleAggregation
                 .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0].id);
 
-            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter( ch => !isNaN(ch.chromosome) || ["X", "Y", "MT"].includes(ch.chromosome))
-            sampleAggregation.chromAggregation.sort( (a,b) => {
+            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter(ch => !isNaN(ch.chromosome) || ["X", "Y", "MT"].includes(ch.chromosome));
+            sampleAggregation.chromAggregation.sort((a, b) => {
                 const chA = a.chromosome;
                 const chB = b.chromosome;
-                const A = Boolean(parseInt(chA))
-                const B = Boolean(parseInt(chB))
-                if(A && !B) return -1;
-                if(!A && B) return 1;
-                if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
+                const A = Boolean(parseInt(chA));
+                const B = Boolean(parseInt(chB));
+                if (A && !B) return -1;
+                if (!A && B) return 1;
+                if (!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1;
                 return chA - chB;
-            })
+            });
 
-            let roles = {
+            const roles = {
                 [this.individual.father?.id]: "FATHER",
                 [this.individual.mother?.id]: "MOTHER"
             };
@@ -125,9 +123,9 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                                 <td>${sampleAggregation.ratio.toFixed(4)}</td>
                                 <td>
                                     <span>
-                                        ${sampleAggregation.ratio < 0.05
-                                            ? html`<i class='fa fa-check' style='color: green'></i>`
-                                            : html`<i class='fa fa-times' style='color: red'></i>`
+                                        ${sampleAggregation.ratio < 0.05 ?
+                                            html`<i class='fa fa-check' style='color: green'></i>` :
+                                            html`<i class='fa fa-times' style='color: red'></i>`
                                         }
                                     </span>
                                 </td>
@@ -157,7 +155,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                                     <td>${chromAggregation.chromosome}</td>
                                     <td>${key}</td>
                                     <td>${chromAggregation.errorCodeAggregation[key]}</td>
-                                </tr>`)
+                                </tr>`);
                             })
                         }
                     </tbody>
@@ -168,12 +166,12 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
 
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {
-        if (!this.individual?.qualityControl?.mendelianErrorReport?.sampleAggregation
-            || this.individual.qualityControl.mendelianErrorReport.sampleAggregation.length === 0) {
+        if (!this.individual?.qualityControl?.mendelianErrorReport?.sampleAggregation ||
+            this.individual.qualityControl.mendelianErrorReport.sampleAggregation.length === 0) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 
@@ -185,10 +183,10 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                         <i class="fa fa-download pad5" aria-hidden="true" style="padding-right: 10px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download && this._config.download.length
-                            ? this._config.download.map(item => html`
-                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`)
-                            : null
+                        ${this._config.download && this._config.download.length ?
+                            this._config.download.map(item => html`
+                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`) :
+                            null
                         }
                     </ul>
                 </div>
@@ -202,4 +200,4 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
 
 }
 
-customElements.define("opencga-individual-mendelian-errors-view", OpencgaIndividualMendelianErrorsView);
+customElements.define("individual-qc-mendelian-errors", IndividualQcMendelianErrors);

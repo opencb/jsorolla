@@ -19,13 +19,13 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/proband-id-autocomplete.js";
-import "../commons/filters/clinical-priority-filter.js";
-import "../commons/filters/clinical-status-filter.js";
+import "./filters/clinical-priority-filter.js";
+import "./filters/clinical-status-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 
 
-export default class OpencgaClinicalAnalysisFilter extends LitElement {
+export default class ClinicalAnalysisBrowserFilter extends LitElement {
 
     constructor() {
         super();
@@ -130,65 +130,70 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             case "id":
                 content = html`
                     <clinical-analysis-id-autocomplete
-                            .config="${subsection}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .value="${this.preparedQuery[subsection.id]}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </clinical-analysis-id-autocomplete>`;
                 break;
             case "proband":
                 content = html`
                     <proband-id-autocomplete
-                            .config="${subsection}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .value="${this.preparedQuery[subsection.id]}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </proband-id-autocomplete>`;
                 break;
             case "family":
                 content = html`
                     <family-id-autocomplete
-                            .config="${subsection}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .value="${this.preparedQuery[subsection.id]}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </family-id-autocomplete>`;
                 break;
             case "sample":
                 content = html`
                     <sample-id-autocomplete
-                            .config="${subsection}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .value="${this.preparedQuery[subsection.id]}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </sample-id-autocomplete>`;
                 break;
             case "priority":
                 content = html`
-                    <clinical-priority-filter .priorities="${Object.values(this.opencgaSession.study.configuration?.clinical?.priorities ?? [])}"
-                                              .priority="${this.preparedQuery[subsection.id]}"
-                                              @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <clinical-priority-filter
+                        .priorities="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.priorities ?? [])}"
+                        .priority="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </clinical-priority-filter>`;
                 break;
             case "status":
                 content = html`
-                    <clinical-status-filter .statuses="${this.opencgaSession.study.configuration?.clinical?.status}"
-                                            .status="${this.preparedQuery[subsection.id]}"
-                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <clinical-status-filter
+                        .status="${this.preparedQuery[subsection.id]}"
+                        .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
+                        .multiple=${true}
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </clinical-status-filter>`;
                 break;
             case "type":
                 content = html`
-                    <select-field-filter ?multiple="${subsection.multiple}"
-                                         .data="${subsection.allowedValues}"
-                                         .value="${this.preparedQuery[subsection.id]}"
-                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <select-field-filter
+                        .multiple="${subsection.multiple}"
+                        .data="${subsection.params.allowedValues}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </select-field-filter>`;
                 break;
             case "date":
                 content = html`
-                    <date-filter .creationDate="${this.preparedQuery.creationDate}"
-                                 @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                    <date-filter
+                        .creationDate="${this.preparedQuery.creationDate}"
+                        @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
                     </date-filter>`;
                 break;
             default:
@@ -227,5 +232,5 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
 }
 
-customElements.define("opencga-clinical-analysis-filter", OpencgaClinicalAnalysisFilter);
+customElements.define("clinical-analysis-browser-filter", ClinicalAnalysisBrowserFilter);
 

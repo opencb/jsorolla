@@ -174,7 +174,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
-            newButtonLink: "#clinical-analysis-writer/",
+            newButtonLink: "#clinical-analysis-create/",
             columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
         this.renderTable();
