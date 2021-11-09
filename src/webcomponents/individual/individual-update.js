@@ -240,8 +240,12 @@ export default class IndividualUpdate extends LitElement {
                         {
                             name: "Birth",
                             field: "dateOfBirth",
-                            type: "input-text",
-                            display: {}
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss")
+                                        .format("DD/MM/YYYY")
+                            }
                         },
                         {
                             name: "Ethnicity",
