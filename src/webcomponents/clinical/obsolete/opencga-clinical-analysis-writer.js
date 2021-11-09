@@ -19,7 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 import {NotificationQueue} from "../../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import "../../commons/filters/clinical-priority-filter.js";
+import "../filters/clinical-priority-filter.js";
 
 export default class OpencgaClinicalAnalysisWriter extends LitElement {
 

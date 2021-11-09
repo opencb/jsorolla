@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
-import "../forms/select-field-filter.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalFlagFilter extends LitElement {
 
@@ -60,6 +59,13 @@ export default class ClinicalFlagFilter extends LitElement {
         this.disabled = false;
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("flag")) {
+            this.flagObject = this.flags?.find(flag => flag.id === this.flag);
+        }
+        super.update(changedProperties);
+    }
+
     filterChange(e) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -78,11 +84,16 @@ export default class ClinicalFlagFilter extends LitElement {
                 .data="${this.flags}"
                 .value=${this.flag}
                 .placeholder="${this.placeholder}"
-                ?multiple="${this.multiple}"
+                .multiple="${this.multiple}"
                 .classes="${this.classes}"
                 .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
+
+            <!-- Only show description when one single values is expected -->
+            ${!this.multiple && this.flagObject?.description ? html`
+                <span class="help-block" style="padding: 0px 5px">${this.flagObject.description}</span>` : null
+            }
         `;
     }
 

@@ -134,6 +134,15 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
+                                id: "type",
+                                name: "Case Type",
+                                description: "",
+                                params: {
+                                    // FIXME Move this to a CONSTANT!
+                                    allowedValues: ["SINGLE", "FAMILY", "CANCER"],
+                                }
+                            },
+                            {
                                 id: "status",
                                 name: "Status",
                                 description: ""
@@ -141,12 +150,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             {
                                 id: "priority",
                                 name: "Priority",
-                                description: ""
-                            },
-                            {
-                                id: "type",
-                                name: "Analysis type",
-                                allowedValues: ["SINGLE", "DUO", "TRIO", "FAMILY", "AUTO", "MULTISAMPLE"],
                                 description: ""
                             },
                             {

@@ -20,8 +20,8 @@ import {NotificationQueue} from "../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
-import "../commons/filters/clinical-priority-filter.js";
-import "../commons/filters/clinical-flag-filter.js";
+import "./filters/clinical-priority-filter.js";
+import "./filters/clinical-flag-filter.js";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -325,9 +325,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: ["SINGLE", "FAMILY", "CANCER"],
                             defaultValue: "FAMILY",
-                            errorMessage: "No found...",
-                            display: {
-                            }
+                            errorMessage: "Not found...",
+                            display: {}
                         },
                         {
                             name: "Disease Panels",
@@ -340,7 +339,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             .opencgaSession="${this.opencgaSession}"
                                             .diseasePanels="${this.opencgaSession.study?.panels}"
                                             .panel="${panels}"
-                                            .showPanelTitle="${false}"
                                             .showExtendedFilters="${false}"
                                             @filterChange="${e => {
                                                 e.detail.param = "panels.id";
@@ -358,8 +356,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: flags => html`
                                     <clinical-flag-filter
+                                        .flag="${flags?.map(f => f.id).join(",")}"
                                         .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
-                                        .flag="${flags?.map(panel => panel.id).join(",")}"
+                                        .multiple=${true}
                                         @filterChange="${e => {
                                             e.detail.param = "flags.id";
                                             this.onFieldChange(e);
@@ -472,8 +471,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             name: "Select Family",
                             field: "family.id",
                             type: "basic",
-                            display: {
-                            }
+                            display: {}
                         },
                         {
                             name: "Select Proband",
@@ -656,8 +654,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
                             allowedValues: "_users",
-                            display: {
-                            }
+                            display: {}
                         },
                         {
                             name: "Due Date",

@@ -17,14 +17,12 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
 import FormUtils from "../commons/forms/form-utils";
 import "./clinical-analysis-comment-editor.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
-import "../commons/filters/clinical-priority-filter.js";
-import "../commons/filters/clinical-flag-filter.js";
-
+import "./filters/clinical-priority-filter.js";
+import "./filters/clinical-flag-filter.js";
 
 class ClinicalAnalysisUpdate extends LitElement {
 
@@ -102,34 +100,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                 }
             }
         }
-    }
-
-    renderStatus(status) {
-        let statuses;
-        const configStatuses = this.opencgaSession.study?.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type];
-        // TODO remove this code in version 2.3, status MUST come from server always since OpenCGA 2.1
-        if (configStatuses?.length > 0) {
-            statuses = configStatuses;
-        } else {
-            statuses = ClinicalAnalysisUtils.getStatuses();
-        }
-
-        return html`
-            <div>
-                <select-field-filter
-                    .data="${statuses}" .value="${status.id}"
-                    .classes="${this.updateParams.status ? "updated" : ""}"
-                    ?disabled="${!!this.clinicalAnalysis?.locked}"
-                    @filterChange="${e => {
-                        e.detail.param = "status.id";
-                        this.onFieldChange(e);
-                    }}">
-                </select-field-filter>
-                ${status.description ? html`
-                    <span class="help-block" style="padding: 0px 5px">${status.description}</span>
-                ` : null}
-            </div>
-        `;
     }
 
     onCommentChange(e) {
@@ -377,8 +347,18 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 width: "9",
-                                render: status => this.renderStatus(status),
-                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                render: status => html`
+                                    <clinical-status-filter
+                                        .status="${status.id}"
+                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .multiple=${false}
+                                        .classes="${this.updateParams.status ? "updated" : ""}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
+                                        @filterChange="${e => {
+                                            e.detail.param = "status.id";
+                                            this.onFieldChange(e);
+                                        }}">
+                                    </clinical-status-filter>`
                             }
                         },
                         {
@@ -387,7 +367,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 width: "9",
-                                // disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                                 render: priority => html`
                                     <clinical-priority-filter
                                         .priority="${priority}"
@@ -395,7 +374,10 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         .multiple=${false}
                                         .classes="${this.updateParams.priority ? "updated" : ""}"
                                         .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @filterChange="${e => this.onFieldChange({detail: {value: e.detail.value, param: "priority.id"}})}">
+                                        @filterChange="${e => {
+                                            e.detail.param = "priority.id";
+                                            this.onFieldChange(e);
+                                        }}">
                                     </clinical-priority-filter>`
                             }
                         },
@@ -438,7 +420,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             .opencgaSession="${this.opencgaSession}"
                                             .diseasePanels="${this.opencgaSession.study?.panels}"
                                             .panel="${panels.map(panel => panel.id).join(",")}"
-                                            .showPanelTitle="${false}"
                                             .showExtendedFilters="${false}"
                                             .classes="${this.updateParams.panels ? "updated" : ""}"
                                             .disabled="${!!this.clinicalAnalysis?.locked || !!this.clinicalAnalysis?.panelLock}"
@@ -467,8 +448,9 @@ class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 render: flags => html`
                                     <clinical-flag-filter
+                                        .flag="${flags?.map(f => f.id).join(",")}"
                                         .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
-                                        .flag="${flags?.map(panel => panel.id).join(",")}"
+                                        .multiple=${true}
                                         .classes="${this.updateParams.flags ? "updated" : ""}"
                                         .disabled="${!!this.clinicalAnalysis?.locked}"
                                         @filterChange="${e => {
