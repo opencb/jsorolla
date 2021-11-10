@@ -179,7 +179,7 @@ export default class VariantInterpreterGrid extends LitElement {
         } else {
             this.renderRemoteVariants();
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -694,22 +694,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     id: "interpretation",
                     title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
                     field: "interpretation",
-                    rowspan: 2,
-                    colspan: this._config.showSelectCheckbox ? 2 : 1,
+                    rowspan: 1,
+                    colspan: 3,
                     halign: "center"
-                },
-                {
-                    id: "review",
-                    title: "Review",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: this.reviewFormatter.bind(this),
-                    align: "center",
-                    events: {
-                        "click button": this.onReviewClick.bind(this)
-                    },
-                    // visible: this._config.showReview
-                    visible: this.review
                 },
                 {
                     id: "actions",
@@ -780,6 +767,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
+                // Interpretation Column
                 {
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
                     field: "prediction",
@@ -799,7 +787,19 @@ export default class VariantInterpreterGrid extends LitElement {
                         "click input": this.onCheck.bind(this)
                     },
                     visible: this._config.showSelectCheckbox
-                }
+                },
+                {
+                    id: "review",
+                    title: "Review",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.reviewFormatter.bind(this),
+                    align: "center",
+                    events: {
+                        "click button": this.onReviewClick.bind(this)
+                    },
+                    visible: this.review
+                },
             ]
         ];
 

@@ -789,6 +789,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .query="${this.executedQuery}"
+                                    .review="${true}"
                                     .config="${this._config.filter.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @checkrow="${this.onCheckVariant}">

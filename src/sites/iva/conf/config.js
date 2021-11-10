@@ -411,8 +411,8 @@ const SUITE = {
                             name: "Variant Export",
                             acronym: "EX",
                             description: `
-                                Filter and export variants, with their annotation and sample genotypes, 
-                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...) 
+                                Filter and export variants, with their annotation and sample genotypes,
+                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
                                 for being shared or processed by an external tool.
                             `,
                             icon: "img/tools/icons/aggregation.svg",
