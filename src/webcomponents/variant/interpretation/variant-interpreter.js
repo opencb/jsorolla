@@ -156,7 +156,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate(e) {
-        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -167,7 +167,7 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
-    onClinicalAnalysisDownload() {
+    onClinicalAnalysisDownload = () => {
         UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
     }
 
