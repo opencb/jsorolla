@@ -128,7 +128,9 @@ export default class FamilyUpdate extends LitElement {
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            // annotationSetsAction: "SET"
+            annotationSetsAction: "SET",
+            updateRoles: false,
+            // incVersion: false
         };
 
         this.opencgaSession.opencgaClient.families().update(this.family.id, this.updateParams, params)
@@ -198,7 +200,7 @@ export default class FamilyUpdate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Family name...",
+                                placeholder: "Add a family name...",
                             }
                         },
                         {
@@ -207,22 +209,59 @@ export default class FamilyUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Family name...",
+                                placeholder: "Add a Family description...",
+                            }
+                        },
+                        {
+                            name: "Individual ID",
+                            field: "individualId",
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: () => html`
+                                    <individual-id-autocomplete
+                                        .value="${this.members}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @filterChange="${e => this.onSync(e, "members")}">
+                                    </individual-id-autocomplete>`
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
+                            }
+                        },
+                        {
+                            name: "Modification Date",
+                            field: "modificationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
                             }
                         },
                         {
                             name: "Expected Size",
                             field: "expectedSize",
-                            type: "input-text"
-
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a expected size...",
+                            }
                         },
                         {
                             name: "Status name",
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                rows: 3,
-                                placeholder: "Sample description...",
+                                placeholder: "Add status name..."
                             }
                         },
                         {
@@ -231,9 +270,31 @@ export default class FamilyUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description...",
+                                placeholder: "Add a status description..."
                             }
                         },
+                    ]
+                },
+                {
+                    title: "Annotations Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: family => html`
+                                    <annotation-set-update
+                                        .annotationSets="${family?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                    </annotation-set-update>
+                                `
+                            }
+                        }
                     ]
                 }
             ]
