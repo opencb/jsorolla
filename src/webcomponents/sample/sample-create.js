@@ -44,7 +44,6 @@ export default class SampleCreate extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         this.sample = {
             phenotypes: [],
             annotationSets: []
@@ -84,7 +83,7 @@ export default class SampleCreate extends LitElement {
                 case "status.description":
                 case "processing.product":
                 case "processing.preparationMethod":
-                case "processing.extrationMethod":
+                case "processing.extractionMethod":
                 case "processing.labSambpleId":
                 case "processing.quantity":
                 case "processing.date":
@@ -207,7 +206,7 @@ export default class SampleCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "Add a sample name..."
                             }
                         },
                         {
@@ -216,7 +215,7 @@ export default class SampleCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample name..."
+                                placeholder: "Add a description..."
                             }
                         },
                         {
@@ -250,7 +249,7 @@ export default class SampleCreate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                placeholder: "Sample description..."
+                                placeholder: "Add status name..."
                             }
                         },
                         {
@@ -259,7 +258,7 @@ export default class SampleCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description..."
+                                placeholder: "Add a status description..."
                             }
                         }
                     ]
@@ -285,7 +284,7 @@ export default class SampleCreate extends LitElement {
                         },
                         {
                             name: "Extraction Method",
-                            field: "processing.extrationMethod",
+                            field: "processing.extractionMethod",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a extraction method..."
@@ -380,9 +379,9 @@ export default class SampleCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: sample => html`
                                     <phenotype-list-update
-                                        .phenotypes="${this.sample?.phenotypes}"
+                                        .phenotypes="${sample?.phenotypes}"
                                         @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
@@ -400,9 +399,9 @@ export default class SampleCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: sample => html`
                                     <annotation-set-update
-                                        .annotationSets="${this.sample?.annotationSets}"
+                                        .annotationSets="${sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
                                     </annotation-set-update>
