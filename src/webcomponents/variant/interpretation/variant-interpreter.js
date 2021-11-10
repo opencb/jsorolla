@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import {NotificationQueue} from "../../../core/NotificationQueue.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -69,6 +70,7 @@ class VariantInterpreter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.activeTab = {};
+        this.clinicalAnalysisManager = null;
     }
 
     connectedCallback() {
@@ -87,6 +89,10 @@ class VariantInterpreter extends LitElement {
 
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
     }
 
@@ -113,7 +119,7 @@ class VariantInterpreter extends LitElement {
         }
     }
 
-    async clinicalAnalysisIdObserver() {
+    clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
             // this._config = {...this._config, loading: true};
             // this.requestUpdate();
@@ -132,6 +138,12 @@ class VariantInterpreter extends LitElement {
             // });
         } else {
             this.clinicalAnalysis = null;
+        }
+    }
+
+    clinicalAnalysisObserver() {
+        if (this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -175,6 +187,16 @@ class VariantInterpreter extends LitElement {
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
             new NotificationQueue().push("Clinical analysis updated.", "", "info");
+        });
+    }
+
+    onChangePrimaryInterpretation = e => {
+        const interpretationId = e.currentTarget.dataset.id;
+
+        this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
+            return this.onClinicalAnalysisUpdate().then(() => {
+                new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
+            });
         });
     }
 
@@ -256,6 +278,22 @@ class VariantInterpreter extends LitElement {
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
+                                    ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
+                                        <li>
+                                            <a style="background-color:white!important;">
+                                                <i class="fa fa-user-md icon-padding"></i>
+                                                <strong>Change interpretation</strong>
+                                            </a>
+                                        </li>
+                                        ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                            <li>
+                                                <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                    ${item.id}
+                                                </a>
+                                            </li>
+                                        `)}
+                                        <li role="separator" class="divider"></li>
+                                    ` : null}
                                     <li>
                                         <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
                                             <i class="fa fa-sync icon-padding"></i> Refresh
