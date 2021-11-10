@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import {NotificationQueue} from "../../../core/NotificationQueue.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
@@ -171,6 +172,12 @@ class VariantInterpreter extends LitElement {
         UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
     }
 
+    onClinicalAnalysisRefresh = () => {
+        this.onClinicalAnalysisUpdate().then(() => {
+            new NotificationQueue().push("Clinical analysis updated.", "", "info");
+        });
+    }
+
     getDefaultConfig() {
         return {
             title: "Case Interpreter",
@@ -249,6 +256,11 @@ class VariantInterpreter extends LitElement {
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
+                                            <i class="fa fa-sync icon-padding"></i> Refresh
+                                        </a>
+                                    </li>
                                     <li>
                                         <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
                                             <i class="fa fa-download icon-padding"></i> Download Clinical Analysis
