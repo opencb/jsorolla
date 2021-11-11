@@ -264,6 +264,8 @@ class VariantInterpreter extends LitElement {
             `;
         }
 
+        console.log(this.clinicalAnalysis);
+
         return html`
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis?.id ? html`
@@ -271,6 +273,17 @@ class VariantInterpreter extends LitElement {
                         icon="${this._config.icon}"
                         .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                         .rhs="${html`
+                            <div style="display:flex;">
+                                ${this.clinicalAnalysis?.interpretation ? html`
+                                    <div align="center" style="margin-right:2rem;">
+                                        <div style="font-size:2rem">
+                                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
+                                        </div>
+                                        <div class="text-muted" style="font-size:1.25rem;">
+                                            Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong>
+                                        </div>
+                                    </div>
+                                ` : null}
                             <div class="dropdown">
                                 <button class="btn btn-default" data-toggle="dropdown">
                                     <i class="fa fa-toolbox" aria-hidden="true"></i>
@@ -310,6 +323,7 @@ class VariantInterpreter extends LitElement {
                                         </a>                                    
                                     </li>
                                 </ul>
+                            </div>
                             </div>
                         `}">
                     </tool-header>
