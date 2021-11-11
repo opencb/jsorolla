@@ -96,7 +96,6 @@ export default class AnnotationUpdate extends LitElement {
     annotationSetObserver() {
         if (this.annotationSet) {
             this._annotationSet = JSON.parse(JSON.stringify(this.annotationSet));
-            console.log("Copy annotation internal", this.annotationSet);
         }
     }
 

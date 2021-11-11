@@ -22,7 +22,7 @@ export default class AnnotationSetsView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        // this._init();
     }
 
     createRenderRoot() {
@@ -65,12 +65,12 @@ export default class AnnotationSetsView extends LitElement {
         `;
     }
 
-    getDefaultConfig() {
-        return {
-        };
-    }
-
     render() {
+
+        if (UtilsNew.isEmptyArray(this.annotationSets)) {
+            return html`<p>N/A</p>`;
+        }
+
         return html`
         <div>
             ${this.annotationSets?.map(annotationSet => this.renderVariableSet(annotationSet))}
@@ -80,4 +80,4 @@ export default class AnnotationSetsView extends LitElement {
 
 }
 
-customElements.define("annotation-sets-view", AnnotationSetsView);
+customElements.define("annotation-set-view", AnnotationSetsView);

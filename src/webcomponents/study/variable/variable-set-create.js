@@ -145,8 +145,8 @@ export default class VariableSetCreate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 help: {
-                                    // mode: "block",
-                                    icon: "fa fa-lock",
+
+                                    icon: "fas fa-info-circle",
                                     text: "short variableSet id"
                                 },
                                 validation: {
