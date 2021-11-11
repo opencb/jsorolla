@@ -186,7 +186,7 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
-            new NotificationQueue().push("Clinical analysis updated.", "", "info");
+            new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
         });
     }
 
@@ -273,9 +273,9 @@ class VariantInterpreter extends LitElement {
                         icon="${this._config.icon}"
                         .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                         .rhs="${html`
-                            <div style="display:flex;">
+                            <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
-                                    <div align="center" style="margin-right:2rem;">
+                                    <div align="center" style="margin-right:3rem;">
                                         <div style="font-size:2rem">
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
@@ -285,7 +285,7 @@ class VariantInterpreter extends LitElement {
                                     </div>
                                 ` : null}
                             <div class="dropdown">
-                                <button class="btn btn-default" data-toggle="dropdown">
+                                <button class="btn btn-default btn-lg" data-toggle="dropdown">
                                     <i class="fa fa-toolbox" aria-hidden="true"></i>
                                     <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
                                     <span class="caret"></span>
@@ -314,7 +314,7 @@ class VariantInterpreter extends LitElement {
                                     </li>
                                     <li>
                                         <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
-                                            <i class="fa fa-download icon-padding"></i> Download Clinical Analysis
+                                            <i class="fa fa-download icon-padding"></i> Download
                                         </a>
                                     </li>
                                     <li>
