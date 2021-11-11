@@ -212,6 +212,31 @@ export default class Lollipop {
         });
     }
 
+    explodeCluster(node, track) {
+        // NOTE variant is a cluster
+        const height = (track.view.scaleHeight + track.view.variantAreaHeight) /2;
+        const delay = 100;
+        if (node.exploded) {
+            node.exploded = false;
+            node.domRef.animate().dy(+node.size*2).ease("<");
+            node.domRefEdge.animate().plot(`M ${0} ${height} V ${height * .5} L ${node.offset} ${height * .4} V ${node.size/2 + 5}`);
+        } else {
+            node.exploded = true;
+            node.domRef.animate().dy(-node.size*2).ease("<");
+            node.domRefEdge.animate().plot(`M ${0} ${height} V ${height * .5} L ${node.offset} ${height * .4} V ${-node.size * 1.5 + 5}`);
+            const clusterWrapper = node.domRef.group().addClass("cluster");
+            node.variants.forEach((variant, i) => {
+                /* const circleSectorAngle = i / node.variants.length * Math.PI*2;
+                const radius = variant.size * 1.9;
+                clusterWrapper.circle(variant.size)
+                    .dx(Math.cos(circleSectorAngle)*radius -variant.size/2 + variant.offset)
+                    .dy(Math.sin(circleSectorAngle)*radius -variant.size/2)
+                    .fill("#6872ff")*/
+
+            });
+        }
+    }
+
     positionBarRender(track) {
         if (this.bar) {
             this.bar.clear();
@@ -295,16 +320,12 @@ export default class Lollipop {
     prepareVariants(variants, track) {
         const _variants = [...variants].sort((a, b) => a.pos - b.pos);
         return _variants.map(variant => {
-            console.log("current viewPos", variant.viewPos)
-            console.log("updated viewPos", this.rescaleLinear(variant.pos, this.viewProteinRange[0], this.viewProteinRange[1], this.viewRange[0], this.viewRange[1]))
-            console.log("preparing", variant.id, this.viewProteinRange[0], this.viewProteinRange[1], this.viewRange[0], this.viewRange[1])
-
             return {
                 ...variant,
                 size: track.view.circleSize,
                 viewPos: this.rescaleLinear(variant.pos, this.viewProteinRange[0], this.viewProteinRange[1], 0, this.canvasWidth),
                 offset: 0
-            }
+            };
         });
     }
 
@@ -328,7 +349,8 @@ export default class Lollipop {
                     variants: [...pool],
                     type: "cluster",
                     size: Math.min((Math.log(pool.length) * 10) + track.view.circleSize, track.view.circleSize * 5), // max size is 3 times default
-                    offset: 0
+                    offset: 0,
+                    exploded: false
                 };
             } else {
                 return {...pool[0], type: "variant"};
@@ -473,11 +495,13 @@ export default class Lollipop {
     }
 
 
-    onClickVariantGroup(e, circle, variantData) {
+    onClickVariantGroup(e, circle, variant, track) {
         console.log(e);
         console.log(circle);
-        console.log(variantData);
-
+        console.log(variant);
+        if (variant.type === "cluster") {
+            this.explodeCluster(variant, track);
+        }
 
         // circle.animate().ease(SVG.easing.beziere(10,20,30,40)).scale(1.1);
 
