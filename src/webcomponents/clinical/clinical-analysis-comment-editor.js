@@ -228,7 +228,10 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         //         </div>`;
         // }
 
-        const lastComment = this.comments[this.comments.length - 1] || null;
+        let lastComment = {};
+        if (this.comments?.length) {
+            lastComment = this.comments[this.comments.length - 1] || null;
+        }
 
         return html`
             ${this.comments?.filter(c => c.date)?.map(comment => html`
