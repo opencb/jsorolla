@@ -87,8 +87,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
         };
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
             case "type":
                 this.clinicalAnalysis.type = e.detail.value.toUpperCase();
                 break;
@@ -115,7 +116,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 break;
             case "panels.id":
             case "flags.id":
-                const [field, prop] = e.detail.param.split(".");
+                const [field, prop] = param.split(".");
                 if (e.detail.value) {
                     this.clinicalAnalysis[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
                 } else {
@@ -130,7 +131,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 ];
                 break;
             default:
-                this.clinicalAnalysis[e.detail.param] = e.detail.value;
+                this.clinicalAnalysis[param] = e.detail.value;
                 break;
         }
 
@@ -338,12 +339,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
                                             .diseasePanels="${this.opencgaSession.study?.panels}"
-                                            .panel="${panels}"
+                                            .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
-                                            @filterChange="${e => {
-                                                e.detail.param = "panels.id";
-                                                this.onFieldChange(e);
-                                            }}">
+                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
                                     `;
                                 }
@@ -359,10 +357,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         .flag="${flags?.map(f => f.id).join(",")}"
                                         .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
                                         .multiple=${true}
-                                        @filterChange="${e => {
-                                            e.detail.param = "flags.id";
-                                            this.onFieldChange(e);
-                                        }}">
+                                        @filterChange="${e => this.onFieldChange(e, "flags.id")}">
                                     </clinical-flag-filter>`
                             }
                         },
@@ -410,7 +405,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
-                                errorMessage: "No proband selected"
+                                errorMessage: "No disorders available"
                             }
                         },
                         {
@@ -418,8 +413,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "table",
                             display: {
-                                defaultLayout: "vertical",
-                                errorMessage: "No proband selected",
+                                // defaultLayout: "vertical",
+                                // errorMessage: "No proband selected",
                                 errorClasses: "",
                                 columns: [
                                     {
@@ -491,7 +486,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
-                                errorMessage: "No family selected"
+                                errorMessage: "No disorders available"
                             }
                         },
                         {
@@ -594,7 +589,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
-                                errorMessage: "No proband selected"
+                                errorMessage: "No disorders available"
                             }
                         },
                         {
@@ -602,8 +597,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "table",
                             display: {
-                                width: "12",
-                                defaultLayout: "vertical",
+                                // width: "12",
+                                // defaultLayout: "vertical",
                                 errorMessage: "No proband selected",
                                 errorClasses: "",
                                 columns: [
