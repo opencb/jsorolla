@@ -125,6 +125,24 @@ export default class CohortUpdate extends LitElement {
         this.cohortId = "";
     }
 
+    onSync(e, type) {
+        e.stopPropagation();
+        switch (type) {
+            case "samples":
+                let samples = [];
+                if (e.detail.value) {
+                    samples = e.detail.value.split(",").map(sample => {
+                        return {id: sample};
+                    });
+                }
+                this.cohort = {...this.cohort, samples: e.detail.value};
+                break;
+            case "annotationSets":
+                this.cohort = {...this.cohort, annotationSets: e.detail.value};
+                break;
+        }
+    }
+
     onSubmit(e) {
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -192,7 +210,6 @@ export default class CohortUpdate extends LitElement {
                                     text: "short cohort Id"
                                 },
                                 validation: {
-
                                 }
                             }
                         },
@@ -219,12 +236,15 @@ export default class CohortUpdate extends LitElement {
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: () => html `
-                                <sample-id-autocomplete
-                                    .value=${this.sampleId}
-                                    .opencgaSession=${this.opencgaSession}
-                                    @filterChange="${e => this.onSync(e, "sampleId")}">
-                                </sample-id-autocomplete>`
+                                render: cohort => {
+                                    const sampleIds = cohort?.samples?.map(sample => sample.id).join(",");
+                                    return html `
+                                    <sample-id-autocomplete
+                                        .value=${this.sampleIds}
+                                        .opencgaSession=${this.opencgaSession}
+                                        @filterChange="${e => this.onSync(e, "samples")}">
+                                    </sample-id-autocomplete>`;
+                                }
                             }
                         },
                         {
@@ -283,7 +303,7 @@ export default class CohortUpdate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${cohort?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
                                     </annotation-set-update>
                                 `
                             }

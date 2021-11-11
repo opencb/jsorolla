@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
 
@@ -66,36 +65,45 @@ export default class CohortCreate extends LitElement {
                 e.detail.value
             )
         };
+        this.requestUpdate();
     }
 
     onSync(e, type) {
         e.stopPropagation();
         switch (type) {
-            case "sampleId":
-                this.cohort = {...this.cohort, samples: e.detail.value};
+            case "samples":
+                let samples = [];
+                if (e.detail.value) {
+                    samples = e.detail.value.split(",").map(sample => {
+                        return {id: sample};
+                    });
+                }
+                this.cohort = {...this.cohort, samples: samples};
                 break;
-            case "annotationsets":
+            case "annotationSets":
                 this.cohort = {...this.cohort, annotationSets: e.detail.value};
                 break;
         }
+        this.requestUpdate();
     }
 
     onSubmit(e) {
         e.stopPropagation();
-        this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this.cohort = {};
-                LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
-                FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
-            })
-            .catch(err => {
-                console.error(err);
-                FormUtils.showAlert(
-                    "New Cohort",
-                    `Could not save cohort ${err}`,
-                    "error"
-                );
-            });
+        console.log("Cohort Saved", this.cohort);
+        // this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
+        //     .then(res => {
+        //         this.cohort = {};
+        //         LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
+        //         FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         FormUtils.showAlert(
+        //             "New Cohort",
+        //             `Could not save cohort ${err}`,
+        //             "error"
+        //         );
+        //     });
     }
 
     onClear() {
@@ -119,8 +127,6 @@ export default class CohortCreate extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
             type: "form",
             buttons: {
                 show: true,
@@ -128,7 +134,6 @@ export default class CohortCreate extends LitElement {
                 okText: "Save"
             },
             display: {
-                // width: "8",
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
@@ -182,7 +187,7 @@ export default class CohortCreate extends LitElement {
                                 <sample-id-autocomplete
                                     .value=${this.sampleId}
                                     .opencgaSession=${this.opencgaSession}
-                                    @filterChange="${e => this.onSync(e, "sampleId")}">
+                                    @filterChange="${e => this.onSync(e, "samples")}">
                                 </sample-id-autocomplete>`
                             }
                         },
@@ -242,7 +247,7 @@ export default class CohortCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${cohort?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
                                     </annotation-set-update>
                                 `
                             }
