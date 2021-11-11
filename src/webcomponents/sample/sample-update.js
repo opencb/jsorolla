@@ -85,7 +85,6 @@ export default class SampleUpdate extends LitElement {
         if (this.sample) {
             this._sample = JSON.parse(JSON.stringify(this.sample));
         }
-        console.log("Sample info:", this.sample);
     }
 
     sampleIdObserver() {
@@ -136,7 +135,6 @@ export default class SampleUpdate extends LitElement {
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
-                console.log("updateParams:", this.updateParams);
                 break;
         }
         this.requestUpdate();

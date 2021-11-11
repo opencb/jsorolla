@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
+import "../study/annotationset/annotation-set-view.js";
 
 export default class CohortView extends LitElement {
 
@@ -159,6 +160,22 @@ export default class CohortView extends LitElement {
                             field: "id"
                         },
                         {
+                            name: "Cohort Type",
+                            field: "type",
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                        },
+                        {
+                            name: "Status",
+                            field: "internal.status",
+                            type: "custom",
+                            display: {
+                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
+                            }
+                        },
+                        {
                             name: "Creation date",
                             field: "creationDate",
                             type: "custom",
@@ -166,6 +183,59 @@ export default class CohortView extends LitElement {
                                 render: field => {
                                     return html`${UtilsNew.dateFormatter(field)}`;
                                 }
+                            }
+                        },
+                        {
+                            name: "Modification Date",
+                            field: "modificationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            name: "Annotation sets",
+                            field: "annotationSets",
+                            type: "custom",
+                            defaultValue: "N/A",
+                            display: {
+                                render: field => html`
+                                    <annotation-set-view
+                                        .annotationSets="${field}">
+                                    </annotation-set-view>`
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Samples",
+                    display: {
+                        visible: cohort => cohort?.id
+                    },
+                    elements: [
+                        {
+                            name: "List of samples",
+                            field: "samples",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Samples ID", field: "id"
+                                    },
+                                    {
+                                        name: "Somatic", field: "somatic", defaultValue: "false"
+                                    },
+                                    {
+                                        name: "Phenotypes",
+                                        field: "phenotypes",
+                                        type: "custom",
+                                        defaultValue: "-",
+                                        display: {
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
+                                        }
+                                    }
+                                ],
+                                defaultValue: "No phenotypes found"
                             }
                         }
                     ]

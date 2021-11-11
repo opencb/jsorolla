@@ -15,10 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/tool-header.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-
+import "../commons/tool-header.js";
 export default class CohortUpdate extends LitElement {
 
     constructor() {
@@ -71,7 +69,6 @@ export default class CohortUpdate extends LitElement {
     }
 
     cohortObserver() {
-        // When updating wee need to keep a private copy of the original object
         if (this.cohort) {
             this._cohort = JSON.parse(JSON.stringify(this.cohort));
         }
@@ -98,6 +95,8 @@ export default class CohortUpdate extends LitElement {
             case "name":
             case "description":
             case "type":
+            case "creationDate":
+            case "modificationDate":
                 this.updateParams = FormUtils.updateScalar(
                     this._cohort,
                     this.cohort,
@@ -126,15 +125,40 @@ export default class CohortUpdate extends LitElement {
         this.cohortId = "";
     }
 
+    onSync(e, type) {
+        e.stopPropagation();
+        switch (type) {
+            case "samples":
+                let samples = [];
+                if (e.detail.value) {
+                    samples = e.detail.value.split(",").map(sample => {
+                        return {id: sample};
+                    });
+                }
+                this.cohort = {...this.cohort, samples: e.detail.value};
+                break;
+            case "annotationSets":
+                this.cohort = {...this.cohort, annotationSets: e.detail.value};
+                break;
+        }
+    }
+
     onSubmit(e) {
-        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            samplesAction: "SET",
+            annotationSetsAction: "SET",
+        };
+
+        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
             .then(res => {
                 this._cohort = JSON.parse(JSON.stringify(this.cohort));
                 this.updateParams = {};
-                FormUtils.showAlert("Edit Cohort", "Cohort updated correctly.", "success");
+                FormUtils.showAlert("Update Cohort", "Cohort updated correctly.", "success");
             })
             .catch(err => {
                 console.error(err);
+                FormUtils.showAlert("Update Chohoty", "Cohort not updated correctly", "error");
             });
     }
 
@@ -183,10 +207,9 @@ export default class CohortUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short Sample id for thehis as;lsal"
+                                    text: "short cohort Id"
                                 },
                                 validation: {
-
                                 }
                             }
                         },
@@ -195,7 +218,9 @@ export default class CohortUpdate extends LitElement {
                             field: "type",
                             type: "select",
                             allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
-                            display: {}
+                            display: {
+                                placeholder: "Select a cohort type..."
+                            }
                         },
                         {
                             name: "Description",
@@ -203,7 +228,45 @@ export default class CohortUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "e.g. Homo sapiens, ..."
+                                placeholder: "Add a cohort description...",
+                            }
+                        },
+                        {
+                            name: "Samples",
+                            field: "samples",
+                            type: "custom",
+                            display: {
+                                render: cohort => {
+                                    const sampleIds = cohort?.samples?.map(sample => sample.id).join(",");
+                                    return html `
+                                    <sample-id-autocomplete
+                                        .value=${this.sampleIds}
+                                        .opencgaSession=${this.opencgaSession}
+                                        @filterChange="${e => this.onSync(e, "samples")}">
+                                    </sample-id-autocomplete>`;
+                                }
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
+                            }
+                        },
+                        {
+                            name: "Modification Date",
+                            field: "modificationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
                             }
                         },
                         {
@@ -211,8 +274,7 @@ export default class CohortUpdate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                rows: 3,
-                                placeholder: "Cohort description..."
+                                placeholder: "Add status name..."
                             }
                         },
                         {
@@ -221,7 +283,29 @@ export default class CohortUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Cohort description..."
+                                placeholder: "Add a status description..."
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Annotations Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: cohort => html`
+                                    <annotation-set-update
+                                        .annotationSets="${cohort?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
+                                    </annotation-set-update>
+                                `
                             }
                         }
                     ]

@@ -61,26 +61,31 @@ export default class IndividualCreate extends LitElement {
 
     onFieldChange(e) {
         e.stopPropagation();
-        const [field, prop] = e.detail.param.split(".");
-        if (e.detail.value) {
-            if (prop) {
-                this.individual[field] = {
-                    ...this.individual[field],
-                    [prop]: e.detail.value
-                };
-            } else {
-                this.individual = {
-                    ...this.individual,
-                    [field]: e.detail.value
-                };
-            }
-        } else {
-            if (prop) {
-                delete this.individual[field][prop];
-            } else {
-                delete this.individual[field];
-            }
-        }
+        this.individual = {
+            ...FormUtils.createObject(
+                this.individual,
+                e.detail.param,
+                e.detail.value,
+            )};
+        // if (e.detail.value) {
+        //     if (prop) {
+        //         this.individual[field] = {
+        //             ...this.individual[field],
+        //             [prop]: e.detail.value
+        //         };
+        //     } else {
+        //         this.individual = {
+        //             ...this.individual,
+        //             [field]: e.detail.value
+        //         };
+        //     }
+        // } else {
+        //     if (prop) {
+        //         delete this.individual[field][prop];
+        //     } else {
+        //         delete this.individual[field];
+        //     }
+        // }
     }
 
     onClear(e) {
@@ -119,6 +124,20 @@ export default class IndividualCreate extends LitElement {
         }
         this.requestUpdate();
     }
+
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
+    }
+
 
     getDefaultConfig() {
         return {
@@ -317,9 +336,9 @@ export default class IndividualCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: individual => html`
                                     <phenotype-list-update
-                                        .phenotypes="${this.individual?.phenotypes}"
+                                        .phenotypes="${individual?.phenotypes}"
                                         @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
@@ -337,10 +356,10 @@ export default class IndividualCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: individual => html`
                                     <disorder-list-update
-                                        .disorders="${this.individual?.disorders}"
-                                        .evidences="${this.individual?.phenotypes}"
+                                        .disorders="${individual?.disorders}"
+                                        .evidences="${individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changeDisorders="${e => this.onSync(e, "disorders")}">
                                     </disorder-list-update>`
@@ -348,41 +367,30 @@ export default class IndividualCreate extends LitElement {
                         }
                     ]
                 },
-                // {
-                //     title: "Annotation Sets",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${this.individual?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets=${e => this.onSync(e,"annotationsets")}>
-                //                     </annotation-set-update>`
-                //             }
-                //         }
-                //     ]
-                // }
+                {
+                    title: "Annotations Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: individual => html`
+                                    <annotation-set-update
+                                        .annotationSets="${individual?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                    </annotation-set-update>
+                                `
+                            }
+                        }
+                    ]
+                }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.individual}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }

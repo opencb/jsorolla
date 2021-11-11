@@ -58,18 +58,24 @@ export default class DataForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._prefixDates = [];
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
     }
 
     firstUpdated(_changedProperties) {
-        $("#" + this._prefix + "DuePickerDate").datetimepicker({
-            format: "DD/MM/YYYY"
-        });
-        $("#" + this._prefix + "DuePickerDate").on("dp.change", e => {
-            this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
-        });
+        if (UtilsNew.isNotEmptyArray(this._prefixDates)) {
+            console.log("Date Prefixes", this._prefixDates);
+            this._prefixDates.forEach(prefix =>{
+                $("#" + prefix + "DuePickerDate").datetimepicker({
+                    format: "DD/MM/YYYY"
+                });
+                $("#" + prefix + "DuePickerDate").on("dp.change", e => {
+                    this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
+                });
+            });
+        }
     }
 
     update(changedProperties) {
@@ -598,9 +604,11 @@ export default class DataForm extends LitElement {
     }
 
     _createInputDateElement(element) {
+        const prefix = UtilsNew.randomString(8);
+        this._prefixDates = [...this._prefixDates, prefix];
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         if (typeof value !== "undefined" && value !== null) {
-            const inputDate = this.querySelector("#" + this._prefix + "DueDate");
+            const inputDate = this.querySelector("#" + prefix + "DueDate");
             if (inputDate) {
                 if (typeof element?.display?.render === "function") {
                     inputDate.value = element.display.render(value);
@@ -613,11 +621,11 @@ export default class DataForm extends LitElement {
         const width = this._getWidth(element);
 
         return html`
-            <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
+            <div class='input-group date' id="${prefix}DuePickerDate" data-field="${element.field}">
                 <input
                     type="text"
-                    id="${this._prefix}DueDate"
-                    class="${this._prefix}Input form-control"
+                    id="${prefix}DueDate"
+                    class="${prefix}Input form-control"
                     data-field="${element.field}"
                     ?disabled="${disabled}">
                 <span class="input-group-addon">
