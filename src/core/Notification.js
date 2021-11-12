@@ -1,6 +1,6 @@
 import UtilsNew from "./utilsNew.js";
 
-export class Notification {
+export default class Notification {
 
     static parent = null;
     static iconsMap = {
