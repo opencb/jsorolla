@@ -258,6 +258,15 @@ export default class Lollipop {
         // this.updateVariants(track);
     }
 
+    drawSubsection(g, gene, data, track) {
+        const _start = this.rescaleLinear(data.start, this.proteinStart, this.proteinEnd, 0, this.canvasWidth);
+        const _end = this.rescaleLinear(data.end, this.proteinStart, this.proteinEnd, 0, this.canvasWidth);
+        const subsection = g.group().transform({translateX: _start}).attr({"text-anchor": "middle"});
+        subsection.rect(_end-_start, track.view.height + 10).attr({"fill": "transparent"});
+        subsection.rect(_end-_start, track.view.height).attr({"fill": data.color ?? "#fff1e3", "fill-opacity": .4});
+        subsection.text(gene).dy(track.view.height + 1).dx((_end-_start)/2).font({size: "10px"});
+    }
+
     positionBarRender(track) {
         if (this.bar) {
             this.bar.clear();
@@ -265,9 +274,13 @@ export default class Lollipop {
             this.bar = this.draw.group().addClass("positionBar").transform({translateY: this.positionBarOrigin, translateX: this.canvasPadding});
         }
 
+        this.bar.rect(this.canvasWidth, track.view.height + 10).attr({fill: "#e3f2ff"});
         this.bar.rect(this.canvasWidth, track.view.height).attr({fill: "#e3f2ff", stroke: "#000"});
 
         // this.bar.draggable();
+        Object.entries(track.genes).forEach(([geneName, data]) => {
+            this.drawSubsection(this.bar, geneName, data, track);
+        });
 
         this.drawTicks(this.bar, 10, track.view.height, this.proteinStart, this.proteinEnd);
 
