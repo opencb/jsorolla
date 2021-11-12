@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import Notification from "../../core/Notification.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 
 export default class OpencgaLogin extends LitElement {
@@ -121,13 +121,14 @@ export default class OpencgaLogin extends LitElement {
                                         composed: true
                                     }));
                                     // new NotificationQueue().push("Welcome, " + user, "Your session is valid until " + validTimeSessionId, UtilsNew.MESSAGE_SUCCESS);
-                                    Notification.success(`Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`);
+                                    const message = `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`;
+                                    LitUtils.dispatchEventCustom(this, "notificationSuccess", message);
 
                                 }
                             } else {
                                 this.errorState = [{name: "Generic Server Error", message: "Unexpected response format. Please check your host is up and running."}];
                                 // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                                Notification.error(this.errorState[0].message);
+                                LitUtils.dispatchEventCustom(this, "notificationError", this.errorState[0].message);
                             }
                         })
                         .catch(response => {
@@ -136,7 +137,7 @@ export default class OpencgaLogin extends LitElement {
                         }).finally(() => this.requestUpdate());
                 } else {
                     // new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
-                    Notification.error("Error retrieving OpencgaSession");
+                    LitUtils.dispatchEventCustom(this, "notificationError", "Error retrieving OpencgaSession");
                 }
             } catch (e) {
                 this.errorState = [{name: "Generic Error", message: "Please contact your administrator."}];

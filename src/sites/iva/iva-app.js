@@ -33,7 +33,7 @@ import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
-import Notification from "../../core/Notification.js";
+import NotificationManager from "../../core/notification-manager.js";
 import NotificationUtils from "../../webcomponents/NotificationUtils.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
@@ -93,6 +93,7 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
+import LitUtils from "../../webcomponents/commons/utils/lit-utils.js";
 
 
 class IvaApp extends LitElement {
@@ -257,6 +258,15 @@ class IvaApp extends LitElement {
         this.samples = [];
         this._samplesPerTool = {};
 
+        // Notifications
+        this.notification = new NotificationManager({});
+        this.addEventListener("notification", e => {
+            this.notification.show(e.detail);
+        });
+        this.addEventListener("notificationError", e => this.notification.error(e.detail.value));
+        this.addEventListener("notificationWarning", e => this.notification.warning(e.detail.value));
+        this.addEventListener("notificationSuccess", e => this.notification.success(e.detail.value));
+        this.addEventListener("notificationInfo", e => this.notification.info(e.detail.value));
 
         // TODO remove browserSearchQuery
         this.browserSearchQuery = {};
@@ -271,7 +281,7 @@ class IvaApp extends LitElement {
 
         globalThis.addEventListener("signingInError", e => {
             // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
-            Notification.error(e.detail.value);
+            this.notification.error(e.detail.value);
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
@@ -534,12 +544,13 @@ class IvaApp extends LitElement {
                         const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
                         // Display confirmation message
-                        Notification.success(`Your session is now valid until ${validTimeSessionId}.`);
+                        this.notification.success(`Your session is now valid until ${validTimeSessionId}.`);
                     });
                 };
 
                 // Display notification
-                Notification.show({
+                // this.notification.show({
+                LitUtils.dispatchEventCustom(this, "notification", null, null, {
                     type: "warning",
                     showIcon: true,
                     showCloseButton: true,
@@ -564,8 +575,9 @@ class IvaApp extends LitElement {
                     window.clearInterval(this.intervalCheckSession);
 
                     // Display notification message
-                    Notification.warning("Your session has expired");
+                    LitUtils.dispatchEventCustom(this, "notificationWarning", "Your session has expired");
                 } else {
+                    // TODO: remove this
                     if (UtilsNew.isNotUndefinedOrNull(this.notifySession)) {
                         NotificationUtils.closeNotify(this.notifySession);
                     }
