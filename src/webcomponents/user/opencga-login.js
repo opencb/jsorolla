@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import Notification from "../../core/Notification.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
 
 
@@ -24,9 +24,9 @@ export default class OpencgaLogin extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
+
     createRenderRoot() {
         return this;
     }
@@ -120,12 +120,14 @@ export default class OpencgaLogin extends LitElement {
                                         bubbles: true,
                                         composed: true
                                     }));
-                                    new NotificationQueue().push("Welcome, " + user, "Your session is valid until " + validTimeSessionId, UtilsNew.MESSAGE_SUCCESS);
+                                    // new NotificationQueue().push("Welcome, " + user, "Your session is valid until " + validTimeSessionId, UtilsNew.MESSAGE_SUCCESS);
+                                    Notification.success(`Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`);
 
                                 }
                             } else {
                                 this.errorState = [{name: "Generic Server Error", message: "Unexpected response format. Please check your host is up and running."}];
-                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                Notification.error(this.errorState[0].message);
                             }
                         })
                         .catch(response => {
@@ -133,7 +135,8 @@ export default class OpencgaLogin extends LitElement {
                             UtilsNew.notifyError(response);
                         }).finally(() => this.requestUpdate());
                 } else {
-                    new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
+                    // new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
+                    Notification.error("Error retrieving OpencgaSession");
                 }
             } catch (e) {
                 this.errorState = [{name: "Generic Error", message: "Please contact your administrator."}];
