@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
+import {NotificationQueue} from "../../../core/NotificationQueue.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -68,6 +70,7 @@ class VariantInterpreter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.activeTab = {};
+        this.clinicalAnalysisManager = null;
     }
 
     connectedCallback() {
@@ -86,6 +89,10 @@ class VariantInterpreter extends LitElement {
 
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
     }
 
@@ -112,7 +119,7 @@ class VariantInterpreter extends LitElement {
         }
     }
 
-    async clinicalAnalysisIdObserver() {
+    clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
             // this._config = {...this._config, loading: true};
             // this.requestUpdate();
@@ -131,6 +138,12 @@ class VariantInterpreter extends LitElement {
             // });
         } else {
             this.clinicalAnalysis = null;
+        }
+    }
+
+    clinicalAnalysisObserver() {
+        if (this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -156,7 +169,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate(e) {
-        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -165,6 +178,26 @@ class VariantInterpreter extends LitElement {
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
         this.requestUpdate();
+    }
+
+    onClinicalAnalysisDownload = () => {
+        UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
+    }
+
+    onClinicalAnalysisRefresh = () => {
+        this.onClinicalAnalysisUpdate().then(() => {
+            new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
+        });
+    }
+
+    onChangePrimaryInterpretation = e => {
+        const interpretationId = e.currentTarget.dataset.id;
+
+        this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
+            return this.onClinicalAnalysisUpdate().then(() => {
+                new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
+            });
+        });
     }
 
     getDefaultConfig() {
@@ -231,6 +264,8 @@ class VariantInterpreter extends LitElement {
             `;
         }
 
+        console.log(this.clinicalAnalysis);
+
         return html`
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis?.id ? html`
@@ -238,11 +273,59 @@ class VariantInterpreter extends LitElement {
                         icon="${this._config.icon}"
                         .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                         .rhs="${html`
-                            <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                            <a class="btn btn-default ripple text-black" title="Close Case"
-                               href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                <i class="fas fa-times"></i> Close
-                            </a>`}">
+                            <div style="align-items:center;display:flex;">
+                                ${this.clinicalAnalysis?.interpretation ? html`
+                                    <div align="center" style="margin-right:3rem;">
+                                        <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
+                                        </div>
+                                        <div class="text-muted">
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong></div>
+                                        </div>
+                                    </div>
+                                ` : null}
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                                    <i class="fa fa-toolbox" aria-hidden="true"></i>
+                                    <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
+                                        <li>
+                                            <a style="background-color:white!important;">
+                                                <i class="fa fa-user-md icon-padding"></i>
+                                                <strong>Change interpretation</strong>
+                                            </a>
+                                        </li>
+                                        ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                            <li>
+                                                <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                    ${item.id}
+                                                </a>
+                                            </li>
+                                        `)}
+                                        <li role="separator" class="divider"></li>
+                                    ` : null}
+                                    <li>
+                                        <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
+                                            <i class="fa fa-sync icon-padding"></i> Refresh
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                            <i class="fa fa-download icon-padding"></i> Download
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                            <i class="fa fa-times icon-padding"></i> Close
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            </div>
+                        `}">
                     </tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>

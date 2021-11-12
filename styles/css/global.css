@@ -600,9 +600,10 @@ h3.page-title {
 /********** browser components  *************/
 .page-title {
     background-color: #f5f5f5;
+    display: flex;
     margin: 0 -15px 10px -15px;
-    padding: 10px 30px 10px 10px;
     min-height: 5em;
+    padding: 10px;
 }
 
 .page-title.no-background {
@@ -610,16 +611,16 @@ h3.page-title {
 }
 
 .page-title h2 {
-    text-transform: uppercase;
+    align-items: center;
+    color: var(--main-bg-color);
+    display: flex;
+    font-size: 2em;
     letter-spacing: .2em;
     margin: 0;
     padding: 8px;
     text-decoration: none;
-    color: var(--main-bg-color);;
-    display: block;
+    text-transform: uppercase;
     transition: 0.3s;
-    font-size: 2em;
-    float: left;
 }
 
 .page-title h2 .inverse,
@@ -633,9 +634,10 @@ h3.page-title {
 
 .page-title h2 img,
 .page-title h2 i {
-    width: 40px;
     font-size: 40px;
+    margin-right: 16px;
     vertical-align: middle;
+    width: 40px;
 }
 
 .variant-interpreter-interpretation > tool-header > .page-title .page-title-right i{
@@ -656,7 +658,7 @@ h3.page-title {
 }
 
 .page-title-right {
-    float: right;
+    margin-left: auto;
     padding: 8px;
 }
 

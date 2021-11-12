@@ -685,8 +685,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <!-- Assignees -->
                                             <div class="btn-group" data-cy="form-assignees">
                                                 <select-field-filter placeholder="Assignee: All" multiple .data="${this.users}"
-                                                                     .value=${this.query?.analystAssignee}
-                                                                     @filterChange="${e => this.onFilterChange("analystAssignee", e.detail.value)}"></select-field-filter>
+                                                                     .value=${this.query?.analystId}
+                                                                     @filterChange="${e => this.onFilterChange("analystId", e.detail.value)}"></select-field-filter>
                                             </div>
                                         ` : null}
 
