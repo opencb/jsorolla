@@ -1,62 +1,57 @@
 import UtilsNew from "./utilsNew.js";
 
-export default class Notification {
+export default class NotificationManager {
 
-    static parent = null;
-    static iconsMap = {
-        danger: "glyphicon glyphicon-remove-sign",
-        info: "glyphicon glyphicon-info-sign",
-        success: "glyphicon glyphicon-ok-sign",
-        warning: "glyphicon glyphicon-warning-sign",
-    };
+    constructor(config) {
+        this._init(config);
+    }
 
-    // Get notifications parent element
-    static getParent() {
-        if (!Notification.parent) {
-            Notification.parent = document.createElement("div");
-            Object.assign(Notification.parent.style, {
-                "left": "50%",
-                "maxWidth": "600px",
-                "position": "fixed",
-                "top": "8px",
-                "transform": "translateX(-50%)",
-                "width": "100%",
-                "zIndex": "9999",
-            });
-            // Append notification to document
-            document.body.appendChild(Notification.parent);
-        }
+    // Initialize the notification manager
+    _init(config) {
+        this.config = {...this.getDefaultConfig(), ...config};
 
-        // Return parent element
-        return Notification.parent;
+        // Initialize notifications parent
+        this.parent = document.createElement("div");
+        Object.assign(this.parent.style, {
+            "left": "50%",
+            "maxWidth": this.config.display?.width || "600px",
+            "position": "fixed",
+            "top": "8px",
+            "transform": "translateX(-50%)",
+            "width": "100%",
+            "zIndex": "9999",
+        });
+
+        // Append notification parent to document
+        document.body.appendChild(this.parent);
     }
 
     // Display a notification alert
-    static show(config) {
-        const type = (config.type || "info").toLowerCase();
-        const parent = Notification.getParent();
+    show(options) {
+        const type = (options.type || "info").toLowerCase();
+        const className = (type === "error") ? "danger" : type; // Fix error classname
 
         // Generate notification element
         const element = UtilsNew.renderHTML(`
-            <div class="alert alert-${type}" style="display:flex;">
-                ${config.showIcon ? `
+            <div class="alert alert-${className}" style="display:flex;">
+                ${options.showIcon ? `
                     <div style="margin-right:16px">
-                        <span class="${Notification.iconsMap[type]}"></span>
+                        <span class="${this.config.icons[type]}"></span>
                     </div>
                 ` : ""}
                 <div style="flex-grow:1;">
-                    <div>${config.message || ""}</div>
-                    ${config.buttons && config.buttons?.length > 0 ? `
-                        <div style="margin-top:16px;">
-                            ${config.buttons.map((button, index) => `
-                                <button data-index="${index}" class="btn btn-${type}">            
+                    <div>${options.message || ""}</div>
+                    ${options.buttons && options.buttons?.length > 0 ? `
+                        <div align="right" style="margin-top:16px;">
+                            ${options.buttons.map((button, index) => `
+                                <button data-index="${index}" class="btn btn-${className}">            
                                     ${button.text || ""}
                                 </button>
                             `).join("")}
                         </div>
                     ` : ""}
                 </div>
-                ${config?.showCloseButton ? `
+                ${options?.showCloseButton ? `
                     <div style="margin-left:16px;">
                         <button type="button" class="close" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -68,7 +63,7 @@ export default class Notification {
 
         // Method to remove the notification
         const removeNotification = () => {
-            parent.contains(element) && parent.removeChild(element);
+            this.parent.contains(element) && this.parent.removeChild(element);
         };
 
         // Register buttons actions
@@ -76,31 +71,31 @@ export default class Notification {
             const index = parseInt(buttonElement.dataset.index);
 
             buttonElement.addEventListener("click", () => {
-                return config.buttons[index].onClick({
+                return options.buttons[index].onClick({
                     hide: removeNotification,
                 });
             });
         });
 
         // Register event to remove the notification when the close button is clicked
-        if (config.showCloseButton) {
+        if (options.showCloseButton) {
             element.querySelector("button.close").addEventListener("click", () => {
                 return removeNotification();
             });
         }
 
         // Register the timer to automatically remove the notification after the specified ms
-        if (config.removeAfter > 0) {
-            UtilsNew.sleep(config.removeAfter).then(() => removeNotification());
+        if (options.removeAfter > 0) {
+            UtilsNew.sleep(options.removeAfter).then(() => removeNotification());
         }
 
         // Append notification
-        parent.appendChild(element);
+        this.parent.appendChild(element);
     }
 
     // Alias to create a success notification
-    static success(message, customDelay) {
-        return Notification.show({
+    success(message, customDelay) {
+        return this.show({
             type: "success",
             showIcon: true,
             showCloseButton: true,
@@ -110,8 +105,8 @@ export default class Notification {
     }
 
     // Alias to create an info notification
-    static info(message, customDelay) {
-        return Notification.show({
+    info(message, customDelay) {
+        return this.show({
             type: "info",
             showIcon: true,
             showCloseButton: true,
@@ -121,8 +116,8 @@ export default class Notification {
     }
 
     // Alias to create a warning notification
-    static warning(message, customDelay) {
-        return Notification.show({
+    warning(message, customDelay) {
+        return this.show({
             type: "warning",
             showIcon: true,
             showCloseButton: true,
@@ -132,9 +127,9 @@ export default class Notification {
     }
 
     // Alias to create an error notification
-    static error(message) {
-        return Notification.show({
-            type: "danger",
+    error(message) {
+        return this.show({
+            type: "error",
             showIcon: true,
             removeAfter: 0,
             buttons: [
@@ -145,6 +140,21 @@ export default class Notification {
             ],
             message,
         });
+    }
+
+    // Get default config for the notification manager
+    getDefaultConfig() {
+        return {
+            icons: {
+                error: "glyphicon glyphicon-remove-sign",
+                info: "glyphicon glyphicon-info-sign",
+                success: "glyphicon glyphicon-ok-sign",
+                warning: "glyphicon glyphicon-warning-sign",
+            },
+            display: {
+                width: "600px",
+            },
+        };
     }
 
 }
