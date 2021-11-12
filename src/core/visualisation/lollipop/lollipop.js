@@ -3,7 +3,7 @@ export default class Lollipop {
     constructor(div, tracks, config) {
         this.canvasPadding = 0;
         this.canvasWidth = document.querySelector(div).clientWidth;
-
+        this.outerCanvasWidth = this.canvasWidth + 50;
         this.tracks = tracks;
 
         this.proteinStart = 0;
@@ -30,14 +30,14 @@ export default class Lollipop {
     renderTrack(track) {
         switch (track.id) {
             case "positionBar":
-                this.draw.size(this.canvasWidth, this.currentTrackOffset + track.view.height);
+                this.draw.size(this.outerCanvasWidth, this.currentTrackOffset + track.view.height);
                 this.positionBarOrigin = this.currentTrackOffset;
                 this.positionBarRender(track);
                 this.currentTrackOffset += track.view.height;
                 break;
             case "variants":
                 // circle and line can have different coordinates (due to collisions)
-                this.draw.size(this.canvasWidth, this.currentTrackOffset + track.view.scaleHeight + track.view.variantAreaHeight);
+                this.draw.size(this.outerCanvasWidth, this.currentTrackOffset + track.view.scaleHeight + track.view.variantAreaHeight);
                 this.variantsOrigin = this.currentTrackOffset;
                 track.view.height = track.view.scaleHeight + track.view.variantAreaHeight;
                 this.variantsRender(track);
@@ -152,9 +152,9 @@ export default class Lollipop {
         this.clusterVariants(this.circles, track);
 
         const main = this.variantsG.group().addClass("variants-area-wrapper").transform({translateY: this.variantsOrigin + track.view.scaleHeight});
-        const variantAreaWrapper = main.rect(this.canvasWidth - this.canvasPadding, track.view.height).attr({fill: "#fff" /* stroke: "#9d9d9d"*/});
+        const variantAreaWrapper = main.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view.height).attr({fill: "#fff" /* stroke: "#9d9d9d"*/});
         const variantArea = main.group().addClass("variant-area").transform({translateX: this.canvasPadding});
-        const variantAreaBackground = variantArea.rect(this.canvasWidth - this.canvasPadding * 2, track.view).addClass("variant-area-background").attr({fill: "#fff"}).transform({translateX: this.canvasPadding});
+        const variantAreaBackground = variantArea.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view).addClass("variant-area-background").attr({fill: "#fff"}).transform({translateX: this.canvasPadding});
         const width = variantAreaWrapper.width();
 
         this.circles.forEach((variant, i) => {
@@ -238,7 +238,7 @@ export default class Lollipop {
             node.variants.slice(0, n).forEach((variant, i) => {
                 const circleSectorAngle = i / node.variants.slice(0, n).length * Math.PI * 2;
                 const radius = variant.size * 2;
-                node.domClusterRem.circle(variant.size)
+                node.domClusterRem.circle(1)
                     .dx(-variant.size / 2)
                     .dy(-variant.size / 2)
                     // .dx(Math.cos(circleSectorAngle)*radius -variant.size/2)
@@ -248,7 +248,8 @@ export default class Lollipop {
                     .dmove(
                         Math.cos(circleSectorAngle) * radius,
                         Math.sin(circleSectorAngle) * radius,
-                    );
+                    )
+                    .size(variant.size);
 
 
             });
@@ -362,7 +363,7 @@ export default class Lollipop {
             if (pool.length > 1) {
                 const id = pool[0].id + "_" + pool[pool.length - 1].id;
                 const poolPos = pool.reduce((acc, curr) => curr.pos + acc, 0) / pool.length; // unweighted avg linkage
-                const variantViewFramePos = this.rescaleLinear(poolPos, this.viewProteinRange[0], this.viewProteinRange[1], this.viewRange[0], this.viewRange[1]);
+                const variantViewFramePos = this.rescaleLinear(poolPos, this.viewProteinRange[0], this.viewProteinRange[1], 0, this.canvasWidth);
                 return {
                     id: "cluster_" + id,
                     viewPos: variantViewFramePos,
