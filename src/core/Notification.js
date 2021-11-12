@@ -82,18 +82,20 @@ export default class Notification {
             });
         });
 
-        // Append notification
-        parent.appendChild(element);
-
-        if (config.removeAfter > 0) {
-            // Register event to remove the notification when the close button is clicked
+        // Register event to remove the notification when the close button is clicked
+        if (config.showCloseButton) {
             element.querySelector("button.close").addEventListener("click", () => {
                 return removeNotification();
             });
+        }
 
-            // Register the timer to automatically remove the notification after the specified ms
+        // Register the timer to automatically remove the notification after the specified ms
+        if (config.removeAfter > 0) {
             UtilsNew.sleep(config.removeAfter).then(() => removeNotification());
         }
+
+        // Append notification
+        parent.appendChild(element);
     }
 
     // Alias to create a success notification
@@ -124,7 +126,7 @@ export default class Notification {
             type: "warning",
             showIcon: true,
             showCloseButton: true,
-            removeAfter: customDelay || 9000,
+            removeAfter: customDelay || 5000,
             message,
         });
     }
