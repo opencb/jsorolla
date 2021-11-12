@@ -23,7 +23,6 @@ export default class GridCommons {
         this.gridId = gridId;
         this.context = context;
         this.config = config;
-
         this.checkedRows = new Map();
     }
 
@@ -69,6 +68,7 @@ export default class GridCommons {
     onClickRow(rowId, row, selectedElement) {
         $("#" + this.gridId + " tr").removeClass("success");
         $(selectedElement).addClass("success");
+        this.config.selectedRow = selectedElement;
         // $("#" + this.gridId + " tr td").removeClass("success");
         // $("td", selectedElement).addClass("success");
 
@@ -150,14 +150,20 @@ export default class GridCommons {
             }
 
             if (table[0]) {
-                table.find("tr[data-index=0]").addClass("success");
-            }
-            this.context.dispatchEvent(new CustomEvent("selectrow", {
-                detail: {
-                    id: data.rows[0][idField],
-                    row: data.rows[0]
+                const selectedDataId = this.config?.selectedRow?.[0].attributes["data-uniqueid"]["nodeValue"];
+                const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId): null;
+                if (selectedData) {
+                    table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("success");
+                } else {
+                    table.find("tr[data-index=0]").addClass("success");
                 }
-            }));
+                this.context.dispatchEvent(new CustomEvent("selectrow", {
+                    detail: {
+                        id: selectedData ? selectedData[idField] : data.rows[0][idField],
+                        row: selectedData ? selectedData : data.rows[0]
+                    }
+                }));
+            }
         } else {
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
