@@ -33,6 +33,7 @@ import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
+import Notification from "../../core/Notification.js";
 import NotificationUtils from "../../webcomponents/NotificationUtils.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
@@ -92,7 +93,6 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
-
 
 
 class IvaApp extends LitElement {
@@ -270,7 +270,8 @@ class IvaApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("signingInError", e => {
-            new NotificationQueue().push("Error", e.detail.value, "error", true, false);
+            // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
+            Notification.error(e.detail.value);
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
@@ -391,10 +392,10 @@ class IvaApp extends LitElement {
                 console.error(e);
                 UtilsNew.notifyError(e);
             }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
-            // this.updateComplete;
-        });
+                this.signingIn = false;
+                this.requestUpdate();
+                // this.updateComplete;
+            });
     }
 
     // TODO turn this into a Promise
@@ -506,8 +507,8 @@ class IvaApp extends LitElement {
         window.location.hash = hashFrag;
     }
 
+    // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
-        let _message = "";
         // We check if refresh token has updated session id cookie
         // let sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
 
@@ -522,14 +523,48 @@ class IvaApp extends LitElement {
 
                 // _message = html`Your session is close to expire. <strong>${remainingMinutes}
                 // minutes remaining</strong> <a href="javascript:void 0" @click="${() => this.notifySession.refreshToken()}"> Click here to refresh </a>`
-                new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
+                // new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
+
+                // Handle session refresh
+                const handleSessionRefresh = () => {
+                    this.opencgaClient.refresh().then(response => {
+                        const sessionId = response.getResult(0).token;
+                        const decoded = jwt_decode(sessionId);
+                        const dateExpired = new Date(decoded.exp * 1000);
+                        const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
+
+                        // Display confirmation message
+                        Notification.success(`Your session is now valid until ${validTimeSessionId}.`);
+                    });
+                };
+
+                // Display notification
+                Notification.show({
+                    type: "warning",
+                    showIcon: true,
+                    showCloseButton: true,
+                    message: `Your session is close to expire. <b>${remainingMinutes} minutes remaining</b>.`,
+                    removeAfter: 10000,
+                    buttons: [
+                        {
+                            text: "Refresh session",
+                            onClick: actions => {
+                                handleSessionRefresh();
+                                actions.hide();
+                            },
+                        }
+                    ]
+                });
+
 
             } else {
                 // TODO remove NotificationUtils
                 if (remainingTime < this.config.session.minRemainingTime) {
-                    _message = "Your session has expired.";
                     this.logout();
                     window.clearInterval(this.intervalCheckSession);
+
+                    // Display notification message
+                    Notification.warning("Your session has expired");
                 } else {
                     if (UtilsNew.isNotUndefinedOrNull(this.notifySession)) {
                         NotificationUtils.closeNotify(this.notifySession);
@@ -537,22 +572,7 @@ class IvaApp extends LitElement {
                     return;
                 }
             }
-        } else {
-            // _message = "Your session has expired.";
-            // window.clearInterval(this.intervalCheckSession);
         }
-        // delay = 0 to fix the notify until user closes it.
-        if (UtilsNew.isNotEmpty(_message)) {
-            this.notifySession = NotificationUtils.showNotify(_message, UtilsNew.MESSAGE_INFO,
-                {}, {
-                    delay: 0,
-                    onClosed: this.onCloseRefreshNotify.bind(this)
-                }, this.opencgaClient, this.notifySession);
-        }
-    }
-
-    onCloseRefreshNotify() {
-        delete this.notifySession;
     }
 
     changeTool(e) {
