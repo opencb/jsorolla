@@ -793,15 +793,16 @@ class VariantInterpreterBrowserRd extends LitElement {
 
             <div class="row">
                 <div class="col-md-2">
-                    <variant-browser-filter .opencgaSession="${this.opencgaSession}"
-                                            .query="${this.query}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${POPULATION_FREQUENCIES}"
-                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                                            .config="${this._config.filter}"
-                                            @queryChange="${this.onVariantFilterChange}"
-                                            @querySearch="${this.onVariantFilterSearch}">
+                    <variant-browser-filter
+                        .opencgaSession="${this.opencgaSession}"
+                        .query="${this.query}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .populationFrequencies="${POPULATION_FREQUENCIES}"
+                        .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
+                        .config="${this._config.filter}"
+                        @queryChange="${this.onVariantFilterChange}"
+                        @querySearch="${this.onVariantFilterSearch}">
                     </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
@@ -809,51 +810,55 @@ class VariantInterpreterBrowserRd extends LitElement {
                     <div>
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ?
                             html`
-                                <variant-interpreter-browser-toolbar    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                        .state="${this.clinicalAnalysisManager.state}"
-                                                                        @filterVariants="${this.onFilterVariants}"
-                                                                        @resetVariants="${this.onResetVariants}"
-                                                                        @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-browser-toolbar>` :
-                            null
+                                <variant-interpreter-browser-toolbar
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .state="${this.clinicalAnalysisManager.state}"
+                                    @filterVariants="${this.onFilterVariants}"
+                                    @resetVariants="${this.onResetVariants}"
+                                    @saveInterpretation="${this.onSaveVariants}">
+                                </variant-interpreter-browser-toolbar>` : null
                         }
                     </div>
 
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters resource="VARIANT"
-                                                    .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
-                                                    .query="${this.preparedQuery}"
-                                                    .executedQuery="${this.executedQuery}"
-                                                    .filters="${this.activeFilterFilters}"
-                                                    .alias="${this._config.activeFilterAlias}"
-                                                    .genotypeSamples="${this.genotypeSamples}"
-                                                    .modeInheritance="${this.modeInheritance}"
-                                                    .config="${this._config.filter.activeFilters}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                            <opencga-active-filters
+                                resource="VARIANT"
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .defaultStudy="${this.opencgaSession.study.fqn}"
+                                .query="${this.preparedQuery}"
+                                .executedQuery="${this.executedQuery}"
+                                .filters="${this.activeFilterFilters}"
+                                .alias="${this._config.activeFilterAlias}"
+                                .genotypeSamples="${this.genotypeSamples}"
+                                .modeInheritance="${this.modeInheritance}"
+                                .config="${this._config.filter.activeFilters}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
                         </div>
 
                         <!-- SEARCH TABLE RESULT -->
                         <div class="main-view">
                             <div id="${this._prefix}Interactive" class="variant-interpretation-content">
-                                <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                          .query="${this.executedQuery}"
-                                                          .config="${this._config.filter.result.grid}"
-                                                          @selectrow="${this.onSelectVariant}"
-                                                          @checkrow="${this.onCheckVariant}">
+                                <variant-interpreter-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .query="${this.executedQuery}"
+                                    .review="${true}"
+                                    .config="${this._config.filter.result.grid}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>
 
                                 <!-- Bottom tabs with detailed variant information -->
-                                <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .variant="${this.variant}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .config=${this._config.filter.detail}>
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config=${this._config.filter.detail}>
                                 </variant-interpreter-detail>
                             </div>
                         </div>

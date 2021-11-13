@@ -276,11 +276,11 @@ class VariantInterpreter extends LitElement {
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
                                     <div align="center" style="margin-right:3rem;">
-                                        <div style="font-size:2rem">
+                                        <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
-                                        <div class="text-muted" style="font-size:1.25rem;">
-                                            Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong>
+                                        <div class="text-muted">
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong></div>
                                         </div>
                                     </div>
                                 ` : null}
@@ -320,7 +320,7 @@ class VariantInterpreter extends LitElement {
                                     <li>
                                         <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                             <i class="fa fa-times icon-padding"></i> Close
-                                        </a>                                    
+                                        </a>
                                     </li>
                                 </ul>
                             </div>
