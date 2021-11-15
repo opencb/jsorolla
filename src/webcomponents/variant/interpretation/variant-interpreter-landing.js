@@ -39,15 +39,15 @@ class VariantInterpreterLanding extends LitElement {
 
     static get properties() {
         return {
+            clinicalAnalysis: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
             // clinicalAnalysisId: {
             //     type: String
             // },
-            clinicalAnalysis: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -65,25 +65,9 @@ class VariantInterpreterLanding extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
-            this.propertyObserver();
-        }
-        super.update(changedProperties);
-    }
-
-    propertyObserver() {
-        // this.editMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
-        // if (this.clinicalAnalysis) {
-        //     if (this.activeTab === "Select") {
-        //         this.activeTab = this.editMode ? "General" : "Overview";
-        //     }
-        // } else {
-        //     this.activeTab = "Select";
-        //     this.getLastClinicalAnalysis();
-        // }
-        this.activeTab = "General";
-    }
+    // update(changedProperties) {
+    //     super.update(changedProperties);
+    // }
 
     // non-bootstrap tabs
     _changeTab(e) {

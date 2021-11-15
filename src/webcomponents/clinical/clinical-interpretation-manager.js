@@ -100,12 +100,12 @@ export default class ClinicalInterpretationManager extends LitElement {
         if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
 
-            this.interpretations = [
-                {
-                    ...this.clinicalAnalysis.interpretation, primary: true
-                },
-                ...this.clinicalAnalysis.secondaryInterpretations
-            ];
+            // this.interpretations = [
+            //     {
+            //         ...this.clinicalAnalysis.interpretation, primary: true
+            //     },
+            //     ...this.clinicalAnalysis.secondaryInterpretations
+            // ];
 
             const params = {
                 study: this.opencgaSession.study.fqn,
@@ -126,19 +126,19 @@ export default class ClinicalInterpretationManager extends LitElement {
         this.renderHistoryTable();
     }
 
-    renderInterpretation(interpretation) {
+    renderInterpretation(interpretation, primary) {
         return html`
             <div style="padding: 10px 0">
                 <div class="pull-left">
-                    <h4>Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}</h4>
+                    <h5 style="font-weight: bold">Interpretation #${interpretation.id.split(".")[1]}  -  ${interpretation.id}</h5>
                 </div>
-                <div class="pull-right ${classMap({primary: interpretation.primary})}">
+                <div class="pull-right ${classMap({primary: primary})}">
                     <div class="dropdown action-dropdown">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Action
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            ${interpretation.primary ? html`
+                            ${primary ? html`
                                 <li>
                                     <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}"
                                        @click="${this.onActionClick}">
@@ -186,7 +186,7 @@ export default class ClinicalInterpretationManager extends LitElement {
             <div style="padding: 10px 15px">
                 <clinical-interpretation-summary
                     .interpretation=${interpretation}
-                    .primary=${interpretation.primary}>
+                    .primary=${primary}>
                 </clinical-interpretation-summary>
             </div>`;
     }
@@ -286,38 +286,42 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     render() {
-        if (!this.clinicalAnalysis) {
-            return "";
+        if (!this.clinicalAnalysis?.interpretation) {
+            return html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i>
+                    No primary interpretation available.
+                </div>`;
         }
 
         return html`
             <div class="interpreter-content-tab">
-                ${this.interpretations?.length ?
-                    html`
-                        <div class="row">
-                            <div class="col-md-8" style="margin-bottom: 10px">
-                                <h3 style="padding-bottom: 5px">Interpretations</h3>
-                                <div class="pull-right">
-                                    <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create"
-                                            @click="${this.onActionClick}">
-                                        <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
-                                        New Interpretation
-                                    </button>
-                                </div>
-                            </div>
+                <div class="row">
+                    <div class="col-md-8" style="margin-bottom: 10px">
+                        <h3 style="padding-bottom: 5px">Interpretations</h3>
+                        <div class="pull-right">
+                            <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create"
+                                    @click="${this.onActionClick}">
+                                <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
+                                New Interpretation
+                            </button>
+                        </div>
+                    </div>
 
-                            <div class="col-md-8" style="margin-bottom: 10px">
-                                ${this.interpretations.map(interpretation => this.renderInterpretation(interpretation))}
-                            </div>
+                    <div class="col-md-8" style="margin-bottom: 10px">
+                        <h4>Primary Interpretation</h4>
+                        ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
+                    </div>
 
-                            <div class="col-md-10" style="padding-top: 10px">
-                                <h3>Primary Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
-                                <table id="${this.gridId}"></table>
-                            </div>
-                        </div>` :
-                    html`
-                        <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`
-                }
+                    <div class="col-md-8" style="margin-bottom: 10px">
+                        <h4>Secondary Interpretations</h4>
+                        ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => this.renderInterpretation(interpretation, false))}
+                    </div>
+
+                    <div class="col-md-10" style="padding-top: 10px">
+                        <h3>Primary Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
+                        <table id="${this.gridId}"></table>
+                    </div>
+                </div>
             </div>
         `;
     }

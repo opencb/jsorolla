@@ -198,11 +198,12 @@ class ClinicalAnalysisUpdate extends LitElement {
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
             this.updateOrDeleteComments(false);
 
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {
-                study: this.opencgaSession.study.fqn,
-                flagsAction: "SET",
-                panelsAction: "SET",
-            })
+            this.opencgaSession.opencgaClient.clinical()
+                .update(this.clinicalAnalysis.id, this.updateParams, {
+                    study: this.opencgaSession.study.fqn,
+                    flagsAction: "SET",
+                    panelsAction: "SET",
+                })
                 .then(response => {
                     this.postUpdate(response);
                 })
@@ -442,7 +443,26 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "toggle-switch",
                             display: {
                                 width: "9",
-                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                disabled: clinicalAnalysis => {
+                                    if (clinicalAnalysis?.locked) {
+                                        return true;
+                                    }
+
+                                    const interpretations = [clinicalAnalysis.interpretation, ...clinicalAnalysis.secondaryInterpretations];
+                                    for (const interpretation of interpretations) {
+                                        if (clinicalAnalysis.panels?.length !== interpretation.panels?.length) {
+                                            return true;
+                                        }
+                                        for (const interpretationPanel of interpretation.panels) {
+                                            const index = clinicalAnalysis?.panels?.findIndex(p => p.id === interpretationPanel.id);
+                                            if (index === -1) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                    return false;
+                                    // return !!clinicalAnalysis?.locked;
+                                },
                             }
                         },
                         {

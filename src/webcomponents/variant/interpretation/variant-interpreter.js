@@ -123,10 +123,26 @@ class VariantInterpreter extends LitElement {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
             // this._config = {...this._config, loading: true};
             // this.requestUpdate();
-            // await this.updateComplete;
+            // await this.updateComplete;http://localhost:3000/src/sites/iva/index.html#interpreter/rd_grch38/panel/C-NA12878-NA12878-TWE-N-EGG4_S32_L001
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
+                    // FIXME delete soon!
+                    const _clinicalAnalysis = response.responses[0].results[0];
+                    const panelIdToPanel = {};
+                    _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
+                    _clinicalAnalysis.interpretation.panels.forEach(panel => {
+                        panel.name = panelIdToPanel[panel.id].name;
+                        panel.source = panelIdToPanel[panel.id].source;
+                    });
+                    for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
+                        secondaryInterpretation.panels.forEach(panel => {
+                            panel.name = panelIdToPanel[panel.id].name;
+                            panel.source = panelIdToPanel[panel.id].source;
+                        });
+                    }
+                    this.clinicalAnalysis = _clinicalAnalysis;
+                    // FIXME Replace horrible code above by this one:
+                    // this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);

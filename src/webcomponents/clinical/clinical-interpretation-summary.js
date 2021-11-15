@@ -38,9 +38,9 @@ export default class ClinicalInterpretationSummary extends LitElement {
             interpretationId: {
                 type: String
             },
-            primary: {
-                type: Boolean
-            },
+            // primary: {
+            //     type: Boolean
+            // },
             opencgaSession: {
                 type: Object
             },
@@ -105,22 +105,18 @@ export default class ClinicalInterpretationSummary extends LitElement {
                         elementLabelStyle: "padding-top: 0px; padding-left: 20px", // form add control-label which has an annoying top padding
                     },
                     elements: [
-                        {
-                            // Interpretation number and badge
-                            type: "custom",
-                            display: {
-                                // labelWidth: 0,
-                                // <span style="font-size: 1.25em">
-                                //             Interpretation #${interpretation.id.split(".")[1]}
-                                // </span>
-                                render: () => html`
-                                    <div>
-                                        <span class="badge ${this.primary ? "badge-dark-blue" : "badge-light"}" style="margin: 0 20px 5px 20px">
-                                            ${this.primary ? "PRIMARY" : "SECONDARY"}
-                                        </span>
-                                    </div>`
-                            }
-                        },
+                        // {
+                        //     // Interpretation number and badge
+                        //     type: "custom",
+                        //     display: {
+                        //         render: () => html`
+                        //             <div>
+                        //                 <span class="badge ${this.primary ? "badge-dark-blue" : "badge-light"}" style="margin: 0 20px 5px 20px">
+                        //                     ${this.primary ? "PRIMARY" : "SECONDARY"}
+                        //                 </span>
+                        //             </div>`
+                        //     }
+                        // },
                         {
                             // Interpretation ID, analyst and creation date
                             type: "custom",
@@ -128,11 +124,11 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 // labelWidth: 0,
                                 render: interpretation => html`
                                     <div class="row" style="padding-left: 5px">
-                                        <div class="col-md-4">
-                                            <span style="font-size: 1.25em">${interpretation.id}</span>
+                                        <div class="col-md-7">
+                                            <span style="font-size: 1.2em">${interpretation.id}</span>
                                             <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
                                         </div>
-                                        <div class="col-md-8">
+                                        <div class="col-md-5">
                                             <span title="Analysed by">
                                                 <i class="fa fa-user-circle icon-padding"
                                                    aria-hidden="true"></i>${interpretation?.analyst?.name ?? "-"}
@@ -170,7 +166,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                                                     return html`
                                                         <div style="margin: 5px 0">
-                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}/" target="_blank">
+                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                                                             </a>
                                                         </div>`;
