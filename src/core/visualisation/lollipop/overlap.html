@@ -15,7 +15,7 @@
 <div id="circles"></div>
 <script>
 
-    const elements = [{pos: 10, radius: 50}, {pos: 15, radius: 100}, {pos: 170, radius: 20}, {pos: 170, radius: 30}];
+    const elements = [{id:1, pos: 10, radius: 50}, {id:2, pos: 120, radius: 100}, {id:3, pos: 170, radius: 20}, {id:4, pos: 250, radius: 30}];
 
     const field_size = [0, 300];
 
@@ -30,6 +30,8 @@
 
     console.log(elements);
 
+    let loopDetector = [];
+
     function detectCollisions(arr = []) {
         const result = [];
         for (let i = 0; i < arr.length - 1; i++) {
@@ -43,8 +45,9 @@
 
     function moveIntersected(arr = [], it) {
 
-        if (it > 10000) {
+        if (it > 2000) {
             console.error(it, " iteration exceeded")
+            console.log(loopDetector)
             return -1;
         }
         const collisions = detectCollisions(arr);
@@ -89,9 +92,12 @@
             }
         }
         const newpos = [left.pos, right.pos];
-        console.log(currpos,newpos )
+        // loop detection on k = left.id-right.id v="left.pos|right.pos"
+        loopDetector.push({k: most_intersected[0], v: `${right.pos-left.pos}`});
+
+        // console.log(left.id, right.id, "currpos, newpos", currpos, newpos)
         if (currpos[0] === newpos[0] && currpos[1] === newpos[1]) {
-            // console.error("same position!")
+            console.error("same position!")
             return -1
         }
 
