@@ -24,6 +24,7 @@ export default class GridCommons {
         this.context = context;
         this.config = config;
         this.checkedRows = new Map();
+        this.selectedRow;
     }
 
     responseHandler(response, bootstrapTableConfig) {
@@ -68,7 +69,7 @@ export default class GridCommons {
     onClickRow(rowId, row, selectedElement) {
         $("#" + this.gridId + " tr").removeClass("success");
         $(selectedElement).addClass("success");
-        this.config.selectedRow = selectedElement;
+        this.selectedRow = selectedElement;
         // $("#" + this.gridId + " tr td").removeClass("success");
         // $("td", selectedElement).addClass("success");
 
@@ -150,7 +151,7 @@ export default class GridCommons {
             }
 
             if (table[0]) {
-                const selectedDataId = this.config?.selectedRow?.[0].attributes["data-uniqueid"]["nodeValue"];
+                const selectedDataId = this.selectedRow?.[0].attributes["data-uniqueid"]["nodeValue"];
                 const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId): null;
                 if (selectedData) {
                     table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("success");
