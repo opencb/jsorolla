@@ -15,15 +15,16 @@
 <div id="circles"></div>
 <script>
 
-    const elements = [{pos: 10, radius: 5}, {pos: 15, radius: 20}, {pos: 20, radius: 10}, {pos: 150, radius: 5}];
+    const elements = [{pos: 10, radius: 50}, {pos: 15, radius: 100}, {pos: 170, radius: 20}, {pos: 170, radius: 30}];
 
     const field_size = [0, 300];
 
     const min_gap = 0;
     const step = 1;
 
-    let draw = new SVG().addTo("#circles").size(1000, 500);
+    let draw = new SVG().addTo("#circles").size(1000, 300);
 
+    draw.rect(300,300).attr({stroke: "#f00", fill: "#fff"})
     let drawPanel;
     // moveIntersected(elements);
 
@@ -40,31 +41,98 @@
         return result;
     }
 
-    function moveIntersected(arr = []) {
+    function moveIntersected(arr = [], it) {
 
+        if (it > 10000) {
+            console.error(it, " iteration exceeded")
+            return -1;
+        }
         const collisions = detectCollisions(arr);
         if (collisions.length < 1) {
+            console.log("collision solved ", it)
             drawCircles()
-            return;
+            return 0;
         }
 
         const most_intersected = collisions.sort((a, b) => a[1] - b[1])[0];
+
+        console.log("most_intersected", most_intersected)
+
         const left = arr[Math.floor(most_intersected[0])];
         const right = arr[Math.ceil(most_intersected[0])];
 
+        const currpos = [left.pos, right.pos];
         if (left.pos - left.radius - step >= field_size[0]) {
             left.pos -= step;
         } else {
-            right.pos += step * 2;
+            // within right boundary
+            if (right.pos + right.radius + step * 2 <= field_size[1]) {
+                right.pos += step * 2;
+            } else {
+                //console.error("RIGHT exceeded", right)
+            }
+
         }
 
         if (right.pos + right.radius + step <= field_size[1]) {
-            right.pos += step;
+            if (right.pos + right.radius + step < field_size[1]) {
+                right.pos += step;
+            } else {
+                //console.error("RIGHT EXCEEDED", right)
+            }
         } else {
-            left.pos -= step * 2;
+            // within left boundary
+            if (left.pos - left.radius - step * 2 >= field_size[0]) {
+                left.pos -= step * 2;
+            } else {
+                //console.error("LEFT EXCEEDED", left)
+            }
         }
-        moveIntersected(arr);
+        const newpos = [left.pos, right.pos];
+        console.log(currpos,newpos )
+        if (currpos[0] === newpos[0] && currpos[1] === newpos[1]) {
+            // console.error("same position!")
+            return -1
+        }
 
+
+        return 1;
+
+    }
+
+    function fixBoundaries() {
+        elements.forEach(el => {
+            console.log(el, el.pos - el.radius)
+            if (el.pos - el.radius < field_size[0]) {
+                // NOTE offset
+                el.pos = field_size[0] + el.radius * 2;
+            }
+            if (el.pos + el.radius > field_size[1]) {
+                // NOTE offset
+                el.pos = field_size[1] - el.radius * 2;
+            }
+        });
+    }
+
+    function layout(arr) {
+
+        fixBoundaries();
+        let i = 0;
+        while (true) {
+            // console.log("it", i++);
+            const state = moveIntersected(arr, i++);
+            if (state === -1) {
+                // increase cluster distance
+                console.error("no solution");
+                break;
+            }
+            if (state === 0) {
+                console.log("collision solved")
+                break;
+            }
+
+        }
+        console.log("layout elements", JSON.stringify(elements))
 
     }
 
@@ -76,7 +144,7 @@
             drawPanel = draw.group();
         }
         elements.forEach((el, i) => {
-            drawPanel.circle(el.radius*2)
+            elements.dom = drawPanel.circle(el.radius * 2)
                 .dx(el.pos - el.radius)
                 .dy(100-el.radius)
                 .fill("#6872ff")
@@ -99,6 +167,6 @@
 </script>
 
 
-<button onclick="moveIntersected(elements)">apply</button>
+<button onclick="layout(elements)">layout</button>
 </body>
 </html>
