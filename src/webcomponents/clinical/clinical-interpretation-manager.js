@@ -19,9 +19,9 @@ import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import ClinicalAnalysisManager from "../clinical/clinical-analysis-manager.js";
+import "./clinical-interpretation-summary.js";
 
-
-class ClinicalAnalysisInterpretationEditor extends LitElement {
+export default class ClinicalInterpretationManager extends LitElement {
 
     constructor() {
         super();
@@ -128,80 +128,66 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
 
     renderInterpretation(interpretation) {
         return html`
-            <div class="interpretation-wrapper ${classMap({primary: interpretation.primary})}">
-                <div class="header">
-                    <div>${interpretation.primary ?
-                        html`<span class="badge badge-dark-blue">PRIMARY</span>` :
-                        html`<span class="badge badge-light">SECONDARY</span>`
-                    }
+            <div style="padding: 10px 0">
+                <div class="pull-left">
+                    <h4>Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}</h4>
+                </div>
+                <div class="pull-right ${classMap({primary: interpretation.primary})}">
+                    <div class="dropdown action-dropdown">
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Action
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            ${interpretation.primary ? html`
+                                <li>
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}"
+                                       @click="${this.onActionClick}">
+                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
+                                    </a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
+                                       @click="${this.onActionClick}">
+                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
+                                    </a>
+                                </li>
+                            ` : html`
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="setAsPrimary" data-interpretation-id="${interpretation.id}"
+                                       @click="${this.onActionClick}">
+                                        <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}"
+                                       @click="${this.onActionClick}">
+                                        <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
+                                    </a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
+                                       @click="${this.onActionClick}">
+                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="delete" data-interpretation-id="${interpretation.id}"
+                                       @click="${this.onActionClick}">
+                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
+                                </li>
+                            `}
+                        </ul>
                     </div>
-                    <span class="id">${interpretation.id}</span>
-                    ${interpretation.version ? html`<span class="version">version ${interpretation.version}</span>` : null}
-                    <span class="analyst" title="Analyst"><i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>${interpretation?.analyst?.name ?? "-"}</span>
-                    <span class="modificationDate" title="Modification date"><i class="far fa-calendar-alt"></i>${moment(interpretation?.attributes?.modificationDate).format("MM/DD/YYYY")}</span>
                 </div>
-                <div class="row">
-                    <div class="col-md-2"><label>Description</label></div>
-                    <div class="col-md-10">${interpretation.description ? interpretation.description : "-"}</div>
-                </div>
-                <div class="row">
-                    <div class="col-md-2"><label>Primary Findings</label></div>
-                    <div class="col-md-10">${interpretation.primaryFindings?.length}</div>
+            </div>
 
-                </div>
-                <div class="row status">
-                    <div class="col-md-2"><label>Status</label></div>
-                    <div class="col-md-10"><span class="${interpretation?.internal?.status?.name}">${interpretation?.internal?.status?.name}</span></div>
-                </div>
-
-                <div class="dropdown action-dropdown">
-                    <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Action
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-
-                        ${interpretation.primary ? html`
-                            <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                    <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
-                                            @click="${this.onActionClick}">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
-                                </a>
-                            </li>
-                        ` : html`
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="setAsPrimary" data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                    <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                    <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
-                                            @click="${this.onActionClick}">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete" data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
-                            </li>
-                        `}
-                    </ul>
-                </div>
+            <div style="padding: 10px 15px">
+                <clinical-interpretation-summary
+                    .interpretation=${interpretation}
+                    .primary=${interpretation.primary}>
+                </clinical-interpretation-summary>
             </div>`;
     }
 
@@ -324,8 +310,8 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                                 ${this.interpretations.map(interpretation => this.renderInterpretation(interpretation))}
                             </div>
 
-                            <div class="col-md-10">
-                                <h3>Main Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
+                            <div class="col-md-10" style="padding-top: 10px">
+                                <h3>Primary Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
                                 <table id="${this.gridId}"></table>
                             </div>
                         </div>` :
@@ -338,4 +324,4 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-interpretation-editor", ClinicalAnalysisInterpretationEditor);
+customElements.define("clinical-interpretation-manager", ClinicalInterpretationManager);

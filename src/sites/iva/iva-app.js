@@ -626,23 +626,23 @@ class IvaApp extends LitElement {
         let arr = window.location.hash.split("/");
 
         // TODO evaluate refactor
-        const [hashTool, hashProject, hashStudy, feature] = arr;
+        let [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
-        if (hashTool !== this.tool || (this.opencgaSession?.project && hashProject !== this.opencgaSession.project.alias) ||
-            (UtilsNew.isNotUndefined(this.study) && hashStudy !== this.opencgaSession.study.alias)) {
+        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             if (arr.length > 1) {
                 // Field 'project' is being observed, just in case Polymer triggers
                 // an unnecessary event we can check they are really different
-                if (ctx.opencgaSession?.project?.alias && ctx.opencgaSession.project.alias !== hashProject) {
-                    ctx.opencgaSession.project.alias = hashProject;
+                if (ctx.opencgaSession?.project?.id !== hashProject) {
+                    // eslint-disable-next-line no-param-reassign
+                    ctx.opencgaSession.project.id = hashProject;
                 }
                 if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
                     for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
                         if (ctx.opencgaSession.projects[i].name === ctx.opencgaSession.project.name ||
-                            ctx.opencgaSession.projects[i].alias === ctx.opencgaSession.project.alias) {
+                            ctx.opencgaSession.projects[i].id === ctx.opencgaSession.project.id) {
                             for (let j = 0; j < ctx.opencgaSession.projects[i].studies.length; j++) {
-                                if (ctx.opencgaSession.projects[i].studies[j].name === hashStudy || ctx.opencgaSession.projects[i].studies[j].alias === hashStudy) {
+                                if (ctx.opencgaSession.projects[i].studies[j].name === hashStudy || ctx.opencgaSession.projects[i].studies[j].id === hashStudy) {
                                     ctx.opencgaSession.study = ctx.opencgaSession.projects[i].studies[j];
                                     break;
                                 }
@@ -661,6 +661,10 @@ class IvaApp extends LitElement {
                     break;
                 case "#interpreter":
                     this.clinicalAnalysisId = feature;
+                    if (!this.clinicalAnalysisId) {
+                        // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
+                        window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+                    }
                     break;
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
