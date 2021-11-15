@@ -123,7 +123,12 @@ export default class Lollipop {
                 this.viewRange[0] = this.viewRange[0] - deltaView;
                 this.viewRange[1] = this.viewRange[1] - deltaView;
                 // this.resizeVariant(this.viewRange, delta);
-                this.drawVariants(track);
+
+
+                // this.drawVariants(track);
+                // FIX SCALE redraw and offset application (it must be idempotent)
+                this.variantsRender(track, [this.viewRange[0], this.viewRange[1]]);
+
             });
 
             this.variantsG.on("dragmove", e => {
@@ -141,7 +146,6 @@ export default class Lollipop {
             this.variantsG.draggable(false);
             this.variantsG.off("dragstart");
             this.variantsG.off("dragend");
-
         }
         // const path = variantArea.path('M 50 50 150 150').stroke("#000").animate({delay: 2000}).plot('M 50 50 50 0')
     }
@@ -152,9 +156,12 @@ export default class Lollipop {
         this.clusterVariants(this.circles, track);
 
         const main = this.variantsG.group().addClass("variants-area-wrapper").transform({translateY: this.variantsOrigin + track.view.scaleHeight});
-        const variantAreaWrapper = main.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view.height).attr({fill: "#fff" /* stroke: "#9d9d9d"*/});
+        const variantAreaWrapper = main.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view.variantAreaHeight).attr({fill: "#fff" /* stroke: "#9d9d9d"*/});
         const variantArea = main.group().addClass("variant-area").transform({translateX: this.canvasPadding});
-        const variantAreaBackground = variantArea.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view).addClass("variant-area-background").attr({fill: "#fff"}).transform({translateX: this.canvasPadding});
+        const variantAreaBackground = variantArea.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view.variantAreaHeight)
+            .addClass("variant-area-background")
+            .attr({fill: "#fff"})
+            .transform({translateX: this.canvasPadding});
         const width = variantAreaWrapper.width();
 
         this.circles.forEach((variant, i) => {
@@ -203,6 +210,22 @@ export default class Lollipop {
 
         this.log(null, null, null, this.viewRange, this.viewProteinRange, this.circles);
 
+    }
+
+    /*
+     * Before the layout step, use the offset to move the nodes near the viewFrame boundaries to avoid them to be left out.
+     */
+    viewFrameBoundaries(variants) {
+        const boundaries = [0, this.canvasWidth];
+        variants.forEach(el => {
+            if (el.viewPos + el.offset - el.size / 2 < boundaries[0]) {
+                el.offset = boundaries[0] + el.size / 2;
+            }
+            if (el.viewPos + el.size / 2 > boundaries[1]) {
+                el.offset = -(el.viewPos - boundaries[1]) - el.size / 2;
+            }
+        });
+        return variants;
     }
 
     updateVariants(track) {
@@ -262,9 +285,8 @@ export default class Lollipop {
         const _start = this.rescaleLinear(data.start, this.proteinStart, this.proteinEnd, 0, this.canvasWidth);
         const _end = this.rescaleLinear(data.end, this.proteinStart, this.proteinEnd, 0, this.canvasWidth);
         const subsection = g.group().transform({translateX: _start}).attr({"text-anchor": "middle"});
-        subsection.rect(_end-_start, track.view.height + 10).attr({"fill": "transparent"});
-        subsection.rect(_end-_start, track.view.height).attr({"fill": data.color ?? "#fff1e3", "fill-opacity": .4});
-        subsection.text(gene).dy(track.view.height + 1).dx((_end-_start)/2).font({size: "10px"});
+        subsection.rect(_end - _start, track.view.positionBarHeight).attr({"fill": data.color ?? "#fff1e3", "fill-opacity": .4});
+        subsection.text(gene).dy(track.view.positionBarHeight + 10).dx((_end - _start) / 2).font({size: "10px"});
     }
 
     positionBarRender(track) {
@@ -274,17 +296,17 @@ export default class Lollipop {
             this.bar = this.draw.group().addClass("positionBar").transform({translateY: this.positionBarOrigin, translateX: this.canvasPadding});
         }
 
-        this.bar.rect(this.canvasWidth, track.view.height + 10).attr({fill: "#e3f2ff"});
-        this.bar.rect(this.canvasWidth, track.view.height).attr({fill: "#e3f2ff", stroke: "#000"});
+        track.view.positionBarHeight = track.view.height - 10;
+        this.bar.rect(this.canvasWidth, track.view.positionBarHeight).attr({fill: "#e3f2ff", stroke: "#000"});
 
         // this.bar.draggable();
         Object.entries(track.genes).forEach(([geneName, data]) => {
             this.drawSubsection(this.bar, geneName, data, track);
         });
 
-        this.drawTicks(this.bar, 10, track.view.height, this.proteinStart, this.proteinEnd);
+        this.drawTicks(this.bar, 10, track.view.positionBarHeight, this.proteinStart, this.proteinEnd);
 
-        const cursorStart = this.bar.line(0, 0, 0, track.view.height).stroke({
+        const cursorStart = this.bar.line(0, 0, 0, track.view.positionBarHeight).stroke({
             color: "#000",
             width: 0.2,
         }).attr({shapeRendering: "crispEdges"});
@@ -298,7 +320,7 @@ export default class Lollipop {
         })*/
 
         let mouseDown = false;
-        const rangeBar = this.bar.rect(0, track.view.height).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
+        const rangeBar = this.bar.rect(0, track.view.positionBarHeight).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
 
 
         this.bar.mousemove(e => {
@@ -311,7 +333,7 @@ export default class Lollipop {
                 const w = Math.abs(cursorStart.x() - mouseX);
                 this.viewRange = [start, start + w];
                 rangeBar.show();
-                rangeBar.size(Math.min(w + 1, this.canvasWidth), track.view.height).move(start); // +1 is for avoid 0 range
+                rangeBar.size(Math.min(w + 1, this.canvasWidth), track.view.positionBarHeight).move(start); // +1 is for avoid 0 range
                 // console.log(start);
             } else {
                 cursorStart.move(mouseX + 1, 0);
@@ -439,6 +461,9 @@ export default class Lollipop {
      * // TODO in progress
      */
     layoutVariants(circles, track) {
+
+        this.circles = this.viewFrameBoundaries(this.circles);
+
         const i = 0;
         // eslint-disable-next-line no-constant-condition
         while (true) {
@@ -614,7 +639,7 @@ export default class Lollipop {
                 continue;
             }
             // not rendering the first and last major tick
-            if (i !== 0 && i !== num) {
+            if (true || i !== 0 && i !== num) {
                 group.line(0, barHeight - tickHeight, 0, barHeight).stroke({
                     color: "#000",
                     width: 1,
