@@ -198,7 +198,11 @@ class ClinicalAnalysisUpdate extends LitElement {
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
             this.updateOrDeleteComments(false);
 
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn, flagsAction: "SET"})
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {
+                study: this.opencgaSession.study.fqn,
+                flagsAction: "SET",
+                panelsAction: "SET",
+            })
                 .then(response => {
                     this.postUpdate(response);
                 })
