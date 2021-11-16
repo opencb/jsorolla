@@ -56,6 +56,7 @@ export default class Lollipop {
             this.variantsG.off("dragstart");
             this.variantsG.off("dragend");
             this.variantsG.clear();
+            this.scaleG.clear();
         } else {
             this.variantsG = this.draw.group().addClass("variants").transform({translateX: this.canvasPadding});
         }
@@ -92,60 +93,65 @@ export default class Lollipop {
         this.dragPos = [];
         // enable horizontal drag in variantArea only if this.viewProteinRange is different that default
         if (this.viewProteinRange[0] !== this.proteinStart && this.viewProteinRange[1] !== this.proteinEnd) {
-            this.variantsG.draggable(false);
+            // this.variantsG.draggable(false);
             this.variantsG.off("dragstart");
             this.variantsG.off("dragend");
-            this.variantsG.draggable();
+            this.variantsG.off("dragmove");
+            this.variantsG
+                .draggable()
+                .on("dragstart", e => {
+                    console.log("dragstart");
+                    // console.log("dragstart", e.detail.event.offsetX)
+                    this.dragPos[0] = e.detail.event.offsetX;
+                    this.deltaPosStart = this.rescaleLinear(this.dragPos[0], 0, this.canvasWidth, this.viewProteinRange[0], this.viewProteinRange[1]);
+                    // console.log("dragstart", e.detail.event.offsetX)
 
-            this.variantsG.on("dragstart", e => {
-                // console.log("dragstart", e.detail.event.offsetX)
-                this.dragPos[0] = e.detail.event.offsetX;
-                this.deltaPosStart = this.rescaleLinear(this.dragPos[0], 0, this.canvasWidth, this.viewProteinRange[0], this.viewProteinRange[1]);
-                // console.log("dragstart", e.detail.event.offsetX)
+                })
+                .on("dragend", e => {
+                    console.log("dragend");
+                    // NOTE dragend is fired called on simple click too
+                    this.dragPos[1] = e.detail.event.offsetX;
+                    const deltaPx = this.dragPos[1] - this.dragPos[0];
+                    if (Math.abs(deltaPx) < 5) {
+                        // avoid rescaling if delta is too small
+                        return;
+                    }
+                    // we need to rescale delta in px in protein coords and in the (already reduced from full length) viewFrame
+                    const deltaProtein = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewProteinRange[0], this.viewProteinRange[1]) - this.viewProteinRange[0];
+                    const deltaView = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewRange[0], this.viewRange[1]) - this.viewRange[0];
+                    // NOTE delta must be subtracted because a positive delta means the scale has been dragged to right
+                    this.viewProteinRange[0] = this.viewProteinRange[0] - deltaProtein;
+                    this.viewProteinRange[1] = this.viewProteinRange[1] - deltaProtein;
 
-            });
-
-            this.variantsG.on("dragend", e => {
-                // NOTE dragend is fired called on simple click too
-                this.dragPos[1] = e.detail.event.offsetX;
-                const deltaPx = this.dragPos[1] - this.dragPos[0];
-                if (Math.abs(deltaPx) < 5) {
-                    // avoid rescaling if delta is too small
-                    return;
-                }
-                // we need to rescale delta in px in protein coords and in the (already reduced from full length) viewFrame
-                const deltaProtein = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewProteinRange[0], this.viewProteinRange[1]) - this.viewProteinRange[0];
-                const deltaView = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewRange[0], this.viewRange[1]) - this.viewRange[0];
-                // NOTE delta must be subtracted because a positive delta means the scale has been dragged to right
-                this.viewProteinRange[0] = this.viewProteinRange[0] - deltaProtein;
-                this.viewProteinRange[1] = this.viewProteinRange[1] - deltaProtein;
-
-                this.viewRange[0] = this.viewRange[0] - deltaView;
-                this.viewRange[1] = this.viewRange[1] - deltaView;
-                // this.resizeVariant(this.viewRange, delta);
+                    this.viewRange[0] = this.viewRange[0] - deltaView;
+                    this.viewRange[1] = this.viewRange[1] - deltaView;
+                    // this.resizeVariant(this.viewRange, delta);
 
 
-                // this.drawVariants(track);
-                // FIX SCALE redraw and offset application (it must be idempotent)
-                this.variantsRender(track, [this.viewRange[0], this.viewRange[1]]);
-
-            });
-
-            this.variantsG.on("dragmove", e => {
-                const {handler, box} = e.detail;
-                const deltaPx = e.detail.event.offsetX - this.dragPos[0];
-                const deltaProtein = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewProteinRange[0], this.viewProteinRange[1]) - this.viewProteinRange[0];
-                const deltaView = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewRange[0], this.viewRange[1]) - this.viewRange[0];
-                // console.log("deltaProtein", deltaProtein)
-                // console.log("deltaView", deltaView)
-                // TODO add constraints on proteinStart and proteinEnd
-                e.preventDefault();
-                handler.move(box.x, null);
-            });
+                    console.log("this.viewRange", this.viewRange);
+                    // this.drawVariants(track);
+                    // FIX SCALE redraw and offset application (it must be idempotent)
+                    this.variantsRender(track, [this.viewRange[0], this.viewRange[1]]);
+                })
+                .on("dragmove", e => {
+                    e.preventDefault();
+                    console.log("dragmove");
+                    const {handler, box} = e.detail;
+                    const deltaPx = e.detail.event.offsetX - this.dragPos[0];
+                    const deltaProtein = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewProteinRange[0], this.viewProteinRange[1]) - this.viewProteinRange[0];
+                    const deltaView = this.rescaleLinear(deltaPx, 0, this.canvasWidth, this.viewRange[0], this.viewRange[1]) - this.viewRange[0];
+                    // console.log("deltaProtein", deltaProtein)
+                    // console.log("deltaView", deltaView)
+                    // TODO add constraints on proteinStart and proteinEnd
+                    // e.preventDefault();
+                    handler.move(box.x, null);
+                });
         } else {
             this.variantsG.draggable(false);
             this.variantsG.off("dragstart");
             this.variantsG.off("dragend");
+            this.variantsG.off("dragmove");
+
         }
         // const path = variantArea.path('M 50 50 150 150').stroke("#000").animate({delay: 2000}).plot('M 50 50 50 0')
     }
@@ -191,7 +197,7 @@ export default class Lollipop {
             // .size(size).dx(-size/2)*/;
 
             if (variant.type === "cluster") {
-                circleWrapper.text(variant.variants.length).dy(5).dx(variant.offset).font({size: variant.size * .5 + "px"});
+                circleWrapper.text(variant.variants.length).dy(0).dx(variant.offset).font({size: variant.size * .5 + "px"});
             } else {
                 // single variant
                 // circleWrapper.text(`${variant.id}-${variant.viewPos}`).dy(-variant.size/2 - 5).dx(variant.offset).font({size: "10px"});
@@ -215,7 +221,7 @@ export default class Lollipop {
     /*
      * Before the layout step, use the offset to move the nodes near the viewFrame boundaries to avoid them to be left out.
      */
-    viewFrameBoundaries(variants) {
+    moveFromBoundaries(variants) {
         const boundaries = [0, this.canvasWidth];
         variants.forEach(el => {
             if (el.viewPos + el.offset - el.size / 2 < boundaries[0]) {
@@ -246,24 +252,25 @@ export default class Lollipop {
             node.exploded = false;
             node.domRef.animate().dy(+node.size * 2).ease("<");
             node.domRefEdge.animate().plot(`M ${0} ${height} V ${height * .5} L ${node.offset} ${height * .4} V ${node.size / 2 + 5}`);
-            node.domClusterRem.clear();
+            node.domClusterRef.clear();
         } else {
             node.exploded = true;
             node.domRef.animate().dy(-node.size * 2).ease("<");
             node.domRefEdge.animate().plot(`M ${0} ${height} V ${height * .5} L ${node.offset} ${height * .4} V ${-node.size * 1.5 + 5}`);
-            node.domClusterRem = node.domRef.group().addClass("cluster").transform({translateX: node.offset});
+            node.domClusterRef = node.domRef.group().addClass("cluster").transform({translateX: node.offset});
 
-            // getting many circles (radius r) can be drawn around a bigger circle (radius R):
+            // getting how many circles (radius r) can be drawn around a bigger circle (radius R):
             // n * arcsin(r/(R-r)) = PI
-            const R = node.size / 2 + 30; // node.size/2;
-            const r = track.view.circleSize - 7;
+            // R - r must be > r => R > r*2
+            const R = node.size * 2;
+            const r = track.view.circleSize * .8;
             const n = Math.round((1 / (Math.asin(r / (R - r)))) * Math.PI);
             node.variants.slice(0, n).forEach((variant, i) => {
                 const circleSectorAngle = i / node.variants.slice(0, n).length * Math.PI * 2;
-                const radius = variant.size * 2;
-                node.domClusterRem.circle(1)
-                    .dx(-variant.size / 2)
-                    .dy(-variant.size / 2)
+                const radius = r * 1.8;
+                node.domClusterRef.circle(1)
+                    .dx(-r / 2) // variant.size
+                    .dy(-r / 2)
                     // .dx(Math.cos(circleSectorAngle)*radius -variant.size/2)
                     // .dy(Math.sin(circleSectorAngle)*radius -variant.size/2)
                     .fill(variant.color ?? "#6872ff")
@@ -272,7 +279,7 @@ export default class Lollipop {
                         Math.cos(circleSectorAngle) * radius,
                         Math.sin(circleSectorAngle) * radius,
                     )
-                    .size(variant.size);
+                    .size(r);
 
 
             });
@@ -298,6 +305,7 @@ export default class Lollipop {
 
         track.view.positionBarHeight = track.view.height - 10;
         this.bar.rect(this.canvasWidth, track.view.positionBarHeight).attr({fill: "#e3f2ff", stroke: "#000"});
+        this.bar.rect(this.canvasWidth, 12).attr({fill: "#fff", stroke: "#000"}).y(track.view.positionBarHeight);
 
         // this.bar.draggable();
         Object.entries(track.genes).forEach(([geneName, data]) => {
@@ -462,13 +470,16 @@ export default class Lollipop {
      */
     layoutVariants(circles, track) {
 
-        this.circles = this.viewFrameBoundaries(this.circles);
+        this.circles = this.moveFromBoundaries(this.circles);
 
-        const i = 0;
+        // to detect infinite loops in layout
+        this.loopDetector = {};
+
+        let i = 0;
         // eslint-disable-next-line no-constant-condition
         while (true) {
             // console.log("it", i++);
-            const state = this.moveIntersected(this.circles);
+            const state = this.moveIntersected(this.circles, i++);
             if (state === -1) {
                 // increase cluster distance
                 console.error("no solution");
@@ -493,6 +504,11 @@ export default class Lollipop {
          * 3. DONE implement updatable edges
          */
 
+        if (it > 20000) {
+            console.error(it, " iteration exceeded");
+            return -1;
+        }
+
         const boundaries = [0, 1000];
 
         const step = 1;
@@ -506,19 +522,6 @@ export default class Lollipop {
 
         const left = arr[Math.floor(mostIntersected[0])];
         const right = arr[Math.ceil(mostIntersected[0])];
-
-        if (!this.mostIntersectedLeft) {
-            this.mostIntersectedLeft = left.offset;
-            this.mostIntersectedRight = right.offset;
-        } else {
-            // stored offset is the same as the prev iteration
-            // console.error("increasing", this.mostIntersectedLeft, this.mostIntersectedRight, left.offset, right.offset)
-            // TODO this exit condition is not correct. Find a safe way to get out of the loop in case of a solution doesnt exist.
-            if (this.mostIntersectedLeft === left.offset && this.mostIntersectedRight === right.offset) {
-                console.error("same offset");
-                // return -1;
-            }
-        }
 
         // check left boundary
         // console.log(`${left.viewPos} ${left.offset} ${left.size}`);
@@ -534,6 +537,22 @@ export default class Lollipop {
         } else {
             left.offset -= step * 2;
         }
+
+        // TODO continue debug
+        const k = `${mostIntersected[0]} ${right.offset}-${left.offset}`;
+
+        console.log(k);
+        console.log(this.loopDetector);
+        if (this.loopDetector[k]) {
+            this.loopDetector[k] += 1;
+            if (this.loopDetector[k] > 30) {
+                console.error("K present > 3", k);
+                // return -1;
+            }
+        } else {
+            this.loopDetector[k] = 1;
+        }
+
         // this.moveIntersected(arr, it+1);
         return 1;
 

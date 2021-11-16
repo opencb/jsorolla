@@ -30,7 +30,7 @@
 
     console.log(elements);
 
-    let loopDetector = [];
+    let loopDetector = {};
 
     function detectCollisions(arr = []) {
         const result = [];
@@ -93,14 +93,14 @@
         }
         const newpos = [left.pos, right.pos];
         // loop detection on k = left.id-right.id v="left.pos|right.pos"
-        loopDetector.push({k: most_intersected[0], v: `${right.pos-left.pos}`});
 
-        // console.log(left.id, right.id, "currpos, newpos", currpos, newpos)
-        if (currpos[0] === newpos[0] && currpos[1] === newpos[1]) {
-            console.error("same position!")
+        const k = `${most_intersected[0]} ${right.pos-left.pos}`;
+        if (loopDetector[k]) {
+            console.error("K present", k)
             return -1
         }
 
+        loopDetector[k] = true;
 
         return 1;
 
