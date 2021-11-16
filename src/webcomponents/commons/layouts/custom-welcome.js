@@ -122,7 +122,7 @@ export default class CustomWelcome extends LitElement {
                                     ${item.description ? UtilsNew.renderHTML(item.description) : ""}
                                 </div>
                                 <div class="panel-body">
-                                    <a class="btn btn-primary btn-block" href="#${itemLink}">
+                                    <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
                                         <strong style="color:white;">Enter</strong>
                                     </a>
                                 </div>
