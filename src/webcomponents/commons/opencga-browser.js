@@ -43,9 +43,9 @@ import "../job/opencga-job-filter.js";
 import "../job/opencga-job-detail.js";
 import "../job/opencga-job-browser.js";
 import "../job/job-timeline.js";
-import "../clinical/opencga-clinical-analysis-grid.js";
+import "../clinical/clinical-analysis-grid.js";
 import "../clinical/clinical-analysis-browser-filter.js";
-import "../clinical/opencga-clinical-analysis-detail.js";
+import "../clinical/clinical-analysis-detail.js";
 
 
 export default class OpencgaBrowser extends LitElement {
@@ -400,18 +400,20 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.clinical();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this.config.filter.result.grid}"
-                                                        .query="${this.executedQuery}"
-                                                        .search="${this.executedQuery}"
-                                                        .active="${true}"
-                                                        @selectanalysis="${this.onSelectClinicalAnalysis}"
-                                                        @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
-                        </opencga-clinical-analysis-grid>
-                        <opencga-clinical-analysis-detail   .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this.config.filter.detail}"
-                                                            .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}">
-                        </opencga-clinical-analysis-detail>
+                        <clinical-analysis-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.result.grid}"
+                            .query="${this.executedQuery}"
+                            .search="${this.executedQuery}"
+                            .active="${true}"
+                            @selectanalysis="${this.onSelectClinicalAnalysis}"
+                            @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
+                        </clinical-analysis-grid>
+                        <clinical-analysis-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}">
+                        </clinical-analysis-detail>
                     </div>
                 `;
             case "JOB":

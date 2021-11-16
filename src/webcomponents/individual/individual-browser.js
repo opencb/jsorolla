@@ -20,7 +20,7 @@ import "./qc/individual-qc-inferred-sex.js";
 import "./individual-view.js";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
-import "./../clinical/opencga-clinical-analysis-grid.js";
+import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
 
@@ -258,7 +258,11 @@ export default class IndividualBrowser extends LitElement {
                                 };
                                 return html`
                                     <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                                    <opencga-clinical-analysis-grid .config=${config} .query="${{"proband": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
+                                    <clinical-analysis-grid
+                                        .query="${{"proband": individual.id}}"
+                                        .config=${config}
+                                        .opencgaSession="${opencgaSession}">
+                                    </clinical-analysis-grid>`;
                             }
                         },
                         {
