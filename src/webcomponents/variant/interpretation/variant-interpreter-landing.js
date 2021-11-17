@@ -15,10 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import {classMap} from "lit/directives/class-map.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
