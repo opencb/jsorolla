@@ -352,9 +352,11 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
-        // this.preparedQuery = {...this.query};
-        // this.executedQuery = {...this.query};
+        const _query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
+        if (this.clinicalAnalysis.panelLock) {
+            _query.panel = this.query.panel;
+        }
+        this.query = _query;
         this.requestUpdate();
     }
 

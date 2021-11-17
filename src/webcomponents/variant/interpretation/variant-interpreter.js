@@ -123,10 +123,26 @@ class VariantInterpreter extends LitElement {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
             // this._config = {...this._config, loading: true};
             // this.requestUpdate();
-            // await this.updateComplete;
+            // await this.updateComplete;http://localhost:3000/src/sites/iva/index.html#interpreter/rd_grch38/panel/C-NA12878-NA12878-TWE-N-EGG4_S32_L001
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
+                    // FIXME delete soon!
+                    const _clinicalAnalysis = response.responses[0].results[0];
+                    const panelIdToPanel = {};
+                    _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
+                    _clinicalAnalysis.interpretation.panels.forEach(panel => {
+                        panel.name = panelIdToPanel[panel.id].name;
+                        panel.source = panelIdToPanel[panel.id].source;
+                    });
+                    for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
+                        secondaryInterpretation.panels.forEach(panel => {
+                            panel.name = panelIdToPanel[panel.id].name;
+                            panel.source = panelIdToPanel[panel.id].source;
+                        });
+                    }
+                    this.clinicalAnalysis = _clinicalAnalysis;
+                    // FIXME Replace horrible code above by this one:
+                    // this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -264,8 +280,6 @@ class VariantInterpreter extends LitElement {
             `;
         }
 
-        console.log(this.clinicalAnalysis);
-
         return html`
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis?.id ? html`
@@ -284,46 +298,46 @@ class VariantInterpreter extends LitElement {
                                         </div>
                                     </div>
                                 ` : null}
-                            <div class="dropdown">
-                                <button class="btn btn-default btn-lg" data-toggle="dropdown">
-                                    <i class="fa fa-toolbox" aria-hidden="true"></i>
-                                    <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                    ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
-                                        <li>
-                                            <a style="background-color:white!important;">
-                                                <i class="fa fa-user-md icon-padding"></i>
-                                                <strong>Change interpretation</strong>
-                                            </a>
-                                        </li>
-                                        ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                <div class="dropdown">
+                                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                                        <i class="fa fa-toolbox" aria-hidden="true"></i>
+                                        <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                                             <li>
-                                                <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
-                                                    ${item.id}
+                                                <a style="background-color:white!important;">
+                                                    <i class="fa fa-user-md icon-padding"></i>
+                                                    <strong>Change interpretation</strong>
                                                 </a>
                                             </li>
-                                        `)}
-                                        <li role="separator" class="divider"></li>
-                                    ` : null}
-                                    <li>
-                                        <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
-                                            <i class="fa fa-sync icon-padding"></i> Refresh
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
-                                            <i class="fa fa-download icon-padding"></i> Download
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                            <i class="fa fa-times icon-padding"></i> Close
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                                            ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                                <li>
+                                                    <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                        ${item.id}
+                                                    </a>
+                                                </li>
+                                            `)}
+                                            <li role="separator" class="divider"></li>
+                                        ` : null}
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
+                                                <i class="fa fa-sync icon-padding"></i> Refresh
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                                <i class="fa fa-download icon-padding"></i> Download
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                                <i class="fa fa-times icon-padding"></i> Close
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         `}">
                     </tool-header>
@@ -336,26 +350,26 @@ class VariantInterpreter extends LitElement {
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
-                                    <!--
-                                    <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
-                                        <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
-                                    </a>
-                                 -->
+                                <!--
+                                <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
+                                    <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
+                                </a>
+                             -->
                             </div>
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config?.tools?.map(item => html`
                                         ${!item.hidden ? html`
-                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                               href="javascript: void 0" data-view="${item.id}"
-                                               @click="${this.onClickSection}">
-                                                <div class="hi-icon ${item.icon}"></div>
-                                                <p>${item.title}</p>
-                                                <span class="smaller"></span>
-                                            </a>` :
-                                        ""}
-                                `)}
+                                                <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                                   href="javascript: void 0" data-view="${item.id}"
+                                                   @click="${this.onClickSection}">
+                                                    <div class="hi-icon ${item.icon}"></div>
+                                                    <p>${item.title}</p>
+                                                    <span class="smaller"></span>
+                                                </a>` :
+                                            ""}
+                                    `)}
                                 </div>
                             </div>
                         </div>
@@ -413,19 +427,19 @@ class VariantInterpreter extends LitElement {
 
                             ${this.activeTab["review"] ? html`
                                 <div id="${this._prefix}review" class="clinical-portal-content">
-                                <variant-interpreter-review
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .populationFrequencies="${this._config.populationFrequencies}"
-                                    .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                    .consequenceTypes="${this._config.consequenceTypes}"
-                                    .config="${this._config}"
-                                    @gene="${this.geneSelected}"
-                                    @samplechange="${this.onSampleChange}"
-                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                 </variant-interpreter-review>
-                            </div>
+                                    <variant-interpreter-review
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .populationFrequencies="${this._config.populationFrequencies}"
+                                        .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                        .consequenceTypes="${this._config.consequenceTypes}"
+                                        .config="${this._config}"
+                                        @gene="${this.geneSelected}"
+                                        @samplechange="${this.onSampleChange}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    </variant-interpreter-review>
+                                </div>
                             ` : null}
 
                             ${this.activeTab["report"] ? html`

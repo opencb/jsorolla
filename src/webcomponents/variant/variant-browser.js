@@ -381,8 +381,10 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
-                                tooltip: tooltips.type
+                                tooltip: tooltips.type,
+                                params: {
+                                    types: VARIANT_TYPES,
+                                }
                             }
                         ]
                     },
@@ -598,7 +600,7 @@ export default class VariantBrowser extends LitElement {
                                 id: "studies", name: "Study", type: "string"
                             },
                             {
-                                id: "type", name: "Variant Type", type: "category", allowedValues: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"]
+                                id: "type", name: "Variant Type", type: "category", allowedValues: VARIANT_TYPES
                             },
                             {
                                 id: "genes", name: "Gene", type: "string"

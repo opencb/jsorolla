@@ -108,15 +108,10 @@ export default class VariantBrowserFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    // firstUpdated() {
-    //     this._initialised = true;
-    // }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
@@ -292,8 +287,9 @@ export default class VariantBrowserFilter extends LitElement {
         // We only display section accordions when more than a section exists,
         // otherwise we just render all filters without an accordion box.
         return this.config.sections.length > 1 ? html`
-            <section-filter .filters="${htmlFields}"
-                            .config="${section}">
+            <section-filter
+                .filters="${htmlFields}"
+                .config="${section}">
             </section-filter>` : htmlFields;
     }
 
@@ -407,16 +403,10 @@ export default class VariantBrowserFilter extends LitElement {
                             </biotype-filter>`;
                         break;
                     case "type":
-                        let config = {};
-                        if (subsection.types) {
-                            config = {
-                                types: subsection.types
-                            };
-                        }
                         content = html`
                             <variant-type-filter
                                 .type="${this.preparedQuery.type}"
-                                .config="${config}"
+                                .config="${subsection.params?.types ? {types: subsection.params.types} : {}}"
                                 @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
                             </variant-type-filter>`;
                         break;

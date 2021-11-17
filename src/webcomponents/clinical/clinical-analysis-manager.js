@@ -193,13 +193,7 @@ export default class ClinicalAnalysisManager {
 
     createInterpretation(interpretation, callback) {
         if (!interpretation) {
-            let lastVersion = this.clinicalAnalysis.interpretation.id;
-            if (this.clinicalAnalysis.secondaryInterpretations?.length > 0) {
-                lastVersion = this.clinicalAnalysis.secondaryInterpretations[this.clinicalAnalysis.secondaryInterpretations.length - 1].id;
-            }
-            let interpretationVersion = Number.parseInt(lastVersion.split(".")[1]) + 1;
             interpretation = {
-                id: this.clinicalAnalysis.id + "." + interpretationVersion,
                 clinicalAnalysisId: this.clinicalAnalysis.id,
                 analyst: {
                     id: this.opencgaSession.user.id,

@@ -72,6 +72,9 @@ export default class SelectFieldFilter extends LitElement {
             classes: {
                 type: String
             },
+            size: {
+                type: Number,
+            },
             // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -86,6 +89,7 @@ export default class SelectFieldFilter extends LitElement {
         this.data = [];
         this.classes = "";
         this.elm = this._prefix + "selectpicker";
+        this.size = 20; // Default size
     }
 
     firstUpdated() {
@@ -169,6 +173,7 @@ export default class SelectFieldFilter extends LitElement {
                         ?disabled=${this.disabled}
                         ?required=${this.required}
                         data-live-search=${this.liveSearch ? "true" : "false"}
+                        data-size="${this.size}"
                         title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
                         @change="${this.filterChange}" data-width="100%" data-style="btn-default ${this.classes}">
@@ -176,7 +181,7 @@ export default class SelectFieldFilter extends LitElement {
                         ${opt?.separator ?
                             html`<option data-divider="true"></option>` :
                             html`
-                                ${opt.fields ?
+                                ${opt?.fields ?
                                     html`
                                         <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
                                             ${UtilsNew.isObject(subopt) ?

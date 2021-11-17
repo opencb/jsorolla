@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
@@ -51,37 +50,32 @@ export default class CohortCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        if (UtilsNew.isUndefined(this.cohort)) {
-            this.cohort = {};
-        }
     }
 
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         e.stopPropagation();
-        this.cohort = {
-            ...FormUtils.createObject(
-                this.cohort,
-                e.detail.param,
-                e.detail.value
-            )
-        };
-        this.requestUpdate();
-    }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
+        const param = field || e.detail.param;
+        switch (param) {
             case "samples":
-                let samples = [];
-                if (e.detail.value) {
-                    samples = e.detail.value.split(",").map(sample => {
-                        return {id: sample};
-                    });
-                }
-                this.cohort = {...this.cohort, samples: samples};
+                // let samples = [];
+                // if (e.detail.value) {
+                //     samples = e.detail.value.split(",").map(sample => {
+                //         return {id: sample};
+                //     });
+                // }
+                this.cohort = {...this.cohort, samples: e.detail.value};
                 break;
             case "annotationSets":
                 this.cohort = {...this.cohort, annotationSets: e.detail.value};
+                break;
+            default:
+                this.cohort = {
+                    ...FormUtils.createObject(
+                        this.cohort,
+                        param,
+                        e.detail.value
+                    )
+                };
                 break;
         }
         this.requestUpdate();
@@ -90,27 +84,26 @@ export default class CohortCreate extends LitElement {
     onSubmit(e) {
         e.stopPropagation();
         console.log("Cohort Saved", this.cohort);
-        // this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
-        //     .then(res => {
-        //         this.cohort = {};
-        //         LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
-        //         FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         FormUtils.showAlert(
-        //             "New Cohort",
-        //             `Could not save cohort ${err}`,
-        //             "error"
-        //         );
-        //     });
+        this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
+            .then(res => {
+                this.cohort = {};
+                // LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
+                FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
+            })
+            .catch(err => {
+                console.error(err);
+                FormUtils.showAlert(
+                    "New Cohort",
+                    `Could not save cohort ${err}`,
+                    "error"
+                );
+            });
     }
 
     onClear() {
         this.cohort = {};
         this.requestUpdate();
     }
-
 
     render() {
         return html`
@@ -187,7 +180,7 @@ export default class CohortCreate extends LitElement {
                                 <sample-id-autocomplete
                                     .value=${this.sampleId}
                                     .opencgaSession=${this.opencgaSession}
-                                    @filterChange="${e => this.onSync(e, "samples")}">
+                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
                                 </sample-id-autocomplete>`
                             }
                         },
@@ -247,7 +240,7 @@ export default class CohortCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${cohort?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
+                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
                                     </annotation-set-update>
                                 `
                             }
