@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a Question, Discuss
+    url: https://github.com/opencb/jsorolla/discussions
+    about: How does X work? I made this! I have an idea...
+
