@@ -104,23 +104,25 @@ export default class CustomWelcome extends LitElement {
             return html`
                 <div class="" style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:32px;">
                 ${featuredTools.map(item => {
-                    const itemLink = `${item.id}/${session?.project ? `${session.project.id}/${session.study.id}`: ""}`;
+                    const itemLink = `${item.id}${session?.project ? `/${session.project.id}/${session.study.id}`: ""}`;
                     return html`
-                        <div class="col-md-3">
+                        <div class="col-md-3 com-sm-6">
                             <div class="panel panel-default">
                                 <div class="panel-body" align="center" style="height:180px;">
-                                    <div align="center" class="">
-                                        <img alt="${item.name}" width="100px" src="${item.icon}" />
-                                    </div>
-                                    <h4 style="margin-bottom:0px;">
-                                        <strong>${item.name}</strong>
-                                    </h4>
+                                    <a href="#${itemLink}" style="text-decoration:none!important;">
+                                        <div align="center" class="">
+                                            <img alt="${item.name}" width="100px" src="${item.icon}" />
+                                        </div>
+                                        <h4 style="margin-bottom:0px;">
+                                            <strong>${item.name}</strong>
+                                        </h4>
+                                    </a>
                                 </div>
                                 <div class="panel-body" style="height:150px;padding-top:0px;">
                                     ${item.description ? UtilsNew.renderHTML(item.description) : ""}
                                 </div>
                                 <div class="panel-body">
-                                    <a class="btn btn-primary btn-block" href="#${itemLink}">
+                                    <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
                                         <strong style="color:white;">Enter</strong>
                                     </a>
                                 </div>

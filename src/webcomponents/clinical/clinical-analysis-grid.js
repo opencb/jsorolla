@@ -427,7 +427,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "interpretation",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: (value, row) => this.interpretationFormatter(value, row)
+                formatter: (value, row) => this.interpretationFormatter(value, row),
+                // TODO should this work?
+                // events: {
+                //     "click a": (e, _, row) => window.location.hash = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`
+                // },
             },
             {
                 id: "status",

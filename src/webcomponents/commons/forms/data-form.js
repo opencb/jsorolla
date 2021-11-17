@@ -141,7 +141,7 @@ export default class DataForm extends LitElement {
             if (this.config?.display?.defaultValue) {
                 return this.config.display.defaultValue;
             } else {
-                return "-";
+                return "";
             }
         }
     }
@@ -1235,19 +1235,13 @@ export default class DataForm extends LitElement {
             }
 
             <!-- Render buttons -->
-            ${this.config.buttons && this.config.buttons.show && this.config.buttons.top ?
-                this.renderButtons():
-                null
-            }
+            ${this.config.buttons?.show && this.config.buttons.top ? this.renderButtons() : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${this.config.buttons && this.config.buttons.show && !this.config.buttons.top?
-                this.renderButtons():
-                null
-            }
+            ${this.config.buttons?.show && !this.config.buttons.top ? this.renderButtons() : null}
         `;
     }
 
