@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../utils/lit-utils.js";
 
 // TODO reorganize props multiple/forceSelection
 
@@ -152,54 +153,57 @@ export default class SelectFieldFilter extends LitElement {
             }
         }
 
-        // this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: val ? val : null,
-                data: this.data
-            },
-            // bubbles: true,
-            // composed: true
+        LitUtils.dispatchEventCustom(self, "filterChange", val || null, null, {
+            data: this.data,
         });
-        this.dispatchEvent(event);
     }
 
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
                 <select id="${this.elm}"
-                        class="${this.elm}"
-                        ?multiple=${!this.forceSelection}
-                        ?disabled=${this.disabled}
-                        ?required=${this.required}
-                        data-live-search=${this.liveSearch ? "true" : "false"}
-                        data-size="${this.size}"
-                        title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
-                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
-                        @change="${this.filterChange}" data-width="100%" data-style="btn-default ${this.classes}">
+                    class="${this.elm}"
+                    ?multiple="${!this.forceSelection}"
+                    ?disabled="${this.disabled}"
+                    ?required="${this.required}"
+                    data-live-search="${this.liveSearch ? "true" : "false"}"
+                    data-size="${this.size}"
+                    title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
+                    data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
+                    @change="${this.filterChange}"
+                    data-width="100%"
+                    data-style="btn-default ${this.classes}">
                     ${this.data?.map(opt => html`
-                        ${opt?.separator ?
-                            html`<option data-divider="true"></option>` :
-                            html`
-                                ${opt?.fields ?
-                                    html`
-                                        <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
-                                            ${UtilsNew.isObject(subopt) ?
-                                                html`
-                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}" data-content="${subopt.name}"></option>` :
-                                                html`
-                                                    <option>${subopt}</option>
-                                                `}
-                                            `)}
-                                        </optgroup>` :
-                                    html`
-                                        ${UtilsNew.isObject(opt) ?
-                                            html`
-                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}" data-content="${opt.name ?? opt.id}"></option>` :
-                                            html`
-                                                <option data-content="${opt}">${opt}</option>
+                        ${opt?.separator ? html`
+                            <option data-divider="true"></option>
+                        ` : html`
+                            ${opt?.fields ? html`
+                                <optgroup label="${opt.id ?? opt.name}">
+                                    ${opt.fields.map(subopt => html`
+                                        ${UtilsNew.isObject(subopt) ? html`
+                                            <option 
+                                                ?disabled="${subopt.disabled}"
+                                                ?selected="${subopt.selected}"
+                                                .value="${subopt.id ?? subopt.name}"
+                                                data-content="${subopt.name}">
+                                            </option>
+                                        ` : html`
+                                            <option>${subopt}</option>
                                         `}
+                                    `)}
+                                </optgroup>
+                            ` : html`
+                                ${UtilsNew.isObject(opt) ? html`
+                                    <option 
+                                        ?disabled="${opt.disabled}"
+                                        ?selected="${opt.selected}"
+                                        .value="${opt.id ?? opt.name}"
+                                        data-content="${opt.name ?? opt.id}">
+                                    </option>
+                                ` : html`
+                                    <option data-content="${opt}">${opt}</option>
                                 `}
+                            `}
                         `}
                     `)}
                 </select>
