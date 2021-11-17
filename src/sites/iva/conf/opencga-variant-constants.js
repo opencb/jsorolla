@@ -28,7 +28,7 @@ const BIOTYPES = [
     "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
 ];
 
-const VARIANT_TYPES = ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "SV"];
+const VARIANT_TYPES = ["SNV", "INDEL", "MNV", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "SV"];
 
 const CLINICAL_SIGNIFICANCE = [
     {

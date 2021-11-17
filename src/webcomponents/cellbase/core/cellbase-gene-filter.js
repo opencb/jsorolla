@@ -133,4 +133,4 @@ export default class CellbaseGeneFilter extends LitElement {
 
 }
 
-customElements.define("cellbase-gene-filter", CellbaseGeneFilter);
+customElements.define("cellbase-gene-filter2", CellbaseGeneFilter);

@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/select-token-filter.js";
 
-
 export default class FeatureFilter extends LitElement {
 
     constructor() {
@@ -44,7 +43,7 @@ export default class FeatureFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "feaf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
     }
 
@@ -53,9 +52,10 @@ export default class FeatureFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(_changedProperties) {
+    updated(changedProperties) {
+        debugger
         // XRefs, Gene and Variant Ids
-        if (_changedProperties.has("query")) {
+        if (changedProperties.has("query")) {
             if (this.query.xref) {
                 this.value = this.query.xref;
             } else if (this.query.ids) {
@@ -117,7 +117,12 @@ export default class FeatureFilter extends LitElement {
     }
 
     render() {
-        return html`<select-token-filter .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange(e.detail.value)}"></select-token-filter>`;
+        return html`
+            <select-token-filter
+                .config=${this._config}
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange(e.detail.value)}">
+            </select-token-filter>`;
     }
 
 }
