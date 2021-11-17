@@ -153,7 +153,7 @@ export default class SelectFieldFilter extends LitElement {
             }
         }
 
-        LitUtils.dispatchEventCustom(self, "filterChange", val || null, null, {
+        LitUtils.dispatchEventCustom(this, "filterChange", val || null, null, {
             data: this.data,
         });
     }
