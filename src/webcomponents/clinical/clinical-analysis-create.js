@@ -264,6 +264,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     render() {
+
+        if (!this.opencgaSession?.study) {
+            return html `
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
         return html`
             <data-form
                 .data="${this.clinicalAnalysis}"
