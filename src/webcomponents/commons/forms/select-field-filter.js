@@ -89,7 +89,7 @@ export default class SelectFieldFilter extends LitElement {
         this.data = [];
         this.classes = "";
         this.elm = this._prefix + "selectpicker";
-        this.size = 10; // Default size
+        this.size = 20; // Default size
     }
 
     firstUpdated() {
