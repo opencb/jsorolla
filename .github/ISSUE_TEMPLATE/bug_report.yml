@@ -1,0 +1,47 @@
+name: "Bug Report"
+description: "If something isn't working as expected."
+title: ""
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        You must write here the minimal description of the bug. If applicable, add screenshots to help explain your problem.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+
+  - type: textarea
+    attributes:
+      label: Environment
+      description: Please provide information about your enviroment setup where the issue happen.
+      placeholder: |
+        - OS: [e.g. macOS 10.15.4, Windows 10]
+        - Browser [e.g. chrome, safari]
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Possible solution
+      description: "If you have suggestions on a fix for the bug."
+
+  - type: textarea
+    attributes:
+      label: Additional content
+      description: "Add any other content about the problem here."
+
