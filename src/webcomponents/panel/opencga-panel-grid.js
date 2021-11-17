@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../../core/utilsNew.js";
-import PolymerUtils from "../../../PolymerUtils.js";
+import UtilsNew from "../../core/utilsNew.js";
+import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-panel-summary.js";
 
 // TODO bootstraptable urgent refactor

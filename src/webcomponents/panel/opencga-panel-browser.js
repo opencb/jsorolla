@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../../core/utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-panel-editor.js";
 import "./opencga-panel-grid.js";
 import "./opencga-panel-summary.js";
