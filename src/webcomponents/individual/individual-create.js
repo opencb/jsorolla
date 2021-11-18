@@ -34,9 +34,6 @@ export default class IndividualCreate extends LitElement {
 
     static get properties() {
         return {
-            individual: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
@@ -53,39 +50,31 @@ export default class IndividualCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-
-        if (UtilsNew.isUndefined(this.individual)) {
-            this.individual = {};
-        }
     }
 
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         e.stopPropagation();
-        this.individual = {
-            ...FormUtils.createObject(
-                this.individual,
-                e.detail.param,
-                e.detail.value,
-            )};
-        // if (e.detail.value) {
-        //     if (prop) {
-        //         this.individual[field] = {
-        //             ...this.individual[field],
-        //             [prop]: e.detail.value
-        //         };
-        //     } else {
-        //         this.individual = {
-        //             ...this.individual,
-        //             [field]: e.detail.value
-        //         };
-        //     }
-        // } else {
-        //     if (prop) {
-        //         delete this.individual[field][prop];
-        //     } else {
-        //         delete this.individual[field];
-        //     }
-        // }
+        const param = field || e.detail.param;
+        switch (param) {
+            case "phenotypes":
+                this.individual = {...this.individual, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.individual = {...this.individual, disorders: e.detail.value};
+                break;
+            case "annotationsets":
+                this.individual = {...this.individual, annotationSets: e.detail.value};
+                break;
+            default:
+                this.individual = {
+                    ...FormUtils.createObject(
+                        this.individual,
+                        param,
+                        e.detail.value,
+                    )};
+                break;
+        }
+        this.requestUpdate();
     }
 
     onClear(e) {
@@ -108,23 +97,6 @@ export default class IndividualCreate extends LitElement {
                 console.error(err);
             });
     }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.individual = {...this.individual, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.individual = {...this.individual, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.individual = {...this.individual, annotationSets: e.detail.value};
-                break;
-        }
-        this.requestUpdate();
-    }
-
 
     render() {
         return html`
@@ -339,7 +311,7 @@ export default class IndividualCreate extends LitElement {
                                 render: individual => html`
                                     <phenotype-list-update
                                         .phenotypes="${individual?.phenotypes}"
-                                        @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                                        @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
                         },
@@ -361,7 +333,7 @@ export default class IndividualCreate extends LitElement {
                                         .disorders="${individual?.disorders}"
                                         .evidences="${individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeDisorders="${e => this.onSync(e, "disorders")}">
+                                        @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
                                     </disorder-list-update>`
                             }
                         }
@@ -382,7 +354,7 @@ export default class IndividualCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${individual?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationsets")}">
                                     </annotation-set-update>
                                 `
                             }
