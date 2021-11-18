@@ -112,35 +112,17 @@ class VariantInterpreterLanding extends LitElement {
             items: [
                 {
                     id: "general",
-                    name: "General",
+                    name: "General Info",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
-                                <tool-header title="General Settings - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
+                                <tool-header title="General Info - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
                                     </clinical-analysis-update>
-                                </div>
-                            </div>
-                        `;
-                    }
-                },
-                {
-                    id: "clinical",
-                    name: "Clinical",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header title="Clinical" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
-                                    <individual-view
-                                        .individual="${clinicalAnalysis.proband}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </individual-view>
                                 </div>
                             </div>
                         `;
@@ -160,6 +142,24 @@ class VariantInterpreterLanding extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </clinical-interpretation-manager>
+                                </div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    id: "clinical",
+                    name: "Clinical",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Clinical" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <individual-view
+                                        .individual="${clinicalAnalysis.proband}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </individual-view>
                                 </div>
                             </div>
                         `;
