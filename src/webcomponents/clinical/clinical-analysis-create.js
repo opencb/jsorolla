@@ -289,7 +289,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     isEmptyFieldIds(data) {
         const getConfigVisible = this._config.sections?.filter(section =>
             FormUtils.getBooleanValue(data, section?.display?.visible));
-        return UtilsNew.isEmptyIds(data, getConfigVisible);
+        return UtilsNew.isEmptyIds(data, getConfigVisible, ["id", "proband"]);
     }
 
     getDefaultConfig() {
