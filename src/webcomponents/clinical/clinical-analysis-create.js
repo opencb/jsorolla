@@ -286,10 +286,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
         `;
     }
 
-    isEmptyFieldIds(data) {
-        const getConfigVisible = this._config.sections?.filter(section =>
-            FormUtils.getBooleanValue(data, section?.display?.visible));
-        return UtilsNew.isEmptyIds(data, getConfigVisible, ["id", "proband"]);
+    isEmptyRequiredFields(data) {
+        // const getConfigVisible = this._config.sections?.filter(section =>
+        //     FormUtils.getBooleanValue(data, section?.display?.visible));
+        return UtilsNew.isEmptyFields(data, ["id", "proband"]);
     }
 
     getDefaultConfig() {
@@ -309,7 +309,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             ],
             buttons: {
                 show: true,
-                disabled: data => this.isEmptyFieldIds(data),
+                disabled: data => this.isEmptyRequiredFields(data),
                 clearText: "Clear",
                 submitText: "Create"
             },

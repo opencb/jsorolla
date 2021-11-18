@@ -63,15 +63,21 @@ export default class UtilsNew {
         }
     }
 
-    static isEmptyIds(obj, config, evaluteField = null) {
+    static isEmptyFields(obj, fields) {
+        if (fields) {
+            return !fields.every(field => this.isNotEmpty(obj[field]));
+        }
+        return false;
+    }
+
+    static isEmptyAllIds(obj, config) {
+        // Evaluate with fields has display visible.. it's for dynamic forms
+        // const getConfigVisible = this._config.sections?.filter(section =>
+        //     FormUtils.getBooleanValue(data, section?.display?.visible));
 
         if (this.isNotEmpty(obj) && this.isNotEmptyArray(config)) {
             const fields = config.map(section => section.elements
                 .filter(elm => elm?.field?.includes("id")))?.flat();
-
-            if (evaluteField) {
-                return !evaluteField.every(field => this.isNotEmpty(obj[field]));
-            }
 
             return !fields.every(item => item.field.includes(".") ? this.isNotEmpty(obj[item.field.split(".")[0]]) : this.isNotEmpty(obj[item.field]));
         }
