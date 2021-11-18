@@ -1119,13 +1119,15 @@ export default class DataForm extends LitElement {
 
     renderButtons() {
         // By default OK is disabled if the input object is empty
+        // const getConfigVisible = this.config.sections?.filter(section => this._getBooleanValue(section?.display?.visible));
+        const isDisabled = this.config.buttons?.disabled ? this._getBooleanValue(this.config.buttons?.disabled) : UtilsNew.isEmpty(this.data);
         return html`
             <div class="row">
                 <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
                         ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                     </button>
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled=${UtilsNew.isEmpty(this.data)}>
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled=${isDisabled}>
                         ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                     </button>
                 </div>

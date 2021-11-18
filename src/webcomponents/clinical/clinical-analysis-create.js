@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
@@ -285,6 +286,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
         `;
     }
 
+    isEmptyFieldIds(data) {
+        const getConfigVisible = this._config.sections?.filter(section =>
+            FormUtils.getBooleanValue(data, section?.display?.visible));
+        return UtilsNew.isEmptyIds(data, getConfigVisible);
+    }
+
     getDefaultConfig() {
         return {
             id: "clinical-analysis",
@@ -302,6 +309,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             ],
             buttons: {
                 show: true,
+                disabled: data => this.isEmptyFieldIds(data),
                 clearText: "Clear",
                 submitText: "Create"
             },

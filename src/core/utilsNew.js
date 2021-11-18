@@ -63,6 +63,17 @@ export default class UtilsNew {
         }
     }
 
+    static isEmptyIds(obj, config) {
+
+        if (this.isNotEmpty(obj) && this.isNotEmptyArray(config)) {
+            const fields = config.map(section => section.elements
+                .filter(elm => elm?.field?.includes("id")))?.flat();
+            return !fields.every(item => item.field.includes(".") ? this.isNotEmpty(obj[item.field.split(".")[0]]) : this.isNotEmpty(obj[item.field]));
+        }
+
+        return false;
+    }
+
     static isNotEmpty(obj) {
         return !this.isEmpty(obj);
     }
