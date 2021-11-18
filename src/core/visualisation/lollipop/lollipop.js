@@ -64,6 +64,7 @@ export default class Lollipop {
         // this.variantsG.draggable();
 
 
+        this.nodePadding = 1;// space between circles
         this.clusterFactor = .2; // cluster distance factor: merge 2 nodes if they overlap more than 80%
 
         // rescaling px to protein position
@@ -159,7 +160,7 @@ export default class Lollipop {
     drawVariants(track) {
         this.circles = this.filterVisible(track.variants);
         this.circles = this.prepareVariants(this.circles, track); // add viewPos, size (default) and offset (0)
-        this.clusterVariants(this.circles, track);
+        this.circles = this.clusterVariants(this.circles, track);
 
         const main = this.variantsG.group().addClass("variants-area-wrapper").transform({translateY: this.variantsOrigin + track.view.scaleHeight});
         const variantAreaWrapper = main.rect(this.outerCanvasWidth - this.canvasPadding * 2, track.view.variantAreaHeight).attr({fill: "#fff" /* stroke: "#9d9d9d"*/});
@@ -423,7 +424,7 @@ export default class Lollipop {
         };
 
 
-        const points = [];
+        const circles = [];
         const _variants = [...variants].sort((a, b) => a.pos - b.pos);
         let pool = [];
         let poolViewFramePos = 0;
@@ -443,7 +444,7 @@ export default class Lollipop {
                     pool.push(variant);
                     poolViewFramePos = (poolViewFramePos + variant.viewPos) / 2;
                 } else {
-                    points.push(addResult(pool));
+                    circles.push(addResult(pool));
                     pool = [variant];
                     poolViewFramePos = variant.viewPos;
 
@@ -453,19 +454,26 @@ export default class Lollipop {
 
         // TODO temp solution. there is still something in the pool
         if (pool.length) {
-            points.push(addResult(pool));
+            circles.push(addResult(pool));
         }
 
-
-        this.circles = points;
+        // CHECK if the current solution satisfies the frame constraints (the sum of the diameter of the circles + padding is < of this.canvasWidth)
+        // this will avoid an infinite loop in layoutVariants() (which would keep moving nodes left around without solving collisions)
+        const totalWidth = circles.reduce((acc, curr) => acc+curr.size, 0) + this.nodePadding * circles.length;
+        if (totalWidth < this.canvasWidth) {
+            return circles;
+        } else {
+            this.clusterFactor += .1;
+            console.error("no solution with the current clusterFactor, incrementing factor", this.clusterFactor);
+            return this.clusterVariants(variants, track);
+        }
     }
 
 
     /*
-     * Very similar as the previous step (clusterVariants).
-     * This time we don't cluster, we change the position of the circle, either of a single one or a whole group.
      *
      * NOTE: layoutVariants() have to be iterative, circles can be moved more than once (the offset can be negative and a circle can collide with the previous one)
+     * NOTE: we preemptively check if a solution exists with the current boundaries (clusterFactor and canvasWidth)
      * // TODO in progress
      */
     layoutVariants(circles, track) {
@@ -473,7 +481,7 @@ export default class Lollipop {
         this.circles = this.moveFromBoundaries(this.circles);
 
         // to detect infinite loops in layout
-        this.loopDetector = {};
+        // this.loopDetector = {};
 
         let i = 0;
         // eslint-disable-next-line no-constant-condition
@@ -504,12 +512,13 @@ export default class Lollipop {
          * 3. DONE implement updatable edges
          */
 
-        if (it > 20000) {
+        // hard stop
+        /* if (it > 20000) {
             console.error(it, " iteration exceeded");
             return -1;
-        }
+        } */
 
-        const boundaries = [0, 1000];
+        const boundaries = [0, this.canvasWidth];
 
         const step = 1;
         const collisions = this.detectCollisions(arr);
@@ -538,11 +547,7 @@ export default class Lollipop {
             left.offset -= step * 2;
         }
 
-        // TODO continue debug
-        const k = `${mostIntersected[0]} ${right.offset}-${left.offset}`;
-
-        console.log(k);
-        console.log(this.loopDetector);
+        /*const k = `${mostIntersected[0]} ${right.offset}-${left.offset}`;
         if (this.loopDetector[k]) {
             this.loopDetector[k] += 1;
             if (this.loopDetector[k] > 30) {
@@ -551,7 +556,7 @@ export default class Lollipop {
             }
         } else {
             this.loopDetector[k] = 1;
-        }
+        }*/
 
         // this.moveIntersected(arr, it+1);
         return 1;
@@ -560,7 +565,7 @@ export default class Lollipop {
     }
 
     detectCollisions(arr = []) {
-        const margin = 1; // margin between circles
+
         const result = [];
         for (let i = 0; i < arr.length - 1; i++) {
 
@@ -568,7 +573,7 @@ export default class Lollipop {
             const rightNodePos = (arr[i + 1].viewPos + arr[i + 1].offset) - (arr[i + 1].exploded ? arr[i + 1].size * 1.9 : arr[i + 1].size / 2);
             const leftNodePos = (arr[i].viewPos + arr[i].offset) + (arr[i].exploded ? arr[i].size * 1.9 : arr[i].size / 2);
             const dist = rightNodePos - leftNodePos;
-            if (dist < margin) {
+            if (dist < this.nodePadding) {
                 result.push([i + 0.5, dist]);
             }
             // TODO improve boundary detect collision [0, 1000]
