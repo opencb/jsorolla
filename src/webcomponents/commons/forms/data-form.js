@@ -264,7 +264,6 @@ export default class DataForm extends LitElement {
                 return false;
             } else {
                 this.emptyRequiredFields.add(element.field);
-                // return true;
                 return this.blurredFields.has(element.field);
             }
         }
@@ -273,7 +272,7 @@ export default class DataForm extends LitElement {
         return false;
     }
 
-    _isValid(element, value) {
+    _isValid(element, value, isCustom = false) {
         if (!value) {
             value = this.getValue(element.field) || this._getDefaultValue(element);
         }
@@ -284,8 +283,7 @@ export default class DataForm extends LitElement {
                 return true;
             } else {
                 this.invalidFields.add(element.field);
-                // return false;
-                return !this.blurredFields.has(element.field);
+                return isCustom ? false : !this.blurredFields.has(element.field);
             }
         }
 
@@ -1109,12 +1107,13 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
-        const result = element.display.render(data);
+        const isValid = this._isValid(element, data, true);
+        const result = element.display.render(data, isValid);
         if (result) {
             const width = this._getWidth(element);
             const style = element.display.style ? element.display.style : "";
             // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return html`<div class="" style="">${result}</div>`;
+            return html`<div class="" style=""> ${result}</div>`;
         } else {
             return this._getErrorMessage(element);
         }
