@@ -38,15 +38,9 @@ export default class ClinicalInterpretationSummary extends LitElement {
             interpretationId: {
                 type: String
             },
-            // primary: {
-            //     type: Boolean
-            // },
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
         };
     }
 
@@ -105,18 +99,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
                         elementLabelStyle: "padding-top: 0px; padding-left: 20px", // form add control-label which has an annoying top padding
                     },
                     elements: [
-                        // {
-                        //     // Interpretation number and badge
-                        //     type: "custom",
-                        //     display: {
-                        //         render: () => html`
-                        //             <div>
-                        //                 <span class="badge ${this.primary ? "badge-dark-blue" : "badge-light"}" style="margin: 0 20px 5px 20px">
-                        //                     ${this.primary ? "PRIMARY" : "SECONDARY"}
-                        //                 </span>
-                        //             </div>`
-                        //     }
-                        // },
                         {
                             // Interpretation ID, analyst and creation date
                             type: "custom",
@@ -185,12 +167,12 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-
                                     ${interpretation?.primaryFindings?.length > 0 ? html`
                                         <div>
                                             <span style="">${interpretation?.primaryFindings?.length} variants selected, variant stats:</span>
                                         </div>
-                                        ${[{title: "Tier", field: "tierCount"}, {title: "Gene", field: "geneCount"}, {title: "Status", field: "statusCount"}]
+                                        ${[{title: "Tier", field: "tierCount"}, {title: "Gene", field: "geneCount"}, {title: "Status", field: "statusCount"}, {title: "Status", field: "variantStatusCount"}]
+                                            .filter(value => interpretation?.stats?.primaryFindings?.[value.field])
                                             .map(value => html`
                                                 <div style="margin-left: 10px">
                                                     <span style="width: 120px; display: inline-block;">${value.title}: </span>

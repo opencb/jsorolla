@@ -151,7 +151,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 this.query.sample = this.somaticSample.id + ":0/1,1/1,NA";
             }
 
-            // 2. 'fileData' query param: fetch non SV files and set init query
+            // 2. 'panel' query param: add case panels to query object
+            if (this.clinicalAnalysis.interpretation?.panels?.length > 0) {
+                this.query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
+            } else {
+                if (this.clinicalAnalysis.panels?.length > 0) {
+                    this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+                }
+            }
+
+            // 3. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 // FIXME remove specific code for ASCAT!
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers

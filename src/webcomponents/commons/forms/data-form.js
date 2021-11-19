@@ -473,7 +473,7 @@ export default class DataForm extends LitElement {
         width = width ? width : 12;
 
         // When form we return a form-group
-        if (this.config.type && this.config.type === "form") {
+        if (this.config.type === "form") {
             if (layout === "horizontal") {
                 return html`
                     <div class="form-group">
@@ -1000,11 +1000,12 @@ export default class DataForm extends LitElement {
         }
         if (data) {
             return html`
-                <simple-chart   .active="${true}"
-                                .type="${element.display.highcharts?.chart?.type || "column"}"
-                                .title="${element.display.highcharts?.title?.text || element.name}"
-                                .data="${data}"
-                                .config="${element.display.highcharts}">
+                <simple-chart
+                    .active="${true}"
+                    .type="${element.display.highcharts?.chart?.type || "column"}"
+                    .title="${element.display.highcharts?.title?.text || element.name}"
+                    .data="${data}"
+                    .config="${element.display.highcharts}">
                 </simple-chart>`;
         } else {
             return this._getErrorMessage(element);
@@ -1168,7 +1169,7 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        if (this.config.display && this.config.display?.mode?.type === "modal") {
+        if (this.config.display?.mode?.type === "modal") {
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             const buttonStyle = this.config.display.mode.buttonStyle ? this.config.display.mode.buttonStyle : "";
             const isDisabled = this.config.display.mode.disabled === true;
@@ -1177,41 +1178,43 @@ export default class DataForm extends LitElement {
                     html `
                         ${this.renderBtnGroup(this.config.display.mode)}
                     `: html `
-                        <button type="button" class="btn ${buttonClass} ${isDisabled ? "disabled" : null}" style=${buttonStyle} data-toggle="modal" ?disabled="${isDisabled}" data-target="#${this._prefix}DataModal">
-                            ${this.config.display.mode.title ?
-                                html `${this.config.display.mode.title}`:
-                                html `
-                                    <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
-                                    ${this.config.title}
-                                ` }
+                        <button type="button"
+                                title="${this.config.description}"
+                                class="btn ${buttonClass} ripple ${isDisabled ? "disabled" : null}"
+                                style=${buttonStyle}
+                                data-toggle="modal"
+                                ?disabled="${isDisabled}"
+                                data-target="#${this._prefix}DataModal">
+                            <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
+                            ${this.config.title}
                         </button>
                     `}
 
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel"
+                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
                      aria-hidden="true">
                     <div class="modal-dialog" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 768}px">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title ${titleClass}" id="${this._prefix}exampleModalLabel">${title}</h4>
+                                <h4 class="modal-title ${titleClass}" id="${this._prefix}DataModalLabel">${title}</h4>
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
                                     ${this.renderData()}
                                 </div>
                             </div>
-                            ${this.config.buttons && this.config.buttons.show ?
+                            ${this.config.buttons?.show ?
                                 html`
                                     <div class="modal-footer">
                                         <div style="padding: 10px 20px">
-                                            <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onSubmit}">
-                                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
-                                            </button>
                                             <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onClear}">
                                                 ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                                             </button>
+                                            <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onSubmit}">
+                                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
+                                            </button>
                                         </div>
-                                    </div>` :
-                                null
+                                    </div>
+                                ` : null
                             }
                         </div>
                     </div>
