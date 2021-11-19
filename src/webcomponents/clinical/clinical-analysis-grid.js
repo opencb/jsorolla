@@ -185,7 +185,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <span style="margin: 5px 0">${value.stats.primaryFindings.numVariants} variants</span>
                 </div>
                 <div>
-                    <span class="help-block" style="margin: 5px 0">${value.stats.primaryFindings.variantStatusCount.REVIEWED} reviewed</span>
+                    <span class="help-block" style="margin: 5px 0">${value.stats.primaryFindings.statusCount?.REVIEWED} reviewed</span>
                 </div>
                 <div>
                     <span class="help-block" style="margin: 5px 0">
