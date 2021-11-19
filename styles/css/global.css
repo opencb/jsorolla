@@ -2601,7 +2601,8 @@ interpretation-editor .status-wrapper .row > div:last-child {
     background: #ecf0f5;
 }
 
-.select-field-filter-autocomplete .input-group-addon {
+.select-field-filter-autocomplete .input-group-addon,
+.file-upload-toggle {
     border-radius: 0;
     cursor:pointer;
     padding: 6px 9px;

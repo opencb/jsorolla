@@ -16,14 +16,14 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 
 /**
  * @deprecated
  * Bootstrap3-typeahead autocomplete
  * Use select-token-filter instead.
  *
- * TODO extract FileReader upload logic to a new component
+ * TODO DONE extract FileReader upload logic to a new component
  */
 
 export default class SelectFieldFilterAutocomplete extends LitElement {

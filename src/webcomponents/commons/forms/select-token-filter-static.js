@@ -18,8 +18,9 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import {classMap} from "lit/directives/class-map.js";
 import LitUtils from "../utils/lit-utils.js";
+
 /**
- * Tokel filter. Select2 version with static datasource
+ * Token filter. Select2 version with static datasource
  *
  */
 

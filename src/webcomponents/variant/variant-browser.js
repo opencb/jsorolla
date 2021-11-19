@@ -575,7 +575,7 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => {
-                                return html`<json-viewer .data="${variant.annotation.traitAssociation}" .active="${active}"></json-viewer>`;
+                                return html`<json-viewer .data="${variant.annotation}" .active="${active}"></json-viewer>`;
                             }
                         }
                         // TODO Think about Neeworks
