@@ -30,7 +30,6 @@ import "./variant-interpreter-methods.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/forms/select-field-filter-autocomplete-simple.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 
