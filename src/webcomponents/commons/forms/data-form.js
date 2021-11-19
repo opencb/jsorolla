@@ -59,6 +59,8 @@ export default class DataForm extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._prefixDates = [];
+        this.emptyRequiredFields = new Set();
+        this.invalidFields = new Set();
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -250,6 +252,43 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _isRequiredEmpty(element, value) {
+        if (!value) {
+            value = this.getValue(element.field) || this._getDefaultValue(element);
+        }
+
+        if (element.required) {
+            if (value) {
+                this.emptyRequiredFields.delete(element.field);
+                return false;
+            } else {
+                this.emptyRequiredFields.add(element.field);
+                return true;
+            }
+        }
+
+        // Field not required --> skip validation
+        return false;
+    }
+
+    _isValid(element, value) {
+        if (!value) {
+            value = this.getValue(element.field) || this._getDefaultValue(element);
+        }
+
+        if (typeof element?.validation?.validate === "function") {
+            if (element.validation.validate(value)) {
+                this.invalidFields.delete(element.field);
+                return true;
+            } else {
+                this.invalidFields.add(element.field);
+                return false;
+            }
+        }
+
+        // No validation function provided --> we assume value is valid
+        return true;
+    }
 
     renderData() {
         const classes = this.config?.display?.classes ?? "";
@@ -563,10 +602,11 @@ export default class DataForm extends LitElement {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
         const rows = element.display && element.display.rows ? element.display.rows : 1;
-        const isValid = this._getBooleanValue(element.display?.validation?.validate, true);
+        const isValid = this._isValid(element, value);
+        const isRequiredEmpty = this._isRequiredEmpty(element, value);
 
         return html`
-            <div class=${isValid? "" : "has-error"}>
+            <div class="${!isValid || isRequiredEmpty ? "has-error" : ""}">
                 <text-field-filter
                     placeholder="${element.display?.placeholder}"
                     .rows="${rows}"
@@ -580,8 +620,13 @@ export default class DataForm extends LitElement {
                 ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
                     <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
                 ` : null}
+                ${isRequiredEmpty ? html`
+                    <span class="help-block" style="margin:5px">This field is required!</span>
+                ` : null}
                 ${!isValid ? html`
-                    <span class="help-block" style="margin: 5px">${element.display.validation.message}</span>
+                    <span class="help-block" style="margin:5px">
+                        ${element.validation?.message || "This field value is invalid!"}
+                    </span>
                 ` : null}
             </div>
         `;
@@ -1120,13 +1165,14 @@ export default class DataForm extends LitElement {
 
     renderButtons() {
         // By default OK is disabled if the input object is empty
+        const submitDisabled = !this.data || this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
         return html`
             <div class="row">
                 <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
                         ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                     </button>
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled=${UtilsNew.isEmpty(this.data)}>
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled="${submitDisabled}">
                         ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                     </button>
                 </div>
