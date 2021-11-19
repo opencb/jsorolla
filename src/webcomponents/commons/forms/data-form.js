@@ -61,6 +61,7 @@ export default class DataForm extends LitElement {
         this._prefixDates = [];
         this.emptyRequiredFields = new Set();
         this.invalidFields = new Set();
+        this.blurredFields = new Set();
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -263,7 +264,8 @@ export default class DataForm extends LitElement {
                 return false;
             } else {
                 this.emptyRequiredFields.add(element.field);
-                return true;
+                // return true;
+                return this.blurredFields.has(element.field);
             }
         }
 
@@ -282,12 +284,20 @@ export default class DataForm extends LitElement {
                 return true;
             } else {
                 this.invalidFields.add(element.field);
-                return false;
+                // return false;
+                return !this.blurredFields.has(element.field);
             }
         }
 
         // No validation function provided --> we assume value is valid
         return true;
+    }
+
+    // This function registers the fields that has been entered, so we can display
+    // the required and validation messages
+    _onBlurField(field) {
+        this.blurredFields.add(field);
+        this.requestUpdate();
     }
 
     renderData() {
@@ -614,7 +624,7 @@ export default class DataForm extends LitElement {
                     ?required="${element.required}"
                     .value="${value}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @blurChange="${e => this.onBlurChange(element.field, e.detail.value)}"
+                    @blurChange="${e => this._onBlurField(element.field)}"
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
                 ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
@@ -623,7 +633,7 @@ export default class DataForm extends LitElement {
                 ${isRequiredEmpty ? html`
                     <span class="help-block" style="margin:5px">This field is required!</span>
                 ` : null}
-                ${!isValid ? html`
+                ${!isValid && !isRequiredEmpty ? html`
                     <span class="help-block" style="margin:5px">
                         ${element.validation?.message || "This field value is invalid!"}
                     </span>
