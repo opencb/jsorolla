@@ -20,6 +20,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import ClinicalAnalysisManager from "../clinical/clinical-analysis-manager.js";
 import "./clinical-interpretation-summary.js";
+import "./clinical-interpretation-create.js";
 
 export default class ClinicalInterpretationManager extends LitElement {
 
@@ -262,9 +263,9 @@ export default class ClinicalInterpretationManager extends LitElement {
         };
 
         switch (action) {
-            case "create":
-                this.clinicalAnalysisManager.createInterpretation(null, interpretationCallback);
-                break;
+            // case "create":
+            //     this.clinicalAnalysisManager.createInterpretation(null, interpretationCallback);
+            //     break;
             case "setAsPrimary":
                 this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
                 break;
@@ -299,11 +300,11 @@ export default class ClinicalInterpretationManager extends LitElement {
                     <div class="col-md-8" style="margin-bottom: 10px">
                         <h3 style="padding-bottom: 5px">Interpretations</h3>
                         <div class="pull-right">
-                            <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create"
-                                    @click="${this.onActionClick}">
-                                <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
-                                New Interpretation
-                            </button>
+                            <clinical-interpretation-create
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .mode=${"modal"}>
+                            </clinical-interpretation-create>
                         </div>
                     </div>
 

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 
 
 /**
@@ -83,17 +83,17 @@ export default class SelectFieldFilterRemote extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     limit: 10,
                     name: e.target.value
-                }).then( restResponse => {
-                    console.log("restResponse",restResponse.getResults())
-                    const data = restResponse.getResults().map( _ => ({id: _.id, name: _.id}));
+                }).then(restResponse => {
+                    console.log("restResponse", restResponse.getResults());
+                    const data = restResponse.getResults().map(_ => ({id: _.id, name: _.id}));
                     this.data = data;
                     this.requestUpdate();
-                    $('.selectpicker', this).selectpicker('refresh');
+                    $(".selectpicker", this).selectpicker("refresh");
 
-                })
+                });
             });
         });
-        $(".selectpicker", this).on("changed.bs.select", function(e, clickedIndex, isSelected, previousValue) {
+        $(".selectpicker", this).on("changed.bs.select", function (e, clickedIndex, isSelected, previousValue) {
             console.log(e);
 
         });

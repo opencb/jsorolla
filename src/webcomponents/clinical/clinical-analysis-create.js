@@ -265,7 +265,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     render() {
-
         if (!this.opencgaSession?.study) {
             return html `
                 <div class="guard-page">
@@ -402,9 +401,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.id",
                             type: "custom",
                             display: {
-                                render: data => {
+                                render: probandId => {
                                     return html`
                                         <individual-id-autocomplete
+                                            .value="${probandId}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config=${{
                                                 addButton: false,

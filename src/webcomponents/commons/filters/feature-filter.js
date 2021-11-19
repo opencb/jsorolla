@@ -43,7 +43,6 @@ export default class FeatureFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
     }
 
@@ -53,7 +52,6 @@ export default class FeatureFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        debugger
         // XRefs, Gene and Variant Ids
         if (changedProperties.has("query")) {
             if (this.query.xref) {
