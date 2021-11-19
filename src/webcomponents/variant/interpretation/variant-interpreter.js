@@ -396,7 +396,7 @@ class VariantInterpreter extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .config="${this._config.tools.find(tool => tool.id === "qc")}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "qc")}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
                                 </div>

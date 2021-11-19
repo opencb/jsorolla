@@ -15,14 +15,15 @@
  */
 
 import {LitElement, html} from "lit";
-import {classMap} from "lit/directives/class-map.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
+import "../../commons/view/detail-tabs.js";
 import "../../individual/individual-view.js";
+import "../../loading-spinner.js";
 
 class VariantInterpreterLanding extends LitElement {
 
@@ -55,181 +56,172 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
-        this.activeTab = "General";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    // update(changedProperties) {
-    //     super.update(changedProperties);
-    // }
-
-    // non-bootstrap tabs
-    _changeTab(e) {
-        e.preventDefault();
-        // Only allow tab change if we have a clinical analysis
-        if (this.clinicalAnalysis) {
-            this.activeTab = e.currentTarget.dataset.id;
-            this.requestUpdate();
-        }
+        this._config = this.getDefaultConfig();
     }
 
     onClinicalAnalysisUpdate(e) {
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            detail: {
-                clinicalAnalysis: e.detail.clinicalAnalysis
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    getLastClinicalAnalysis() {
-        // Fetch object from server since the server automatically adds some information
-        this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10, include: "id"})
-            .then(response => {
-                this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
-                this.lastClinicalAnalysis = [...this.lastClinicalAnalysis];
-                this.requestUpdate();
-            })
-            .catch(response => {
-                console.error("An error occurred fetching clinicalAnalysis: ", response);
-                this.lastClinicalAnalysis = [];
-            });
-    }
-
-    getDefaultConfig() {
-        return {};
+        LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
+            clinicalAnalysis: e.detail.clinicalAnalysis
+        });
     }
 
     render() {
-        // Check Project exists
-        if (!this.opencgaSession.project) {
+        // Check if project exists
+        if (!this.opencgaSession?.project) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
+                    <h3>No public projects available to browse. Please login to continue.</h3>
                 </div>
             `;
         }
 
-        if (this.config?.loading) {
-            return html`<loading-spinner></loading-spinner>`;
+        // Check if clinicalAnalysis is not available yet
+        if (!this.clinicalAnalysis) {
+            return html`
+                <div style="margin-top:48px">
+                    <loading-spinner></loading-spinner>
+                </div>
+            `;
+        }
+
+        // Check if we have permissions to edit a clinical analysis
+        if (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>You do not have permissions to edit this case.</h3>
+                </div>
+            `;
         }
 
         return html`
-            <div id="variant-interpreter-landing">
-                <div>
-                    <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "General" || this.activeTab === ""})}">
-                                <a href="javascript: void 0" role="tab" data-id="General"
-                                   @click="${e => this._changeTab(e)}" class="tab-title">General</a>
-                            </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Clinical"})}">
-                                <a href="javascript: void 0" role="tab" data-id="Clinical"
-                                   @click="${e => this._changeTab(e)}" class="tab-title">Clinical</a>
-                            </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Interpretations"})}">
-                                <a href="javascript: void 0" role="tab" data-id="Interpretations"
-                                   @click="${e => this._changeTab(e)}" class="tab-title">Interpretation Manager</a>
-                            </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Consent"})}">
-                                <a href="javascript: void 0" role="tab" data-id="Consent"
-                                   @click="${e => this._changeTab(e)}" class="tab-title">Consent</a>
-                            </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Audit"})}">
-                                <a href="javascript: void 0" role="tab" data-id="Audit"
-                                   @click="${e => this._changeTab(e)}" class="tab-title">Audit</a>
-                            </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Overview"})}">
-                                <a href="javascript: void 0" role="tab" data-id="Overview"
-                                   @click="${this._changeTab}" class="tab-title">Case Overview</a>
-                            </li>` : null
-                        }
-                    </ul>
-                </div>
+            <detail-tabs
+                .data="${this.clinicalAnalysis}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
+    }
 
-                <div class="content-tab-wrapper">
-                    ${this.activeTab === "General" ? html`
-                        <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
-                            <div style="padding: 0px 20px">
-                                <clinical-analysis-update
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </clinical-analysis-update>
+    getDefaultConfig() {
+        return {
+            display: {
+                align: "center",
+            },
+            items: [
+                {
+                    id: "general",
+                    name: "General Info",
+                    active: true,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="General Info - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <clinical-analysis-update
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </clinical-analysis-update>
+                                </div>
                             </div>
-                        </div>
-                    ` : null}
-
-                    ${this.activeTab === "Clinical" ? html`
-                        <div id="${this._prefix}Clinical" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            <tool-header title="Clinical" class="bg-white"></tool-header>
-                            <div style="padding: 0px 20px">
-                                <individual-view
-                                    .individual="${this.clinicalAnalysis.proband}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </individual-view>
+                        `;
+                    }
+                },
+                {
+                    id: "interpretations",
+                    name: "Interpretation Manager",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <clinical-interpretation-manager
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${opencgaSession}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    </clinical-interpretation-manager>
+                                </div>
                             </div>
-                        </div>
-                    ` : null}
-                    ${this.activeTab === "Interpretations" ? html`
-                        <div id="${this._prefix}Interpretations" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
-                            <div style="padding: 0px 20px">
-                                <clinical-interpretation-manager
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                </clinical-interpretation-manager>
+                        `;
+                    }
+                },
+                {
+                    id: "clinical",
+                    name: "Clinical",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Clinical" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <individual-view
+                                        .individual="${clinicalAnalysis.proband}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </individual-view>
+                                </div>
                             </div>
-                        </div>
-                    ` : null}
-                    ${this.activeTab === "Consent" ? html`
-                        <div id="${this._prefix}Consent" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
-                            <div style="padding: 0px 20px">
-                                <clinical-analysis-consent-editor
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .opencgaSession=${this.opencgaSession}>
-                                </clinical-analysis-consent-editor>
+                        `;
+                    }
+                },
+                {
+                    id: "consent",
+                    name: "Consent",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Consent - ${clinicalAnalysis?.proband.id || ""}" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <clinical-analysis-consent-editor
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </clinical-analysis-consent-editor>
+                                </div>
                             </div>
-                        </div>
-                    ` : null}
-                    ${this.activeTab === "Audit" ? html`
-                        <div id="${this._prefix}Audit" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            <tool-header title="Audit Log" class="bg-white"></tool-header>
-                            <div style="padding: 0px 10px">
-                                <clinical-analysis-audit-browser
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab === "Audit"}">
-                                </clinical-analysis-audit-browser>
+                        `;
+                    }
+                },
+                {
+                    id: "audit",
+                    name: "Audit",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Audit Log" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <clinical-analysis-audit-browser
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .active="${active}">
+                                    </clinical-analysis-audit-browser>
+                                </div>
                             </div>
-                        </div>
-                    ` : null}
-                    ${this.activeTab === "Overview" ? html`
-                        <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            ${this.clinicalAnalysis ? html`
-                                <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
+                        `;
+                    }
+                },
+                {
+                    id: "overview",
+                    name: "Overview",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <opencga-clinical-analysis-view
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${opencgaSession}">
                                     </opencga-clinical-analysis-view>
                                 </div>
-                            ` : null}
-                        </div>
-                    ` : null}
-                </div>
-            </div>
-        `;
+                            </div>
+                        `;
+                    }
+                },
+            ],
+        };
     }
 
 }
