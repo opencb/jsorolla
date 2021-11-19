@@ -190,7 +190,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                         <div>
                                             <span style="">${interpretation?.primaryFindings?.length} variants selected, variant stats:</span>
                                         </div>
-                                        ${[{title: "Tier", field: "tierCount"}, {title: "Gene", field: "geneCount"}, {title: "Status", field: "variantStatusCount"}]
+                                        ${[{title: "Tier", field: "tierCount"}, {title: "Gene", field: "geneCount"}, {title: "Status", field: "statusCount"}]
                                             .map(value => html`
                                                 <div style="margin-left: 10px">
                                                     <span style="width: 120px; display: inline-block;">${value.title}: </span>
