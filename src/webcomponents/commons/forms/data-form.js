@@ -509,6 +509,7 @@ export default class DataForm extends LitElement {
         const layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
         const showLabel = element?.showLabel ?? true;
         const labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
+        const labelRequiredMark = element.required? html`<b style="color:red;margin-left:8px;">*</b>`: "";
         let width = this._getWidth(element);
         width = width ? width : 12;
 
@@ -518,11 +519,13 @@ export default class DataForm extends LitElement {
                 return html`
                     <div class="form-group">
                         ${title ? html`
-                            <label class="control-label col-md-${labelWidth} ${elementLabelClasses}"
-                                   style="text-align: ${this.config.display?.labelAlign || "left"}; ${elementLabelStyle}">
+                            <label
+                                class="control-label col-md-${labelWidth} ${elementLabelClasses}"
+                                style="text-align: ${this.config.display?.labelAlign || "left"}; ${elementLabelStyle}">
                                 ${title}
-                            </label>` : null
-                        }
+                                ${labelRequiredMark}
+                            </label>
+                        ` : null}
                         <div class="col-md-${width - labelWidth}">
                             <div class="">
                                 ${content}
@@ -542,7 +545,7 @@ export default class DataForm extends LitElement {
                         <div class="${sectionWidth}" style="margin: 5px 0px">
                             ${title ? html`
                                 <label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">
-                                    ${title}
+                                    ${title} ${labelRequiredMark}
                                 </label>` : null
                             }
                             ${content ? html`
