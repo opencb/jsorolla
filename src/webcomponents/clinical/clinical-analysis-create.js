@@ -331,11 +331,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             required: true,
-                            // validate: () => {},
+                            // validation: () => {},
                             defaultValue: "",
                             display: {
                                 placeholder: "eg. AN-3",
-                            }
+                            },
+                            validation: {
+                                validate: id => id && !id.includes(" "),
+                                message: "ID must not contain spaces and other special chars",
+                            },
                         },
                         {
                             name: "Analysis Type",
@@ -400,6 +404,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             name: "Select Proband",
                             field: "proband.id",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: probandId => {
                                     return html`
