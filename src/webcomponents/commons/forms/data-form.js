@@ -59,9 +59,9 @@ export default class DataForm extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._prefixDates = [];
+        this.formSubmitted = false;
         this.emptyRequiredFields = new Set();
         this.invalidFields = new Set();
-        this.blurredFields = new Set();
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -264,7 +264,7 @@ export default class DataForm extends LitElement {
                 return false;
             } else {
                 this.emptyRequiredFields.add(element.field);
-                return this.blurredFields.has(element.field);
+                return true;
             }
         }
 
@@ -272,7 +272,7 @@ export default class DataForm extends LitElement {
         return false;
     }
 
-    _isValid(element, value, isCustom = false) {
+    _isValid(element, value) {
         if (!value) {
             value = this.getValue(element.field) || this._getDefaultValue(element);
         }
@@ -283,19 +283,12 @@ export default class DataForm extends LitElement {
                 return true;
             } else {
                 this.invalidFields.add(element.field);
-                return isCustom ? false : !this.blurredFields.has(element.field);
+                return false;
             }
         }
 
         // No validation function provided --> we assume value is valid
         return true;
-    }
-
-    // This function registers the fields that has been entered, so we can display
-    // the required and validation messages
-    _onBlurField(field) {
-        this.blurredFields.add(field);
-        this.requestUpdate();
     }
 
     renderData() {
@@ -595,6 +588,30 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _createElementTemplate(element, value, content) {
+        const isValid = this._isValid(element, value);
+        const isRequiredEmpty = this._isRequiredEmpty(element, value);
+        const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
+
+        return html`
+            <div class="${hasErrorMessages ? "has-error" : ""}">
+                ${content}
+                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
+                    <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
+                ` : null}
+                ${hasErrorMessages ? html`
+                    ${isRequiredEmpty ? html`
+                        <span class="help-block" style="margin:5px">This field is required!</span>
+                    ` : html`
+                        <span class="help-block" style="margin:5px">
+                            ${element.validation?.message || "This field value is invalid!"}
+                        </span>
+                    `}
+            ` : null}
+            </div>
+        `;
+    }
+
     _createTitleElement(element) {
         const titleClass = element.display?.textClass ? element.display.textClass : "";
         const titleStyle = element.display?.textStyle ? element.display.textStyle : "";
@@ -610,34 +627,20 @@ export default class DataForm extends LitElement {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
         const rows = element.display && element.display.rows ? element.display.rows : 1;
-        const isValid = this._isValid(element, value);
-        const isRequiredEmpty = this._isRequiredEmpty(element, value);
 
-        return html`
-            <div class="${!isValid || isRequiredEmpty ? "has-error" : ""}">
-                <text-field-filter
-                    placeholder="${element.display?.placeholder}"
-                    .rows="${rows}"
-                    ?disabled="${disabled}"
-                    ?required="${element.required}"
-                    .value="${value}"
-                    .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @blurChange="${e => this._onBlurField(element.field)}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                </text-field-filter>
-                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
-                    <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
-                ` : null}
-                ${isRequiredEmpty ? html`
-                    <span class="help-block" style="margin:5px">This field is required!</span>
-                ` : null}
-                ${!isValid && !isRequiredEmpty ? html`
-                    <span class="help-block" style="margin:5px">
-                        ${element.validation?.message || "This field value is invalid!"}
-                    </span>
-                ` : null}
-            </div>
+        const content = html`
+            <text-field-filter
+                placeholder="${element.display?.placeholder}"
+                .rows="${rows}"
+                ?disabled="${disabled}"
+                ?required="${element.required}"
+                .value="${value}"
+                .classes="${this._isUpdated(element) ? "updated" : ""}"
+                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+            </text-field-filter>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     _createInputNumberElement(element) {
@@ -646,22 +649,22 @@ export default class DataForm extends LitElement {
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
 
-        return html`
-            <div class="">
-                <number-field-filter
-                    label="Value"
-                    .value="${value ? value : ""}"
-                    .comparators=${element.comparators || null}
-                    .allowedValues=${element.allowedValues || null}
-                    .min=${min}
-                    .max=${max}
-                    .step="${step}"
-                    .placeholder="${element.display?.placeholder || ""}"
-                    .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                </number-field-filter>
-            </div>
+        const content = html`
+            <number-field-filter
+                label="Value"
+                .value="${value ? value : ""}"
+                .comparators=${element.comparators || null}
+                .allowedValues=${element.allowedValues || null}
+                .min=${min}
+                .max=${max}
+                .step="${step}"
+                .placeholder="${element.display?.placeholder || ""}"
+                .classes="${this._isUpdated(element) ? "updated" : ""}"
+                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+            </number-field-filter>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     _createInputDateElement(element) {
@@ -681,7 +684,7 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element.display.disabled, false);
         const width = this._getWidth(element);
 
-        return html`
+        const content = html`
             <div class='input-group date' id="${prefix}DuePickerDate" data-field="${element.field}">
                 <input
                     type="text"
@@ -690,10 +693,12 @@ export default class DataForm extends LitElement {
                     data-field="${element.field}"
                     ?disabled="${disabled}">
                 <span class="input-group-addon">
-                        <span class="fa fa-calendar"></span>
+                    <span class="fa fa-calendar"></span>
                 </span>
             </div>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     _createCheckboxElement(element) {
@@ -703,11 +708,13 @@ export default class DataForm extends LitElement {
         if (element.field.endsWith("FILTER")) {
             // debugger
         }
+
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";
             element.text = "Include only PASS variants";
         }
+
         return html`
             <div class="">
                 <input
@@ -876,7 +883,7 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
         const width = this._getWidth(element);
         if (allowedValues && allowedValues.length > 0) {
-            return html`
+            const content = html`
                 <div class="">
                     <select-field-filter
                         .data="${allowedValues}"
@@ -889,6 +896,8 @@ export default class DataForm extends LitElement {
                     </select-field-filter>
                 </div>
             `;
+
+            return this._createElementTemplate(element, null, content);
         } else {
             return this._getErrorMessage(element);
         }
@@ -1093,7 +1102,6 @@ export default class DataForm extends LitElement {
         }
     }
 
-
     _createCustomElement(element) {
         if (!element.display || !element.display.render) {
             return "All 'custom' elements must implement a 'display.render' function.";
@@ -1107,13 +1115,13 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
-        const isValid = this._isValid(element, data, true);
-        const result = element.display.render(data, isValid);
+
+        const result = element.display.render(data);
         if (result) {
-            const width = this._getWidth(element);
-            const style = element.display.style ? element.display.style : "";
+            // const width = this._getWidth(element);
+            // const style = element.display.style ? element.display.style : "";
             // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return html`<div class="" style=""> ${result}</div>`;
+            return this._createElementTemplate(element, data, result);
         } else {
             return this._getErrorMessage(element);
         }
@@ -1153,19 +1161,19 @@ export default class DataForm extends LitElement {
 
 
     onClear(e) {
-        this.dispatchEvent(new CustomEvent("clear", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
+        this.formSubmitted = false;
+        LitUtils.dispatchEventCustom(this, "clear", null, null, {});
     }
 
     onSubmit(e) {
-        this.dispatchEvent(new CustomEvent("submit", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
+        const hasInvalidFields = this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
+        if (hasInvalidFields) {
+            this.formSubmitted = true; // Form has been submited, display errors
+            this.requestUpdate();
+        } else {
+            this.formSubmitted = false;
+            LitUtils.dispatchEventCustom(this, "submit", null, null, {});
+        }
     }
 
     onCustomEvent(e, eventName, data) {
@@ -1174,14 +1182,13 @@ export default class DataForm extends LitElement {
 
     renderButtons() {
         // By default OK is disabled if the input object is empty
-        const submitDisabled = !this.data || this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
         return html`
             <div class="row">
                 <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
                         ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                     </button>
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled="${submitDisabled}">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}">
                         ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                     </button>
                 </div>
@@ -1246,7 +1253,7 @@ export default class DataForm extends LitElement {
                     `}
 
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                     aria-hidden="true">
+                    aria-hidden="true">
                     <div class="modal-dialog" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 768}px">
                         <div class="modal-content">
                             <div class="modal-header">
