@@ -205,16 +205,26 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     render() {
-        return html`
-            <form>
-                <div id="${this._prefix}-select-wrapper">
-                    <div class="input-group">
-                        <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
-                        ${this._config.fileUpload ? html`<span class="input-group-addon file-upload-toggle" @click="${this.toggleFileUpload}"><i class="fas fa-upload"></i></span>` : ""}
+        if (this._config.fileUpload) {
+            return html`
+                <form>
+                    <div id="${this._prefix}-select-wrapper">
+                        <div class="input-group">
+                            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                            <span class="input-group-addon file-upload-toggle" @click="${this.toggleFileUpload}">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                        </div>
+                        <file-upload @filterChange="${this.fileUploaded}"></file-upload>
                     </div>
-                    ${this._config.fileUpload ? html`<file-upload @filterChange="${this.fileUploaded}"></file-upload>` : ""}
-                </div>
-            </form>
+                </form>
+            `;
+        }
+
+        return html`
+            <div>
+                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+            </div>
         `;
     }
 
