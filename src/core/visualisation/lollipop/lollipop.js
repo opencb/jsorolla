@@ -301,7 +301,7 @@ export default class Lollipop {
         if (this.bar) {
             this.bar.clear();
         } else {
-            this.bar = this.draw.group().addClass("positionBar").transform({translateY: this.positionBarOrigin, translateX: this.canvasPadding});
+            this.bar = this.draw.group().addClass("positionBar").transform({translateY: this.positionBarOrigin, translateX: this.canvasPadding}).attr({"shape-rendering": "crispedges"});
         }
 
         track.view.positionBarHeight = track.view.height - 10;
@@ -318,7 +318,7 @@ export default class Lollipop {
         const cursorStart = this.bar.line(0, 0, 0, track.view.positionBarHeight).stroke({
             color: "#000",
             width: 0.2,
-        }).attr({shapeRendering: "crispEdges"});
+        }).attr({"shape-rendering": "crispEdges"});
 
         /* cursorStart.on('beforedrag', e => {
             console.log("cursorStart drag")
@@ -329,7 +329,24 @@ export default class Lollipop {
         })*/
 
         let mouseDown = false;
-        const rangeBar = this.bar.rect(0, track.view.positionBarHeight).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
+
+        const rangeBarWrapper = this.bar.group().addClass("range-bar");
+
+        const rangeBar = rangeBarWrapper.rect(0, track.view.positionBarHeight).attr({"fill": "#a1a1a1", "stroke": "black", "fill-opacity": .4}).addClass("range");
+        let rangeBarWidth = 0;
+        const handleXPos = track.view.positionBarHeight/2 - 7;
+        const startHandle = rangeBarWrapper.path("M -4.5 0.5 L 3.5 0.5 L 3.5 15.5 L -4.5 15.5 L -4.5 0.5 M -1.5 4 L -1.5 12 M 0.5 4 L 0.5 12")
+            .stroke({color: "#636363", width: 1})
+            .fill("#e7e7e7")
+            .attr({shapeRendering: "crispEdges"})
+            .y(track.view.positionBarHeight/2)
+            .addClass("bar-handle");
+        const endHandle = rangeBarWrapper.path("M -4.5 0.5 L 3.5 0.5 L 3.5 15.5 L -4.5 15.5 L -4.5 0.5 M -1.5 4 L -1.5 12 M 0.5 4 L 0.5 12")
+            .stroke({color: "#636363", width: 1})
+            .fill("#e7e7e7")
+            .attr({shapeRendering: "crispEdges"})
+            .y(track.view.positionBarHeight/2)
+            .addClass("bar-handle");
 
 
         this.bar.mousemove(e => {
@@ -338,18 +355,63 @@ export default class Lollipop {
             const mouseX = e.offsetX;
             if (mouseDown) {
 
-                const start = cursorStart.x() <= mouseX ? cursorStart.x() : mouseX;
+                const start = (cursorStart.x() <= mouseX) ? cursorStart.x() : mouseX;
                 const w = Math.abs(cursorStart.x() - mouseX);
                 this.viewRange = [start, start + w];
                 rangeBar.show();
-                rangeBar.size(Math.min(w + 1, this.canvasWidth), track.view.positionBarHeight).move(start); // +1 is for avoid 0 range
-                // console.log(start);
+
+                // avoids 0 width and > this.canvasWidth
+                rangeBarWidth = Math.min(w + 1, this.canvasWidth);
+                rangeBar.size(rangeBarWidth, track.view.positionBarHeight).move(start); // +1 is for avoid 0 range
+
+                startHandle.move(start - 4, handleXPos); // the size of the handle is 8x15
+                endHandle.move(start + w - 4, handleXPos);
+
             } else {
                 cursorStart.move(mouseX + 1, 0);
             }
 
             this.log(cursorStart.x(), rangeBar.width(), mouseX, this.viewRange, this.viewProteinRange, this.circles);
         });
+
+        rangeBarWrapper.draggable()
+            .on("dragmove", e => {
+                const {handler, box} = e.detail;
+                e.preventDefault();
+                let x;
+                if (box.x < 10) {
+                    x = -4; // avoid viewRange[0] < 0 and snap to 0 (-4 for the handle) in case you are close to 0
+                } else if (box.x > this.canvasWidth - rangeBarWidth - 10) {
+                    x = this.canvasWidth - rangeBarWidth - 4; // avoid viewRange[1] > this.canvasWidth and snap to it when you are close the limit
+                } else {
+                    x = box.x;
+                }
+                this.viewRange[0] = x;
+                this.viewRange[1] = x + rangeBarWidth;
+                handler.move(x, null);
+            });
+
+        startHandle.draggable()
+            .on("dragmove", e => {
+                const {handler, box} = e.detail;
+                e.preventDefault();
+                // TODO snap to 0
+                handler.move(box.x, handleXPos);
+                this.viewRange[0] = box.x - 4;
+                rangeBarWidth = this.viewRange[1] - box.x;
+                rangeBar.size(this.viewRange[1] - box.x, track.view.positionBarHeight).move(box.x + 4); // +4 is half of the size of the handle (on the startHandle)
+            });
+
+        endHandle.draggable()
+            .on("dragmove", e => {
+                const {handler, box} = e.detail;
+                e.preventDefault();
+                // TODO snap to this.canvasWidth
+                handler.move(box.x, handleXPos);
+                this.viewRange[1] = box.x + 4;
+                rangeBarWidth = box.x - this.viewRange[0] + 4;
+                rangeBar.size(rangeBarWidth, track.view.positionBarHeight)// .move(this.viewRange[0]);// .move(box.x + 4); // +4 is half of the size of the handle
+            });
 
         this.bar.mouseout(e => {
             cursorStart.hide();
@@ -547,7 +609,7 @@ export default class Lollipop {
             left.offset -= step * 2;
         }
 
-        /*const k = `${mostIntersected[0]} ${right.offset}-${left.offset}`;
+        /* const k = `${mostIntersected[0]} ${right.offset}-${left.offset}`;
         if (this.loopDetector[k]) {
             this.loopDetector[k] += 1;
             if (this.loopDetector[k] > 30) {
