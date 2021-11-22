@@ -1330,6 +1330,7 @@ export default class DataForm extends LitElement {
                             </div>
                             ${this.config.buttons?.show ? html`
                                 <div class="modal-footer">
+                                    ${this.renderGlobalValidationError()}
                                     <div style="padding: 10px 20px">
                                         <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onClear}">
                                             ${this.config.buttons?.cancelText || "Cancel"}
@@ -1338,7 +1339,6 @@ export default class DataForm extends LitElement {
                                             ${this.config.buttons?.okText || "OK"}
                                         </button>
                                     </div>
-                                    ${this.renderGlobalValidationError()}
                                 </div>
                             ` : null}
                         </div>
