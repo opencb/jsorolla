@@ -95,7 +95,11 @@ export default class SelectFieldFilter extends LitElement {
 
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
-        this.selectPicker.selectpicker("val", "");
+        this.selectPicker.selectpicker({
+            val: "",
+            multipleSeparator: "\n"
+        });
+        // this.selectPicker.selectpicker("val", "");
     }
 
     updated(changedProperties) {
@@ -181,7 +185,7 @@ export default class SelectFieldFilter extends LitElement {
                                 <optgroup label="${opt.id ?? opt.name}">
                                     ${opt.fields.map(subopt => html`
                                         ${UtilsNew.isObject(subopt) ? html`
-                                            <option 
+                                            <option
                                                 ?disabled="${subopt.disabled}"
                                                 ?selected="${subopt.selected}"
                                                 .value="${subopt.id ?? subopt.name}"
@@ -194,7 +198,7 @@ export default class SelectFieldFilter extends LitElement {
                                 </optgroup>
                             ` : html`
                                 ${UtilsNew.isObject(opt) ? html`
-                                    <option 
+                                    <option
                                         ?disabled="${opt.disabled}"
                                         ?selected="${opt.selected}"
                                         .value="${opt.id ?? opt.name}"
