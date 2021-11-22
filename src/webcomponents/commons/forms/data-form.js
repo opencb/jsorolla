@@ -60,6 +60,7 @@ export default class DataForm extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this._prefixDates = [];
         this.formSubmitted = false;
+        this.showGlobalValidationError = false;
         this.emptyRequiredFields = new Set();
         this.invalidFields = new Set();
 
@@ -234,6 +235,23 @@ export default class DataForm extends LitElement {
                     return this.config.display.help.icon;
                 } else {
                     return "fas fa-info-circle";
+                }
+            }
+        }
+    }
+
+    _getErrorIcon(element, section) {
+        if (element?.display?.errorIcon) {
+            return element.display.errorIcon;
+        } else {
+            if (section?.display?.errorIcon) {
+                return section.display.errorIcon;
+            } else {
+                if (this.config.display?.errorIcon) {
+                    return this.config.display.errorIcon;
+                } else {
+                    // Default error icon
+                    return "fa fa-times-circle";
                 }
             }
         }
@@ -508,7 +526,7 @@ export default class DataForm extends LitElement {
         const showLabel = element?.showLabel ?? true;
         const labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
         const labelAlign = this.config?.display?.labelAlign || "left";
-        const labelRequiredMark = element.required ? html`<b style="color:red;margin-left:8px;">*</b>` : "";
+        const labelRequiredMark = element.required ? html`<b class="text-danger" style="margin-left:8px;">*</b>` : "";
         const width = this._getWidth(element) || 12;
 
         // When form we return a form-group
@@ -594,13 +612,14 @@ export default class DataForm extends LitElement {
                     <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
                 ` : null}
                 ${hasErrorMessages ? html`
-                    ${isRequiredEmpty ? html`
-                        <span class="help-block" style="margin:5px">This field is required!</span>
-                    ` : html`
-                        <span class="help-block" style="margin:5px">
-                            ${element.validation?.message || "This field value is invalid!"}
-                        </span>
-                    `}
+                    <div class="help-block" style="display:flex;margin-top:8px;">
+                        <div style="margin-right:8px">
+                            <i class="${this._getErrorIcon(element)}"></i>
+                        </div>
+                        <div style="font-weight:bold;">
+                            ${isRequiredEmpty ? "This field is required." : element.validation.message}
+                        </div>
+                    </div>
                 ` : null}
             </div>
         `;
@@ -1173,29 +1192,59 @@ export default class DataForm extends LitElement {
 
     onClear(e) {
         this.formSubmitted = false;
+        this.showGlobalValidationError = false;
         LitUtils.dispatchEventCustom(this, "clear", null, null, {});
     }
 
     onSubmit(e) {
+        // Check if has invalid fields (not valid or required not filled)
         const hasInvalidFields = this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
         if (hasInvalidFields) {
             this.formSubmitted = true; // Form has been submited, display errors
-            this.requestUpdate();
-        } else {
-            this.formSubmitted = false;
-            LitUtils.dispatchEventCustom(this, "submit", null, null, {});
+            return this.requestUpdate();
         }
+
+        // Check for final validation
+        if (typeof this.config?.validation?.validate === "function") {
+            if (!this.config.validation.validate(this.data)) {
+                this.showGlobalValidationError = true;
+                return this.requestUpdate();
+            }
+        }
+
+        // Form valid --> dispatch submit event
+        this.formSubmitted = false;
+        this.showGlobalValidationError = false;
+        LitUtils.dispatchEventCustom(this, "submit", null, null, {});
     }
 
     onCustomEvent(e, eventName, data) {
         LitUtils.dispatchEventCustom(this, eventName, data);
     }
 
+    renderGlobalValidationError() {
+        if (this.showGlobalValidationError) {
+            return html`
+                <div class="help-block" style="display:flex;margin-bottom:16px;">
+                    <div class="text-danger" style="margin-right:16px">
+                        <i class="${this._getErrorIcon(null, null)}"></i>
+                    </div>
+                    <div class="text-danger" style="font-weight:bold;">
+                        ${this.config?.validation?.message || "There are some invalid fields..."}
+                    </div>
+                </div>
+            `;
+        }
+
+        // No validation error to display
+        return null;
+    }
+
     renderButtons() {
         // By default OK is disabled if the input object is empty
         // const getConfigVisible = this.config.sections?.filter(section => this._getBooleanValue(section?.display?.visible));
-        const isDisabled = this.config.buttons?.disabled ? this._getBooleanValue(this.config.buttons?.disabled) : UtilsNew.isEmpty(this.data);
         return html`
+            ${this.renderGlobalValidationError()}
             <div class="row">
                 <div class="${this.config?.buttons?.classes || "col-md-12"}" style="padding: 10px 20px">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
@@ -1205,7 +1254,8 @@ export default class DataForm extends LitElement {
                         ${this.config?.buttons?.okText || "OK"}
                     </button>
                 </div>
-            </div>`;
+            </div>
+        `;
     }
 
     render() {
@@ -1249,6 +1299,7 @@ export default class DataForm extends LitElement {
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             const buttonStyle = this.config.display.mode.buttonStyle ? this.config.display.mode.buttonStyle : "";
             const isDisabled = this.config.display.mode.disabled === true;
+
             return html`
                 ${this.config.display.mode.btnGroups ? html `
                     ${this.renderBtnGroup(this.config.display.mode)}
@@ -1287,6 +1338,7 @@ export default class DataForm extends LitElement {
                                             ${this.config.buttons?.okText || "OK"}
                                         </button>
                                     </div>
+                                    ${this.renderGlobalValidationError()}
                                 </div>
                             ` : null}
                         </div>
