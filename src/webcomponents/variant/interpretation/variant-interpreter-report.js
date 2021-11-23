@@ -205,14 +205,14 @@ class VariantInterpreterReport extends LitElement {
                             {field: "Ploidy", value: ascatMetrics.ploidy},
                             {field: "Aberrant cell fraction", value: ascatMetrics.aberrantCellFraction},
                         ];
-                        this._data.ascatPlots = ascatMetrics.images
+                        this._data.ascatPlots = ascatMetrics.files
                             .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
                             .map(id => files.find(f => f.id === id));
                     }
 
                     this._data.qcPlots = {};
-                    if (somaticSample.qualityControl?.variant?.genomePlots?.length > 0) {
-                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.genomePlots;
+                    if (somaticSample.qualityControl?.variant?.files?.length > 0) {
+                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.files;
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
@@ -770,7 +770,7 @@ class VariantInterpreterReport extends LitElement {
                             display: {
                                 render: () => html`
                                     <div class="help-block">
-                                        Variant Allele Fraction (VAF). Loss of Heterozygosity (LOH) (Chr, start position of segment, 
+                                        Variant Allele Fraction (VAF). Loss of Heterozygosity (LOH) (Chr, start position of segment,
                                         stop position of segment, total copy number, minor copy number).
                                     </div>
                                 `,
