@@ -205,14 +205,14 @@ class VariantInterpreterReport extends LitElement {
                             {field: "Ploidy", value: ascatMetrics?.ploidy || "NA"},
                             {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
-                        this._data.ascatPlots = ascatMetrics?.images
+                        this._data.ascatPlots = ascatMetrics?.files
                             .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
                             .map(id => files.find(f => f.id === id)) || [];
                     }
 
                     this._data.qcPlots = {};
-                    if (somaticSample.qualityControl?.variant?.genomePlots?.length > 0) {
-                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.genomePlots;
+                    if (somaticSample.qualityControl?.variant?.files?.length > 0) {
+                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.files;
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
@@ -559,7 +559,7 @@ class VariantInterpreterReport extends LitElement {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-                                                <!-- <image-viewer .data="${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
+                                                <!-- <image-viewer .data="\${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
                                             <img class="img-responsive" src="${qcPlots.genomePlots?.[0].file}"/>
                                         </div>
                                         <div class="col-md-5">

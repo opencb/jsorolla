@@ -84,7 +84,7 @@ export default class FileQcAscatMetrics extends LitElement {
                 const file = response.responses[0].results[0];
                 this._ascatMetrics = file.qualityControl.variant.ascatMetrics;
                 this._ascatMetrics.file = file.name;
-                const images = file.qualityControl.variant.ascatMetrics.images.join(",");
+                const images = file.qualityControl.variant.ascatMetrics.files.join(",");
                 return this.opencgaSession.opencgaClient.files().info(images, {
                     study: this.opencgaSession.study.fqn,
                 });
