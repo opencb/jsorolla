@@ -202,12 +202,12 @@ class VariantInterpreterReport extends LitElement {
                     if (ascatFile) {
                         const ascatMetrics = ascatFile.qualityControl.variant.ascatMetrics;
                         this._data.ascatMetrics = [
-                            {field: "Ploidy", value: ascatMetrics.ploidy},
-                            {field: "Aberrant cell fraction", value: ascatMetrics.aberrantCellFraction},
+                            {field: "Ploidy", value: ascatMetrics?.ploidy || "NA"},
+                            {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
-                        this._data.ascatPlots = ascatMetrics.files
+                        this._data.ascatPlots = ascatMetrics?.files
                             .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
-                            .map(id => files.find(f => f.id === id));
+                            .map(id => files.find(f => f.id === id)) || [];
                     }
 
                     this._data.qcPlots = {};
@@ -559,7 +559,7 @@ class VariantInterpreterReport extends LitElement {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-                                            <!-- <image-viewer .data="${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
+                                                <!-- <image-viewer .data="\${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
                                             <img class="img-responsive" src="${qcPlots.genomePlots?.[0].file}"/>
                                         </div>
                                         <div class="col-md-5">
@@ -608,6 +608,7 @@ class VariantInterpreterReport extends LitElement {
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -634,6 +635,7 @@ class VariantInterpreterReport extends LitElement {
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -666,6 +668,7 @@ class VariantInterpreterReport extends LitElement {
                             name: "High-confidence (category 1) driver events in this tumour include:",
                             type: "title",
                             display: {
+                                labelWidth: "8",
                                 labelStyle: "font-size:18px",
                             },
                         },
@@ -674,6 +677,7 @@ class VariantInterpreterReport extends LitElement {
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -700,6 +704,7 @@ class VariantInterpreterReport extends LitElement {
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -727,6 +732,7 @@ class VariantInterpreterReport extends LitElement {
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -753,16 +759,23 @@ class VariantInterpreterReport extends LitElement {
                             name: "Variants of interest with lower confidence as drivers (category 2) in this tumour include:",
                             type: "title",
                             display: {
+                                labelWidth: "8",
                                 labelStyle: "font-size:18px",
                             },
                         },
                         {
                             name: "Substitutions and indels",
                             defaultValue: "No variants found in this category",
+                            display: {
+                                defaultLayout: "vertical",
+                            }
                         },
                         {
                             name: "Structural rearrangements",
                             defaultValue: "No variants found in this category",
+                            display: {
+                                defaultLayout: "vertical",
+                            }
                         },
                         {
                             name: "",
@@ -782,13 +795,83 @@ class VariantInterpreterReport extends LitElement {
                     id: "mutational-signatures",
                     title: "3. Mutational Signatures",
                     elements: [
-
+                        {
+                            name: "Single base pair substitution signatures (SBS)",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            name: "",
+                            type: "custom",
+                            display: {
+                                defaultLayout: "vertical",
+                                render: clinicalAnalysis => html`
+                                    <div class="row" style="padding: 20px">
+                                        <div class="col-md-6">
+                                            <h4>SBS Profile</h4>
+                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4>SBS signature contributions</h4>
+                                            <span style="font-weight: bold">Pending</span>
+                                        </div>
+                                    </div>
+                                `,
+                            },
+                        },
+                        {
+                            name: "Indel signatures",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            name: "",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div>
+                                        <span style="font-weight: bold">Pending</span>
+                                    </div>
+                                `,
+                            },
+                        },
+                        {
+                            name: "Rearrangement signatures:",
+                            type: "title",
+                            display: {
+                                labelStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            name: "",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div>
+                                        <span style="font-weight: bold">Pending</span>
+                                    </div>
+                                `,
+                            },
+                        },
                     ]
                 },
                 {
                     id: "final-summary",
                     title: "4. Final Summary",
                     elements: [
+                        {
+                            name: "Case Status",
+                            field: "status.id",
+                            type: "select",
+                            allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
+                            required: true,
+                            display: {
+                            }
+                        },
                         {
                             name: "Discussion",
                             type: "input-text",
