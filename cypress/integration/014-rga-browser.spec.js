@@ -15,86 +15,130 @@
  * limitations under the License.
  */
 
-import {login, goTo, getResult, checkResults, checkResultsOrNot} from "../plugins/utils.js";
+import {login, goTo, getResult, checkResults, checkResultsOrNot, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
+let ENABLED = false;
 
 context("14 - RGA Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
-    /* "geneName",
-        "IndividualId",
-        "numParents",
-        "cohort",
-        "populationFrequencyAlt",
-        "type",
-        "consequenceType",
-        "clinicalSignificance"*/
-    it("14.1 - Gene View", () => {
+
+    it("14.0 - RGA Check availability for current study", () => {
+        cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
+        cy.get("rga-browser", {timeout: TIMEOUT}).then($comp => {
+            if (!Cypress.$("tool-header[title='Recessive Variant Browser']", $comp).length) {
+                cy.get("div.guard-page h3").contains("not enabled to Recessive Variant Analysis");
+            } else {
+                ENABLED = true;
+            }
+        });
+    });
+
+    it("14.1 - Variant View", () => {
+        if (!ENABLED) {
+            cy.log("RGA Variant View Test skipped");
+            return;
+        }
         cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Recessive Variant Browser");
-        cy.get("button[data-tab-id='gene-tab']", {timeout: TIMEOUT}).click({force: true});
+        cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
 
-        cy.get("rga-gene-view .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
-        cy.get("rga-gene-view .columns-toggle-wrapper ul li").and("have.length.gt", 1);
+        checkResults("rga-variant-view");
 
-        cy.get("rga-gene-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("rga-gene-view .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
+        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
+        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
-        cy.get("rga-gene-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("rga-gene-view .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
+        cy.get("rga-variant-view div[data-cy='variant-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
 
-        checkResults("rga-gene-view");
-
-        // gene Name
-        // queries for the first gene and then check if the first result contains the gene.
-        let geneName;
-        getResult("rga-gene-view", 0).then($text => {
-            geneName = $text;
-            cy.get("feature-filter textarea").type(geneName);
-            cy.get("feature-filter ul.dropdown-menu li").should("have.lengthOf", 1);
-
-            // occasionally fails
-            // Timed out retrying after 4050ms: cy.click() failed because this element is detached from the DOM.
-            // <a class="dropdown-item" href="#" role="option">DMKN</a>
-            cy.wait(500);
-            cy.get("feature-filter ul.dropdown-menu li.active a").click({force: true});
-            cy.get("div.search-button-wrapper button").click();
-
-            checkResults("rga-gene-view");
-            getResult("rga-gene-view", 0).then($resultCell => {
-                cy.wrap($resultCell).should("contain", geneName);
-
-            });
-        });
-
-        // knockoutType
-        cy.get("section-filter#Gene div[data-cy='knockoutType'] button").click();
-        cy.get("section-filter#Gene div[data-cy='knockoutType'] .dropdown-menu a").contains("COMP_HET").click();
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("rga-gene-view");
-
-        // set numParents=2
-        cy.get("section-filter#Confidence .magic-checkbox-wrapper > :nth-child(3) > label").click();
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("rga-gene-view");
-
-        // checking the number of CH Definite is > 0 (the current query is geneName=XXX,knockoutType=COMP_HET,numParents=2)
-        getResult("rga-gene-view", 3).then($CHDefiniteNum => {
-            // expect($div.text().trim()).gt(0)
-            assert.isAbove(Number($CHDefiniteNum), 0, "Results");
-        });
-
-        // cy.get("opencga-active-filters button[data-filter-name='knockoutType']").click();
+        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
+        cy.get("rga-variant-view div[data-cy='variant-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
 
         cy.get("button.active-filter-label").click();
         cy.get("a[data-action='active-filter-clear']").click();
-        checkResults("rga-gene-view");
 
+        checkResults("rga-variant-view");
+
+        cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
+        cy.get("div.search-button-wrapper button").click();
+        checkResults("rga-variant-view");
+
+        // variantId
+        let variantId;
+        getResult("rga-variant-view", 0).then(v => {
+            variantId = v.trim().match(/\d+:\d+\s{2}\w+\/\w+/)[0];
+            const [, pos, ref, alt] = v.trim().match(/(\d+:\d+)\s{2}(\w+)\/(\w+)/);
+            cy.get("div[data-cy='variants'] input").type(pos + ":" + ref + ":" + alt);
+            cy.get("div.search-button-wrapper button").click();
+            checkResults("rga-variant-view");
+            getResult("rga-variant-view", 0).then($resultCell => {
+                cy.wrap($resultCell).should("contain", variantId);
+            });
+        });
+        cy.get("opencga-active-filters button[data-filter-name='variants']").click();
+        checkResults("rga-variant-view");
+
+
+        // gene Name
+        // queries for the first gene and then check if the first result contains the gene.
+        let geneName = "";
+        getResult("rga-variant-view", 1).then($text => {
+            geneName = $text.split(",")[0];
+            selectToken("feature-filter", geneName, true);
+            cy.get("div.search-button-wrapper button").click();
+            checkResults("rga-variant-view");
+            getResult("rga-variant-view", 1).then($resultCell => {
+                cy.wrap($resultCell).should("contain", geneName);
+            });
+        });
+
+        cy.get("opencga-active-filters button[data-filter-name='geneName']").click();
+        checkResults("rga-variant-view");
+
+        // detail-tabs allele pairs table
+        cy.get("rga-variant-view detail-tabs ul.nav-tabs > li > a").contains("Allele Pairs").click();
+        checkResults("rga-variant-allele-pairs");
+        getResult("rga-variant-allele-pairs", 0).then($resultCell => {
+            // check the variant id stored before
+            const variant = $resultCell.trim();
+            cy.wrap(variant).should("contain", variantId.trim());
+        });
+
+        // detail-tabs Individuals table
+        // 1. get the first individual out of Individual View
+        // 2. use it to filter Variant View
+        // 3. check individual to be present in variant-individual-grid
+        cy.get("button[data-tab-id='individual-tab']", {timeout: TIMEOUT}).click({force: true});
+        checkResults("rga-individual-view");
+        let IndividualId= "";
+        getResult("rga-individual-view", 0).then($text => {
+            IndividualId = $text;
+            cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
+            checkResults("rga-variant-view");
+            selectToken("individual-id-autocomplete", IndividualId);
+            cy.get("div.search-button-wrapper button").click();
+            checkResults("rga-variant-view");
+
+            checkResults("rga-variant-individual");
+            getResult("rga-variant-individual", 0).then($resultCell => {
+                cy.wrap($resultCell).should("contain", IndividualId);
+            });
+
+            cy.get("opencga-active-filters button[data-filter-name='individualId']").click(); // remove individual id
+            cy.get("opencga-active-filters button[data-filter-name='type']").click(); // remove variant type
+
+            checkResults("rga-variant-individual");
+        });
     });
+
     it("14.2 - Individual View", () => {
+        if (!ENABLED) {
+            cy.log("RGA Individual View Test skipped");
+            return;
+        }
         cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Recessive Variant Browser");
         cy.get("button[data-tab-id='individual-tab']", {timeout: TIMEOUT}).click({force: true});
@@ -105,17 +149,21 @@ context("14 - RGA Browser", () => {
         cy.get("rga-individual-view .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         cy.get("rga-individual-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("rga-individual-view .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 1);
+        cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 1);
 
         cy.get("rga-individual-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("rga-individual-view .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+
+        selectToken("feature-filter", "CR1", true);
+        cy.get("div.search-button-wrapper button").click();
+        checkResults("rga-individual-view");
 
         // queries for the first gene and then check if the first result contains the gene.
         let IndividualId;
         getResult("rga-individual-view", 0).then($text => {
             IndividualId = $text;
             console.log("IndividualId i", IndividualId);
-            cy.get("div[data-cy='individualId'] input[type='text']").type(IndividualId + "{enter}");
+            selectToken("individual-id-autocomplete", IndividualId);
             cy.get("div.search-button-wrapper button").click();
             checkResults("rga-individual-view");
 
@@ -135,95 +183,64 @@ context("14 - RGA Browser", () => {
         checkResults("rga-individual-view");
 
     });
-    it("14.3 - Variant View", () => {
+
+    it("14.3 - Gene View", () => {
+        if (!ENABLED) {
+            cy.log("RGA Gene View Test skipped");
+            return;
+        }
         cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Recessive Variant Browser");
-        cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
+        cy.get("button[data-tab-id='gene-tab']", {timeout: TIMEOUT}).click({force: true});
 
-        checkResults("rga-variant-view");
+        cy.get("rga-gene-view .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
+        cy.get("rga-gene-view .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
-        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
-        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
+        cy.get("rga-gene-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
+        cy.get("rga-gene-view div[data-cy='gene-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
 
-        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("rga-variant-view > .container-fluid > .row .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
+        cy.get("rga-gene-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
+        cy.get("rga-gene-view div[data-cy='gene-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
 
-        cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("rga-variant-view > .container-fluid > .row .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
-
-        cy.get("button.active-filter-label").click();
-        cy.get("a[data-action='active-filter-clear']").click();
-
-        checkResults("rga-variant-view");
-
-        let variantId;
-        // region
-        getResult("rga-variant-view", 0).then(vId => {
-            variantId = vId;
-            const region = variantId.trim().match(/\d+:\d+/)[0];
-            cy.get("region-filter textarea").type(region);
-            cy.get("div.search-button-wrapper button").click();
-            checkResults("rga-variant-view");
-            getResult("rga-variant-view", 0).then($resultCell => {
-                cy.wrap($resultCell).should("contain", region);
-
-            });
-        });
-
-        cy.get("opencga-active-filters button[data-filter-name='region']").click();
-        checkResults("rga-variant-view");
+        checkResults("rga-gene-view");
 
         // gene Name
         // queries for the first gene and then check if the first result contains the gene.
-        let geneName = "";
-        getResult("rga-variant-view", 1).then($text => {
-            geneName = $text.split(",")[0];
-            cy.get("feature-filter textarea").type(geneName);
-            cy.get("feature-filter ul.dropdown-menu li").should("have.lengthOf", 1);
-
-            // occasionally fails
-            // Timed out retrying after 4050ms: cy.click() failed because this element is detached from the DOM.
-            // <a class="dropdown-item" href="#" role="option">DMKN</a>
-            cy.wait(500);
-            cy.get("feature-filter ul.dropdown-menu li.active a").click({force: true});
+        let geneName;
+        getResult("rga-gene-view", 0).then($text => {
+            geneName = $text;
+            selectToken("feature-filter", geneName, true);
             cy.get("div.search-button-wrapper button").click();
-
-            checkResults("rga-variant-view");
-            getResult("rga-variant-view", 1).then($resultCell => {
+            checkResults("rga-gene-view");
+            getResult("rga-gene-view", 0).then($resultCell => {
                 cy.wrap($resultCell).should("contain", geneName);
+
             });
         });
 
-        cy.get("opencga-active-filters button[data-filter-name='geneName']").click();
-        checkResults("rga-variant-view");
+        // knockoutType
+        cy.get("div[data-cy='knockoutType'] button").click();
+        cy.get("div[data-cy='knockoutType'] .dropdown-menu a").contains("Compound Heterozygous").click();
+        cy.get("div[data-cy='knockoutType'] .dropdown-menu a").contains("Homozygous").click();
+        cy.get("div.search-button-wrapper button").click();
+        checkResults("rga-gene-view");
 
-        // detail-tabs allele pairs table
-        cy.get("rga-variant-view detail-tabs ul.nav-tabs > li > a").contains("Allele Pairs").click();
-        checkResults("rga-variant-allele-pairs");
-        getResult("rga-variant-allele-pairs", 0).then($resultCell => {
-            // check the variant id stored before
-            cy.wrap($resultCell).should("contain", variantId);
+        // set numParents=2
+        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
+        cy.get("div.search-button-wrapper button").click();
+        checkResults("rga-gene-view");
+
+        // checking the number of CH Definite is > 0 (the current query is geneName=XXX,knockoutType=COMP_HET,numParents=2)
+        getResult("rga-gene-view", 3).then($CHDefiniteNum => {
+            const CHDef = $CHDefiniteNum.trim() !== "-" ? Number($CHDefiniteNum) : 0;
+            assert.isAtLeast(Number(CHDef), 0, "Results");
         });
 
-        // detail-tabs Individuals table
-        // 1. get the first individual out of Individual View
-        // 2. use it to filter Variant View
-        // 3. check individual to be present in variant-individual-grid
-        cy.get("button[data-tab-id='individual-tab']", {timeout: TIMEOUT}).click({force: true});
-        checkResults("rga-individual-view");
-        let IndividualId= "";
-        getResult("rga-individual-view", 0).then($text => {
-            IndividualId = $text;
-            cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
-            checkResults("rga-variant-view");
-            cy.get("div[data-cy='individualId'] input[type='text']").type(IndividualId + "{enter}");
-            cy.get("div.search-button-wrapper button").click();
-            checkResults("rga-variant-view");
+        // cy.get("opencga-active-filters button[data-filter-name='knockoutType']").click();
 
-            checkResults("rga-variant-individual-grid");
-            getResult("rga-variant-individual-grid", 0).then($resultCell => {
-                cy.wrap($resultCell).should("contain", IndividualId);
-            });
-        });
+        cy.get("button.active-filter-label").click();
+        cy.get("a[data-action='active-filter-clear']").click();
+        checkResults("rga-gene-view");
+
     });
 });

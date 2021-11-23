@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 
-
 export default class OpencgaFileView extends LitElement {
 
     constructor() {
@@ -75,11 +74,11 @@ export default class OpencgaFileView extends LitElement {
     fileIdObserver() {
         if (this.opencgaSession && this.fileId) {
             this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                .then( restResponse => {
+                .then(restResponse => {
                     this.file = restResponse.responses[0].results[0];
                     this.requestUpdate();
                 })
-                .catch( restResponse => {
+                .catch(restResponse => {
                     console.error(restResponse);
                 });
         } else {
@@ -174,7 +173,7 @@ export default class OpencgaFileView extends LitElement {
                             display: {
                                 visible: this.mode === "full",
                                 render: file => {
-                                    return html`<opencga-file-preview .opencgaSession=${this.opencgaSession} .active="${true}" .file="${file}"></opencga-file-preview>`
+                                    return html`<file-preview .opencgaSession=${this.opencgaSession} .active="${true}" .file="${file}"></file-preview>`;
                                 }
                             }
                         }

@@ -20,7 +20,7 @@ const OPENCGA_CLINICAL_ANALYSIS_BROWSER_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span.
         // It is supported either columns[] or hiddenColumns[].
         // TODO NOTE this refers to clinical-analysis-grid (same list in review-cases.settings)
-        columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "action"]
+        // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "action"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["clinical-analysis-view", "json-view"]

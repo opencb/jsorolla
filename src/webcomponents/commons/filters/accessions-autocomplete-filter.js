@@ -90,8 +90,8 @@ export default class AccessionsAutocompleteFilter extends LitElement {
                     IRI: item.iri,
                 };
             },
+            freeTag: true, // enables copy/paste of multiple terms
             select2Config: {
-                tags: true,
                 maximumSelectionLength: 100,
                 // NOTE some labels in HPO has commas. We ignore that at the moment and keep using "," and ";" as separators, otherwise the operators OR and AND won't work.
                 tokenSeparators: this._config?.separator ?? [","],

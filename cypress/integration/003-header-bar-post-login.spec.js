@@ -49,7 +49,7 @@ context("3 - Header bar (post-login): Checks each menu item in header-bar resolv
     it("3.4 - checks Individual Browser menu item", () => {
         cy.get("a[data-id=individual]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Individual Browser"); // should assertion comes from Chai and it follows its logic
-        checkResults("opencga-individual-grid");
+        checkResults("individual-grid");
 
     });
 
@@ -69,7 +69,7 @@ context("3 - Header bar (post-login): Checks each menu item in header-bar resolv
             cy.get("a[data-cy='active-study']").should("be.visible").and("contain", studyName).and("contain", projectName);
         });
     });
-    
+
     it("3.7 - checks User menu items", () => {
         cy.get("li[data-cy='user-menu'] > a").click();
         cy.get("a[data-user-menu='account']").click();

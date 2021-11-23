@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 
 export default class AnnotationUpdate extends LitElement {
 
@@ -54,6 +55,10 @@ export default class AnnotationUpdate extends LitElement {
 
     update(changedProperties) {
 
+        if (changedProperties.has("annotationSet")) {
+            this.annotationSetObserver();
+        }
+
         if (UtilsNew.isNotEmpty(this.annotationSet) && changedProperties.has("annotationSet")) {
             this.variableSetObserver().then(() =>{
                 this.getVariablesById(this.annotationSet.variableSetId);
@@ -71,7 +76,6 @@ export default class AnnotationUpdate extends LitElement {
 
     variableSetIdsObserver() {
         this.variableSetIds = this._variableSetIds?.filter(variableSetId => !this.variableSetIdsSelected.includes(variableSetId));
-        console.log("selected", this.variableSetIdsSelected, "result: ", this.variableSetIds);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -89,20 +93,12 @@ export default class AnnotationUpdate extends LitElement {
         }
     }
 
-    renderVariables() {
-        const variableSorted = this.variableSet?.variables.sort((a, b) => a.rank > b.rank? 1 : -1);
-        this.annotationsElements = variableSorted.map(item => {
-            return {
-                name: item.id,
-                field: `annotation.${item.name}`,
-                type: "input-text",
-                display: {
-                    placeholder: item.description,
-                }
-            };
-        });
-        this.refreshForm();
+    annotationSetObserver() {
+        if (this.annotationSet) {
+            this._annotationSet = JSON.parse(JSON.stringify(this.annotationSet));
+        }
     }
+
 
     refreshForm() {
         // When using data-form we need to update config object and render again
@@ -112,38 +108,67 @@ export default class AnnotationUpdate extends LitElement {
 
     onFieldChange(e) {
         e.stopPropagation();
-        const [field, prop] = e.detail.param.split(".");
-        if (e.detail.value) {
-            // if (field === "variableSetId") {
-            //     this.getVariablesById(e.detail.value);
-            //     this.annotationSet["annotation"] = {};
-            // }
-
-            if (field === "annotation") {
-                this.annotationSet[field] = {
-                    ...this.annotationSet[field],
-                    [prop]: e.detail.value
-                };
-            } else {
-                this.annotationSet = {
-                    ...this.annotationSet,
-                    [field]: e.detail.value
-                };
-            }
-        } else {
-            if (field === "annotation") {
-                delete this.annotationSet[field][prop];
-            } else {
-                delete this.annotationSet[field];
-            }
+        const field = e.detail.param.split(".")[0];
+        if (field === "annotation") {
+            this.updateParams = FormUtils.updateObjectWithProps(
+                this._annotationSet,
+                this.annotationSet,
+                this.updateParams,
+                e.detail.param,
+                e.detail.value
+            );
+            this.annotationSet["annotation"] = {
+                ...this.annotationSet["annotation"],
+                ...this.updateParams["annotation"]};
+            this.requestUpdate();
         }
-        console.log("this.annotationSet", this.annotationSet);
     }
 
     getVariablesById(variableId) {
         this.variableSet = this.variableSets.find(item => item.id === variableId);
         //     .variables.sort((a, b) => a.rank > b.rank? 1 : -1);
         this.renderVariables();
+    }
+
+    onSendAnnotationSet(e) {
+        e.stopPropagation();
+        this.updateParams = {};
+        LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
+    }
+
+    onClear(e) {
+        e.stopPropagation();
+        this.annotationSet = JSON.parse(JSON.stringify(this._annotationSet));
+        this.updateParams = {};
+        LitUtils.dispatchEventCustom(this, "closeForm");
+    }
+
+    renderVariables() {
+        const variableSorted = this.variableSet?.variables.sort((a, b) => a.rank > b.rank? 1 : -1);
+        this.annotationsElements = variableSorted.map(item => {
+            return {
+                name: item.name,
+                field: `annotation.${item.id}`,
+                type: "input-text",
+                display: {
+                    placeholder: item.description,
+                }
+            };
+        });
+        this.refreshForm();
+    }
+
+    render() {
+        return html`
+                <data-form
+                    .data=${this.annotationSet}
+                    .config="${this._config}"
+                    .updateParams=${this.updateParams}
+                    @fieldChange="${e => this.onFieldChange(e)}"
+                    @clear="${this.onClear}"
+                    @submit="${e => this.onSendAnnotationSet(e)}">
+                </data-form>
+    `;
     }
 
     getDefaultConfig() {
@@ -169,6 +194,7 @@ export default class AnnotationUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
+                                disabled: true,
                                 placeholder: "Id ...",
                             }
                         },
@@ -193,29 +219,6 @@ export default class AnnotationUpdate extends LitElement {
                 }
             ]
         };
-    }
-
-    onSendAnnotationSet(e) {
-        LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
-    }
-
-    onClearForm(e) {
-        e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "closeForm");
-    }
-
-    render() {
-        return html`
-            <div class="subform-test">
-                <data-form
-                    .data=${this.annotationSet}
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClearForm}"
-                    @submit="${e => this.onSendAnnotationSet(e)}">
-                </data-form>
-            </div>
-    `;
     }
 
 }

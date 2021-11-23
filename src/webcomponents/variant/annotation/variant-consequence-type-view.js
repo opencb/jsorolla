@@ -72,7 +72,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         // Transcript Section
         detailHtml += `<div style='padding: 20px 0px 10px 25px'><h4>Transcript Annotation</h4></div>
                             <div style='padding: 0px 40px'>`;
-        if (row.ensemblTranscriptId) {
+        if (row.transcriptId) {
             let exonOverlap = "NA";
             if (row.exonOverlap) {
                 let exons = [];
@@ -81,7 +81,7 @@ export default class VariantConsequenceTypeView extends LitElement {
                 }
                 exonOverlap = exons.join(", ");
             }
-            detailHtml += `<label style="padding-right: 10px">Ensembl Transcript ID:</label><a href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${row.ensemblTranscriptId}" target="_blank">${row.ensemblTranscriptId || "NA"}</a><br>
+            detailHtml += `<label style="padding-right: 10px">Ensembl Transcript ID:</label><a href="https://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${row.transcriptId}" target="_blank">${row.transcriptId || "NA"}</a><br>
                            <label style="padding-right: 10px">Strand:</label>${row.strand || "NA"}<br>
                            <label style="padding-right: 10px">cDNA Position:</label>${row.cdnaPosition || "NA"}<br>
                            <label style="padding-right: 10px">CDS Position:</label>${row.cdsPosition || "NA"}<br>
@@ -146,8 +146,8 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     transcriptFlagFormatter(value, row, index) {
-        if (row.ensemblTranscriptId) {
-            return row.transcriptAnnotationFlags && row.transcriptAnnotationFlags.length ? row.transcriptAnnotationFlags.join(", ") : "NA";
+        if (row.transcriptId) {
+            return row.transcriptFlags && row.transcriptFlags.length ? row.transcriptFlags.join(", ") : "NA";
         } else {
             return "-";
         }
@@ -230,19 +230,26 @@ export default class VariantConsequenceTypeView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: "Ensembl Gene",
-                        field: "ensemblGeneId",
+                        title: "Gene ID",
+                        field: "geneId",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.ensemblGeneFormatter,
                         halign: "center"
                     },
                     {
-                        title: "Ensembl Transcript",
-                        field: "ensemblTranscriptId",
+                        title: "Transcript ID",
+                        field: "transcriptId",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.ensemblTranscriptFormatter,
+                        halign: "center"
+                    },
+                    {
+                        title: "Source",
+                        field: "source",
+                        rowspan: 2,
+                        colspan: 1,
                         halign: "center"
                     },
                     {

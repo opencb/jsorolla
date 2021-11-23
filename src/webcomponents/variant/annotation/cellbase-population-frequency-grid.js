@@ -274,7 +274,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         }
 
         return html`
-            <div style="padding: 20px">
+            <div style="padding: 20px" data-cy="cellbase-population-frequency-table">
                 <table id="${this.gridId}"></table>
                 <div id="${this._prefix}Container"></div>
             </div>

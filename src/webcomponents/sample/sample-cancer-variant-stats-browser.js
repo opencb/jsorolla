@@ -103,8 +103,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
-        // this.parseFileDataQuery(this.query);
-
         this.requestUpdate();
     }
 
@@ -124,18 +122,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     sampleObserver() {
         if (this.opencgaSession && this.sample) {
             // let vcfIds = this.sample.fileIds?.filter(fileId => fileId.endsWith(".vcf") || fileId.endsWith(".vcf.gz")).join(",");
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this.sample.id, study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this.sample.id, format: "VCF", study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
-
-                    // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
-                    if (this.sample?.qualityControl?.variantMetrics) {
-                        this._variantStatsPath = "variantMetrics";
-                    } else if (this.sample?.qualityControl?.variant) {
-                        this._variantStatsPath = "variant";
-                    } else {
-                        console.error("unexpected QC data model");
-                    }
-
                     this.files = fileResponse.response[0].results;
 
                     // Prepare a map from caller to File
@@ -304,6 +292,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.signature = e.detail.signature;
     }
 
+    onChangeCircosPlot(e) {
+        this.circosPlot = e.detail.circosPlot;
+    }
+
     onSave(e) {
         const variantStats = {
             id: this.save.id,
@@ -312,43 +304,30 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             stats: this.sampleVariantStats
         };
 
-        // // Search bamFile for the sample
-        // // let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
-        // let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
-        // // Check if a metric object for that bamFileId exists
-        // let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFileId);
-        // if (metric) {
-        //     // Push the stats and signature in the existing metric object
-        //     metric.variantStats.push(variantStats);
-        //     metric.signatures.push(this.signature);
-        // } else {
-        //     // create a new metric
-        //     metric = {
-        //         bamFileId: bamFileId,
-        //         variantStats: [variantStats],
-        //         signatures: [this.signature]
-        //     }
-        //     // Check if this is the first metric object
-        //     if (this.sample?.qualityControl?.metrics) {
-        //         this.sample.qualityControl.metrics.push(metric);
-        //     } else {
-        //         this.sample["qualityControl"] = {
-        //             metrics: [metric]
-        //         };
-        //     }
-        // }
-
-        if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
-            this.sample.qualityControl[this._variantStatsPath] = {
+        if (!this.sample?.qualityControl?.variant) {
+            this.sample.qualityControl.variant = {
                 variantStats: [],
-                signatures: []
+                signatures: [],
+                genomePlots: []
             };
         }
 
-        if (this.sample.qualityControl[this._variantStatsPath].variantStats) {
-            this.sample.qualityControl[this._variantStatsPath].variantStats.push(variantStats);
+        if (this.sample.qualityControl.variant.variantStats) {
+            this.sample.qualityControl.variant.variantStats.push(variantStats);
         } else {
-            this.sample.qualityControl[this._variantStatsPath].variantStats = [variantStats];
+            this.sample.qualityControl.variant.variantStats = [variantStats];
+        }
+
+        if (this.sample.qualityControl.variant.signatures) {
+            this.sample.qualityControl.variant.signatures.push({id: this.save.id, ...this.signature});
+        } else {
+            this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
+        }
+
+        if (this.sample.qualityControl.variant.genomePlots) {
+            this.sample.qualityControl.variant.genomePlots.push({id: this.save.id, file: this.circosPlot});
+        } else {
+            this.sample.qualityControl.variant.genomePlots = [{id: this.save.id, file: this.circosPlot}];
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
@@ -466,44 +445,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         };
     }
 
-    /*
-        DEPRECATED
-     */
-    // onFilterChange(type, caller, value) {
-    //     if (value) {
-    //         if (!this.queries[type]) {
-    //             this.queries[type] = {};
-    //         }
-    //         // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
-    //         this.queries[type][caller] = value.detail.value;
-    //     } else {
-    //         delete this.queries[type][caller];
-    //     }
-    // }
-
-    // onVariantCallerFilterChange(type, caller, filter, query) {
-    //     debugger
-    //     if (filter) {
-    //         let [fileId, fileFilter] = filter.split(":");
-    //
-    //         if (fileFilter) {
-    //             if (!this.queries[type]) {
-    //                 this.queries[type] = {};
-    //             }
-    //             // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
-    //             if (this.queries[type][caller]) {
-    //                 this.queries[type][caller] += "," + fileFilter;
-    //             } else {
-    //                 this.queries[type][caller] = fileFilter;
-    //             }
-    //         } else {
-    //             delete this.queries[type][caller];
-    //         }
-    //     } else {
-    //         delete this.queries[type][caller];
-    //     }
-    // }
-
     getDefaultConfig() {
         return {
             title: "Cancer Variant Plots",
@@ -526,7 +467,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     {
                         id: "caveman",
                         type: "SNV",
-                        queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
+                        queryString: "FILTER=PASS;CLPM<=0;ASMD>=140"
                     },
                     {
                         id: "pindel",
@@ -536,38 +477,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     }
                 ],
                 sections: [ // sections and subsections, structure and order is respected
-                    {
-                        title: "Genomic Filters",
-                        collapsed: false,
-                        filters: [
-                            // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filter",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            // },
-                            {
-                                id: "region",
-                                title: "Genomic Location",
-                                tooltip: tooltips.region
-                            },
-                            {
-                                id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
-                            },
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: SAMPLE_STATS_BIOTYPES,
-                                tooltip: tooltips.biotype
-                            },
-                            {
-                                id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
                     {
                         title: "SNV Filters",
                         filters: [
@@ -669,7 +578,39 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 }
                             }
                         ]
-                    }
+                    },
+                    {
+                        title: "Genomic Filters",
+                        collapsed: false,
+                        filters: [
+                            // {
+                            //     id: "file-quality",
+                            //     title: "Quality Filter",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            // },
+                            {
+                                id: "region",
+                                title: "Genomic Location",
+                                tooltip: tooltips.region
+                            },
+                            {
+                                id: "feature",
+                                title: "Feature IDs (gene, SNPs, ...)",
+                                tooltip: tooltips.feature
+                            },
+                            {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: SAMPLE_STATS_BIOTYPES,
+                                tooltip: tooltips.biotype
+                            },
+                            {
+                                id: "consequence-type",
+                                title: "Select SO terms",
+                                tooltip: tooltips.consequenceTypeSelect
+                            }
+                        ]
+                    },
                 ],
                 examples: [
                     {
@@ -758,13 +699,14 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             ${this.executedQuery ?
                                 html`
                                     <div class="" style="padding: 0px 15px">
-                                        <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
-                                                                                .query="${this.executedQuery}"
-                                                                                .queries="${this.queries}"
-                                                                                .sampleId="${this.sample?.id}"
-
-                                                                                @changeSignature="${this.onChangeSignature}"
-                                                                                @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
+                                        <sample-cancer-variant-stats-plots
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .query="${this.executedQuery}"
+                                            .queries="${this.queries}"
+                                            .sampleId="${this.sample?.id}"
+                                            @changeSignature="${this.onChangeSignature}"
+                                            @changeCircosPlot="${this.onChangeCircosPlot}"
+                                            @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                                         </sample-cancer-variant-stats-plots>
                                     </div>` :
                                 html`
@@ -778,7 +720,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             </div>
         `;
     }
-    // .active="${this.active}"
 
 }
 

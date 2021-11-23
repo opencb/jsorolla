@@ -15,10 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/tool-header.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-
+import "../commons/tool-header.js";
 export default class CohortUpdate extends LitElement {
 
     constructor() {
@@ -71,7 +69,6 @@ export default class CohortUpdate extends LitElement {
     }
 
     cohortObserver() {
-        // When updating wee need to keep a private copy of the original object
         if (this.cohort) {
             this._cohort = JSON.parse(JSON.stringify(this.cohort));
         }
@@ -92,38 +89,90 @@ export default class CohortUpdate extends LitElement {
         }
     }
 
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     onFieldChange(e) {
         switch (e.detail.param) {
             case "id":
             case "name":
             case "description":
             case "type":
-                if (this._cohort[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.cohort[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
+            case "creationDate":
+            case "modificationDate":
+                this.updateParams = FormUtils.updateScalar(
+                    this._cohort,
+                    this.cohort,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
             case "status.name":
             case "status.description":
-                FormUtils.updateObject(
-                    this.cohort,
+                this.updateParams = FormUtils.updateObjectWithProps(
                     this._cohort,
+                    this.cohort,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
                 break;
         }
+        this.requestUpdate();
+    }
+
+
+    onClear() {
+        this._config = this.getDefaultConfig();
+        this.cohort = JSON.parse(JSON.stringify(this._cohort));
+        this.updateParams = {};
+        this.cohortId = "";
+    }
+
+    onSync(e, type) {
+        e.stopPropagation();
+        switch (type) {
+            case "samples":
+                let samples = [];
+                if (e.detail.value) {
+                    samples = e.detail.value.split(",").map(sample => {
+                        return {id: sample};
+                    });
+                }
+                this.cohort = {...this.cohort, samples: e.detail.value};
+                break;
+            case "annotationSets":
+                this.cohort = {...this.cohort, annotationSets: e.detail.value};
+                break;
+        }
+    }
+
+    onSubmit(e) {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            samplesAction: "SET",
+            annotationSetsAction: "SET",
+        };
+
+        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
+            .then(res => {
+                this._cohort = JSON.parse(JSON.stringify(this.cohort));
+                this.updateParams = {};
+                FormUtils.showAlert("Update Cohort", "Cohort updated correctly.", "success");
+            })
+            .catch(err => {
+                console.error(err);
+                FormUtils.showAlert("Update Chohoty", "Cohort not updated correctly", "error");
+            });
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.cohort}
+                .config="${this._config}"
+                .updateParams=${this.updateParams}
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear=${this.onClear}
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -158,10 +207,9 @@ export default class CohortUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short Sample id for thehis as;lsal"
+                                    text: "short cohort Id"
                                 },
                                 validation: {
-
                                 }
                             }
                         },
@@ -170,7 +218,9 @@ export default class CohortUpdate extends LitElement {
                             field: "type",
                             type: "select",
                             allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
-                            display: {}
+                            display: {
+                                placeholder: "Select a cohort type..."
+                            }
                         },
                         {
                             name: "Description",
@@ -178,7 +228,45 @@ export default class CohortUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "e.g. Homo sapiens, ..."
+                                placeholder: "Add a cohort description...",
+                            }
+                        },
+                        {
+                            name: "Samples",
+                            field: "samples",
+                            type: "custom",
+                            display: {
+                                render: cohort => {
+                                    const sampleIds = cohort?.samples?.map(sample => sample.id).join(",");
+                                    return html `
+                                    <sample-id-autocomplete
+                                        .value=${this.sampleIds}
+                                        .opencgaSession=${this.opencgaSession}
+                                        @filterChange="${e => this.onSync(e, "samples")}">
+                                    </sample-id-autocomplete>`;
+                                }
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
+                            }
+                        },
+                        {
+                            name: "Modification Date",
+                            field: "modificationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
                             }
                         },
                         {
@@ -186,8 +274,7 @@ export default class CohortUpdate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                rows: 3,
-                                placeholder: "Cohort description..."
+                                placeholder: "Add status name..."
                             }
                         },
                         {
@@ -196,43 +283,35 @@ export default class CohortUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Cohort description..."
+                                placeholder: "Add a status description..."
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Annotations Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: cohort => html`
+                                    <annotation-set-update
+                                        .annotationSets="${cohort?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
+                                    </annotation-set-update>
+                                `
                             }
                         }
                     ]
                 }
             ]
         };
-    }
-
-    onSubmit(e) {
-        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this._cohort = JSON.parse(JSON.stringify(this.cohort));
-                this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
-                FormUtils.showAlert("Edit Cohort", "Cohort updated correctly.", "success");
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    }
-
-    onClear() {
-
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.cohort}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear=${this.onClear}
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }

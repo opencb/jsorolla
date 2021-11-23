@@ -381,8 +381,10 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
-                                tooltip: tooltips.type
+                                tooltip: tooltips.type,
+                                params: {
+                                    types: VARIANT_TYPES,
+                                }
                             }
                         ]
                     },
@@ -478,27 +480,7 @@ export default class VariantBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "BRCA2 missense variants",
-                        active: false,
-                        query: {
-                            gene: "BRCA2",
-                            ct: "missense_variant"
-                        }
-                    },
-                    {
-                        id: "Complex Example",
-                        query: {
-                            "xref": "BRCA1,TP53",
-                            "biotype": "protein_coding",
-                            "type": "SNV,INDEL",
-                            "ct": "lof",
-                            "populationFrequencyAlt": "GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {}
                 },
@@ -593,7 +575,7 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => {
-                                return html`<json-viewer .data="${variant.annotation.traitAssociation}" .active="${active}"></json-viewer>`;
+                                return html`<json-viewer .data="${variant.annotation}" .active="${active}"></json-viewer>`;
                             }
                         }
                         // TODO Think about Neeworks
@@ -618,7 +600,7 @@ export default class VariantBrowser extends LitElement {
                                 id: "studies", name: "Study", type: "string"
                             },
                             {
-                                id: "type", name: "Variant Type", type: "category", allowedValues: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"]
+                                id: "type", name: "Variant Type", type: "category", allowedValues: VARIANT_TYPES
                             },
                             {
                                 id: "genes", name: "Gene", type: "string"

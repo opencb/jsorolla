@@ -190,7 +190,7 @@ module.exports = {
                 }
             ]}),
         /* new MethodExtractor({options: true, output: DIST_PATH + "/conf", components: [
-            "./lib/jsorolla/src/core/webcomponents/opencga/catalog/cohorts/opencga-cohort-browser.js"
+            "./lib/jsorolla/src/core/webcomponents/opencga/catalog/cohorts/cohort-browser.js"
             ]})*/
         // ignore is not the best way to externalize a resource, but webpack don't support external ES modules yet.
         // ignore makes sense because iva-app bundle will be an ES module on its own, so import X from "/jsorolla.min.js" won't be a problem if not processed by webpack

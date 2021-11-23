@@ -58,7 +58,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         toolbar: {
             showColumns: true,
             showExport: true,
-            showDownload: true
+            showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span.

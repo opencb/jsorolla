@@ -15,9 +15,11 @@
  */
 
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "./utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import "./forms/data-form.js";
+
 
 export default class ListUpdate extends LitElement {
 
@@ -32,8 +34,8 @@ export default class ListUpdate extends LitElement {
 
     static get properties() {
         return {
-            key: {
-                type: String
+            node: {
+                type: Object
             },
             data: {
                 type: Object,
@@ -46,49 +48,171 @@ export default class ListUpdate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // this._config = {...this.getDefaultConfig()};
-
-        if (UtilsNew.isUndefined(this.items)) {
-            this.items = [];
-        }
+        this._config = {...this.config};
     }
 
     _init() {
         this.status = {};
         this._prefix = UtilsNew.randomString(8);
+        this.item = {};
     }
 
-    editItem(e, key) {
-        const filterChange = {
-            data: {
-                param: e.detail.param,
-                value: e.detail.value
-            }, key};
-        LitUtils.dispatchEventCustom(this, "editChange", filterChange);
+    onFieldChange(e, index) {
         e.stopPropagation();
+        // Array
+        const {param, value} = e.detail;
+        if (index >= 0) {
+            if (value) {
+                this.data.items[index] = {
+                    ...this.data.items[index],
+                    [param]: value
+                };
+            } else {
+                delete this.data.items[index][param];
+            }
+            console.log("edited array item", this.data.items[index]);
+        } else {
+            if (value) {
+                this.item = {
+                    ...this.item,
+                    [param]: value
+                };
+            } else {
+                delete this.item[param];
+            }
+
+            if (this.node?.parent === "annotationIndexConfiguration") {
+                const itemData = {...e.detail, node: this.node, item: this.item};
+                LitUtils.dispatchEventCustom(this, "fieldChange", itemData);
+            }
+        }
+    }
+
+    onAddValues(e, key) {
+        e.stopPropagation();
+        console.log("Add Values", e.detail.value);
+        this.values = e.detail.value;
+        if (this.node?.parent === "annotationIndexConfiguration") {
+            const itemData = {values: this.values.split(","), node: this.node};
+            LitUtils.dispatchEventCustom(this, "addValues", itemData);
+        }
+    }
+
+
+    onSendItem(e, index, node) {
+        e.stopPropagation();
+        if (node?.child === "valuesMapping") {
+            this.item = {
+                ...this.item,
+                values: this.values ? this.values.split(",") : this.data.items[index]
+            };
+        }
+        const itemData = {index: index, node, item: index >= 0 ? this.data.items[index] : this.item};
+        LitUtils.dispatchEventCustom(
+            this,
+            "changeItem",
+            itemData);
+        // trigger a update .. it's work for all use case.
+        this.requestUpdate();
+    }
+
+    onRemoveItem(e, i, node) {
+        e.stopPropagation();
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                const itemData = this.removeItem(this.data.items, i, node);
+                LitUtils.dispatchEventCustom(this, "removeItem", itemData);
+                // trigger a update... refresh the list inside annotationFileConfigs
+                this.requestUpdate();
+                Swal.fire(
+                    "Deleted!",
+                    "The config has been deleted. (Test UI)",
+                    "success"
+                );
+            }
+        });
+    }
+
+    removeItem(items, i, node) {
+        if (node?.child === "valuesMapping") {
+            delete this.data.items[i];
+            return {index: i, node, items: this.data.items};
+        }
+
+        this.data.items = UtilsNew.removeArrayByIndex(items, i);
+        return {index: i, node, items: this.data.items};
     }
 
     render() {
-        if (this.data.items.constructor === Array) {
-            const title = this.config.edit.display.mode?.heading?.title || "id";
-            const subtitle = this.config.edit.display.mode?.heading?.subtitle || "description";
+        // TODO: Add a condition to know it's a key with values array
+        if (this.node?.child === "valuesMapping") {
+            const valuesMapping = this.data.items;
             return html`
-            ${this.data.items?.map(item => {
-                const status = {...item, parent: this.key? this.key : ""};
+                ${valuesMapping ?
+                    Object.keys(valuesMapping)?.map((key, i) => {
+                    const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
+                    // this.values[key] = itemData.values;
+                    return html`
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div style="padding-bottom:2px">
+                                        <b>${key}</b>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                        <data-form
+                                            .data="${itemData}"
+                                            @fieldChange=${e => this.onFieldChange(e)}
+                                            @filterChange=${e => this.onAddValues(e, key)}
+                                            @removeItem=${e => this.onRemoveItem(e, key, this.node)}
+                                            @submit=${e => this.onSendItem(e, key, this.node)}
+                                            .config="${this._config.edit}">
+                                        </data-form>
+                                </div>
+                            </div>
+                        </div> `;
+                    }) : nothing}
+                <data-form
+                    @fieldChange=${ e => this.onFieldChange(e)}
+                    @filterChange=${e => this.onAddValues(e)}
+                    @submit=${e => this.onSendItem(e, -1, this.node)}
+                    .config="${this._config.new}">
+                </data-form>`;
+        }
+
+        // applies when the data is an array
+        if (this.data.items.constructor === Array) {
+            const title = this._config.edit?.display?.mode?.item?.title || "id";
+            const subtitle = this._config.edit?.display?.mode?.item?.subtitle || "description";
+            return html`
+            ${this.data.items?.map((item, i) => {
+                const itemData = {...item, node: this.node, index: i};
                 return html`
                     <div class="list-group-item">
                         <div class="row">
                             <div class="col-md-8">
                                 <div style="padding-bottom:2px">
-                                    <b>${status[title]}</b>
-                                    <p class="text-muted">${status[subtitle]}</p>
+                                    <b>${item[title]}</b>
+                                    <p class="text-muted">${item[subtitle]}</p>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                     <data-form
-                                        .data="${status}"
-                                        @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
-                                        .config="${this.config.edit}">
+                                        .data="${itemData}"
+                                        @fieldChange=${ e => this.onFieldChange(e, i)}
+                                        @removeItem=${e => this.onRemoveItem(e, i, this.node)}
+                                        @submit=${e => this.onSendItem(e, i, this.node)}
+                                        .config="${this._config.edit}">
                                     </data-form>
                             </div>
                         </div>
@@ -96,23 +220,24 @@ export default class ListUpdate extends LitElement {
                 `;
             })}
             <data-form
-                .data="${this.status}"
-                @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity, new: true})}
-                .config="${this.config.new}">
+                @fieldChange=${ e => this.onFieldChange(e)}
+                @submit=${e => this.onSendItem(e, -1, this.node)}
+                .config="${this._config.new}">
             </data-form>`;
         }
 
         if (this.data.items.constructor === Object) {
+            // debugger;
+            // Annotation index config. (Configs without modal)
             return html `
                 <data-form
                     .data=${this.data.items}
-                    @fieldChange=${ e => this.editItem(e, {parent: this.key, entity: this.entity})}
-                    .config=${this.config.edit}>
+                    @filterChange=${e => this.onAddValues(e)}
+                    @fieldChange=${ e => this.onFieldChange(e)}
+                    .config=${this._config.edit}>
                 </data-form>
             `;
         }
-
-        return "Others Configs";
     }
 
 }

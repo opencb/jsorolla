@@ -89,7 +89,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                 .then(response => {
                     if (response.responses[0].numResults === 1) {
                         this.clinicalAnalysis = response.responses[0].results[0];
-                        this.requestUpdate();
+                        // this.requestUpdate();
                     }
                 })
                 .catch(function (reason) {
@@ -138,36 +138,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     }
 
                 ]
-                // layout: [
-                //     {
-                //         id: "",
-                //         classes: "col-md-6",
-                //         sections: [
-                //             {
-                //                 id: "detail",
-                //                 classes: "col-md-12"
-                //             },
-                //             {
-                //                 id: "proband",
-                //                 classes: "col-md-12"
-                //             }
-                //         ]
-                //     },
-                //     {
-                //         // id: "family",
-                //         classes: "col-md-6",
-                //         sections: [
-                //             {
-                //                 id: "family",
-                //                 classes: "col-md-12"
-                //             },
-                //             {
-                //                 id: "files",
-                //                 classes: "col-md-12"
-                //             }
-                //         ]
-                //     }
-                // ],
             },
             sections: [
                 {
@@ -402,11 +372,12 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                             showToolbar: false
                                         };
                                         return html`
-                                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
-                                                                     .individuals="${family.members}"
-                                                                     .config="${individualGridConfig}"
-                                                                     @filterChange="${e => this.onFamilyChange(e)}">
-                                            </opencga-individual-grid>
+                                            <individual-grid
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .individuals="${family.members}"
+                                                .config="${individualGridConfig}"
+                                                @filterChange="${e => this.onFamilyChange(e)}">
+                                            </individual-grid>
                                         `;
                                     }
                                 },
@@ -451,7 +422,10 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.clinicalAnalysis}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 

@@ -119,6 +119,7 @@ export default class OpencgaActiveFilters extends LitElement {
         if (changedProperties.has("filters")) {
             // If there is any active filter we set the first one in the initialisation
             if (this.filters) {
+                this.refreshFilters();
                 const activeFilter = this.filters.find(f => f.active);
                 if (activeFilter) {
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
@@ -280,18 +281,24 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     refreshFilters() {
-        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
-            const result = restResponse.getResults();
-
-            // (this.filters || []) in case this.filters (prop) is undefined
-            if (result.length > 0) {
-                this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
-            } else {
-                this._filters = [...(this.filters || [])];
+        // Merge passed filters with user saved filters
+        if (this.opencgaSession?.user?.filters?.length > 0) {
+            // Add passed filters
+            this._filters = this.filters || [];
+            // Add a separator
+            if (this._filters.length > 0 && !this._filters[this._filters.length - 1].separator) {
+                this._filters.push({separator: true});
             }
-            this.requestUpdate();
-            this.updateComplete.then(() => UtilsNew.initTooltip(this));
-        });
+            // Add user's saved filters
+            this._filters = [
+                ...this._filters,
+                ...this.opencgaSession.user.filters.filter(f => f.resource === this.resource)
+            ];
+        } else {
+            this._filters = [...(this.filters || [])];
+        }
+        this.requestUpdate();
+        this.updateComplete.then(() => UtilsNew.initTooltip(this));
     }
 
     // TODO recheck & refactor
@@ -654,9 +661,9 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
-                                ${this._filters && this._filters.length ? html`
+                                ${this._filters && this._filters.length > 0 ? html`
                                     <li>
-                                        <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                        <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Filters</strong></a>
                                     </li>
 
                                     ${this._filters.map(item => item.separator ?

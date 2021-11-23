@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken} from "../plugins/utils.js";
+import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 context("4. Variant Browser", () => {
@@ -52,7 +52,7 @@ context("4. Variant Browser", () => {
 
         cy.get("button[data-cy='filter-button']").click({force: true});
         // cy.get("ul.saved-filter-wrapper a").contains("Save filter...").click(); // it also works
-        cy.get("ul.saved-filter-wrapper a[data-action='active-filter-save']").contains("Save filter...").click();
+        cy.get("ul.saved-filter-wrapper a[data-action='active-filter-save']").contains("Save current filter").click();
 
         const name = randomString(5);
         // cy.get("input[data-cy='modal-filter-name']").type(name); // TODO Cypress doesn't type the entire string. https://github.com/cypress-io/cypress/issues/5480  invoke("val") is a workaround
@@ -99,7 +99,7 @@ context("4. Variant Browser", () => {
     });
 
     it("4.5 Filters. Genomic: Genomic Location", () => {
-        cy.get("variant-browser-filter a[data-accordion-id='Genomic']").click();
+        cy.get("variant-browser-filter a[data-cy-section-title='Genomic']").click();
         cy.get("region-filter textarea").type("1:5000000-10000000");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
@@ -108,9 +108,9 @@ context("4. Variant Browser", () => {
     });
 
     it("4.6 Filters. Genomic: Feature IDs", () => {
-        selectToken("feature-filter", "C5");
+        selectToken("feature-filter", "C5", true);
         cy.get("opencga-active-filters").contains("XRef");
-        selectToken("feature-filter", "rs");
+        selectToken("feature-filter", "rs", true);
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='xref']").click();
@@ -166,7 +166,7 @@ context("4. Variant Browser", () => {
 
     it("4.10 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
-        cy.get("variant-browser-filter a[data-accordion-id='ConsequenceType']").click();
+        cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
@@ -186,7 +186,7 @@ context("4. Variant Browser", () => {
 
     it("4.12 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
         // Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001
-        cy.get("variant-browser-filter a[data-accordion-id='PopulationFrequency']").click();
+        cy.get("variant-browser-filter a[data-cy-section-title='PopulationFrequency']").click();
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1kG_phase3']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3']").should("be.visible");
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
@@ -214,7 +214,7 @@ context("4. Variant Browser", () => {
 
     it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
         // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
-        cy.get("variant-browser-filter a[data-accordion-id='Clinical']").click();
+        cy.get("variant-browser-filter a[data-cy-section-title='Clinical']").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
         cy.get("div.search-button-wrapper button").click();
@@ -233,24 +233,29 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.16 Filters. GO", () => {
-        // TODO cannot relies on data-nodeid because the order in not guaranteed
-        // cy.get("go-accessions-filter > button").click();
-        // cy.get(".modal-body .list-group-item[data-nodeid='2'] > .expand-icon").click(); // click on cellular component
-        // cy.get(".modal-body .list-group-item[data-nodeid='2'] > .expand-icon").click(); // click on protein-containing complex
-        // cy.get(".modal-body .list-group-item[data-nodeid='3'] > .expand-icon").click(); // click on bcl3
+    it("4.16 Filters. GO and HPO", () => {
+        cy.get("[data-cy-section-title=Phenotype]").click();
 
-        // TODO you cannot tell in advance which is present in the study
-        // Phenotype: HPO Accessions Use example
-        /* cy.get("hpo-accessions-filter > textarea").type("HP:0041054");
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").click();*/
+        // GO
+        selectToken("go-accessions-filter", "guanyl", true); // guanyl-nucleotide exchange factor activity
+        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0005085");
+        removeToken("go-accessions-filter", "GO:0005085");
+
+        // HPO
+        cy.get("[data-cy-section-id=Phenotype]")
+            .then($div => {
+                // HPO filter is visible
+                if (Cypress.$(".subsection-content[data-cy='hpo']", $div).length) {
+                    selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant teratoma
+                    cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0012226");
+                    removeToken("hpo-accessions-filter", "HP:0012226");
+                }
+            });
     });
 
     it("4.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
-        cy.get("variant-browser-filter a[data-accordion-id='Deleteriousness']").click();
+        cy.get("variant-browser-filter a[data-cy-section-title='Deleteriousness']").click();
         cy.get("protein-substitution-score-filter .sift input[type='text']").type("0.1");
         cy.get("protein-substitution-score-filter .polyphen input[type='text']").type("0.1");
         cy.get("div.search-button-wrapper button").click();
@@ -271,14 +276,22 @@ context("4. Variant Browser", () => {
     });
 
     it("4.19 Filters. Conservation: PhyloP", () => {
-        // Conservation: PhyloP Use example
-        cy.get("variant-browser-filter a[data-accordion-id='Conservation']").click();
-        cy.get("conservation-filter .cf-phylop input[type='text']").type("1");
-        cy.get("conservation-filter .cf-phastCons input[type='text']").type("1");
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='conservation']").click();
-        checkResults("variant-browser-grid");
+        cy.get("variant-browser-filter")
+            .then($div => {
+                // Conservation Score is visible
+                if (Cypress.$("div[data-cy-section-id='Conservation']", $div).length) {
+                    // Conservation: PhyloP Use example
+                    cy.get("variant-browser-filter a[data-cy-section-title='Conservation']").click();
+                    cy.get("conservation-filter .cf-phylop input[type='text']").type("1");
+                    cy.get("conservation-filter .cf-phastCons input[type='text']").type("1");
+                    cy.get("div.search-button-wrapper button").click();
+                    checkResults("variant-browser-grid");
+                    cy.get("opencga-active-filters button[data-filter-name='conservation']").click();
+                    checkResults("variant-browser-grid");
+                } else {
+                    cy.get("div[data-cy-section-id='Conservation']").should("not.exist");
+                }
+            });
     });
 
     it("4.20 Check gene-view", () => {
@@ -302,13 +315,24 @@ context("4. Variant Browser", () => {
         checkResults("variant-consequence-type-view");
 
         cy.get("variant-browser-detail [data-id='annotationPropFreq']").click();
-        checkResultsOrNot("cellbase-population-frequency-grid");
+
+        cy.wait(1000);
+        cy.get("cellbase-population-frequency-grid")
+            .then($div => {
+                // check CB data are available
+                if (Cypress.$("div[data-cy='cellbase-population-frequency-table']", $div).length) {
+                    checkResultsOrNot("cellbase-population-frequency-grid");
+                } else {
+                    cy.get("cellbase-population-frequency-grid .alert-info").contains("No population frequencies found");
+                }
+            });
+
 
         cy.get("variant-browser-detail [data-id='annotationClinical']").click();
         checkResultsOrNot("variant-annotation-clinical-view");
 
         cy.get("variant-browser-detail [data-id='cohortStats']").click();
-        checkResults("variant-cohort-stats-grid");
+        checkResultsOrNot("variant-cohort-stats-grid");
 
         cy.get("variant-browser-detail [data-id='samples']").click();
         checkResults("opencga-variant-samples");
@@ -319,7 +343,7 @@ context("4. Variant Browser", () => {
 
     it("4.22 aggregated query", () => {
 
-        cy.get("variant-browser-filter a[data-accordion-id='ConsequenceType']").click();
+        cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
 
         cy.get("a[href='#facet_tab']").click({force: true});

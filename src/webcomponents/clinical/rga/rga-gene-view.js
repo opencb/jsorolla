@@ -89,7 +89,10 @@ export default class RgaGeneView extends LitElement {
                     title: "Recessive Variants",
                     field: "variantStats.count,variantStats.numHomAlt,variantStats.numCompHet"
                 }
-            ]
+            ],
+            showColumns: true,
+            showExport: false,
+            showDownload: true
         };
         this.requestUpdate();
         this.renderTable();
@@ -358,6 +361,7 @@ export default class RgaGeneView extends LitElement {
         } catch (e) {
             console.error(e);
             UtilsNew.notifyError(e);
+            return Promise.reject(e);
         }
 
     }
@@ -365,14 +369,14 @@ export default class RgaGeneView extends LitElement {
     /*
      * @deprecated
      */
-    _getConfidenceCount(facetFields, value) {
+    /* _getConfidenceCount(facetFields, value) {
         // TODO note this code implies 4 nested loops
         const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
         const CHFacet = knockoutTypes?.buckets?.find(bucket => bucket.value === "COMP_HET");
         const numParentFacet = CHFacet?.facetFields?.find(facetField => facetField.name === "numParents");
         const numParents = numParentFacet?.buckets?.find(bucket => bucket.value === value);
         return numParents?.count ?? "-";
-    }
+    }*/
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
@@ -447,7 +451,7 @@ export default class RgaGeneView extends LitElement {
                  @download="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" data-cy="gene-view-grid">
                 <table id="${this._prefix}RgaGeneBrowserGrid"></table>
             </div>
 

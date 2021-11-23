@@ -34,9 +34,6 @@ export default class IndividualCreate extends LitElement {
 
     static get properties() {
         return {
-            individual: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
@@ -53,35 +50,31 @@ export default class IndividualCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-
-        if (UtilsNew.isUndefined(this.individual)) {
-            this.individual = {};
-        }
     }
 
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         e.stopPropagation();
-        const [field, prop] = e.detail.param.split(".");
-        if (e.detail.value) {
-            if (prop) {
-                this.individual[field] = {
-                    ...this.individual[field],
-                    [prop]: e.detail.value
-                };
-            } else {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "phenotypes":
+                this.individual = {...this.individual, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.individual = {...this.individual, disorders: e.detail.value};
+                break;
+            case "annotationsets":
+                this.individual = {...this.individual, annotationSets: e.detail.value};
+                break;
+            default:
                 this.individual = {
-                    ...this.individual,
-                    [field]: e.detail.value
-                };
-            }
-        } else {
-            if (prop) {
-                delete this.individual[field][prop];
-            } else {
-                delete this.individual[field];
-            }
+                    ...FormUtils.createObject(
+                        this.individual,
+                        param,
+                        e.detail.value,
+                    )};
+                break;
         }
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
     onClear(e) {
@@ -105,21 +98,18 @@ export default class IndividualCreate extends LitElement {
             });
     }
 
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.individual = {...this.individual, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.individual = {...this.individual, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.individual = {...this.individual, annotationSets: e.detail.value};
-                break;
-        }
-        this.requestUpdate();
+    render() {
+        return html`
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
     }
+
 
     getDefaultConfig() {
         return {
@@ -147,9 +137,9 @@ export default class IndividualCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a short ID...",
+                                placeholder: "Add an ID...",
                                 help: {
-                                    text: "short individual id for..."
+                                    text: "Add an ID"
                                 }
                             }
                         },
@@ -158,7 +148,7 @@ export default class IndividualCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "Add the Individual name..."
                             }
                         },
                         {
@@ -166,7 +156,7 @@ export default class IndividualCreate extends LitElement {
                             field: "father",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "Add the individual father ID..."
                             }
                         },
                         {
@@ -174,7 +164,7 @@ export default class IndividualCreate extends LitElement {
                             field: "mother",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "Add the individual mother ID..."
                             }
                         },
                         {
@@ -182,7 +172,9 @@ export default class IndividualCreate extends LitElement {
                             field: "sex",
                             type: "select",
                             allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
-                            display: {}
+                            display: {
+                                placeholder: "Select the sex..."
+                            }
                         },
                         {
                             name: "Birth",
@@ -199,7 +191,9 @@ export default class IndividualCreate extends LitElement {
                             name: "Ethnicity",
                             field: "ethnicity",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add an Ethnicity..."
+                            }
                         },
                         {
                             name: "Parental Consanguinity",
@@ -213,14 +207,18 @@ export default class IndividualCreate extends LitElement {
                             field: "karyotypicSex",
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
-                            display: {}
+                            display: {
+                                placeholder: "Select the Karyotypic Sex..."
+                            }
                         },
                         {
                             name: "Life Status",
                             field: "lifeStatus",
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                            display: {}
+                            display: {
+                                placeholder: "Select the life status..."
+                            }
                         }
                     ]
                 },
@@ -231,31 +229,41 @@ export default class IndividualCreate extends LitElement {
                             name: "Address",
                             field: "location.address",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the location info..."
+                            }
                         },
                         {
                             name: "Portal code",
                             field: "location.postalCode",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the portal code..."
+                            }
                         },
                         {
                             name: "City",
                             field: "location.city",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the city name..."
+                            }
                         },
                         {
                             name: "State",
                             field: "location.state",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the state name..."
+                            }
                         },
                         {
                             name: "Country",
                             field: "location.country",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the country name..."
+                            }
                         }
                     ]
                 },
@@ -266,13 +274,17 @@ export default class IndividualCreate extends LitElement {
                             name: "Population name",
                             field: "population.name",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the population name..."
+                            }
                         },
                         {
                             name: "Subpopulation",
                             field: "population.subpopulation",
                             type: "input-text",
-                            display: {}
+                            display: {
+                                placeholder: "Add the sub-population name..."
+                            }
                         },
                         {
                             name: "populaton description",
@@ -280,7 +292,7 @@ export default class IndividualCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "add a description..."
+                                placeholder: "Add a description about the population..."
                             }
                         }
                     ]
@@ -296,10 +308,10 @@ export default class IndividualCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: individual => html`
                                     <phenotype-list-update
-                                        .phenotypes="${this.individual?.phenotypes}"
-                                        @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                                        .phenotypes="${individual?.phenotypes}"
+                                        @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
                         },
@@ -316,52 +328,41 @@ export default class IndividualCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: () => html`
+                                render: individual => html`
                                     <disorder-list-update
-                                        .disorders="${this.individual?.disorders}"
-                                        .evidences="${this.individual?.phenotypes}"
+                                        .disorders="${individual?.disorders}"
+                                        .evidences="${individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeDisorders="${e => this.onSync(e, "disorders")}">
+                                        @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
                                     </disorder-list-update>`
                             }
                         }
                     ]
                 },
-                // {
-                //     title: "Annotation Sets",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${this.individual?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets=${e => this.onSync(e,"annotationsets")}>
-                //                     </annotation-set-update>`
-                //             }
-                //         }
-                //     ]
-                // }
+                {
+                    title: "Annotations Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: individual => html`
+                                    <annotation-set-update
+                                        .annotationSets="${individual?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationsets")}">
+                                    </annotation-set-update>
+                                `
+                            }
+                        }
+                    ]
+                }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.individual}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
     }
 
 }

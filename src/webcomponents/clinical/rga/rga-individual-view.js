@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import "./rga-individual-variants.js";
 import "./rga-individual-family.js";
 import "./../../commons/view/detail-tabs.js";
 
@@ -117,7 +116,10 @@ export default class RgaIndividualView extends LitElement {
                     title: "Case ID",
                     field: "attributes.OPENCGA_CLINICAL_ANALYSIS"
                 }
-            ]
+            ],
+            showColumns: true,
+            showExport: false,
+            showDownload: true
         };
 
         this.renderTable();
@@ -291,7 +293,7 @@ export default class RgaIndividualView extends LitElement {
     /*
      * @deprecated
      */
-    mapResult(results) {
+    /* mapResult(results) {
         const rows = results.rows.map(ind => {
             const totalConfidence = this.getKnockoutGeneCount(ind.genes, "COMP_HET");
             const ch = {
@@ -316,7 +318,7 @@ export default class RgaIndividualView extends LitElement {
             total: results.total,
             rows: rows
         };
-    }
+    }*/
 
     _initTableColumns() {
         return [
@@ -550,7 +552,7 @@ export default class RgaIndividualView extends LitElement {
                                  @download="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" data-cy="individual-view-grid">
                 <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
             </div>
             ${this.individual ? html`

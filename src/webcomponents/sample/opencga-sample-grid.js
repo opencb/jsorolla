@@ -20,6 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 
 
 export default class OpencgaSampleGrid extends LitElement {
@@ -63,6 +64,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -75,6 +77,7 @@ export default class OpencgaSampleGrid extends LitElement {
             this.active) {
             this.propertyObserver();
         }
+        // super.update(changedProperties);
     }
 
     propertyObserver() {
@@ -370,7 +373,8 @@ export default class OpencgaSampleGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" href="javascript: void 0" class="btn force-text-left disabled">
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
                                 </a>
                             </li>

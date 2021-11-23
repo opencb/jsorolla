@@ -69,7 +69,7 @@ export default class CustomNavBar extends LitElement {
         const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
         if (link.url) {
             return html`
-                <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
+                <a href="${url}" role="${button ? "button" : "link"}" target="${link.tab ? "_blank" : "_self"}">${iconHtml} ${link.name}</a>`;
         } else {
             return html`
                 <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
@@ -211,7 +211,6 @@ export default class CustomNavBar extends LitElement {
                         <ul class="nav navbar-nav">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
                             ${this.app?.menu?.filter?.(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
-                                <!-- If there is not submenu we just display a button -->
                                 ${item.submenu && item.submenu.some(sm => UtilsNew.isAppVisible(sm, this.opencgaSession)) ? html`
                                     <!-- If there is a submenu we create a dropdown menu item -->
                                     <li class="dropdown">
@@ -223,7 +222,9 @@ export default class CustomNavBar extends LitElement {
                                                     .filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession))
                                                     .map(subItem => subItem.category ? html`
                                                         <li>
-                                                            <a class="nav-item-category" href="${subItem.id ? "#" + subItem.id : "javascript: void 0"}">${subItem.name}</a>
+                                                            <a class="nav-item-category" style="background-color:white!important;cursor:auto!important;">
+                                                                <strong>${subItem.name}</strong>
+                                                            </a>
                                                         </li>
                                                     ` : subItem.separator ? html`
                                                         <li role="separator" class="divider"></li>
@@ -235,8 +236,9 @@ export default class CustomNavBar extends LitElement {
                                         </ul>
                                     </li>
                                 ` : html`
+                                    <!-- If there is not submenu we just display a button -->
                                     <li>
-                                        <a href="#${item.id}" role="button" title="${item.description || ""}" @click="${this.onChangeTool}">${item.name}</a>
+                                        <a href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
                                     </li>`
                                 }`
                             )}

@@ -53,7 +53,11 @@ export default class OpencgaVariantSamples extends LitElement {
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
-        this.toolbarConfig = {};
+        this.toolbarConfig = {
+            showColumns: true,
+            showExport: false,
+            showDownload: true
+        };
     }
 
     connectedCallback() {
@@ -223,7 +227,10 @@ export default class OpencgaVariantSamples extends LitElement {
                     // Fetch clinical analysis to display the Case ID
                     const caseResponse = await this.opencgaSession.opencgaClient.clinical().search(
                         {
-                            individual: sampleChunk.map(sample => sample.individualId).join(","),
+                            individual: sampleChunk
+                                .map(sample => sample.individualId)
+                                .filter(id => id && id.length > 0)
+                                .join(","),
                             limit: batch,
                             study: this.opencgaSession.study.fqn,
                             include: "id,proband.id,family.members"
@@ -251,7 +258,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 };
             } else {
                 this.requestUpdate();
-                await Promise.reject("No samples found");
+                await Promise.reject(new Error("No samples found"));
             }
         } catch (e) {
             await Promise.reject(e);

@@ -28,26 +28,26 @@ context("8 - Individual Browser", () => {
         cy.get("a[data-id=individual]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Individual Browser");
 
-        checkResults("opencga-individual-grid");
-        changePage("opencga-individual-grid", 2);
-        checkResults("opencga-individual-grid");
-        changePage("opencga-individual-grid", 1);
-        checkResults("opencga-individual-grid");
+        checkResults("individual-grid");
+        changePage("individual-grid", 2);
+        checkResults("individual-grid");
+        changePage("individual-grid", 1);
+        checkResults("individual-grid");
 
-        getResult("opencga-individual-grid", 1).then($text => {
+        getResult("individual-grid", 1).then($text => {
             selectToken(".subsection-content[data-cy='id'] individual-id-autocomplete", $text);
             cy.get("div.search-button-wrapper button").click();
-            checkExactResult("opencga-individual-grid", 1);
+            checkExactResult("individual-grid", 1);
             cy.get("opencga-active-filters button[data-filter-name='id']").click();
-            checkResults("opencga-individual-grid");
+            checkResults("individual-grid");
         });
 
         // sort id ASC
-        cy.get("opencga-individual-grid table .th-inner.sortable").contains("Individual").click();
-        checkResults("opencga-individual-grid");
-        getResult("opencga-individual-grid", 1, 0).then($ind1 => {
-            getResult("opencga-individual-grid", 1, 1).then($ind2 => {
-                getResult("opencga-individual-grid", 1, 2).then($ind3 => {
+        cy.get("individual-grid table .th-inner.sortable").contains("Individual").click();
+        checkResults("individual-grid");
+        getResult("individual-grid", 1, 0).then($ind1 => {
+            getResult("individual-grid", 1, 1).then($ind2 => {
+                getResult("individual-grid", 1, 2).then($ind3 => {
                     const sorted = [$ind1, $ind2, $ind3];
                     sorted.sort();
                     expect(JSON.stringify([$ind1, $ind2, $ind3]), "Individuals are sorted").to.be.equal(JSON.stringify(sorted));
@@ -57,8 +57,8 @@ context("8 - Individual Browser", () => {
             });
         });
 
-        dateFilterCheck("opencga-individual-grid");
-        annotationFilterCheck("opencga-individual-grid");
+        dateFilterCheck("individual-grid");
+        annotationFilterCheck("individual-grid");
 
 
     });
@@ -66,12 +66,6 @@ context("8 - Individual Browser", () => {
     it("8.2 - aggregated query", () => {
         cy.get("a[data-id=individual]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
-
-        cy.get("button.default-facets-button").click();
-        cy.get("div.search-button-wrapper button").click();
-        cy.get(".facet-wrapper .button-list button").should("have.length", 8);
-        cy.get("opencb-facet-results opencga-facet-result-view", {timeout: TIMEOUT}).should("have.length", 8);
-
 
         Facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"
         // cy.get("button.default-facets-button").click(); // "creationYear>>creationMonth", "status", "phenotypes", "somatic"

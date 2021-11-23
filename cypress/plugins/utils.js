@@ -50,8 +50,16 @@ export const login = () => {
  * @returns {void}
  */
 export const goTo = toolId => {
-    cy.get("#waffle-icon").click();
-    cy.get(`#side-nav > nav > ul > li > a[data-id='${toolId}']`).click();
+    cy.get("nav.main-navbar").then($div => {
+        if (Cypress.$("#waffle-icon", $div).length) {
+            cy.get("#waffle-icon").should("be.visible");
+            cy.get("#waffle-icon").click();
+            cy.get(`#side-nav > nav > ul > li > a[data-id='${toolId}']`).click();
+        } else {
+            cy.get("#waffle-icon", {timeout: 5000}).should("not.exist");
+            cy.get(".navbar-header .app-logo").click();
+        }
+    });
 };
 
 export const randomString = length => {
@@ -253,11 +261,47 @@ export const annotationFilterCheck = gridSelector => {
         });
 };
 
-export const selectToken = (filterSelector, value) => {
-    cy.get(filterSelector + " textarea").type(value);
+/**
+ * Select a token from a select2 textarea
+ * @param {String} filterSelector CSS selector of the filter
+ * @param {Number} value value to look for in the autocomplete dropdown
+ * @param {Boolean} tags Indicates whether the autocomplete is in "freeTag" mode: if so (select2 tags=true), we need to explicitly press {downarrow} to select the right entry.
+ */
+export const selectToken = (filterSelector, value, tags = false) => {
+
+    // Select2 HTML widget is inserted after the corresponding <select> element
+    // thus we can find it using " + " CSS selector
+    cy.get(filterSelector + " .select2").first().click({force: true})
+        // after we click on the Select2 widget, the search drop down and input appear
+        .find(".select2-search")
+        .type(value + (tags ? "{downarrow}" : "") + "{enter}", {delay: 1500});
+    // cy.get(filterSelector + " .select2").first().blur({force: true});
+    // cy.get("body").click();
+
+    // cy.get(filterSelector + " textarea").first().type(value, {force: true});
+
+    /*
+    // the combination of invoke("val") and left arrow avoids flooding the server with 1 request for each character,
+    // also it seems more stable selecting cy.get("span.select2-dropdown ul li") because the dropdown is not re-rendered multiple time
+    // e.g. Timed out retrying after 4000ms: cy.should() failed because this element is detached from the DOM. on cy.get("span.select2-dropdown ul li", {timeout: 5000}).first().should("be.visible").
+    cy.get(filterSelector + " textarea").first().invoke("val", value);
+    cy.get(filterSelector + " textarea").first().type("{pagedown}", {force: true});
+
     cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
-    cy.get("span.select2-dropdown ul li").first().should("be.visible").and("not.contain", "Searching");
-    cy.get(filterSelector + " textarea").focus().type("{enter}");
-    // check at least one of select2-selection__choice button contains `value`
+    cy.get(filterSelector + " span.select2-dropdown ul li", {timeout: TIMEOUT}).first().should("be.visible").and("not.contain", "Searching");
+    cy.get(filterSelector + " textarea").first().focus().type(`${tags ? "{downarrow}" : ""}{enter}`).blur({force: true});*/
+};
+
+
+/**
+ * Remove from a token from a select2 textarea
+ * @param {String} filterSelector CSS selector of the filter
+ * @param {Number} value value to look for in the autocomplete dropdown
+ */
+export const removeToken = (filterSelector, value) => {
+    cy.get(filterSelector + " .select2").first()
+        .contains(".select2-selection__choice", value)
+        .find(".select2-selection__choice__remove").click();
+    cy.get(filterSelector + " .select2-selection").first().focus().blur(); // TODO better check how reliable it is to blur the textarea
 
 };

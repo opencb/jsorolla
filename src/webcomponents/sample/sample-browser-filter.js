@@ -23,10 +23,9 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/filters/file-quality-filter.js";
 import "../commons/filters/somatic-filter.js";
 import "../commons/forms/section-filter.js";
-import "../commons/forms/select-field-filter-autocomplete.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
-import "../commons/filters/phenotype-id-autocomplete.js";
+import "../commons/filters/phenotype-name-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
@@ -181,11 +180,11 @@ export default class SampleBrowserFilter extends LitElement {
             case "source":
             case "phenotypes":
                 content = html`
-                    <phenotype-id-autocomplete .config="${subsection}"
+                    <phenotype-name-autocomplete .config="${{...subsection, resource: "SAMPLE"}}"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .value="${this.preparedQuery[subsection.id]}"
                                                 @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </phenotype-id-autocomplete>`;
+                    </phenotype-name-autocomplete>`;
                 break;
             case "annotations":
                 content = html`

@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
+import {NotificationQueue} from "../../../core/NotificationQueue.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -28,7 +30,6 @@ import "./variant-interpreter-methods.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
-import "../../commons/forms/select-field-filter-autocomplete-simple.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 
@@ -68,6 +69,7 @@ class VariantInterpreter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.activeTab = {};
+        this.clinicalAnalysisManager = null;
     }
 
     connectedCallback() {
@@ -87,6 +89,10 @@ class VariantInterpreter extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
     }
 
     settingsObserver() {
@@ -96,7 +102,7 @@ class VariantInterpreter extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this?.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.study?.fqn) {
             // With each property change we must updated config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
@@ -105,34 +111,54 @@ class VariantInterpreter extends LitElement {
 
             // To delete
             // this.clinicalAnalysisId = "NA12877";
-            // this.clinicalAnalysisId = "AN-1";
+            // this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
             // this.clinicalAnalysisIdObserver();
         }
     }
 
-    async clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            this._config = {...this._config, loading: true};
-            this.requestUpdate();
-            await this.updateComplete;
-            if (this.clinicalAnalysisId) {
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then(async response => {
-                        this.clinicalAnalysis = response.getResult(0);
-                    })
-                    .catch(response => {
-                        console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    })
-                    .finally(async () => {
-                        this._config = {...this._config, loading: false};
-                        // await this.updateComplete;
-                        this.requestUpdate();
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
+            // this._config = {...this._config, loading: true};
+            // this.requestUpdate();
+            // await this.updateComplete;http://localhost:3000/src/sites/iva/index.html#interpreter/rd_grch38/panel/C-NA12878-NA12878-TWE-N-EGG4_S32_L001
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    // FIXME delete soon!
+                    const _clinicalAnalysis = response.responses[0].results[0];
+                    const panelIdToPanel = {};
+                    _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
+                    _clinicalAnalysis.interpretation.panels.forEach(panel => {
+                        panel.name = panelIdToPanel[panel.id].name;
+                        panel.source = panelIdToPanel[panel.id].source;
                     });
-            } else {
-                this.clinicalAnalysis = null;
-            }
+                    for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
+                        secondaryInterpretation.panels.forEach(panel => {
+                            panel.name = panelIdToPanel[panel.id].name;
+                            panel.source = panelIdToPanel[panel.id].source;
+                        });
+                    }
+                    this.clinicalAnalysis = _clinicalAnalysis;
+                    // FIXME Replace horrible code above by this one:
+                    // this.clinicalAnalysis = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+            // .finally(async () => {
+            // this._config = {...this._config, loading: false};
+            // await this.updateComplete;
+            // this.requestUpdate();
+            // });
+        } else {
+            this.clinicalAnalysis = null;
+        }
+    }
+
+    clinicalAnalysisObserver() {
+        if (this.clinicalAnalysis) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -144,17 +170,6 @@ class VariantInterpreter extends LitElement {
     }
 
     _changeView(tabId) {
-        // console.log("changing to ", tabId)
-        /* $(`.variant-interpreter-step`, this).removeClass("active");
-        $(`.clinical-portal-content`, this).hide(); // hides all content divs
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-
-        $(`.variant-interpreter-step[data-view=${tabId}]`, this).addClass("active");
-        $("#" + this._prefix + tabId, this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();*/
-
-
         $(".variant-interpreter-step", this).removeClass("active");
         // $(".clinical-portal-content", this).removeClass("active");
         for (const tab in this.activeTab) {
@@ -169,10 +184,9 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate(e) {
-        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
-            .then(restResponse => {
-                this.clinicalAnalysis = restResponse.responses[0].results[0];
-                this.requestUpdate();
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                this.clinicalAnalysis = response.responses[0].results[0];
             });
     }
 
@@ -181,11 +195,25 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
-    /* async closeClinicalAnalysis() {
-        // after a while clinicalAnalysis reappears as it is defined in the hash
-        this.clinicalAnalysisId = null;
-        this.clinicalAnalysis = null;
-    }*/
+    onClinicalAnalysisDownload = () => {
+        UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
+    }
+
+    onClinicalAnalysisRefresh = () => {
+        this.onClinicalAnalysisUpdate().then(() => {
+            new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
+        });
+    }
+
+    onChangePrimaryInterpretation = e => {
+        const interpretationId = e.currentTarget.dataset.id;
+
+        this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
+            return this.onClinicalAnalysisUpdate().then(() => {
+                new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
+            });
+        });
+    }
 
     getDefaultConfig() {
         return {
@@ -195,7 +223,7 @@ class VariantInterpreter extends LitElement {
             tools: [
                 {
                     id: "select",
-                    title: "Case Info Manager",
+                    title: "Case Manager",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-folder-open"
@@ -233,7 +261,7 @@ class VariantInterpreter extends LitElement {
                     title: "Report",
                     acronym: "VB",
                     description: "",
-                    disabled: true,
+                    // disabled: true,
                     icon: "fa fa-file-alt"
                 }
             ]
@@ -253,21 +281,65 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <div class="variant-interpreter-tool">
-                ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                    <tool-header icon="${this._config.icon}"
-                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
-                                 .rhs="${html`
-                                    <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                                    <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                        <i class="fas fa-times"></i> Close
-                                    </a>
-                                    <!--<div class="dropdown more-button">
-                                        <a class="btn btn-default ripple dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></a>
-                                        <ul class="dropdown-menu pull-right">
-                                            <li><a title="Lock Case" href="#"><i class="fas fa-lock"></i> Lock Case</a></li>
-                                        </ul>
-                                    </div>-->
-                                 `}"></tool-header>
+                ${this.clinicalAnalysis?.id ? html`
+                    <tool-header
+                        icon="${this._config.icon}"
+                        .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
+                        .rhs="${html`
+                            <div style="align-items:center;display:flex;">
+                                ${this.clinicalAnalysis?.interpretation ? html`
+                                    <div align="center" style="margin-right:3rem;">
+                                        <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
+                                        </div>
+                                        <div class="text-muted">
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong></div>
+                                        </div>
+                                    </div>
+                                ` : null}
+                                <div class="dropdown">
+                                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                                        <i class="fa fa-toolbox" aria-hidden="true"></i>
+                                        <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
+                                            <li>
+                                                <a style="background-color:white!important;">
+                                                    <i class="fa fa-user-md icon-padding"></i>
+                                                    <strong>Change interpretation</strong>
+                                                </a>
+                                            </li>
+                                            ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                                <li>
+                                                    <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                        ${item.id}
+                                                    </a>
+                                                </li>
+                                            `)}
+                                            <li role="separator" class="divider"></li>
+                                        ` : null}
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
+                                                <i class="fa fa-sync icon-padding"></i> Refresh
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                                <i class="fa fa-download icon-padding"></i> Download
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                                <i class="fa fa-times icon-padding"></i> Close
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `}">
+                    </tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}
@@ -277,26 +349,26 @@ class VariantInterpreter extends LitElement {
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
-                                    <!--
-                                    <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
-                                        <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
-                                    </a>
-                                 -->
+                                <!--
+                                <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
+                                    <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
+                                </a>
+                             -->
                             </div>
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                    ${this._config.tools && this._config.tools.map(item => html`
-                                    ${!item.hidden ? html`
-                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                           href="javascript: void 0" data-view="${item.id}"
-                                           @click="${this.onClickSection}">
-                                            <div class="hi-icon ${item.icon}"></div>
-                                            <p>${item.title}</p>
-                                            <span class="smaller"></span>
-                                        </a>` :
-                                        ""}
-                                `)}
+                                    ${this._config?.tools?.map(item => html`
+                                        ${!item.hidden ? html`
+                                                <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                                   href="javascript: void 0" data-view="${item.id}"
+                                                   @click="${this.onClickSection}">
+                                                    <div class="hi-icon ${item.icon}"></div>
+                                                    <p>${item.title}</p>
+                                                    <span class="smaller"></span>
+                                                </a>` :
+                                            ""}
+                                    `)}
                                 </div>
                             </div>
                         </div>
@@ -308,66 +380,72 @@ class VariantInterpreter extends LitElement {
                         ${this._config.tools ? html`
                             ${this.activeTab["select"] ? html`
                                 <div id="${this._prefix}select" class="clinical-portal-content">
-                                    <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
-                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                 .config="${this._config}"
-                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                 @selectClinicalAnalysis="${this.onClinicalAnalysis}">
+                                    <variant-interpreter-landing
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                        @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                     </variant-interpreter-landing>
-                                </div>
-                            ` : null}
+                                </div>` : null}
 
                             ${this.activeTab["qc"] ? html`
                                 <div id="${this._prefix}qc" class="clinical-portal-content">
-                                    <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .config="${this._config.tools.find(tool => tool.id === "qc")}"
-                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    <variant-interpreter-qc
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "qc")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
                                 </div>
                             ` : null}
 
                             ${this.activeTab["methods"] ? html`
                                 <div id="${this._prefix}methods" class="clinical-portal-content">
-                                    <variant-interpreter-methods    .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .config="${this._config}">
+                                    <variant-interpreter-methods
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config}">
                                     </variant-interpreter-methods>
                                 </div>
                             ` : null}
 
                             ${this.activeTab["variant-browser"] ? html`
                                 <div id="${this._prefix}variant-browser" class="clinical-portal-content">
-                                    <variant-interpreter-browser    .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .query="${this.interpretationSearchQuery}"
-                                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                                    .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
-                                                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    <variant-interpreter-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .query="${this.interpretationSearchQuery}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser>
                                 </div>
                             ` : null}
 
                             ${this.activeTab["review"] ? html`
                                 <div id="${this._prefix}review" class="clinical-portal-content">
-                                <variant-interpreter-review .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .populationFrequencies="${this._config.populationFrequencies}"
-                                                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                                            .consequenceTypes="${this._config.consequenceTypes}"
-                                                            .config="${this._config}"
-                                                            @gene="${this.geneSelected}"
-                                                            @samplechange="${this.onSampleChange}"
-                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                 </variant-interpreter-review>
-                            </div>
+                                    <variant-interpreter-review
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .populationFrequencies="${this._config.populationFrequencies}"
+                                        .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                        .consequenceTypes="${this._config.consequenceTypes}"
+                                        .config="${this._config}"
+                                        @gene="${this.geneSelected}"
+                                        @samplechange="${this.onSampleChange}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    </variant-interpreter-review>
+                                </div>
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                                <div id="${this._prefix}report" class="clinical-portal-content col-md-10 col-md-offset-1">
-                                    <variant-interpreter-report .opencgaSession="${this.opencgaSession}">
+                                <div id="${this._prefix}report" class="col-md-10 col-md-offset-1 clinical-portal-content">
+                                    <variant-interpreter-report
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .opencgaSession="${this.opencgaSession}">
                                     </variant-interpreter-report>
                                 </div>
                             ` : null}

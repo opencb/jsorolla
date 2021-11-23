@@ -93,14 +93,70 @@ const opencga = {
     // summary: true,
 };
 
-const MENU_SEPARATOR = {
-    separator: true,
-    visibility: "public"
+const CATALOG_NAVBAR_MENU = {
+    id: "catalog",
+    name: "Catalog",
+    visibility: "public",
+    icon: "img/tools/icons/aggregation2.svg",
+    submenu: [
+        {
+            id: "projects",
+            name: "Projects",
+            visibility: "public"
+        },
+        {
+            separator: true
+        },
+        {
+            name: "Browsers",
+            category: true,
+            id: "cat-catalog",
+            visibility: "public"
+        },
+        {
+            id: "file",
+            name: "File Browser",
+            visibility: "public"
+        },
+        {
+            id: "sample",
+            name: "Sample Browser",
+            visibility: "public",
+            icon: "img/tools/icons/interpretation_portal.svg",
+            description: "Explore all samples in Catalog",
+            featured: true,
+        },
+        {
+            id: "individual",
+            name: "Individual Browser",
+            visibility: "public"
+        },
+        {
+            id: "family",
+            name: "Family Browser",
+            visibility: "public"
+        },
+        {
+            id: "cohort",
+            name: "Cohort Browser",
+            visibility: "public"
+        },
+        {
+            id: "clinicalAnalysis",
+            name: "Clinical Analysis Browser",
+            visibility: "public"
+        },
+        {
+            id: "job",
+            name: "Job Browser",
+            visibility: "public"
+        }
+    ]
 };
 
-const suite = {
+const SUITE = {
     id: "suite",
-    name: "OpenCGA Suite",
+    name: "OpenCB Suite",
     version: "v2.2.0-dev",
     logo: "img/iva-white.svg",
     companyLogo: "",
@@ -118,7 +174,8 @@ const suite = {
             {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"},
             {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
             {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
-            {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"}
+            {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
+            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
     userMenu: [
@@ -189,14 +246,14 @@ const suite = {
                     // fa_icon: "fa fa-list",
                     icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",
+                    featured: true,
                     description: `
-                                <p>Explore all variants identified by the 100,000 Genomes Project</p>
+                                <p>Explore all variants identified by the current project</p>
                                 <ul>
                                     <li>Rich annotation and links to leading reference databases</li>
                                     <li>Filter by gene, consequence, frequency and much more</li>
                                 </ul>`,
                 },
-
                 {
                     id: "analysis",
                     name: "Variant Analysis",
@@ -205,7 +262,6 @@ const suite = {
                     visibility: "public",
                     submenu: [
                         {
-                            id: "cat-analysis",
                             name: "Summary Stats",
                             category: true,
                             visibility: "public"
@@ -226,11 +282,12 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "Association Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -238,14 +295,15 @@ const suite = {
                             name: "Genome-Wide Association Study (GWAS)",
                             acronym: "GWAS",
                             description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
-                            icon: "",
-                            visibility: "public"
+                            icon: "img/tools/icons/aggregation.svg",
+                            visibility: "public",
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "Sample Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -263,11 +321,12 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "Individual Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -294,11 +353,12 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "Cancer Analysis",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -309,18 +369,19 @@ const suite = {
                             icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "Quality Control",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
                             id: "sample-qc",
                             name: "Sample Quality Control",
                             description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
-                            icon: "",
+                            icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
                         {
@@ -337,19 +398,24 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "Export",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
                             id: "variant-exporter",
                             name: "Variant Export",
                             acronym: "EX",
-                            description: "",
-                            icon: "",
+                            description: `
+                                Filter and export variants, with their annotation and sample genotypes,
+                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
+                                for being shared or processed by an external tool.
+                            `,
+                            icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
                         {
@@ -360,11 +426,12 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
+                        {
+                            separator: true
+                        },
                         {
                             name: "External Tools",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -394,7 +461,6 @@ const suite = {
                         {
                             name: "Clinical Management",
                             category: true,
-                            id: "cat-clinical",
                             visibility: "public"
                         },
                         {
@@ -408,17 +474,18 @@ const suite = {
                                 </ul>
                             `,
                             visibility: "public",
-                            fa_icon: "fas fa-folder-open",
+                            featured: true,
+                            // fa_icon: "fas fa-folder-open",
                             icon: "img/tools/icons/interpretation_portal.svg",
                             thumbnail: "interpretation_portal.png"
                         },
                         {
-                            id: "clinical-analysis-writer",
+                            id: "clinical-analysis-create",
                             name: "Create Case",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
+                            icon: "img/tools/icons/interpretation_portal.svg",
+                            description: "Create a new case",
+                            visibility: "public",
+                            featured: true,
                         }
                     ]
                 },
@@ -432,7 +499,6 @@ const suite = {
                         {
                             name: "Data Management",
                             category: true,
-                            id: "cat-alignment",
                             visibility: "public"
                         },
                         {
@@ -449,9 +515,10 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        MENU_SEPARATOR,
                         {
-                            id: "cat-alignment",
+                            separator: true
+                        },
+                        {
                             name: "Summary Stats",
                             category: true,
                             visibility: "public"
@@ -508,61 +575,7 @@ const suite = {
                         // },
                     ]
                 },
-                {
-                    id: "catalog",
-                    name: "Catalog",
-                    visibility: "public",
-                    icon: "img/tools/icons/aggregation2.svg",
-                    submenu: [
-                        {
-                            id: "projects",
-                            name: "Projects",
-                            visibility: "public"
-                        },
-                        MENU_SEPARATOR,
-                        {
-                            name: "Browsers",
-                            category: true,
-                            id: "cat-catalog",
-                            visibility: "public"
-                        },
-                        {
-                            id: "file",
-                            name: "File Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample",
-                            name: "Sample Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "individual",
-                            name: "Individual Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "family",
-                            name: "Family Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "cohort",
-                            name: "Cohort Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "clinicalAnalysis",
-                            name: "Clinical Analysis Browser",
-                            visibility: "public"
-                        },
-                        {
-                            id: "job",
-                            name: "Job Browser",
-                            visibility: "public"
-                        }
-                    ]
-                }
+                CATALOG_NAVBAR_MENU
             ],
             fileExplorer: {
                 visibility: "private"
@@ -615,7 +628,8 @@ const suite = {
                     name: "Case Interpreter Portal",
                     icon: "img/tools/icons/interpretation_portal.svg",
                     visibility: "public",
-                    description: ""
+                    description: "Manage cases.",
+                    featured: true,
                 },
                 {
                     id: "clinical",
@@ -624,21 +638,21 @@ const suite = {
                     visibility: "public",
                     submenu: [
                         {
-                            id: "cat-clinical",
                             name: "Case Management",
                             category: true,
                             visibility: "public"
                         },
                         {
-                            id: "clinical-analysis-writer",
+                            id: "clinical-analysis-create",
                             name: "Create Case",
-                            acronym: "",
-                            icon: "",
-                            description: "Create case",
-                            visibility: "public"
+                            icon: "img/tools/icons/interpretation_portal.svg",
+                            description: "Create a new case",
+                            visibility: "public",
+                            featured: true,
                         }
                     ]
-                }
+                },
+                CATALOG_NAVBAR_MENU
                 // {
                 //     separator: true,
                 //     visibility: "public"
@@ -719,7 +733,7 @@ const suite = {
                 visibility: "private"
             },
             jobMonitor: {
-                visibility: "none"
+                visibility: "private"
             },
             search: {
                 placeholder: "Search",
@@ -767,14 +781,18 @@ const suite = {
                     name: "Project Manager",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "public"
+                    description: "",
+                    visibility: "public",
+                    featured: true,
                 },
                 {
                     id: "study-admin",
                     name: "Study Admin",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "public"
+                    description: "",
+                    visibility: "public",
+                    featured: true,
                 }
             ],
             fileExplorer: {
@@ -806,3 +824,4 @@ const suite = {
         }
     ]
 };
+

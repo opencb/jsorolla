@@ -28,7 +28,7 @@ context("2 - Login", () => {
         cy.get("#opencgaPassword").type("demo2");
         cy.get("form#formLogin").submit();
         cy.get("#error").should("be.visible");
-        cy.get("#error").contains("User id 'demouser' does not exist");
+        cy.get("#error").contains("Incorrect user or password");
     });
 
     it("2.2 - login unsuccessful: wrong password", () => {

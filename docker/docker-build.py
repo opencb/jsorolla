@@ -6,7 +6,6 @@ import shutil
 import requests
 import sys
 import json
-import pathlib
 from pathlib import Path
 
 ## Configure command-line options
@@ -66,11 +65,12 @@ def package_json():
 def build():
     print_header('Building docker images: ' + ', '.join(images))
 
-    ## IMPORTANT: we camnot build Docker images using directories outside the file context.
-    ## As imple solution is to copy 'custom-sites' into 'build' folder and the run 'docker build' from there.
-    print(shell_colors['blue'] + "Copying 'custom-sites' folder into 'build' ...\n" + shell_colors['reset'])
-    shutil.rmtree("build/custom-sites")
-    shutil.copytree("custom-sites", "build/custom-sites")
+    ## IMPORTANT: we cannot build Docker images using directories outside the file context.
+    ## A simple solution is to copy 'custom-sites' into 'build' folder and the run 'docker build' from there.
+    if os.path.exists('custom-sites'):
+        print(shell_colors['blue'] + "Copying 'custom-sites' folder into 'build' ...\n" + shell_colors['reset'])
+        shutil.rmtree("build/custom-sites")
+        shutil.copytree("custom-sites", "build/custom-sites")
 
     for image in images:
         if image == "app":
@@ -155,6 +155,11 @@ if not os.path.isdir(build_folder):
 # 4. init images: get a list with all images
 if args.images is None:
     images = ["app"]
+elif args.images == "all":
+    if not os.path.isdir('custom-sites'):
+        error("Custom sites folder does not exist (required if images is set to 'all')")
+    # Get all folders in 'custom-sites'
+    images = [d for d in os.listdir("custom-sites") if os.path.isdir(os.path.join("custom-sites", d)) and not d.startswith(".")]
 else:
     images = args.images.split(",")
 

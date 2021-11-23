@@ -63,6 +63,28 @@ export default class UtilsNew {
         }
     }
 
+    static isEmptyFields(obj, fields) {
+        if (fields) {
+            return !fields.every(field => this.isNotEmpty(obj[field]));
+        }
+        return false;
+    }
+
+    static isEmptyAllIds(obj, config) {
+        // Evaluate with fields has display visible.. it's for dynamic forms
+        // const getConfigVisible = this._config.sections?.filter(section =>
+        //     FormUtils.getBooleanValue(data, section?.display?.visible));
+
+        if (this.isNotEmpty(obj) && this.isNotEmptyArray(config)) {
+            const fields = config.map(section => section.elements
+                .filter(elm => elm?.field?.includes("id")))?.flat();
+
+            return !fields.every(item => item.field.includes(".") ? this.isNotEmpty(obj[item.field.split(".")[0]]) : this.isNotEmpty(obj[item.field]));
+        }
+
+        return false;
+    }
+
     static isNotEmpty(obj) {
         return !this.isEmpty(obj);
     }
@@ -85,6 +107,10 @@ export default class UtilsNew {
         }
 
         return false;
+    }
+
+    static removeArrayByIndex(arr, index) {
+        return arr.filter((val, i) => i !== index);
     }
 
     static removeDuplicates(array, prop) {
@@ -271,10 +297,8 @@ export default class UtilsNew {
         return table;
     }
 
-    /*
-     * Download data in the browser.
-     * data can be a string, and arrays of string or an array of arrays
-     */
+    // Download data in the browser.
+    // data can be a string, and arrays of string or an array of arrays
     static downloadData(data, filename, mimeType = "application/json") {
         // data can be a string, and arrays of string or an array of arrays
         let dataString = data;
@@ -297,6 +321,11 @@ export default class UtilsNew {
         setTimeout(function () {
             document.body.removeChild(a);
         }, 0);
+    }
+
+    // Download the specified content as a JSON file
+    static downloadJSON(data, name) {
+        return UtilsNew.downloadData(JSON.stringify(data, null, "    "), name, "application/json");
     }
 
     static range(start, stop, step = 1) {

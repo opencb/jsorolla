@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import {classMap} from "lit/directives/class-map.js";
+import "../forms/file-upload.js";
 
 /**
  * Token filter. Select2 version with opencga dynamic datasource
@@ -85,7 +86,6 @@ export default class SelectTokenFilter extends LitElement {
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
                     const {name, ...rest} = this._config.fields(item) ?? item.id;
-
                     // if name is not defined it means tags=true, _config.fields() mapper function is defined but the user is typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
                     if (name) {
                         return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
@@ -128,32 +128,18 @@ export default class SelectTokenFilter extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (_changedProperties.has("value")) {
-            /* if (this.value) {
-                this.state = this.value.split(",");
-            }*/
-
-            /* this.select.val(null).trigger("change");
-            const selection = this.value ? this.value.split(",") : null;
-            this.select.val(selection);
-            this.select.trigger("change");
-            */
-
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
-            this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(new RegExp("[" + this._config.separator.join("") + "]")) : "");
-
-            // const selection = this.value ? this.value.split(this._config.separator) : null;
-            // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source
-            // this.select.trigger('change');
-            // this.requestUpdate();
-
+            const regExpSeparators = new RegExp("[" + this._config.separator.join("") + "]");
+            this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(regExpSeparators) : "");
         }
 
     }
 
     addOptions(ids) {
         if (ids) {
-            for (const id of ids) {
+            const _ids = [...new Set(ids)];
+            for (const id of _ids) {
                 // Create a DOM Option and pre-select by default
                 const newOption = new Option(id, id, true, true);
                 // Append it to the select
@@ -162,7 +148,14 @@ export default class SelectTokenFilter extends LitElement {
             this.select.trigger("change");
         } else {
             this.select.val(null).trigger("change");
+        }
+    }
 
+    fileUploaded(e) {
+        if (e.detail.value) {
+            const list = e.detail.value.join(",");
+            // TODO this.value could be a string separated by other chars than commas
+            this.value = this.value ? this.value + "," + list : list;
         }
     }
 
@@ -180,6 +173,10 @@ export default class SelectTokenFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    toggleFileUpload(e) {
+        $(`#${this._prefix}-select-wrapper .file-drop-area`).collapse("toggle");
+    }
+
     getDefaultConfig() {
         return {
             separator: [","],
@@ -188,6 +185,7 @@ export default class SelectTokenFilter extends LitElement {
             maxItems: 0,
             placeholder: "Start typing",
             freeTag: false,
+            fileUpload: false,
             source: () => {
                 throw new Error("Data source not defined");
             },
@@ -207,10 +205,26 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     render() {
+        if (this._config.fileUpload) {
+            return html`
+                <form>
+                    <div id="${this._prefix}-select-wrapper">
+                        <div class="input-group">
+                            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                            <span class="input-group-addon file-upload-toggle" @click="${this.toggleFileUpload}">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                        </div>
+                        <file-upload @filterChange="${this.fileUploaded}"></file-upload>
+                    </div>
+                </form>
+            `;
+        }
+
         return html`
-        <div>
-            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
-        </div>
+            <div>
+                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+            </div>
         `;
     }
 

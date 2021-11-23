@@ -15,9 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+
+import "./file-preview.js";
 import "./opencga-file-view.js";
-import "./opencga-file-preview.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class OpencgaFileDetail extends LitElement {
 
@@ -101,7 +102,7 @@ export default class OpencgaFileDetail extends LitElement {
                     id: "file-preview",
                     name: "Preview",
                     render: (file, active, opencgaSession) => {
-                        return html`<opencga-file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></opencga-file-preview>`;
+                        return html`<file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></file-preview>`;
                     }
                 }
             ]

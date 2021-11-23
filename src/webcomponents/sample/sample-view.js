@@ -18,8 +18,9 @@ import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
-import "../study/annotationset/annotation-sets-view.js";
-
+import "../commons/filters/sample-id-autocomplete.js";
+import "../study/annotationset/annotation-set-view.js";
+import "../loading-spinner.js";
 
 export default class SampleView extends LitElement {
 
@@ -52,6 +53,7 @@ export default class SampleView extends LitElement {
 
     _init() {
         this.sample = {};
+        this.isLoading = false;
     }
 
     connectedCallback() {
@@ -61,7 +63,10 @@ export default class SampleView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
+            console.log("Loading...");
+            this.isLoading = true;
             this.sampleIdObserver();
+
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -79,6 +84,8 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
+                    console.log("Loaded Data");
+                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.sample = {};
@@ -88,7 +95,6 @@ export default class SampleView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    // this.notify(error);
                     LitUtils.dispatchEventCustom(this, "sampleSearch", this.sample, error, {query: {includeIndividual: true}});
                 });
         }
@@ -222,22 +228,23 @@ export default class SampleView extends LitElement {
                         },
                         {
                             name: "Description",
-                            field: "description"
+                            field: "description",
+                            defaultValue: "N/A",
                         },
                         {
                             name: "Phenotypes",
                             field: "phenotypes",
                             type: "list",
+                            defaultValue: "N/A",
                             display: {
                                 contentLayout: "bullets",
                                 render: phenotype => {
-                                    let id = phenotype.id;
-                                    if (phenotype.id.startsWith("HP:")) {
+                                    let id = phenotype?.id;
+                                    if (phenotype?.id?.startsWith("HP:")) {
                                         id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
                                     }
-                                    return html`${phenotype.name} (${id})`;
+                                    return html`${phenotype?.name} (${id})`;
                                 },
-                                defaultValue: "N/A"
                             }
                         },
                         /*
@@ -257,14 +264,17 @@ export default class SampleView extends LitElement {
     }
 
     render() {
-        if (!this.sample) {
+        if (this.isLoading) {
             return html`
-                <h2>Sample not found</h2>
+                <loading-spinner></loading-spinner>
             `;
         }
 
         return html`
-            <data-form .data=${this.sample} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.sample}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 

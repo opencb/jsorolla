@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
+// Deprecated
 export default class PhenotypeManager extends LitElement {
 
     constructor() {
@@ -32,6 +33,9 @@ export default class PhenotypeManager extends LitElement {
         return {
             phenotype: {
                 type: Object
+            },
+            mode: {
+                type: String
             }
         };
     }
@@ -43,7 +47,7 @@ export default class PhenotypeManager extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         // It must be in connectCallback for the display.disabled option in the input text to work.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
     }
 
     refreshForm() {
@@ -51,6 +55,14 @@ export default class PhenotypeManager extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
+
+    update(changedProperties) {
+        if (changedProperties.has("mode")) {
+            this.refreshForm();
+        }
+        super.update(changedProperties);
+    }
+
 
     onFieldChange(e) {
         e.stopPropagation();
@@ -87,7 +99,8 @@ export default class PhenotypeManager extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add short id",
+                                disabled: this.mode === "EDIT",
                             }
                         },
                         {
@@ -95,7 +108,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add a name"
                             }
                         },
                         {
@@ -103,7 +116,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "source",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add a source"
                             }
                         },
                         {
@@ -111,7 +124,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "ageOfOnset",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "add an age of on set"
                             }
                         },
                         {
@@ -142,7 +155,6 @@ export default class PhenotypeManager extends LitElement {
 
     render() {
         return html`
-        <div class="subform-test">
             <data-form
                 .data=${this.phenotype}
                 .config="${this._config}"
@@ -150,7 +162,6 @@ export default class PhenotypeManager extends LitElement {
                 @clear="${this.onClearForm}"
                 @submit="${e => this.onSendPhenotype(e)}">
             </data-form>
-        </div>
     `;
     }
 

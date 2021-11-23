@@ -101,6 +101,10 @@ export default class RgaVariantView extends LitElement {
                     field: "type"
                 },
                 {
+                    title: "Allele count",
+                    field: "allelePairs"
+                },
+                {
                     title: "Consequence type",
                     field: "sequenceOntologyTerms"
                 },
@@ -129,7 +133,10 @@ export default class RgaVariantView extends LitElement {
                     title: "CH - Possible",
                     field: "individualStats.missingParents.numCompHet"
                 }
-            ]
+            ],
+            showColumns: true,
+            showExport: false,
+            showDownload: true
         };
     }
 
@@ -145,7 +152,6 @@ export default class RgaVariantView extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-
         // prevent the render of the table in case neither geneName or individual are in query
         if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
             return;
@@ -156,7 +162,7 @@ export default class RgaVariantView extends LitElement {
     /*
      * @deprecated
      */
-    prepareData() {
+    /* prepareData() {
         // console.log("preparedData", this.data);
         let i = 0;
         this._data = {};
@@ -189,10 +195,10 @@ export default class RgaVariantView extends LitElement {
         }));
         // this.renderTable();
 
-    }
+    }*/
 
     _initTableColumns() {
-        return [
+        this._columns = [
             [
                 {
                     title: "Variant",
@@ -307,6 +313,9 @@ export default class RgaVariantView extends LitElement {
                 };
             })*/]
         ];
+
+        return this._columns;
+
     }
 
     // TODO move this into utils class
@@ -332,16 +341,16 @@ export default class RgaVariantView extends LitElement {
     /*
      * @deprecated
      */
-    geneFormatter(value, row) {
+    /* geneFormatter(value, row) {
         const genes = new Set();
         row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
         return Array.from(genes.keys()).join(", ");
-    }
+    }*/
 
     /*
      * @deprecated
      */
-    alleleCountFormatter(value, row) {
+    /* alleleCountFormatter(value, row) {
         const uniqueVariants = {};
         for (const individual of row.individuals) {
             for (const gene of individual.genes) {
@@ -353,7 +362,7 @@ export default class RgaVariantView extends LitElement {
             }
         }
         return Object.keys(uniqueVariants).length;
-    }
+    }*/
 
     clinicalPopulationFrequenciesFormatter(value, row) {
         if (row) {
@@ -372,7 +381,7 @@ export default class RgaVariantView extends LitElement {
     /*
      * @deprecated
      */
-    dbSNPFormatter(value, row) {
+    /* dbSNPFormatter(value, row) {
         const dbSNPs = new Set();
         for (const individual of row.individuals) {
             for (const gene of individual.genes) {
@@ -386,7 +395,7 @@ export default class RgaVariantView extends LitElement {
             }
         }
         return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
-    }
+    }*/
 
     consequenceTypeFormatter(value, row) {
         if (value) {
@@ -569,9 +578,9 @@ export default class RgaVariantView extends LitElement {
                                 _.genes ? _.genes.join(",") : "",
                                 _.dbSnp,
                                 _.type,
-                                _.alleleCount ? _.alleleCount.length : "",
+                                _.allelePairs ? _.allelePairs.length : "",
                                 _.sequenceOntologyTerms?.length ? _.sequenceOntologyTerms.map(ct => `${ct.name} (${ct.accession})`) : "",
-                                _.clinicalSignificance ? _.clinicalSignificance?.join(",") : "-",
+                                _.clinicalSignificances ? _.clinicalSignificances?.join(",") : "-",
                                 _.individualStats?.numHomAlt,
                                 _.individualStats?.bothParents?.numCompHet,
                                 _.individualStats?.singleParent?.numCompHet,
@@ -683,7 +692,7 @@ export default class RgaVariantView extends LitElement {
                                      @download="${this.onDownload}">
                 </opencb-grid-toolbar>
 
-                <div class="row">
+                <div id="${this._prefix}GridTableDiv" class="row" data-cy="variant-view-grid">
                     <table id="${this.gridId}"></table>
                 </div>
                 ${this.variant ? html`

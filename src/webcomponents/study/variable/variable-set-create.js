@@ -59,181 +59,60 @@ export default class VariableSetCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onFieldChangeVariableSet(e) {
+    onFieldChange(e, field) {
         e.stopPropagation();
-        const field = e.detail.param;
-        console.log("Field:", field);
-        if (e.detail.value) {
-            switch (e.detail.param) {
-                case "id":
-                case "name":
-                case "unique":
-                case "confidential":
-                case "description":
-                    this.variableSet = {
-                        ...this.variableSet,
-                        [field]: e.detail.value
-                    };
-                    break;
-                case "entities":
-                    const entities = e.detail.value ? e.detail.value.split(",") : [];
-                    this.variableSet = {
-                        ...this.variableSet,
-                        [field]: entities
-                    };
-                    break;
-            }
-        } else {
-            delete this.variableSet[field];
+        const param = field || e.detail.param;
+        switch (param) {
+            case "id":
+            case "name":
+            case "unique":
+            case "confidential":
+            case "description":
+                this.variableSet = {
+                    ...FormUtils.createObject(
+                        this.variableSet,
+                        param,
+                        e.detail.value
+                    )
+                };
+                break;
+            case "entities":
+                const entities = e.detail.value ? e.detail.value.split(",") : [];
+                this.variableSet = {
+                    ...FormUtils.createObject(
+                        this.variableSet,
+                        param,
+                        entities
+                    )
+                };
+                break;
+            case "variables":
+                this.variableSet = {...this.variableSet, variables: e.detail.value};
+                break;
         }
     }
 
     // Option2 : Event for valiations ... this dispatch when user out the input field.
-    onBlurChange(e) {
-        e.stopPropagation();
-        const field = e.detail.param;
-        console.log("VariableSet Data", field, e.detail.value);
-        // switch (e.detail.param) {
-        //     case "id":
-        //     case "name":
-        //     case "unique":
-        //     case "confidential":
-        //     case "description":
-        //     case "entities":
-        //         console.log("Blur Event:", e.detail.value);
-        //         // if (field === "id") {
-        //         //     this.refreshForm();
-        //         // }
-        //         console.log("VariableSet Data", this.variableSet);
-        //         this.requestUpdate();
-        // }
-    }
+    // onBlurChange(e) {
+    //     e.stopPropagation();
+    //     const field = e.detail.param;
+    //     console.log("VariableSet Data", field, e.detail.value);
+    //     switch (e.detail.param) {
+    //         case "id":
+    //         case "name":
+    //         case "unique":
+    //         case "confidential":
+    //         case "description":
+    //         case "entities":
+    //             console.log("Blur Event:", e.detail.value);
+    //             if (field === "id") {
+    //                 this.refreshForm();
+    //             }
+    //             console.log("VariableSet Data", this.variableSet);
+    //             this.requestUpdate();
+    //     }
+    // }
 
-
-    getDefaultConfig() {
-        return {
-            title: "Edit",
-            icon: "fas fa-edit",
-            type: "form",
-            buttons: {
-                show: true,
-                top: true,
-                classes: "pull-right",
-                cancelText: "Cancel",
-                okText: "Save"
-            },
-            display: {
-                style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                defaultValue: "",
-                help: {
-                    mode: "block",
-                    // icon: "fa fa-lock",
-                }
-            },
-            sections: [
-                {
-                    title: "General Information",
-                    elements: [
-                        {
-                            name: "Id",
-                            field: "id",
-                            type: "input-text",
-                            required: "required",
-                            display: {
-                                placeholder: "Add a short ID...",
-                                help: {
-                                    // mode: "block",
-                                    icon: "fa fa-lock",
-                                    text: "short variableSet id"
-                                },
-                                validation: {
-                                    message: "Please enter more that 3 character",
-                                    validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
-                                    // TODO: this work if we update the config every change
-                                    // to re-evaluate or refresh the form applying the validation.
-                                    // validate: variable => variable?.id?.length > 4
-                                }
-                            }
-                        },
-                        {
-                            name: "Name",
-                            field: "name",
-                            type: "input-text",
-                            required: "required",
-                            display: {
-                                placeholder: "Name ...",
-                                help: {
-                                    text: "short name variable"
-                                },
-                            }
-                        },
-                        {
-                            name: "Entities",
-                            field: "entities",
-                            type: "select",
-                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
-                            multiple: true,
-                            display: {
-                                placeholder: "select a entity..."
-                            }
-                        },
-                        {
-                            name: "Unique",
-                            field: "unique",
-                            type: "checkbox",
-                            required: true
-                        },
-                        {
-                            name: "Confidential",
-                            field: "confidential",
-                            type: "checkbox",
-                            checked: false
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                rows: 3,
-                                placeholder: "variable description..."
-                            }
-                        }
-                    ]
-                },
-                {
-                    title: "Variables",
-                    elements: [
-                        {
-                            field: "variables",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-list-update
-                                        .variables="${this.variableSet?.variables}"
-                                        @changeVariables="${e => this.onSyncVariables(e)}">
-                                    </variable-list-update>`
-                            }
-                        },
-                    ]
-                }
-            ]
-        };
-    }
-
-    async onSyncVariables(e) {
-        console.log("...Sync variables list to the variableSet", e.detail.value);
-        this.variableSet = {...this.variableSet, variables: e.detail.value};
-        console.log("variableSet synced: ", this.variableSet);
-        e.stopPropagation();
-    }
 
     onClear(e) {
         console.log("Clear Form");
@@ -454,11 +333,129 @@ export default class VariableSetCreate extends LitElement {
             <data-form
                 .data=${this.variableSet}
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChangeVariableSet(e)}"
-                @blurChange="${e => this.onBlurChange(e)}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
+    }
+
+
+    getDefaultConfig() {
+        return {
+            title: "Edit",
+            icon: "fas fa-edit",
+            type: "form",
+            buttons: {
+                show: true,
+                top: true,
+                classes: "pull-right",
+                cancelText: "Clear",
+                okText: "Save"
+            },
+            display: {
+                style: "margin: 10px",
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultLayout: "horizontal",
+                defaultValue: "",
+                help: {
+                    mode: "block",
+                    // icon: "fa fa-lock",
+                }
+            },
+            sections: [
+                {
+                    title: "General Information",
+                    elements: [
+                        {
+                            name: "Id",
+                            field: "id",
+                            type: "input-text",
+                            required: "required",
+                            display: {
+                                placeholder: "Add a short ID...",
+                                help: {
+
+                                    icon: "fas fa-info-circle",
+                                    text: "short variableSet id"
+                                },
+                                validation: {
+                                    message: "Please enter more that 3 character",
+                                    validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
+                                    // TODO: this work if we update the config every change
+                                    // to re-evaluate or refresh the form applying the validation.
+                                    // validate: variable => variable?.id?.length > 4
+                                }
+                            }
+                        },
+                        {
+                            name: "Name",
+                            field: "name",
+                            type: "input-text",
+                            required: "required",
+                            display: {
+                                placeholder: "Name ...",
+                                help: {
+                                    text: "short name variable"
+                                },
+                            }
+                        },
+                        {
+                            name: "Entities",
+                            field: "entities",
+                            type: "select",
+                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
+                            multiple: true,
+                            display: {
+                                placeholder: "select a entity..."
+                            }
+                        },
+                        {
+                            name: "Unique",
+                            field: "unique",
+                            type: "checkbox",
+                            required: true
+                        },
+                        {
+                            name: "Confidential",
+                            field: "confidential",
+                            type: "checkbox",
+                            checked: false
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                rows: 3,
+                                placeholder: "variable description..."
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Variables",
+                    elements: [
+                        {
+                            field: "variables",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <variable-list-update
+                                        .variables="${this.variableSet?.variables}"
+                                        @changeVariables="${e => this.onFieldChange(e, "variables")}">
+                                    </variable-list-update>`
+                            }
+                        },
+                    ]
+                }
+            ]
+        };
     }
 
 }

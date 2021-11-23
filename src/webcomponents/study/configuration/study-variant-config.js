@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import "./config-list-update.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class StudyVariantConfig extends LitElement {
 
@@ -30,76 +32,158 @@ export default class StudyVariantConfig extends LitElement {
 
     static get properties() {
         return {
-            study: {
+            variantEngineConfig: {
                 type: Object
             },
             opencgaSession: {
                 type: Object
             },
+            config: {
+                type: Object
+            }
         };
     }
 
     _init() {
-        console.log("init study variant config");
-        // console.log("study selected ", this.study);
+        // console.log("init study variant config");
+        this.updateParams = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.updateParams = {};
-        this._config = {...this.getDefaultConfig()};
-        console.log("config study", this.study.internal.configuration.variantEngine);
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
-
+        if (changedProperties.has("variantEngineConfig")) {
+            this.variantEngineConfigObserver();
+        }
         super.update(changedProperties);
     }
 
-
-    editItem(e, entity) {
-        console.log("EditChanges: ", e.detail.value, "entity", entity);
-        e.stopPropagation();
+    variantEngineConfigObserver() {
+        if (this.variantEngineConfig) {
+            this._variantEngineConfig = JSON.parse(JSON.stringify(this.variantEngineConfig));
+        }
     }
 
-    removeItem(e) {
-        console.log("Execute remove buttons:", e.detail.value);
+
+    onSyncItem(e) {
         e.stopPropagation();
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
-                // TODO: add remove conditions by entity
-                Swal.fire(
-                    "Deleted!",
-                    "The config has been deleted. (Test UI)",
-                    "success"
-                );
+        console.log("onSyncItem variant: ", e.detail.value);
+        const {index, node, item} = e.detail.value;
+
+        if (index === -1) {
+            switch (node.parent) {
+                case "fileIndexConfiguration":
+                    // customFields
+                    this.variantEngineConfig.sampleIndex[node.parent][node.child].push(item);
+                    break;
+                case "populationFrequency":
+                    this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child].push(item);
+                    break;
+                case "biotype":
+                case "consequenceType":
+                case "clinicalSource":
+                case "clinicalSignificance":
+                case "transcriptFlagIndexConfiguration":
+                    this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child][item.key] = item.values;
+
+                    // Don't detect the change to update the component valuesMapping
+                    // const valuesMapping = this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child];
+                    // this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = {
+                    //     ...valuesMapping,
+                    //     [item.key]: item.values
+                    // };
+                    break;
             }
-        });
+        }
+
+        // edited valuesMapping (add or delete values)
+        if (node?.child === "valuesMapping" && index !== -1) {
+            this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child][index] = item.values;
+            console.log("edited.....", this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child]);
+        }
+
+        this.variantEngineConfig = {
+            ...this.variantEngineConfig
+        };
+    }
+
+    onSyncRemoveItem(e) {
+        e.stopPropagation();
+        const {node, items} = e.detail.value;
+        switch (node.parent) {
+            case "fileIndexConfiguration":
+                this.variantEngineConfig.sampleIndex.fileIndexConfiguration.customFields = items;
+                break;
+            case "populationFrequency":
+                this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = items;
+                // const populations = this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child];
+                // this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = UtilsNew.removeArrayByIndex(populations, item.index);
+                break;
+            case "biotype":
+            case "consequenceType":
+            case "clinicalSource":
+            case "clinicalSignificance":
+            case "transcriptFlagIndexConfiguration":
+                this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.parent][node.child] = items;
+                break;
+        }
+
+        this.variantEngineConfig = {
+            ...this.variantEngineConfig
+        };
     }
 
     onFieldChange(e) {
+        e.stopPropagation();
+        console.log("on Field Change", e.detail);
+        const {param} = e.detail;
 
+        if (param?.includes("transcriptCombination")) {
+            const val = e.detail.value;
+            this.variantEngineConfig.sampleIndex.annotationIndexConfiguration.transcriptCombination = val;
+        } else {
+            // debugger
+            const {node, param, value} = e.detail.value;
+            this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child] = {
+                ...this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child],
+                [param]: value
+            };
+        }
+
+        console.log("edited", this.variantEngineConfig);
+
+    }
+
+    onAddValues(e) {
+        e.stopPropagation();
+        const {node, values} = e.detail.value;
+        this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child].values = values;
     }
 
     onClear() {
 
-
     }
 
     onSubmit() {
+        // operation/variant/configure
+        console.log("submit variant configs", this.variantEngineConfig);
 
     }
 
-    configVariant(entity, heading, modal) {
+    configVariant(key, item, modal) {
+
+        // Type
+        // RANGE_LT, RANGE_GT. CATEGORICAL, CATEGORICAL_MULTI_VALUE
+
+        // Source
+        // VARIANT, META, FILE, SAMPLE, ANNOTATION
+
+        //  IndexFieldConfiguration
+        /** Source, key,type, thresholds, values, valuesMapping, nullable
+         **/
 
         const configModal = isNew => {
             return isNew ? {
@@ -109,9 +193,9 @@ export default class StudyVariantConfig extends LitElement {
             } : {
                 type: "modal",
                 title: "Edit Config",
-                heading: {
-                    title: heading?.title,
-                    subtitle: heading?.subtitle
+                item: {
+                    title: item?.title,
+                    subtitle: item?.subtitle
                 },
                 buttonClass: "pull-right",
                 btnGroups: [
@@ -127,18 +211,10 @@ export default class StudyVariantConfig extends LitElement {
                 ]
             };
         };
-        // Type
-        // RANGE_LT, RANGE_GT. CATEGORICAL, CATEGORICAL_MULTI_VALUE
 
-        // Source
-        // VARIANT, META, FILE, SAMPLE, ANNOTATION
-
-        //  IndexFieldConfiguration
-        /** Source, key,type, thresholds, values, valuesMapping, nullable
-        **/
-
-        const configSection = entity => {
-            switch (entity) {
+        const configSection = key => {
+            let node = {};
+            switch (key) {
                 case "fileIndexConfiguration":
                     return {
                         elements: [
@@ -164,7 +240,7 @@ export default class StudyVariantConfig extends LitElement {
                             },
                         ]
                     };
-                case "populationFrequency":
+                case "populations":
                     return {
                         elements: [
                             {
@@ -179,7 +255,76 @@ export default class StudyVariantConfig extends LitElement {
                             },
                         ]
                     };
+                case "valuesMapping":
+                    return {
+                        elements: [
+                            {
+                                name: "key",
+                                field: "key",
+                                type: "input-text",
+                            },
+                            {
+                                name: "Values",
+                                field: "values",
+                                type: "custom",
+                                display: {
+                                    render: data => {
+                                        return html `
+                                            <select-token-filter-static
+                                                .data=${data}
+                                                .value="${data?.join(",")}">
+                                            </select-token-filter-static>`;
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                case "populationFrequency":
+                    node = {parent: "populationFrequency", child: "populations"};
+                    return {
+                        elements: [
+                            {
+                                name: "Populations",
+                                field: "populations",
+                                type: "custom",
+                                display: {
+                                    layout: "horizontal",
+                                    defaultLayout: "horizontal",
+                                    width: 12,
+                                    style: "padding-left: 0px",
+                                    render: variant => html`
+                                        <list-update
+                                            .node=${node}
+                                            .data="${{items: variant}}"
+                                            .config=${this.configVariant("populations", {title: "study", subtitle: "population"}, true)}>
+                                        </list-update>`
+                                }
+                            },
+                            {
+                                name: "thresholds",
+                                field: "thresholds",
+                                type: "custom",
+                                display: {
+                                    layout: "horizontal",
+                                    defaultLayout: "horizontal",
+                                    width: 12,
+                                    style: "padding-left: 0px",
+                                    render: data => html`
+                                        <select-token-filter-static
+                                            .data=${data}
+                                            .value="${data?.join(",")}">
+                                        </select-token-filter-static>`
+                                }
+                            },
+                        ]
+                    };
+                case "biotype":
+                case "consequenceType":
+                case "clinicalSource":
+                case "clinicalSignificance":
+                case "transcriptFlagIndexConfiguration":
                 case "annotationIndexConfiguration":
+                    node = {parent: key, child: "valuesMapping"};
                     return {
                         elements: [
                             {
@@ -212,9 +357,10 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: variant => html`
-                                        <select-field-token
-                                            .values="${variant}">
-                                        </select-field-token>`
+                                        <select-token-filter-static
+                                            .data=${variant}
+                                            .value="${variant?.join(",")}">
+                                        </select-token-filter-static>`
                                 }
                             },
                             {
@@ -226,35 +372,27 @@ export default class StudyVariantConfig extends LitElement {
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
-                                    render: variant => {
-                                        return variant ?
-                                            Object.keys(variant).map(key =>
-                                                html `
-                                                    <b>${key}</b>
-                                                    <select-field-token
-                                                        .values="${variant[key]}">
-                                                    </select-field-token>
-                                            `) : html`
-                                            <select-field-token
-                                                    .values="${variant}">
-                                            </select-field-token>
-                                            `;
-                                    }
+                                    render: valuesMapping => html`
+                                        <list-update
+                                            .node=${node}
+                                            .data="${{items: valuesMapping}}"
+                                            .config=${this.configVariant("valuesMapping", {}, true)}>
+                                        </list-update>`
                                 }
-                            }
+                            },
                         ]
                     };
             }
         };
 
-        const configStatus = isNew => {
+        const configForm = (key, isNew) => {
             return {
                 title: "Edit",
                 buttons: {
-                    show: true,
+                    show: modal,
                     cancelText: "Cancel",
                     classes: modal ? "btn btn-primary ripple pull-right": "pull-right",
-                    okText: "Save"
+                    okText: isNew? "Add" : "Edit"
                 },
                 display: {
                     labelWidth: 3,
@@ -263,16 +401,27 @@ export default class StudyVariantConfig extends LitElement {
                     mode: modal ? configModal(isNew): {},
                     defaultValue: ""
                 },
-                sections: [configSection(entity)]
+                sections: [configSection(key)]
             };
         };
 
+        if (key.constructor === Array) {
+            const configs = {};
+            key.forEach(key => {
+                configs[key] = {
+                    ...configs[key],
+                    edit: configForm(key, false),
+                    new: configForm(key, true),
+                };
+            });
+            return configs;
+        }
+
         return {
-            edit: configStatus(false),
-            new: configStatus(true)
+            edit: configForm(key, false),
+            new: configForm(key, true)
         };
     }
-
 
     getDefaultConfig() {
         return {
@@ -298,20 +447,24 @@ export default class StudyVariantConfig extends LitElement {
                     title: "File Index Configuration",
                     elements: [
                         {
+                            field: "sampleIndex.fileIndexConfiguration.customFields",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 8,
                                 style: "padding-left: 0px",
-                                render: variantEngine => html`
-                                    <config-list-update
-                                        entity="fileIndex"
-                                        .items="${variantEngine.sampleIndex.fileIndexConfiguration.customFields}"
+                                render: customFields => {
+                                    const node = {parent: "fileIndexConfiguration", child: "customFields"};
+                                    return html`
+                                    <list-update
+                                        .node=${node}
+                                        .data="${{items: customFields}}"
                                         .config=${this.configVariant("fileIndexConfiguration", {title: "source", subtitle: "key"}, true)}
-                                        @editChange=${e => this.editItem(e, "fileIndex")}
-                                        @removeItem=${this.removeItem}>
-                                    </config-list-update>`
+                                        @changeItem=${e => this.onSyncItem(e)}
+                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
+                                    </list-update>`;
+                                }
                             }
                         },
                     ]
@@ -320,49 +473,31 @@ export default class StudyVariantConfig extends LitElement {
                     title: "Annotation Index Configuration",
                     elements: [
                         {
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 8,
-                                style: "padding-left: 0px",
-                                render: variantEngine => {
-                                    const annConfigs = variantEngine.sampleIndex.annotationIndexConfiguration;
-                                    const populationConfig = Object.fromEntries(Object.entries(annConfigs)
-                                        .filter(([key, value]) => key === "populationFrequency"));
-                                    return html`
-                                    <h4>Population Frequency</h4>
-                                        <config-list-update
-                                            entity="annotationIndex"
-                                            .items="${populationConfig.populationFrequency.populations}"
-                                            .config=${this.configVariant("populationFrequency", {title: "study", subtitle: "population"}, true)}
-                                            @removeItem=${this.removeItem}>
-                                        </config-list-update>`;
-                                }
-                            }
-                        },
-                        {
+                            field: "sampleIndex.annotationIndexConfiguration",
                             type: "custom",
                             display: {
                                 layout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: variantEngine => {
-                                    const annConfigs = variantEngine.sampleIndex.annotationIndexConfiguration;
-                                    const indexFieldConfigs = Object.fromEntries(Object.entries(annConfigs)
-                                        .filter(([key, value]) => key !== "populationFrequency"));
+                                render: annotationIndexConfiguration => {
+                                    const itemKeys = Object?.keys(annotationIndexConfiguration)
+                                        .filter(key => annotationIndexConfiguration[key] instanceof Object);
                                     return html`
-                                    <h4>Index Field Configuration</h4>
                                         <config-list-update
-                                            entity="annotationIndex"
-                                            .items="${indexFieldConfigs}"
-                                            .config=${this.configVariant("annotationIndexConfiguration", {title: "source", subtitle: "key"}, false)}
-                                            @editChange=${e => this.editItem(e, "annotationIndex")}
-                                            @removeItem=${this.removeItem}>
+                                            key="annotationIndexConfiguration"
+                                            .items="${annotationIndexConfiguration}"
+                                            .config=${this.configVariant(itemKeys, {}, false)}
+                                            @changeItem=${e => this.onSyncItem(e)}
+                                            @removeItem=${e => this.onSyncRemoveItem(e)}>
                                         </config-list-update>`;
                                 }
                             }
+                        },
+                        {
+                            name: "Transcript Combination",
+                            field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
+                            type: "checkbox"
                         },
                     ]
                 },
@@ -372,16 +507,12 @@ export default class StudyVariantConfig extends LitElement {
 
     render() {
         return html`
-            <!-- <div class="guard-page">
-                <i class="fas fa-pencil-ruler fa-5x"></i>
-                <h3>Variant Engine Config under construction</h3>
-                <h3>(Coming Soon)</h3>
-            </div> -->
             <div style="margin: 25px 40px">
                 <data-form
-                    .data=${this.study.internal.configuration.variantEngine}
+                    .data=${this.variantEngineConfig}
                     .config=${this._config}
                     @fieldChange="${e => this.onFieldChange(e)}"
+                    @addValues="${e => this.onAddValues(e)}"
                     @clear="${this.onClear}"
                     @submit="${this.onSubmit}">
                 </data-form>
