@@ -2,7 +2,7 @@
   "baseUrl": "http://localhost:3000/src/sites/iva/",
   "chromeWebSecurity": false,
   "viewportWidth": 1600,
-  "viewportHeight": 660,
+  "viewportHeight": 1200,
   "reporter": "mochawesome",
   "reporterOptions": {
       "overwrite": false,
