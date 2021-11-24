@@ -54,7 +54,7 @@ import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
-import "../../webcomponents/job/opencga-job-browser.js";
+import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
@@ -391,10 +391,10 @@ class IvaApp extends LitElement {
                 console.error(e);
                 UtilsNew.notifyError(e);
             }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
-            // this.updateComplete;
-        });
+                this.signingIn = false;
+                this.requestUpdate();
+                // this.updateComplete;
+            });
     }
 
     // TODO turn this into a Promise
@@ -626,7 +626,7 @@ class IvaApp extends LitElement {
         let arr = window.location.hash.split("/");
 
         // TODO evaluate refactor
-        let [hashTool, hashProject, hashStudy, feature] = arr;
+        const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
         if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
@@ -1337,13 +1337,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.job ? html`
                     <div class="content" id="job">
-                        <opencga-job-browser
+                        <job-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${OPENCGA_JOB_BROWSER_SETTINGS}"
                             .query="${this.queries.job}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
-                        </opencga-job-browser>
+                        </job-browser>
                     </div>
                 ` : null}
 
