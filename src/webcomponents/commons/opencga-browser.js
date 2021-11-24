@@ -306,21 +306,25 @@ export default class OpencgaBrowser extends LitElement {
                     .query="${this.facetQuery}"
                     .data="${this.facetResults}">
                 </opencb-facet-results>
-            </div>`;
+            </div>
+        `;
+
         switch (entity) {
             case "FILE":
                 this.endpoint = this.opencgaSession.opencgaClient.files();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-file-grid .opencgaSession="${this.opencgaSession}"
-                                           .config="${this.config.filter.result.grid}"
-                                           .query="${this.executedQuery}"
-                                           .eventNotifyName="${this.eventNotifyName}"
-                                           @selectrow="${e => this.onClickRow(e, "file")}">
+                        <opencga-file-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.result.grid}"
+                            .query="${this.executedQuery}"
+                            .eventNotifyName="${this.eventNotifyName}"
+                            @selectrow="${e => this.onClickRow(e, "file")}">
                         </opencga-file-grid>
-                        <opencga-file-detail    .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.config.filter.detail}"
-                                                .fileId="${this.detail.file?.id}">
+                        <opencga-file-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .fileId="${this.detail.file?.id}">
                         </opencga-file-detail>
                     </div>
                     ${facetView}
@@ -329,15 +333,17 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
-                                             .query="${this.executedQuery}"
-                                             .config="${this.config.filter.result.grid}"
-                                             .active="${true}"
-                                             @selectrow="${e => this.onClickRow(e, "sample")}">
+                        <opencga-sample-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.executedQuery}"
+                            .config="${this.config.filter.result.grid}"
+                            .active="${true}"
+                            @selectrow="${e => this.onClickRow(e, "sample")}">
                         </opencga-sample-grid>
-                        <opencga-sample-detail  .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.config.filter.detail}"
-                                                .sampleId="${this.detail.sample?.id}">
+                        <opencga-sample-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .sampleId="${this.detail.sample?.id}">
                         </opencga-sample-detail>
                     </div>
                     ${facetView}`;
@@ -384,16 +390,18 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-family-grid .opencgaSession="${this.opencgaSession}"
-                                             .query="${this.executedQuery}"
-                                             .config="${this.config.filter.result.grid}"
-                                             .active="${true}"
-                                             .eventNotifyName="${this.eventNotifyName}"
-                                             @selectrow="${e => this.onClickRow(e, "family")}">
+                        <opencga-family-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.executedQuery}"
+                            .config="${this.config.filter.result.grid}"
+                            .active="${true}"
+                            .eventNotifyName="${this.eventNotifyName}"
+                            @selectrow="${e => this.onClickRow(e, "family")}">
                         </opencga-family-grid>
-                        <opencga-family-detail  .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.config.filter.detail}"
-                                                .family="${this.detail.family}">
+                        <opencga-family-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .family="${this.detail.family}">
                         </opencga-family-detail>
                     </div>
                     ${facetView}`;
@@ -430,9 +438,10 @@ export default class OpencgaBrowser extends LitElement {
                             .files="${this.files}"
                             @selectrow="${e => this.onClickRow(e, "job")}">
                         </job-grid>
-                        <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
-                                              .config="${this.config.filter.detail}"
-                                              .jobId="${this.detail.job?.id}">
+                        <opencga-job-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.detail}"
+                            .jobId="${this.detail.job?.id}">
                         </opencga-job-detail>
                     </div>
                     ${facetView}
@@ -468,9 +477,12 @@ export default class OpencgaBrowser extends LitElement {
                             <li role="presentation" class="active">
                                 <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
                             </li>
-                            ${this.config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
+                            ${this.config.aggregation ? html`
+                                <li role="presentation">
+                                    <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a>
+                                </li>
+                            ` : null}
                         </ul>
-
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
                                 ${this.resource === "FILE" ? html`
@@ -564,7 +576,12 @@ export default class OpencgaBrowser extends LitElement {
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
                                 ${this.config.views && this.config.views.length ? this.config.views.map(tab => html`
-                                    <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
+                                    <button
+                                        type="button"
+                                        class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}"
+                                        ?disabled=${tab.disabled}
+                                        @click="${this.onClickPill}"
+                                        data-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
                                 `) : html`No view has been configured`}
@@ -594,7 +611,7 @@ export default class OpencgaBrowser extends LitElement {
                                 ${this.renderView(this.resource)}
                             </div>
 
-                                <!-- Other option: return an {string, TemplateResult} map -->
+                            <!-- Other option: return an {string, TemplateResult} map -->
                             <div class="v-space"></div>
                         </div>
                     </div>
