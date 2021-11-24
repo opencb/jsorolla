@@ -92,8 +92,7 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
-
-
+import "../../webcomponents/api/rest-api.js";
 
 class IvaApp extends LitElement {
 
@@ -215,7 +214,8 @@ class IvaApp extends LitElement {
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
-            "study-admin"];
+            "study-admin",
+            "rest-api"];
 
         for (const component of components) {
             _config.enabledComponents[component] = false;
@@ -1617,6 +1617,13 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["rest-api"] ? html`
+                    <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
                     </div>
                 ` : null}
             </div>
