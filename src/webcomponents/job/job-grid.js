@@ -131,7 +131,9 @@ export default class JobGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autorefreshMsg(),
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autorefreshMsg();
+                },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter.bind(this),
@@ -140,6 +142,7 @@ export default class JobGrid extends LitElement {
                 order: "AAA",
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
+                    document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
                     const filters = {
                         study: this.opencgaSession.study.fqn,
                         deleted: false,
@@ -196,8 +199,10 @@ export default class JobGrid extends LitElement {
     }
 
     autorefreshMsg() {
-        return ` <i class="fas fa-sync-alt ${this.autorefresh === true ? "anim-rotate" : "disabled"}"
-                    title="Autorefresh of results every ${(this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming) / 1000}s"></i>`;
+        const id = this._prefix + "refreshIcon";
+        const refreshTime = (this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming) / 1000;
+
+        return `<i id="${id}" class="fas fa-sync-alt anim-rotate" title="Autorefresh every ${refreshTime}s" style="visibility:hidden;margin-left:8px;"></i>`;
     }
 
     enableAutorefresh() {
