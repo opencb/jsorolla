@@ -38,7 +38,7 @@ import "../family/opencga-family-detail.js";
 import "../cohort/cohort-grid.js";
 import "../cohort/cohort-browser-filter.js";
 import "../cohort/cohort-detail.js";
-import "../job/opencga-job-grid.js";
+import "../job/job-grid.js";
 import "../job/opencga-job-filter.js";
 import "../job/opencga-job-detail.js";
 import "../job/opencga-job-browser.js";
@@ -158,9 +158,8 @@ export default class OpencgaBrowser extends LitElement {
                 }
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
-                        detail: this.preparedQuery
-                    }
-                ));
+                    detail: this.preparedQuery
+                }));
                 this.detail = {};
             } else {
                 // console.error("same queries")
@@ -230,7 +229,9 @@ export default class OpencgaBrowser extends LitElement {
     _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        Object.keys(this.activeTab).forEach(tab => {
+            this.activeTab[tab] = false;
+        });
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
@@ -277,7 +278,7 @@ export default class OpencgaBrowser extends LitElement {
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
         this.preparedFacetQueryFormatted = {...e.detail};
-        //this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
+        // this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
         this.facetQueryBuilder();
         this.requestUpdate();
     }
@@ -420,14 +421,15 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-job-grid .opencgaSession="${this.opencgaSession}"
-                                          .config="${this.config.filter.result.grid}"
-                                          .query="${this.executedQuery}"
-                                          .search="${this.executedQuery}"
-                                          .eventNotifyName="${this.eventNotifyName}"
-                                          .files="${this.files}"
-                                          @selectrow="${e => this.onClickRow(e, "job")}">
-                        </opencga-job-grid>
+                        <job-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.filter.result.grid}"
+                            .query="${this.executedQuery}"
+                            .search="${this.executedQuery}"
+                            .eventNotifyName="${this.eventNotifyName}"
+                            .files="${this.files}"
+                            @selectrow="${e => this.onClickRow(e, "job")}">
+                        </job-grid>
                         <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
                                               .config="${this.config.filter.detail}"
                                               .jobId="${this.detail.job?.id}">
@@ -435,9 +437,10 @@ export default class OpencgaBrowser extends LitElement {
                     </div>
                     ${facetView}
                     <div id="visual-browser-tab" class="content-tab">
-                        <jobs-timeline  .opencgaSession="${this.opencgaSession}"
-                                        .active="${this.activeTab["visual-browser-tab"]}"
-                                        .query="${this.executedQuery}">
+                        <jobs-timeline
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${this.activeTab["visual-browser-tab"]}"
+                            .query="${this.executedQuery}">
                         </jobs-timeline>
                     </div>
                 `;
@@ -591,7 +594,7 @@ export default class OpencgaBrowser extends LitElement {
                                 ${this.renderView(this.resource)}
                             </div>
 
-                                <!-- Other option: return an {string, TemplateResult} map ${this.renderView(this.resource).facetView} -->
+                                <!-- Other option: return an {string, TemplateResult} map -->
                             <div class="v-space"></div>
                         </div>
                     </div>

@@ -22,7 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
 
-export default class OpencgaJobGrid extends LitElement {
+export default class JobGrid extends LitElement {
 
     constructor() {
         super();
@@ -485,6 +485,25 @@ export default class OpencgaJobGrid extends LitElement {
         ];
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .rightToolbar="${this.getRightToolbar()}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+            <div>
+                <table id="${this.gridId}"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -506,26 +525,6 @@ export default class OpencgaJobGrid extends LitElement {
         };
     }
 
-    render() {
-        return html`
-            ${this._config.showToolbar ?
-                    html`
-                        <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                             .query="${this.query}"
-                                             .opencgaSession="${this.opencgaSession}"
-                                             .rightToolbar="${this.getRightToolbar()}"
-                                             @columnChange="${this.onColumnChange}"
-                                             @download="${this.onDownload}"
-                                             @export="${this.onDownload}">
-                        </opencb-grid-toolbar>` :
-                    ""
-            }
-            <div>
-                <table id="${this.gridId}"></table>
-            </div>
-        `;
-    }
-
 }
 
-customElements.define("opencga-job-grid", OpencgaJobGrid);
+customElements.define("job-grid", JobGrid);
