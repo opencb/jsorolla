@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 
 
-export default class OpencgaJobBrowser extends LitElement {
+export default class JobBrowser extends LitElement {
 
     constructor() {
         super();
@@ -392,14 +392,26 @@ export default class OpencgaJobBrowser extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this._config ? html`
-            <opencga-browser resource="JOB"
-                             .opencgaSession="${this.opencgaSession}"
-                             .query="${this.query}"
-                             .config="${this._config}">
-            </opencga-browser>` : "";
+        // No openCGA session available
+        if (!this.opencgaSession) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
+        return html`
+            <opencga-browser
+                resource="JOB"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>
+        `;
     }
 
 }
 
-customElements.define("opencga-job-browser", OpencgaJobBrowser);
+customElements.define("job-browser", JobBrowser);
