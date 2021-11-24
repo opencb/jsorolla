@@ -127,12 +127,15 @@ export default class StudyAdminSample extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
-                                        <span style="padding-right:5px">
-                                            <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
-                                        </span>
-                                        ${UtilsNew.isNotEmpty(this.sample) ? html `<span style="padding-left:5px">
-                                            <i class="${this.editSample? "far fa-eye": "fa fa-edit"} icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>`: nothing}
+                                        <div class="btn-group">
+                                        ${UtilsNew.isNotEmpty(this.sample) ? html `
+                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
+                                                <i class="fas fa-arrow-left icon-hover"></i>  Back
+                                            </button>
+                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.editForm(e)}">
+                                                <i class="${this.editSample? "far fa-eye": "fa fa-edit"} icon-hover"></i> ${this.editSample? "View" : "Edit"}
+                                            </button>`: nothing}
+                                        </div>
                                     </div>
                                     ${this.editSample? html`
                                         <sample-update

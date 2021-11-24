@@ -718,9 +718,8 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
-        if (element.field.endsWith("FILTER")) {
-            // debugger
-        }
+        // if (element.field.endsWith("FILTER")) {
+        // }
 
         // TODO to be fixed.
         if (element.field === "FILTER") {
@@ -871,7 +870,7 @@ export default class DataForm extends LitElement {
             defaultValue = this.getValue(element.field);
             if (defaultValue) {
                 // If apply is defined we need to apply the same transformation to be selected
-                if (element.display.apply) {
+                if (element.display?.apply) {
                     for (const allowedValue of allowedValues) {
                         if (allowedValue.includes(defaultValue)) {
                             defaultValue = allowedValue;
@@ -1281,7 +1280,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row">
                     <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${this.config?.icon || "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> 
+                        <i class="${this.config?.icon || "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
                         ${this.config.title}
                     </button>
                     <div class="">

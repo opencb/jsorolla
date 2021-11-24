@@ -575,7 +575,14 @@ const SUITE = {
                         // },
                     ]
                 },
-                CATALOG_NAVBAR_MENU
+                CATALOG_NAVBAR_MENU,
+                {
+                    id: "rest-api",
+                    name: "REST API",
+                    description: "",
+                    icon: "",
+                    visibility: "public"
+                },
             ],
             fileExplorer: {
                 visibility: "private"

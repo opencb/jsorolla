@@ -201,8 +201,10 @@ export default class VariableSetView extends LitElement {
         }
 
         return html`
-            <data-form .data=${this.variableSet} .config="${this._config}"></data-form>
-        `;
+            <data-form
+                .data=${this.variableSet}
+                .config="${this._config}">
+            </data-form>`;
     }
 
 }
