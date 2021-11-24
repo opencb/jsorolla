@@ -197,12 +197,13 @@ export default class Lollipop {
             // .size(size).dx(-size/2)*/;
 
             if (variant.type === "cluster") {
-                circleWrapper.text(variant.variants.length).dy(0).dx(variant.offset).font({size: variant.size * .5 + "px"});
+                circleWrapper.text(variant.variants.length).dy(variant.size*.1).dx(variant.offset).font({size: variant.size * .5 + "px"});
             } else {
                 // single variant
-                const label = circleWrapper.text(`${variant.id}`).dy(-variant.size / 2 - 20).dx(variant.offset).font({size: "12px"});
-                // label.rotate(-90);
+                // const label = circleWrapper.text(`${variant.id}`).dy(-variant.size / 2 - 20).dx(variant.offset).font({size: "12px"});
 
+                const label = circleWrapper.text(`${variant.id}`).dx(variant.offset).font({size: "12px"});
+                label.rotate(-45).dx(variant.size * 2);
             }
 
             v.click(e => this.onClickVariantGroup(e, circle, variant, track));
@@ -474,6 +475,7 @@ export default class Lollipop {
     }
 
     initProteinBoundaries(track) {
+        // return [41193423,41195811]
         const minPos = Math.min(...track.variants.map(variant => variant.start));
         const maxPos = Math.max(...track.variants.map(variant => variant.start));
         return [minPos, maxPos];
@@ -556,7 +558,7 @@ export default class Lollipop {
             return circles;
         } else {
             this.clusterFactor += .1;
-            console.error("no solution with the current clusterFactor, incrementing factor", this.clusterFactor);
+            console.warn("no layout solution available with the current clusterFactor, incrementing factor", this.clusterFactor);
             return this.clusterVariants(variants, track);
         }
     }
@@ -578,6 +580,7 @@ export default class Lollipop {
         let i = 0;
         // eslint-disable-next-line no-constant-condition
         while (true) {
+            console.log("i", i++);
             // console.log("it", i++);
             const state = this.moveIntersected(this.circles, i++);
             if (state === -1) {
