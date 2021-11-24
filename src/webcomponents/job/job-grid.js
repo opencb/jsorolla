@@ -526,7 +526,7 @@ export default class JobGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            autorefreshTiming: 30000
+            autorefreshTiming: 60000,
         };
     }
 
