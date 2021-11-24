@@ -19,7 +19,7 @@ const OPENCGA_JOB_BROWSER_SETTINGS = {
             showColumns: true,
             showExport: false,
             showDownload: true,
-            autorefreshTiming: 15000, // 15s
+            autorefreshTiming: 60000, // 60s
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
