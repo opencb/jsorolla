@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../permission/permission-browser-grid.js";
 import "../variable/variable-set-create.js";
 import "../variable/variable-set-view.js";
@@ -124,9 +125,10 @@ export default class StudyAdminVariable extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
-                                        <span style="padding-right:5px">
-                                            <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
-                                        </span>
+                                        ${UtilsNew.isNotEmpty(this.variableSet) ? html `
+                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
+                                                <i class="fas fa-eraser icon-hover"></i> Clear
+                                            </button>`: nothing}
                                     </div>
                                     <variable-set-view
                                         .variableSet="${this.variableSet}"
