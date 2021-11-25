@@ -21,7 +21,6 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
-
 export default class JobGrid extends LitElement {
 
     constructor() {
@@ -62,7 +61,9 @@ export default class JobGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "jbgrid" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
+
+        this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
         this.gridId = this._prefix + "JobBrowserGrid";
         this.active = true;
@@ -132,14 +133,13 @@ export default class JobGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
-                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autorefreshMsg();
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autoRefreshMsg();
                 },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter.bind(this),
                 sortName: "Creation",
                 sortOrder: "asc",
-                order: "AAA",
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
@@ -191,85 +191,40 @@ export default class JobGrid extends LitElement {
                 },
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
-                    this.enableAutorefresh();
+                    this.enableAutoRefresh();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
             });
         }
     }
 
-    autorefreshMsg() {
+    autoRefreshMsg() {
         const id = this._prefix + "refreshIcon";
         const refreshTime = (this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming) / 1000;
 
         return `<i id="${id}" class="fas fa-sync-alt anim-rotate" title="Autorefresh every ${refreshTime}s" style="visibility:hidden;margin-left:8px;"></i>`;
     }
 
-    enableAutorefresh() {
-        if (this.autorefresh) {
-            return;
-        } else {
-            this.autorefresh = true;
-            // this.renderTable();
+    enableAutoRefresh() {
+        if (!this.autoRefresh) {
+            this.autoRefresh = true;
             this.table.bootstrapTable("refresh", {silent: true});
-            // this.requestUpdate();
-
             clearInterval(this.interval);
+
             this.interval = setInterval(() => {
                 if (!this?.opencgaSession?.token || !$(`#${this.gridId}`).is(":visible")) {
-                    this.autorefresh = false;
+                    this.autoRefresh = false;
                     clearInterval(this.interval);
                 } else {
-                    this.autorefresh = true;
-                    // this.renderTable();
+                    this.autoRefresh = true;
                     this.table.bootstrapTable("refresh", {silent: true});
-                    // this.requestUpdate();
                 }
             }, this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
         }
     }
 
-    /* setAutorefresh(force = false) {
-        if (force) {
-            if (this.autorefresh) {
-                return;
-            } else {
-                this.autorefresh = false;
-            }
-        } else {
-
-            if (this.autorefresh) {
-                clearInterval(this.interval);
-                this.autorefresh = false;
-                this.requestUpdate();
-            } else {
-                this.autorefresh = true;
-                // this.renderTable();
-                this.table.bootstrapTable("refresh", {silent: false});
-                this.requestUpdate();
-
-                clearInterval(this.interval);
-                this.interval = setInterval(() => {
-                    if (!this?.opencgaSession?.token || !$(`#${this.gridId}`).is(":visible")) {
-                        this.autorefresh = false;
-                        clearInterval(this.interval);
-                    } else {
-                        this.autorefresh = true;
-
-                        // this.renderTable();
-                        console.log("refreshed", this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
-                        this.table.bootstrapTable("refresh", {silent: false});
-
-                        this.requestUpdate();
-                    }
-                }, this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
-            }
-        }
-    }*/
-
     _initTableColumns() {
         let _columns = [
-            // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
             {
                 id: "id",
                 title: "Job ID",
@@ -286,7 +241,6 @@ export default class JobGrid extends LitElement {
                 field: "internal.status",
                 formatter: status => UtilsNew.jobStatusFormatter(status)
             },
-
             {
                 id: "priority",
                 title: "Priority",
@@ -294,32 +248,28 @@ export default class JobGrid extends LitElement {
             },
             {
                 id: "dependsOn",
-                title: "Depends on",
+                title: "Depends On",
                 field: "dependsOn",
-                formatter: v => v.length > 0 ?
-                    `<div class="tooltip-div">
-                            <a tooltip-title="Dependencies" tooltip-text="${v.map(job => `<p>${job.id}</p>`).join("<br>")}"> ${v.length} job${v.length > 1 ? "s" : ""}</a>
-                    </div>
-                    ` : "-"
+                formatter: dependsOn => dependsOn.length > 0 ? `
+                    <div class="tooltip-div">
+                        <a tooltip-title="Dependencies" tooltip-text="${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}">
+                            ${dependsOn.length} job${dependsOn.length > 1 ? "s" : ""}
+                        </a>
+                    </div>` : "-"
             },
             {
                 id: "output",
                 title: "Output Files",
                 field: "output",
-                formatter: value => {
-                    if (value) {
-                        const fileIds = value?.map(file => file);
+                formatter: outputFiles => {
+                    if (outputFiles?.length > 0) {
+                        const fileIds = outputFiles?.map(file => file);
                         return CatalogGridFormatter.fileFormatter(fileIds, null, "name");
                     } else {
                         return "-";
                     }
                 }
             },
-            // {
-            //     title: "Tags",
-            //     field: "tags",
-            //     formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
-            // },
             {
                 id: "execution",
                 title: "Runtime",
@@ -403,39 +353,6 @@ export default class JobGrid extends LitElement {
             detailHtml += "To be implemented";
             detailHtml += "</div>";
         }
-
-        // return row.dependsOn && row.dependsOn.length ? `
-        //     <div class='row' style="padding: 5px 10px 20px 10px">
-        //         <div class='col-md-12'>
-        //             <h5 style="font-weight: bold">Dependencies</h5>
-        //             <div>
-        //                 <table class="table table-hover table-no-bordered">
-        //                     <thead>
-        //                         <tr class="table-header">
-        //                             <th>ID</th>
-        //                             <th>Tool</th>
-        //                             <th>Status</th>
-        //                             <th>Priority</th>
-        //                             <th>Creation Date</th>
-        //                             <th>Visited</th>
-        //                         </tr>
-        //                     </thead>
-        //                     <tbody>
-        //                         ${row.dependsOn.map(job => `
-        //                             <tr class="detail-view-row">
-        //                                 <td>${job.id}</td>
-        //                                 <td>${job.tool.id}</td>
-        //                                 <td>${this.statusFormatter(job.internal.status.name)}</td>
-        //                                 <td>${job.priority}</td>
-        //                                 <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
-        //                                 <td>${job.visited}</td>
-        //                            </tr>
-        //                         `).join("")}
-        //                     </tbody>
-        //                 </table>
-        //             </div>
-        //     </div>
-        // </div>` : "No dependencies";
 
         result += detailHtml + "</div>";
         return result;

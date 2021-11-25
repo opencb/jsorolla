@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 
-
 export default class JobBrowser extends LitElement {
 
     constructor() {
@@ -53,29 +52,12 @@ export default class JobBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "jb" + UtilsNew.randomString(6);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
-
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
@@ -88,12 +70,11 @@ export default class JobBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
@@ -118,11 +99,7 @@ export default class JobBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar",
-                }, /*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                },*/
+                },
                 {
                     id: "visual-browser-tab",
                     name: "Visual browser",
@@ -204,21 +181,13 @@ export default class JobBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        id: "Full",
+                        id: "Example 1 - Get VCF and BAM",
                         active: false,
                         query: {
-                            name: "bam",
-                            path: "genomes",
-                            sample: "hg3333",
-                            format: "VCF,BCF,GVCF,BIGWIG",
-                            bioformat: "ALIGNMENT",
-                            creationDate: ">=20200216",
+                            format: "VCF,BAM",
                         },
                     },
                 ],
-                grid: {
-                    order: "AAAA",
-                },
                 result: {
                     grid: {},
                 },
@@ -232,7 +201,9 @@ export default class JobBrowser extends LitElement {
                             active: true,
                             render: (job, active, opencgaSession) => {
                                 return html`
-                                    <opencga-job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-job-view>`;
+                                    <opencga-job-view
+                                        .opencgaSession=${opencgaSession} mode="simple" .job="${job}">
+                                    </opencga-job-view>`;
                             },
                         },
                         {
@@ -240,11 +211,11 @@ export default class JobBrowser extends LitElement {
                             name: "Logs",
                             render: (job, active, opencgaSession) => {
                                 return html`
-                                    <opencga-job-detail-log .opencgaSession=${opencgaSession}
-                                                            .active="${active}"
-                                                            .job="${job}">
-                                    </opencga-job-detail-log>
-                                `;
+                                    <opencga-job-detail-log
+                                        .opencgaSession=${opencgaSession}
+                                        .active="${active}"
+                                        .job="${job}">
+                                    </opencga-job-detail-log>`;
                             },
                         },
                         {
@@ -253,7 +224,10 @@ export default class JobBrowser extends LitElement {
                             mode: "development",
                             render: (job, active, opencgaSession) => {
                                 return html`
-                                    <json-viewer .data="${job}" .active="${active}"></json-viewer>`;
+                                    <json-viewer
+                                        .data="${job}"
+                                        .active="${active}">
+                                    </json-viewer>`;
                             },
                         },
                     ],
