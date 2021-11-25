@@ -203,7 +203,7 @@ export default class Lollipop {
                 // const label = circleWrapper.text(`${variant.id}`).dy(-variant.size / 2 - 20).dx(variant.offset).font({size: "12px"});
 
                 const label = circleWrapper.text(`${variant.id}`).dx(variant.offset).font({size: "12px"});
-                label.rotate(-45).dx(variant.size * 2);
+                label.rotate(-45).x(variant.size / 2);
             }
 
             v.click(e => this.onClickVariantGroup(e, circle, variant, track));
@@ -241,7 +241,7 @@ export default class Lollipop {
         // TODO maybe use svg.js timeline
         const delay = this.circles.length * 100;
         this.circles.forEach((variant, i) => {
-            variant.domRef.animate({delay, duration: 1000}).dx(variant.offset).ease("<");
+            variant.domRef.animate({delay, duration: 1000}).dx(variant.offset).ease("<").after(() => variant.layoutApplied = true);
             variant.domRefEdge.animate({delay, duration: 1000}).plot(`M ${0} ${height} V ${height * .5} L ${variant.offset} ${height * .4} V ${variant.size / 2 + 5}`);
         });
     }
@@ -250,6 +250,12 @@ export default class Lollipop {
         // NOTE variant is a cluster
         const height = (track.view.scaleHeight + track.view.variantAreaHeight) / 2;
         const delay = 100;
+
+        // TODO quick fix to avoid exploding cluster before the cluster node is it the right position (which cause a wrong positioning of the variant nodes as well)
+        if (!node.layoutApplied) {
+            return;
+        }
+
         if (node.exploded) {
             node.exploded = false;
             node.domRef.animate().dy(+node.size * 2).ease("<");
@@ -264,14 +270,14 @@ export default class Lollipop {
             // getting how many circles (radius r) can be drawn around a bigger circle (radius R):
             // n * arcsin(r/(R-r)) = PI
             // R - r must be > r => R > r*2
-            const R = node.size * 2;
-            const r = track.view.circleSize * .8;
+            const R = node.size + track.view.circleSize;
+            const r = track.view.circleSize;
             const n = Math.round((1 / (Math.asin(r / (R - r)))) * Math.PI);
             node.variants.slice(0, n).forEach((variant, i) => {
                 const circleSectorAngle = i / node.variants.slice(0, n).length * Math.PI * 2;
-                const radius = r * 1.8;
+                const radius = r * 2;
                 node.domClusterRef.circle(1)
-                    .dx(-r / 2) // variant.size
+                    .dx(-r / 2) // draw the nodes around the circle centre
                     .dy(-r / 2)
                     // .dx(Math.cos(circleSectorAngle)*radius -variant.size/2)
                     // .dy(Math.sin(circleSectorAngle)*radius -variant.size/2)
@@ -581,7 +587,7 @@ export default class Lollipop {
             console.log("i", i++);
             // console.log("it", i++);
             const state = this.moveIntersected(this.circles, i++);
-            if (state === -1) {
+            if (i > 1e7 || state === -1) {
                 // increase cluster distance
                 console.error("no solution");
                 break;
