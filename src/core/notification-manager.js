@@ -36,7 +36,7 @@ export default class NotificationManager {
             <div class="alert alert-${className}" style="display:flex;">
                 ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
-                        <span class="${this.config.icons[type]}"></span>
+                        <span class="${options.icon || this.config.icons[type]}"></span>
                     </div>
                 ` : ""}
                 <div style="flex-grow:1;">
@@ -168,10 +168,10 @@ export default class NotificationManager {
     getDefaultConfig() {
         return {
             icons: {
-                error: "glyphicon glyphicon-remove-sign",
-                info: "glyphicon glyphicon-info-sign",
-                success: "glyphicon glyphicon-ok-sign",
-                warning: "glyphicon glyphicon-warning-sign",
+                error: "fas fa-times-circle",
+                info: "fas fa-info-circle",
+                success: "fas fa-check-circle",
+                warning: "fas fa-exclamation-triangle",
             },
             display: {
                 width: "600px",
