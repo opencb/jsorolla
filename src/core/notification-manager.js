@@ -34,7 +34,7 @@ export default class NotificationManager {
         // Generate notification element
         const element = UtilsNew.renderHTML(`
             <div class="alert alert-${className}" style="display:flex;">
-                ${options.showIcon ? `
+                ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
                         <span class="${this.config.icons[type]}"></span>
                     </div>
@@ -54,7 +54,7 @@ export default class NotificationManager {
                         </div>
                     ` : ""}
                 </div>
-                ${options?.showCloseButton ? `
+                ${options.display?.showCloseButton ? `
                     <div style="margin-left:16px;">
                         <button type="button" class="close" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -81,7 +81,7 @@ export default class NotificationManager {
         });
 
         // Register event to remove the notification when the close button is clicked
-        if (options.showCloseButton) {
+        if (options.display?.showCloseButton) {
             element.querySelector("button.close").addEventListener("click", () => {
                 return removeNotification();
             });
@@ -100,8 +100,10 @@ export default class NotificationManager {
     success(title, message) {
         return this.show({
             type: "success",
-            showIcon: true,
-            showCloseButton: true,
+            display: {
+                showIcon: true,
+                showCloseButton: true,
+            },
             removeAfter: this.config.removeAfter,
             title: title,
             message: message,
@@ -112,8 +114,10 @@ export default class NotificationManager {
     info(title, message) {
         return this.show({
             type: "info",
-            showIcon: true,
-            showCloseButton: true,
+            display: {
+                showIcon: true,
+                showCloseButton: true,
+            },
             removeAfter: this.config.removeAfter,
             title: title,
             message: message,
@@ -124,8 +128,10 @@ export default class NotificationManager {
     warning(title, message) {
         return this.show({
             type: "warning",
-            showIcon: true,
-            showCloseButton: true,
+            display: {
+                showIcon: true,
+                showCloseButton: true,
+            },
             removeAfter: this.config.removeAfter,
             title: title,
             message: message,
@@ -136,7 +142,10 @@ export default class NotificationManager {
     error(title, message) {
         return this.show({
             type: "error",
-            showIcon: true,
+            display: {
+                showIcon: true,
+                showCloseButton: false,
+            },
             removeAfter: 0,
             buttons: [
                 {
