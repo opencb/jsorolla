@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import FormUtils from "../commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 
@@ -66,43 +66,40 @@ export default class SampleCreate extends LitElement {
         LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
     }
 
-    onFieldChange(e) {
-        const [field, prop] = e.detail.param.split(".");
-        if (e.detail.value) {
-            switch (e.detail.param) {
-                case "id":
-                case "description":
-                case "somatic":
-                case "individualId":
-                    // this.sample[field] = e.detail.value;
-                    // this.refreshForm();
-                    // break;
-                    this.sample[field] = e.detail.value;
-                    break;
-                case "status.name":
-                case "status.description":
-                case "processing.product":
-                case "processing.preparationMethod":
-                case "processing.extractionMethod":
-                case "processing.labSambpleId":
-                case "processing.quantity":
-                case "processing.date":
-                case "collection.tissue":
-                case "collection.organ":
-                case "collection.quantity":
-                case "collection.method":
-                case "collection.date":
-                    this.sample[field] = {
-                        ...this.sample[field],
-                        [prop]: e.detail.value
-                    };
-            }
-        } else {
-            if (prop) {
-                delete this.sample[field][prop];
-            } else {
-                delete this.sample[field];
-            }
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "id":
+            case "description":
+            case "somatic":
+            case "individualId":
+            case "status.name":
+            case "status.description":
+            case "processing.product":
+            case "processing.preparationMethod":
+            case "processing.extractionMethod":
+            case "processing.labSambpleId":
+            case "processing.quantity":
+            case "processing.date":
+            case "collection.tissue":
+            case "collection.organ":
+            case "collection.quantity":
+            case "collection.method":
+            case "collection.date":
+                this.sample = {
+                    ...FormUtils.createObject(
+                        this.sample,
+                        param,
+                        e.detail.value
+                    )
+                };
+                break;
+            case "phenotypes":
+                this.sample = {...this.sample, phenotypes: e.detail.value};
+                break;
+            case "annotationSets":
+                this.sample = {...this.sample, annotationSets: e.detail.value};
+                break;
         }
     }
 
@@ -154,16 +151,15 @@ export default class SampleCreate extends LitElement {
         //     });
     }
 
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.sample = {...this.sample, phenotypes: e.detail.value};
-                break;
-            case "annotationsets":
-                this.sample = {...this.sample, annotationSets: e.detail.value};
-                break;
-        }
+    render() {
+        return html`
+            <data-form
+                .data=${this.sample}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${e => this.onSubmit(e)}">
+            </data-form>`;
     }
 
     getDefaultConfig() {
@@ -382,7 +378,7 @@ export default class SampleCreate extends LitElement {
                                 render: sample => html`
                                     <phenotype-list-update
                                         .phenotypes="${sample?.phenotypes}"
-                                        @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                                        @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
                                     </phenotype-list-update>`
                             }
                         },
@@ -403,7 +399,7 @@ export default class SampleCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
                                     </annotation-set-update>
                                 `
                             }
@@ -412,17 +408,6 @@ export default class SampleCreate extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.sample}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${e => this.onSubmit(e)}">
-            </data-form>`;
     }
 
 }

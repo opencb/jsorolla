@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
@@ -264,6 +265,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession?.study) {
+            return html `
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
         return html`
             <data-form
                 .data="${this.clinicalAnalysis}"
@@ -273,6 +283,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 @submit="${this.onSubmit}">
             </data-form>
         `;
+    }
+
+    isEmptyRequiredFields(data) {
+        // const getConfigVisible = this._config.sections?.filter(section =>
+        //     FormUtils.getBooleanValue(data, section?.display?.visible));
+        return UtilsNew.isEmptyFields(data, ["id", "proband"]);
     }
 
     getDefaultConfig() {
@@ -292,6 +308,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             ],
             buttons: {
                 show: true,
+                disabled: data => this.isEmptyRequiredFields(data),
                 clearText: "Clear",
                 submitText: "Create"
             },
@@ -314,11 +331,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             required: true,
-                            // validate: () => {},
+                            // validation: () => {},
                             defaultValue: "",
                             display: {
                                 placeholder: "eg. AN-3",
-                            }
+                            },
+                            validation: {
+                                validate: id => id && !id.includes(" "),
+                                message: "ID must not contain spaces and other special chars",
+                            },
                         },
                         {
                             name: "Analysis Type",
@@ -383,10 +404,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             name: "Select Proband",
                             field: "proband.id",
                             type: "custom",
+                            required: true,
                             display: {
-                                render: data => {
+                                render: probandId => {
                                     return html`
                                         <individual-id-autocomplete
+                                            .value="${probandId}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config=${{
                                                 addButton: false,

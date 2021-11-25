@@ -55,7 +55,7 @@ import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
-import "../../webcomponents/job/opencga-job-browser.js";
+import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
@@ -95,6 +95,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import LitUtils from "../../webcomponents/commons/utils/lit-utils.js";
 
+import "../../webcomponents/api/rest-api.js";
 
 class IvaApp extends LitElement {
 
@@ -216,7 +217,8 @@ class IvaApp extends LitElement {
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
-            "study-admin"];
+            "study-admin",
+            "rest-api"];
 
         for (const component of components) {
             _config.enabledComponents[component] = false;
@@ -661,20 +663,20 @@ class IvaApp extends LitElement {
         const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
-        if (hashTool !== this.tool || (this.opencgaSession?.project && hashProject !== this.opencgaSession.project.alias) ||
-            (UtilsNew.isNotUndefined(this.study) && hashStudy !== this.opencgaSession.study.alias)) {
+        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             if (arr.length > 1) {
                 // Field 'project' is being observed, just in case Polymer triggers
                 // an unnecessary event we can check they are really different
-                if (ctx.opencgaSession?.project?.alias && ctx.opencgaSession.project.alias !== hashProject) {
-                    ctx.opencgaSession.project.alias = hashProject;
+                if (ctx.opencgaSession?.project?.id !== hashProject) {
+                    // eslint-disable-next-line no-param-reassign
+                    ctx.opencgaSession.project.id = hashProject;
                 }
                 if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
                     for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
                         if (ctx.opencgaSession.projects[i].name === ctx.opencgaSession.project.name ||
-                            ctx.opencgaSession.projects[i].alias === ctx.opencgaSession.project.alias) {
+                            ctx.opencgaSession.projects[i].id === ctx.opencgaSession.project.id) {
                             for (let j = 0; j < ctx.opencgaSession.projects[i].studies.length; j++) {
-                                if (ctx.opencgaSession.projects[i].studies[j].name === hashStudy || ctx.opencgaSession.projects[i].studies[j].alias === hashStudy) {
+                                if (ctx.opencgaSession.projects[i].studies[j].name === hashStudy || ctx.opencgaSession.projects[i].studies[j].id === hashStudy) {
                                     ctx.opencgaSession.study = ctx.opencgaSession.projects[i].studies[j];
                                     break;
                                 }
@@ -693,6 +695,10 @@ class IvaApp extends LitElement {
                     break;
                 case "#interpreter":
                     this.clinicalAnalysisId = feature;
+                    if (!this.clinicalAnalysisId) {
+                        // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
+                        window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
+                    }
                     break;
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
@@ -1365,13 +1371,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.job ? html`
                     <div class="content" id="job">
-                        <opencga-job-browser
+                        <job-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${OPENCGA_JOB_BROWSER_SETTINGS}"
                             .query="${this.queries.job}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
-                        </opencga-job-browser>
+                        </job-browser>
                     </div>
                 ` : null}
 
@@ -1645,6 +1651,13 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["rest-api"] ? html`
+                    <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
                     </div>
                 ` : null}
             </div>

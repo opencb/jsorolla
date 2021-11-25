@@ -15,18 +15,17 @@
  */
 
 import {LitElement, html} from "lit";
-import {classMap} from "lit/directives/class-map.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
-
-export default class OpencgaClinicalAnalysisGrid extends LitElement {
+export default class ClinicalAnalysisGrid extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,119 +35,25 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
             // analyses: {
             //     type: Array
             // },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             config: {
                 type: Object
             },
-            active: {
-                type: Boolean
-            }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.active = true;
+
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
-
-        // TODO remove this code as soon as new OpenCGA configuration is in place
-        this.status = {
-            FAMILY: [
-                {
-                    id: "READY_FOR_INTERPRETATION",
-                    description: "The Clinical Analysis is ready for interpretations"
-                },
-                {
-                    id: "READY_FOR_REPORT",
-                    description: "The Interpretation is finished and it is to create the report"
-                },
-                {
-                    id: "CLOSED",
-                    description: "The Clinical Analysis is closed"
-                },
-                {
-                    id: "REJECTED",
-                    description: "The Clinical Analysis is rejected"
-                }
-            ],
-            CANCER: [
-                {
-                    id: "READY_FOR_INTERPRETATION",
-                    description: "The Clinical Analysis is ready for interpretations"
-                },
-                {
-                    id: "READY_FOR_REPORT",
-                    description: "The Interpretation is finished and it is to create the report"
-                },
-                {
-                    id: "CLOSED",
-                    description: "The Clinical Analysis is closed"
-                },
-                {
-                    id: "REJECTED",
-                    description: "The Clinical Analysis is rejected"
-                }
-            ],
-            SINGLE: [
-                {
-                    id: "READY_FOR_INTERPRETATION",
-                    description: "The Clinical Analysis is ready for interpretations"
-                },
-                {
-                    id: "READY_FOR_REPORT",
-                    description: "The Interpretation is finished and it is to create the report"
-                },
-                {
-                    id: "CLOSED",
-                    description: "The Clinical Analysis is closed"
-                },
-                {
-                    id: "REJECTED",
-                    description: "The Clinical Analysis is rejected"
-                }
-            ]
-        };
-
-        this.priorities = [
-            {
-                id: "URGENT",
-                description: "Highest priority of all",
-                rank: 1,
-                defaultPriority: false
-            },
-            {
-                id: "HIGH",
-                description: "Second highest priority of all",
-                rank: 2,
-                defaultPriority: false
-            },
-            {
-                id: "MEDIUM",
-                description: "Intermediate priority",
-                rank: 3,
-                defaultPriority: false
-            },
-            {
-                id: "LOW",
-                description: "Low priority",
-                rank: 4,
-                defaultPriority: false
-            },
-            {
-                id: "UNKNOWN",
-                description: "Unknown priority. Treated as the lowest priority of all.",
-                rank: 5,
-                defaultPriority: true
-            }
-        ];
     }
 
     connectedCallback() {
@@ -159,11 +64,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
-            this.active) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
             this.propertyObserver();
         }
     }
@@ -182,7 +83,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     renderTable() {
-        if (this.opencgaSession?.opencgaClient && this.opencgaSession.study?.fqn) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -207,7 +108,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "files,secondaryInterpretations",
+                        exclude: "files,interpretation.primaryFindings,secondaryInterpretations",
                         ...this.query
                     };
                     try {
@@ -223,17 +124,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
                 onCheck: (row, $element) => {
                     this.gridCommons.onCheck(row.id, row);
                 },
@@ -250,35 +140,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: function (data) {
-                    // Add qtip2 tooltips to Interpretation genotypes
-                    /* $("div.interpretation-tooltip").qtip({
-                        content: {
-                            title: "Clinical Interpreters",
-                            text: function (event, api) {
-                                return $(this).attr("data-tooltip-text");
-                            }
-                        },
-                        position: {
-                            target: "mouse",
-                            adjust: {
-                                x: 2, y: 2,
-                                mouse: false
-                            }
-                        },
-                        style: {
-                            classes: "qtip-light qtip-rounded qtip-shadow",
-                            width: "320px"
-                        },
-                        show: {
-                            delay: 200
-                        },
-                        hide: {
-                            fixed: true,
-                            delay: 300
-                        }
-                    });*/
-                }
+                onPostBody: () => {}
             });
         }
     }
@@ -296,90 +158,94 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    /**
-     * DEPRECATED.
-     * @param index
-     * @param row
-     * @returns {HTMLElement}
-     */
-    detailFormatter(index, row) {
-        const clinicalAnalysisView = document.createElement("clinical-analysis-view");
-        clinicalAnalysisView.opencgaSession = this.gridContext.opencgaSession;
-        clinicalAnalysisView.opencgaClient = this.gridContext.opencgaSession.opencgaClient;
-        clinicalAnalysisView.clinicalAnalysisId = row.id;
-        clinicalAnalysisView.showTitle = false;
-
-        const title = document.createElement("h3");
-        title.innerText = "Summary";
-
-        const div = document.createElement("div");
-        div.style = "padding: 5px 20px 10px 20px";
-        div.appendChild(title);
-        div.appendChild(clinicalAnalysisView);
-
-        return div;
-    }
-
     caseFormatter(value, row) {
         if (row?.id) {
-            return `<p style="margin: 5px 0px">
-                        <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}" data-cy="case-id">${row.id}</a>
-                    </p>
-                    <p style="margin: 5px 0px" data-cy="case-type">
-                        ${row.type}
-                    </p>`;
+            return `
+                <div style="margin: 5px 0px">
+                    <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}" data-cy="case-id">${row.id}</a>
+                </div>
+                <div style="margin: 5px 0px" data-cy="case-type">
+                    <span class="help-block">${row.type}</span>
+                </div>`;
         } else {
             return "-";
         }
     }
 
     interpretationFormatter(value, row) {
-        let html = "";
-        if (row.interpretation?.primaryFindings?.length > 0) {
-            const reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
-            html = `<div>
-                        <span style="margin: 5px 0px">${row.interpretation.primaryFindings.length} variants</span>
+        let html;
+        if (value?.stats?.primaryFindings) {
+            const tierStats = Object.keys(value.stats.primaryFindings.tierCount)
+                .filter(key => key !== "none")
+                .sort()
+                .map(key => `${key}: ${value.stats.primaryFindings.tierCount[key]}`)
+                .join(", ");
+            html = `
+                <div>
+                    <span style="margin: 5px 0">${value.stats.primaryFindings.numVariants} variants</span>
+                </div>
+                <div>
+                    <span class="help-block" style="margin: 5px 0">${value.stats.primaryFindings.statusCount?.REVIEWED} reviewed</span>
+                </div>
+                <div>
+                    <span class="help-block" style="margin: 5px 0">
+                        ${tierStats}
+                    </span>
+                </div>
+                <div>
+                    <span class="help-block" style="margin: 5px 0">
+                        ${Object.keys(value.stats.primaryFindings.geneCount).length} genes
+                    </span>
+                </div>`;
+        } else {
+            if (row.interpretation?.primaryFindings?.length > 0) {
+                const reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
+                html = `
+                    <div>
+                        <span style="margin: 5px 0">${row.interpretation.primaryFindings.length} variants</span>
                     </div>
                     <div>
-                        <span class="help-block" style="margin: 5px 0px">${reviewedVariants.length} reviewed</span>
+                        <span class="help-block" style="margin: 5px 0">${reviewedVariants.length} reviewed</span>
                     </div>`;
-        } else {
-            html = "<span>0 variants</span>";
+            } else {
+                html = "<span>0 variants</span>";
+            }
         }
 
-        return `<a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter"
-                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                    ${html}
-                </a>`;
+        return `
+            <a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter"
+                    href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                ${html}
+            </a>`;
     }
 
     priorityFormatter(value) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _priorities = this.opencgaSession.study?.internal?.configuration?.clinical ? this.opencgaSession.study.internal.configuration.clinical.priorities : this.priorities;
+        const _priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
         const priorityMap = {
             URGENT: "label-danger",
             HIGH: "label-warning",
             MEDIUM: "label-primary",
             LOW: "label-info"
         };
-        // TODO /remove this code as soon as new OpenCGA configuration is in place
-
 
         const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
-
         if (UtilsNew.isEmpty(value)) {
             return "<span>-</span>";
-        } else if (!this._config.readOnlyMode && OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
-            return ` <div class="dropdown">
-                    <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
-                        <span class="label ${priorityRankToColor[value.rank] ?? priorityMap[value]}">
-                            ${value.id ?? value}
-                        </span>
-                        <span class="caret" style="margin-left: 5px"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        ${_priorities.map(priority => {
-                            return `<li>
+        } else {
+            if (!this._config.readOnlyMode && OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
+                return `
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
+                            <span class="label ${priorityRankToColor[value.rank] ?? priorityMap[value]}">
+                                ${value.id ?? value}
+                            </span>
+                            <span class="caret" style="margin-left: 5px"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            ${_priorities.map(priority => {
+                                return `
+                                    <li>
                                         <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
                                             <span class="label ${priorityRankToColor[priority.rank]}">
                                                 ${priority.id}
@@ -388,18 +254,18 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                             ${priority.id === value.id ? "<i class=\"fas fa-check\"></i>" : ""}
                                         </a>
                                     </li>`;
-                        }).join("")}
-                    </ul>
-                </div>`;
-        } else {
-            return `<span class='label ${priorityRankToColor[value.rank]}'>${value.id}</span>`;
-
+                            }).join("")}
+                        </ul>
+                    </div>`;
+            } else {
+                return `<span class='label ${priorityRankToColor[value.rank]}'>${value.id}</span>`;
+            }
         }
     }
 
     statusFormatter(value, row) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _status = this.opencgaSession.study?.internal?.configuration?.clinical?.status ? this.opencgaSession.study.internal.configuration.clinical.status : this.status;
+        const _status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
         value = {id: value.name, ...value};
         // TODO /remove this code as soon as new OpenCGA configuration is in place
 
@@ -414,11 +280,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
                                     ${id === value.id ? `<strong>${id}</strong>` : id}
                                     <p class="text-muted"><small>${description}</small></p>
-                                    ${id === value.id ? "<i class=\"fas fa-check\"></i>" : ""}
+                                    ${id === value.id ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
-
                     </ul>
                 </div>` :
             value.id;
@@ -505,10 +370,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 id: "caseId",
                 title: "Case",
                 field: "id",
-                formatter: this.caseFormatter.bind(this),
                 halign: this._config.header.horizontalAlign,
-                valign: "middle"
-                // visible: !this._config.columns.hidden.includes("id")
+                valign: "middle",
+                formatter: (value, row) => this.caseFormatter(value, row),
             },
             {
                 id: "probandId",
@@ -516,13 +380,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 field: "proband",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: proband => `<div>
-                                            <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0px">${proband.id}</span>
-                                        </div>
-                                        <div>
-                                            <span class="help-block" style="margin: 5px 0px">${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}</span>
-                                        </div>`
-                // visible: !this._config.columns.hidden.includes("probandId")
+                formatter: proband => `
+                    <div>
+                        <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
+                    </div>
+                    <div>
+                        <span class="help-block" style="margin: 5px 0">
+                            ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
+                        </span>
+                    </div>`
             },
             {
                 id: "familyId",
@@ -531,17 +397,16 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => {
-                    if (row.family?.id && row.family?.members.length) {
+                    if (row.family?.id && row.family?.members?.length) {
                         return `
                             <div>
-                                <span data-cy="family-id" style="margin: 5px 0px">${row.family.id}</span>
+                                <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
                             </div>
                             <div>
                                 <span class="help-block" style="margin: 5px 0px">${row.family.members.length} members</span>
                             </div>`;
                     }
                 }
-                // visible: !this._config.columns.hidden.includes("familyId")
             },
             {
                 id: "disorderId",
@@ -551,10 +416,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 valign: "middle",
                 formatter: (value, row) => {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
-                    return `<div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
-                            <div style="margin: 5px 0px">${panelHtml}</div>`;
+                    return `
+                        <div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
+                        <div style="margin: 5px 0px">${panelHtml}</div>`;
                 },
-                // visible: !this._config.columns.hidden.includes("disorderId")
             },
             {
                 id: "interpretation",
@@ -562,8 +427,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 field: "interpretation",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: this.interpretationFormatter.bind(this)
-                // visible: !this._config.columns.hidden.includes("interpretation")
+                formatter: (value, row) => this.interpretationFormatter(value, row),
+                // TODO should this work?
+                // events: {
+                //     "click a": (e, _, row) => window.location.hash = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`
+                // },
             },
             {
                 id: "status",
@@ -597,7 +465,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 align: "center",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle"
-                // visible: !this._config.columns.hidden.includes("assignedTo")
             },
             {
                 id: "dates",
@@ -648,46 +515,32 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">
-                                    <i class="fas fa-id-card icon-padding" aria-hidden="true"></i> Create Report</a>
-                                </li>
-                            <li>
                                 <a href="javascript: void 0" class="btn force-text-left" data-action="download">
                                     <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
                                 </a>
                             </li>
-                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ?
-                                `
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
-                                            <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
-                                            <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
-                                        </a>
-                                    </li>` : ""
+                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? `
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>` : ""
                             }
                         </ul>
                     </div>`,
                 events: {
                     "click a": this.onActionClick.bind(this)
                 }
-                // visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-
         return _columns;
     }
 
     async onDownload(e) {
-
         // TODO evaluate refactor using webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
-
         try {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
             this.requestUpdate();
@@ -750,7 +603,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             showInterpretation: true,
             showReport: true,
             detailView: false,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
+            // detailFormatter: this.detailFormatter, // function with the detail formatter
             showSelectCheckbox: false,
             showActions: true,
             showToolbar: true,
@@ -767,13 +620,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .opencgaSession="${this.opencgaSession}"
-                                            .config="${this.toolbarConfig}"
-                                            @columnChange="${this.onColumnChange}"
-                                            @download="${this.onDownload}">
-                    </opencb-grid-toolbar>` :
-                null
+                    <opencb-grid-toolbar
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.toolbarConfig}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}">
+                    </opencb-grid-toolbar>` : null
             }
+
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>
             </div>
@@ -782,4 +636,4 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
 }
 
-customElements.define("opencga-clinical-analysis-grid", OpencgaClinicalAnalysisGrid);
+customElements.define("clinical-analysis-grid", ClinicalAnalysisGrid);

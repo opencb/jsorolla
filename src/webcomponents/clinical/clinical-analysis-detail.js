@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils.js";
 import "./opencga-clinical-analysis-view.js";
 import "./../commons/view/detail-tabs.js";
 
-export default class OpencgaClinicalAnalysisDetail extends LitElement {
+export default class ClinicalAnalysisDetail extends LitElement {
 
     constructor() {
         super();
@@ -97,4 +97,4 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
     }
 }
 
-customElements.define("opencga-clinical-analysis-detail", OpencgaClinicalAnalysisDetail);
+customElements.define("clinical-analysis-detail", ClinicalAnalysisDetail);

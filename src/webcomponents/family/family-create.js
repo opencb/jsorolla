@@ -54,46 +54,27 @@ export default class FamilyCreate extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    dispatchSessionUpdateRequest() {
-        LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
-    }
-
-
-    // TODO: Complete the attr to create a family.
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         e.stopPropagation();
-        const [field, prop] = e.detail.param.split(".");
-        if (e.detail.value) {
-            if (prop) {
-                this.family[field] = {
-                    ...this.family[field],
-                    [prop]: e.detail.value
-                };
-            } else {
-                this.family = {
-                    ...this.family,
-                    [field]: e.detail.value
-                };
-            }
-        } else {
-            prop ?
-                delete this.family[field][prop] :
-                delete this.family[field];
-        }
-        this.requestUpdate();
-    }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
+        const param = field || e.detail.param;
+        switch (param) {
             case "members":
                 this.members = e.detail.value;
                 break;
-            case "annotationsets":
+            case "annotationSets":
                 this.family = {...this.family, annotationSets: e.detail.value};
                 break;
+            default:
+                this.family = {
+                    ...FormUtils.createObject(
+                        this.family,
+                        param,
+                        e.detail.value
+                    )
+                };
+                break;
         }
-
+        this.requestUpdate();
     }
 
     onClear(e) {
@@ -196,7 +177,7 @@ export default class FamilyCreate extends LitElement {
                                     <individual-id-autocomplete
                                         .value="${this.members}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @filterChange="${e => this.onSync(e, "members")}">
+                                        @filterChange="${e => this.onFieldChange(e, "members")}">
                                     </individual-id-autocomplete>`
                             }
                         },
@@ -264,7 +245,7 @@ export default class FamilyCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${family?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
                                     </annotation-set-update>
                                 `
                             }

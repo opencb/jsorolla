@@ -128,12 +128,15 @@ export default class StudyAdminFamily extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
-                                        <span style="padding-right:5px">
-                                            <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
-                                        </span>
-                                        ${UtilsNew.isNotEmpty(this.family)?html`<span style="padding-left:5px">
-                                            <i class="${this.editFamily? "far fa-eye": "fa fa-edit"} icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>`: nothing}
+                                        <div class="btn-group">
+                                            ${UtilsNew.isNotEmpty(this.family) ? html `
+                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
+                                                <i class="fas fa-times icon-hover"></i> Clear
+                                            </button>
+                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.editForm(e)}">
+                                                <i class="${this.editFamily? "far fa-eye": "fa fa-edit"} icon-hover"></i> ${this.editFamily? "View" : "Edit"}
+                                            </button>`: nothing}
+                                        </div>
                                     </div>
                                     ${this.editFamily ? html`
                                         <family-update

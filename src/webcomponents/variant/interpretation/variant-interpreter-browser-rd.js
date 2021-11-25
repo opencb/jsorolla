@@ -175,10 +175,14 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // 2. 'panel' query param: add case panels to query object
-            // TODO should we also check main interpretation panels?
-            if (this.clinicalAnalysis.panels?.length > 0) {
-                this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+            if (this.clinicalAnalysis.interpretation?.panels?.length > 0) {
+                this.query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
+            } else {
+                if (this.clinicalAnalysis.panels?.length > 0) {
+                    this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+                }
             }
+
 
             // 3. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
@@ -352,9 +356,11 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
-        // this.preparedQuery = {...this.query};
-        // this.executedQuery = {...this.query};
+        const _query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
+        if (this.clinicalAnalysis.panelLock) {
+            _query.panel = this.query.panel;
+        }
+        this.query = _query;
         this.requestUpdate();
     }
 

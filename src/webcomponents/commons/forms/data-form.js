@@ -59,6 +59,10 @@ export default class DataForm extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._prefixDates = [];
+        this.formSubmitted = false;
+        this.showGlobalValidationError = false;
+        this.emptyRequiredFields = new Set();
+        this.invalidFields = new Set();
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -135,13 +139,13 @@ export default class DataForm extends LitElement {
     }
 
     _getDefaultValue(element) {
-        if (typeof element.defaultValue !== "undefined" && element.defaultValue !== null) {
+        if (element.defaultValue) {
             return element.defaultValue;
         } else {
-            if (this.config.display && typeof this.config.display.defaultValue !== "undefined" && this.config.display.defaultValue !== null) {
+            if (this.config?.display?.defaultValue) {
                 return this.config.display.defaultValue;
             } else {
-                return "-";
+                return "";
             }
         }
     }
@@ -236,6 +240,23 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _getErrorIcon(element, section) {
+        if (element?.display?.errorIcon) {
+            return element.display.errorIcon;
+        } else {
+            if (section?.display?.errorIcon) {
+                return section.display.errorIcon;
+            } else {
+                if (this.config.display?.errorIcon) {
+                    return this.config.display.errorIcon;
+                } else {
+                    // Default error icon
+                    return "fa fa-times-circle";
+                }
+            }
+        }
+    }
+
     _isUpdated(element) {
         if (!UtilsNew.isEmpty(this.updateParams)) {
             const [field, prop] = element.field.split(".");
@@ -250,57 +271,90 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _isRequiredEmpty(element, value) {
+        if (!value) {
+            value = this.getValue(element.field) || this._getDefaultValue(element);
+        }
+
+        if (element.required) {
+            if (value) {
+                this.emptyRequiredFields.delete(element.field);
+                return false;
+            } else {
+                this.emptyRequiredFields.add(element.field);
+                return true;
+            }
+        }
+
+        // Field not required --> skip validation
+        return false;
+    }
+
+    _isValid(element, value) {
+        if (!value) {
+            value = this.getValue(element.field) || this._getDefaultValue(element);
+        }
+
+        if (typeof element?.validation?.validate === "function") {
+            if (element.validation.validate(value)) {
+                this.invalidFields.delete(element.field);
+                return true;
+            } else {
+                this.invalidFields.add(element.field);
+                return false;
+            }
+        }
+
+        // No validation function provided --> we assume value is valid
+        return true;
+    }
 
     renderData() {
         const classes = this.config?.display?.classes ?? "";
         const style = this.config?.display?.style ?? "";
+        const defaultLayout = this.config?.display?.defaultLayout || "";
 
         // Render custom display.layout array when provided
         if (this.config?.display && this.config?.display.layout && Array.isArray(this.config?.display.layout)) {
             return html`
                 <div class="${classes}" style="${style}">
-                    ${this.config?.display.layout.map(section => section.id ?
-                        html`
-                            <div class="${section.classes}" style="${section.style}">
-                                ${this.config.type === "form" ?
-                                    html`
+                    ${this.config?.display.layout.map(section => section.id ? html`
+                        <div class="${section.classes}" style="${section.style}">
+                            ${this.config.type === "form" ? html`
+                                <section>
+                                    <form class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                        ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                    </form>
+                                </section>
+                            ` : html`
+                                <section>
+                                    <div class="${classes}" style="${style}">
+                                        ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                    </div>
+                                </section>
+                            `}
+                        </div>
+                    ` : html`
+                        <div class="${section?.classes ?? ""}" style="${section?.style ?? ""}">
+                            ${section.sections.map(subsection => subsection.id ? html`
+                                <div class="${subsection.classes}">
+                                    ${this.config.type === "form" ? html`
                                         <section>
-                                            <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
-                                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                            <form class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                             </form>
-                                        </section>` :
-                                    html`
+                                        </section>
+                                    ` : html`
                                         <section>
                                             <div class="${classes}" style="${style}">
-                                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                             </div>
-                                        </section>`
-                                }
-                            </div>` :
-                        html`
-                            <div class="${section?.classes ?? ""}" style="${section?.style ?? ""}">
-                                ${section.sections.map(subsection => subsection.id ?
-                                    html`
-                                        <div class="${subsection.classes}">
-                                            ${this.config.type === "form" ?
-                                                html`
-                                                    <section>
-                                                        <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
-                                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                                        </form>
-                                                    </section>` :
-                                                html`
-                                                    <section>
-                                                        <div class="${classes}" style="${style}">
-                                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                                        </div>
-                                                    </section>`
-                                            }
-                                        </div>` :
-                                    null
-                                )}
-                            </div>`
-                    )}
+                                        </section>
+                                    `}
+                                </div>
+                            ` : null)}
+                        </div>
+                    `)}
                 </div>
             `;
         }
@@ -308,7 +362,7 @@ export default class DataForm extends LitElement {
         if (this.config.type === "form") {
             return html`
                 <section>
-                    <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                    <form class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
                         ${this.config.sections.map(section => this._createSection(section))}
                     </form>
                 </section>
@@ -345,10 +399,10 @@ export default class DataForm extends LitElement {
                 <div class="row" style="">
                     ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
                     ${section.text ? html`
-                        <div class="${section.display?.textClass ? section.display.textClass : ""}" style="${section.display?.textStyle ? section.display.textStyle : ""}">
+                        <div class="${section.display?.textClass || ""}" style="${section.display?.textStyle || ""}">
                             <span>${section.text}</span>
-                        </div>` : null
-                    }
+                        </div>
+                    ` : null}
                     <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">
                         <div class="">
                             ${section.elements.map(element => this._createElement(element, section))}
@@ -363,7 +417,9 @@ export default class DataForm extends LitElement {
             return html`
                 <div>
                     <div class="row" style="">
-                        ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                        ${section.title ? html`
+                            <h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>
+                        ` : null}
                         <div class="col-md-${leftColumnWidth} ${sectionClasses}" style="${columnSeparatorStyle} ${sectionStyle}">
                             ${section.elements[0].map(element => this._createElement(element, section))}
                         </div>
@@ -396,7 +452,7 @@ export default class DataForm extends LitElement {
 
         // Templates are allowed in the names
         let title = element.name;
-        if (title && title.includes("${")) {
+        if (title?.includes("${")) {
             title = this.applyTemplate(element.name);
         }
 
@@ -469,25 +525,27 @@ export default class DataForm extends LitElement {
         const layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
         const showLabel = element?.showLabel ?? true;
         const labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
-        let width = this._getWidth(element);
-        width = width ? width : 12;
+        const labelAlign = this.config?.display?.labelAlign || "left";
+        const labelRequiredMark = element.required ? html`<b class="text-danger" style="margin-left:8px;">*</b>` : "";
+        const width = this._getWidth(element) || 12;
 
         // When form we return a form-group
-        if (this.config.type && this.config.type === "form") {
+        if (this.config.type === "form") {
             if (layout === "horizontal") {
                 return html`
                     <div class="form-group">
-                        <label class="control-label col-md-${labelWidth} ${elementLabelClasses}"
-                                style="text-align: ${this.config.display?.labelAlign || "left"}; ${elementLabelStyle}">${title}</label>
+                        ${title ? html`
+                            <label class="control-label col-md-${labelWidth} ${elementLabelClasses}" style="text-align:${labelAlign};${elementLabelStyle}">
+                                ${title} ${labelRequiredMark}
+                            </label>
+                        ` : null}
                         <div class="col-md-${width - labelWidth}">
-                            <div class="col-md-11">
-                            ${content}
-                            </div>
+                            <div class="">${content}</div>
                             ${element.display?.help ? html `
                                 <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.text}">
                                     <span><i class="${this._getHelpIcon(element, section)}"></i></span>
-                                </div>` : null
-                            }
+                                </div>
+                            ` : null}
                         </div>
                     </div>
                 `;
@@ -496,12 +554,14 @@ export default class DataForm extends LitElement {
                 return html`
                     <div class="form-group">
                         <div class="${sectionWidth}" style="margin: 5px 0px">
-                            ${title ? html`<label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">${title}</label>` : null}
+                            ${title ? html`
+                                <label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">
+                                    ${title} ${labelRequiredMark}
+                                </label>
+                            ` : null}
                             ${content ? html`
-                                <div>
-                                    ${content}
-                                </div>` : null
-                            }
+                                <div>${content}</div>
+                            ` : null}
                         </div>
                     </div>
                 `;
@@ -513,10 +573,10 @@ export default class DataForm extends LitElement {
                 return html`
                     <div class="row detail-row">
                         ${showLabel ? html`
-                            <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
+                            <div class="col-md-${labelWidth} text-${labelAlign}">
                                 <label>${title}</label>
-                            </div>` :
-                        null}
+                            </div>
+                        ` : null}
                         <div class="col-md-${width - labelWidth}">
                             ${content}
                         </div>
@@ -529,8 +589,8 @@ export default class DataForm extends LitElement {
                         ${showLabel ? html`
                             <div class="col-md-12">
                                 <label>${title}</label>
-                            </div>` :
-                        null}
+                            </div>
+                        ` : null}
                         <div class="col-md-${sectionWidth}">
                             ${content}
                         </div>
@@ -538,6 +598,31 @@ export default class DataForm extends LitElement {
                 `;
             }
         }
+    }
+
+    _createElementTemplate(element, value, content) {
+        const isValid = this._isValid(element, value);
+        const isRequiredEmpty = this._isRequiredEmpty(element, value);
+        const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
+
+        return html`
+            <div class="${hasErrorMessages ? "has-error" : ""}">
+                ${content}
+                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
+                    <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
+                ` : null}
+                ${hasErrorMessages ? html`
+                    <div class="help-block" style="display:flex;margin-top:8px;">
+                        <div style="margin-right:8px">
+                            <i class="${this._getErrorIcon(element)}"></i>
+                        </div>
+                        <div style="font-weight:bold;">
+                            ${isRequiredEmpty ? "This field is required." : element.validation.message}
+                        </div>
+                    </div>
+                ` : null}
+            </div>
+        `;
     }
 
     _createTitleElement(element) {
@@ -555,28 +640,20 @@ export default class DataForm extends LitElement {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
         const rows = element.display && element.display.rows ? element.display.rows : 1;
-        const isValid = this._getBooleanValue(element.display?.validation?.validate, true);
 
-        return html`
-            <div class=${isValid? "" : "has-error"}>
-                <text-field-filter
-                    placeholder="${element.display?.placeholder}"
-                    .rows="${rows}"
-                    ?disabled="${disabled}"
-                    ?required="${element.required}"
-                    .value="${value}"
-                    .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @blurChange="${e => this.onBlurChange(element.field, e.detail.value)}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                </text-field-filter>
-                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
-                    <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
-                ` : null}
-                ${!isValid ? html`
-                    <span class="help-block" style="margin: 5px">${element.display.validation.message}</span>
-                ` : null}
-            </div>
+        const content = html`
+            <text-field-filter
+                placeholder="${element.display?.placeholder}"
+                .rows="${rows}"
+                ?disabled="${disabled}"
+                ?required="${element.required}"
+                .value="${value}"
+                .classes="${this._isUpdated(element) ? "updated" : ""}"
+                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+            </text-field-filter>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     _createInputNumberElement(element) {
@@ -585,22 +662,22 @@ export default class DataForm extends LitElement {
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
 
-        return html`
-            <div class="">
-                <number-field-filter
-                    label="Value"
-                    .value="${value ? value : ""}"
-                    .comparators=${element.comparators || null}
-                    .allowedValues=${element.allowedValues || null}
-                    .min=${min}
-                    .max=${max}
-                    .step="${step}"
-                    .placeholder="${element.display?.placeholder || ""}"
-                    .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                </number-field-filter>
-            </div>
+        const content = html`
+            <number-field-filter
+                label="Value"
+                .value="${value ? value : ""}"
+                .comparators="${element.comparators || null}"
+                .allowedValues="${element.allowedValues || null}"
+                .min="${min}"
+                .max="${max}"
+                .step="${step}"
+                .placeholder="${element.display?.placeholder || ""}"
+                .classes="${this._isUpdated(element) ? "updated" : ""}"
+                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+            </number-field-filter>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     _createInputDateElement(element) {
@@ -620,8 +697,8 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element.display.disabled, false);
         const width = this._getWidth(element);
 
-        return html`
-            <div class='input-group date' id="${prefix}DuePickerDate" data-field="${element.field}">
+        const content = html`
+            <div class="input-group date" id="${prefix}DuePickerDate" data-field="${element.field}">
                 <input
                     type="text"
                     id="${prefix}DueDate"
@@ -629,31 +706,34 @@ export default class DataForm extends LitElement {
                     data-field="${element.field}"
                     ?disabled="${disabled}">
                 <span class="input-group-addon">
-                        <span class="fa fa-calendar"></span>
+                    <span class="fa fa-calendar"></span>
                 </span>
             </div>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     _createCheckboxElement(element) {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
-        if (element.field.endsWith("FILTER")) {
-            // debugger
-        }
+        // if (element.field.endsWith("FILTER")) {
+        // }
+
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";
             element.text = "Include only PASS variants";
         }
+
         return html`
             <div class="">
                 <input
                     type="checkbox"
                     class="${this._prefix}FilterCheckbox"
                     .checked="${value}"
-                    ?disabled=${disabled}
+                    ?disabled="${disabled}"
                     @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}"
                     style="margin-right: 5px; margin-top: 12px">
                 <span>${element.text}</span>
@@ -790,7 +870,7 @@ export default class DataForm extends LitElement {
             defaultValue = this.getValue(element.field);
             if (defaultValue) {
                 // If apply is defined we need to apply the same transformation to be selected
-                if (element.display.apply) {
+                if (element.display?.apply) {
                     for (const allowedValue of allowedValues) {
                         if (allowedValue.includes(defaultValue)) {
                             defaultValue = allowedValue;
@@ -815,19 +895,21 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
         const width = this._getWidth(element);
         if (allowedValues && allowedValues.length > 0) {
-            return html`
+            const content = html`
                 <div class="">
                     <select-field-filter
                         .data="${allowedValues}"
                         ?multiple="${element.multiple}"
-                        ?disabled=${disabled}
-                        ?required=${element.required}
+                        ?disabled="${disabled}"
+                        ?required="${element.required}"
                         .value="${defaultValue}"
                         .classes="${this._isUpdated(element) ? "updated" : ""}"
                         @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>
             `;
+
+            return this._createElementTemplate(element, null, content);
         } else {
             return this._getErrorMessage(element);
         }
@@ -837,7 +919,11 @@ export default class DataForm extends LitElement {
         if (!element.display || !element.display.template) {
             return html`<span class="text-danger">No template provided</span>`;
         }
-        return html`<span>${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}</span>`;
+        return html`
+            <span>
+                ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
+            </span>
+        `;
     }
 
     _createListElement(element) {
@@ -914,10 +1000,18 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array) {
-            return html`<span class="${errorClasses}">${errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`}</span>`;
+            return html`
+                <span class="${errorClasses}">
+                    ${errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`}
+                </span>
+            `;
         }
         if (!Array.isArray(array)) {
-            return html`<span class="${errorClasses}">Field '${element.field}' is not an array</span>`;
+            return html`
+                <span class="${errorClasses}">
+                    Field '${element.field}' is not an array
+                </span>
+            `;
         }
         if (typeof element.display?.transform === "function") {
             array = element.display.transform(array);
@@ -927,7 +1021,11 @@ export default class DataForm extends LitElement {
             return html`<span>${this._getDefaultValue(element)}</span>`;
         }
         if (!element.display && !element.display.columns) {
-            return html`<span class="${errorClasses}">Type 'table' requires a 'columns' array</span>`;
+            return html`
+                <span class="${errorClasses}">
+                    Type 'table' requires a 'columns' array
+                </span>
+            `;
         }
 
         return html`
@@ -946,16 +1044,16 @@ export default class DataForm extends LitElement {
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
                                 <td class="${elem.display?.classes || ""}" style="${elem.display?.style || ""}">
-                                   ${elem.type === "complex" ?
-                                       this._createComplexElement(elem, row) :
-                                       elem.type === "custom" ?
-                                           elem.display.render(this.getValue(elem.field, row)) :
-                                           this.getValue(elem.field, row, elem.defaultValue, elem.format)}
+                                    ${elem.type === "complex" ?
+                                        this._createComplexElement(elem, row) :
+                                    elem.type === "custom" ?
+                                        elem.display.render(this.getValue(elem.field, row)) :
+                                        this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>
                             `)}
                         </tr>
                     `)}
-                 </tbody>
+                </tbody>
             </table>
         `;
     }
@@ -992,12 +1090,14 @@ export default class DataForm extends LitElement {
         }
         if (data) {
             return html`
-                <simple-chart   .active="${true}"
-                                .type="${element.display.highcharts?.chart?.type || "column"}"
-                                .title="${element.display.highcharts?.title?.text || element.name}"
-                                .data="${data}"
-                                .config="${element.display.highcharts}">
-                </simple-chart>`;
+                <simple-chart
+                    .active="${true}"
+                    .type="${element.display.highcharts?.chart?.type || "column"}"
+                    .title="${element.display.highcharts?.title?.text || element.name}"
+                    .data="${data}"
+                    .config="${element.display.highcharts}">
+                </simple-chart>
+            `;
         } else {
             return this._getErrorMessage(element);
         }
@@ -1031,7 +1131,6 @@ export default class DataForm extends LitElement {
         }
     }
 
-
     _createCustomElement(element) {
         if (!element.display || !element.display.render) {
             return "All 'custom' elements must implement a 'display.render' function.";
@@ -1045,12 +1144,13 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
+
         const result = element.display.render(data);
         if (result) {
-            const width = this._getWidth(element);
-            const style = element.display.style ? element.display.style : "";
+            // const width = this._getWidth(element);
+            // const style = element.display.style ? element.display.style : "";
             // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return html`<div class="" style="">${result}</div>`;
+            return this._createElementTemplate(element, data, result);
         } else {
             return this._getErrorMessage(element);
         }
@@ -1090,38 +1190,71 @@ export default class DataForm extends LitElement {
 
 
     onClear(e) {
-        this.dispatchEvent(new CustomEvent("clear", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
+        this.formSubmitted = false;
+        this.showGlobalValidationError = false;
+        LitUtils.dispatchEventCustom(this, "clear", null, null, {});
     }
 
     onSubmit(e) {
-        this.dispatchEvent(new CustomEvent("submit", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
+        // Check if has invalid fields (not valid or required not filled)
+        const hasInvalidFields = this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
+        if (hasInvalidFields) {
+            this.formSubmitted = true; // Form has been submited, display errors
+            return this.requestUpdate();
+        }
+
+        // Check for final validation
+        if (typeof this.config?.validation?.validate === "function") {
+            if (!this.config.validation.validate(this.data)) {
+                this.showGlobalValidationError = true;
+                return this.requestUpdate();
+            }
+        }
+
+        // Form valid --> dispatch submit event
+        this.formSubmitted = false;
+        this.showGlobalValidationError = false;
+        LitUtils.dispatchEventCustom(this, "submit", null, null, {});
     }
 
     onCustomEvent(e, eventName, data) {
         LitUtils.dispatchEventCustom(this, eventName, data);
     }
 
+    renderGlobalValidationError() {
+        if (this.showGlobalValidationError) {
+            return html`
+                <div class="help-block" style="display:flex;margin-bottom:16px;">
+                    <div class="text-danger" style="margin-right:16px">
+                        <i class="${this._getErrorIcon(null, null)}"></i>
+                    </div>
+                    <div class="text-danger" style="font-weight:bold;">
+                        ${this.config?.validation?.message || "There are some invalid fields..."}
+                    </div>
+                </div>
+            `;
+        }
+
+        // No validation error to display
+        return null;
+    }
+
     renderButtons() {
         // By default OK is disabled if the input object is empty
+        // const getConfigVisible = this.config.sections?.filter(section => this._getBooleanValue(section?.display?.visible));
         return html`
+            ${this.renderGlobalValidationError()}
             <div class="row">
-                <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
+                <div class="${this.config?.buttons?.classes || "col-md-12"}" style="padding: 10px 20px">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
-                        ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
+                        ${this.config?.buttons?.cancelText || "Cancel"}
                     </button>
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled=${UtilsNew.isEmpty(this.data)}>
-                        ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}">
+                        ${this.config?.buttons?.okText || "OK"}
                     </button>
                 </div>
-            </div>`;
+            </div>
+        `;
     }
 
     render() {
@@ -1147,7 +1280,8 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row">
                     <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
+                        <i class="${this.config?.icon || "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
+                        ${this.config.title}
                     </button>
                     <div class="">
                         <div id="${this._prefix}Help" class="collapse">
@@ -1160,51 +1294,52 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        if (this.config.display && this.config.display?.mode?.type === "modal") {
+        if (this.config.display?.mode?.type === "modal") {
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             const buttonStyle = this.config.display.mode.buttonStyle ? this.config.display.mode.buttonStyle : "";
             const isDisabled = this.config.display.mode.disabled === true;
+
             return html`
-                ${this.config.display.mode.btnGroups ?
-                    html `
+                ${this.config.display.mode.btnGroups ? html `
                     ${this.renderBtnGroup(this.config.display.mode)}
                 `: html `
-                    <button type="button" class="btn ${buttonClass} ${isDisabled ? "disabled" : null}" style=${buttonStyle} data-toggle="modal" ?disabled="${isDisabled}" data-target="#${this._prefix}DataModal">
-                        ${this.config.display.mode.title ?
-                            html `${this.config.display.mode.title}`:
-                            html `
-                            <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
+                    <button type="button"
+                        title="${this.config.description}"
+                        class="btn ${buttonClass} ripple ${isDisabled ? "disabled" : null}"
+                        style="${buttonStyle}"
+                        data-toggle="modal"
+                        ?disabled="${isDisabled}"
+                        data-target="#${this._prefix}DataModal">
+                            <i class="${this.config.icon || "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
                             ${this.config.title}
-                            ` }
                     </button>
                 `}
 
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel"
+                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
                     aria-hidden="true">
-                    <div class="modal-dialog" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 768}px">
+                    <div class="modal-dialog" style="width: ${this.config?.display?.mode?.width || "768"}px">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title ${titleClass}" id="${this._prefix}exampleModalLabel">${title}</h4>
+                                <h4 class="modal-title ${titleClass}" id="${this._prefix}DataModalLabel">${title}</h4>
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
                                     ${this.renderData()}
                                 </div>
                             </div>
-                            ${this.config.buttons && this.config.buttons.show ?
-                                html`
-                                    <div class="modal-footer">
-                                        <div style="padding: 10px 20px">
-                                            <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onSubmit}">
-                                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
-                                            </button>
-                                            <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onClear}">
-                                                ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
-                                            </button>
-                                        </div>
-                                    </div>` :
-                                null
-                            }
+                            ${this.config.buttons?.show ? html`
+                                <div class="modal-footer">
+                                    ${this.renderGlobalValidationError()}
+                                    <div style="padding: 10px 20px">
+                                        <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onClear}">
+                                            ${this.config.buttons?.cancelText || "Cancel"}
+                                        </button>
+                                        <button type="button" class="${buttonClasses} ripple" data-dismiss="modal" @click="${this.onSubmit}">
+                                            ${this.config.buttons?.okText || "OK"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : null}
                         </div>
                     </div>
                 </div>
@@ -1213,33 +1348,25 @@ export default class DataForm extends LitElement {
 
         return html`
             <!-- Header -->
-            ${this.config.title && this.config.display && this.config.display.showTitle ?
-                html`
-                    <div style="margin: 25px">
-                        <div style="float: left">
-                            <h2 class="${titleClass}" style="${titleStyle}">${this.config.title}</h2>
-                        </div>
-                        <div style="float: right">
-                            <img src="${this.config.logo}"/>
-                        </div>
-                    </div>` :
-                null
-            }
+            ${this.config.title && this.config.display && this.config.display.showTitle ? html`
+                <div style="margin: 25px">
+                    <div style="float: left">
+                        <h2 class="${titleClass}" style="${titleStyle}">${this.config.title}</h2>
+                    </div>
+                    <div style="float: right">
+                        <img src="${this.config.logo}"/>
+                    </div>
+                </div>
+            ` : null}
 
             <!-- Render buttons -->
-            ${this.config.buttons && this.config.buttons.show && this.config.buttons.top ?
-                this.renderButtons():
-                null
-            }
+            ${this.config.buttons?.show && this.config.buttons.top ? this.renderButtons() : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${this.config.buttons && this.config.buttons.show && !this.config.buttons.top?
-                this.renderButtons():
-                null
-            }
+            ${this.config.buttons?.show && !this.config.buttons.top ? this.renderButtons() : null}
         `;
     }
 

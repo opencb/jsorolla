@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {has} from "lodash";
 import {NotificationQueue} from "../../../core/NotificationQueue";
 
 export default class FormUtils {
@@ -187,6 +186,22 @@ export default class FormUtils {
             message,
             type,
         );
+    }
+
+    static getBooleanValue(data, visible, defaultValue) {
+        let _visible = typeof defaultValue !== "undefined" ? defaultValue : true;
+        if (typeof visible !== "undefined" && visible !== null) {
+            if (typeof visible === "boolean") {
+                _visible = visible;
+            } else {
+                if (typeof visible === "function") {
+                    _visible = visible(data);
+                } else {
+                    console.error(`Field 'visible' not boolean or function: ${typeof visible}`);
+                }
+            }
+        }
+        return _visible;
     }
 
 }

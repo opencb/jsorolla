@@ -118,6 +118,8 @@ export default class BioinfoUtils {
                 } else {
                     return `https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
                 }
+            case "HGNC":
+                return "https://www.genenames.org/tools/search/#!/all?query=" + geneId;
             case "LRG":
                 return `https://www.lrg-sequence.org/search/?query=${geneId}`;
             case "DECIPHER":
@@ -181,6 +183,10 @@ export default class BioinfoUtils {
         } else {
             return `https://pubmed.ncbi.nlm.nih.gov/${id}/`;
         }
+    }
+
+    static getPanelAppLink(panelAppId) {
+        return `https://panelapp.genomicsengland.co.uk/panels/${panelAppId}/`;
     }
 
 }
