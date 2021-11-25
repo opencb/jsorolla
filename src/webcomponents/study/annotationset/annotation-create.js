@@ -91,7 +91,7 @@ export default class AnnotationCreate extends LitElement {
         this.annotationsElements = variableSorted.map(item => {
             return {
                 name: item.name,
-                field: `annotation.${item.id}`,
+                field: `annotations.${item.id}`,
                 type: "input-text",
                 display: {
                     placeholder: item.description,
@@ -116,10 +116,10 @@ export default class AnnotationCreate extends LitElement {
         if (e.detail.value) {
             if (field === "variableSetId") {
                 this.getVariablesById(e.detail.value);
-                this.annotationSet["annotation"] = {};
+                this.annotationSet["annotations"] = {};
             }
 
-            if (field === "annotation") {
+            if (field === "annotations") {
                 this.annotationSet[field] = {
                     ...this.annotationSet[field],
                     [prop]: e.detail.value
