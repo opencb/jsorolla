@@ -127,17 +127,21 @@ class VariantInterpreter extends LitElement {
                 .then(response => {
                     // FIXME delete soon!
                     const _clinicalAnalysis = response.responses[0].results[0];
-                    const panelIdToPanel = {};
-                    _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
-                    _clinicalAnalysis.interpretation.panels.forEach(panel => {
-                        panel.name = panelIdToPanel[panel.id].name;
-                        panel.source = panelIdToPanel[panel.id].source;
-                    });
-                    for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
-                        secondaryInterpretation.panels.forEach(panel => {
-                            panel.name = panelIdToPanel[panel.id].name;
-                            panel.source = panelIdToPanel[panel.id].source;
-                        });
+                    if (_clinicalAnalysis.panels) {
+                        const panelIdToPanel = {};
+                        _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
+                        if (_clinicalAnalysis?.interpretation?.panels) {
+                            _clinicalAnalysis.interpretation.panels.forEach(panel => {
+                                panel.name = panelIdToPanel[panel.id].name;
+                                panel.source = panelIdToPanel[panel.id].source;
+                            });
+                        }
+                        for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
+                            secondaryInterpretation.panels.forEach(panel => {
+                                panel.name = panelIdToPanel[panel.id].name;
+                                panel.source = panelIdToPanel[panel.id].source;
+                            });
+                        }
                     }
                     this.clinicalAnalysis = _clinicalAnalysis;
                     // FIXME Replace horrible code above by this one:
@@ -293,7 +297,7 @@ class VariantInterpreter extends LitElement {
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
                                         <div class="text-muted">
-                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong></div>
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
                                         </div>
                                     </div>
                                 ` : null}
@@ -383,7 +387,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-landing
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .config="${this._config}"
+                                        .config="${this._config.tools.find(tool => tool.id === "select")}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                         @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                     </variant-interpreter-landing>
