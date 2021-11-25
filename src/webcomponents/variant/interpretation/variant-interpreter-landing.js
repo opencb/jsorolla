@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../clinical/clinical-analysis-update.js";
@@ -86,14 +87,14 @@ class VariantInterpreterLanding extends LitElement {
         }
 
         // Check if we have permissions to edit a clinical analysis
-        if (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
+        /* if (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
                     <h3>You do not have permissions to edit this case.</h3>
                 </div>
             `;
-        }
+        } */
 
         return html`
             <detail-tabs
@@ -113,7 +114,7 @@ class VariantInterpreterLanding extends LitElement {
                 {
                     id: "general",
                     name: "General Info",
-                    active: true,
+                    active: this.writeMode,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
@@ -201,25 +202,7 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         `;
                     }
-                },
-                {
-                    id: "overview",
-                    name: "Overview",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
-                                    <opencga-clinical-analysis-view
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </opencga-clinical-analysis-view>
-                                </div>
-                            </div>
-                        `;
-                    }
-                },
+                }
             ],
         };
     }
