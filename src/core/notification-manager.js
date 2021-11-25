@@ -40,7 +40,10 @@ export default class NotificationManager {
                     </div>
                 ` : ""}
                 <div style="flex-grow:1;">
-                    <div>${options.message || ""}</div>
+                    <div>
+                        ${options.title ? `<h4 style="font-weight:bold;">${options.title}</h4>` : ""}
+                        ${options.message || ""}
+                    </div>
                     ${options.buttons && options.buttons?.length > 0 ? `
                         <div align="right" style="margin-top:16px;">
                             ${options.buttons.map((button, index) => `
@@ -94,40 +97,43 @@ export default class NotificationManager {
     }
 
     // Alias to create a success notification
-    success(message, customDelay) {
+    success(title, message) {
         return this.show({
             type: "success",
             showIcon: true,
             showCloseButton: true,
-            removeAfter: customDelay || 5000,
-            message,
+            removeAfter: this.config.removeAfter,
+            title: title,
+            message: message,
         });
     }
 
     // Alias to create an info notification
-    info(message, customDelay) {
+    info(title, message) {
         return this.show({
             type: "info",
             showIcon: true,
             showCloseButton: true,
-            removeAfter: customDelay || 5000,
-            message,
+            removeAfter: this.config.removeAfter,
+            title: title,
+            message: message,
         });
     }
 
     // Alias to create a warning notification
-    warning(message, customDelay) {
+    warning(title, message) {
         return this.show({
             type: "warning",
             showIcon: true,
             showCloseButton: true,
-            removeAfter: customDelay || 5000,
-            message,
+            removeAfter: this.config.removeAfter,
+            title: title,
+            message: message,
         });
     }
 
     // Alias to create an error notification
-    error(message) {
+    error(title, message) {
         return this.show({
             type: "error",
             showIcon: true,
@@ -138,7 +144,8 @@ export default class NotificationManager {
                     onClick: actions => actions.hide(),
                 },
             ],
-            message,
+            title: title,
+            message: message,
         });
     }
 
@@ -154,6 +161,7 @@ export default class NotificationManager {
             display: {
                 width: "600px",
             },
+            removeAfter: 5000,
         };
     }
 
