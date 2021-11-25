@@ -60,6 +60,16 @@ class VariantInterpreterLanding extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        }
+        if (changedProperties.has("config")) {
+            this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
+        }
+        super.update(changedProperties);
+    }
+
     onClinicalAnalysisUpdate(e) {
         LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
             clinicalAnalysis: e.detail.clinicalAnalysis
@@ -124,6 +134,25 @@ class VariantInterpreterLanding extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
                                     </clinical-analysis-update>
+                                </div>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    id: "overview",
+                    name: "Overview",
+                    active: !this.writeMode,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
+                                <div style="padding: 0px 20px">
+                                    <opencga-clinical-analysis-view
+                                        .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </opencga-clinical-analysis-view>
                                 </div>
                             </div>
                         `;
