@@ -74,9 +74,15 @@ export default class NotificationManager {
             const index = parseInt(buttonElement.dataset.index);
 
             buttonElement.addEventListener("click", () => {
-                return options.buttons[index].onClick({
-                    hide: removeNotification,
-                });
+                // First call the onClick function (if provided)
+                if (typeof options.buttons[index].onClick === "function") {
+                    options.buttons[index].onClick(removeNotification);
+                }
+
+                // Check if we want to automatically remove the notification
+                if (options.buttons[index].removeOnClick) {
+                    return removeNotification();
+                }
             });
         });
 
@@ -150,7 +156,7 @@ export default class NotificationManager {
             buttons: [
                 {
                     text: "Close",
-                    onClick: actions => actions.hide(),
+                    removeOnClick: true,
                 },
             ],
             title: title,
