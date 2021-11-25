@@ -282,8 +282,6 @@ export default class Lollipop {
                         Math.sin(circleSectorAngle) * radius,
                     )
                     .size(r);
-
-
             });
         }
         // this.layoutVariants(this.circles, track);
@@ -475,7 +473,6 @@ export default class Lollipop {
     }
 
     initProteinBoundaries(track) {
-        // return [41193423,41195811]
         const minPos = Math.min(...track.variants.map(variant => variant.start));
         const maxPos = Math.max(...track.variants.map(variant => variant.start));
         return [minPos, maxPos];
@@ -555,6 +552,7 @@ export default class Lollipop {
         // this will avoid an infinite loop in layoutVariants() (which would keep moving nodes left around without solving collisions)
         const totalWidth = circles.reduce((acc, curr) => acc+curr.size, 0) + this.nodePadding * circles.length;
         if (totalWidth < this.canvasWidth) {
+            // solution available with the current clusterFactor, layout step is going to start now
             return circles;
         } else {
             this.clusterFactor += .1;
@@ -619,14 +617,14 @@ export default class Lollipop {
 
         // check left boundary
         // console.log(`${left.viewPos} ${left.offset} ${left.size}`);
-        if ((left.viewPos + left.offset) - (left.size) - step >= boundaries[0]) {
+        if ((left.viewPos + left.offset) - (left.size / 2) - step >= boundaries[0]) {
             left.offset -= step;
         } else {
             right.offset += step * 2;
         }
 
         // check right boundary
-        if ((right.viewPos + right.offset) + (right.size) + step <= boundaries[1]) {
+        if ((right.viewPos + right.offset) + (right.size / 2) + step <= boundaries[1]) {
             right.offset += step;
         } else {
             left.offset -= step * 2;
@@ -653,7 +651,6 @@ export default class Lollipop {
 
         const result = [];
         for (let i = 0; i < arr.length - 1; i++) {
-
             // compare pairs of nodes
             const rightNodePos = (arr[i + 1].viewPos + arr[i + 1].offset) - (arr[i + 1].exploded ? arr[i + 1].size * 1.9 : arr[i + 1].size / 2);
             const leftNodePos = (arr[i].viewPos + arr[i].offset) + (arr[i].exploded ? arr[i].size * 1.9 : arr[i].size / 2);
@@ -661,7 +658,6 @@ export default class Lollipop {
             if (dist < this.nodePadding) {
                 result.push([i + 0.5, dist]);
             }
-            // TODO improve boundary detect collision [0, 1000]
         }
         return result;
     }
@@ -770,7 +766,6 @@ export default class Lollipop {
     };
 
     resizeVariant(newViewRange, delta = 0) {
-        console.log("resize");
         const minScreen = 0;
         const maxScreen = this.canvasWidth;
         const minProtein = this.proteinStart;

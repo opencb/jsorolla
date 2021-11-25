@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>lollipop</title>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
     <script src="../../../../../../node_modules/@svgdotjs/svg.draggable.js/dist/svg.draggable.js"></script>
     <script src="../../../../../../node_modules/svg.path.js/svg.path.js"></script>
@@ -24,7 +25,7 @@
         fill-opacity: .8;
     }
 
-    .variant:hover .circle-wrapper > circle{
+    .variant:hover .circle-wrapper > circle {
         /* transition: all .2s; it causes problem with circle position in clusters */
         stroke-opacity: 1;
         fill-opacity: 1;
@@ -42,24 +43,29 @@
         transition: stroke 1s;
     }
 
-    .positionBar .tick text{
-        user-select:none;
+    .positionBar .tick text {
+        user-select: none;
     }
 
     .tick {
         position: relative;
         z-index: 100;
     }
+
     .range {
         position: relative;
         z-index: 1;
     }
 
-    #console {
-        white-space: pre;
+    .rhs {
         position: absolute;
         right: 0;
         top: 0;
+    }
+
+    #console {
+        white-space: pre;
+
         width: 500px;
         height: 200px;
         background: #6e6e6e;
@@ -73,8 +79,12 @@
     }
 
     @keyframes draw {
-        0% { stroke-dashoffset: 450; }
-        100% { stroke-dashoffset: 0; }
+        0% {
+            stroke-dashoffset: 450;
+        }
+        100% {
+            stroke-dashoffset: 0;
+        }
     }
 
     .bar-handle {
@@ -83,175 +93,195 @@
 
 </style>
 <div id="lollipop" style="width: 1100px"></div>
-<div id="console">
 
+<div class="rhs">
+    <div id="console"></div>
+    <button onclick="module.resize()">resize to 41191796,41193159</button>
 </div>
+
+<script>
+    const module = {};
+</script>
 <script type="module">
     import Lollipop from "./lollipop.js";
 
-    const tracks = [
+    (async () => {
 
-        {
-            id: "variants",
-            view: {
-                scaleHeight: 30,
-                variantAreaHeight: 500,
-                circleSize: 20
+        // let file = await fetch("brca1.json");
+        // const json = await file.json();
+
+        const tracks = [
+
+            {
+                id: "variants",
+                view: {
+                    scaleHeight: 30,
+                    variantAreaHeight: 500,
+                    circleSize: 20,
+                },
+                variants: [
+                    {
+                        id: "1",
+                        start: 0,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "2",
+                        start: 400,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "3",
+                        start: 520,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "3.1",
+                        start: 540,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "3.2",
+                        start: 570,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "4",
+                        start: 600,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "5",
+                        start: 620,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "6",
+                        start: 630,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "7",
+                        start: 640,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "8",
+                        start: 650,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "9",
+                        start: 1000,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "10",
+                        start: 1100,
+                        color: "#3987CC",
+                    },
+
+                    {
+                        id: "11",
+                        start: 1200,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "12",
+                        start: 1700,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "13",
+                        start: 2200,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "14",
+                        start: 3500,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "15",
+                        start: 3550,
+                        color: "#3987CC",
+                    },
+
+                    {
+                        id: "16",
+                        start: 3750,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "17",
+                        start: 4500,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "18",
+                        start: 5000,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "19",
+                        start: 6000,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "20",
+                        start: 6500,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "21",
+                        start: 7000,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "22",
+                        start: 7500,
+                        color: "#3987CC",
+                    },
+                    {
+                        id: "23",
+                        start: 10000,
+                        color: "#3987CC",
+                    },
+                ],
             },
-            variants: [
-                {
-                    id: "1",
-                    start: 0,
-                    color: "#3987CC"
+            {
+                id: "positionBar",
+                view: {
+                    height: 50,
                 },
-                {
-                    id: "2",
-                    start: 400,
-                    color: "#3987CC"
+                genes: {
+                    "BRCA2": {
+                        start: 100,
+                        end: 1500,
+                        color: "#ffbff3",
+                    },
+                    "BRCA3": {
+                        start: 3400,
+                        end: 6800,
+                        color: "#ff8484",
+                    },
                 },
-                {
-                    id: "3",
-                    start: 520,
-                    color: "#3987CC"
-                },
-                {
-                    id: "3.1",
-                    start: 540,
-                    color: "#3987CC"
-                },
-                {
-                    id: "3.2",
-                    start: 570,
-                    color: "#3987CC"
-                },
-                {
-                    id: "4",
-                    start: 600,
-                    color: "#3987CC"
-                },
-                {
-                    id: "5",
-                    start: 620,
-                    color: "#3987CC"
-                },
-                {
-                    id: "6",
-                    start: 630,
-                    color: "#3987CC"
-                },
-                {
-                    id: "7",
-                    start: 640,
-                    color: "#3987CC"
-                },
-                {
-                    id: "8",
-                    start: 650,
-                    color: "#3987CC"
-                },
-                {
-                    id: "9",
-                    start: 1000,
-                    color: "#3987CC"
-                },
-                {
-                    id: "10",
-                    start: 1100,
-                    color: "#3987CC"
-                },
-
-                {
-                    id: "11",
-                    start: 1200,
-                    color: "#3987CC"
-                },
-                {
-                    id: "12",
-                    start: 1700,
-                    color: "#3987CC"
-                },
-                {
-                    id: "13",
-                    start: 2200,
-                    color: "#3987CC"
-                },
-                {
-                    id: "14",
-                    start: 3500,
-                    color: "#3987CC"
-                },
-                {
-                    id: "15",
-                    start: 3550,
-                    color: "#3987CC"
-                },
-
-                {
-                    id: "16",
-                    start: 3750,
-                    color: "#3987CC"
-                },
-                {
-                    id: "17",
-                    start: 4500,
-                    color: "#3987CC"
-                },
-                {
-                    id: "18",
-                    start: 5000,
-                    color: "#3987CC"
-                },
-                {
-                    id: "19",
-                    start: 6000,
-                    color: "#3987CC"
-                },
-                {
-                    id: "20",
-                    start: 6500,
-                    color: "#3987CC"
-                },
-                {
-                    id: "21",
-                    start: 7000,
-                    color: "#3987CC"
-                },
-                {
-                    id: "22",
-                    start: 7500,
-                    color: "#3987CC"
-                },
-                {
-                    id: "23",
-                    start: 10000,
-                    color: "#3987CC"
-                }
-            ]
-        },
-        {
-            id: "positionBar",
-            view: {
-                height: 50
             },
-            genes: {
-                "BRCA2": {
-                    start: 100,
-                    end: 1500,
-                    color: "#ffbff3"
-                },
-                "BRCA3": {
-                    start: 3400,
-                    end: 6800,
-                    color: "#ff8484"
-                }
-            }
-        },
-    ];
+        ];
 
-    const config = {
-        // width: 1000
-    };
-    const lollipop = new Lollipop("#lollipop", tracks, config)
+        // tracks[0].variants = json;
+
+        const config = {
+            // width: 1000
+        };
+        const lollipop = new Lollipop("#lollipop", tracks, config);
+
+        function resize() {
+            lollipop.viewRange = [107,1080];
+            lollipop.resizeVariant(lollipop.viewRange);
+        }
+        module.resize = resize;
+    })();
 </script>
 </body>
 </html>
