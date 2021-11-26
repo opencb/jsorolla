@@ -111,6 +111,14 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
+        if (!this.data) {
+            return html `<h4>No data found!</h4>`;
+        }
+
+        if (!this.opencgaSession) {
+            return html`<h4>NO OPENCGA CLIENT FOUND!</h4>`;
+        }
+
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }
