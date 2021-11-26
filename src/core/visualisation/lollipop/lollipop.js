@@ -196,15 +196,6 @@ export default class Lollipop {
             // .animate()
             // .size(size).dx(-size/2)*/;
 
-            if (variant.type === "cluster") {
-                circleWrapper.text(variant.variants.length).dy(variant.size*.1).dx(variant.offset).font({size: variant.size * .5 + "px"});
-            } else {
-                // single variant
-                // const label = circleWrapper.text(`${variant.id}`).dy(-variant.size / 2 - 20).dx(variant.offset).font({size: "12px"});
-
-                const label = circleWrapper.text(`${variant.id}`).dx(variant.offset).font({size: "12px"});
-                label.rotate(-45).x(variant.size / 2);
-            }
 
             v.click(e => this.onClickVariantGroup(e, circle, variant, track));
             variant.domRef = circleWrapper;
@@ -215,11 +206,29 @@ export default class Lollipop {
         });
         this.layoutVariants(this.circles, track);
         this.updateVariants(track);
+        this.drawLabels(this.circles, track);
 
         this.log(null, null, null, this.viewRange, this.viewProteinRange, this.circles);
 
     }
 
+    drawLabels(arr) {
+        for (let i = 0; i < arr.length - 1; i++) {
+            const variant = arr[i];
+            const nextVariant = arr[i+1];
+
+            if (variant.type === "cluster") {
+                variant.domRef.text(variant.variants.length).dy(variant.size*.1).font({size: variant.size * .5 + "px"});
+            } else {
+                // single variant
+                const label = variant.domRef.text(`${variant.id}${variant.id}`).dy(4).x(variant.size).font({size: "12px"}).addClass("label");
+                if ((variant.viewPos + variant.offset + variant.size/2 + label.node.getComputedTextLength() + 10) > (nextVariant.viewPos + nextVariant.offset - nextVariant.size/2)) {
+                    // rotate label if there isn't enough space for draw it horizontally
+                    label.animate({delay: 2000, duration: 2000}).rotate(-45, -variant.size * 1.2, 0);
+                }
+            }
+        }
+    }
     /*
      * Before the layout step, use the offset to move the nodes near the viewFrame boundaries to avoid them to be left out.
      */
