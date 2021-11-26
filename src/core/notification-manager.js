@@ -41,11 +41,11 @@ export default class NotificationManager {
                 ` : ""}
                 <div style="flex-grow:1;">
                     <div>
-                        ${options.title ? `<h4 style="font-weight:bold;">${options.title}</h4>` : ""}
+                        ${options.title ? `<h4 style="font-weight:bold;margin-bottom:8px;">${options.title}</h4>` : ""}
                         ${options.message || ""}
                     </div>
                     ${options.buttons && options.buttons?.length > 0 ? `
-                        <div align="right" style="margin-top:16px;">
+                        <div align="right" style="margin-top:12px;">
                             ${options.buttons.map((button, index) => `
                                 <button data-index="${index}" class="btn btn-${className}">            
                                     ${button.text || ""}
