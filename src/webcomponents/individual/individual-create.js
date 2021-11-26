@@ -54,7 +54,8 @@ export default class IndividualCreate extends LitElement {
 
     onFieldChange(e, field) {
         // Test father and mother
-        e.stopPropagation();
+        // e.stopPropagation();
+
         const param = field || e.detail.param;
         switch (param) {
             case "phenotypes":
@@ -76,6 +77,7 @@ export default class IndividualCreate extends LitElement {
                 break;
         }
         this.requestUpdate();
+        console.log("TEST", this.individual);
     }
 
     onClear(e) {
@@ -87,16 +89,17 @@ export default class IndividualCreate extends LitElement {
 
     onSubmit(e) {
         e.stopPropagation();
-        this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this.individual = { };
-                this.requestUpdate();
-                console.log("New individual", this.individual);
-                FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
-            })
-            .catch(err => {
-                console.error(err);
-            });
+        console.log("PASSS!");
+        // this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
+        //     .then(res => {
+        //         this.individual = { };
+        //         this.requestUpdate();
+        //         console.log("New individual", this.individual);
+        //         FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //     });
     }
 
     render() {
@@ -129,6 +132,10 @@ export default class IndividualCreate extends LitElement {
                 defaultLayout: "horizontal",
                 defaultValue: ""
             },
+            validation: {
+                validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
+                message: "The father and mother must be different individuals",
+            },
             sections: [
                 {
                     title: "Individual General Information",
@@ -137,6 +144,7 @@ export default class IndividualCreate extends LitElement {
                             name: "Individual id",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Add an ID...",
                                 help: {
@@ -162,6 +170,11 @@ export default class IndividualCreate extends LitElement {
                                     <individual-id-autocomplete
                                         .value="${this.sample?.father}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            select2Config: {
+                                                multiple: false
+                                            }
+                                        }}
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -182,6 +195,11 @@ export default class IndividualCreate extends LitElement {
                                     <individual-id-autocomplete
                                         .value="${this.sample?.mother}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            select2Config: {
+                                                multiple: false
+                                            }
+                                        }}
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
