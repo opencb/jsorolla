@@ -53,6 +53,7 @@ export default class IndividualCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
+        // Test father and mother
         e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
@@ -154,17 +155,41 @@ export default class IndividualCreate extends LitElement {
                         {
                             name: "Father id",
                             field: "father",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "Add the individual father ID..."
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: () => html`
+                                    <individual-id-autocomplete
+                                        .value="${this.sample?.father}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @filterChange="${e =>
+                                            this.onFieldChange({
+                                            detail: {
+                                                param: "father",
+                                                value: e.detail.value
+                                            }
+                                        })}">
+                                    </individual-id-autocomplete>`
                             }
                         },
                         {
-                            name: "Mother id",
+                            name: "Mother Id",
                             field: "mother",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "Add the individual mother ID..."
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: () => html`
+                                    <individual-id-autocomplete
+                                        .value="${this.sample?.mother}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @filterChange="${e =>
+                                            this.onFieldChange({
+                                            detail: {
+                                                param: "mother",
+                                                value: e.detail.value
+                                            }
+                                        })}">
+                                    </individual-id-autocomplete>`
                             }
                         },
                         {
@@ -339,28 +364,28 @@ export default class IndividualCreate extends LitElement {
                         }
                     ]
                 },
-                {
-                    title: "Annotations Sets",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: individual => html`
-                                    <annotation-set-update
-                                        .annotationSets="${individual?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationsets")}">
-                                    </annotation-set-update>
-                                `
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: individual => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${individual?.annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationsets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         };
     }
