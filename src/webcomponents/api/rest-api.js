@@ -136,7 +136,8 @@ export default class RestApi extends LitElement {
 
                     <div class="col-md-8">
                         <rest-endpoint
-                            .endpoint="${this.endpoint}">
+                            .endpoint="${this.endpoint}"
+                            .opencgaSession="${this.opencgaSession}">
                         </rest-endpoint>
                     </div>
                 </div>

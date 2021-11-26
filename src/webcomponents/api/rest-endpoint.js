@@ -16,6 +16,10 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import {RestClient} from "../../core/clients/rest-client.js";
+import {NotificationQueue} from "../../core/NotificationQueue";
+import FormUtils from "../commons/forms/form-utils";
+
 
 export default class RestEndpoint extends LitElement {
 
@@ -33,13 +37,17 @@ export default class RestEndpoint extends LitElement {
         return {
             endpoint: {
                 type: Object
-            }
+            },
+            opencgaSession: {
+                type: Object
+            },
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.data = {};
+        this._data = {};
         this.form = {};
         this.methodColor = {
             "GET": "blue",
@@ -53,19 +61,23 @@ export default class RestEndpoint extends LitElement {
             "enum": "select",
             "object": "input-text",
         };
+
+        this.restClient = new RestClient();
+        this.isLoading = false;
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if (changedProperties.has("endpoint")) {
             this.endpointObserver();
         }
-        super.update(changedProperties);
+        // super.update(changedProperties);
     }
 
     endpointObserver() {
         if (this.endpoint?.parameters?.length > 0) {
             this.data = {};
-            const elements = [];
+            const queryElements = [];
+            const pathElements = [];
             const bodyElements = [];
             for (const parameter of this.endpoint.parameters) {
                 if (parameter.param === "body") {
@@ -88,21 +100,30 @@ export default class RestEndpoint extends LitElement {
                     }
                 } else {
                     this.data[parameter.name] = parameter.defaultValue || "";
-                    elements.push(
-                        {
-                            name: parameter.name,
-                            field: parameter.name,
-                            type: this.parameterTypeToHtml[parameter.type],
-                            allowedValues: parameter.allowedValues?.split(",") || "",
-                            defaultValue: parameter.defaultValue,
-                            required: !!parameter.required
-                        }
-                    );
+                    const element = {
+                        name: parameter.name,
+                        field: parameter.name,
+                        type: this.parameterTypeToHtml[parameter.type],
+                        allowedValues: parameter.allowedValues?.split(",") || "",
+                        defaultValue: parameter.defaultValue,
+                        required: !!parameter.required
+                    };
+
+                    if (parameter.param === "path") {
+                        pathElements.push(element);
+                    } else {
+                        queryElements.push(element);
+                    }
                 }
             }
 
             this.form = {
                 type: "form",
+                buttons: {
+                    show: true,
+                    clearText: "Clear",
+                    okText: "Try it out!"
+                },
                 display: {
                     width: "12",
                     labelWidth: "3",
@@ -113,7 +134,7 @@ export default class RestEndpoint extends LitElement {
                         title: "",
                         display: {
                         },
-                        elements: elements
+                        elements: [...pathElements, ...queryElements]
                     }
                 ]
             };
@@ -132,6 +153,58 @@ export default class RestEndpoint extends LitElement {
             }
 
             this.requestUpdate();
+        }
+    }
+
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value);
+        this.requestUpdate();
+    }
+
+    onClear() {
+        this.data = {};
+        this._data = {};
+        this.requestUpdate();
+    }
+
+    onSubmit() {
+        try {
+            let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
+            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
+
+            // Replace PATH params
+            url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+            this.endpoint.parameters
+                .filter(parameter => parameter.param === "path")
+                .forEach(parameter => {
+                    url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+                });
+
+            // Add QUERY params
+            this.endpoint.parameters
+                .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+                .forEach(parameter => {
+                    url += `&${parameter.name}=${this.data[parameter.name]}`;
+                });
+
+            this.isLoading = true;
+            this.requestUpdate();
+
+            this.restClient.call(url, {})
+                .then(resp => {
+                    this.result = resp.responses[0];
+                })
+                .catch(error => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.requestUpdate();
+                });
+        } catch (response) {
+            console.log(response);
+            UtilsNew.notifyError(response);
         }
     }
 
@@ -163,13 +236,32 @@ export default class RestEndpoint extends LitElement {
                             <div>${this.endpoint.responseClass}</div>
                         </div>
                     </div>
+
                     <div style="padding: 10px 10px">
                         <h3>Parameters</h3>
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"
-                                .config="${this.form}">
+                                .config="${this.form}"
+                                @fieldChange="${e => this.onFieldChange(e)}"
+                                @clear="${this.onClear}"
+                                @submit="${this.onSubmit}">
                             </data-form>
+                        </div>
+                    </div>
+
+                    <div style="padding: 10px 10px">
+                        <h3>Results</h3>
+                        <div style="padding: 20px">
+                            ${this.isLoading ? html`
+                                <loading-spinner></loading-spinner>
+                            ` : html`
+                                <json-viewer
+                                    .data="${this.result}"
+                                    .config="${this.form}">
+                                </json-viewer>
+                            `}
+
                         </div>
                     </div>
                 </div>
