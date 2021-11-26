@@ -433,27 +433,27 @@ export default class SampleUpdate extends LitElement {
                         },
                     ]
                 },
-                {
-                    title: "Annotation Set",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                <annotation-set-update
-                                    .annotationSets="${this.sample?.annotationSets}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                                </annotation-set-update>`
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotation Set",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: () => html`
+                //                 <annotation-set-update
+                //                     .annotationSets="${this.sample?.annotationSets}"
+                //                     .opencgaSession="${this.opencgaSession}"
+                //                     @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                //                 </annotation-set-update>`
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         };
     }
