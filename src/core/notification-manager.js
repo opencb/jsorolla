@@ -29,11 +29,12 @@ export default class NotificationManager {
     // Display a notification alert
     show(options) {
         const type = (options.type || "info").toLowerCase();
-        const className = (type === "error") ? "danger" : type; // Fix error classname
+        const alertClass = options.display?.alertClass || this.config.display.alertClass[type];
+        const buttonClass = options.display?.buttonClass || this.config.display.buttonClass[type];
 
         // Generate notification element
         const element = UtilsNew.renderHTML(`
-            <div class="alert alert-${className}" style="display:flex;">
+            <div class="${alertClass}" style="display:flex;">
                 ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
                         <span class="${options.icon || this.config.icons[type]}"></span>
@@ -47,7 +48,7 @@ export default class NotificationManager {
                     ${options.buttons && options.buttons?.length > 0 ? `
                         <div align="right" style="margin-top:12px;">
                             ${options.buttons.map((button, index) => `
-                                <button data-index="${index}" class="btn btn-${className}">            
+                                <button data-index="${index}" class="${buttonClass}">            
                                     ${button.text || ""}
                                 </button>
                             `).join("")}
@@ -175,6 +176,18 @@ export default class NotificationManager {
             },
             display: {
                 width: "600px",
+                alertClass: {
+                    error: "alert alert-danger",
+                    info: "alert alert-info",
+                    success: "alert alert-success",
+                    warning: "alert alert-warning",
+                },
+                buttonClass: {
+                    error: "btn btn-danger",
+                    info: "btn btn-info",
+                    success: "btn btn-success",
+                    warning: "btn btn-warning",
+                },
             },
             removeAfter: 5000,
         };
