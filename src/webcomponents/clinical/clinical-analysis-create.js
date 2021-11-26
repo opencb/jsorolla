@@ -310,7 +310,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 show: true,
                 disabled: data => this.isEmptyRequiredFields(data),
                 clearText: "Clear",
-                submitText: "Create"
+                okText: "Create"
             },
             display: {
                 width: "8",
