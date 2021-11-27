@@ -134,6 +134,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build
     steps:
+      - uses: actions/checkout@v2
       - name: Invoke workflow in a private repo
         uses: benc-uk/workflow-dispatch@v1
         with:
