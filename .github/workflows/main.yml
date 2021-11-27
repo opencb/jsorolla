@@ -139,5 +139,6 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Docker publish
+          ref: ${{ github.event.push.head.ref }}
           repo: ${{ secrets.JSOROLLA_PRIVATE_REPO }}
           token: ${{ secrets.ZG_PERSONAL_TOKEN }}
