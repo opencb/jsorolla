@@ -1000,9 +1000,6 @@ export default class VariantInterpreterGrid extends LitElement {
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 
-            genotype: {
-                type: "VAF"
-            },
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
@@ -1014,10 +1011,14 @@ export default class VariantInterpreterGrid extends LitElement {
             },
             populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"],
 
+            genotype: {
+                type: "VAF"
+            },
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
                 ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
