@@ -85,16 +85,16 @@ export default class VariantInterpreterGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        // this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     firstUpdated(_changedProperties) {
+        this.table = $("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this.table = $("#" + this.gridId);
-        // this.checkedVariants = new Map();
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
     }
 
     updated(changedProperties) {
@@ -111,19 +111,13 @@ export default class VariantInterpreterGrid extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
             // Config for the grid toolbar
-            // some columns has tooltips in title, we cannot used them for the dropdown
-            const visibleColumns = this._createDefaultColumns()[0].map(f => f.id);
-            const columns = [
-                {id: "id", title: "Variant", field: "id"},
-                {id: "gene", title: "Genes", field: "gene"},
-                {id: "type", title: "Type", field: "type"},
-                {id: "consequenceType", title: "Gene Annotations", field: "consequenceType"}
-            ].filter(f => ~visibleColumns.indexOf(f.id));
+            // some columns have tooltips in title, we cannot used them for the dropdown
             this.toolbarConfig = {
                 ...this._config.toolbar,
                 resource: "VARIANT",
-                columns: columns
+                columns: this._createDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
             };
         }
     }
@@ -153,7 +147,6 @@ export default class VariantInterpreterGrid extends LitElement {
             } else {
                 this.checkedVariants.clear();
             }
-            // this.gridCommons.checkedRows = this.checkedVariants;
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples &&
@@ -193,8 +186,8 @@ export default class VariantInterpreterGrid extends LitElement {
             return;
         }
 
-        this.table = $("#" + this.gridId);
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
+            this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
                 columns: this._createDefaultColumns(),
@@ -379,12 +372,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderLocalVariants() {
-        if (!this.clinicalAnalysis.interpretation.primaryFindings) {
-            return;
-        }
-
-        // const _variants = this.clinicalAnalysis.interpretation.primaryFindings;
-
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -521,7 +508,7 @@ export default class VariantInterpreterGrid extends LitElement {
             } else {
                 const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sampleId);
                 const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
-                debugger
+                debugger;
                 if (index >= 0) {
                     return row.studies[0].samples[sampleIndex].data[index];
                 }
