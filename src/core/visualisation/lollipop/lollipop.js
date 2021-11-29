@@ -221,10 +221,10 @@ export default class Lollipop {
                 variant.domRef.text(variant.variants.length).dy(variant.size*.1).font({size: variant.size * .5 + "px"});
             } else {
                 // single variant
-                const label = variant.domRef.text(`${variant.id}${variant.id}`).dy(4).x(variant.size).font({size: "12px"}).addClass("label");
+                const label = variant.domRef.text(`${variant.id}`).cy(-2).x(0).font({size: "12px"}).addClass("label");
                 if ((variant.viewPos + variant.offset + variant.size/2 + label.node.getComputedTextLength() + 10) > (nextVariant.viewPos + nextVariant.offset - nextVariant.size/2)) {
                     // rotate label if there isn't enough space for draw it horizontally
-                    label.animate({delay: 2000, duration: 2000}).rotate(-45, -variant.size * 1.2, 0);
+                    label.animate({delay: 500, duration: 2000}).rotate(-45, 0, 0);
                 }
             }
         }

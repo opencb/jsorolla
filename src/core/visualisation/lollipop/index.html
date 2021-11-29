@@ -92,10 +92,6 @@
     }
 
     .label {
-        transform-box: fill-box;
-        transform-origin: center;
-        text-anchor: end;
-
     }
 
 </style>
@@ -103,7 +99,7 @@
 
 <div class="rhs">
     <div id="console"></div>
-    <button onclick="module.resize()">resize to 41191796,41193159</button>
+    <button onclick="module.resize()">resize</button>
 </div>
 
 <script>
@@ -284,7 +280,7 @@
         const lollipop = new Lollipop("#lollipop", tracks, config);
 
         function resize() {
-            lollipop.viewRange = [107,1080];
+            lollipop.viewRange = [196,229];
             lollipop.resizeVariant(lollipop.viewRange);
         }
         module.resize = resize;
