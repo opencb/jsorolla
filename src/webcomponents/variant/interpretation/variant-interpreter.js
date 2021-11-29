@@ -28,7 +28,7 @@ import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
-import "../../clinical/clinical-interpretation-view.js";
+import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";

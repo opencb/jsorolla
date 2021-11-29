@@ -20,7 +20,7 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../../opencga/opencga-genome-browser.js";
-import "../../clinical/clinical-interpretation-view.js";
+import "../../clinical/interpretation/clinical-interpretation-view.js";
 
 
 export default class VariantInterpreterReviewPrimary extends LitElement {

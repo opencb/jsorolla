@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "./filters/clinical-status-filter.js";
-import "../commons/forms/data-form.js";
-import "../commons/filters/disease-panel-filter.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import {NotificationQueue} from "../../../core/NotificationQueue.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "../filters/clinical-status-filter.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/disease-panel-filter.js";
 
 export default class ClinicalInterpretationCreate extends LitElement {
 

@@ -19,7 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../clinical/clinical-analysis-update.js";
-import "../../clinical/clinical-interpretation-manager.js";
+import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../commons/view/detail-tabs.js";
