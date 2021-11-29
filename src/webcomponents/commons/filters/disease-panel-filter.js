@@ -73,7 +73,7 @@ export default class DiseasePanelFilter extends LitElement {
             panelRoleInCancer: {
                 type: String
             },
-            panelIntersect: {
+            panelIntersection: {
                 type: Boolean,
             },
             multiple: {
@@ -117,8 +117,8 @@ export default class DiseasePanelFilter extends LitElement {
         if (changedProperties.has("panelRoleInCancer")) {
             this.query.panelRoleInCancer = this.panelRoleInCancer;
         }
-        if (changedProperties.has("panelIntersect")) {
-            this.query.panelIntersect = this.panelIntersect;
+        if (changedProperties.has("panelIntersecion")) {
+            this.query.panelIntersection = this.panelIntersection;
         }
         super.update(changedProperties);
     }
@@ -211,9 +211,9 @@ export default class DiseasePanelFilter extends LitElement {
                         <span>Panel Intersect</span>
                         <div style="padding: 2px 0px">
                             <toggle-switch
-                                .value="${this.panelIntersect || false}"
+                                .value="${this.panelIntersection || false}"
                                 .disabled="${this.disabled}"
-                                @filterChange="${e => this.filterChange(e, "panelIntersect")}">
+                                @filterChange="${e => this.filterChange(e, "panelIntersection")}">
                             </toggle-switch>
                         </div>
                     </div>

@@ -470,7 +470,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
                             .panelConfidence="${this.preparedQuery.panelConfidence}"
                             .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
-                            .panelIntersect="${this.preparedQuery.panelIntersect}"
+                            .panelIntersection="${this.preparedQuery.panelIntersection}"
                             .showPanelTitle="${true}"
                             .disabled="${disabled}"
                             .showExtendedFilters="${true}"
@@ -479,7 +479,7 @@ export default class VariantBrowserFilter extends LitElement {
                                 panelModeOfInheritance: "panelModeOfInheritance",
                                 panelConfidence: "panelConfidence",
                                 panelRoleInCancer: "panelRoleInCancer",
-                                panelIntersect: "panelIntersect",
+                                panelIntersection: "panelIntersection",
                             }, e.detail.query)}">
                         </disease-panel-filter>`;
                     break;
