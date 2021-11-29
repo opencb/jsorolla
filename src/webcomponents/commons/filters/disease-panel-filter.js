@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "../forms/select-field-filter.js";
+import "../forms/toggle-switch.js";
 
 /**
  * This class ....
@@ -72,6 +73,9 @@ export default class DiseasePanelFilter extends LitElement {
             panelRoleInCancer: {
                 type: String
             },
+            panelIntersect: {
+                type: Boolean,
+            },
             multiple: {
                 type: Boolean
             },
@@ -112,6 +116,9 @@ export default class DiseasePanelFilter extends LitElement {
         }
         if (changedProperties.has("panelRoleInCancer")) {
             this.query.panelRoleInCancer = this.panelRoleInCancer;
+        }
+        if (changedProperties.has("panelIntersect")) {
+            this.query.panelIntersect = this.panelIntersect;
         }
         super.update(changedProperties);
     }
@@ -183,8 +190,8 @@ export default class DiseasePanelFilter extends LitElement {
                 <div>
                     <!-- Only show the title when all filters are displayed -->
                     ${this.showExtendedFilters ? html`
-                        <span>Select Disease Panels</span>` : null
-                    }
+                        <span>Select Disease Panels</span>
+                    ` : null}
 
                     <div style="padding: 2px 0px">
                         <select-field-filter
@@ -200,6 +207,17 @@ export default class DiseasePanelFilter extends LitElement {
                 </div>
 
                 ${this.showExtendedFilters ? html`
+                    <div style="margin: 15px 0px">
+                        <span>Panel Intersect</span>
+                        <div style="padding: 2px 0px">
+                            <toggle-switch
+                                .value="${this.panelIntersect || false}"
+                                .disabled="${this.disabled}"
+                                @filterChange="${e => this.filterChange(e, "panelIntersect")}">
+                            </toggle-switch>
+                        </div>
+                    </div>
+
                     <div style="margin: 15px 0px">
                         <span>Filter Genes by Mode of Inheritance</span>
                         <div style="padding: 2px 0px">
@@ -237,8 +255,8 @@ export default class DiseasePanelFilter extends LitElement {
                                 @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
                             </select-field-filter>
                         </div>
-                    </div>` : null
-                }
+                    </div>
+                ` : null}
             </div>
         `;
     }
