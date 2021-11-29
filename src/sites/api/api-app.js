@@ -19,71 +19,21 @@
  */
 
 import {LitElement, html} from "lit";
-
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
-
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../../webcomponents/NotificationUtils.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
-import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
-import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
-import "../../webcomponents/variant/variant-browser.js";
-import "../../webcomponents/variant/variant-beacon.js";
-import "../../webcomponents/opencga/opencga-gene-view.js";
-import "../../webcomponents/opencga/opencga-transcript-view.js";
-import "../../webcomponents/opencga/opencga-protein-view.js";
-import "../../webcomponents/user/opencga-projects.js";
-import "../../webcomponents/sample/opencga-sample-browser.js";
-import "../../webcomponents/sample/sample-view.js";
-import "../../webcomponents/sample/sample-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-update.js";
-import "../../webcomponents/file/opencga-file-browser.js";
-import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
-import "../../webcomponents/individual/individual-browser.js";
-import "../../webcomponents/cohort/cohort-browser.js";
-import "../../webcomponents/job/job-browser.js";
-import "../../webcomponents/job/opencga-job-view.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
-import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-mutational-signature-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-relatedness-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-mendelian-error-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-family-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-variant-exporter-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter.js";
-import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
-import "../../webcomponents/clinical/clinical-analysis-create.js";
-import "../../webcomponents/file/opencga-file-manager.js";
-import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
-import "../../webcomponents/project/projects-admin.js";
-import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/commons/tool-header.js";
 import "../../webcomponents/Notification.js";
-
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
-
-import "../../webcomponents/clinical/rga/rga-browser.js";
 import "../../webcomponents/api/rest-api.js";
 
 class ApiApp extends LitElement {
@@ -167,7 +117,6 @@ class ApiApp extends LitElement {
         this.tool = window.location.hash.split("/")[0];
         if (UtilsNew.isEmpty(this.tool)) {
             this.tool = "#home";
-            // this.app = null;
         }
 
         // Go to the page that tool has
@@ -175,16 +124,16 @@ class ApiApp extends LitElement {
             window.location.hash = this.tool;
         }
 
-
         // Other initialisations
         this._isBreadcrumbVisible = false;
         // This manages the sample selected in each tool for updating the breadcrumb
-        this.samples = [];
-        this._samplesPerTool = {};
+
+        // this.samples = [];
+        // this._samplesPerTool = {};
 
 
         // TODO remove browserSearchQuery
-        this.browserSearchQuery = {};
+        // this.browserSearchQuery = {};
         // keeps track of the executedQueries transitioning from browser tool to facet tool
         this.queries = [];
         // keeps track of status and version of the hosts (opencga and cellbase)
@@ -373,8 +322,6 @@ class ApiApp extends LitElement {
 
     onLogin(credentials) {
         // This creates a new authenticated opencga-session object
-
-        console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
 
@@ -490,20 +437,12 @@ class ApiApp extends LitElement {
         }
 
         if (UtilsNew.isNotUndefined(e)) {
-            e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+            e.preventDefault();
         }
 
         if (UtilsNew.isNotUndefined(target) && UtilsNew.isNotUndefined(target.attributes.href)) {
-            //                    $(e.target.attributes.href.value).show(); // get the href and use it find which div to show
             this.tool = target.attributes.href.value;
-            if (UtilsNew.isNotUndefinedOrNull(this._samplesPerTool)) {
-                if (this._samplesPerTool.hasOwnProperty(this.tool.replace("#", ""))) {
-                    this.samples = this._samplesPerTool[this.tool.replace("#", "")];
-                } else {
-                    this.samples = [];
-                }
-            }
-            // this.renderBreadcrumb()
         } else {
             this.tool = "#home";
         }
@@ -547,7 +486,6 @@ class ApiApp extends LitElement {
                 this.config.enabledComponents[element] = false;
             }
         }
-
         let arr = window.location.hash.split("/");
 
         // TODO evaluate refactor
@@ -575,40 +513,6 @@ class ApiApp extends LitElement {
                             break;
                         }
                     }
-                }
-            }
-
-            switch (hashTool) {
-                case "#browser":
-                    this.browserSearchQuery = Object.assign({}, this.browserSearchQuery);
-                    break;
-                case "#protein":
-                    break;
-                case "#interpreter":
-                    this.clinicalAnalysisId = feature;
-                    if (!this.clinicalAnalysisId) {
-                        // Redirect to Case Portal when trying to access the interpreter without a valid Clinical Analysis ID
-                        window.location.hash = `#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
-                    }
-                    break;
-                case "#sampleVariantStatsBrowser":
-                case "#sampleCancerVariantStatsBrowser":
-                case "#sampleUpdate":
-                    this.sampleId = feature;
-                    break;
-                case "#study-admin":
-                    // this.studyAdminFqn = arr[1];
-                    this.changeActiveStudy(arr[1]);
-                    break;
-            }
-
-            if (UtilsNew.isNotEmpty(feature)) {
-                if (hashTool === "#protein") {
-                    ctx.protein = feature;
-                } else if (feature.startsWith("ENST")) {
-                    ctx.transcript = feature;
-                } else {
-                    ctx.gene = feature;
                 }
             }
             ctx.tool = hashTool;
@@ -677,97 +581,9 @@ class ApiApp extends LitElement {
         }
     }
 
-    updateProject(e) {
-        this.project = this.projects.find(project => project.name === e.detail.project.name);
-        this.tool = "#project";
-        this.renderHashFragments();
-    }
-
-    updateStudy(e) {
-        if (UtilsNew.isNotUndefined(e.detail.project) && UtilsNew.isNotEmpty(e.detail.project.name)) {
-            this.project = e.detail.project;
-        }
-        this.study = this.project.studies.find(study => study.name === e.detail.study.name || study.alias === e.detail.study.alias);
-
-        //                TODO: Opencga study will be shown later. For now variant browser is shown when the study changes
-        //                this.tool = "studyInformation";
-        this.tool = "#browser";
-        this.renderHashFragments();
-        // this.renderBreadcrumb();
-    }
-
-    onSampleChange(e) {
-        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
-            this.samples = e.detail.samples;
-            this._samplesPerTool[this.tool.replace("#", "")] = this.samples;
-            // this.renderBreadcrumb();
-        }
-    }
-
-    quickSearch(e) {
-        // debugger
-        this.tool = "#browser";
-        window.location.hash = "browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-        // this.browserQuery = {xref: e.detail.value};
-
-        this.browserSearchQuery = e.detail;
-    }
-
-    quickFacetSearch(e) {
-        console.log("IVA-APP quickfacetsearch");
-        this.tool = "#facet";
-        window.location.hash = "facet/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-        // this.browserQuery = {xref: e.detail.value};
-        this.browserSearchQuery = e.detail;
-    }
-
-    onJobSelected(e) {
-        this.jobSelected = e.detail.jobId;
-        this.requestUpdate();
-    }
-
     // TODO remove
     onNotifyMessage(e) {
         new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
-    }
-
-    // TODO this should keep in sync the query object between variant-browser and variant-facet
-    onQueryChange(e) {
-        console.log("onQueryChange", e);
-        this.browserSearchQuery = {...e.detail.query};
-    }
-
-
-    onQueryFilterSearch(e, source) {
-        // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
-        // TODO fix active-filters
-        const q = e.detail.query ? {...e.detail.query} : {...e.detail};
-        this.queries[source] = {...q};
-        this.queries = {...this.queries};
-        // console.log("this.queries",this.queries);
-        this.requestUpdate();
-    }
-
-    onSelectClinicalAnalysis(e) {
-        this.clinicalAnalysis = e.detail.clinicalAnalysis;
-    }
-
-    /* Set the width of the side navigation to 250px */
-    openNav() {
-        this.querySelector("#side-nav").style.width = "250px";
-        console.log("open");
-    }
-
-    /* Set the width of the side navigation to 0 */
-    closeNav() {
-        this.querySelector("#side-nav").style.width = "0";
-    }
-
-    toggleSideBar(e) {
-        e.preventDefault();
-        // const sidenav = this.querySelector("#side-nav");
-        $("#side-nav").toggleClass("active");
-        $("#overlay").toggleClass("active");
     }
 
     onChangeApp(e, toggle) {
@@ -808,52 +624,6 @@ class ApiApp extends LitElement {
 
     isLoggedIn() {
         return !!this?.opencgaSession?.token;
-    }
-
-    createAboutLink(link, button) {
-        const url = link.url ? `${link.url}` : `#${link.id}`;
-        const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
-        if (link.url) {
-            return html`
-                <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
-        } else {
-            return html`
-                <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
-        }
-    }
-
-    onSessionUpdateRequest() {
-        this._createOpenCGASession();
-    }
-
-    onStudyUpdateRequest(e) {
-        if (e.detail.value) {
-            this.opencgaSession.opencgaClient.studies().info(e.detail.value)
-                .then(res => {
-                    const updatedStudy = res.responses[0].results[0];
-                    for (const project of this.opencgaSession.user.projects) {
-                        if (project.studies?.length > 0) {
-                            const studyIndex = project.studies.findIndex(study => study.fqn === e.detail.value);
-                            if (studyIndex >= 0) {
-                                project.studies[studyIndex] = updatedStudy;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Update opencgaSession.study if the study updated is the active one
-                    if (this.opencgaSession.study && this.opencgaSession.study.fqn === e.detail.value) {
-                        this.opencgaSession.study = updatedStudy;
-                    }
-
-                    this.opencgaSession = {...this.opencgaSession};
-                    // this.requestUpdate();
-                })
-                .catch(e => {
-                    console.error(e);
-                    params.error(e);
-                });
-        }
     }
 
     renderCustomPage() {
@@ -914,10 +684,8 @@ class ApiApp extends LitElement {
                 .opencgaSession=${this.opencgaSession}
                 .config=${this.config}
                 @logout=${e => this.logout()}
-                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
                 @changeTool=${e => this.changeTool(e.detail.value)}
                 @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-
                 @route="${this.route}">
             </custom-navbar>
             <!-- End of navigation bar -->
@@ -933,14 +701,16 @@ class ApiApp extends LitElement {
             <!-- This is where main IVA application is rendered -->
             <div class="container-fluid">
                 ${this.config.enabledComponents.home ? html`
-                    <div class="content" id="home">
-                    <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
-                        <div class="content">
-                            <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
+                        <div class="content" id="home">
+                            <custom-welcome
+                                .app="${this.app}"
+                                .config="${this.config}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .version="${this.config.version}"
+                                @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                            </custom-welcome>
                         </div>
-                    </div>
-                ` : null}
-
+                    ` : null}
                 <!-- Render custom page content if enabled -->
                 ${this.config.enabledComponents.customPage ? this.renderCustomPage() : null}
 
@@ -973,7 +743,13 @@ class ApiApp extends LitElement {
                         </opencga-login>
                     </div>
                 ` : null}
-s
+
+                ${this.config.enabledComponents["rest-api"] ? html`
+                    <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
+                    </div>
+                ` : null}
             </div>
 
             <custom-footer

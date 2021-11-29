@@ -161,30 +161,40 @@ const SUITE = {
     // The order, title and nested submenus are respected
     apps: [
         {
-            id: "iva",
-            name: "Variant Analysis",
-            logo: "img/iva-white.svg",
-            icon: "img/tools/icons/variant_browser.svg",
+            id: "Api",
+            name: "API",
+            // logo: "img/iva-white.svg",
+            icon: "fas fa-cog",
             visibility: "public",
             welcomePage: {
                 display: {
                     titleStyle: "text-align:center;",
                     subtitleStyle: "text-align:center;"
                 },
-                title: "Variant Analysis",
-                subtitle: "Interactive Variant Analysis",
-                logo: "./img/iva.svg",
+                title: "Documentation APIs",
+                subtitle: "Interative documentation api",
+                // logo: "./img/iva.svg",
                 content: `
                     <p class="text-center">
-                        Welcome to the Variant Analysis application.<br>
-                        This interactive tool allows browse and run variant analysis.
+                        Welcome to the interative documentation api.<br>
                     </p>
                 `,
-                links: [
-                    {title: "Documentation", url: "http://docs.opencb.org/display/iva"},
-                ]
+                // links: [
+                //     {title: "Enter", url: "http://docs.opencb.org/display/iva"},
+                // ]
             },
-            menu: [{}],
+            menu: [{
+                id: "rest-api",
+                name: "Opencga Api",
+                // fa_icon: "fa fa-list",
+                icon: "fas fa-book-open",
+                // icon: "img/tools/icons/variant_browser.svg",
+                visibility: "public",
+                featured: true,
+                description: `
+                            <p> This interactive tool allows explore all services from opencga.</p>
+                            `,
+            }],
             about: {
                 dropdown: true,
                 links: [

@@ -232,7 +232,7 @@ export default class CustomNavBar extends LitElement {
                                                         <li>
                                                             <a href="#${subItem.id}" @click="${this.onChangeTool}" data-id="${subItem.id}">${subItem.name}</a>
                                                         </li>
-                                                  `)}
+                                                `)}
                                         </ul>
                                     </li>
                                 ` : html`

@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import "../commons/forms/data-form.js";
 import "./rest-endpoint.js";
 
 export default class RestApi extends LitElement {
