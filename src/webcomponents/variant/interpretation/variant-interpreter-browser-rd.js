@@ -183,8 +183,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                 }
             }
 
+            // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
+            if (this.clinicalAnalysis.panelLock) {
+                this.query.panelIntersection = true;
+            }
 
-            // 3. 'fileData' query param: fetch non SV files and set init query
+            // 4. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 const nonSvGermlineVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => !vc.somatic)
@@ -374,6 +378,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         ];
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
+            lockedFields.push({id: "panelIntersection"});
         }
 
         return {
