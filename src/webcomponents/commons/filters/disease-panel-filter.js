@@ -208,13 +208,16 @@ export default class DiseasePanelFilter extends LitElement {
 
                 ${this.showExtendedFilters ? html`
                     <div style="margin: 15px 0px">
-                        <span>Panel Intersect</span>
+                        <span>Panel Intersection</span>
                         <div style="padding: 2px 0px">
                             <toggle-switch
                                 .value="${this.panelIntersection || false}"
                                 .disabled="${this.disabled}"
                                 @filterChange="${e => this.filterChange(e, "panelIntersection")}">
                             </toggle-switch>
+                        </div>
+                        <div class="help-block small">
+                            Executes an intersection between the panels and the region and gene filters.
                         </div>
                     </div>
 
