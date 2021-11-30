@@ -160,7 +160,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 }
             }
 
-            // 3. 'fileData' query param: fetch non SV files and set init query
+            // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
+            if (this.clinicalAnalysis.panelLock) {
+                this.query.panelIntersection = true;
+            }
+
+            // 4. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 // FIXME remove specific code for ASCAT!
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
@@ -330,11 +335,30 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn, sample: this.somaticSample.id};
+        const _query = {
+            study: this.opencgaSession.study.fqn,
+            sample: this.somaticSample.id
+        };
+
+        // Check if panelLock is enabled
+        if (this.clinicalAnalysis.panelLock) {
+            _query.panel = this.query.panel;
+            _query.panelIntersection = true;
+        }
+
+        this.query = _query;
         this.queryObserver();
     }
 
     getDefaultConfig() {
+        // Add case panels to query object
+        const lockedFields = [{id: "sample"}];
+
+        if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
+            lockedFields.push({id: "panel"});
+            lockedFields.push({id: "panelIntersection"});
+        }
+
         return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
@@ -354,7 +378,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     },
                     complexFields: ["sample", "fileData"],
                     hiddenFields: [],
-                    lockedFields: [{id: "sample"}]
+                    lockedFields: lockedFields,
                 },
                 sections: [ // sections and subsections, structure and order is respected
                     {
