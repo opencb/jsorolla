@@ -522,7 +522,7 @@ export default class DataForm extends LitElement {
             }
         }
 
-        const layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
+        const layout = element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
         const showLabel = element?.showLabel ?? true;
         const labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
         const labelAlign = this.config?.display?.labelAlign || "left";
