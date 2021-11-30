@@ -227,7 +227,7 @@ class VariantInterpreter extends LitElement {
             tools: [
                 {
                     id: "select",
-                    title: "Case Manager",
+                    title: "Case Info",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-folder-open"
@@ -364,14 +364,14 @@ class VariantInterpreter extends LitElement {
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config?.tools?.map(item => html`
                                         ${!item.hidden ? html`
-                                                <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                                   href="javascript: void 0" data-view="${item.id}"
-                                                   @click="${this.onClickSection}">
-                                                    <div class="hi-icon ${item.icon}"></div>
-                                                    <p>${item.title}</p>
-                                                    <span class="smaller"></span>
-                                                </a>` :
-                                            ""}
+                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                                href="javascript: void 0" data-view="${item.id}"
+                                                @click="${this.onClickSection}">
+                                                <div class="hi-icon ${item.icon}"></div>
+                                                <p>${item.title}</p>
+                                                <span class="smaller"></span>
+                                            </a>
+                                        ` : ""}
                                     `)}
                                 </div>
                             </div>
