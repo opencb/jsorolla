@@ -360,10 +360,17 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterClear() {
-        const _query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
+        const _query = {
+            study: this.opencgaSession.study.fqn,
+            sample: this._sampleQuery
+        };
+
+        // Check if panelLock is enabled
         if (this.clinicalAnalysis.panelLock) {
             _query.panel = this.query.panel;
+            _query.panelIntersection = true;
         }
+
         this.query = _query;
         this.requestUpdate();
     }
@@ -371,11 +378,8 @@ class VariantInterpreterBrowserRd extends LitElement {
     getDefaultConfig() {
         // Add case panels to query object
         // TODO should we also check main interpretation panels?
-        const lockedFields = [
-            {
-                id: "sample"
-            }
-        ];
+        const lockedFields = [{id: "sample"}];
+
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
             lockedFields.push({id: "panelIntersection"});
