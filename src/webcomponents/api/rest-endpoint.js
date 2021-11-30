@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import {RestClient} from "../../core/clients/rest-client.js";
 import {NotificationQueue} from "../../core/NotificationQueue";
 import FormUtils from "../commons/forms/form-utils";
+import "../commons/json-viewer.js";
 
 
 export default class RestEndpoint extends LitElement {
