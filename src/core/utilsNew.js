@@ -771,7 +771,7 @@ export default class UtilsNew {
             case "none":
                 return false;
             default:
-                return true;
+                return false;
         }
     }
 
