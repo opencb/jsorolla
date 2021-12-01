@@ -88,6 +88,11 @@ export default class DataForm extends LitElement {
             // Check if 'data' passed is undefined or null and initialised to empty object
             this.dataObserver();
         }
+
+        // Reset required and invalid fields sets
+        this.emptyRequiredFields = new Set();
+        this.invalidFields = new Set();
+
         super.update(changedProperties);
     }
 
