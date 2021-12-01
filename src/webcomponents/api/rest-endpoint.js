@@ -159,7 +159,7 @@ export default class RestEndpoint extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value);
+        this.data = {...FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value)};
         this.requestUpdate();
     }
 
