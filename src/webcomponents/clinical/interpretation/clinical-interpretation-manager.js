@@ -133,7 +133,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                 <div class="pull-right ${classMap({primary: primary})}">
                     <div class="dropdown action-dropdown">
                         <clinical-interpretation-update
-                            .interpretation="${this.clinicalAnalysis.interpretation}"
+                            .interpretation="${interpretation}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .opencgaSession="${this.opencgaSession}"
                             .mode=${"modal"}
@@ -192,7 +192,8 @@ export default class ClinicalInterpretationManager extends LitElement {
                     .interpretation=${interpretation}
                     .primary=${primary}>
                 </clinical-interpretation-summary>
-            </div>`;
+            </div>
+        `;
     }
 
     renderHistoryTable() {
@@ -291,7 +292,8 @@ export default class ClinicalInterpretationManager extends LitElement {
             return html`
                 <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i>
                     No primary interpretation available.
-                </div>`;
+                </div>
+            `;
         }
 
         return html`
@@ -319,8 +321,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                             ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => this.renderInterpretation(interpretation, false))}
                         ` : html`
                             <label>No secondary interpretations found</label>
-                        `
-                        }
+                        `}
                     </div>
 
                     <div class="col-md-10" style="padding-top: 10px">
