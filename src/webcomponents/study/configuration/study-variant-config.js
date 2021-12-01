@@ -398,7 +398,7 @@ export default class StudyVariantConfig extends LitElement {
                     labelWidth: 3,
                     labelAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: modal ? configModal(isNew): {},
+                    mode: modal ? {type: "modal"}: "",
                     defaultValue: ""
                 },
                 sections: [configSection(key)]
@@ -412,12 +412,20 @@ export default class StudyVariantConfig extends LitElement {
                     ...configs[key],
                     edit: configForm(key, false),
                     new: configForm(key, true),
+                    item: {
+                        title: item?.title,
+                        subtitle: item?.subtitle
+                    },
                 };
             });
             return configs;
         }
 
         return {
+            item: {
+                title: item?.title,
+                subtitle: item?.subtitle
+            },
             edit: configForm(key, false),
             new: configForm(key, true)
         };
@@ -494,11 +502,11 @@ export default class StudyVariantConfig extends LitElement {
                                 }
                             }
                         },
-                        {
-                            name: "Transcript Combination",
-                            field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
-                            type: "checkbox"
-                        },
+                        // {
+                        //     name: "Transcript Combination",
+                        //     field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
+                        //     type: "checkbox"
+                        // },
                     ]
                 },
             ]
