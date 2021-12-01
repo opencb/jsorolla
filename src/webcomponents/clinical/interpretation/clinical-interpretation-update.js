@@ -165,11 +165,14 @@ export default class ClinicalInterpretationCreate extends LitElement {
     onSubmit() {
         try {
             // remove private fields
-            const data = {...this.interpretation};
+            // const data = {...this.interpretation};
+            const data = {...this.updateParams};
+            const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
+            const id = this.interpretation.id;
 
-            this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.interpretation.id, data, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    new NotificationQueue().push(`Clinical Interpretation ${response.responses[0].results[0].id} updated successfully`, null, "success");
+            this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, data, {study: this.opencgaSession.study.fqn})
+                .then(() => {
+                    new NotificationQueue().push(`Clinical Interpretation ${id} updated successfully`, null, "success");
                     this.notifyClinicalAnalysisWrite();
                     this.onClear();
                 })
