@@ -185,32 +185,33 @@ export default class StudyVariantConfig extends LitElement {
         /** Source, key,type, thresholds, values, valuesMapping, nullable
          **/
 
-        const configModal = isNew => {
-            return isNew ? {
-                type: "modal",
-                title: "Add Config",
-                buttonStyle: "margin-top:6px"
-            } : {
-                type: "modal",
-                title: "Edit Config",
-                item: {
-                    title: item?.title,
-                    subtitle: item?.subtitle
-                },
-                buttonClass: "pull-right",
-                btnGroups: [
-                    {
-                        title: "Edit",
-                        openModal: true,
-                    },
-                    {
-                        title: "Delete",
-                        btnClass: "btn-danger",
-                        event: "removeItem"
-                    }
-                ]
-            };
-        };
+        // DEPRECATED
+        // const configModal = isNew => {
+        //     return isNew ? {
+        //         type: "modal",
+        //         title: "Add Config",
+        //         buttonStyle: "margin-top:6px"
+        //     } : {
+        //         type: "modal",
+        //         title: "Edit Config",
+        //         item: {
+        //             title: item?.title,
+        //             subtitle: item?.subtitle
+        //         },
+        //         buttonClass: "pull-right",
+        //         btnGroups: [
+        //             {
+        //                 title: "Edit",
+        //                 openModal: true,
+        //             },
+        //             {
+        //                 title: "Delete",
+        //                 btnClass: "btn-danger",
+        //                 event: "removeItem"
+        //             }
+        //         ]
+        //     };
+        // };
 
         const configSection = key => {
             let node = {};

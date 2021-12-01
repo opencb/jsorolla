@@ -138,6 +138,7 @@ export default class StudyClinicalConfig extends LitElement {
 
     configClinical(key, item, modal) {
 
+        // DEPRECATED
         // const configModal = isNew => {
         //     return isNew ? {
         //         type: "modal",

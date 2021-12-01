@@ -785,33 +785,34 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    renderBtnGroup(element) {
-        // const value = this.getValue(element.field) || this._getDefaultValue(element);
-        // consft names = element.allowedValues;
+    // DEPRECATED
+    // renderBtnGroup(element) {
+    //     // const value = this.getValue(element.field) || this._getDefaultValue(element);
+    //     // consft names = element.allowedValues;
 
-        return html`
-            <div class="btn-group ${element?.buttonClass}">
-                ${element.btnGroups.map(btn => html `
-                    ${btn.openModal ? html `
-                        <button
-                            type="button"
-                            class="btn ${btn.btnClass? btn.btnClass : "btn-primary" }"
-                            data-toggle="modal"
-                            data-target="#${this._prefix}DataModal">
-                            ${btn.title}
-                        </button>
-                    `: html `
-                        <button
-                            type="button"
-                            class="btn ${btn.btnClass}"
-                            @click="${e => this.onCustomEvent(e, btn.event, this.data)}">
-                            ${btn.title}
-                        </button>
-                    `}
-                `)}
-            </div>
-        `;
-    }
+    //     return html`
+    //         <div class="btn-group ${element?.buttonClass}">
+    //             ${element.btnGroups.map(btn => html `
+    //                 ${btn.openModal ? html `
+    //                     <button
+    //                         type="button"
+    //                         class="btn ${btn.btnClass? btn.btnClass : "btn-primary" }"
+    //                         data-toggle="modal"
+    //                         data-target="#${this._prefix}DataModal">
+    //                         ${btn.title}
+    //                     </button>
+    //                 `: html `
+    //                     <button
+    //                         type="button"
+    //                         class="btn ${btn.btnClass}"
+    //                         @click="${e => this.onCustomEvent(e, btn.event, this.data)}">
+    //                         ${btn.title}
+    //                     </button>
+    //                 `}
+    //             `)}
+    //         </div>
+    //     `;
+    // }
 
     /**
      * Creates a select element given some values. You can provide:
@@ -1300,9 +1301,6 @@ export default class DataForm extends LitElement {
             const isDisabled = this.config.display.mode.disabled === true;
 
             return html`
-                ${this.config.display.mode.btnGroups ? html `
-                    ${this.renderBtnGroup(this.config.display.mode)}
-                `: html `
                     <button type="button"
                         title="${this.config.description}"
                         class="btn ${buttonClass} ripple ${isDisabled ? "disabled" : null}"
@@ -1313,7 +1311,6 @@ export default class DataForm extends LitElement {
                             <i class="${this.config.icon || "fas fa-info-circle"} icon-padding" aria-hidden="true"></i>
                             ${this.config.title}
                     </button>
-                `}
 
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
                     aria-hidden="true">
