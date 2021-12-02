@@ -54,13 +54,6 @@ export default class ConfigListUpdate extends LitElement {
         }
     }
 
-    // update(changedProperties) {
-    //     console.log("Updating ...config-list-update");
-    //     // Updating....
-    //     // this._config = {...this.getDefaultConfig()};
-    //     super.update(changedProperties);
-    // }
-
     _init() {
         this.status = {};
         this._prefix = UtilsNew.randomString(8);
