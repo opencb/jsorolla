@@ -157,34 +157,41 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                     <div style="margin: 5px 0px">
                         <span>Select a preset configuration:</span>
                     </div>
-                    ${this._config.alias.map(alias => html`
-                        <div style="margin: 5px 0px">
-                            <label class="text" for="${this._prefix}${alias.name}" style="font-weight: normal">
-                                <input type="checkbox"
-                                       class="${this._prefix}_ctCheckbox"
-                                       id="${this._prefix}${alias.name.replace(/ |[()]|/g, "")}"
-                                       name="layout"
-                                       value="${alias.name}"
-                                       .checked="${this.isChecked[alias.name]}"
-                                       @click="${e => this.onPresetSelect(alias.name, e)}">
-                                <span style="margin: 0px 5px">${alias.name} </span>
-                            </label>
-                            <span tooltip-title="Terms" tooltip-text="${alias.terms.join("<br>")}" class="badge badge-secondary">${alias.terms?.length} terms</a>
-                        </div>`)
-                    }
-                    ` : null
-                }
+                    ${this._config.alias.map(alias => {
+                        const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
+
+                        return html`
+                            <div style="margin: 5px 0px">
+                                <label class="text" for="${id}" style="font-weight: normal">
+                                    <input
+                                        type="checkbox"
+                                        class="${this._prefix}_ctCheckbox"
+                                        id="${id}"
+                                        name="layout"
+                                        value="${alias.name}"
+                                        .checked="${this.isChecked[alias.name]}"
+                                        @click="${e => this.onPresetSelect(alias.name, e)}">
+                                    <span style="margin: 0px 5px">${alias.name} </span>
+                                </label>
+                                <span tooltip-title="Terms" tooltip-text="${alias.terms.join("<br>")}" class="badge badge-secondary">
+                                    ${alias.terms?.length} terms
+                                </span>
+                            </div>
+                        `;
+                    })}
+                ` : null}
             </div>
 
             <div class="form-group">
                 <div style="margin: 10px 0px">
                     <span>Custom consequence type selection:</span>
                 </div>
-                <select-field-filter multiple
-                                     liveSearch=${"true"}
-                                     .data="${this.options}"
-                                     .value=${this._ct}
-                                     @filterChange="${this.onFilterChange}">
+                <select-field-filter
+                    multiple
+                    liveSearch=${"true"}
+                    .data="${this.options}"
+                    .value=${this._ct}
+                    @filterChange="${this.onFilterChange}">
                 </select-field-filter>
             </div>
         `;
