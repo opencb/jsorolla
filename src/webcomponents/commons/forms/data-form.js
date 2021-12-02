@@ -230,10 +230,10 @@ export default class DataForm extends LitElement {
     }
 
     _getHelpIcon(element, section) {
-        if (element.display?.help.icon) {
+        if (element.display?.help?.icon) {
             return element.display.help.icon;
         } else {
-            if (section.display?.help.icon) {
+            if (section.display?.help?.icon) {
                 return section.display.help.icon;
             } else {
                 if (this.config.display?.help?.icon) {
@@ -545,9 +545,11 @@ export default class DataForm extends LitElement {
                             </label>
                         ` : null}
                         <div class="col-md-${width - labelWidth}">
-                            <div class="">${content}</div>
-                            ${element.display?.help ? html `
-                                <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.text}">
+                            <div class="">
+                                ${content}
+                            </div>
+                            ${element.display?.help?.message && element.display?.help?.mode !== "block" ? html`
+                                <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.message}">
                                     <span><i class="${this._getHelpIcon(element, section)}"></i></span>
                                 </div>
                             ` : null}
@@ -613,8 +615,10 @@ export default class DataForm extends LitElement {
         return html`
             <div class="${hasErrorMessages ? "has-error" : ""}">
                 ${content}
-                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`
-                    <span class="help-block" style="margin: 5px">${element.display.help.text}</span>
+                ${element?.display?.help?.message && element?.display?.help?.mode === "block" ? html`
+                    <div class="help-block" style="margin: 5px">
+                        ${element.display.help.message}
+                    </div>
                 ` : null}
                 ${hasErrorMessages ? html`
                     <div class="help-block" style="display:flex;margin-top:8px;">
