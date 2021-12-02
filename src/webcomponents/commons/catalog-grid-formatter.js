@@ -89,12 +89,16 @@ export default class CatalogGridFormatter {
         if (panels?.length > 0) {
             panelHtml = "";
             for (const panel of panels) {
-                panelHtml += `
-                    <div style="margin: 5px 0px">
-                        <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
-                            ${panel.name} (${panel.source.project} v${panel.source.version})
-                        </a>
-                    </div>`;
+                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                    panelHtml += `
+                        <div style="margin: 5px 0px">
+                            <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                                ${panel.name} (${panel.source.project} v${panel.source.version})
+                            </a>
+                        </div>`;
+                } else {
+                    panelHtml = panel.id;
+                }
             }
         }
         return panelHtml;
