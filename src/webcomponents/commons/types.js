@@ -18,7 +18,7 @@ export default class Types {
     /**
      * Layout type definitions
      * @typedef {Object} Layout
-     * @property {string} id
+     * @property {string} id The id
      * @property {string} className
      * @property {string} style
      */
@@ -74,7 +74,7 @@ export default class Types {
 
     /**
     * Element type definitions
-    * @typedef {Object} Element
+    * @typedef {Object} Element Define the element that makes up a section
     * @property {string} name - name of the element
     * @property {string} field - type of element form
     * @property {boolean} required - is it the element required? True or False
@@ -89,30 +89,30 @@ export default class Types {
     /**
     * Section type definitions
     * @typedef {Object} Section
-    * @property {string} id -
-    * @property {string} title - add a title
-    * @property {string} text -
-    * @property {Display} display -
-    * @property {Array<Element>} elements - add elements
+    * @property {string} id - The id of this section, used to identify section.
+    * @property {string} title - The title of this section
+    * @property {string} text - The content of this section
+    * @property {Display} display - Custom Config for display to the section
+    * @property {Array<Element>} elements - A list of elements
     **/
 
     /**
      * Represents a data form config
      * @typedef {Object} Config - define the config for data-form
-     * @property {string} title -
-     * @property {string} description -
-     * @property {string} icon -
-     * @property {string} type - type to the config form
-     * @property {Button} button - custom buttons for the data-form config
-     * @property {Section[]} section - add section config
-     * @property {Validation} validation -
+     * @property {string} title - the name of the data-form
+     * @property {string} description - A description for the data-form
+     * @property {string} icon - A icon for the data-form
+     * @property {string} type - Define the type to the data-form
+     * @property {Button} button - Custom Config for the button to data-form
+     * @property {Section[]} section - Define sections to teh config
+     * @property {Validation} validation - Define validation to the data-form
      */
 
 
     /**
-     * Represent a config
-     * @param {Config} config - config object
-     * @returns {Config} - return configs
+     * Represent a config to Data-Form
+     * @param {Config} config - Define the config you want to use for the data-form
+     * @returns {Config} return config
      */
     static dataFormConfig(config) {
         return config;
