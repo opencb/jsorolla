@@ -185,32 +185,33 @@ export default class StudyVariantConfig extends LitElement {
         /** Source, key,type, thresholds, values, valuesMapping, nullable
          **/
 
-        const configModal = isNew => {
-            return isNew ? {
-                type: "modal",
-                title: "Add Config",
-                buttonStyle: "margin-top:6px"
-            } : {
-                type: "modal",
-                title: "Edit Config",
-                item: {
-                    title: item?.title,
-                    subtitle: item?.subtitle
-                },
-                buttonClass: "pull-right",
-                btnGroups: [
-                    {
-                        title: "Edit",
-                        openModal: true,
-                    },
-                    {
-                        title: "Delete",
-                        btnClass: "btn-danger",
-                        event: "removeItem"
-                    }
-                ]
-            };
-        };
+        // DEPRECATED
+        // const configModal = isNew => {
+        //     return isNew ? {
+        //         type: "modal",
+        //         title: "Add Config",
+        //         buttonStyle: "margin-top:6px"
+        //     } : {
+        //         type: "modal",
+        //         title: "Edit Config",
+        //         item: {
+        //             title: item?.title,
+        //             subtitle: item?.subtitle
+        //         },
+        //         buttonClass: "pull-right",
+        //         btnGroups: [
+        //             {
+        //                 title: "Edit",
+        //                 openModal: true,
+        //             },
+        //             {
+        //                 title: "Delete",
+        //                 btnClass: "btn-danger",
+        //                 event: "removeItem"
+        //             }
+        //         ]
+        //     };
+        // };
 
         const configSection = key => {
             let node = {};
@@ -398,7 +399,7 @@ export default class StudyVariantConfig extends LitElement {
                     labelWidth: 3,
                     labelAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: modal ? configModal(isNew): {},
+                    mode: modal ? {type: "modal"}: "",
                     defaultValue: ""
                 },
                 sections: [configSection(key)]
@@ -412,12 +413,20 @@ export default class StudyVariantConfig extends LitElement {
                     ...configs[key],
                     edit: configForm(key, false),
                     new: configForm(key, true),
+                    item: {
+                        title: item?.title,
+                        subtitle: item?.subtitle
+                    },
                 };
             });
             return configs;
         }
 
         return {
+            item: {
+                title: item?.title,
+                subtitle: item?.subtitle
+            },
             edit: configForm(key, false),
             new: configForm(key, true)
         };
@@ -494,11 +503,11 @@ export default class StudyVariantConfig extends LitElement {
                                 }
                             }
                         },
-                        {
-                            name: "Transcript Combination",
-                            field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
-                            type: "checkbox"
-                        },
+                        // {
+                        //     name: "Transcript Combination",
+                        //     field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
+                        //     type: "checkbox"
+                        // },
                     ]
                 },
             ]

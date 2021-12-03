@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import "../commons/forms/data-form.js";
 import "./rest-endpoint.js";
 
 export default class RestApi extends LitElement {
@@ -136,7 +137,8 @@ export default class RestApi extends LitElement {
 
                     <div class="col-md-8">
                         <rest-endpoint
-                            .endpoint="${this.endpoint}">
+                            .endpoint="${this.endpoint}"
+                            .opencgaSession="${this.opencgaSession}">
                         </rest-endpoint>
                     </div>
                 </div>

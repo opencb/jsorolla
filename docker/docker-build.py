@@ -69,7 +69,7 @@ def build():
     ## A simple solution is to copy 'custom-sites' into 'build' folder and the run 'docker build' from there.
     if os.path.exists('custom-sites'):
         print(shell_colors['blue'] + "Copying 'custom-sites' folder into 'build' ...\n" + shell_colors['reset'])
-        shutil.rmtree("build/custom-sites")
+        shutil.rmtree("build/custom-sites", ignore_errors=True)
         shutil.copytree("custom-sites", "build/custom-sites")
 
     for image in images:

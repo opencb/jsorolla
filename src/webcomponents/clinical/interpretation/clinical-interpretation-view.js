@@ -17,13 +17,13 @@
 // todo check functionality (there is a _render() method and explicit calls to render())
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import PolymerUtils from "../../PolymerUtils.js";
 
-import "../variant/annotation/cellbase-variantannotation-view.js";
-import "../variant/variant-beacon-network.js";
-import "../variant/variant-genome-browser.js";
-import "../../genome-browser/webcomponent/genome-browser.js";
+import "../../variant/annotation/cellbase-variantannotation-view.js";
+import "../../variant/variant-beacon-network.js";
+import "../../variant/variant-genome-browser.js";
+import "../../../genome-browser/webcomponent/genome-browser.js";
 
 export default class ClinicalInterpretationView extends LitElement {
 

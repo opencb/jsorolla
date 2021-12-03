@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import UtilsNew from "../../../core/utilsNew.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils";
 
 export default class ClinicalInterpretationSummary extends LitElement {
 

@@ -160,7 +160,6 @@ export default class ListUpdate extends LitElement {
                 ${valuesMapping ?
                     Object.keys(valuesMapping)?.map((key, i) => {
                     const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
-                    // this.values[key] = itemData.values;
                     return html`
                         <div class="list-group-item">
                             <div class="row">
@@ -174,10 +173,10 @@ export default class ListUpdate extends LitElement {
                                             .data="${itemData}"
                                             @fieldChange=${e => this.onFieldChange(e)}
                                             @filterChange=${e => this.onAddValues(e, key)}
-                                            @removeItem=${e => this.onRemoveItem(e, key, this.node)}
                                             @submit=${e => this.onSendItem(e, key, this.node)}
                                             .config="${this._config.edit}">
                                         </data-form>
+                                        <button type="button" class="btn btn-danger" @click=${e => this.onRemoveItem(e, key, this.node)}>Delete</button>
                                 </div>
                             </div>
                         </div> `;
@@ -192,8 +191,8 @@ export default class ListUpdate extends LitElement {
 
         // applies when the data is an array
         if (this.data.items.constructor === Array) {
-            const title = this._config.edit?.display?.mode?.item?.title || "id";
-            const subtitle = this._config.edit?.display?.mode?.item?.subtitle || "description";
+            const title = this._config?.item?.title || "id";
+            const subtitle = this._config?.item?.subtitle || "description";
             return html`
             ${this.data.items?.map((item, i) => {
                 const itemData = {...item, node: this.node, index: i};
@@ -210,10 +209,10 @@ export default class ListUpdate extends LitElement {
                                     <data-form
                                         .data="${itemData}"
                                         @fieldChange=${ e => this.onFieldChange(e, i)}
-                                        @removeItem=${e => this.onRemoveItem(e, i, this.node)}
                                         @submit=${e => this.onSendItem(e, i, this.node)}
                                         .config="${this._config.edit}">
                                     </data-form>
+                                    <button type="button" class="btn btn-danger" @click=${e => this.onRemoveItem(e, i, this.node)}>Delete</button>
                             </div>
                         </div>
                     </div>

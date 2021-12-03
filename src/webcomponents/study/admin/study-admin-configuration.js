@@ -92,7 +92,6 @@ export default class StudyAdminConfiguration extends LitElement {
 
     render() {
 
-
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
             return html`
         <div class="guard-page">

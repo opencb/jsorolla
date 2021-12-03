@@ -31,46 +31,65 @@ export default class JsonViewer extends LitElement {
 
     static get properties() {
         return {
-            active: {
-                type: Boolean
-            },
-            title: {
-                type: String
-            },
             data: {
                 type: Object
+            },
+            // title: {
+            //     type: String
+            // },
+            showDownloadButton: {
+                type: Boolean
+            },
+            active: {
+                type: Boolean
             }
         };
     }
 
     _init() {
-        this._prefix = "json-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
+
+        this.showDownloadButton = true;
+        this.active = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+
+        // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
         if ((changedProperties.has("data") || changedProperties.has("active")) && this.active) {
             if (this.data) {
-                $(".json-renderer", this).jsonViewer(this.data);
+                // $(".json-renderer", this).jsonViewer(this.data);
+                $(`#${this._prefix}JsonView`, this).jsonViewer(this.data);
             }
         }
+        // super.update(changedProperties);
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
     render() {
+        if (!this.data) {
+            return html`<h4>No valid data found</h4>`;
+        }
+
         return html`
-            <div class="text-right">
-                <download-button class="btn-sm" .json="${this.data}"></download-button>
-            </div>
-            <div class="json-renderer"></div>
+            ${this.showDownloadButton ? html`
+                <div class="text-right">
+                    <download-button
+                        .json="${this.data}"
+                        class="btn-sm">
+                    </download-button>
+                </div>
+            ` : null
+            }
+
+            <div id="${this._prefix}JsonView" class="json-renderer"></div>
         `;
     }
 

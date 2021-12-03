@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import "../../commons/forms/data-form.js";
 
-
 export default class VariantInterpreterGridConfig extends LitElement {
 
     constructor() {
@@ -188,7 +187,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleHeader: "h4",
                         titleStyle: "margin: 25px 5px 5px 5px",
                         textClass: "help-block",
-                        textStyle: "margin: 0px 10px"
+                        textStyle: "margin: 0px 10px",
+                        visible: () => !!this.config?.genotype?.type
                     },
                     elements: [
                         {
@@ -208,9 +208,10 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     render() {
         return html`
-            <data-form  .data="${this.config}"
-                        .config="${this.getConfigForm()}"
-                        @fieldChange="${e => this.onFieldChange(e)}">
+            <data-form
+                .data="${this.config}"
+                .config="${this.getConfigForm()}"
+                @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }

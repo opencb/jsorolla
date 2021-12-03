@@ -138,32 +138,33 @@ export default class StudyClinicalConfig extends LitElement {
 
     configClinical(key, item, modal) {
 
-        const configModal = isNew => {
-            return isNew ? {
-                type: "modal",
-                title: "Add Config",
-                buttonStyle: "margin-top:6px"
-            } : {
-                type: "modal",
-                title: "Edit Config",
-                item: {
-                    title: item?.title,
-                    subtitle: item?.subtitle
-                },
-                buttonClass: "pull-right",
-                btnGroups: [
-                    {
-                        title: "Edit",
-                        openModal: true,
-                    },
-                    {
-                        title: "Delete",
-                        btnClass: "btn-danger",
-                        event: "removeItem"
-                    }
-                ]
-            };
-        };
+        // DEPRECATED
+        // const configModal = isNew => {
+        //     return isNew ? {
+        //         type: "modal",
+        //         title: "Add Config",
+        //         buttonStyle: "margin-top:6px"
+        //     } : {
+        //         type: "modal",
+        //         title: "Edit Config",
+        //         item: {
+        //             title: item?.title,
+        //             subtitle: item?.subtitle
+        //         },
+        //         buttonClass: "pull-right",
+        //         btnGroups: [
+        //             {
+        //                 title: "Edit",
+        //                 openModal: true,
+        //             },
+        //             {
+        //                 title: "Delete",
+        //                 btnClass: "btn-danger",
+        //                 event: "removeItem"
+        //             }
+        //         ]
+        //     };
+        // };
 
         const configSection = key => {
             switch (key) {
@@ -269,7 +270,7 @@ export default class StudyClinicalConfig extends LitElement {
                     labelWidth: 3,
                     labelAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: modal ? configModal(isNew): {},
+                    mode: modal ? {type: "modal"} : "",
                     defaultValue: ""
                 },
                 sections: [configSection(key)]
@@ -435,6 +436,7 @@ export default class StudyClinicalConfig extends LitElement {
                 <h3>Clinial Config under construction</h3>
                 <h3>(Coming Soon)</h3>
             </div> -->
+
             <div style="margin: 25px 40px">
                 <data-form
                     .data=${this.clinicalConfig}

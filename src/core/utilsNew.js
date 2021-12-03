@@ -771,8 +771,23 @@ export default class UtilsNew {
             case "none":
                 return false;
             default:
-                return true;
+                return false;
         }
+    }
+
+    static sort(stringArray) {
+        if (stringArray.length > 0) {
+            return stringArray.sort((a, b) => {
+                if (a < b) {
+                    return -1;
+                }
+                if (a > b) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
+        return stringArray;
     }
 
 }
