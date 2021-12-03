@@ -29,12 +29,12 @@ export default class NotificationManager {
     // Display a notification alert
     show(options) {
         const type = (options.type || "info").toLowerCase();
-        const alertClass = options.display?.alertClass || this.config.display.alertClass[type];
-        const buttonClass = options.display?.buttonClass || this.config.display.buttonClass[type];
+        const alertClass = options.display?.alertClassName || this.config.display.alertClassName[type];
+        const buttonClass = options.display?.buttonClassName || this.config.display.buttonClassName[type];
 
         // Generate notification element
         const element = UtilsNew.renderHTML(`
-            <div class="${alertClass}" style="display:flex;">
+            <div class="${alertClass} animated fadeInDown" style="display:flex;animation-duration:0.5s!important;">
                 ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
                         <span class="${options.icon || this.config.icons[type]}"></span>
@@ -176,13 +176,13 @@ export default class NotificationManager {
             },
             display: {
                 width: "600px",
-                alertClass: {
+                alertClassName: {
                     error: "alert alert-danger",
                     info: "alert alert-info",
                     success: "alert alert-success",
                     warning: "alert alert-warning",
                 },
-                buttonClass: {
+                buttonClassName: {
                     error: "btn btn-danger",
                     info: "btn btn-info",
                     success: "btn btn-success",
