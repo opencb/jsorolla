@@ -34,8 +34,6 @@ import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationManager from "../../core/notification-manager.js";
-import NotificationUtils from "../../webcomponents/NotificationUtils.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
@@ -85,6 +83,7 @@ import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/Notification.js";
+import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
@@ -95,7 +94,6 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import LitUtils from "../../webcomponents/commons/utils/lit-utils.js";
 
-import "../../webcomponents/api/rest-api.js";
 
 class IvaApp extends LitElement {
 
@@ -261,14 +259,29 @@ class IvaApp extends LitElement {
         this._samplesPerTool = {};
 
         // Notifications
-        this.notification = new NotificationManager({});
-        this.addEventListener("notification", e => {
-            this.notification.show(e.detail);
+        this.notificationManager = new NotificationManager({});
+        // Global notification
+        this.addEventListener("notification", e => this.notificationManager.show(e.detail));
+        // Shortcuts for common notifications
+        this.addEventListener("notificationInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
+        this.addEventListener("notificationSuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
+        this.addEventListener("notificationWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
+        this.addEventListener("notificationError", e => this.notificationManager.error(e.detail.title, e.detail.message));
+
+        // Register response error listener
+        // This will handle all response errors from OpenCGA and display a notification if needed
+        this.addEventListener("responseError", e => {
+            const response = e.detail.value;
+            if (response?.getEvents?.("ERROR")?.length) {
+                response.getEvents("ERROR").forEach(error => {
+                    this.notificationManager.error(error.name, error.message);
+                });
+            } else if (response instanceof Error) {
+                this.notificationManager.error(response.name, response.message);
+            } else {
+                this.notificationManager.error(null, JSON.stringify(response));
+            }
         });
-        this.addEventListener("notificationError", e => this.notification.error(e.detail.value));
-        this.addEventListener("notificationWarning", e => this.notification.warning(e.detail.value));
-        this.addEventListener("notificationSuccess", e => this.notification.success(e.detail.value));
-        this.addEventListener("notificationInfo", e => this.notification.info(e.detail.value));
 
         // TODO remove browserSearchQuery
         this.browserSearchQuery = {};
@@ -283,7 +296,7 @@ class IvaApp extends LitElement {
 
         globalThis.addEventListener("signingInError", e => {
             // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
-            this.notification.error(e.detail.value);
+            this.notificationManager.error("Signing in error", e.detail.value);
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
@@ -295,7 +308,6 @@ class IvaApp extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        new NotificationQueue().setContext(this);
 
         // Initialise clients and create the session
         // this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
@@ -402,7 +414,7 @@ class IvaApp extends LitElement {
             })
             .catch(e => {
                 console.error(e);
-                UtilsNew.notifyError(e);
+                this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
                 this.signingIn = false;
                 this.requestUpdate();
@@ -546,44 +558,39 @@ class IvaApp extends LitElement {
                         const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
                         // Display confirmation message
-                        this.notification.success(`Your session is now valid until ${validTimeSessionId}.`);
+                        this.notificationManager.success(null, `Your session is now valid until ${validTimeSessionId}.`);
                     });
                 };
 
-                // Display notification
-                // this.notification.show({
-                LitUtils.dispatchEventCustom(this, "notification", null, null, {
+                // Display expiration notification
+                this.notificationManager.show({
                     type: "warning",
-                    showIcon: true,
-                    showCloseButton: true,
-                    message: `Your session is close to expire. <b>${remainingMinutes} minutes remaining</b>.`,
-                    removeAfter: 10000,
+                    display: {
+                        showIcon: true,
+                        showCloseButton: true,
+                    },
+                    title: "Your session is close to expire",
+                    message: `
+                        In <b>${remainingMinutes} minutes</b> your session will be automatically closed. 
+                        To keep working, please click on <b>Refresh Session</b> button.
+                    `,
+                    removeAfter: 20000,
                     buttons: [
                         {
                             text: "Refresh session",
-                            onClick: actions => {
-                                handleSessionRefresh();
-                                actions.hide();
-                            },
+                            onClick: () => handleSessionRefresh(),
+                            removeOnClick: true,
                         }
                     ]
                 });
 
-
             } else {
-                // TODO remove NotificationUtils
                 if (remainingTime < this.config.session.minRemainingTime) {
                     this.logout();
                     window.clearInterval(this.intervalCheckSession);
 
                     // Display notification message
-                    LitUtils.dispatchEventCustom(this, "notificationWarning", "Your session has expired");
-                } else {
-                    // TODO: remove this
-                    if (UtilsNew.isNotUndefinedOrNull(this.notifySession)) {
-                        NotificationUtils.closeNotify(this.notifySession);
-                    }
-                    return;
+                    this.notificationManager.info(null, "Your session has expired");
                 }
             }
         }
@@ -1666,12 +1673,9 @@ class IvaApp extends LitElement {
                 .host=${this.host}
                 .config=${this.config}>
             </custom-footer>
-
-            <notification-element .queue="${new NotificationQueue().get()}"></notification-element>
         `;
     }
 
 }
 
 customElements.define("iva-app", IvaApp);
-
