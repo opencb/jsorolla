@@ -14,7 +14,6 @@ export default class Types {
     * @property {string} message
     **/
 
-
     /**
      * Layout type definitions
      * @typedef {Object} Layout
@@ -31,13 +30,25 @@ export default class Types {
     **/
 
     /**
+    * @typedef {(
+    * "title"|"input-text"|"input-number"|"input-date"|"checkbox"|
+    * "toggle-switch"|"toggle-buttons"|"select"|"complex"|"list"|"table"|
+    * "chart"|"plot"|"json"|"tree"|"custom"|"download"
+    * )} elementType
+    **/
+
+    /**
+    * @typedef {("card"|"modal"|"normal")} mode
+    **/
+
+    /**
     * Display type definitions
     * @typedef {Object} Display
     * @property {string} className -
     * @property {string} style - add a style for the display
     * @property {string} buttonClassName -
     * @property {string} buttonStyle -
-    * @property {string} mode -
+    * @property {mode} mode -
     * @property {string} [defaultValue] - add a default value for display
     * @property {string} [defaultWidth] - add a default value for display
     * @property {string} [defaultLayout] - add a default value for display
@@ -76,7 +87,8 @@ export default class Types {
     * Element type definitions
     * @typedef {Object} Element Define the element that makes up a section
     * @property {string} name - name of the element
-    * @property {string} field - type of element form
+    * @property {string} field - data name of element form
+    * @property {elementType} type - type of element form
     * @property {boolean} required - is it the element required? True or False
     * @property {boolean} showLabel
     * @property {Array} allowedValues -
@@ -98,7 +110,7 @@ export default class Types {
 
     /**
      * Represents a data form config
-     * @typedef {Object} Config - define the config for data-form
+     * @typedef {Object} FormConfig - define the config for data-form
      * @property {string} title - the name of the data-form
      * @property {string} description - A description for the data-form
      * @property {string} icon - A icon for the data-form
@@ -108,16 +120,41 @@ export default class Types {
      * @property {Validation} validation - Define validation to the data-form
      */
 
-
     /**
      * Represent a config to Data-Form
-     * @param {Config} config - Define the config you want to use for the data-form
-     * @returns {Config} return config
+     * @param {FormConfig} config - Define the config you want to use for the data-form
+     * @returns {FormConfig} return config
      */
     static dataFormConfig(config) {
-        return config;
+        return {...config};
     }
-    // static dataFormConfig = config => ({...config})
+
+    /**
+    * item type definitions
+    * @typedef {Object} Item
+    * @property {string} id - The id of this item, used to identify item.
+    * @property {string} name - The title of this item
+    * @property {string} icon - icon
+    * @property {string} active -
+    * @property {Function} render -
+    **/
+
+    /**
+     * Represents a detail tabs config
+     * @typedef {Object} TabsConfig - define the config for detail-tab
+     * @property {string} title - the title of the detail-tab
+     * @property {boolean} showTitle -
+     * @property {Item[]} items - tabs
+     */
+
+    /**
+     * Represent a config to Detail-tabs
+     * @param {TabsConfig} config - Define the config you want to use for the detail-tab
+     * @returns {TabsConfig} return config
+     */
+    static detailTabConfig(config) {
+        return {...config};
+    }
 
 }
 
