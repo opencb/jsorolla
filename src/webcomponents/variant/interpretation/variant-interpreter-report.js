@@ -102,6 +102,7 @@ class VariantInterpreterReport extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             console.log(this.opencgaSession);
             console.log(this.clinicalAnalysis);
+            console.log(this.clinicalAnalysis.proband.samples[0].qualityControl);
 
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
@@ -114,8 +115,8 @@ class VariantInterpreterReport extends LitElement {
                     project: `${this.opencgaSession.project.name} (${this.opencgaSession.project.id})`,
                     study: `${this.opencgaSession.study.name} (${this.opencgaSession.study.id})`,
                     clinicalAnalysisId: this.clinicalAnalysis.id,
-                    tumourId: somaticSample.id || null,
-                    germlineId: germlineSample.id || null,
+                    tumourId: somaticSample?.id || null,
+                    germlineId: germlineSample?.id || null,
                     tumourType: "Ovarian", // TODO
                 },
                 // clinicalAnalysis: this.clinicalAnalysis,
@@ -212,7 +213,7 @@ class VariantInterpreterReport extends LitElement {
 
                     this._data.qcPlots = {};
                     if (somaticSample.qualityControl?.variant?.files?.length > 0) {
-                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.files;
+                        this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
@@ -559,8 +560,8 @@ class VariantInterpreterReport extends LitElement {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-                                                <!-- <image-viewer .data="\${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
-                                            <img class="img-responsive" src="${qcPlots.genomePlots?.[0].file}"/>
+                                            <image-viewer .data="${qcPlots.genomePlot}"></image-viewer>
+                                            <img class="img-responsive" src="${qcPlots.genomePlot}"/>
                                         </div>
                                         <div class="col-md-5">
                                             <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
@@ -811,7 +812,7 @@ class VariantInterpreterReport extends LitElement {
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
                                             <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"></signature-view>
                                         </div>
                                         <div class="col-md-6">
                                             <h4>SBS signature contributions</h4>
@@ -850,9 +851,16 @@ class VariantInterpreterReport extends LitElement {
                             name: "",
                             type: "custom",
                             display: {
-                                render: () => html`
-                                    <div>
-                                        <span style="font-weight: bold">Pending</span>
+                                render: clinicalAnalysis => html`
+                                    <div class="row" style="padding: 20px">
+                                        <div class="col-md-6">
+                                            <h4>SBS Profile</h4>
+                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}" .mode="${"SV"}"></signature-view>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4>SBS signature contributions</h4>
+                                            <span style="font-weight: bold">Pending</span>
+                                        </div>
                                     </div>
                                 `,
                             },
