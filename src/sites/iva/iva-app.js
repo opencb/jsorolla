@@ -260,28 +260,18 @@ class IvaApp extends LitElement {
 
         // Notifications
         this.notificationManager = new NotificationManager({});
-        // Global notification
-        this.addEventListener("notification", e => this.notificationManager.show(e.detail));
-        // Shortcuts for common notifications
-        this.addEventListener("notificationInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
-        this.addEventListener("notificationSuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
-        this.addEventListener("notificationWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
-        this.addEventListener("notificationError", e => this.notificationManager.error(e.detail.title, e.detail.message));
 
-        // Register response error listener
-        // This will handle all response errors from OpenCGA and display a notification if needed
-        this.addEventListener("responseError", e => {
-            const response = e.detail.value;
-            if (response?.getEvents?.("ERROR")?.length) {
-                response.getEvents("ERROR").forEach(error => {
-                    this.notificationManager.error(error.name, error.message);
-                });
-            } else if (response instanceof Error) {
-                this.notificationManager.error(response.name, response.message);
-            } else {
-                this.notificationManager.error(null, JSON.stringify(response));
-            }
-        });
+        // Global notification
+        this.addEventListener("notify", e => this.notificationManager.show(e.detail));
+
+        // Shortcuts for common notifications
+        this.addEventListener("notifyInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
+        this.addEventListener("notifySuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
+        this.addEventListener("notifyWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
+        this.addEventListener("notifyError", e => this.notificationManager.error(e.detail.title, e.detail.message));
+
+        // Notify a response
+        this.addEventListener("notifyResponse", e => this.notificationManager.showResponse(e.detail.value));
 
         // TODO remove browserSearchQuery
         this.browserSearchQuery = {};
