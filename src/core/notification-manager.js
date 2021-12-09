@@ -165,6 +165,29 @@ export default class NotificationManager {
         });
     }
 
+    // Register response error listener
+    // This will handle all response errors from OpenCGA and display a notification if needed
+    showResponse(response) {
+        // Display error response events
+        if (response?.getEvents?.("ERROR")?.length) {
+            response.getEvents("ERROR").forEach(error => {
+                this.error(error.name, error.message);
+            });
+        }
+
+        // Display warning response events
+        if (response?.getEvents?.("WARNING")?.length) {
+            response.getEvents("WARNING").forEach(warn => {
+                this.warning(warn.name, warn.message);
+            });
+        }
+
+        // Sometimes response is an instance of an error
+        if (response instanceof Error) {
+            this.error(response.name, response.message);
+        }
+    }
+
     // Get default config for the notification manager
     getDefaultConfig() {
         return {
