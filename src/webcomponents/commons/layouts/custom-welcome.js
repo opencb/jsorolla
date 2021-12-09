@@ -111,7 +111,9 @@ export default class CustomWelcome extends LitElement {
                                 <div class="panel-body" align="center" style="height:180px;">
                                     <a href="#${itemLink}" style="text-decoration:none!important;">
                                         <div align="center" class="">
-                                            <img alt="${item.name}" width="100px" src="${item.icon}" />
+                                        ${ item?.icon.includes("fas") ?
+                                            html `<i class="${item.icon}" style="font-size: 5em;"></i>` : html `
+                                            <img alt="${item.name}" width="100px" src="${item.icon}"/>`}
                                         </div>
                                         <h4 style="margin-bottom:0px;">
                                             <strong>${item.name}</strong>

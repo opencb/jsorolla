@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+import UtilsNew from "../../utilsNew.js";
+
 export default class OpencgaCatalogUtils {
 
-     static getUsers(study) {
-        let _users = study?.groups
+    static getUsers(study) {
+        const _users = study?.groups
             .find(group => group.id === "@members")
             .userIds.filter(user => user !== "*");
-        return _users;
+        return UtilsNew.sort(_users);
     }
 
     static getUserIds(study, groups = ["@members"]) {
@@ -81,7 +83,7 @@ export default class OpencgaCatalogUtils {
         }
         return false;
     }
-    
+
     /**
      * Check if the user has the right the permissions in the study.
      * @param study
@@ -147,7 +149,7 @@ export default class OpencgaCatalogUtils {
             let admins = study.groups.find(group => group.id === "@admins");
             if (admins.userIds.includes(userLogged)) {
                 return true;
-            } 
+            }
         }
         return false;
     }

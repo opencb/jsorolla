@@ -60,7 +60,7 @@ export default class OpencgaFacetResultView extends LitElement {
         };
     }
 
-    /**
+    /*
      * Init the variables you need, keep in mind this is executed before the actual Polymer properties exist
      */
     _init() {
@@ -160,12 +160,7 @@ export default class OpencgaFacetResultView extends LitElement {
                     ...this._config.yAxis
                 },
                 tooltip: {
-                    headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
-                    pointFormat: "<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>" +
-                        "<td style=\"padding:0\"><b>{point.y:.1f} </b></td></tr>",
-                    footerFormat: "</table>",
                     shared: true,
-                    useHTML: true
                 },
                 plotOptions: {
                     column: {
@@ -217,9 +212,6 @@ export default class OpencgaFacetResultView extends LitElement {
                 title: {
                     text: params.title
                 },
-                tooltip: {
-                    pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>"
-                },
                 plotOptions: {
                     pie: {
                         allowPointSelect: true,
@@ -268,16 +260,18 @@ export default class OpencgaFacetResultView extends LitElement {
 
             if (Object.keys(series).length > 0) {
                 for (const key in series) {
-                    const data = [];
-                    for (const countIndex of series[key]) {
-                        data[countIndex.index] = countIndex.count;
-                    }
-                    for (let i = 0; i < data.length; i++) {
-                        if (UtilsNew.isUndefined(data[i])) {
-                            data[i] = 0; // Setting '0' for missing fields
+                    if (Object.prototype.hasOwnProperty.call(series, key)) {
+                        const data = [];
+                        for (const countIndex of series[key]) {
+                            data[countIndex.index] = countIndex.count;
                         }
+                        for (let i = 0; i < data.length; i++) {
+                            if (UtilsNew.isUndefined(data[i])) {
+                                data[i] = 0; // Setting '0' for missing fields
+                            }
+                        }
+                        obj.series.push({name: key, data: data});
                     }
-                    obj.series.push({name: key, data: data});
                 }
             } else {
                 obj.series.push({name: field.name, data: data});
@@ -406,7 +400,7 @@ export default class OpencgaFacetResultView extends LitElement {
             data: levelOneData,
             size: "60%",
             dataLabels: {
-                formatter: function() {
+                formatter: function () {
                     return this.y > 5 ? this.point.name : null;
                 },
                 color: "#ffffff",
@@ -419,7 +413,7 @@ export default class OpencgaFacetResultView extends LitElement {
             size: "80%",
             innerSize: "60%",
             dataLabels: {
-                formatter: function() {
+                formatter: function () {
                     // display only if larger than 1
                     return this.y > 1 ? "<b>" + this.point.name + ":</b> " + this.y : null;
                 }
@@ -444,14 +438,14 @@ export default class OpencgaFacetResultView extends LitElement {
         return {
             chart: {
                 backgroundColor: {
-                    //linearGradient: [0, 0, 500, 500],
+                    // linearGradient: [0, 0, 500, 500],
                     stops: [
                         [0, "rgb(255, 255, 255)"],
                         [1, "rgb(240, 240, 255)"]
                     ]
                 },
                 borderWidth: 0,
-                //plotBackgroundColor: "rgba(255, 255, 255, .9)",
+                // plotBackgroundColor: "rgba(255, 255, 255, .9)",
                 plotShadow: true,
                 plotBorderWidth: 1
             },
@@ -471,8 +465,8 @@ export default class OpencgaFacetResultView extends LitElement {
 
         return html`
             <div style="padding: 5px 10px">
-                ${this.showButtons
-            ? html`
+                ${this.showButtons ?
+                    html`
                         <div class="btn-group" style="float: right">
                             <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
                                 <i class="fas fa-chart-bar icon-padding" title="Bar Chart" data-id="${this.facetResult.name}"></i>
@@ -480,9 +474,9 @@ export default class OpencgaFacetResultView extends LitElement {
                             <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
                                 <i class="fas fa-chart-pie icon-padding" title="Pie Chart" data-id="${this.facetResult.name}"></i>
                             </span>
-                        </div>`
-            : null
-        }
+                        </div>` :
+                    null
+                }
 
                 <div id="${this._prefix}Plot"></div>
 

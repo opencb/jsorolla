@@ -15,12 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "./filters/clinical-status-filter.js";
-import "../commons/forms/data-form.js";
-import "../commons/filters/disease-panel-filter.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import {NotificationQueue} from "../../../core/NotificationQueue.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "../filters/clinical-status-filter.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/disease-panel-filter.js";
+import FormUtils from "../../commons/forms/form-utils";
 
 export default class ClinicalInterpretationCreate extends LitElement {
 
@@ -36,6 +37,12 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
     static get properties() {
         return {
+            interpretation: {
+                type: Object
+            },
+            interpretationId: {
+                type: String
+            },
             clinicalAnalysis: {
                 type: Object
             },
@@ -45,80 +52,92 @@ export default class ClinicalInterpretationCreate extends LitElement {
             mode: {
                 type: String
             },
-            // config: {
-            //     type: Object
-            // }
+            buttonsConfig: {
+                type: Object
+            },
         };
     }
 
     _init() {
+        this.config = this.getDefaultConfig();
+        this.updateParams = {};
         this.mode = "";
-        this.interpretation = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = this.getDefaultConfig();
+        this.buttonsConfigDefault = {
+            show: true,
+            clearText: "Clear",
+            okText: "Update",
+        };
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            // We store the available users from opencgaSession in 'clinicalAnalysis._users'
-            this._users = this.opencgaSession?.study ? OpencgaCatalogUtils.getUsers(this.opencgaSession.study) : [];
-            this.initClinicalInterpretation();
-
-            this.requestUpdate();
+        if (changedProperties.has("interpretation")) {
+            this.interpretationObserver();
         }
-
-        // if (changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+        if (changedProperties.has("interpretationId")) {
+            this.interpretationIdObserver();
+        }
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+        if (changedProperties.has("mode")) {
+            this.config = this.getDefaultConfig();
+        }
+        if (changedProperties.has("buttonsConfig")) {
+            this.buttonsConfig = {...this.buttonsConfigDefault, ...this.buttonsConfig};
+            this.config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
-    initClinicalInterpretation() {
-        this.interpretation = {
-            clinicalAnalysisId: this.clinicalAnalysis.id,
-            analyst: {
-                id: this.opencgaSession?.user?.id
-            },
-            panels: this.clinicalAnalysis.panels?.length > 0 ? this.clinicalAnalysis?.panels.map(panel => {
-                return {id: panel.id};
-            }) : [],
-            comments: [],
-        };
+    interpretationObserver() {
+        if (this.opencgaSession && this.interpretation) {
+            this._interpretation = JSON.parse(JSON.stringify(this.interpretation));
+        }
+    }
+
+    interpretationIdObserver() {
+        if (this.opencgaSession && this.interpretationId) {
+            this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.interpretationId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.interpretation = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
+    }
+
+    opencgaSessionObserver() {
+        this.users = [];
+        if (this.opencgaSession?.study?.groups) {
+            for (const group of this.opencgaSession.study.groups) {
+                if (group.id === "@members") {
+                    this.users.push(...group.userIds.filter(user => user !== "*"));
+                    break;
+                }
+            }
+        }
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         switch (param) {
+            case "description":
+                this.updateParams = FormUtils
+                    .updateScalar(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value);
+                break;
+            case "status.id":
             case "analyst.id":
-                this.interpretation.analyst = {
-                    id: e.detail.value
-                };
+                this.updateParams = FormUtils
+                    .updateObject(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value);
                 break;
             case "panels.id":
-                const [field, prop] = param.split(".");
-                if (e.detail.value) {
-                    this.interpretation[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
-                } else {
-                    delete this.interpretation[field];
-                }
-                break;
-            case "_comments":
-                this.interpretation.comments = [
-                    {
-                        message: e.detail.value
-                    }
-                ];
-                break;
-            default:
-                this.interpretation[param] = e.detail.value;
+                this.updateParams = FormUtils
+                    .updateObjectArray(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value, e.detail.data);
                 break;
         }
-
-        this.interpretation = {...this.interpretation};
+        // Enable this only when a dynamic property in the config can change
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -126,7 +145,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
                 id: this.interpretation.id,
-                clinicalAnalysis: this.interpretation
+                interpretation: this.interpretation
             },
             bubbles: true,
             composed: true
@@ -134,18 +153,26 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     onClear() {
-        this.initClinicalInterpretation();
-        this.requestUpdate();
+        // First update config
+        this.config = this.getDefaultConfig();
+
+        // Reset all values
+        this.interpretation = JSON.parse(JSON.stringify(this._interpretation));
+        this.updateParams = {};
+        this.commentsUpdate = {};
     }
 
     onSubmit() {
         try {
             // remove private fields
-            const data = {...this.interpretation};
+            // const data = {...this.interpretation};
+            const data = {...this.updateParams};
+            const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
+            const id = this.interpretation.id;
 
-            this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    new NotificationQueue().push(`Clinical Interpretation ${response.responses[0].results[0].id} created successfully`, null, "success");
+            this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, data, {study: this.opencgaSession.study.fqn})
+                .then(() => {
+                    new NotificationQueue().push(`Clinical Interpretation ${id} updated successfully`, null, "success");
                     this.notifyClinicalAnalysisWrite();
                     this.onClear();
                 })
@@ -163,7 +190,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
         return html`
             <data-form
                 .data="${this.interpretation}"
-                .config="${this._config}"
+                .config="${this.config}"
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -174,11 +202,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
     getDefaultConfig() {
         return {
             id: "clinical-interpretation",
-            title: "Create Interpretation",
-            icon: "fas fa-file-medical",
+            title: "Edit Interpretation",
+            icon: "fas fa-edit",
             type: "form",
             requires: "2.2.0",
-            description: "Create a new interpretation for this case",
+            description: "Update an interpretation",
             links: [
                 {
                     title: "OpenCGA",
@@ -186,14 +214,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     icon: ""
                 }
             ],
-            buttons: {
-                show: true,
-                clearText: "Clear",
-                submitText: "Create",
-            },
+            buttons: this.buttonsConfig,
             display: {
                 mode: {
                     type: this.mode,
+                    buttonClass: "btn btn-default btn-small ripple"
                 },
                 width: "10",
                 showTitle: false,
@@ -210,7 +235,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             name: "Interpretation ID",
                             field: "id",
                             type: "input-text",
-                            defaultValue: this.clinicalAnalysis.id,
+                            defaultValue: this.interpretation?.id,
                             display: {
                                 disabled: true
                             }
@@ -220,7 +245,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: () => this._users,
+                            allowedValues: () => this.users,
                             display: {}
                         },
                         {
@@ -235,8 +260,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                         .multiple=${false}
                                         @filterChange="${e => {
                                             e.detail.param = "status.id";
-                                    this.onFieldChange(e);
-                                }}">
+                                            this.onFieldChange(e);
+                                        }}">
                                     </clinical-status-filter>`
                             }
                         },
@@ -265,21 +290,23 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 2,
-                                placeholder: "Add a description to this case..."
+                                placeholder: "Add a description to this interpretation..."
                             }
                         },
                         {
-                            name: "Comment",
-                            field: "_comments",
-                            type: "input-text",
-                            defaultValue: "",
+                            name: "Comments",
+                            field: "comments",
+                            type: "custom",
                             display: {
-                                rows: 2,
-                                placeholder: "Initial comment..."
-                                // render: comments => html`
-                                //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
+                                render: comments => html`
+                                    <clinical-analysis-comment-editor
+                                        .comments="${comments}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
+                                        @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
+                                `,
                             }
-                        },
+                        }
                     ]
                 },
             ]
@@ -288,4 +315,4 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
 }
 
-customElements.define("clinical-interpretation-create", ClinicalInterpretationCreate);
+customElements.define("clinical-interpretation-update", ClinicalInterpretationCreate);

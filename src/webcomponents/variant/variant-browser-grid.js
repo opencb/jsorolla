@@ -74,31 +74,47 @@ export default class VariantBrowserGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
+        // this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+        // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated(changedProperties) {
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
+        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
+        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("variants")) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+        if (changedProperties.has("query") || changedProperties.has("variants")) {
             this.propertyObserver();
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
+            this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+            // Config for the grid toolbar
+            this.toolbarConfig = {
+                ...this._config.toolbar,
+                resource: "VARIANT",
+                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
+            };
         }
     }
 
-    propertyObserver() {
+    opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign(this.getDefaultConfig(), this.config);
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
 
+    propertyObserver() {
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
         if (this.query?.sample) {
@@ -109,15 +125,7 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
         this.samples = _samples;
-        const fieldToHide = ["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
-        // Config for the grid toolbar
-        this.toolbarConfig = {
-            ...this._config.toolbar,
-            resource: "VARIANT",
-            columns: this._getDefaultColumns()
-                .flat()
-                .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
-        };
+
         this.requestUpdate();
     }
 
@@ -131,7 +139,7 @@ export default class VariantBrowserGrid extends LitElement {
         } else {
             this.renderRemoteVariants();
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -160,7 +168,6 @@ export default class VariantBrowserGrid extends LitElement {
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
-                    // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     const filters = {
                         study: this.opencgaSession.study.fqn,
@@ -204,43 +211,12 @@ export default class VariantBrowserGrid extends LitElement {
                         }
                     }
                 },
-                onCheck: (row, $element) => {
-                    this.checkedVariants.set(row.id, row);
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
-                },
-                onCheckAll: rows => {
-                    for (const row of rows) {
-                        this.checkedVariants.set(row.id, row);
-                    }
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
-                },
-                onUncheck: (row, $element) => {
-                    this.checkedVariants.delete(row.id);
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
-                },
-                onUncheckAll: rows => {
-                    for (const row of rows) {
-                        this.checkedVariants.delete(row.id);
-                    }
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
-                },
                 onLoadSuccess: data => {
-                    for (let i = 0; i < data.rows.length; i++) {
-                        if (this.checkedVariants.has(data.rows[i].id)) {
-                            $(this.table).bootstrapTable("check", i);
-                        }
-                    }
+                    // We keep the table rows as global variable, needed to fetch the variant object when checked
+                    this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                // onPageChange: (page, size) => {
-                //     this.from = (page - 1) * size + 1;
-                //     this.to = page * size;
-                // },
                 onExpandRow: (index, row, $detail) => {
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO Remove this
@@ -293,6 +269,10 @@ export default class VariantBrowserGrid extends LitElement {
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
             }
         });
+    }
+
+    onConfigClick(e) {
+        $("#" + this._prefix + "ConfigModal").modal("show");
     }
 
     detailFormatter(index, row, a) {
@@ -448,6 +428,31 @@ export default class VariantBrowserGrid extends LitElement {
         }
     }
 
+    onCheck(e) {
+        const variantId = e.currentTarget.dataset.variantId;
+        const variant = this._rows.find(e => e.id === variantId);
+
+        if (e.currentTarget.checked) {
+            this.checkedVariants.set(variantId, variant);
+        } else {
+            this.checkedVariants.delete(variantId);
+        }
+
+        this.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                id: variantId,
+                row: variant,
+                checked: e.currentTarget.checked,
+                rows: Array.from(this.checkedVariants.values())
+            }
+        }));
+    }
+
+    checkFormatter(value, row) {
+        const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
+        return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
+    }
+
     _getDefaultColumns() {
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let sampleColumns = [{visible: false}];
@@ -527,7 +532,8 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) =>
+                        VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center"
                 },
                 {
@@ -536,7 +542,8 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
+                    formatter: (value, row, index) =>
+                        VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
                     halign: "center"
                 },
                 {
@@ -554,7 +561,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
+                    formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
                     halign: "center"
                 },
                 {
@@ -620,7 +627,18 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     colspan: 2,
                     align: "center"
-                }
+                },
+                {
+                    title: "Select",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: this.checkFormatter.bind(this),
+                    align: "center",
+                    events: {
+                        "click input": this.onCheck.bind(this)
+                    },
+                    visible: this._config.showSelectCheckbox
+                },
             ],
             [
                 {
@@ -703,13 +721,6 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
-                {
-                    field: "stateCheckBox",
-                    checkbox: true,
-                    rowspan: 1,
-                    colspan: 1,
-                    visible: this._config.showSelectCheckbox
-                }
             ]
         ];
 
@@ -766,6 +777,7 @@ export default class VariantBrowserGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
+
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
@@ -781,22 +793,77 @@ export default class VariantBrowserGrid extends LitElement {
         };
     }
 
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    async onApplySettings(e) {
+        try {
+            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.variantBrowser, ...this.__config};
+
+            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
+                variantBrowser: this._config
+            });
+            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+            this.renderVariants();
+        } catch (e) {
+            UtilsNew.notifyError(e);
+        }
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                    </button>`
+            }
+        ];
+    }
+
     render() {
         return html`
-            ${this._config.showToolbar ?
+            ${this._config?.showToolbar ?
                 html`
-                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                          .query="${this.query}"
-                                          .opencgaSession="${this.opencgaSession}"
-                                          @columnChange="${this.onColumnChange}"
-                                          @download="${this.onDownload}"
-                                          @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` :
-                null
+                    <opencb-grid-toolbar
+                        .config="${this.toolbarConfig}"
+                        .query="${this.query}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .rightToolbar="${this.getRightToolbar()}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}">
+                    </opencb-grid-toolbar>` : null
             }
 
             <div>
                 <table id="${this.gridId}"></table>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <variant-interpreter-grid-config
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
+                                </variant-interpreter-grid-config>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }

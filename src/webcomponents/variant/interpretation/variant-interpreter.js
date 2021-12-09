@@ -28,7 +28,7 @@ import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
-import "../../clinical/clinical-interpretation-view.js";
+import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -127,17 +127,21 @@ class VariantInterpreter extends LitElement {
                 .then(response => {
                     // FIXME delete soon!
                     const _clinicalAnalysis = response.responses[0].results[0];
-                    const panelIdToPanel = {};
-                    _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
-                    _clinicalAnalysis.interpretation.panels.forEach(panel => {
-                        panel.name = panelIdToPanel[panel.id].name;
-                        panel.source = panelIdToPanel[panel.id].source;
-                    });
-                    for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
-                        secondaryInterpretation.panels.forEach(panel => {
-                            panel.name = panelIdToPanel[panel.id].name;
-                            panel.source = panelIdToPanel[panel.id].source;
-                        });
+                    if (_clinicalAnalysis.panels) {
+                        const panelIdToPanel = {};
+                        _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
+                        if (_clinicalAnalysis?.interpretation?.panels) {
+                            _clinicalAnalysis.interpretation.panels.forEach(panel => {
+                                panel.name = panelIdToPanel[panel.id].name;
+                                panel.source = panelIdToPanel[panel.id].source;
+                            });
+                        }
+                        for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
+                            secondaryInterpretation.panels.forEach(panel => {
+                                panel.name = panelIdToPanel[panel.id].name;
+                                panel.source = panelIdToPanel[panel.id].source;
+                            });
+                        }
                     }
                     this.clinicalAnalysis = _clinicalAnalysis;
                     // FIXME Replace horrible code above by this one:
@@ -223,7 +227,7 @@ class VariantInterpreter extends LitElement {
             tools: [
                 {
                     id: "select",
-                    title: "Case Manager",
+                    title: "Case Info",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-folder-open"
@@ -293,7 +297,7 @@ class VariantInterpreter extends LitElement {
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
                                         <div class="text-muted">
-                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong></div>
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
                                         </div>
                                     </div>
                                 ` : null}
@@ -360,14 +364,14 @@ class VariantInterpreter extends LitElement {
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config?.tools?.map(item => html`
                                         ${!item.hidden ? html`
-                                                <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                                   href="javascript: void 0" data-view="${item.id}"
-                                                   @click="${this.onClickSection}">
-                                                    <div class="hi-icon ${item.icon}"></div>
-                                                    <p>${item.title}</p>
-                                                    <span class="smaller"></span>
-                                                </a>` :
-                                            ""}
+                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                                href="javascript: void 0" data-view="${item.id}"
+                                                @click="${this.onClickSection}">
+                                                <div class="hi-icon ${item.icon}"></div>
+                                                <p>${item.title}</p>
+                                                <span class="smaller"></span>
+                                            </a>
+                                        ` : ""}
                                     `)}
                                 </div>
                             </div>
@@ -383,7 +387,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-landing
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .config="${this._config}"
+                                        .config="${this._config.tools.find(tool => tool.id === "select")}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                         @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                     </variant-interpreter-landing>

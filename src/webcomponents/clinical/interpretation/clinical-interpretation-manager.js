@@ -16,11 +16,12 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../core/utilsNew.js";
-import GridCommons from "../commons/grid-commons.js";
-import ClinicalAnalysisManager from "../clinical/clinical-analysis-manager.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import GridCommons from "../../commons/grid-commons.js";
+import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import "./clinical-interpretation-summary.js";
 import "./clinical-interpretation-create.js";
+import "./clinical-interpretation-update.js";
 
 export default class ClinicalInterpretationManager extends LitElement {
 
@@ -37,13 +38,13 @@ export default class ClinicalInterpretationManager extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            clinicalAnalysis: {
                 type: Object
             },
             clinicalAnalysisId: {
                 type: String
             },
-            clinicalAnalysis: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -68,28 +69,24 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
+        }
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
-
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
-
-        if (changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
-        }
     }
 
-    // Fetch the CinicalAnalysis object from REST and trigger the observer call.
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
-                    // this.requestUpdate();
+                    // this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -135,8 +132,20 @@ export default class ClinicalInterpretationManager extends LitElement {
                 </div>
                 <div class="pull-right ${classMap({primary: primary})}">
                     <div class="dropdown action-dropdown">
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Action
-                            <span class="caret"></span>
+                        <clinical-interpretation-update
+                            .interpretation="${interpretation}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .mode=${"modal"}
+                            .buttonsConfig="${{
+                                show: true,
+                                clearText: "Clear",
+                                okText: "Update",
+                                classes: "btn btn-default btn-small ripple"
+                            }}">
+                        </clinical-interpretation-update>
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">
+                            Action <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             ${primary ? html`
@@ -160,12 +169,6 @@ export default class ClinicalInterpretationManager extends LitElement {
                                         <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}"
-                                       @click="${this.onActionClick}">
-                                        <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
-                                    </a>
-                                </li>
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
@@ -184,12 +187,13 @@ export default class ClinicalInterpretationManager extends LitElement {
                 </div>
             </div>
 
-            <div style="padding: 10px 15px">
+            <div style="padding: 15px 15px">
                 <clinical-interpretation-summary
                     .interpretation=${interpretation}
                     .primary=${primary}>
                 </clinical-interpretation-summary>
-            </div>`;
+            </div>
+        `;
     }
 
     renderHistoryTable() {
@@ -263,9 +267,6 @@ export default class ClinicalInterpretationManager extends LitElement {
         };
 
         switch (action) {
-            // case "create":
-            //     this.clinicalAnalysisManager.createInterpretation(null, interpretationCallback);
-            //     break;
             case "setAsPrimary":
                 this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
                 break;
@@ -291,7 +292,8 @@ export default class ClinicalInterpretationManager extends LitElement {
             return html`
                 <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i>
                     No primary interpretation available.
-                </div>`;
+                </div>
+            `;
         }
 
         return html`
@@ -315,7 +317,11 @@ export default class ClinicalInterpretationManager extends LitElement {
 
                     <div class="col-md-8" style="margin-bottom: 10px">
                         <h4>Secondary Interpretations</h4>
-                        ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => this.renderInterpretation(interpretation, false))}
+                        ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
+                            ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => this.renderInterpretation(interpretation, false))}
+                        ` : html`
+                            <label>No secondary interpretations found</label>
+                        `}
                     </div>
 
                     <div class="col-md-10" style="padding-top: 10px">
