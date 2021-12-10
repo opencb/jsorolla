@@ -436,12 +436,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: tooltips.region
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.region,
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Feature regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.feature,
                             },
                             {
                                 id: "biotype",
