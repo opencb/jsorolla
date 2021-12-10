@@ -496,9 +496,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                disabled: {
-                                    check: () => this.clinicalAnalysis.panelLock,
-                                    message: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
                                 tooltip: tooltips.diseasePanels
                             },
