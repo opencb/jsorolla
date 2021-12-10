@@ -481,10 +481,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             for (const caller of this._config.callers) {
                 if (fileCallers.includes(caller.id)) {
                     // New Columns
+                    // eslint-disable-next-line no-empty
                     if (caller.columns?.length > 0) {
 
                     }
-
                     // INFO column
                     if (caller.info?.length > 0) {
                         for (let i = 0; i < caller.info.length; i++) {
@@ -642,7 +642,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
+                    title: `Interpretation
+                        <a class='interpretation-info-icon'
+                            tooltip-title='Interpretation'
+                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class='fa fa-info-circle' aria-hidden='true'></i>
+                        </a>`,
                     field: "interpretation",
                     rowspan: 1,
                     colspan: 2,
@@ -856,7 +862,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         colspan: 1,
                         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         formatter: (value, row) => {
-                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`
+                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`;
                         },
                         align: "center",
                         nucleotideGenotype: true
@@ -1060,7 +1066,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                         <i class="fas fa-cog icon-padding"></i> Settings ...
                     </button>`
             }
