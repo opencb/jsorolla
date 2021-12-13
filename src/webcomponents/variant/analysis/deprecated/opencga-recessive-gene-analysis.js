@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import "../opencga-knockout-analysis-result.js";
+// import OpencgaKnockoutAnalysisResult from "../opencga-knockout-analysis-result.js";
 import UtilsNew from "../../../../core/utilsNew.js";
+import AnalysisConfig from "../analysis-config.js";
 
 // this class will be in config folder
 class OpencgaRecessiveGeneAnalysisConfig {
@@ -178,7 +179,7 @@ class OpencgaRecessiveGeneAnalysisConfig {
 export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
 
     constructor(config) {
-        this._config = {...OpencgaRecessiveGeneAnalysisConfig.get(), ...config};
+        this._config = {...AnalysisConfig.opencgaRecessiveGene(), ...config};
     }
 
     get config() {

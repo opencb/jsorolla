@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import "./opencga-knockout-analysis-result.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import AnalysisConfig from "./analysis-config.js";
+
 
 // this class will be in config folder
 class OpencgaKnockoutAnalysisConfig {
@@ -178,7 +179,7 @@ class OpencgaKnockoutAnalysisConfig {
 export default class OpencgaKnockoutAnalysis { // extends LitElement
 
     constructor(config) {
-        this._config = {...OpencgaKnockoutAnalysisConfig.get(), ...config};
+        this._config = {...AnalysisConfig.opencgaKnockout(), ...config};
     }
 
     get config() {
