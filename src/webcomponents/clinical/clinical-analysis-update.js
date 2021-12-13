@@ -23,6 +23,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
 class ClinicalAnalysisUpdate extends LitElement {
 
@@ -91,15 +92,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.users = [];
-        if (this.opencgaSession?.study?.groups) {
-            for (const group of this.opencgaSession.study.groups) {
-                if (group.id === "@members") {
-                    this.users.push(...group.userIds.filter(user => user !== "*"));
-                    break;
-                }
-            }
-        }
+        this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
     onCommentChange(e) {
