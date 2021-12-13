@@ -9,17 +9,12 @@ on:
 jobs:
   build:
     uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
-    with:
-      jsorolla_branch: ${{ github.ref_name }}
 
   docker:
     needs: build
-    # uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
     uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
     with: 
-      jsorolla_version: ${{ needs.build.outputs.version }}
-      jsorolla_branch: ${{ github.ref_name }}
-      # cli: python3 ./docker/docker-build.py push --images app --tag ${{ needs.build.outputs.version }}
+      version: ${{ jobs.build.outputs.version }}
     secrets:
       DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -28,7 +23,7 @@ jobs:
     needs: build
     uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
     with:
-      jsorolla_version: ${{ needs.build.outputs.version }}
+      version: ${{ jobs.build.outputs.version }}
     secrets:
       SSH_SWDEV_IP: ${{ secrets.SSH_SWDEV_IP }}
       SSH_SWDEV_USER: ${{ secrets.SSH_SWDEV_USER }}

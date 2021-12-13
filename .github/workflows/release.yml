@@ -8,54 +8,29 @@ on:
 jobs:
   build:
     uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
-    with:
-      jsorolla_branch: ${{ github.ref_name }}
 
   docker:
     needs: build
-    # uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
     uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
     with: 
-      jsorolla_version: ${{ needs.build.outputs.version }}
-      jsorolla_branch: ${{ github.ref_name }}
-      # cli: python3 ./docker/docker-build.py push --images app --tag ${{ needs.build.outputs.version }}
+      version: ${{ jobs.build.outputs.version }}
     secrets:
       DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+  release:
+    needs: docker
+    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
+    with:
+      artifact: jsorolla-release
+      file: jsorolla-${{ jobs.build.outputs.version }}.tar.gz
 
   deploy:
     needs: build
     uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
     with:
-      jsorolla_artifact: "jsorolla-build"
-      jsorolla_version: ${{ needs.build.outputs.version }}
+      version: ${{ jobs.build.outputs.version }}
     secrets:
       SSH_SWDEV_IP: ${{ secrets.SSH_SWDEV_IP }}
       SSH_SWDEV_USER: ${{ secrets.SSH_SWDEV_USER }}
       SSH_SWDEV_PASSWORD: ${{ secrets.SSH_SWDEV_PASSWORD }}
-
-  release:
-    needs: [build, docker]
-    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
-    with:
-      artifact: jsorolla-release
-      file: jsorolla-${{ needs.build.outputs.version }}.tar.gz
-
- 
-#  docker:
-#    name: Publish JSorolla Docker
-#    runs-on: ubuntu-20.04
-#    needs: build
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: tyankatsu0105/read-package-version-actions@v1
-#        id: package
-#      - uses: actions/download-artifact@v2
-#        with:
-#          name: jsorolla-build
-#          path: build
-#      - uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKER_HUB_USER }}
-#          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-#      - run: python3 ./docker/docker-build.py push --images app --tag ${{ steps.package.outputs.version }}

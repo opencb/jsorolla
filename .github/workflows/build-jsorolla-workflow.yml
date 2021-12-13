@@ -2,10 +2,10 @@ name: "Reusable workflow to build JSorolla"
 
 on:
   workflow_call:
-    inputs:
-      jsorolla_branch:
-        type: string
-        required: false
+    outputs:
+      version:
+        description: "JSorolla version"
+        value: ${{ jobs.build-jsorolla-workflow.outputs.version }}
 
 jobs:
   build-jsorolla-workflow:
@@ -15,8 +15,6 @@ jobs:
       version: ${{ steps.package.outputs.version }}
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: "${{ inputs.jsorolla_branch }}"
       - uses: actions/setup-node@v2
         with:
           node-version: "16"
