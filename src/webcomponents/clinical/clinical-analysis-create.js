@@ -16,13 +16,13 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -215,14 +215,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     notifyClinicalAnalysisWrite() {
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisCreate", {
-            detail: {
-                id: this.clinicalAnalysis.id,
-                clinicalAnalysis: this.clinicalAnalysis
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchEventCustom(this, "clinicalAnalysisCreate", null, null, {
+            id: this.clinicalAnalysis.id,
+            clinicalAnalysis: this.clinicalAnalysis
+        });
     }
 
     onClear() {
@@ -232,36 +228,34 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     onSubmit() {
         // Prepare the data for the REST create
-        try {
-            const data = {...this.clinicalAnalysis};
-            // remove private fields
-            delete data._users;
+        const data = {...this.clinicalAnalysis};
+        // remove private fields
+        delete data._users;
 
-            data.proband = {
-                id: this.clinicalAnalysis.proband?.id ? this.clinicalAnalysis.proband.id : null
+        data.proband = {
+            id: this.clinicalAnalysis.proband?.id ? this.clinicalAnalysis.proband.id : null
+        };
+
+        if (data.type === "FAMILY") {
+            data.family = {
+                id: this.clinicalAnalysis.family.id,
+                members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
             };
-
-            if (data.type === "FAMILY") {
-                data.family = {
-                    id: this.clinicalAnalysis.family.id,
-                    members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
-                };
-            }
-
-            this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
-                .then(response => {
-                    new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                    this.notifyClinicalAnalysisWrite();
-                    this.onClear();
-                })
-                .catch(response => {
-                    console.error(response);
-                    UtilsNew.notifyError(response);
-                });
-        } catch (response) {
-            console.log(response);
-            UtilsNew.notifyError(response);
         }
+
+        this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
+            .then(response => {
+                LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                    title: "Clinical analysis created",
+                    message: `The clinical analysis ${response.responses[0].results[0].id} has been created successfully`,
+                });
+                this.notifyClinicalAnalysisWrite();
+                this.onClear();
+            })
+            .catch(response => {
+                // console.error(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+            });
     }
 
     render() {

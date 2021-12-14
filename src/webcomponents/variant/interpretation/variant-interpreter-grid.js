@@ -508,7 +508,7 @@ export default class VariantInterpreterGrid extends LitElement {
             } else {
                 const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sampleId);
                 const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
-                debugger;
+                // debugger;
                 if (index >= 0) {
                     return row.studies[0].samples[sampleIndex].data[index];
                 }
@@ -656,7 +656,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "frequencies",
-                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Variant Allele Frequency
+                        <a class="pop-preq-info-icon"
+                            tooltip-title="Population Frequencies"
+                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>`,
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
@@ -679,7 +685,14 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "interpretation",
-                    title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
+                    title: `Interpretation
+                        <a class='interpretation-info-icon'
+                            tooltip-title='Interpretation'
+                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-position-at="left bottom"
+                            tooltip-position-my="right top">
+                            <i class='fa fa-info-circle' aria-hidden='true'></i>
+                        </a>`,
                     field: "interpretation",
                     rowspan: 1,
                     colspan: 3,
@@ -1088,7 +1101,7 @@ export default class VariantInterpreterGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                         <i class="fas fa-cog icon-padding"></i> Settings ...
                     </button>`
             }

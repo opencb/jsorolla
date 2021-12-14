@@ -415,6 +415,7 @@ export default class VariantBrowserGrid extends LitElement {
     populationFrequenciesFormatter(value, row, index) {
         if (row && row.annotation?.populationFrequencies) {
             const popFreqMap = new Map();
+            // eslint-disable-next-line guard-for-in
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
                 if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
@@ -501,6 +502,7 @@ export default class VariantBrowserGrid extends LitElement {
             for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
                 const populations = [];
                 const populationMap = {};
+                // eslint-disable-next-line guard-for-in
                 for (const pop in this.populationFrequencies.studies[j].populations) {
                     populations.push(this.populationFrequencies.studies[j].populations[pop].id);
                     populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
@@ -579,7 +581,17 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "conservation",
-                    title: "Conservation  <a tooltip-title='Conservation' tooltip-text=\"Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites\"><i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                    title: `Conservation
+                        <a  tooltip-title='Conservation'
+                            tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected,
+                                at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is
+                                faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent
+                                -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and
+                                range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint.
+                                Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while
+                                still strongly enriching for truly constrained sites">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>`,
                     field: "conservation",
                     rowspan: 1,
                     colspan: 3,
@@ -596,7 +608,13 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "cohorts",
-                    title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Cohort Stats
+                        <a id="cohortStatsInfoIcon"
+                            tooltip-title="Cohort Stats"
+                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
+                            <i class="fa fa-info-circle" aria-hidden="true">
+                            </i>
+                        </a>`,
                     field: "cohorts",
                     rowspan: 1,
                     colspan: cohortColumns.length,
@@ -605,7 +623,13 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "popfreq",
-                    title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Population Frequencies
+                        <a class="popFreqInfoIcon"
+                            tooltip-title="Population Frequencies"
+                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>`,
                     field: "popfreq",
                     rowspan: 1,
                     colspan: populationFrequencyColumns.length,
@@ -816,7 +840,7 @@ export default class VariantBrowserGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                         <i class="fas fa-cog icon-padding"></i> Settings ...
                     </button>`
             }
@@ -843,7 +867,7 @@ export default class VariantBrowserGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
