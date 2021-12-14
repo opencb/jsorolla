@@ -14,7 +14,7 @@ jobs:
     needs: build
     uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
     with: 
-      version: ${{ jobs.build.outputs.version }}
+      version: ${{ needs.build.outputs.version }}
     secrets:
       DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -23,7 +23,7 @@ jobs:
     needs: build
     uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
     with:
-      version: ${{ jobs.build.outputs.version }}
+      version: ${{ needs.build.outputs.version }}
     secrets:
       SSH_SWDEV_IP: ${{ secrets.SSH_SWDEV_IP }}
       SSH_SWDEV_USER: ${{ secrets.SSH_SWDEV_USER }}
