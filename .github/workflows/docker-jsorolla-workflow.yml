@@ -2,10 +2,6 @@ name: "Reusable workflow to publish JSorolla in DockerHub"
 
 on:
   workflow_call:
-    inputs:
-      version:
-        type: string
-        required: true
     secrets:
       DOCKER_HUB_USER:
         required: true
@@ -26,5 +22,5 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      - run: python3 ./docker/docker-build.py push --images app --tag ${{ inputs.version }}
+      - run: python3 ./docker/docker-build.py push --images app
 
