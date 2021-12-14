@@ -41,6 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: jsorolla-release
-          path: jsorolla-${{ steps.package.outputs.version }}.tar.gz
+          # TODO: we should rename the iva-VERSION.tar.gz file as jsorolla-VERSION.tar.gz
+          path: iva-${{ steps.package.outputs.version }}.tar.gz
           retention-days: 1
  
