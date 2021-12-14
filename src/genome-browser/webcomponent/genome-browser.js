@@ -24,7 +24,6 @@ import FeatureTrack from "../tracks/feature-track.js";
 import FeatureRenderer from "../renderers/feature-renderer.js";
 import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
 
-
 export default class GenomeBrowserComponent extends LitElement {
 
     constructor() {
@@ -594,6 +593,7 @@ export default class GenomeBrowserComponent extends LitElement {
             if (UtilsNew.isNotEmpty(region)) {
                 if (UtilsNew.isNotEmpty(searchBy)) {
                     new NotificationQueue().push("Cannot apply 'region' and 'gene' filters. Please, choose one or the other.", "", "warning");
+
                     return;
                 }
                 search = region;

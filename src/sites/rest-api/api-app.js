@@ -24,7 +24,7 @@ import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../../webcomponents/NotificationUtils.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "../../webcomponents/commons/utils/lit-utils.js";
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/commons/tool-header.js";
@@ -262,8 +262,9 @@ class ApiApp extends LitElement {
                 this.config = {...this.config};
             })
             .catch(e => {
-                console.error(e);
-                UtilsNew.notifyError(e);
+                // console.error(e);
+                // UtilsNew.notifyError(e);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
             }).finally(() => {
                 this.signingIn = false;
                 this.requestUpdate();

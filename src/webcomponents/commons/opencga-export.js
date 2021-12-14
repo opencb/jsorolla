@@ -17,8 +17,7 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
-
+import LitUtils from "./utils/lit-utils.js";
 
 export default class OpencgaExport extends LitElement {
 
@@ -218,7 +217,8 @@ const client = new OpenCGAClient({
                 new NotificationQueue().push(`Job ${job.id} is now PENDING`, null, "info");
             } catch (e) {
                 console.error(e);
-                UtilsNew.notifyError(e);
+                // UtilsNew.notifyError(e);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
             }
         }
     }
