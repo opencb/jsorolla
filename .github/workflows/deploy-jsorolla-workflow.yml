@@ -1,0 +1,36 @@
+name: "Reusable workflow to deploy JSorolla application"
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+    secrets:
+      SSH_SWDEV_IP:
+        type: string
+        required: true
+      SSH_SWDEV_USER:
+        type: string
+        required: true
+      SSH_SWDEV_PASSWORD:
+        type: string
+        required: true
+
+jobs:
+  deploy-jsorolla-workflow:
+    name: Deploy JSorolla Application
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: jsorolla-build
+          path: build
+      - uses: garygrossgarten/github-action-scp@release
+        with:
+          local: build
+          remote: /mnt/data/WEB-APPS/dev/jsorolla-${{ inputs.version }}
+          rmRemote: true
+          host: ${{ secrets.SSH_SWDEV_IP }}
+          username: ${{ secrets.SSH_SWDEV_USER }}
+          password: ${{ secrets.SSH_SWDEV_PASSWORD }}

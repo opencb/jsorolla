@@ -399,7 +399,7 @@ export default class JobGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm ripple" @click="${() => this.table.bootstrapTable("refresh")}">
+                    <button type="button" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
                         <i class="fas fa-sync-alt icon-padding"></i> Refresh
                     </button>
                 `,

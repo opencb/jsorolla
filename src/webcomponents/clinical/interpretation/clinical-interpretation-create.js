@@ -15,12 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import {NotificationQueue} from "../../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/disease-panel-filter.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class ClinicalInterpretationCreate extends LitElement {
 
@@ -123,14 +122,10 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     notifyClinicalAnalysisWrite() {
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            detail: {
-                id: this.interpretation.id,
-                clinicalAnalysis: this.interpretation
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
+            id: this.interpretation.id,
+            clinicalAnalysis: this.interpretation,
+        });
     }
 
     onClear() {
@@ -139,24 +134,22 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     onSubmit() {
-        try {
-            // remove private fields
-            const data = {...this.interpretation};
+        // remove private fields
+        const data = {...this.interpretation};
 
-            this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    new NotificationQueue().push(`Clinical Interpretation ${response.responses[0].results[0].id} created successfully`, null, "success");
-                    this.notifyClinicalAnalysisWrite();
-                    this.onClear();
-                })
-                .catch(response => {
-                    console.error(response);
-                    UtilsNew.notifyError(response);
+        this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                    title: "Clinical Interpretation created",
+                    message: `The clinical interpretation ${response.responses[0].results[0].id} has been created successfully`,
                 });
-        } catch (response) {
-            console.log(response);
-            UtilsNew.notifyError(response);
-        }
+                this.notifyClinicalAnalysisWrite();
+                this.onClear();
+            })
+            .catch(response => {
+                // console.error(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+            });
     }
 
     render() {
@@ -235,9 +228,10 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                         .multiple=${false}
                                         @filterChange="${e => {
                                             e.detail.param = "status.id";
-                                    this.onFieldChange(e);
-                                }}">
-                                    </clinical-status-filter>`
+                                            this.onFieldChange(e);
+                                        }}">
+                                    </clinical-status-filter>
+                                `,
                             }
                         },
                         {
