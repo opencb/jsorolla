@@ -20,7 +20,7 @@ const internalCss = /(global|magic-check|style|toggle-switch)/gi;
 
 // Get target sites to build
 // const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
-const sites = ["iva", "rest-api"];
+const sites = ["iva"];
 
 const revision = () => {
     try {
@@ -121,6 +121,24 @@ export default sites.map(site => ({
             targets: getCopyTargets(site),
         }),
     ],
+    moduleContext: id => {
+        // Avoid this Error: https://rollupjs.org/guide/en/#error-this-is-undefined
+        /*
+        * In order to match native module behaviour, Rollup sets `this`
+        * as `undefined` at the top level of modules. Rollup also outputs
+        * a warning if a module tries to access `this` at the top level.
+        * The following modules use `this` at the top level and expect it
+        * to be the global `window` object, so we tell Rollup to set
+        *`this = window` for these modules.
+        */
+        const thisAsWindowForModules = [
+            "node_modules/countup.js/dist/countUp.min.js"
+        ];
+
+        if (thisAsWindowForModules.some(id_ => id.trimRight().endsWith(id_))) {
+            return "window";
+        }
+    },
     output: {
         dir: `${buildPath}/${site}`,
         manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
