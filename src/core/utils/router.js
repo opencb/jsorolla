@@ -7,7 +7,7 @@ export default class RouterUtils {
     }
 
     // Redirect to the specified url
-    static goto(pathname, query) {
+    static redirect(pathname, query) {
         window.location.hash = RouterUtils.buildUrl(pathname, query);
     }
 
@@ -29,7 +29,7 @@ export default class RouterUtils {
     }
 
     // Check if a path matches the pattern
-    static testPath(path, pattern, exact) {
+    static matchPath(path, pattern, exact) {
         const params = {};
         const pathItems = RouterUtils.splitPath(path);
         const patternItems = RouterUtils.splitPath(pattern);
@@ -42,9 +42,10 @@ export default class RouterUtils {
         // Check all path items
         for (let i = 0; i < patternItems.length; i++) {
             // Check for dynamic parameter
-            if (patternItems[i].charAt(0) === ":" && pathItems[i]) {
+            // if (patternItems[i].charAt(0) === ":" && pathItems[i]) {
+            if (patternItems[i].charAt(0) === ":") {
                 const key = patternItems[i].substring(1);
-                params[key] = pathItems[i]; // Save param value
+                params[key] = pathItems[i] || ""; // Save param value
             } else if (pathItems[i] !== patternItems[i]) {
                 return null;
             }
