@@ -39,7 +39,7 @@ export default class CustomRoute extends LitElement {
 
     render() {
         const currentUrl = RouterUtils.getCurrentUrl();
-        const params = RouterUtils.testPath(currentUrl.pathname, this.path, this.exact);
+        const params = RouterUtils.matchPath(currentUrl.pathname, this.path, !!this.exact);
 
         // Check if current url matches route path
         if (params) {
