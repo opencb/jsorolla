@@ -144,29 +144,13 @@ export default class DataForm extends LitElement {
     }
 
     _getDefaultValue(element) {
-        if (element.defaultValue) {
-            return element.defaultValue;
-        } else {
-            if (this.config?.display?.defaultValue) {
-                return this.config.display.defaultValue;
-            } else {
-                return "";
-            }
-        }
+        // WARNING: element.defaultValue is deprecated, use element.display.defaultValue
+        return element?.display?.defaultValue ?? element?.defaultValue ?? this.config?.display?.defaultValue ?? "";
     }
 
-    _getErrorMessage(element) {
-        let errorMessage;
-        if (element.display && element.display.errorMessage) {
-            errorMessage = element.display.errorMessage;
-        } else {
-            if (this.config?.display?.errorMessage) {
-                errorMessage = this.config.display.errorMessage;
-            } else {
-                errorMessage = "Error: No valid data found";
-            }
-        }
-        return html`<div><em>${errorMessage}</em></div>`;
+    _getErrorMessage(element, section) {
+        const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
+        return html`<div><em>${text}</em></div>`;
     }
 
     /**
@@ -193,15 +177,7 @@ export default class DataForm extends LitElement {
     }
 
     _getWidth(element) {
-        if (element.display && element.display.width) {
-            return element.display.width;
-        } else {
-            if (this.config.display && this.config.display.defaultWidth) {
-                return this.config.display.defaultWidth;
-            } else {
-                return null;
-            }
-        }
+        return element?.display?.width ?? this.config?.display?.defaultWidth ?? null;
     }
 
     _getSectionWidth(section) {
@@ -230,36 +206,11 @@ export default class DataForm extends LitElement {
     }
 
     _getHelpIcon(element, section) {
-        if (element.display?.help?.icon) {
-            return element.display.help.icon;
-        } else {
-            if (section.display?.help?.icon) {
-                return section.display.help.icon;
-            } else {
-                if (this.config.display?.help?.icon) {
-                    return this.config.display.help.icon;
-                } else {
-                    return "fas fa-info-circle";
-                }
-            }
-        }
+        return element?.display?.helpIcon ?? section?.display?.helpIcon ?? this.config?.display?.helpIcon ?? "fas fa-info-circle";
     }
 
     _getErrorIcon(element, section) {
-        if (element?.display?.errorIcon) {
-            return element.display.errorIcon;
-        } else {
-            if (section?.display?.errorIcon) {
-                return section.display.errorIcon;
-            } else {
-                if (this.config.display?.errorIcon) {
-                    return this.config.display.errorIcon;
-                } else {
-                    // Default error icon
-                    return "fa fa-times-circle";
-                }
-            }
-        }
+        return element?.display?.errorIcon ?? section?.display?.errorIcon ?? this.config?.display?.errorIcon ?? "fas fa-times-circle";
     }
 
     _isUpdated(element) {
