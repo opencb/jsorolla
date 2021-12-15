@@ -294,19 +294,11 @@ export default class DataForm extends LitElement {
                         <div class="${section?.classes ?? ""}" style="${section?.style ?? ""}">
                             ${section.sections.map(subsection => subsection.id ? html`
                                 <div class="${subsection.classes}">
-                                    ${this.config.type === "form" ? html`
-                                        <section>
-                                            <form class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                    <section>
+                                        <div class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
                                                 ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                            </form>
-                                        </section>
-                                    ` : html`
-                                        <section>
-                                            <div class="${classes}" style="${style}">
-                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                            </div>
-                                        </section>
-                                    `}
+                                        </div>
+                                    </section>
                                 </div>
                             ` : null)}
                         </div>
@@ -315,23 +307,13 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        if (this.config.type === "form") {
-            return html`
-                <section>
-                    <form class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
-                        ${this.config.sections.map(section => this._createSection(section))}
-                    </form>
-                </section>
-            `;
-        } else {
-            return html`
-                <section>
-                    <div class="${classes}" style="${style}">
-                        ${this.config.sections.map(section => this._createSection(section))}
-                    </div>
-                </section>
-            `;
-        }
+        return html`
+            <section>
+                <div class="${defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                    ${this.config.sections.map(section => this._createSection(section))}
+                </div>
+            </section>
+        `;
     }
 
     _createSection(section) {
