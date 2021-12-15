@@ -231,7 +231,7 @@ export default class VariantBrowserFilter extends LitElement {
 
     _isFilterVisible(subsection) {
         let visible = true;
-        if (subsection?.visible !== undefined && subsection?.visible !== null) {
+        if (typeof subsection?.visible !== "undefined" && subsection?.visible !== null) {
             if (typeof subsection.visible === "boolean") {
                 visible = subsection.visible;
             } else {
@@ -247,11 +247,13 @@ export default class VariantBrowserFilter extends LitElement {
 
     _isFilterDisabled(subsection) {
         let disabled = false;
-        if (subsection?.disabled?.check !== undefined && subsection?.disabled?.check !== null) {
-            if (typeof subsection.disabled.check === "function") {
-                disabled = subsection.disabled.check();
+        if (typeof subsection?.disabled !== "undefined" && subsection?.disabled !== null) {
+            if (typeof subsection?.disabled === "boolean") {
+                disabled = subsection.disabled;
+            } else if (typeof subsection?.disabled === "function") {
+                disabled = subsection.disabled();
             } else {
-                console.error(`Field 'disabled' not a function: ${typeof subsection.disabled.check}`);
+                console.error(`Field 'disabled' not a function or boolean: ${typeof subsection.disabled}`);
             }
         }
         return disabled;
@@ -278,6 +280,21 @@ export default class VariantBrowserFilter extends LitElement {
         } else {
             return html`No filter has been configured.`;
         }
+    }
+
+    _createMessage(subsection) {
+        let message = null;
+        if (subsection?.message?.text) {
+            if (this._isFilterVisible(subsection.message)) {
+                const type = (subsection.message.type || "warning").toLowerCase();
+                message = html`
+                    <div class="alert alert-${type}" role="alert">
+                        ${subsection.message.text}
+                    </div>
+                `;
+            }
+        }
+        return message;
     }
 
     _createSection(section) {
@@ -567,11 +584,7 @@ export default class VariantBrowserFilter extends LitElement {
                         </div>
                     </div>
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                        ${disabled ? html`
-                            <div class="alert alert-warning" role="alert">
-                                ${subsection.disabled?.message || "This filter has been disabled."}
-                            </div>
-                        ` : null}
+                        ${this._createMessage(subsection)}
                         ${subsection.description ? html`
                             <div>${this._getFilterField(subsection.description)}</div>` : null
                         }

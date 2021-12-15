@@ -436,12 +436,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: tooltips.region
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.region,
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Feature regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.feature,
                             },
                             {
                                 id: "biotype",
@@ -464,9 +472,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                disabled: {
-                                    check: () => this.clinicalAnalysis.panelLock,
-                                    message: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
                                 tooltip: tooltips.diseasePanels
                             },

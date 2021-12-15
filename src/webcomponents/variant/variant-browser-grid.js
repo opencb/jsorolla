@@ -22,6 +22,7 @@ import GridCommons from "../commons/grid-commons.js";
 import VariantUtils from "./variant-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -775,7 +776,8 @@ export default class VariantBrowserGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -832,7 +834,8 @@ export default class VariantBrowserGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
         }
     }
 

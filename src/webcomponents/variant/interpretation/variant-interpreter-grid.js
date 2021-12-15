@@ -27,7 +27,7 @@ import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -991,7 +991,8 @@ export default class VariantInterpreterGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -1076,7 +1077,9 @@ export default class VariantInterpreterGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+
         }
     }
 
@@ -1138,7 +1141,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1159,7 +1162,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
