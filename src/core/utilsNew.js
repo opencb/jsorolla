@@ -1,4 +1,4 @@
-import {NotificationQueue} from "./NotificationQueue.js";
+// import {NotificationQueue} from "./NotificationQueue.js";
 
 export default class UtilsNew {
 
@@ -338,18 +338,20 @@ export default class UtilsNew {
         }, {})))(error);
     }
 
+    // ! Deprecated function, do not use
     static notifyError(response) {
-        if (response?.getEvents?.("ERROR")?.length) {
-            const errors = response.getEvents("ERROR");
-            errors.forEach(error => {
-                new NotificationQueue().push(error.name, error.message, "ERROR");
-            });
-        } else if (response instanceof Error) {
-            new NotificationQueue().push(response.name, response.message, "ERROR");
-        } else {
-            new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
-        }
+        // if (response?.getEvents?.("ERROR")?.length) {
+        //     const errors = response.getEvents("ERROR");
+        //     errors.forEach(error => {
+        //         new NotificationQueue().push(error.name, error.message, "ERROR");
+        //     });
+        // } else if (response instanceof Error) {
+        //     new NotificationQueue().push(response.name, response.message, "ERROR");
+        // } else {
+        //     new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
+        // }
     }
+
 
     /**
      * Returns the object sorted by key in lexicographic order.
@@ -773,6 +775,21 @@ export default class UtilsNew {
             default:
                 return false;
         }
+    }
+
+    static sort(stringArray) {
+        if (stringArray.length > 0) {
+            return stringArray.sort((a, b) => {
+                if (a < b) {
+                    return -1;
+                }
+                if (a > b) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
+        return stringArray;
     }
 
 }

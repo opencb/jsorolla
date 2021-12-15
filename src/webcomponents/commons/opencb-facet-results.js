@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import {RestResponse} from "../../core/clients/rest-response.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "./utils/lit-utils.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "../loading-spinner.js";
@@ -116,20 +116,42 @@ class OpencbFacetResults extends LitElement {
                     this.facetResults = restResponse.getResults() || [];
                 })
                 .catch(response => {
-                    if (response instanceof RestResponse) {
-                        if (response.getEvents?.("ERROR")?.length) {
-                            this.errorState = response.getEvents("ERROR");
-                            this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
-                        } else {
-                            this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
-                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                        }
-                    } else if (response instanceof Error) {
-                        this.errorState = [{name: response.name, message: response.message}];
-                        new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                    // TODO: Removed this code
+                    // if (response instanceof RestResponse) {
+                    //     if (response.getEvents?.("ERROR")?.length) {
+                    //         // this.errorState = response.getEvents("ERROR");
+                    //         // this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
+                    //         LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                    //     } else {
+                    //         this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
+                    //         // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                    //         LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                    //             title: this.errorState[0].name,
+                    //             message: this.errorState[0].message
+                    //         });
+                    //     }
+                    // } else if (response instanceof Error) {
+                    //     this.errorState = [{name: response.name, message: response.message}];
+                    //     // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                    //     LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                    // } else {
+                    //     this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
+                    //     // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                    //     LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                    //         title: this.errorState[0].name,
+                    //         message: this.errorState[0].message
+                    //     });
+                    // }
+
+                    // Refactored
+                    if (response instanceof RestResponse || response instanceof Error) {
+                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
                     } else {
                         this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
-                        new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                        LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                            title: this.errorState[0].name,
+                            message: this.errorState[0].message
+                        });
                     }
                 })
                 .finally(() => {

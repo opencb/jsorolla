@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
-import {NotificationQueue} from "../../../core/NotificationQueue.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../filters/clinical-priority-filter.js";
 
@@ -678,29 +678,38 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             if (this.mode === "create") {
                 opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn, createDefaultInterpretation: true})
                     .then(response => {
-                        new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
+                        // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
+                        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                            message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
+                        });
                         this.notifyClinicalAnalysisWrite();
                         this.onClear();
                     })
                     .catch(response => {
                         console.error(response);
-                        UtilsNew.notifyError(response);
+                        // UtilsNew.notifyError(response);
+                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
                     });
             } else {
                 opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
                     .then(response => {
-                        new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
+                        // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
+                        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                            message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
+                        });
                         this.notifyClinicalAnalysisWrite();
                         this.onClear();
                     })
                     .catch(response => {
                         console.log(response);
-                        UtilsNew.notifyError(response);
+                        // UtilsNew.notifyError(response);
+                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
                     });
             }
         } catch (response) {
             console.log(response);
-            UtilsNew.notifyError(response);
+            // UtilsNew.notifyError(response);
+            LitUtils.dispatchEventCustom(this, "notifyResponse", response);
         }
     }
 
@@ -715,15 +724,16 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
     render() {
         return this.checkProjects ? html`
-           <data-form   .data="${this.clinicalAnalysis}"
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onClear}"
-                        @submit="${this.onRun}">
+            <data-form
+                .data="${this.clinicalAnalysis}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onRun}">
             </data-form>
         ` : html`
             <div class="guard-page">
-               <i class="fas fa-lock fa-5x"></i>
+                <i class="fas fa-lock fa-5x"></i>
                 <h3>No public projects available to browse. Please login to continue</h3>
             </div>
         `;

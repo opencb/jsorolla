@@ -20,6 +20,7 @@ import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -175,7 +176,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
             .catch(e => {
                 console.log(e);
                 this.sampleQcVariantStats = null;
-                UtilsNew.notifyError(e);
+                // UtilsNew.notifyError(e);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.loading = false;

@@ -18,7 +18,7 @@
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export class JobMonitor extends LitElement {
 
@@ -96,12 +96,18 @@ export class JobMonitor extends LitElement {
         this.jobs = newList.map((job, i) => {
             if (i < k) {
                 // handle the new jobs
-                new NotificationQueue().push(`${job.id}`, "The job has been added", "", "info");
+                // new NotificationQueue().push(`${job.id}`, "The job has been added", "", "info");
+                LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                    message: `${job.id}, "The job has been added`
+                });
                 return {...job, updated: true};
             } else {
                 // handle the change of state
                 if (job.internal.status.name !== oldList[i - k].internal.status.name) {
-                    new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
+                    // new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
+                    LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                        message: `${job.id} The job has now status ${job?.internal?.status?.name}`
+                    });
                     return {...job, updated: true};
                 } else {
                     // if the ids are the same I want to keep the `updated` status

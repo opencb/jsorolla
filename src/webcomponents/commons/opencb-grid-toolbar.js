@@ -156,7 +156,7 @@ export default class OpencbGridToolbar extends LitElement {
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         ${this._config.showCreate &&
                         (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
-                            <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
+                            <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
                             </a>
                         ` : null}
@@ -165,7 +165,7 @@ export default class OpencbGridToolbar extends LitElement {
                         <div class="form-inline text-right pull-right">
                             ${this._config.showColumns && this._config.columns.length ? html`
                                 <div class="btn-group columns-toggle-wrapper">
-                                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm checkbox-container">
@@ -185,7 +185,7 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._config.showDownload ? html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
                                         ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
@@ -201,7 +201,7 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._config.showExport ? html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
+                                    <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
                                         ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export (Beta)
                                     </button>
