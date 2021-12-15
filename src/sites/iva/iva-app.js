@@ -90,9 +90,7 @@ import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
-
 import "../../webcomponents/clinical/rga/rga-browser.js";
-import LitUtils from "../../webcomponents/commons/utils/lit-utils.js";
 
 
 class IvaApp extends LitElement {
@@ -561,7 +559,7 @@ class IvaApp extends LitElement {
                     },
                     title: "Your session is close to expire",
                     message: `
-                        In <b>${remainingMinutes} minutes</b> your session will be automatically closed. 
+                        In <b>${remainingMinutes} minutes</b> your session will be automatically closed.
                         To keep working, please click on <b>Refresh Session</b> button.
                     `,
                     removeAfter: 20000,
@@ -845,7 +843,8 @@ class IvaApp extends LitElement {
     onNotifyMessage(e) {
         // NotificationUtils.closeNotify(this.notifySession);
         // NotificationUtils.showNotify(e.detail.message, e.detail.type, e.detail.options, e.detail.settings);
-        new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
+        // new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
+        this.notificationManager.info(e.detail.title, e.detail.message);
     }
 
     // TODO this should keep in sync the query object between variant-browser and variant-facet

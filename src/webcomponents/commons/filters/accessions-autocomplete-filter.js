@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import LitUtils from "../utils/lit-utils.js";
 
 export default class AccessionsAutocompleteFilter extends LitElement {
 
@@ -107,7 +107,8 @@ export default class AccessionsAutocompleteFilter extends LitElement {
                             success(results);
                         } catch (e) {
                             console.error(e);
-                            UtilsNew.notifyError(e);
+                            // UtilsNew.notifyError(e);
+                            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
                             failure(e);
                         }
                     },

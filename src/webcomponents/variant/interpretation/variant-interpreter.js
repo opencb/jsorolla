@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import {NotificationQueue} from "../../../core/NotificationQueue.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -205,16 +205,21 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
-            new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
+            // new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
+            LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                message: "Clinical analysis refreshed"
+            });
         });
     }
 
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
-
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
             return this.onClinicalAnalysisUpdate().then(() => {
-                new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
+                // new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
+                LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                    message: `Changed primary interpretation to '${interpretationId}'.`
+                });
             });
         });
     }
@@ -357,7 +362,7 @@ class VariantInterpreter extends LitElement {
                                 <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
                                     <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
                                 </a>
-                             -->
+                            -->
                             </div>
                             <div>
                                 <!-- Controls aligned to the LEFT -->

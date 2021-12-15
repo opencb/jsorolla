@@ -21,11 +21,11 @@ import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatte
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantUtils from "../variant-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-grid-config.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
-
 
 export default class VariantInterpreterRearrangementGrid extends LitElement {
 
@@ -919,7 +919,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -1041,7 +1042,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
         }
     }
 

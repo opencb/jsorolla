@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class OpencgaSampleGrid extends LitElement {
 
@@ -429,7 +429,8 @@ export default class OpencgaSampleGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -456,12 +457,13 @@ export default class OpencgaSampleGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                          .query="${this.query}"
-                                          .opencgaSession="${this.opencgaSession}"
-                                          @columnChange="${this.onColumnChange}"
-                                          @download="${this.onDownload}"
-                                          @export="${this.onDownload}">
+                    <opencb-grid-toolbar
+                        .config="${this.toolbarConfig}"
+                        .query="${this.query}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
                 ""
             }

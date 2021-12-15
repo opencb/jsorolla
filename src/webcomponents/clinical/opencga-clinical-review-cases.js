@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./clinical-analysis-grid.js";
 import "./opencga-clinical-analysis-view.js";
@@ -183,14 +183,22 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         );
                         this.refreshFilters();
                     }).catch(restResponse => {
-                    if (restResponse.getEvents?.("ERROR")?.length) {
-                        const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                        new NotificationQueue().push("Error deleting filter", msg, "error");
-                    } else {
-                        new NotificationQueue().push("Error deleting filter", "", "error");
-                    }
-                    console.error(restResponse);
-                });
+                        if (restResponse.getEvents?.("ERROR")?.length) {
+                            // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                            // new NotificationQueue().push("Error deleting filter", msg, "error");
+                            // LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                            //     title: "Error deleting filter",
+                            //     message: msg
+                            // });
+                            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+                        } else {
+                            // new NotificationQueue().push("Error deleting filter", "", "error");
+                            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                                message: "Error deleting filter",
+                            });
+                        }
+                        console.error(restResponse);
+                    });
             }
         });
     }
@@ -275,13 +283,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     $("#" + this._prefix + "filterName").val("");
                                     $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(restResponse => {
-                                console.error(restResponse);
-                                Swal.fire(
-                                    "Server Error!",
-                                    "Filter has not been correctly saved.",
-                                    "error"
-                                );
-                            });
+                                    console.error(restResponse);
+                                    Swal.fire(
+                                        "Server Error!",
+                                        "Filter has not been correctly saved.",
+                                        "error"
+                                    );
+                                });
                         }
                     });
 
@@ -317,22 +325,26 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             }
                             this.requestUpdate();
                         }).catch(restResponse => {
-                        console.error(restResponse);
-                        Swal.fire(
-                            "Server Error!",
-                            "Filter has not been correctly saved.",
-                            "error"
-                        );
-                    });
+                            console.error(restResponse);
+                            Swal.fire(
+                                "Server Error!",
+                                "Filter has not been correctly saved.",
+                                "error"
+                            );
+                        });
                 }
 
             })
             .catch(restResponse => {
                 if (restResponse.getEvents?.("ERROR")?.length) {
-                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                    new NotificationQueue().push("Error saving the filter", msg, "error");
+                    // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                    // new NotificationQueue().push("Error saving the filter", msg, "error");
+                    LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
                 } else {
-                    new NotificationQueue().push("Error saving the filter", "", "error");
+                    // new NotificationQueue().push("Error saving the filter", "", "error");
+                    LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                        message: "Error saving the filter"
+                    });
                 }
                 console.error(restResponse);
             })

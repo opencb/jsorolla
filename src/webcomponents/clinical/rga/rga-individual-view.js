@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./rga-individual-family.js";
 import "./../../commons/view/detail-tabs.js";
 
@@ -493,7 +494,8 @@ export default class RgaIndividualView extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -544,19 +546,27 @@ export default class RgaIndividualView extends LitElement {
 
     render() {
         if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select a set of Genes or Individuals</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> Please select a set of Genes or Individuals
+                </div>`;
         }
         return html`
-            <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}">
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}">
             </opencb-grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" data-cy="individual-view-grid">
                 <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
             </div>
             ${this.individual ? html`
-                <detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` : ""}
+                <detail-tabs
+                    .data="${this.individual}"
+                    .config="${this.detailConfig}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>` : ""}
         `;
     }
 

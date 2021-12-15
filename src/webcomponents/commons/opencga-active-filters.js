@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "./utils/lit-utils.js";
 
 export default class OpencgaActiveFilters extends LitElement {
 
@@ -431,10 +431,14 @@ export default class OpencgaActiveFilters extends LitElement {
             })
             .catch(restResponse => {
                 if (restResponse.getEvents?.("ERROR")?.length) {
-                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                    new NotificationQueue().push("Error saving the filter", msg, "error");
+                    // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                    // new NotificationQueue().push("Error saving the filter", msg, "error");
+                    LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
                 } else {
-                    new NotificationQueue().push("Error saving the filter", "", "error");
+                    // new NotificationQueue().push("Error saving the filter", "", "error");
+                    LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                        message: "Error saving the filter"
+                    });
                 }
                 console.error(restResponse);
             })
@@ -514,10 +518,14 @@ export default class OpencgaActiveFilters extends LitElement {
                         this.refreshFilters();
                     }).catch(restResponse => {
                         if (restResponse.getEvents?.("ERROR")?.length) {
-                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                            new NotificationQueue().push("Error deleting filter", msg, "error");
+                            // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                            // new NotificationQueue().push("Error deleting filter", msg, "error");
+                            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
                         } else {
-                            new NotificationQueue().push("Error deleting filter", "", "error");
+                            // new NotificationQueue().push("Error deleting filter", "", "error");
+                            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                                message: "Error deleting filter"
+                            });
                         }
                         console.error(restResponse);
                     });
