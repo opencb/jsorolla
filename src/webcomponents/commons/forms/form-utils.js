@@ -166,6 +166,10 @@ export default class FormUtils {
         return data;
     }
 
+    /**
+    * @deprecated since version 2.2
+    */
+    // ! Deprecated Don't Used This Code
     static notifyError(response) {
         if (response?.getEvents?.("ERROR")?.length) {
             // const errors = response.getEvents("ERROR");
