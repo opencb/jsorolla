@@ -118,11 +118,11 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     deletionsStats() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_INS_DEL_TYPE",
+            field: "EXT_INS_DEL_TYPE",
             sample: this.sampleId,
             // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
-            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
-            // ...this.query
+            ...this.query,
+            ...this.queries?.["INDEL"]
         };
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
@@ -160,10 +160,10 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     statsQuery() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_REARR",
+            field: "EXT_REARR",
             sample: this.sampleId,
-            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
-            // ...this.query
+            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
+            ...this.query
         };
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {

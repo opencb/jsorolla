@@ -17,8 +17,8 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {RestClient} from "../../core/clients/rest-client.js";
-import {NotificationQueue} from "../../core/NotificationQueue";
 import FormUtils from "../commons/forms/form-utils";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
 
 
@@ -170,43 +170,39 @@ export default class RestEndpoint extends LitElement {
     }
 
     onSubmit() {
-        try {
-            let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
-            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
+        let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
+        url += "sid=" + this.opencgaSession.opencgaClient._config.token;
 
-            // Replace PATH params
-            url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
-            this.endpoint.parameters
-                .filter(parameter => parameter.param === "path")
-                .forEach(parameter => {
-                    url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
-                });
+        // Replace PATH params
+        url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "path")
+            .forEach(parameter => {
+                url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+            });
 
-            // Add QUERY params
-            this.endpoint.parameters
-                .filter(parameter => parameter.param === "query" && this.data[parameter.name])
-                .forEach(parameter => {
-                    url += `&${parameter.name}=${this.data[parameter.name]}`;
-                });
+        // Add QUERY params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .forEach(parameter => {
+                url += `&${parameter.name}=${this.data[parameter.name]}`;
+            });
 
-            this.isLoading = true;
-            this.requestUpdate();
+        this.isLoading = true;
+        this.requestUpdate();
 
-            this.restClient.call(url, {})
-                .then(resp => {
-                    this.result = resp.responses[0];
-                })
-                .catch(error => {
-                    console.error(error);
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                    this.requestUpdate();
-                });
-        } catch (response) {
-            console.log(response);
-            UtilsNew.notifyError(response);
-        }
+        this.restClient.call(url, {})
+            .then(response => {
+                this.result = response.responses[0];
+            })
+            .catch(response => {
+                // console.error(response);
+                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+            })
+            .finally(() => {
+                this.isLoading = false;
+                this.requestUpdate();
+            });
     }
 
     render() {
