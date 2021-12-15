@@ -329,11 +329,15 @@ export default class IndividualGrid extends LitElement {
     }
 
     sexFormatter(value, row) {
-        let sexHtml = `<span>${row.sex}</span>`;
-        if (UtilsNew.isNotEmpty(row.karyotypicSex)) {
-            sexHtml += ` (${row.karyotypicSex})`;
+        let sexHtml = `<span>${row.sex?.id || row.sex}</span>`;
+        if (row.karyotypicSex) {
+            sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
         }
         return sexHtml;
+    }
+
+    ethnicityFormatter(value, row) {
+        return row.ethnicity?.id || row.population?.name || "-";
     }
 
     fatherFormatter(value, row) {
@@ -347,14 +351,6 @@ export default class IndividualGrid extends LitElement {
     motherFormatter(value, row) {
         if (row.mother?.id) {
             return row.mother.id;
-        } else {
-            return "-";
-        }
-    }
-
-    ethnicityFormatter(value) {
-        if (value) {
-            return value;
         } else {
             return "-";
         }
