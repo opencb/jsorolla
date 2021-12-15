@@ -23,8 +23,6 @@ import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 import UtilsNew from "../../core/utilsNew.js";
-import NotificationUtils from "../../webcomponents/NotificationUtils.js";
-import LitUtils from "../../webcomponents/commons/utils/lit-utils.js";
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/commons/tool-header.js";
@@ -126,11 +124,21 @@ class ApiApp extends LitElement {
 
         // Other initialisations
         this._isBreadcrumbVisible = false;
-        // This manages the sample selected in each tool for updating the breadcrumb
 
-        // this.samples = [];
-        // this._samplesPerTool = {};
+        // Notifications
+        this.notificationManager = new NotificationManager({});
 
+        // Global notification
+        this.addEventListener("notify", e => this.notificationManager.show(e.detail));
+
+        // Shortcuts for common notifications
+        this.addEventListener("notifyInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
+        this.addEventListener("notifySuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
+        this.addEventListener("notifyWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
+        this.addEventListener("notifyError", e => this.notificationManager.error(e.detail.title, e.detail.message));
+
+        // Notify a response
+        this.addEventListener("notifyResponse", e => this.notificationManager.showResponse(e.detail.value));
 
         // TODO remove browserSearchQuery
         // this.browserSearchQuery = {};
@@ -144,7 +152,8 @@ class ApiApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("signingInError", e => {
-            new NotificationQueue().push("Error", e.detail.value, "error", true, false);
+            // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
+            this.notificationManager.error("Signing in error", e.detail.value);
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
@@ -156,11 +165,8 @@ class ApiApp extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        new NotificationQueue().setContext(this);
 
         // Initialise clients and create the session
-        // this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
-        // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
         const sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
         const userId = Cookies.get(this.config.opencga.cookie.prefix + "_userId");
         this.opencgaClient = new OpenCGAClient({
@@ -173,7 +179,6 @@ class ApiApp extends LitElement {
             // serverVersion: this.config.opencga.serverVersion
         });
 
-        // this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
         this.cellbaseClient = new CellBaseClient({
             host: this.config.cellbase.host,
             version: this.config.cellbase.version,
@@ -258,17 +263,14 @@ class ApiApp extends LitElement {
                 // this forces the observer to be executed.
                 this.opencgaSession = {..._response};
                 this.opencgaSession.mode = this.config.mode;
-                // this.config.menu = [...application.menu];
                 this.config = {...this.config};
             })
             .catch(e => {
-                // console.error(e);
-                // UtilsNew.notifyError(e);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                console.error(e);
+                this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
                 this.signingIn = false;
                 this.requestUpdate();
-                // this.updateComplete;
             });
     }
 
@@ -380,7 +382,7 @@ class ApiApp extends LitElement {
     }
 
     checkSessionActive() {
-        let _message = "";
+        const _message = "";
         // We check if refresh token has updated session id cookie
         // let sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
 
@@ -393,40 +395,66 @@ class ApiApp extends LitElement {
             if (remainingTime <= this.config.session.maxRemainingTime && remainingTime >= this.config.session.minRemainingTime) {
                 const remainingMinutes = Math.floor(remainingTime / this.config.session.minRemainingTime);
 
-                // _message = html`Your session is close to expire. <strong>${remainingMinutes}
-                // minutes remaining</strong> <a href="javascript:void 0" @click="${() => this.notifySession.refreshToken()}"> Click here to refresh </a>`
-                new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
+                // Handle session refresh
+                const handleSessionRefresh = () => {
+                    this.opencgaClient.refresh().then(response => {
+                        const sessionId = response.getResult(0).token;
+                        const decoded = jwt_decode(sessionId);
+                        const dateExpired = new Date(decoded.exp * 1000);
+                        const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
+                        // Display confirmation message
+                        this.notificationManager.success(null, `Your session is now valid until ${validTimeSessionId}.`);
+                    });
+                };
+
+                // Display expiration notification
+                this.notificationManager.show({
+                    type: "warning",
+                    display: {
+                        showIcon: true,
+                        showCloseButton: true,
+                    },
+                    title: "Your session is close to expire",
+                    message: `
+                        In <b>${remainingMinutes} minutes</b> your session will be automatically closed.
+                        To keep working, please click on <b>Refresh Session</b> button.
+                    `,
+                    removeAfter: 20000,
+                    buttons: [
+                        {
+                            text: "Refresh session",
+                            onClick: () => handleSessionRefresh(),
+                            removeOnClick: true,
+                        }
+                    ]
+                });
             } else {
-                // TODO remove NotificationUtils
                 if (remainingTime < this.config.session.minRemainingTime) {
-                    _message = "Your session has expired.";
                     this.logout();
                     window.clearInterval(this.intervalCheckSession);
-                } else {
-                    if (UtilsNew.isNotUndefinedOrNull(this.notifySession)) {
-                        NotificationUtils.closeNotify(this.notifySession);
-                    }
-                    return;
+                    // Display notification message
+                    this.notificationManager.info(null, "Your session has expired");
                 }
             }
-        } else {
-            // _message = "Your session has expired.";
-            // window.clearInterval(this.intervalCheckSession);
         }
+        // else {
+        //     // _message = "Your session has expired.";
+        //     // window.clearInterval(this.intervalCheckSession);
+        // }
         // delay = 0 to fix the notify until user closes it.
-        if (UtilsNew.isNotEmpty(_message)) {
-            this.notifySession = NotificationUtils.showNotify(_message, UtilsNew.MESSAGE_INFO,
-                {}, {
-                    delay: 0,
-                    onClosed: this.onCloseRefreshNotify.bind(this)
-                }, this.opencgaClient, this.notifySession);
-        }
+        // if (UtilsNew.isNotEmpty(_message)) {
+        //     this.notifySession = NotificationUtils.showNotify(_message, UtilsNew.MESSAGE_INFO,
+        //         {}, {
+        //             delay: 0,
+        //             onClosed: this.onCloseRefreshNotify.bind(this)
+        //         }, this.opencgaClient, this.notifySession);
+        // }
     }
 
-    onCloseRefreshNotify() {
-        delete this.notifySession;
-    }
+    // onCloseRefreshNotify() {
+    //     delete this.notifySession;
+    // }
 
     changeTool(e) {
         e.preventDefault();
@@ -438,7 +466,6 @@ class ApiApp extends LitElement {
         }
 
         if (UtilsNew.isNotUndefined(e)) {
-            // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
             e.preventDefault();
         }
 
@@ -447,7 +474,6 @@ class ApiApp extends LitElement {
         } else {
             this.tool = "#home";
         }
-
         this.renderHashFragments();
     }
 
@@ -582,10 +608,6 @@ class ApiApp extends LitElement {
         }
     }
 
-    // TODO remove
-    onNotifyMessage(e) {
-        new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
-    }
 
     onChangeApp(e, toggle) {
         // If an App ID exists we display the corresponding app. If not we just show the Suite
@@ -757,10 +779,6 @@ class ApiApp extends LitElement {
                 .host=${this.host}
                 .config=${this.config}>
             </custom-footer>
-
-            <notification-element
-                .queue="${new NotificationQueue().get()}">
-            </notification-element>
         `;
     }
 

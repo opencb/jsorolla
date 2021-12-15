@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {NotificationQueue} from "../../../core/NotificationQueue";
+import LitUtils from "../utils/lit-utils";
 
 export default class FormUtils {
 
@@ -168,14 +168,20 @@ export default class FormUtils {
 
     static notifyError(response) {
         if (response?.getEvents?.("ERROR")?.length) {
-            const errors = response.getEvents("ERROR");
-            errors.forEach(error => {
-                new NotificationQueue().push(error.name, error.message, "ERROR");
-            });
+            // const errors = response.getEvents("ERROR");
+            // errors.forEach(error => {
+            //     new NotificationQueue().push(error.name, error.message, "ERROR");
+            // });
+            LitUtils.dispatchEventCustom(this, "notifyError", response);
         } else if (response instanceof Error) {
-            new NotificationQueue().push(response.name, response.message, "ERROR");
+            // new NotificationQueue().push(response.name, response.message, "ERROR");
+            LitUtils.dispatchEventCustom(this, "notifyError", response);
         } else {
-            new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
+            // new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
+            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                title: "Generic Error",
+                message: JSON.stringify(response)
+            });
         }
     }
 

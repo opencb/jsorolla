@@ -181,8 +181,10 @@ export default class StudyAdminUsers extends LitElement {
             const resp = await this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, group, data, params);
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
-            NotificationUtils.showNotify(messageAlert, "SUCCESS");
-
+            // NotificationUtils.showNotify(messageAlert, "SUCCESS");
+            LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                message: messageAlert
+            });
             // this.notifyStudyUpdateRequest();
             LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
@@ -496,7 +498,10 @@ export default class StudyAdminUsers extends LitElement {
             `Group deleted correctly: ${message.success.join()}` :
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
         // this.showMessage("Message", messageAlert, "info");
-        NotificationUtils.showNotify(messageAlert, "INFO");
+        // NotificationUtils.showNotify(messageAlert, "INFO");
+        LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+            message: messageAlert
+        });
 
         // this.notifyStudyUpdateRequest();
         LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
