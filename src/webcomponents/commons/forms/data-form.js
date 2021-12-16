@@ -367,21 +367,21 @@ export default class DataForm extends LitElement {
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
         return html`
-            <div style="margin-bottom:16px;">
-                ${section.title ? html`
-                    <div style="margin-bottom:8px;">
-                        ${this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle)}
-                    </div>
-                ` : null}
-                ${description ? html`
-                    <div style="margin-bottom:8px">
-                        <div class="${descriptionClassName}" style="${descriptionStyle}">
-                            <span>${description}</span>
+            <div class="row" style="margin-bottom:16px;">
+                <div class="${sectionWidth}">
+                    ${section.title ? html`
+                        <div style="margin-bottom:8px;">
+                            ${this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle)}
                         </div>
-                    </div>
-                ` : null}
-                <div class="row">
-                    <div class="${sectionWidth} ${sectionClassName}" style="${sectionStyle}">
+                    ` : null}
+                    ${description ? html`
+                        <div style="margin-bottom:8px">
+                            <div class="${descriptionClassName}" style="${descriptionStyle}">
+                                <span>${description}</span>
+                            </div>
+                        </div>
+                    ` : null}
+                    <div class="${sectionClassName}" style="${sectionStyle}">
                         ${section.elements.map(element => this._createElement(element, section))}
                     </div>
                 </div>
@@ -932,6 +932,7 @@ export default class DataForm extends LitElement {
         let array = this.getValue(element.field);
         const errorMessage = this._getErrorMessage(element);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
+        const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
 
         // Check values
         if (!array) {
@@ -965,7 +966,7 @@ export default class DataForm extends LitElement {
 
         return html`
             <table class="table" style="display: inline">
-                ${!element.display?.hideHeader ? html`
+                ${headerVisible ? html`
                     <thead>
                         <tr>
                             ${element.display.columns.map(elem => html`
@@ -1262,7 +1263,7 @@ export default class DataForm extends LitElement {
 
         // Check for modal type
         if (type === "modal") {
-            const modalBtnClassName = this.config.display?.modalButtonClass ?? this.config.display?.mode?.buttonClass ?? "";
+            const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
             const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
             const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
             const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled ?? this.config.display?.mode?.disabled, false);
