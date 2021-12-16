@@ -773,7 +773,7 @@ export default class DataForm extends LitElement {
             } else {
                 if (typeof element.allowedValues === "string") {
                     const values = this.getValue(element.allowedValues);
-                    if (values && element.display.apply) {
+                    if (values && element.display?.apply) {
                         for (const value of values) {
                             allowedValues.push(element.display.apply(value));
                         }
@@ -883,13 +883,13 @@ export default class DataForm extends LitElement {
 
         // Apply the template to all Array elements and store them in 'values'
         let values = [];
-        if (element.display.render) {
+        if (element.display?.render) {
             for (const object of array) {
                 const value = element.display.render(object);
                 values.push(value);
             }
         } else {
-            if (element.display.template) {
+            if (element.display?.template) {
                 const matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
                 for (const object of array) {
                     const value = this.applyTemplate(element.display.template, object, matches, this._getDefaultValue(element));
@@ -965,11 +965,11 @@ export default class DataForm extends LitElement {
 
         return html`
             <table class="table" style="display: inline">
-                ${!element.display.hideHeader ? html`
+                ${!element.display?.hideHeader ? html`
                     <thead>
                         <tr>
                             ${element.display.columns.map(elem => html`
-                                <th scope="col">${elem.name}</th>
+                                <th scope="col">${elem.title || elem.name}</th>
                             `)}
                         </tr>
                     </thead>
