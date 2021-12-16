@@ -367,15 +367,23 @@ export default class DataForm extends LitElement {
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
         return html`
-            <div class="row" style="">
-                ${section.title ? this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle) : null}
-                ${description ? html`
-                    <div class="${descriptionClassName}" style="${descriptionStyle}">
-                        <span>${description}</span>
+            <div style="margin-bottom:16px;">
+                ${section.title ? html`
+                    <div style="margin-bottom:8px;">
+                        ${this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle)}
                     </div>
                 ` : null}
-                <div class="${sectionWidth} ${sectionClassName}" style="${sectionStyle}">
-                    ${section.elements.map(element => this._createElement(element, section))}
+                ${description ? html`
+                    <div style="margin-bottom:8px">
+                        <div class="${descriptionClassName}" style="${descriptionStyle}">
+                            <span>${description}</span>
+                        </div>
+                    </div>
+                ` : null}
+                <div class="row">
+                    <div class="${sectionWidth} ${sectionClassName}" style="${sectionStyle}">
+                        ${section.elements.map(element => this._createElement(element, section))}
+                    </div>
                 </div>
             </div>
         `;
@@ -482,11 +490,13 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="form-group">
+                <div class="row form-group">
                     ${title && titleVisible ? html`
-                        <label class="control-label col-md-${titleWidth} ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
-                            ${title} ${titleRequiredMark}
-                        </label>
+                        <div class="col-md-${titleWidth}">
+                            <label class="control-label ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                                ${title} ${titleRequiredMark}
+                            </label>
+                        </div>
                     ` : null}
                     <div class="col-md-${(width - titleWidth)}">
                         <div>${content}</div>
@@ -500,7 +510,7 @@ export default class DataForm extends LitElement {
             `;
         } else {
             return html`
-                <div class="form-group">
+                <div class="row form-group">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
                             <label class="control-label ${titleClassName}" style="${titleStyle}">
@@ -1190,7 +1200,7 @@ export default class DataForm extends LitElement {
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
-                <div class="col-md-12" style="padding: 10px 20px">
+                <div class="col-md-12" style="padding-top:16px;">
                     <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onClear}">
                         ${this.config?.buttons?.cancelText || "Cancel"}
                     </button>
