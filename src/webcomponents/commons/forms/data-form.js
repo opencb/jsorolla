@@ -303,6 +303,7 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // Render without layout
         return html`
             <div class="${layoutClassName} ${className}" style="${style}">
                 ${this.config.sections.map(section => this._createSection(section))}
@@ -316,27 +317,31 @@ export default class DataForm extends LitElement {
             return;
         }
 
-        // Get some default values
-        const titleHeader = section?.display?.titleHeader ?? "h3";
-        const sectionTitleClass = section?.display?.titleClass ?? "";
-        const sectionTitleStyle = section?.display?.titleStyle ?? "";
-        const sectionClasses = section?.display?.classes ?? "";
+        // Section values
+        const sectionClassName = section?.display?.className ?? section?.display?.classes ?? "";
         const sectionStyle = section?.display?.style ?? "";
-
-        // const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "col-md-12";
         const sectionWidth = "col-md-" + this._getSectionWidth(section);
+
+        // Section title values
+        const titleHeader = section?.display?.titleHeader ?? "h3";
+        const titleClassName = section?.display?.titleClassName ?? section?.display?.titleClasses ?? "";
+        const titleStyle = section?.display?.titleStyle ?? "";
+
+        // Section description values
+        const description = section.description ?? section.text ?? null;
+        const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";
+        const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
+
         return html`
             <div class="row" style="">
-                ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
-                ${section.text ? html`
-                    <div class="${section.display?.textClass || ""}" style="${section.display?.textStyle || ""}">
-                        <span>${section.text}</span>
+                ${section.title ? this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle) : null}
+                ${description ? html`
+                    <div class="${descriptionClassName}" style="${descriptionStyle}">
+                        <span>${description}</span>
                     </div>
                 ` : null}
-                <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">
-                    <div class="">
-                        ${section.elements.map(element => this._createElement(element, section))}
-                    </div>
+                <div class="${sectionWidth} ${sectionClassName}" style="${sectionStyle}">
+                    ${section.elements.map(element => this._createElement(element, section))}
                 </div>
             </div>
         `;
