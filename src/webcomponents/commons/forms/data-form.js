@@ -184,6 +184,11 @@ export default class DataForm extends LitElement {
         return section?.display?.width ?? this.config?.display?.width ?? 12;
     }
 
+    _getElementTitleWidth(element, section) {
+        return element?.display?.titleWidth ?? section?.display?.titleWidth ?? this.config?.display?.titleWidth ?? null;
+    }
+
+    // DEPRECATED: use _getElementTitleWidth instead
     _getLabelWidth(element, section) {
         return element?.display?.labelWidth ?? section?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 3;
     }
@@ -205,12 +210,24 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _getHelpMessage(element) {
+        return element.display?.helpMessage ?? element.display?.help?.text ?? null;
+    }
+
+    _getHelpMode(element) {
+        return element.display?.helpMode ?? element.display?.help?.mode ?? "";
+    }
+
     _getHelpIcon(element, section) {
         return element?.display?.helpIcon ?? section?.display?.helpIcon ?? this.config?.display?.helpIcon ?? "fas fa-info-circle";
     }
 
     _getErrorIcon(element, section) {
         return element?.display?.errorIcon ?? section?.display?.errorIcon ?? this.config?.display?.errorIcon ?? "fas fa-times-circle";
+    }
+
+    _getDefaultLayout(element, section) {
+        return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
     }
 
     _isUpdated(element) {
@@ -353,36 +370,22 @@ export default class DataForm extends LitElement {
             return;
         }
 
-        const elementLabelClasses = element?.display?.labelClasses ?? section?.display?.elementLabelClasses ?? "";
-        const elementLabelStyle = element?.display?.labelStyle ?? section?.display?.elementLabelStyle ?? "";
-
         // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
         if (element.type === "separator") {
-            return html`
-                <div>
-                    <hr style="${element?.display?.style}">
-                </div>
-            `;
+            return html`<hr style="${element.display?.style || ""}" />`;
         }
 
-        // Templates are allowed in the names
-        let title = element.name;
-        if (title?.includes("${")) {
-            title = this.applyTemplate(element.name);
-        }
-
+        // To store element content
         let content = "";
+
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
-            content = html`
-                ${this.getValue(element.field, this.data, this._getDefaultValue(element), element.display ?
-                    element.display :
-                    // 'format' is the old way, to be removed
-                    element.display?.format
-                )}`;
+            const format = element.display?.format ?? element.display; // 'format' is the old way, to be removed
+            content = html`${this.getValue(element.field, this.data, this._getDefaultValue(element), format)}`;
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
+                case "text":
                 case "title":
                     content = this._createTitleElement(element);
                     break;
@@ -437,83 +440,60 @@ export default class DataForm extends LitElement {
             }
         }
 
-        const layout = element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
-        const showLabel = element?.showLabel ?? true;
-        const labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
-        const labelAlign = this.config?.display?.labelAlign || "left";
-        const labelRequiredMark = element.required ? html`<b class="text-danger" style="margin-left:8px;">*</b>` : "";
+        // Initialize element values
+        const layout = this._getDefaultLayout(element, section);
         const width = this._getWidth(element) || 12;
 
-        // When form we return a form-group
-        if (this.config.type === "form") {
-            if (layout === "horizontal") {
-                return html`
-                    <div class="form-group">
+        // Initialize title values
+        let title = element.title ?? element.name; // element.name is deprecated --> use element.title
+        const titleClassName = element.display?.titleClassName ?? element.display?.labelClasses ?? "";
+        const titleStyle = element.display?.titleStyle ?? element.display?.labelStyle ?? "";
+        const titleVisible = element.display?.titleVisible ?? element.showLabel ?? true;
+        const titleWidth = titleVisible ? this._getElementTitleWidth(element, section) ?? this._getLabelWidth(element, section) : 0;
+        const titleAlign = element.display?.titleAlign ?? element.display?.labelAlign ?? "left";
+        const titleRequiredMark = element.required ? html`<b class="text-danger" style="margin-left:8px;">*</b>` : "";
+
+        // Help message
+        const helpMessage = this._getHelpMessage(element);
+        const helpMode = this._getHelpMode(element);
+
+        // Templates are allowed in the names
+        if (title?.includes("${")) {
+            title = this.applyTemplate(title);
+        }
+
+        // Check for horizontal layout
+        if (layout === "horizontal") {
+            return html`
+                <div class="form-group">
+                    ${title ? html`
+                        <label class="control-label col-md-${titleWidth} ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                            ${title} ${titleRequiredMark}
+                        </label>
+                    ` : null}
+                    <div class="col-md-${(width - titleWidth)}">
+                        <div>${content}</div>
+                        ${helpMessage && helpMode === "block" ? html`
+                            <div class="col-md-1" style="padding:0%; margin-top:8px" title="${helpMessage}">
+                                <span><i class="${this._getHelpIcon(element, section)}"></i></span>
+                            </div>
+                        ` : null}
+                    </div>
+                </div>
+            `;
+        } else {
+            return html`
+                <div class="form-group">
+                    <div class="col-md-${width}">
                         ${title ? html`
-                            <label class="control-label col-md-${labelWidth} ${elementLabelClasses}" style="text-align:${labelAlign};${elementLabelStyle}">
-                                ${title} ${labelRequiredMark}
+                            <label class="control-label ${titleClassName}" style="${titleStyle}">
+                                ${title} ${titleRequiredMark}
                             </label>
                         ` : null}
-                        <div class="col-md-${width - labelWidth}">
-                            <div class="">
-                                ${content}
-                            </div>
-                            ${element.display?.help?.message && element.display?.help?.mode !== "block" ? html`
-                                <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.message}">
-                                    <span><i class="${this._getHelpIcon(element, section)}"></i></span>
-                                </div>
-                            ` : null}
-                        </div>
+                        <div>${content}</div>
                     </div>
-                `;
-            } else {
-                const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : `col-md-${this.config?.display?.width ?? 12}`;
-                return html`
-                    <div class="form-group">
-                        <div class="${sectionWidth}" style="margin: 5px 0px">
-                            ${title ? html`
-                                <label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">
-                                    ${title} ${labelRequiredMark}
-                                </label>
-                            ` : null}
-                            ${content ? html`
-                                <div>${content}</div>
-                            ` : null}
-                        </div>
-                    </div>
-                `;
-            }
-        } else {
-            // Views can be horizontal or horizontal
-            if (layout === "horizontal") {
-                // Label 'width' and 'align' are configured by 'labelWidth' and 'labelAlign', defaults are '2' and 'left' respectively
-                return html`
-                    <div class="row detail-row">
-                        ${showLabel ? html`
-                            <div class="col-md-${labelWidth} text-${labelAlign}">
-                                <label>${title}</label>
-                            </div>
-                        ` : null}
-                        <div class="col-md-${width - labelWidth}">
-                            ${content}
-                        </div>
-                    </div>
-                `;
-            } else {
-                const sectionWidth = element?.display?.width ? element.display.width : "12";
-                return html`
-                    <div class="row detail-row">
-                        ${showLabel ? html`
-                            <div class="col-md-12">
-                                <label>${title}</label>
-                            </div>
-                        ` : null}
-                        <div class="col-md-${sectionWidth}">
-                            ${content}
-                        </div>
-                    </div>
-                `;
-            }
+                </div>
+            `;
         }
     }
 
