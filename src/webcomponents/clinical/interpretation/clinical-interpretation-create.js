@@ -169,7 +169,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             id: "clinical-interpretation",
             title: "Create Interpretation",
             icon: "fas fa-file-medical",
-            type: "form",
+            type: this.mode,
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
             links: [
@@ -180,19 +180,13 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 }
             ],
             buttons: {
-                show: true,
                 clearText: "Clear",
-                submitText: "Create",
+                okText: "Create Interpretation",
             },
             display: {
-                mode: {
-                    type: this.mode,
-                },
-                width: "10",
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "4",
+                width: 10,
+                titleVisible: false,
+                titleWidth: 4,
                 defaultLayout: "horizontal"
             },
             sections: [
@@ -200,24 +194,24 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            name: "Interpretation ID",
+                            title: "Interpretation ID",
                             field: "id",
                             type: "input-text",
                             defaultValue: this.clinicalAnalysis.id,
                             display: {
                                 disabled: true
-                            }
+                            },
                         },
                         {
-                            name: "Assigned To",
+                            title: "Assigned To",
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
                             allowedValues: () => this._users,
-                            display: {}
+                            display: {},
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "status",
                             type: "custom",
                             display: {
@@ -235,7 +229,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Disease Panels",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
@@ -253,7 +247,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             defaultValue: "",
@@ -263,7 +257,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Comment",
+                            title: "Comment",
                             field: "_comments",
                             type: "input-text",
                             defaultValue: "",

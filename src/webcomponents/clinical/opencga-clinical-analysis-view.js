@@ -98,6 +98,15 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         }
     }
 
+    render() {
+        return html`
+            <data-form
+                .data=${this.clinicalAnalysis}
+                .config="${this._config}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
@@ -106,35 +115,32 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             // hiddenFields: [],
             display: {
                 collapsable: true,
-                showTitle: false,
-                // labelWidth: 3,
+                titleVisible: false,
                 defaultValue: "-",
                 defaultLayout: "horizontal",
-                buttons: {
-                    show: false
-                },
+                buttonsVisible: false,
                 layout: [
                     {
                         id: "",
-                        classes: "row",
+                        className: "row",
                         sections: [
                             {
                                 id: "detail",
-                                classes: "col-md-6"
+                                className: "col-md-6"
                             },
                             {
                                 id: "proband",
-                                classes: "col-md-6"
+                                className: "col-md-6"
                             }
                         ]
                     },
                     {
                         id: "family",
-                        classes: ""
+                        className: ""
                     },
                     {
                         id: "files",
-                        classes: ""
+                        className: ""
                     }
 
                 ]
@@ -145,66 +151,62 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     title: "Details",
                     display: {
                         collapsed: false,
-                        labelWidth: 3
+                        titleWidth: 3
                     },
                     elements: [
                         {
-                            name: "Case ID",
+                            title: "Case ID",
                             field: "id",
-                            display: {
-                            }
                         },
                         {
-                            name: "Proband",
+                            title: "Proband",
                             field: "proband.id",
-                            display: {
-                            }
                         },
                         {
-                            name: "Disorder",
+                            title: "Disorder",
                             field: "disorder",
                             id: "type",
                             type: "custom",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
-                            }
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                            },
                         },
                         {
-                            name: "Analysis Type",
+                            title: "Analysis Type",
                             field: "type",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("type")
-                            }
+                                visible: !this._config?.hiddenFields?.includes("type"),
+                            },
                         },
                         {
-                            name: "Flags",
+                            title: "Flags",
                             field: "flags",
                             type: "list",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("flags"),
                                 contentLayout: "horizontal",
-                                render: field => {
-                                    return html`<span class="badge badge-secondary">${field}</span>`;
-                                }
+                                render: field => html`
+                                    <span class="badge badge-secondary">${field?.id}</span>
+                                `,
                             }
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "status.name",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("status.name") && !!this.opencgaSession?.study?.configuration?.clinical?.status
-                            }
+                                visible: !this._config?.hiddenFields?.includes("status.name") && !!this.opencgaSession?.study?.configuration?.clinical?.status,
+                            },
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("description"),
-                                errorMessage: "-"
-                            }
+                                errorMessage: "-",
+                            },
                         },
                         {
-                            name: "Priority",
+                            title: "Priority",
                             field: "priority",
                             type: "custom",
                             display: {
@@ -214,33 +216,33 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                     return html`<span class="label ${priorityRankToColor[priority.rank]}">
                                         ${priority.id}
                                     </span>`;
-                                }
-                            }
+                                },
+                            },
                         },
                         {
-                            name: "Assigned To",
+                            title: "Assigned To",
                             field: "analyst.assignee",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee")
-                            }
+                                visible: !this._config?.hiddenFields?.includes("analyst.assignee"),
+                            },
                         },
                         {
-                            name: "Creation date",
+                            title: "Creation date",
                             field: "creationDate",
                             type: "custom",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("creationDate"),
-                                render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
-                            }
+                                render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`,
+                            },
                         },
                         {
-                            name: "Due date",
+                            title: "Due date",
                             field: "dueDate",
                             type: "custom",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("dueDate"),
-                                render: dueDate => html`${moment(dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
-                            }
+                                render: dueDate => html`${moment(dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`,
+                            },
                         }
                     ]
                 },
@@ -248,29 +250,29 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     id: "proband",
                     title: "Proband",
                     display: {
-                        labelWidth: 3
+                        titleWidth: 3
                     },
                     elements: [
                         {
-                            name: "Proband",
+                            title: "Proband",
                             field: "proband.id"
                         },
                         {
-                            name: "Sex (Karyotypic)",
+                            title: "Sex (Karyotypic)",
                             type: "complex",
                             display: {
-                                template: "${proband.sex} (${proband.karyotypicSex})"
-                            }
+                                template: "${proband.sex.id} (${proband.karyotypicSex})"
+                            },
                         },
                         {
-                            name: "Date of Birth",
+                            title: "Date of Birth",
                             type: "complex",
                             display: {
-                                template: "${proband.dateOfBirth} (${proband.lifeStatus})"
-                            }
+                                template: "${proband.dateOfBirth} (${proband.lifeStatus})",
+                            },
                         },
                         {
-                            name: "Disorders",
+                            title: "Disorders",
                             field: "proband.disorders",
                             type: "list",
                             display: {
@@ -282,11 +284,11 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                     }
                                     return html`${disorder.name} (${id})`;
                                 },
-                                defaultValue: "N/A"
-                            }
+                                defaultValue: "N/A",
+                            },
                         },
                         {
-                            name: "Phenotypes",
+                            title: "Phenotypes",
                             field: "proband.phenotypes",
                             type: "custom",
                             display: {
@@ -299,33 +301,40 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         );
                                     }
                                 },
-                                defaultValue: "N/A"
-                            }
+                                defaultValue: "N/A",
+                            },
                         },
                         {
-                            name: "Samples",
+                            title: "Samples",
                             field: "proband.samples",
                             type: "table",
                             display: {
                                 defaultLayout: "vertical",
                                 columns: [
                                     {
-                                        name: "ID", field: "id"
+                                        title: "ID",
+                                        field: "id",
                                     },
                                     {
-                                        name: "Files", field: "fileIds"
+                                        title: "Files",
+                                        field: "fileIds",
                                     },
                                     {
-                                        name: "Collection Method", field: "collection.method", defaultValue: "-"
+                                        title: "Collection Method",
+                                        field: "collection.method",
+                                        defaultValue: "-",
                                     },
                                     {
-                                        name: "Preparation Method", field: "processing.preparationMethod", defaultValue: "-"
+                                        title: "Preparation Method",
+                                        field: "processing.preparationMethod",
+                                        defaultValue: "-",
                                     },
                                     {
-                                        name: "Somatic", field: "somatic"
+                                        title: "Somatic",
+                                        field: "somatic",
                                     },
                                     {
-                                        name: "Creation Date",
+                                        title: "Creation Date",
                                         field: "creationDate",
                                         type: "custom", // this is not needed. feels right though
                                         display: {
@@ -333,31 +342,33 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         }
                                     },
                                     {
-                                        name: "Status", field: "status.name", defaultValue: "-"
-                                    }
+                                        title: "Status",
+                                        field: "status.name",
+                                        defaultValue: "-",
+                                    },
                                 ],
-                                defaultValue: "No sample found"
-                            }
-                        }
+                                defaultValue: "No sample found",
+                            },
+                        },
                     ]
                 },
                 {
                     id: "family",
                     title: "Family",
                     display: {
-                        visible: data => data.type === "FAMILY"
+                        visible: data => data.type === "FAMILY",
                     },
                     elements: [
                         {
-                            name: "Family ID",
+                            title: "Family ID",
                             field: "family.id"
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "family.name"
                         },
                         {
-                            name: "Members",
+                            title: "Members",
                             field: "family",
                             type: "custom",
                             display: {
@@ -381,23 +392,25 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         `;
                                     }
                                 },
-                                errorMessage: "No family selected"
-                            }
+                                errorMessage: "No family selected",
+                            },
                         },
                         // {
-                        //     name: "Members JSON",
+                        //     title: "Members JSON",
                         //     field: "family.members",
                         //     type: "json"
                         // },
                         {
-                            name: "Pedigree",
+                            title: "Pedigree",
                             type: "custom",
                             display: {
                                 // TODO at the moment pedigree doesn't work with families with over 2 generations
                                 visible: !this._config?.hiddenFields?.includes("pedigree"),
                                 layout: "vertical",
-                                render: clinicalAnalysis => html`<pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>`
-                            }
+                                render: clinicalAnalysis => html`
+                                    <pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>
+                                `,
+                            },
                         }
                     ]
                 },
@@ -406,27 +419,18 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     title: "Files",
                     elements: [
                         {
-                            name: "File",
+                            title: "File",
                             field: "files",
                             type: "list",
                             display: {
                                 contentLayout: "bullets",
-                                template: "${name}"
-                            }
+                                template: "${name}",
+                            },
                         }
                     ]
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.clinicalAnalysis}
-                .config="${this._config}">
-            </data-form>
-        `;
     }
 
 }

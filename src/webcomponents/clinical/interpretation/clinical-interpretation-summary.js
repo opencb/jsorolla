@@ -81,22 +81,19 @@ export default class ClinicalInterpretationSummary extends LitElement {
             id: "clinical-analysis",
             title: "Case Interpretation Summary",
             icon: "fas fa-user-md",
-            type: "form",
             display: {
-                // width: "10",
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "3",
+                titleVisible: false,
+                titleWidth: 3,
                 defaultLayout: "horizontal",
+                style: "background-color:#f3f3f3;border-left: 4px solid #0c2f4c;padding:16px",
+                buttonsVisible: false,
             },
             sections: [
                 {
                     id: "summary",
                     // title: "Summary",
                     display: {
-                        style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; padding: 5px",
-                        elementLabelStyle: "padding-top: 0px; padding-left: 20px", // form add control-label which has an annoying top padding
+                        // style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; padding: 5px",
                     },
                     elements: [
                         {
@@ -119,24 +116,23 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                                 <i class="far fa-calendar-alt icon-padding"></i>${UtilsNew.dateFormatter(interpretation?.creationDate)}
                                             </span>
                                         </div>
-                                    </div>`
+                                    </div>
+                                `,
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "basic",
                             defaultValue: "No description available",
-                            display: {}
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "status.id",
                             type: "basic",
-                            display: {}
                         },
                         {
-                            name: "Disease Panel(s)",
+                            title: "Disease Panel(s)",
                             field: "panels",
                             type: "custom",
                             display: {
@@ -162,7 +158,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             }
                         },
                         {
-                            name: "Primary Findings",
+                            title: "Primary Findings",
                             // field: "stats",
                             type: "custom",
                             display: {

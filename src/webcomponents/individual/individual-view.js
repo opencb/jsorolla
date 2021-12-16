@@ -112,26 +112,40 @@ export default class IndividualView extends LitElement {
         }));
     }
 
+    render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        return html`
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
             icon: "",
             display: {
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
+                titleVisible: false,
+                titleWidth: 2,
                 defaultValue: "-",
-                defaultLayout: "horizontal"
+                defaultLayout: "horizontal",
+                buttonsVisible: false
             },
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: individual => !individual?.id
+                        visible: individual => !individual?.id,
                     },
                     elements: [
                         {
-                            name: "Individual ID",
+                            title: "Individual ID",
                             field: "individualId",
                             type: "custom",
                             display: {
@@ -145,7 +159,8 @@ export default class IndividualView extends LitElement {
                                             }
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </individual-id-autocomplete>`
+                                    </individual-id-autocomplete>
+                                `,
                             }
                         }
                     ]
@@ -154,39 +169,41 @@ export default class IndividualView extends LitElement {
                     title: "General",
                     collapsed: false,
                     display: {
-                        visible: individual => individual?.id
+                        visible: individual => individual?.id,
                     },
                     elements: [
                         {
-                            name: "Sample ID",
+                            title: "Sample ID",
                             type: "custom",
                             display: {
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
-                            }
+                                render: data => html`
+                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})    
+                                `,
+                            },
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name"
                         },
                         {
-                            name: "Father ID",
+                            title: "Father ID",
                             field: "father.id",
                             type: "basic"
                         },
                         {
-                            name: "Mother ID",
+                            title: "Mother ID",
                             field: "mother.id",
                             type: "basic"
                         },
                         {
-                            name: "Reported Sex (Karyotypic)",
+                            title: "Reported Sex (Karyotypic)",
                             type: "complex",
                             display: {
-                                template: "${sex} (${karyotypicSex})",
+                                template: "${sex.id} (${karyotypicSex})",
                             }
                         },
                         {
-                            name: "Inferred Karyotypic Sex",
+                            title: "Inferred Karyotypic Sex",
                             type: "custom",
                             display: {
                                 render: data => {
@@ -199,7 +216,7 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
-                            name: "Disorders",
+                            title: "Disorders",
                             field: "disorders",
                             type: "list",
                             display: {
@@ -215,7 +232,7 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
-                            name: "Phenotypes",
+                            title: "Phenotypes",
                             field: "phenotypes",
                             type: "list",
                             display: {
@@ -231,15 +248,15 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
-                            name: "Life Status",
+                            title: "Life Status",
                             field: "lifeStatus"
                         },
                         {
-                            name: "Version",
+                            title: "Version",
                             field: "version"
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "internal.status",
                             type: "custom",
                             display: {
@@ -247,7 +264,7 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "custom",
                             display: {
@@ -255,7 +272,7 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
-                            name: "Modification Date",
+                            title: "Modification Date",
                             field: "modificationDate",
                             type: "custom",
                             display: {
@@ -263,7 +280,7 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description"
                         }
                     ]
@@ -271,29 +288,32 @@ export default class IndividualView extends LitElement {
                 {
                     title: "Samples",
                     display: {
-                        visible: individual => individual?.id
+                        visible: individual => individual?.id,
                     },
                     elements: [
                         {
-                            name: "List of samples",
+                            title: "List of samples",
                             field: "samples",
                             type: "table",
                             display: {
                                 columns: [
                                     {
-                                        name: "Samples ID", field: "id"
+                                        title: "Samples ID",
+                                        field: "id",
                                     },
                                     {
-                                        name: "Somatic", field: "somatic", defaultValue: "false"
+                                        title: "Somatic",
+                                        field: "somatic",
+                                        defaultValue: "false",
                                     },
                                     {
-                                        name: "Phenotypes",
+                                        title: "Phenotypes",
                                         field: "phenotypes",
                                         type: "custom",
                                         defaultValue: "-",
                                         display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
-                                        }
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
+                                        },
                                     }
                                 ],
                                 defaultValue: "No phenotypes found"
@@ -303,21 +323,6 @@ export default class IndividualView extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        return html`
-            <data-form
-                .data=${this.individual}
-                .config="${this._config}">
-            </data-form>
-        `;
     }
 
 }
