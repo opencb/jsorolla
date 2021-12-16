@@ -679,16 +679,18 @@ export default class DataForm extends LitElement {
     _createToggleSwitchElement(element) {
         const value = this.getValue(element.field); // || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
+        const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
 
         return html`
             <div class="">
                 <toggle-switch
                     .disabled="${disabled}"
                     .value="${value}"
-                    .onText="${element.display.onText}"
-                    .offText="${element.display.offText}"
-                    .activeClass="${element.display.activeClass}"
-                    .inactiveClass="${element.display.inactiveClass}"
+                    .onText="${element.display?.onText}"
+                    .offText="${element.display?.offText}"
+                    .activeClass="${activeClassName}"
+                    .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
