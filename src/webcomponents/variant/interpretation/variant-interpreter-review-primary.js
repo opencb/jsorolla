@@ -67,7 +67,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     _init() {
         this._prefix = "ovi-" + UtilsNew.randomString(6);
 
-        //TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
+        // TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
         this.mode = "create";
         this.isCreate = this.mode.toLowerCase() === "create";
 
@@ -212,7 +212,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // debugger
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
             .then(response => {
-                debugger
+                // debugger
             })
             .catch(error => console.error(error));
         // const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
@@ -386,7 +386,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         };
         const _this = this;
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params)
-            .then(function(response) {
+            .then(function (response) {
                 _this.showSummary = false;
                 if (response.response[0].numResults === 1) {
                     _this.clinicalAnalysis = response.response[0].result[0];
@@ -521,7 +521,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     <i class="fas fa-save icon-padding"></i>Save
                 </button>
             </div>
-<!--            <tool-header title="Primary Findings" class="bg-white" icon="${this._config.icon}"></tool-header>-->
+<!--            <tool-header title="Primary Findings" class="bg-white" icon="\${this._config.icon}"></tool-header>-->
 
             <div class="row">
                 <div id="${this._prefix}SaveInterpretation">
@@ -538,8 +538,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         <div style="padding-top: 5px">
 
                             <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation
-                                    ? html`
+                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation ?
+                                    html`
                                         <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                   .review="${true}"
@@ -558,8 +558,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                                                     .consequenceTypes="${this.consequenceTypes}"
                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                     .config="${this._config.detail}">
-                                        </variant-interpreter-detail>`
-                                    : html`
+                                        </variant-interpreter-detail>` :
+                                    html`
                                         <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.</div>`
                                 }
                             </div>

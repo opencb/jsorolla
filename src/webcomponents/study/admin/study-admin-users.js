@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../../NotificationUtils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/text-field-filter.js";
 
@@ -180,12 +179,9 @@ export default class StudyAdminUsers extends LitElement {
         try {
             const resp = await this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, group, data, params);
             const results = resp.responses[0].results;
-            // this.showMessage("Message", messageAlert, "success");
-            // NotificationUtils.showNotify(messageAlert, "SUCCESS");
             LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
                 message: messageAlert
             });
-            // this.notifyStudyUpdateRequest();
             LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
         } catch (err) {
@@ -220,7 +216,8 @@ export default class StudyAdminUsers extends LitElement {
             }
         }
 
-        const _columns = [
+        // Columns
+        return [
             [
                 {
                     title: "User Name",
@@ -278,8 +275,6 @@ export default class StudyAdminUsers extends LitElement {
                 ...groupColumns
             ]
         ];
-
-        return _columns;
     }
 
     getDefaultConfig() {
@@ -497,13 +492,9 @@ export default class StudyAdminUsers extends LitElement {
         const messageAlert = `${!message.error.length ?
             `Group deleted correctly: ${message.success.join()}` :
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
-        // this.showMessage("Message", messageAlert, "info");
-        // NotificationUtils.showNotify(messageAlert, "INFO");
         LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
             message: messageAlert
         });
-
-        // this.notifyStudyUpdateRequest();
         LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
         this.requestUpdate();
     }
@@ -548,9 +539,7 @@ export default class StudyAdminUsers extends LitElement {
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </button>
                     <datalist id="${this._prefix}MemberUsers">
-                        ${this.sortedUserIds?.map(userId => html`
-                            <option value="${userId}"></option>
-                        `)}
+                        ${this.sortedUserIds?.map(userId => html`<option value="${userId}"></option>`)}
                     </datalist>
                 </div>
             </div>
@@ -586,45 +575,6 @@ export default class StudyAdminUsers extends LitElement {
                             </li>
                         </ul>
                     </div>
-
-                    <!-- REMOVE USER (DEPRECATED)-->
-                    <!-- <div class="btn-group">
-                        <button type="button" id="${this._prefix}RemoveUserMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" title="Remove user from ${this.study?.name} study">
-                            <i class="fas fa-user-slash icon-padding" aria-hidden="true"></i> Remove User
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}RemoveUserMenu" style="width: 320px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 10px 0px">
-                                    <span style="font-weight: bold">Select Users</span>
-                                </div>
-                                <div style="margin: 10px 5px">
-                                    ${this.groupsMap?.get("@members")
-                                            ?.filter(user => !this.study.fqn.startsWith(user.id + "@")) // we cannot remove the owner
-                                            ?.map(user => html`
-                                                <div>
-                                                    <span style="margin: 0px 5px">
-                                                        <input
-                                                                type="checkbox"
-                                                                value="${user.id}"
-                                                                .checked="${this.removeUserSet?.has(user.id)}"
-                                                                @click="${this.onUserRemoveFieldChange}">
-                                                    </span>
-                                                    <span>${user.id}</span>
-                                                </div>
-                                            `)}
-                                </div>
-                                <div class="pull-right" style="margin: 5px">
-                                    <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onUserRemoveFieldChange(e, true)}" style="margin: 0px 5px">Cancel
-                                    </button>
-                                    <button type="button" class="btn btn-danger ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${this.onUserRemove}">Remove
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div> -->
                 </div>
 
                 <div style="display:inline-block">

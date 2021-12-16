@@ -528,16 +528,16 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                             html`
                                                                 <li>
                                                                     <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
-                                                                       @click="${this.onServerFilterChange}">
+                                                                        @click="${this.onServerFilterChange}">
                                                                         <span class="id-filter-button">${item.id}</span>
                                                                         <span class="action-buttons">
                                                                     <span tooltip-title="${item.id}"
-                                                                          tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                                                          data-filter-id="${item.id}">
+                                                                            tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                                            data-filter-id="${item.id}">
                                                                         <i class="fas fa-eye"></i>
                                                                     </span>
                                                                     <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}"
-                                                                       @click="${this.serverFilterDelete}"></i>
+                                                                        @click="${this.serverFilterDelete}"></i>
                                                                 </span>
                                                                     </a>
                                                                 </li>`
@@ -562,19 +562,23 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "case") ? html`
                                             <!-- Case ID -->
                                             <div class="btn-group" data-cy="form-case">
-                                                <clinical-analysis-id-autocomplete .config=${{placeholder: "Case Id"}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
-                                                                                   @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
+                                                <clinical-analysis-id-autocomplete
+                                                    .config=${{placeholder: "Case Id"}}
+                                                    .value="${this.query?.id}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                                                </clinical-analysis-id-autocomplete>
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                        id="${this._prefix}caseMenu"
+                                                        id="\${this._prefix}caseMenu"
                                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    <span class="ocap-text-button">Case: <span>${this.query.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
+                                                    <span class="ocap-text-button">Case: <span>\${this.query.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                                                <ul class="dropdown-menu" aria-labelledby="\${this._prefix}caseMenu">
                                                     <li style="padding: 5px;">
                                                         <div style="display: inline-flex; width: 300px;">
                                                             <label class="filter-label">Case ID:</label>
-                                                            <clinical-analysis-id-autocomplete .config=${{showList: true}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
-                                                                                               @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
+                                                            <clinical-analysis-id-autocomplete .config=\${{showList: true}} .value="\${this.query?.id}" .opencgaSession="\${this.opencgaSession}"
+                                                                                               @filterChange="\${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
                                                         </div>
                                                     </li>
                                                 </ul> -->
@@ -587,16 +591,16 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 <sample-id-autocomplete .config=${{placeholder: "Sample Id"}}  .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
                                                                         @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                        id="${this._prefix}sampleMenu"
+                                                        id="\${this._prefix}sampleMenu"
                                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    <span class="ocap-text-button">Sample: <span>${this.query.sample ?? "All"}</span></span>&nbsp;<span class="caret"></span>
+                                                    <span class="ocap-text-button">Sample: <span>\${this.query.sample ?? "All"}</span></span>&nbsp;<span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                                                <ul class="dropdown-menu" aria-labelledby="\${this._prefix}caseMenu">
                                                     <li style="padding: 5px;">
                                                         <div style="display: inline-flex; width: 300px;">
                                                             <label class="filter-label">Sample ID:</label>
-                                                            <sample-id-autocomplete .config=${{showList: true}} .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
-                                                                                    @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                            <sample-id-autocomplete .config=\${{showList: true}} .value="\${this.query?.sample}" .opencgaSession="\${this.opencgaSession}"
+                                                                                    @filterChange="\${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
                                                         </div>
                                                     </li>
                                                 </ul> -->
@@ -606,18 +610,22 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "proband") ? html`
                                             <!-- Proband -->
                                             <div class="btn-group" data-cy="form-proband">
-                                                <proband-id-autocomplete .config=${{placeholder: "Proband Id"}}  .value="${this.query?.proband}" .opencgaSession="${this.opencgaSession}"
-                                                                         @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
+                                                <proband-id-autocomplete
+                                                    .config=${{placeholder: "Proband Id"}}
+                                                    .value="${this.query?.proband}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    @filterChange="${e => this.onFilterChange("proband", e.detail.value)}">
+                                                </proband-id-autocomplete>
                                                     <!--<button type="button" class="btn btn-default dropdown-toggle filter-button"
-                                                        id="${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    <span class="ocap-text-button">Proband: <span>${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                                        id="\${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Proband: <span>\${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}probandMenu">
+                                                <ul class="dropdown-menu" aria-labelledby="\${this._prefix}probandMenu">
                                                     <li style="padding: 5px;">
                                                         <div style="display: inline-flex;width: 300px">
                                                             <label class="filter-label">Proband ID:</label>
-                                                            <proband-id-autocomplete .config=${{showList: true}} .value="${this.query?.proband}" .opencgaSession="${this.opencgaSession}"
-                                                                                     @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
+                                                            <proband-id-autocomplete .config=\${{showList: true}} .value="\${this.query?.proband}" .opencgaSession="\${this.opencgaSession}"
+                                                                                    @filterChange="\${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
                                                         </div>
                                                     </li>
                                                 </ul> -->
@@ -631,15 +639,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                                         @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
 
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                        id="${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    <span class="ocap-text-button">Family: <span>${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                                        id="\${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Family: <span>\${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}FamilyMenu">
+                                                <ul class="dropdown-menu" aria-labelledby="\${this._prefix}FamilyMenu">
                                                     <li style="padding: 5px;">
                                                         <div style="display: inline-flex; width: 300px;">
                                                             <label class="filter-label">Family ID:</label>
-                                                            <family-id-autocomplete .config=${{showList: true}} .value="${this.query?.family}" .opencgaSession="${this.opencgaSession}"
-                                                                                    @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
+                                                            <family-id-autocomplete .config=\${{showList: true}} .value="\${this.query?.family}" .opencgaSession="\${this.opencgaSession}"
+                                                                                    @filterChange="\${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
                                                         </div>
                                                     </li>
                                                 </ul> -->
@@ -649,19 +657,23 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "disorder") ? html`
                                             <!-- Disorder -->
                                             <div class="btn-group" data-cy="form-disorder">
-                                                <disorder-id-autocomplete .config=${{placeholder: "Disorders", freeTag: true}} .value="${this.query?.disorder}" .opencgaSession="${this.opencgaSession}"
-                                                                          @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
+                                                <disorder-id-autocomplete
+                                                    .config=${{placeholder: "Disorders", freeTag: true}}
+                                                    .value="${this.query?.disorder}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}">
+                                                </disorder-id-autocomplete>
 
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                        id="${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    <span class="ocap-text-button">Disorder: <span>${this.query?.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                                        id="\${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Disorder: <span>\${this.query?.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
+                                                <ul class="dropdown-menu" aria-labelledby="\${this._prefix}DisorderMenu">
                                                     <li style="padding: 5px;">
                                                         <div style="display: inline-flex; width: 300px;">
                                                             <label class="filter-label">Disorder:</label>
-                                                            <disorder-id-autocomplete .config=${{showList: true}} .value="${this.query?.disorder}" .opencgaSession="${this.opencgaSession}"
-                                                                                      @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
+                                                            <disorder-id-autocomplete .config=\${{showList: true}} .value="\${this.query?.disorder}" .opencgaSession="\${this.opencgaSession}"
+                                                                @filterChange="\${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
                                                         </div>
                                                     </li>
                                                 </ul> -->
@@ -671,34 +683,49 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "type") ? html`
                                             <!-- Type -->
                                             <div class="btn-group" data-cy="form-type">
-                                                <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" .value=${this.query?.type}
-                                                                     @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
+                                                <select-field-filter
+                                                    placeholder="Type"
+                                                    multiple .data="${["SINGLE", "FAMILY", "CANCER"]}"
+                                                    .value=${this.query?.type}
+                                                    @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
+                                                </select-field-filter>
                                             </div>
                                         ` : null}
 
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                                             <!-- Status -->
                                             <div class="btn-group" data-cy="form-status">
-                                                <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.internal?.configuration?.clinical?.status ?? []}"
-                                                                        .status=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
+                                                <clinical-status-filter
+                                                    placeholder="${"Status: All"}"
+                                                    .statuses="${this.opencgaSession?.study?.internal?.configuration?.clinical?.status ?? []}"
+                                                    .status=${this.query?.status}
+                                                    @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                                                </clinical-status-filter>
+                                            </div>
                                         ` : null}
 
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "priority") ? html`
                                             <!-- Priority -->
                                             <div class="btn-group" data-cy="form-priority">
-                                                <clinical-priority-filter placeholder="${"Priority: All"}"
-                                                                          .priorities="${Object.values(this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities ?? {})}"
-                                                                          .priority=${this.query?.priority}
-                                                                          @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></clinical-priority-filter>
+                                                <clinical-priority-filter
+                                                    placeholder="${"Priority: All"}"
+                                                    .priorities="${Object.values(this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities ?? {})}"
+                                                    .priority=${this.query?.priority}
+                                                    @filterChange="${e => this.onFilterChange("priority", e.detail.value)}">
+                                                </clinical-priority-filter>
                                             </div>
                                         ` : null}
 
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "assignee") ? html`
                                             <!-- Assignees -->
                                             <div class="btn-group" data-cy="form-assignees">
-                                                <select-field-filter placeholder="Assignee: All" multiple .data="${this.users}"
-                                                                     .value=${this.query?.analystId}
-                                                                     @filterChange="${e => this.onFilterChange("analystId", e.detail.value)}"></select-field-filter>
+                                                <select-field-filter
+                                                    placeholder="Assignee: All"
+                                                    multiple
+                                                    .data="${this.users}"
+                                                    .value=${this.query?.analystId}
+                                                    @filterChange="${e => this.onFilterChange("analystId", e.detail.value)}">
+                                                </select-field-filter>
                                             </div>
                                         ` : null}
 
@@ -722,7 +749,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             <!-- Bottom tabs with specific variant information -->
                             ${this.clinicalAnalysis ? html`
                                 <div>
-                                    <detail-tabs .data="${this.clinicalAnalysis}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
+                                    <detail-tabs
+                                        .data="${this.clinicalAnalysis}"
+                                        .config="${this._config.filter.detail}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </detail-tabs>
                                 </div>
                             ` : null}
                         </div>
@@ -732,7 +763,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
             <!-- Modal -->
             <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
-                 aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+                aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">

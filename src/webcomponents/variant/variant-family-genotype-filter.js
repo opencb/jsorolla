@@ -494,20 +494,20 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
                 <div class="col-md-4">
                     <div class="form-check-label mode-button">
-                                <!--<select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
+                                <!--<select-field-filter ?multiple="\${true}" ?disabled=\${false} ?required=\${true} .data="\${["GT", "LT"]}" .value="\${"LT"}" maxOptions="2" @filterChange="\${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
                         <select-field-filter .data="${this.modeSelectData}" value=${this.mode} @filterChange="${this.setMode}"></select-field-filter>
                                 <!--<div>
-                                    <button class="btn btn-default ripple ${this.mode === "custom" ? "active" : ""}" value="custom" @click="${this.setSample}">Custom</button>
+                                    <button class="btn btn-default ripple \${this.mode === "custom" ? "active" : ""}" value="custom" @click="\${this.setSample}">Custom</button>
                                 </div>
                                 <div>
-                                    <button class="btn btn-default ripple ${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="${this.setSample}">Segregation</button>
-                                    <div class="select-field-filter-wrapper"><select-field-filter ?disabled="${this.mode !== "segregation"}" .data="${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=${"A"} @filterChange="${e => this.onModeOfInheritance(e)}"></select-field-filter></div>
+                                    <button class="btn btn-default ripple \${this.mode === "segregation" ? "active" : ""}" value="segregation" @click="\${this.setSample}">Segregation</button>
+                                    <div class="select-field-filter-wrapper"><select-field-filter ?disabled="\${this.mode !== "segregation"}" .data="\${[{id: "MONOALLELIC", name: "Autosomal Dominant"}, {id: "BIALLELIC", name: "Autosomal Recessive"}, {id: "XLINKED_MONOALLELIC", name: "X-linked Dominant"}, {id: "XLINKED_BIALLELIC", name: "X-linked Recessive"}, {id: "YLINKED", name: "Y-linked"}]}" .value=\${"A"} @filterChange="\${e => this.onModeOfInheritance(e)}"></select-field-filter></div>
                                 </div>
                                 <div>
-                                    <button class="btn btn-default ripple ${this.mode === "COMPOUND_HETEROZYGOUS" ? "active" : ""}" value="ch" @click="${this.setSample}">Compound Heterozygous</button>
+                                    <button class="btn btn-default ripple \${this.mode === "COMPOUND_HETEROZYGOUS" ? "active" : ""}" value="ch" @click="\${this.setSample}">Compound Heterozygous</button>
                                 </div>
                                 <div>
-                                    <button class="btn btn-default ripple ${this.mode === "DE_NOVO" ? "active" : ""}" value="denovo" @click="${this.setSample}">De Novo</button>
+                                    <button class="btn btn-default ripple \${this.mode === "DE_NOVO" ? "active" : ""}" value="denovo" @click="\${this.setSample}">De Novo</button>
                                 </div> -->
                     </div>
                 </div>
@@ -525,7 +525,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 <!--                                <th rowspan="2">Father</th>-->
 <!--                                <th rowspan="2">Mother</th>-->
                                 <th rowspan="1" colspan="3" style="text-align: center">Genotypes</th>
-                               <!--  <th rowspan="2">Min. Depth</th> -->
+                                <!--  <th rowspan="2">Min. Depth</th> -->
                             </tr>
                             <tr>
                                 <th scope="col">HOM_REF</th>
@@ -542,41 +542,28 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                                       data-toggle="tooltip" data-placement="bottom">
                                                     ${sampleFilter.id}
                                                 </span>
-<!--                                                 &nbsp; <i class='fa ${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>-->
+<!--                                                 &nbsp; <i class='fa \${this._config.sexIconMap[sampleFilter.sex]} fa-lg'></i>-->
                                             </div>
                                         </td>
                                         <td style="padding-left: 0px">
                                             <span style="color: ${sampleFilter.role.toUpperCase() === "PROBAND" ? "darkred" : "black"}">${sampleFilter.role}</span>
                                         </td>
-                                        <!--
-                                            <td style="padding-left: 20px">
-                                                ${sampleFilter.proband
-                                                    ? html`
-                                                        <span data-toggle="tooltip" data-placement="bottom" title="Proband">
-                                                            <i class='fa fa-check' style='color: green'></i>
-                                                        </span>`
-                                                    : html`
-                                                        <span><i class='fa fa-times' style='color: red'></i></span>`
-                                                }
-                                            </td>
-                                        -->
+
                                         <td style="padding-left: 0px">
                                             <span>${sampleFilter.sex} (${sampleFilter.karyotypicSex})</span>
                                         </td>
                                         <td style="padding-left: 25px">
-                                            ${sampleFilter.affected
-                                                ? html`
-                                                    <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>`
-                                                : html`
-                                                    <span><i class='fa fa-times' style='color: red'></i></span>`
+                                            ${sampleFilter.affected ? html`
+                                                <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` : html`
+                                                <span><i class='fa fa-times' style='color: red'></i></span>`
                                             }
                                         </td>
                                         <!--
                                             <td style="padding-left: 20px">
-                                                <span>${sampleFilter.father}</span>
+                                                <span>\${sampleFilter.father}</span>
                                             </td>
                                             <td style="padding-left: 20px">
-                                                <span>${sampleFilter.mother}</span>
+                                                <span>\${sampleFilter.mother}</span>
                                             </td>
                                         -->
                                         <td style="padding-left: 20px">
@@ -592,16 +579,16 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                                    .checked="${sampleFilter.genotypes.includes("1/1")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
                                         </td>
                                         <!--<td style="padding-left: 10px">
-                                            <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
-                                                   class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" data-sample-id="${sampleFilter.id}"
-                                                   style="width: 60px" @input="${this.onSampleTableChange}">
+                                            <input id="\${this._prefix}\${sampleFilter.id}DP" type="text" value="\${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
+                                                   class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" data-sample-id="\${sampleFilter.id}"
+                                                   style="width: 60px" @input="\${this.onSampleTableChange}">
                                         </td>-->
                                     </tr>
                                  `) : ""}
                             </tbody>
                         </table>
                     </div>
-<!--                    <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>-->
+<!--                    <div id="\${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>-->
                 </div>
 
                 ${this.showModeOfInheritance && this.errorState? html`

@@ -346,10 +346,10 @@ export default class JobTimeline extends LitElement {
                 <!--<fieldset class="edge-radio-container">
                 <label>Job dependencies</label>
                 <div class="switch-toggle text-white">
-                    <input id="edge-all" type="radio" name="edge-radio" value="all" checked @change="${this.setEdgeVisibility}">
-                    <label for="edge-all" ><span class="${this._prefix}-text">Always visible</span></label>
-                    <input id="edge-onclick" type="radio" name="edge-radio" value="onclick" @change="${this.setEdgeVisibility}">
-                    <label for="edge-onclick" ><span class="${this._prefix}-text">On click</span></label>
+                    <input id="edge-all" type="radio" name="edge-radio" value="all" checked @change="\${this.setEdgeVisibility}">
+                    <label for="edge-all" ><span class="\${this._prefix}-text">Always visible</span></label>
+                    <input id="edge-onclick" type="radio" name="edge-radio" value="onclick" @change="\${this.setEdgeVisibility}">
+                    <label for="edge-onclick" ><span class="\${this._prefix}-text">On click</span></label>
                     <a class="btn btn-primary ripple btn-small"></a>
                 </div>-->
             </fieldset>
@@ -368,8 +368,9 @@ export default class JobTimeline extends LitElement {
             <div id="svg-timeline">
             </div>
         </div>
-        <opencga-job-detail .opencgaSession="${this.opencgaSession}"
-                            .jobId="${this.jobId}">
+        <opencga-job-detail
+            .opencgaSession="${this.opencgaSession}"
+            .jobId="${this.jobId}">
         </opencga-job-detail>
         `;
     }

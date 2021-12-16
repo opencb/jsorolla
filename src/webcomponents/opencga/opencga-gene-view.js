@@ -173,7 +173,7 @@ export default class OpencgaGeneView extends LitElement {
                 <a href="#transcript/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${transcript.id}">Transcript View</a>
             </div>
             <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(this.gene.name, "TRANSCRIPT", this.opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                <a target='_blank' href='${BioinfoUtils.getEnsemblLink(this.gene.name, "TRANSCRIPT", this.opencgaSession.project.organism.assembly)}'>Ensembl</a>
             </div>
         `;
     }
@@ -214,11 +214,9 @@ export default class OpencgaGeneView extends LitElement {
                                     <tr>
                                         <th class="gene-summary-title col-sm-4">Genome Browser</th>
                                         <td>
-
-                                                <a target="_blank" href="http://genomemaps.org/?region=${this.gene.chromosome}:${this.gene.start}-${this.gene.end}">
-                                                ${this.gene.chromosome}:${this.gene.start}-${this.gene.end}
-                                                </a>
-
+                                            <a target="_blank" href="http://genomemaps.org/?region=${this.gene.chromosome}:${this.gene.start}-${this.gene.end}">
+                                            ${this.gene.chromosome}:${this.gene.start}-${this.gene.end}
+                                            </a>
                                         </td>
                                     </tr>
                                 ` : ""}
@@ -234,7 +232,7 @@ export default class OpencgaGeneView extends LitElement {
                                     <th>Name</th>
                                     <th>Location</th>
                                     <th>Biotype</th>
-<!--                                    <th>Coding</th>-->
+                                    <!--<th>Coding</th>-->
                                     <!--<th>cDNA</th>-->
                                     <!--<th>CDS Length</th>-->
                                     <th>Flags</th>
@@ -250,23 +248,15 @@ export default class OpencgaGeneView extends LitElement {
                                         <td>
                                             ${this.settings.externalLinks ? html`
                                                 <a target="_blank"
-                                                   href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
+                                                    href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
                                                     ${transcript.chromosome}:${transcript.start}-${transcript.end}
                                                 </a>` : html`<span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>`}
                                         </td>
                                         <td>${transcript.biotype}</td>
-                                        <!--
-                                        <td>
-                                            ${this.settings.externalLinks ? html`
-                                                <a target="_blank"
-                                                   href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
-                                                    ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
-                                                </a>` : html`<span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>`}
-                                        </td>
-                                        -->
-                                        <!--${transcript.cdnaCodingStart}-${transcript.cdnaCodingEnd}-->
+
+                                        <!--\${transcript.cdnaCodingStart}-\${transcript.cdnaCodingEnd}-->
                                         <!--</td>-->
-                                        <!--<td>${transcript.cdsLength}</td>-->
+                                        <!--<td>\${transcript.cdsLength}</td>-->
                                         <td>${transcript.annotationFlags?.join(", ")}</td>
                                     </tr>
                                 `) : null }
@@ -302,43 +292,47 @@ export default class OpencgaGeneView extends LitElement {
 
                             <!--<br>-->
                             <br>
-                            <variant-browser-grid .opencgaSession="${this.opencgaSession}"
-                                                  .query="${this.query}"
-                                                  .populationFrequencies="${this.populationFrequencies}"
-                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                  .consequenceTypes="${this.consequenceTypes}"
-                                                  .summary="${this.summary}"
-                                                  .config="${this.config}"
-                                                  @selectrow="${this.onSelectVariant}">
+                            <variant-browser-grid
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${this.query}"
+                                .populationFrequencies="${this.populationFrequencies}"
+                                .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                .consequenceTypes="${this.consequenceTypes}"
+                                .summary="${this.summary}"
+                                .config="${this.config}"
+                                @selectrow="${this.onSelectVariant}">
                             </variant-browser-grid>
 
                             ${this.checkVariant(this.variantId) ? html`
                                 <!-- Bottom tabs with specific variant information -->
-                                    <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}"
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                .variantId="${this.variantId}"
-                                                                .config="${this._config?.filter?.detail}">
+                                    <opencga-variant-detail-view
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .variantId="${this.variantId}"
+                                        .config="${this._config?.filter?.detail}">
                                     </opencga-variant-detail-view>
                                     <!--
-                                    <h3 class="break-word">Advanced Annotation for Variant: ${this.variantId}</h3>
-                                    <cellbase-variantannotation-view .data="${this.variantId}"
-                                                                     .cellbaseClient="${this.cellbaseClient}"
-                                                                     .assembly=${this.opencgaSession.project.organism.assembly}
-                                                                     .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                                     .populationFrequencies="${this.populationFrequencies}"
-                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                     .consequenceTypes="${this.consequenceTypes}">
+                                    <h3 class="break-word">Advanced Annotation for Variant: \${this.variantId}</h3>
+                                    <cellbase-variantannotation-view
+                                        .data="\${this.variantId}"
+                                        .cellbaseClient="$\{this.cellbaseClient}"
+                                        .assembly=\${this.opencgaSession.project.organism.assembly}
+                                        .hashFragmentCredentials="\${this.hashFragmentCredentials}"
+                                        .populationFrequencies="\${this.populationFrequencies}"
+                                        .proteinSubstitutionScores="\${this.proteinSubstitutionScores}"
+                                        .consequenceTypes="\${this.consequenceTypes}">
                                     </cellbase-variantannotation-view> -->
                             ` : ""}
                         </div>
 
                         <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
-                            <variant-protein-view .opencgaSession="${this.opencgaSession}"
-                                                  .opencgaClient="${this.opencgaClient}"
-                                                  .cellbaseClient="${this.cellbaseClient}"
-                                                  .gene="${this.gene}"
-                                                  .config="${OPENCGA_GENE_VIEW_SETTINGS.protein}"
-                                                  .summary="${this.summary}">
+                            <variant-protein-view
+                                .opencgaSession="${this.opencgaSession}"
+                                .opencgaClient="${this.opencgaClient}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .gene="${this.gene}"
+                                .config="${OPENCGA_GENE_VIEW_SETTINGS.protein}"
+                                .summary="${this.summary}">
                             </variant-protein-view>
                         </div>
                     </div>
