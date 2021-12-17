@@ -74,30 +74,38 @@ export default class VariantInterpreterGridConfig extends LitElement {
         }));
     }
 
+    render() {
+        return html`
+            <data-form
+                .data="${this.config}"
+                .config="${this.getConfigForm()}"
+                @fieldChange="${e => this.onFieldChange(e)}">
+            </data-form>
+        `;
+    }
+
     getConfigForm() {
         return {
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
-            type: "form",
             display: {
-                width: "10",
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "4",
+                width: 10,
+                titleVisible: false,
+                titleAlign: "left",
+                titleWidth: 4,
                 defaultLayout: "vertical"
             },
             sections: [
                 {
                     id: "ct",
                     title: "Transcript Filter",
-                    text: "Select which transcripts and consequence types are displayed in the variant grid",
+                    description: "Select which transcripts and consequence types are displayed in the variant grid",
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        textClass: "help-block",
-                        textStyle: "margin: 0px 10px"
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px"
                     },
                     elements: [
                         {
@@ -182,38 +190,28 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 {
                     id: "gt",
                     title: "Sample Genotype",
-                    text: "Select how genotypes are displayed",
+                    description: "Select how genotypes are displayed",
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 25px 5px 5px 5px",
-                        textClass: "help-block",
-                        textStyle: "margin: 0px 10px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.genotype?.type
                     },
                     elements: [
                         {
-                            name: "Select Render Mode",
+                            title: "Select Render Mode",
                             field: "genotype.type",
                             type: "select",
                             allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
                             display: {
-                                width: "6"
+                                width: 6,
                             }
                         }
                     ]
                 }
             ]
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data="${this.config}"
-                .config="${this.getConfigForm()}"
-                @fieldChange="${e => this.onFieldChange(e)}">
-            </data-form>
-        `;
     }
 
 }
