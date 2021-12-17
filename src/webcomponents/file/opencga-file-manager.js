@@ -16,8 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "./opencga-file-view.js";
-import "../commons/forms/data-form.js";
+import "./file-view.js";
 import "../loading-spinner.js";
 
 export default class OpencgaFileManager extends LitElement {
@@ -202,7 +201,7 @@ export default class OpencgaFileManager extends LitElement {
         } else {
             console.error("no id!");
         }
-        //$("." + id + " + ul").slideToggle();
+        // $("." + id + " + ul").slideToggle();
         this.requestUpdate();
         await this.updateComplete;
     }
@@ -290,13 +289,6 @@ export default class OpencgaFileManager extends LitElement {
         this.requestUpdate();
     }
 
-    getDefaultConfig() {
-        return {
-            title: "File Explorer",
-            icon: "img/tools/icons/file_explorer.svg"
-        };
-    }
-
     render() {
         return html`
             <div class="opencga-file-manager">
@@ -324,13 +316,24 @@ export default class OpencgaFileManager extends LitElement {
                                 ${this.renderFileManager(this.currentRoot)}
                             </div>
                             <div class="opencga-file-view">
-                                <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}" mode="full"></opencga-file-view>
+                                <file-view
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .fileId="${this.fileId}"
+                                    mode="full">
+                                </file-view>
                             </div>` :
                         null}
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "File Explorer",
+            icon: "img/tools/icons/file_explorer.svg"
+        };
     }
 
 }
