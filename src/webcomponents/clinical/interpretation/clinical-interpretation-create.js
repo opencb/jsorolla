@@ -185,6 +185,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             },
             display: {
                 width: 10,
+                buttonsAlign: "right",
                 titleVisible: false,
                 titleWidth: 4,
                 defaultLayout: "horizontal"

@@ -203,6 +203,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             display: {
                 modalButtonClassName: "btn-sm",
                 // width: 10,
+                buttonsAlign: "right",
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,

@@ -232,7 +232,7 @@ class ClinicalAnalysisUpdate extends LitElement {
             icon: "fas fa-user-md",
             buttons: {
                 clearText: "Cancel",
-                okText: "Update",
+                okText: "Update Case",
             },
             display: {
                 width: 8,
@@ -240,6 +240,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                 titleWidth: 4,
                 defaultLayout: "horizontal",
                 buttonsVisible: true,
+                buttonsWidth: 8,
+                buttonsAlign: "right",
             },
             sections: [
                 {
