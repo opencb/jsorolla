@@ -63,7 +63,7 @@ export default class ClinicalStatusFilter extends LitElement {
             this.statusObject = this.statuses?.find(status => status.id === this.status);
         }
         if (changedProperties.has("statuses")) {
-            this.uniqueStatuses = [...new Set(Object.values(this.statuses["CANCER"]).map(status => status.id))];
+            this.uniqueStatuses = [...new Set(Object.values(this.statuses).map(status => status.id))];
         }
         super.update(changedProperties);
     }
