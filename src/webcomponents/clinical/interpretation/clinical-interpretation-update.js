@@ -16,11 +16,11 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/disease-panel-filter.js";
-import FormUtils from "../../commons/forms/form-utils";
-import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class ClinicalInterpretationCreate extends LitElement {
 
@@ -54,17 +54,29 @@ export default class ClinicalInterpretationCreate extends LitElement {
             buttonsConfig: {
                 type: Object
             },
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
     _init() {
-        this.config = this.getDefaultConfig();
         this.updateParams = {};
         this.mode = "";
+
         this.buttonsConfigDefault = {
             clearText: "Clear",
             okText: "Update",
         };
+        this.displayConfigDefault = {
+            modalButtonClassName: "btn-primary btn-sm",
+            buttonsAlign: "right",
+            titleVisible: false,
+            titleAlign: "left",
+            titleWidth: 4,
+            defaultLayout: "horizontal"
+        };
+        this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -75,13 +87,17 @@ export default class ClinicalInterpretationCreate extends LitElement {
             this.interpretationIdObserver();
         }
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+            this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
         }
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
         }
         if (changedProperties.has("buttonsConfig")) {
             this.buttonsConfig = {...this.buttonsConfigDefault, ...this.buttonsConfig};
+            this.config = this.getDefaultConfig();
+        }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -101,12 +117,9 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
         }
-    }
-
-    opencgaSessionObserver() {
-        this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
     onFieldChange(e, field) {
@@ -135,7 +148,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             id: this.interpretation.id,
             clinicalAnalysis: this.interpretation,
-        }, null);
+        });
     }
 
     onClear() {
@@ -149,8 +162,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     onSubmit() {
-        // remove private fields
-        // const data = {...this.interpretation};
         const data = {...this.updateParams};
         const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
         const id = this.interpretation.id;
@@ -160,12 +171,12 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                     title: "Clinical interpretation updated",
                     message: `The clinical interpretation ${id} has been updated successfully`,
-                }, null);
+                });
                 this.notifyClinicalAnalysisWrite();
                 this.onClear();
             })
             .catch(response => {
-                // console.error(response);
+                console.error(response);
                 LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             });
     }
@@ -189,18 +200,9 @@ export default class ClinicalInterpretationCreate extends LitElement {
             title: "Edit Interpretation",
             icon: "fas fa-edit",
             type: this.mode,
-            requires: "2.2.0",
             description: "Update an interpretation",
-            buttons: this.buttonsConfig,
-            display: {
-                modalButtonClassName: "btn-sm",
-                // width: 10,
-                buttonsAlign: "right",
-                titleVisible: false,
-                titleAlign: "left",
-                titleWidth: 4,
-                defaultLayout: "horizontal"
-            },
+            buttons: this.buttonsConfig || this.buttonsConfigDefault,
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -244,15 +246,20 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => html`
-                                    <disease-panel-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .diseasePanels="${this.opencgaSession.study?.panels}"
-                                        .panel="${panels?.map(p => p.id).join(",")}"
-                                        .showExtendedFilters="${false}"
-                                        @filterChange="${e => this.onFieldChange(e, "panels.id")}">
-                                    </disease-panel-filter>
-                                `,
+                                render: panels => {
+                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
+                                    return html`
+                                        <disease-panel-filter
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .diseasePanels="${panelList}"
+                                            .panel="${panels?.map(p => p.id).join(",")}"
+                                            .showExtendedFilters="${false}"
+                                            .disabled="${panelLock}"
+                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                        </disease-panel-filter>
+                                    `;
+                                },
                             }
                         },
                         {

@@ -44,15 +44,23 @@ export default class ClinicalInterpretationCreate extends LitElement {
             mode: {
                 type: String
             },
-            // config: {
-            //     type: Object
-            // }
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
     _init() {
         this.mode = "";
         this.interpretation = {};
+
+        this.displayConfigDefault = {
+            width: 10,
+            buttonsAlign: "right",
+            titleVisible: false,
+            titleWidth: 4,
+            defaultLayout: "horizontal"
+        };
     }
 
     connectedCallback() {
@@ -63,16 +71,13 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            // We store the available users from opencgaSession in 'clinicalAnalysis._users'
-            this._users = this.opencgaSession?.study ? OpencgaCatalogUtils.getUsers(this.opencgaSession.study) : [];
+            this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
             this.initClinicalInterpretation();
-
-            this.requestUpdate();
         }
-
-        // if (changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
@@ -125,7 +130,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             id: this.interpretation.id,
             clinicalAnalysis: this.interpretation,
-        }, null);
+        });
     }
 
     onClear() {
@@ -183,13 +188,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 clearText: "Clear",
                 okText: "Create Interpretation",
             },
-            display: {
-                width: 10,
-                buttonsAlign: "right",
-                titleVisible: false,
-                titleWidth: 4,
-                defaultLayout: "horizontal"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -208,7 +207,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: () => this._users,
+                            allowedValues: () => this.users,
                             display: {},
                         },
                         {
@@ -235,12 +234,15 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: panels => {
+                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
                                     return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
-                                            .diseasePanels="${this.opencgaSession.study?.panels}"
+                                            .diseasePanels="${panelList}"
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
+                                            .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
                                     `;

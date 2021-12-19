@@ -40,9 +40,9 @@ export default class ClinicalAnalysisManager {
         this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
     }
 
-    getStatuses() {
-        return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
-    }
+    // getStatuses() {
+    //     return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
+    // }
 
     getProbandQc() {
         return this.clinicalAnalysis?.proband?.qualityControl;

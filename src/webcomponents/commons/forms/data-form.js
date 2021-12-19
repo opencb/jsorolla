@@ -1273,7 +1273,7 @@ export default class DataForm extends LitElement {
             return html`
                     <button type="button"
                         title="${this.config.description}"
-                        class="btn btn-primary ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
+                        class="btn ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
                         style="${modalBtnStyle}"
                         data-toggle="modal"
                         ?disabled="${isDisabled}"

@@ -16,9 +16,10 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../core/utilsNew.js";
-import GridCommons from "../../commons/grid-commons.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import GridCommons from "../../commons/grid-commons.js";
 import "./clinical-interpretation-summary.js";
 import "./clinical-interpretation-create.js";
 import "./clinical-interpretation-update.js";
@@ -142,6 +143,9 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .buttonsConfig="${{
                                 clearText: "Clear",
                                 okText: "Update",
+                            }}"
+                            .displayConfig="${{
+                                modalButtonClassName: "btn-default btn-sm"
                             }}">
                         </clinical-interpretation-update>
                         <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
@@ -276,13 +280,9 @@ export default class ClinicalInterpretationManager extends LitElement {
     onActionClick(e) {
         const {action, interpretationId} = e.currentTarget.dataset;
         const interpretationCallback = () => {
-            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                detail: {
-                    clinicalAnalysis: this.clinicalAnalysis
-                },
-                bubbles: true,
-                composed: true
-            }));
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis
+            });
         };
 
         switch (action) {
@@ -299,8 +299,7 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
     render() {
@@ -321,7 +320,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                             <clinical-interpretation-create
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .opencgaSession="${this.opencgaSession}"
-                                .mode="${"modal"}">
+                                .mode="${"modal"}"
+                                .displayConfig="${{
+                                    modalButtonClassName: "btn-primary"
+                                }}">
                             </clinical-interpretation-create>
                         </div>
                     </div>
