@@ -430,7 +430,7 @@ export default class OpencgaSampleGrid extends LitElement {
             .catch(response => {
                 console.log(response);
                 // UtilsNew.notifyError(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

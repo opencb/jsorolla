@@ -44,11 +44,11 @@ export default class CustomSidebar extends LitElement {
     }
 
     onSideBarToggle(e) {
-        LitUtils.dispatchEventCustom(this, "sideBarToggle", "", null, {event: e});
+        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", null, {event: e});
     }
 
     onChangeApp(e, toggle) {
-        LitUtils.dispatchEventCustom(this, "changeApp", "", null, {event: e, toggle: toggle});
+        LitUtils.dispatchCustomEvent(this, "changeApp", "", null, {event: e, toggle: toggle});
     }
 
     render() {

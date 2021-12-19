@@ -92,7 +92,7 @@ export default class RgaIndividualFamily extends LitElement {
             } else {
                 // NOTE TODO clinicalAnalysis must be defined
                 // new NotificationQueue().push("Clinical Analysis not available", "", "error");
-                LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                     message: "Clinical Analysis not available"
                 });
             }
@@ -115,7 +115,7 @@ export default class RgaIndividualFamily extends LitElement {
 
         if (!this.sampleIds[0]) {
             // new NotificationQueue().push("Sample of the Proband not available", "", "error");
-            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                 message: "Sample of the Proband not available"
             });
         }
@@ -298,7 +298,7 @@ export default class RgaIndividualFamily extends LitElement {
 
         } catch (e) {
             // UtilsNew.notifyError(e);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             return Promise.reject(e);
         }
 

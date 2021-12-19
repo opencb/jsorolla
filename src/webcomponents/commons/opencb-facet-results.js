@@ -145,10 +145,10 @@ class OpencbFacetResults extends LitElement {
 
                     // Refactored
                     if (response instanceof RestResponse || response instanceof Error) {
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     } else {
                         this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
-                        LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                        LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                             title: this.errorState[0].name,
                             message: this.errorState[0].message
                         });

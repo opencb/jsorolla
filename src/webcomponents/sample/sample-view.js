@@ -96,7 +96,7 @@ export default class SampleView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    LitUtils.dispatchEventCustom(this, "sampleSearch", this.sample, error, {query: {includeIndividual: true}});
+                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, error, {query: {includeIndividual: true}});
                 });
         }
     }

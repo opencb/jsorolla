@@ -204,7 +204,7 @@ export default class OpencgaKnockoutAnalysis { // extends LitElement
             })
             .catch(e => {
                 // UtilsNew.notifyError(e)
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             });
     }
 

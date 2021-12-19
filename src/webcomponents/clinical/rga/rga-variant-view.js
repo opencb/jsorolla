@@ -597,7 +597,7 @@ export default class RgaVariantView extends LitElement {
             .catch(response => {
                 console.log(response);
                 // UtilsNew.notifyError(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

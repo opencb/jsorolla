@@ -1110,7 +1110,7 @@ export default class DataForm extends LitElement {
 
     _createDownloadElement(element) {
         return html`
-            <download-button 
+            <download-button
                 .json="${this.data}"
                 name="${element.title ?? element.name}">
             </download-button>
@@ -1149,7 +1149,7 @@ export default class DataForm extends LitElement {
     onClear(e) {
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
-        LitUtils.dispatchEventCustom(this, "clear", null, null, {});
+        LitUtils.dispatchCustomEvent(this, "clear", null, null, {});
     }
 
     onSubmit(e) {
@@ -1171,11 +1171,11 @@ export default class DataForm extends LitElement {
         // Form valid --> dispatch submit event
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
-        LitUtils.dispatchEventCustom(this, "submit", null, null, {});
+        LitUtils.dispatchCustomEvent(this, "submit", null, null, {});
     }
 
     onCustomEvent(e, eventName, data) {
-        LitUtils.dispatchEventCustom(this, eventName, data);
+        LitUtils.dispatchCustomEvent(this, eventName, data);
     }
 
     renderGlobalValidationError() {

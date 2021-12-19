@@ -361,7 +361,7 @@ export default class RgaGeneView extends LitElement {
         } catch (e) {
             console.error(e);
             // UtilsNew.notifyError(e);
-            LitUtils.dispatchEventCustom(this, "notifyError", e);
+            LitUtils.dispatchCustomEvent(this, "notifyError", e);
             return Promise.reject(e);
         }
 
@@ -427,7 +427,7 @@ export default class RgaGeneView extends LitElement {
             .catch(response => {
                 console.log(response);
                 // UtilsNew.notifyError(response);
-                LitUtils.dispatchEventCustom(this, "notifyError", e);
+                LitUtils.dispatchCustomEvent(this, "notifyError", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

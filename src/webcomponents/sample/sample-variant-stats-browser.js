@@ -177,7 +177,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 console.log(e);
                 this.sampleQcVariantStats = null;
                 // UtilsNew.notifyError(e);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.loading = false;

@@ -129,7 +129,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     postUpdate(response) {
-        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
             message: "Case info updated successfully",
         });
 

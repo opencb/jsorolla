@@ -159,7 +159,7 @@ export default class OpencgaJobDetailLog extends LitElement {
         }).catch(restResponse => {
             this.content = "An error occurred while fetching log.\n";
             // UtilsNew.notifyError(restResponse);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
         }).finally(() => {
             this.loading = false;
             this.requestUpdate();

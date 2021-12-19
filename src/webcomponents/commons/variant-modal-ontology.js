@@ -141,7 +141,7 @@ export default class VariantModalOntology extends LitElement {
             } catch (e) {
                 console.error(e);
                 // UtilsNew.notifyError(e);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             }
         }
     }
@@ -220,7 +220,7 @@ export default class VariantModalOntology extends LitElement {
                         } catch (e) {
                             console.error(e);
                             // UtilsNew.notifyError(e);
-                            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
                             failure(e);
                         }
                     },

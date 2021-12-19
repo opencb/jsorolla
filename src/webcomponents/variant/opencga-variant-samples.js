@@ -388,7 +388,7 @@ export default class OpencgaVariantSamples extends LitElement {
             }
         } catch (e) {
             // UtilsNew.notifyError(e);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();

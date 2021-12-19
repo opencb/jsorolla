@@ -679,7 +679,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn, createDefaultInterpretation: true})
                     .then(response => {
                         // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
                             message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
                         });
                         this.notifyClinicalAnalysisWrite();
@@ -688,13 +688,13 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     .catch(response => {
                         console.error(response);
                         // UtilsNew.notifyError(response);
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     });
             } else {
                 opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
                     .then(response => {
                         // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
                             message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
                         });
                         this.notifyClinicalAnalysisWrite();
@@ -703,13 +703,13 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     .catch(response => {
                         console.log(response);
                         // UtilsNew.notifyError(response);
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     });
             }
         } catch (response) {
             console.log(response);
             // UtilsNew.notifyError(response);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
         }
     }
 

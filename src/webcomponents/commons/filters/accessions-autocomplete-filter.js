@@ -108,7 +108,7 @@ export default class AccessionsAutocompleteFilter extends LitElement {
                         } catch (e) {
                             console.error(e);
                             // UtilsNew.notifyError(e);
-                            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
                             failure(e);
                         }
                     },

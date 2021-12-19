@@ -197,7 +197,7 @@ export default class RestEndpoint extends LitElement {
             })
             .catch(response => {
                 // console.error(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.isLoading = false;

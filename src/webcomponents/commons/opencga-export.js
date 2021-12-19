@@ -215,13 +215,13 @@ const client = new OpenCGAClient({
                 const restResponse = await this.opencgaSession.opencgaClient.variants().runExport(data, params);
                 const job = restResponse.getResult(0);
                 // new NotificationQueue().push(`Job ${job.id} is now PENDING`, null, "info");
-                LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
                     message: `Job ${job.id} is now PENDING`
                 });
             } catch (e) {
                 console.error(e);
                 // UtilsNew.notifyError(e);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             }
         }
     }
@@ -236,7 +236,7 @@ const client = new OpenCGAClient({
 
     clipboard(e) {
         // new NotificationQueue().push("Code has been copied to Clipboard", null, "success");
-        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
             message: "Code has been copied to Clipboard"
         });
     }

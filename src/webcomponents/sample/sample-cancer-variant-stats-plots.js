@@ -111,7 +111,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
             };
             // UtilsNew.notifyError(restResponse);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
         }).finally(() => {
             this.requestUpdate();
         });
@@ -153,7 +153,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                     errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
                 };
                 // UtilsNew.notifyError(restResponse);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
             })
             .finally(() => {
                 this.requestUpdate();

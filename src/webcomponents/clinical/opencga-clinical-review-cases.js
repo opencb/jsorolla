@@ -190,10 +190,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             //     title: "Error deleting filter",
                             //     message: msg
                             // });
-                            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+                            LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
                         } else {
                             // new NotificationQueue().push("Error deleting filter", "", "error");
-                            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                                 message: "Error deleting filter",
                             });
                         }
@@ -339,10 +339,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 if (restResponse.getEvents?.("ERROR")?.length) {
                     // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                     // new NotificationQueue().push("Error saving the filter", msg, "error");
-                    LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
                 } else {
                     // new NotificationQueue().push("Error saving the filter", "", "error");
-                    LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                    LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                         message: "Error saving the filter"
                     });
                 }

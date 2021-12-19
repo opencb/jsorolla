@@ -182,11 +182,11 @@ export default class StudyAdminUsers extends LitElement {
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
             // NotificationUtils.showNotify(messageAlert, "SUCCESS");
-            LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
                 message: messageAlert
             });
             // this.notifyStudyUpdateRequest();
-            LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+            LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
         } catch (err) {
             console.error("Message error: ", err);
@@ -384,7 +384,7 @@ export default class StudyAdminUsers extends LitElement {
                 this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [row.id]}, {action: "REMOVE"})
                     .then(res => {
                         this.requestUpdate();
-                        LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+                        LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                         this.requestUpdate();
                         Swal.fire(
                             "User Removed",
@@ -444,7 +444,7 @@ export default class StudyAdminUsers extends LitElement {
                 this.addGroupId = "";
                 this.requestUpdate();
                 // this.notifyStudyUpdateRequest();
-                LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                 Swal.fire(
                     "Group Add",
                     "Group created correctly.",
@@ -499,12 +499,12 @@ export default class StudyAdminUsers extends LitElement {
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
         // this.showMessage("Message", messageAlert, "info");
         // NotificationUtils.showNotify(messageAlert, "INFO");
-        LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+        LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
             message: messageAlert
         });
 
         // this.notifyStudyUpdateRequest();
-        LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+        LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
         this.requestUpdate();
     }
 

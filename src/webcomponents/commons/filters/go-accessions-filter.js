@@ -69,7 +69,7 @@ export default class GoAccessionsFilter extends LitElement {
                 console.log("more than 100 terms");
                 this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
                 // new NotificationQueue().push("Warning", `${arr.length} has been selected. Only the first 100 will be taken into account.`, "warning");
-                LitUtils.dispatchEventCustom(this, "notifyWarning", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyWarning", null, null, {
                     message: `${arr.length} has been selected. Only the first 100 will be taken into account.`
                 });
                 terms = arr.slice(0, 99).join(",");

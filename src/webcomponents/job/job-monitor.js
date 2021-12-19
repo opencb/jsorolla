@@ -97,7 +97,7 @@ export class JobMonitor extends LitElement {
             if (i < k) {
                 // handle the new jobs
                 // new NotificationQueue().push(`${job.id}`, "The job has been added", "", "info");
-                LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
                     message: `${job.id}, "The job has been added`
                 });
                 return {...job, updated: true};
@@ -105,7 +105,7 @@ export class JobMonitor extends LitElement {
                 // handle the change of state
                 if (job.internal.status.name !== oldList[i - k].internal.status.name) {
                     // new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
-                    LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
+                    LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
                         message: `${job.id} The job has now status ${job?.internal?.status?.name}`
                     });
                     return {...job, updated: true};

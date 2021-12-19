@@ -215,7 +215,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     notifyClinicalAnalysisWrite() {
-        LitUtils.dispatchEventCustom(this, "clinicalAnalysisCreate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisCreate", null, null, {
             id: this.clinicalAnalysis.id,
             clinicalAnalysis: this.clinicalAnalysis
         });
@@ -245,7 +245,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
             .then(response => {
-                LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
                     title: "Clinical analysis created",
                     message: `The clinical analysis ${response.responses[0].results[0].id} has been created successfully`,
                 });
@@ -254,7 +254,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             })
             .catch(response => {
                 // console.error(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             });
     }
 

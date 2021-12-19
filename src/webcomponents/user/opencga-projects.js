@@ -275,14 +275,14 @@ export default class OpencgaProjects extends LitElement {
             } else if (catalogProjectResponse.getEvents("ERROR").length) {
                 const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                 // new NotificationQueue().push("Error", msg, "error");
-                LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                     message: `${msg}`
                 });
             }
         } catch (e) {
             console.error(e);
             // UtilsNew.notifyError(e);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
         this.requestUpdate();
         // await this.updateComplete; // this causes intermittent refresh issues

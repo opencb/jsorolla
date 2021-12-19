@@ -176,13 +176,13 @@ export default class FormUtils {
             // errors.forEach(error => {
             //     new NotificationQueue().push(error.name, error.message, "ERROR");
             // });
-            LitUtils.dispatchEventCustom(this, "notifyError", response);
+            LitUtils.dispatchCustomEvent(this, "notifyError", response);
         } else if (response instanceof Error) {
             // new NotificationQueue().push(response.name, response.message, "ERROR");
-            LitUtils.dispatchEventCustom(this, "notifyError", response);
+            LitUtils.dispatchCustomEvent(this, "notifyError", response);
         } else {
             // new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
-            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
                 title: "Generic Error",
                 message: JSON.stringify(response)
             });

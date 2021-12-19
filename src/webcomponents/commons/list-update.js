@@ -83,7 +83,7 @@ export default class ListUpdate extends LitElement {
 
             if (this.node?.parent === "annotationIndexConfiguration") {
                 const itemData = {...e.detail, node: this.node, item: this.item};
-                LitUtils.dispatchEventCustom(this, "fieldChange", itemData);
+                LitUtils.dispatchCustomEvent(this, "fieldChange", itemData);
             }
         }
     }
@@ -94,7 +94,7 @@ export default class ListUpdate extends LitElement {
         this.values = e.detail.value;
         if (this.node?.parent === "annotationIndexConfiguration") {
             const itemData = {values: this.values.split(","), node: this.node};
-            LitUtils.dispatchEventCustom(this, "addValues", itemData);
+            LitUtils.dispatchCustomEvent(this, "addValues", itemData);
         }
     }
 
@@ -108,7 +108,7 @@ export default class ListUpdate extends LitElement {
             };
         }
         const itemData = {index: index, node, item: index >= 0 ? this.data.items[index] : this.item};
-        LitUtils.dispatchEventCustom(
+        LitUtils.dispatchCustomEvent(
             this,
             "changeItem",
             itemData);
@@ -130,7 +130,7 @@ export default class ListUpdate extends LitElement {
         }).then(result => {
             if (result.isConfirmed) {
                 const itemData = this.removeItem(this.data.items, i, node);
-                LitUtils.dispatchEventCustom(this, "removeItem", itemData);
+                LitUtils.dispatchCustomEvent(this, "removeItem", itemData);
                 // trigger a update... refresh the list inside annotationFileConfigs
                 this.requestUpdate();
                 Swal.fire(

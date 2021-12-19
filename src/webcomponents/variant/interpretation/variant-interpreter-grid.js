@@ -992,7 +992,7 @@ export default class VariantInterpreterGrid extends LitElement {
             .catch(response => {
                 console.log(response);
                 // UtilsNew.notifyError(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -1078,7 +1078,7 @@ export default class VariantInterpreterGrid extends LitElement {
             this.renderVariants();
         } catch (e) {
             // UtilsNew.notifyError(e);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
 
         }
     }
