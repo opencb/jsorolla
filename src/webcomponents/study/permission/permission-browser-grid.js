@@ -156,9 +156,9 @@ export default class PermissionBrowserGrid extends LitElement {
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
             // NotificationUtils.showNotify(messageAlert, "SUCCESS");
-            LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                 message: messageAlert
-            });
+            }, null);
             // this.notifyStudyUpdateRequest();
             this.requestUpdate();
         } catch (err) {

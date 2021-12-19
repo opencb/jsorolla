@@ -188,7 +188,7 @@ export default class SampleUpdate extends LitElement {
         };
 
         const showBrowser = () => {
-            LitUtils.dispatchCustomEvent(this, "querySearch", null, null, {query: query});
+            LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query}, null);
             const hash = window.location.hash.split("/");
             const newHash = "#sample/" + hash[1] + "/" + hash[2];
             window.location.hash = newHash;

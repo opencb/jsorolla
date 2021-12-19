@@ -108,10 +108,7 @@ export default class ListUpdate extends LitElement {
             };
         }
         const itemData = {index: index, node, item: index >= 0 ? this.data.items[index] : this.item};
-        LitUtils.dispatchCustomEvent(
-            this,
-            "changeItem",
-            itemData);
+        LitUtils.dispatchCustomEvent(this, "changeItem", itemData);
         // trigger a update .. it's work for all use case.
         this.requestUpdate();
     }

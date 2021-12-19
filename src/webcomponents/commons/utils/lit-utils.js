@@ -36,7 +36,7 @@ export default class LitUtils {
     * Should be extended from the class mixin and pass LitElement as parameter
     * Ex: export default class NameComponent extends ClassMixin(LitElement) {....}
     */
-    static dispatchCustomEvent(self, id, value, error = null, other = null, options = {bubbles: true, composed: true}) {
+    static dispatchCustomEvent(self, id, value, other = null, error = null, options = {bubbles: true, composed: true}) {
         const event = {
             detail: {
                 value: value,

@@ -679,9 +679,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn, createDefaultInterpretation: true})
                     .then(response => {
                         // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+                        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                             message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
-                        });
+                        }, null);
                         this.notifyClinicalAnalysisWrite();
                         this.onClear();
                     })
@@ -694,9 +694,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
                     .then(response => {
                         // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+                        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                             message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
-                        });
+                        }, null);
                         this.notifyClinicalAnalysisWrite();
                         this.onClear();
                     })

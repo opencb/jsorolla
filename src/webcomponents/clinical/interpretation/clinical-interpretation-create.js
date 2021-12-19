@@ -122,10 +122,10 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     notifyClinicalAnalysisWrite() {
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             id: this.interpretation.id,
             clinicalAnalysis: this.interpretation,
-        });
+        }, null);
     }
 
     onClear() {
@@ -139,10 +139,10 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
         this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {study: this.opencgaSession.study.fqn})
             .then(response => {
-                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                     title: "Clinical Interpretation created",
                     message: `The clinical interpretation ${response.responses[0].results[0].id} has been created successfully`,
-                });
+                }, null);
                 this.notifyClinicalAnalysisWrite();
                 this.onClear();
             })

@@ -182,10 +182,10 @@ export default class FormUtils {
             LitUtils.dispatchCustomEvent(this, "notifyError", response);
         } else {
             // new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
-            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                 title: "Generic Error",
                 message: JSON.stringify(response)
-            });
+            }, null);
         }
     }
 

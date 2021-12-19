@@ -48,7 +48,7 @@ export default class CustomNavBar extends LitElement {
     }
 
     onSideBarToggle(e) {
-        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", null, {event: e});
+        LitUtils.dispatchCustomEvent(this, "sideBarToggle", "", {event: e}, null);
     }
 
     onChangeTool(e) {
@@ -56,12 +56,12 @@ export default class CustomNavBar extends LitElement {
     }
 
     onChangeApp(e, toggle) {
-        LitUtils.dispatchCustomEvent(this, "changeApp", "", null, {event: e, toggle: toggle});
+        LitUtils.dispatchCustomEvent(this, "changeApp", "", {event: e, toggle: toggle}, null);
     }
 
     onStudySelect(e, study) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        LitUtils.dispatchCustomEvent(this, "studySelect", "", null, {event: e, study: study});
+        LitUtils.dispatchCustomEvent(this, "studySelect", "", {event: e, study: study}, null);
     }
 
     createAboutLink(link, button) {

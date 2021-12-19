@@ -74,9 +74,9 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             clinicalAnalysis: e.detail.clinicalAnalysis
-        });
+        }, null);
     }
 
     render() {

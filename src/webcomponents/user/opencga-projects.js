@@ -275,9 +275,9 @@ export default class OpencgaProjects extends LitElement {
             } else if (catalogProjectResponse.getEvents("ERROR").length) {
                 const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                 // new NotificationQueue().push("Error", msg, "error");
-                LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                     message: `${msg}`
-                });
+                }, null);
             }
         } catch (e) {
             console.error(e);

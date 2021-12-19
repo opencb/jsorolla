@@ -193,9 +193,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
                         } else {
                             // new NotificationQueue().push("Error deleting filter", "", "error");
-                            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+                            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                                 message: "Error deleting filter",
-                            });
+                            }, null);
                         }
                         console.error(restResponse);
                     });
@@ -342,9 +342,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
                 } else {
                     // new NotificationQueue().push("Error saving the filter", "", "error");
-                    LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+                    LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                         message: "Error saving the filter"
-                    });
+                    }, null);
                 }
                 console.error(restResponse);
             })

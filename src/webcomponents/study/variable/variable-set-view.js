@@ -86,7 +86,7 @@ export default class VariableSetView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    LitUtils.dispatchCustomEvent(this, "variableSetSearch", this.variableSet, error);
+                    LitUtils.dispatchCustomEvent(this, "variableSetSearch", this.variableSet, null, error);
                 });
         }
     }

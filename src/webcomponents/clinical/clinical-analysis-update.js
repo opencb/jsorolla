@@ -129,9 +129,9 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     postUpdate(response) {
-        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
             message: "Case info updated successfully",
-        });
+        }, null);
 
         // Reset values after success update
         this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));

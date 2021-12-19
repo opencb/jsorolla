@@ -128,9 +128,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
     onAddAnnotationClicked(e) {
         if (typeof this.lastAnnotationFilter === "undefined") {
             // new NotificationQueue().push("Please choose or input a value", "", "warning");
-            LitUtils.dispatchCustomEvent(this, "notifyWarning", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyWarning", null, {
                 message: "Please choose or input a value"
-            });
+            }, null);
             return;
         }
         this.dispatchEvent(new CustomEvent("filterannotation", {detail: {value: this.lastAnnotationFilter}}));

@@ -92,9 +92,9 @@ export default class RgaIndividualFamily extends LitElement {
             } else {
                 // NOTE TODO clinicalAnalysis must be defined
                 // new NotificationQueue().push("Clinical Analysis not available", "", "error");
-                LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                     message: "Clinical Analysis not available"
-                });
+                }, null);
             }
         } else {
             trio.proband = this.individual;
@@ -115,9 +115,9 @@ export default class RgaIndividualFamily extends LitElement {
 
         if (!this.sampleIds[0]) {
             // new NotificationQueue().push("Sample of the Proband not available", "", "error");
-            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                 message: "Sample of the Proband not available"
-            });
+            }, null);
         }
 
         // in case father is missing, the response studies[].samples[] of variants().query() would contains only 2 entries

@@ -182,9 +182,9 @@ export default class StudyAdminUsers extends LitElement {
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
             // NotificationUtils.showNotify(messageAlert, "SUCCESS");
-            LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                 message: messageAlert
-            });
+            }, null);
             // this.notifyStudyUpdateRequest();
             LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
@@ -499,9 +499,9 @@ export default class StudyAdminUsers extends LitElement {
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
         // this.showMessage("Message", messageAlert, "info");
         // NotificationUtils.showNotify(messageAlert, "INFO");
-        LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
+        LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
             message: messageAlert
-        });
+        }, null);
 
         // this.notifyStudyUpdateRequest();
         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);

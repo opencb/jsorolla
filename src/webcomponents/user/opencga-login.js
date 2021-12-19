@@ -112,14 +112,14 @@ export default class OpencgaLogin extends LitElement {
                                 const dateExpired = new Date(decoded.exp * 1000);
                                 const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
-                                LitUtils.dispatchCustomEvent(this, "login", null, null, {
+                                LitUtils.dispatchCustomEvent(this, "login", null, {
                                     userId: user,
                                     token: token
-                                });
+                                }, null);
 
-                                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+                                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                                     message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
-                                });
+                                }, null);
                             }
                         } else {
                             this.errorState = [
@@ -129,10 +129,10 @@ export default class OpencgaLogin extends LitElement {
                                 },
                             ];
                             // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+                            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                                 title: this.errorState[0].name,
                                 message: this.errorState[0].message
-                            });
+                            }, null);
                         }
                     })
                     .catch(response => {
@@ -142,13 +142,13 @@ export default class OpencgaLogin extends LitElement {
                     });
             } else {
                 // new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
-                LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                     title: "Error retrieving OpencgaSession",
                     message: `
                         There was an error retrieving the OpencgaSession.
                         Please try again later or contact the administrator if the problem persists.
                     `,
-                });
+                }, null);
             }
         }
     }

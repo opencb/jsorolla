@@ -147,9 +147,9 @@ export default class OpencgaFamilyEditor extends LitElement {
                 });
         } else {
             // new NotificationQueue().push("Please start typing an individual id", null, "danger");
-            LitUtils.dispatchCustomEvent(this, "notifyError", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
                 message: "Please start typing an individual id"
-            });
+            }, null);
         }
     }
 
@@ -181,9 +181,9 @@ export default class OpencgaFamilyEditor extends LitElement {
         for (let i = 0; i < this.selectedIndividuals.length; i++) {
             if (this.selectedIndividuals[i].id === individual.id) {
                 // new NotificationQueue().push(`Individual ${individual.id} already added`, null, "warning");
-                LitUtils.dispatchCustomEvent(this, "notifyWarning", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyWarning", null, {
                     message: `Individual ${individual.id} already added`
-                });
+                }, null);
                 // The individual was already added
                 return;
             }
@@ -211,9 +211,9 @@ export default class OpencgaFamilyEditor extends LitElement {
                 .then(function (response) {
                     _this.resetFields();
                     // new NotificationQueue().push(`Family ${response.response[0].result[0].id} created successfully`, "", "success");
-                    LitUtils.dispatchCustomEvent(this, "notifySuccess", null, null, {
+                    LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                         message: `Family ${response.response[0].result[0].id} created successfully`
-                    });
+                    }, null);
                 })
                 .catch(function (response) {
                     console.error(response);
@@ -254,9 +254,9 @@ export default class OpencgaFamilyEditor extends LitElement {
 
         if (UtilsNew.isNotEmptyArray(missingFields)) {
             // new NotificationQueue().push("Missing " + missingFields.join(", ") + " fields", null, "danger");
-            LitUtils.dispatchCustomEvent(this, "notifyWarning", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyWarning", null, {
                 message: "Missing " + missingFields.join(", ") + " fields"
-            });
+            }, null);
             return null;
         }
 

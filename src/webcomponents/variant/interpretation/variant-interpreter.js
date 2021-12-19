@@ -206,9 +206,9 @@ class VariantInterpreter extends LitElement {
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
             // new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
-            LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
+            LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
                 message: "Clinical analysis refreshed"
-            });
+            }, null);
         });
     }
 
@@ -217,9 +217,9 @@ class VariantInterpreter extends LitElement {
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
             return this.onClinicalAnalysisUpdate().then(() => {
                 // new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
-                LitUtils.dispatchCustomEvent(this, "notifyInfo", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
                     message: `Changed primary interpretation to '${interpretationId}'.`
-                });
+                }, null);
             });
         });
     }
