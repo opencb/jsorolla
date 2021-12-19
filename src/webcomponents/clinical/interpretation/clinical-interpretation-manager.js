@@ -289,9 +289,6 @@ export default class ClinicalInterpretationManager extends LitElement {
             case "setAsPrimary":
                 this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
                 break;
-            // case "restore":
-            //     this.clinicalAnalysisManager.restoreInterpretation(interpretationId, interpretationCallback);
-            //     break;
             case "clear":
                 this.clinicalAnalysisManager.clearInterpretation(interpretationId, interpretationCallback);
                 break;

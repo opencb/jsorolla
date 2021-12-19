@@ -106,15 +106,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.users = [];
-        if (this.opencgaSession?.study?.groups) {
-            for (const group of this.opencgaSession.study.groups) {
-                if (group.id === "@members") {
-                    this.users.push(...group.userIds.filter(user => user !== "*"));
-                    break;
-                }
-            }
-        }
+        this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
     onFieldChange(e, field) {

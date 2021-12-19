@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class ClinicalInterpretationSummary extends LitElement {
 
@@ -91,16 +91,12 @@ export default class ClinicalInterpretationSummary extends LitElement {
             sections: [
                 {
                     id: "summary",
-                    // title: "Summary",
-                    display: {
-                        // style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; padding: 5px",
-                    },
+                    display: {},
                     elements: [
                         {
                             // Interpretation ID, analyst and creation date
                             type: "custom",
                             display: {
-                                // labelWidth: 0,
                                 render: interpretation => html`
                                     <div class="row" style="padding-left: 5px">
                                         <div class="col-md-7">
@@ -132,7 +128,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             type: "basic",
                         },
                         {
-                            title: "Disease Panel(s)",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
@@ -159,7 +155,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
                         },
                         {
                             title: "Primary Findings",
-                            // field: "stats",
                             type: "custom",
                             display: {
                                 render: interpretation => html`

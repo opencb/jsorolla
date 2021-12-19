@@ -17,13 +17,15 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import FormUtils from "../commons/forms/form-utils";
+import FormUtils from "../commons/forms/form-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "./clinical-analysis-comment-editor.js";
-import "../commons/forms/data-form.js";
-import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import "../commons/forms/data-form.js";
+import "../commons/filters/disease-panel-filter.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 class ClinicalAnalysisUpdate extends LitElement {
 
@@ -127,10 +129,8 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     postUpdate(response) {
-        Swal.fire({
-            title: "Success",
-            icon: "success",
-            html: "Case info updated successfully"
+        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+            message: "Case info updated successfully",
         });
 
         // Reset values after success update
@@ -272,7 +272,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: proband => {
-                                    const sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
+                                    const sex = (proband?.sex?.id !== "UNKNOWN") ? `(${proband.sex.id || proband.sex})` : "(Sex not reported)";
                                     const sampleIds = proband.samples.map(sample => sample.id).join(", ");
                                     return html`
                                         <span style="padding-right: 25px">
@@ -295,7 +295,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Disease Panel",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
@@ -307,7 +307,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                                                     return html`
                                                         <div style="margin: 5px 0px">
-                                                            <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                                                             </a>
                                                         </div>`;
