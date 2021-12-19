@@ -661,7 +661,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.assignee",
+                            field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
                             allowedValues: "_users",
