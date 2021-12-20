@@ -102,10 +102,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 break;
             case "disorder.id":
                 if (e.detail.value) {
-                    const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
-                    this.clinicalAnalysis.disorder = {
-                        id: disorder.id
-                    };
+                    if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+                        const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
+                        this.clinicalAnalysis.disorder = {
+                            id: disorder.id
+                        };
+                    }
                 } else {
                     delete this.clinicalAnalysis.disorder;
                 }
@@ -247,13 +249,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
             .then(response => {
                 LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                     title: "Clinical analysis created",
-                    message: `The clinical analysis ${response.responses[0].results[0].id} has been created successfully`,
-                }, null);
+                    message: `The clinical analysis ${data.id} has been created successfully`,
+                });
                 this.notifyClinicalAnalysisWrite();
                 this.onClear();
             })
             .catch(response => {
-                // console.error(response);
+                console.error(response);
                 LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             });
     }
