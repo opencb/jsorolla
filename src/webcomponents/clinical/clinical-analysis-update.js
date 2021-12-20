@@ -197,6 +197,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     this.postUpdate(response);
                 })
                 .catch(response => {
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     console.error("An error occurred updating clinicalAnalysis: ", response);
                 });
         } else {
