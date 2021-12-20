@@ -660,15 +660,16 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <div class="">
-                <input
-                    type="checkbox"
-                    class="${this._prefix}FilterCheckbox"
-                    .checked="${value}"
-                    ?disabled="${disabled}"
-                    @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}"
-                    style="margin-right: 5px; margin-top: 12px">
-                <span>${element.text}</span>
+            <div class="checkbox">
+                <label>
+                    <input
+                        type="checkbox"
+                        class="${this._prefix}FilterCheckbox"
+                        .checked="${value}"
+                        ?disabled="${disabled}"
+                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}">
+                    ${element.text}
+                </label>
             </div>
         `;
     }
