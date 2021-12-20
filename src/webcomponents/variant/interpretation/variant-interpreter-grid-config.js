@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
-import LitUtils from "../../commons/utils/lit-utils";
 
 export default class VariantInterpreterGridConfig extends LitElement {
 
@@ -30,6 +30,10 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     static get properties() {
         return {
+            // FIXME Temporary object used to check CellBase version and hide RefSeq filter
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -51,7 +55,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.all":
             case "consequenceType.maneTranscript":
             case "consequenceType.ensemblCanonicalTranscript":
-            // case "consequenceType.refseqTranscript":
             case "consequenceType.gencodeBasicTranscript":
             case "consequenceType.ccdsTranscript":
             case "consequenceType.lrgTranscript":
@@ -78,13 +81,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
         }
 
         LitUtils.dispatchCustomEvent(this, "configChange", this.config, null, null, {bubbles: true, composed: true});
-        // this.dispatchEvent(new CustomEvent("configChange", {
-        //     detail: {
-        //         value: this.config
-        //     },
-        //     bubbles: true,
-        //     composed: true
-        // }));
     }
 
     render() {
@@ -125,7 +121,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "text",
                             text: "Select the Gene Set to be displayed",
                             display: {
-                                containerStyle: "margin: 5px 5px 5px 0px"
+                                containerStyle: "margin: 5px 5px 5px 0px",
+                                visible: () => this.opencgaSession.project.internal.cellbase.version === "v5"
                             }
                         },
                         {
@@ -133,7 +130,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Ensembl",
                             display: {
-                                containerStyle: "margin: 5px"
+                                containerStyle: "margin: 5px",
+                                visible: () => this.opencgaSession.project.internal.cellbase.version === "v5"
                             }
                         },
                         {
@@ -141,7 +139,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "RefSeq",
                             display: {
-                                containerStyle: "margin: 5px"
+                                containerStyle: "margin: 5px",
+                                visible: () => this.opencgaSession.project.internal.cellbase.version === "v5"
                             }
                         },
                         {
@@ -183,14 +182,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
-                        // {
-                        //     field: "consequenceType.refseqTranscript",
-                        //     type: "checkbox",
-                        //     text: "Include RefSeq transcripts",
-                        //     display: {
-                        //         containerStyle: "margin: 5px"
-                        //     }
-                        // },
                         {
                             field: "consequenceType.gencodeBasicTranscript",
                             type: "checkbox",

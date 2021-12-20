@@ -1170,6 +1170,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config}"
                                     @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>
