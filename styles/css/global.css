@@ -320,7 +320,11 @@ span.subtitle {
 
 /*********** bootstrap override *****************/
 
-/* 
+input[type=checkbox], input[type=radio] {
+    margin: 3px 0 0 0;
+}
+
+/*
 .modal-content {
     border-radius: 0;
 }
