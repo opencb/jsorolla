@@ -562,22 +562,12 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "case") ? html`
                                             <!-- Case ID -->
                                             <div class="btn-group" data-cy="form-case">
-                                                <clinical-analysis-id-autocomplete .config=${{placeholder: "Case Id"}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
-                                                                                   @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
-                                                    <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                        id="${this._prefix}caseMenu"
-                                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    <span class="ocap-text-button">Case: <span>${this.query.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
-                                                    <li style="padding: 5px;">
-                                                        <div style="display: inline-flex; width: 300px;">
-                                                            <label class="filter-label">Case ID:</label>
-                                                            <clinical-analysis-id-autocomplete .config=${{showList: true}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
-                                                                                               @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
-                                                        </div>
-                                                    </li>
-                                                </ul> -->
+                                                <clinical-analysis-id-autocomplete
+                                                    .config=${{placeholder: "Case Id"}}
+                                                    .value="${this.query?.id}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                                                </clinical-analysis-id-autocomplete>
                                             </div>
                                         ` : null}
 

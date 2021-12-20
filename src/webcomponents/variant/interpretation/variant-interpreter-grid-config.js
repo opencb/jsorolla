@@ -130,7 +130,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Ensembl",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
                             }
                         },
@@ -139,7 +139,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "RefSeq",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
                             }
                         },
@@ -155,7 +155,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include All Transcripts",
                             display: {
-                                containerStyle: "margin: 5px 5px 10px 5px"
+                                containerStyle: "margin: 10px 5px",
                             }
                         },
                         {
@@ -169,7 +169,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include MANE Select and Plus Clinical transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -178,7 +178,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include Ensembl Canonical transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -187,7 +187,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include GENCODE Basic transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -196,7 +196,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include CCDS transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -205,7 +205,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include LRG transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -214,7 +214,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include Ensembl TSL:1 transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -223,7 +223,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include Illumina TSO500 transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -232,7 +232,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include EGLH HaemOnc transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -241,7 +241,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include protein coding transcripts",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         },
@@ -250,7 +250,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "checkbox",
                             text: "Include transcripts with high impact consequence types",
                             display: {
-                                containerStyle: "margin: 5px",
+                                containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         }

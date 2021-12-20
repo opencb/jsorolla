@@ -338,10 +338,10 @@ export default class DataForm extends LitElement {
         } else {
             // Render without layout
             return html`
-            <div class="${layoutClassName} ${className}" style="${style}">
-                ${this.config.sections.map(section => this._createSection(section))}
-            </div>
-        `;
+                <div class="${layoutClassName} ${className}" style="${style}">
+                    ${this.config.sections.map(section => this._createSection(section))}
+                </div>
+            `;
         }
     }
 
@@ -412,7 +412,7 @@ export default class DataForm extends LitElement {
             switch (element.type) {
                 case "text":
                 case "title":
-                    content = this._createTitleElement(element);
+                    content = this._createTextElement(element);
                     break;
                 case "input-text":
                     content = this._createInputTextElement(element);
@@ -558,7 +558,7 @@ export default class DataForm extends LitElement {
     }
 
     // WARNING: this method should be renamed as _createTextElement
-    _createTitleElement(element) {
+    _createTextElement(element) {
         const textClass = element.display?.textClassName ?? element.display?.textClass ?? "";
         const textStyle = element.display?.textStyle ?? "";
 
@@ -660,17 +660,15 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <div class="checkbox">
-                <label>
-                    <input
-                        type="checkbox"
-                        class="${this._prefix}FilterCheckbox"
-                        .checked="${value}"
-                        ?disabled="${disabled}"
-                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}">
-                    ${element.text}
-                </label>
-            </div>
+            <label style="font-weight: normal;margin: 0">
+                <input
+                    type="checkbox"
+                    class="${this._prefix}FilterCheckbox"
+                    .checked="${value}"
+                    ?disabled="${disabled}"
+                    @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}">
+                <span style="margin: 0 5px">${element.text}</span>
+            </label>
         `;
     }
 
@@ -722,35 +720,6 @@ export default class DataForm extends LitElement {
             </div>
         `;
     }
-
-    // DEPRECATED
-    // renderBtnGroup(element) {
-    //     // const value = this.getValue(element.field) || this._getDefaultValue(element);
-    //     // consft names = element.allowedValues;
-
-    //     return html`
-    //         <div class="btn-group ${element?.buttonClass}">
-    //             ${element.btnGroups.map(btn => html `
-    //                 ${btn.openModal ? html `
-    //                     <button
-    //                         type="button"
-    //                         class="btn ${btn.btnClass? btn.btnClass : "btn-primary" }"
-    //                         data-toggle="modal"
-    //                         data-target="#${this._prefix}DataModal">
-    //                         ${btn.title}
-    //                     </button>
-    //                 `: html `
-    //                     <button
-    //                         type="button"
-    //                         class="btn ${btn.btnClass}"
-    //                         @click="${e => this.onCustomEvent(e, btn.event, this.data)}">
-    //                         ${btn.title}
-    //                     </button>
-    //                 `}
-    //             `)}
-    //         </div>
-    //     `;
-    // }
 
     /**
      * Creates a select element given some values. You can provide:
@@ -973,41 +942,41 @@ export default class DataForm extends LitElement {
             <table class="table" style="display: inline">
                 ${headerVisible ? html`
                     <thead>
-                        <tr>
-                            ${element.display.columns.map(elem => html`
-                                <th scope="col">${elem.title || elem.name}</th>
-                            `)}
-                        </tr>
+                    <tr>
+                        ${element.display.columns.map(elem => html`
+                            <th scope="col">${elem.title || elem.name}</th>
+                        `)}
+                    </tr>
                     </thead>
                 ` : null}
                 <tbody>
-                    ${array.map(row => html`
-                        <tr scope="row">
-                            ${element.display.columns.map(elem => {
-                                const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                const elemStyle = elem.display?.style ?? "";
-                                let content = null;
+                ${array.map(row => html`
+                    <tr scope="row">
+                        ${element.display.columns.map(elem => {
+                            const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                            const elemStyle = elem.display?.style ?? "";
+                            let content = null;
 
-                                // Check the element type
-                                switch (elem.type) {
-                                    case "complex":
-                                        content = this._createComplexElement(elem, row);
-                                        break;
-                                    case "custom":
-                                        content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                                        break;
-                                    default:
-                                        content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                                }
+                            // Check the element type
+                            switch (elem.type) {
+                                case "complex":
+                                    content = this._createComplexElement(elem, row);
+                                    break;
+                                case "custom":
+                                    content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
+                                    break;
+                                default:
+                                    content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
+                            }
 
-                                return html`
-                                    <td class="${elemClassName}" style="${elemStyle}">
-                                        ${content}
-                                    </td>
-                                `;
-                            })}
-                        </tr>
-                    `)}
+                            return html`
+                                <td class="${elemClassName}" style="${elemStyle}">
+                                    ${content}
+                                </td>
+                            `;
+                        })}
+                    </tr>
+                `)}
                 </tbody>
             </table>
         `;
@@ -1276,19 +1245,19 @@ export default class DataForm extends LitElement {
             const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled ?? this.config.display?.mode?.disabled, false);
 
             return html`
-                    <button type="button"
+                <button type="button"
                         title="${this.config.description}"
                         class="btn ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
                         style="${modalBtnStyle}"
                         data-toggle="modal"
                         ?disabled="${isDisabled}"
                         data-target="#${this._prefix}DataModal">
-                            <i class="${icon} icon-padding" aria-hidden="true"></i>
-                            ${this.config.title}
-                    </button>
+                    <i class="${icon} icon-padding" aria-hidden="true"></i>
+                    ${this.config.title}
+                </button>
 
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                    aria-hidden="true">
+                     aria-hidden="true">
                     <div class="modal-dialog" style="width: ${modalWidth}">
                         <div class="modal-content">
                             <div class="modal-header">
