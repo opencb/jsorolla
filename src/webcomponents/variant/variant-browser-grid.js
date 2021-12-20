@@ -804,6 +804,10 @@ export default class VariantBrowserGrid extends LitElement {
                 verticalAlign: "bottom"
             },
 
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,

@@ -304,7 +304,7 @@ export default class DataForm extends LitElement {
         const className = this.config?.display?.className ?? this.config?.display?.classes ?? "";
         const style = this.config?.display?.style ?? "";
         const layout = this.config?.display?.defaultLayout || "";
-        const layoutClassName = layout === "horizontal" ? "form-horizontal" : "";
+        const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
         // Render custom display.layout array when provided
         if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
@@ -335,14 +335,14 @@ export default class DataForm extends LitElement {
                     })}
                 </div>
             `;
-        }
-
-        // Render without layout
-        return html`
+        } else {
+            // Render without layout
+            return html`
             <div class="${layoutClassName} ${className}" style="${style}">
                 ${this.config.sections.map(section => this._createSection(section))}
             </div>
         `;
+        }
     }
 
     _createSection(section) {
@@ -469,6 +469,10 @@ export default class DataForm extends LitElement {
         const layout = this._getDefaultLayout(element, section);
         const width = this._getWidth(element) || 12;
 
+        // Initialize container values
+        const elementContainerClassName = element.display?.containerClassName ?? "";
+        const elementContainerStyle = element.display?.containerStyle ?? "";
+
         // Initialize title values
         let title = element.title ?? element.name; // element.name is deprecated --> use element.title
         const titleClassName = element.display?.titleClassName ?? element.display?.labelClasses ?? "";
@@ -490,7 +494,7 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="row form-group">
+                <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <div class="col-md-${titleWidth}">
                             <label class="control-label ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
@@ -510,7 +514,7 @@ export default class DataForm extends LitElement {
             `;
         } else {
             return html`
-                <div class="row form-group">
+                <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
                             <label class="control-label ${titleClassName}" style="${titleStyle}">
