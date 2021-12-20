@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -83,7 +84,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     update(changedProperties) {
@@ -91,7 +92,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             this.settingsObserver();
         }
         if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -135,7 +136,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         let isSettingsObserverCalled = false;
 
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
@@ -328,16 +329,11 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     onSaveVariants(e) {
         const comment = e.detail.comment;
-        const saveCallback = () => {
-            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                detail: {
-                    clinicalAnalysis: this.clinicalAnalysis
-                },
-                bubbles: true,
-                composed: true
-            }));
-        };
-        this.clinicalAnalysisManager.updateInterpretation(comment, saveCallback);
+        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
     }
 
     onVariantFilterChange(e) {
@@ -812,7 +808,10 @@ class VariantInterpreterBrowserRd extends LitElement {
             </style>
 
             ${this._config.showTitle ? html`
-                <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
+                <tool-header
+                    title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
+                    icon="${this._config.icon}">
+                </tool-header>
             ` : null}
 
             <div class="row">
@@ -840,7 +839,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     @filterVariants="${this.onFilterVariants}"
                                     @resetVariants="${this.onResetVariants}"
                                     @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-browser-toolbar>` : null
+                                </variant-interpreter-browser-toolbar>
+                            ` : null
                         }
                     </div>
 

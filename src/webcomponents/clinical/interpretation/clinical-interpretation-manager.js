@@ -66,7 +66,7 @@ export default class ClinicalInterpretationManager extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     updated(changedProperties) {
@@ -78,7 +78,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -97,7 +97,7 @@ export default class ClinicalInterpretationManager extends LitElement {
 
     async clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
             // this.interpretations = [
             //     {

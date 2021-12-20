@@ -87,7 +87,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     firstUpdated(_changedProperties) {
@@ -119,13 +119,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
