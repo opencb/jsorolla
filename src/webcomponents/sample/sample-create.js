@@ -102,6 +102,7 @@ export default class SampleCreate extends LitElement {
                 this.sample = {...this.sample, annotationSets: e.detail.value};
                 break;
         }
+        this.requestUpdate();
     }
 
     onClear(e) {
@@ -129,27 +130,24 @@ export default class SampleCreate extends LitElement {
 
     onSubmit(e) {
         e.stopPropagation();
-        console.log("onSubmit", this, this.sample);
-        this.sample = {};
-        this.requestUpdate();
-        // this.opencgaSession.opencgaClient
-        //     .samples()
-        //     .create(this.sample, {study: this.opencgaSession.study.fqn})
-        //     .then(res => {
-        //         dispatchEvent(this.sample)
-        //         this.sample = {};
-        //         this.requestUpdate();
-        //         // this.dispatchSessionUpdateRequest();
-
-        //         FormUtils.showAlert(
-        //             "New Sample",
-        //             "Sample save correctly",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //     });
+        console.log("onSubmit", this.sample);
+        this.opencgaSession.opencgaClient
+            .samples()
+            .create(this.sample, {study: this.opencgaSession.study.fqn})
+            .then(res => {
+                // dispatchEvent(this.sample)
+                this.sample = {};
+                this.requestUpdate();
+                // this.dispatchSessionUpdateRequest();
+                FormUtils.showAlert(
+                    "New Sample",
+                    "Sample save correctly",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     render() {
@@ -429,7 +427,6 @@ export default class SampleCreate extends LitElement {
                                 help: {
                                     text: "short Sample id for thehis as;lsal"
                                 },
-                                validation: {}
                             }
                         },
                         {
@@ -467,6 +464,30 @@ export default class SampleCreate extends LitElement {
                                             }
                                         })}">
                                     </individual-id-autocomplete>`
+                            }
+                        },
+                        {
+                            id: "creationDate",
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
+                            }
+                        },
+                        {
+                            id: "modificationDate",
+                            name: "Modification Date",
+                            field: "modificationDate",
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
                             }
                         },
                         {
@@ -523,7 +544,7 @@ export default class SampleCreate extends LitElement {
                         },
                         {
                             name: "Lab Sample ID",
-                            field: "processing.labSambpleId",
+                            field: "processing.labSampleId",
                             type: "input-text",
                             display: {
                                 placeholder: "Add the lab sample ID..."
@@ -619,28 +640,28 @@ export default class SampleCreate extends LitElement {
                         },
                     ]
                 },
-                {
-                    title: "Annotations Sets",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: sample => html`
-                                    <annotation-set-update
-                                        .annotationSets="${sample?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                                    </annotation-set-update>
-                                `
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: sample => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${sample?.annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         };
     }
