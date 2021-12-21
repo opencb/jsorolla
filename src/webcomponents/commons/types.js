@@ -172,7 +172,6 @@ export default class Types {
     /**
     * Element type definitions
     * @typedef {Object} Element Define the element that makes up a section
-    * @property {string} name - name of the element
     * @property {string} title - name of the element
     * @property {string} field - data name of element form
     * @property {elementType} type - type of element form
@@ -202,7 +201,7 @@ export default class Types {
      * @property {string} type - Define the type to the data-form
      * @property {Button} buttons - Custom Config for the button to data-form
      * @property {DisplayForm} display - Custom Config for the display to data-form
-     * @property {Section[]} section - Define sections to teh config
+     * @property {Section[]} sections - Define sections to teh config
      * @property {Validation} validation - Define validation to the data-form
      */
 
