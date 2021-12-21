@@ -288,18 +288,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
             icon: "fas fa-user-md",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
-            links: [
-                {
-                    title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
-                    icon: ""
-                }
-            ],
-            buttons: {
-                clearText: "Clear",
-                okText: "Create Clinical Analysis",
-            },
             display: {
+                buttonsWidth: 8,
+                buttonClearText: "Clear",
+                buttonOkText: "Create Clinical Analysis",
                 width: 8,
                 titleVisible: false,
                 titleAlign: "left",
