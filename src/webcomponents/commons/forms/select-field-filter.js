@@ -137,7 +137,7 @@ export default class SelectFieldFilter extends LitElement {
 
     filterChange(e) {
         const selection = this.selectPicker.selectpicker("val");
-        let val;
+        let val = null;
         if (selection && selection.length) {
             if (this.multiple) {
                 val = selection.join(",");
@@ -153,9 +153,9 @@ export default class SelectFieldFilter extends LitElement {
             }
         }
 
-        LitUtils.dispatchEventCustom(this, "filterChange", val || null, null, {
+        LitUtils.dispatchCustomEvent(this, "filterChange", val, {
             data: this.data,
-        });
+        }, null, {bubbles: false, composed: false});
     }
 
     render() {
@@ -181,7 +181,7 @@ export default class SelectFieldFilter extends LitElement {
                                 <optgroup label="${opt.id ?? opt.name}">
                                     ${opt.fields.map(subopt => html`
                                         ${UtilsNew.isObject(subopt) ? html`
-                                            <option 
+                                            <option
                                                 ?disabled="${subopt.disabled}"
                                                 ?selected="${subopt.selected}"
                                                 .value="${subopt.id ?? subopt.name}"
@@ -194,7 +194,7 @@ export default class SelectFieldFilter extends LitElement {
                                 </optgroup>
                             ` : html`
                                 ${UtilsNew.isObject(opt) ? html`
-                                    <option 
+                                    <option
                                         ?disabled="${opt.disabled}"
                                         ?selected="${opt.selected}"
                                         .value="${opt.id ?? opt.name}"

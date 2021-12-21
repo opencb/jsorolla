@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html} from "lit-html"
+import {html} from "lit-html";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
@@ -152,13 +152,13 @@ export default class VariantInterpreterGridFormatter {
             for (const sample of study.samples) {
                 const file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
 
-                let referenceFreq, referenceCount, alternateFreq, alternateCount, secondaryAlternate = "-";
-                let secondaryAlternateFreq;
-                let originalCall;
+                let referenceFreq,      referenceCount,      alternateFreq,      alternateCount,      secondaryAlternate = "-";
+                     let secondaryAlternateFreq;
+                     let originalCall;
 
-                let ad;
-                let af;
-                let dp;
+                     let ad;
+                     let af;
+                     let dp;
 
                 // Get DP value
                 const dpIdx = study.sampleDataKeys.findIndex(e => e === "DP");
@@ -240,7 +240,9 @@ export default class VariantInterpreterGridFormatter {
     static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
         if (row && row.evidences.length > 0) {
             // Sort and group CTs by Gene name
+            // FIXME one day we need to rethink this since evidences and consequenceTypes can be different
             BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+            BioinfoUtils.sort(row.annotation.consequenceTypes, v => v.geneName);
 
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, config).indexes;
             let message = "";
@@ -344,7 +346,7 @@ export default class VariantInterpreterGridFormatter {
                             </a>
                         </div>`;
                 }
-debugger
+
                 // Get the CT for this transcript ID
                 const ct = row.annotation?.consequenceTypes
                     ?.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId || ct.transcriptId === re.genomicFeature.transcriptId);
@@ -554,7 +556,7 @@ debugger
                         const vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
                         if (vaf && vaf.vaf >= 0 && vaf.depth >= 0) {
                             content = VariantInterpreterGridFormatter.vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
-                        } else {    // Just in case we cannot render freqs, this should never happen.
+                        } else { // Just in case we cannot render freqs, this should never happen.
                             content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
                         break;

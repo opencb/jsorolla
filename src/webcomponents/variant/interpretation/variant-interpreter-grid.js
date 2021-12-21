@@ -27,7 +27,7 @@ import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -87,7 +87,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     firstUpdated(_changedProperties) {
@@ -125,13 +125,13 @@ export default class VariantInterpreterGrid extends LitElement {
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
@@ -463,13 +463,6 @@ export default class VariantInterpreterGrid extends LitElement {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (row && row.annotation) {
-            // if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-            //     detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
-            //     detailHtml += "<div style='padding: 5px 40px'>";
-            //     detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
-            //     detailHtml += "</div>";
-            // }
-
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
@@ -991,7 +984,8 @@ export default class VariantInterpreterGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -1027,7 +1021,12 @@ export default class VariantInterpreterGrid extends LitElement {
             genotype: {
                 type: "VAF"
             },
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
             consequenceType: {
+                // all: false,
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
                 ensemblCanonicalTranscript: true,
@@ -1076,7 +1075,9 @@ export default class VariantInterpreterGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+
         }
     }
 
@@ -1138,7 +1139,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1159,7 +1160,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1169,6 +1170,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config}"
                                     @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>

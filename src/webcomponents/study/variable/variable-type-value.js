@@ -74,7 +74,7 @@ export default class VariableTypeValue extends LitElement {
     }
 
     onSendValues() {
-        LitUtils.dispatchEventCustom(this, "addItem", this.values);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.values);
     }
 
     render() {

@@ -20,7 +20,7 @@ import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
-
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class OpencgaVariantSamples extends LitElement {
 
@@ -387,7 +387,8 @@ export default class OpencgaVariantSamples extends LitElement {
                 }
             }
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();
@@ -414,10 +415,11 @@ export default class OpencgaVariantSamples extends LitElement {
                         </div>` :
                     null
                 }
-                <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                     @columnChange="${this.onColumnChange}"
-                                     @download="${this.onDownload}"
-                                     @sharelink="${this.onShare}">
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
                 <div>
                     <table id="${this._prefix}SampleTable"></table>

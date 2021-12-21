@@ -63,7 +63,7 @@ export default class SampleCreate extends LitElement {
     }
 
     dispatchSessionUpdateRequest() {
-        LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
+        LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
     }
 
     onFieldChange(e, field) {

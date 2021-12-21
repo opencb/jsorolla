@@ -22,6 +22,7 @@ import GridCommons from "../commons/grid-commons.js";
 import VariantUtils from "./variant-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -775,7 +776,8 @@ export default class VariantBrowserGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -802,6 +804,10 @@ export default class VariantBrowserGrid extends LitElement {
                 verticalAlign: "bottom"
             },
 
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
             consequenceType: {
                 maneTranscript: true,
                 gencodeBasicTranscript: true,
@@ -832,7 +838,8 @@ export default class VariantBrowserGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
     }
 
@@ -877,6 +884,7 @@ export default class VariantBrowserGrid extends LitElement {
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config}"
                                     @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>

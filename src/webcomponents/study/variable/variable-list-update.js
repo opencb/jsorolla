@@ -108,7 +108,7 @@ export default class VariableListUpdate extends LitElement {
             const newVar = this.buildVariable(variable);
             this.variables = [...this.variables, newVar];
         }
-        LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
+        LitUtils.dispatchCustomEvent(this, "changeVariables", this.variables);
     }
 
     addChildVariable(variables, parentVarIds, childVariable) {
@@ -135,7 +135,7 @@ export default class VariableListUpdate extends LitElement {
             const parentVarIds = this.parentVarId.split(".");
             this.variables = this.editChildVariable(this.variables, parentVarIds, variable);
             this.parentVarId = "";
-            LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
+            LitUtils.dispatchCustomEvent(this, "changeVariables", this.variables);
         } else {
             // Deprecated
             console.log("Add variable to the list");
@@ -186,7 +186,7 @@ export default class VariableListUpdate extends LitElement {
                 const removeVariable = variable.split(".");
                 this.variables = this.removalVariable(this.variables, removeVariable);
                 console.log("result: ", this.variables);
-                LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
+                LitUtils.dispatchCustomEvent(this, "changeVariables", this.variables);
                 Swal.fire(
                     "Deleted!",
                     "The variable has been deleted.",

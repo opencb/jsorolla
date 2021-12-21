@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -81,7 +82,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     update(changedProperties) {
@@ -89,7 +90,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.settingsObserver();
         }
         if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -133,7 +134,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         let isSettingsObserverCalled = false;
 
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
@@ -306,16 +307,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     onSaveVariants(e) {
         const comment = e.detail.comment;
-        const saveCallback = () => {
-            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                detail: {
-                    clinicalAnalysis: this.clinicalAnalysis
-                },
-                bubbles: true,
-                composed: true
-            }));
-        };
-        this.clinicalAnalysisManager.updateInterpretation(comment, saveCallback);
+        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
     }
 
     onVariantFilterChange(e) {
@@ -436,12 +432,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: tooltips.region
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.region,
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Feature regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.feature,
                             },
                             {
                                 id: "biotype",
@@ -464,9 +468,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                disabled: {
-                                    check: () => this.clinicalAnalysis.panelLock,
-                                    message: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
                                 tooltip: tooltips.diseasePanels
                             },
@@ -771,7 +776,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
             </style>
 
             ${this._config.showTitle ? html`
-                <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
+                <tool-header
+                    title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
+                    icon="${this._config.icon}">
+                </tool-header>
             ` : null}
 
             <div class="row">
@@ -799,7 +807,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     @filterVariants="${this.onFilterVariants}"
                                     @resetVariants="${this.onResetVariants}"
                                     @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-browser-toolbar>` : null
+                                </variant-interpreter-browser-toolbar>
+                            ` : null
                         }
                     </div>
 

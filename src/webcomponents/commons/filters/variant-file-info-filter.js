@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/data-form.js";
 
 /*
@@ -366,15 +365,15 @@ export default class VariantFileInfoFilter extends LitElement {
         return {
             title: "",
             icon: "",
-            type: "form",
             display: {
+                buttonsVisible: false,
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
+                titleVisible: false,
+                titleWidth: 2,
                 defaultValue: "-",
                 defaultLayout: "vertical"
             },
-            sections: _sections
+            sections: _sections,
         };
     }
 
