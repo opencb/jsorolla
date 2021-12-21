@@ -292,6 +292,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     onActionClick(e, _, row) {
         const {action} = e.currentTarget.dataset;
+
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
@@ -332,9 +333,31 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 }
             });
         }
+
+        // Lock or unlock the case
+        if (action === "lock") {
+            const updateParams = {
+                locked: !row.locked,
+            };
+
+            return this.opencgaSession.opencgaClient.clinical().update(row.id, updateParams, {
+                study: this.opencgaSession.study.fqn,
+            })
+                .then(() => {
+                    LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+                        message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
+                    });
+                    this.renderTable();
+                })
+                .catch(response => {
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                });
+        }
+
         if (action === "download") {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
         }
+
         if (action === "statusChange") {
             const {status} = e.currentTarget.dataset;
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
@@ -350,6 +373,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
         }
+
         if (action === "priorityChange") {
             const {priority} = e.currentTarget.dataset;
             this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
@@ -391,7 +415,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         <span class="help-block" style="margin: 5px 0">
                             ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
                         </span>
-                    </div>`
+                    </div>
+                `,
             },
             {
                 id: "familyId",
@@ -407,8 +432,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
                             </div>
                             <div>
                                 <span class="help-block" style="margin: 5px 0px">${row.family.members.length} members</span>
-                            </div>`;
+                            </div>
+                        `;
                     }
+
+                    // No family found
+                    return "-";
                 }
             },
             {
@@ -421,7 +450,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
                     return `
                         <div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
-                        <div style="margin: 5px 0px">${panelHtml}</div>`;
+                        <div style="margin: 5px 0px">${panelHtml}</div>
+                    `;
                 },
             },
             {
@@ -484,8 +514,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         dueDateStyle = "color: darkred";
                     }
                     return `
-                        <div><span style="${dueDateStyle}">${dueDateString}</span></div>
-                        <div><span class="help-block">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</span></div>
+                        <div style="${dueDateStyle}">${dueDateString}</div>
+                        <div class="help-block">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
                     `;
                 }
                 // visible: !this._config.columns.hidden.includes("dueDate")
@@ -506,32 +536,55 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 title: "Actions",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: (value, row) => `
-                    <div class="dropdown">
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select
-                            <span class="caret" style="margin-left: 5px"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a class="btn force-text-left" data-action="interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
-                                </a>
-                            </li>
-                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? `
-                                <li role="separator" class="divider"></li>
+                formatter: (value, row) => {
+                    const session = this.opencgaSession;
+                    const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
+                    const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(session.study, session.user.id, "WRITE_CLINICAL_ANALYSIS");
+
+                    const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
+                    const lockActionText = row.locked ? "Unlock" : "Lock";
+
+                    // Generate actions dropdown
+                    return `
+                        <div class="dropdown" align="center">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <span>Actions</span>
+                                <span class="caret" style="margin-left: 5px"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <!-- Open the case in the case interpreter -->
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                    <a class="btn force-text-left" data-action="interpreter" href="${url}">
+                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
                                     </a>
-                                </li>` : ""
-                            }
-                        </ul>
-                    </div>`,
+                                </li>
+                                <!-- Download the case -->
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                    </a>
+                                </li>
+                                <!-- Perfom write operations to the case -->
+                                ${hasWriteAccess ? `
+                                    <li role="separator" class="divider"></li>
+                                    <!-- Lock or unlock the case -->
+                                    <li>
+                                        <a class="btn force-text-left" data-action="lock">
+                                            <i class="fas ${lockActionIcon} icon-padding" aria-hidden="true"></i> ${lockActionText}
+                                        </a>
+                                    </li>
+                                    <!-- Delete the case -->
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                            <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                        </a>
+                                    </li>
+                                ` : ""}
+                            </ul>
+                        </div>
+                    `;
+                },
                 events: {
                     "click a": this.onActionClick.bind(this)
                 }
@@ -613,7 +666,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            }
+            },
             // it comes from external settings and it is used in _getDefaultColumns()
             // columns: []
         };
@@ -621,15 +674,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.toolbarConfig}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}">
-                    </opencb-grid-toolbar>` : null
-            }
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>
