@@ -1176,15 +1176,18 @@ export default class DataForm extends LitElement {
         const btnWidth = this.config.display?.buttonsWidth ?? 12;
         const btnAlign = this.config.display?.buttonsAlign ?? "right";
 
+        const buttonCancelText = this.config.display?.buttonCancelText ?? this.config.buttons?.cancelText ?? "Cancel";
+        const buttonOkText = this.config.display?.buttonOkText ?? this.config.buttons?.okText ?? "OK";
+
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
                     <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onClear}">
-                        ${this.config?.buttons?.cancelText || "Cancel"}
+                        ${buttonCancelText}
                     </button>
                     <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onSubmit}">
-                        ${this.config?.buttons?.okText || "OK"}
+                        ${buttonOkText}
                     </button>
                 </div>
             </div>
