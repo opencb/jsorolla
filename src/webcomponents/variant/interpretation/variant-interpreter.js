@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import {NotificationQueue} from "../../../core/NotificationQueue.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -28,7 +28,7 @@ import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
-import "../../clinical/clinical-interpretation-view.js";
+import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -127,24 +127,29 @@ class VariantInterpreter extends LitElement {
                 .then(response => {
                     // FIXME delete soon!
                     const _clinicalAnalysis = response.responses[0].results[0];
-                    const panelIdToPanel = {};
-                    _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
-                    _clinicalAnalysis.interpretation.panels.forEach(panel => {
-                        panel.name = panelIdToPanel[panel.id].name;
-                        panel.source = panelIdToPanel[panel.id].source;
-                    });
-                    for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
-                        secondaryInterpretation.panels.forEach(panel => {
-                            panel.name = panelIdToPanel[panel.id].name;
-                            panel.source = panelIdToPanel[panel.id].source;
-                        });
+                    if (_clinicalAnalysis.panels) {
+                        const panelIdToPanel = {};
+                        _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
+                        if (_clinicalAnalysis?.interpretation?.panels) {
+                            _clinicalAnalysis.interpretation.panels.forEach(panel => {
+                                panel.name = panelIdToPanel[panel.id].name;
+                                panel.source = panelIdToPanel[panel.id].source;
+                            });
+                        }
+                        for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
+                            secondaryInterpretation.panels.forEach(panel => {
+                                panel.name = panelIdToPanel[panel.id].name;
+                                panel.source = panelIdToPanel[panel.id].source;
+                            });
+                        }
                     }
                     this.clinicalAnalysis = _clinicalAnalysis;
                     // FIXME Replace horrible code above by this one:
                     // this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    // console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
             // .finally(async () => {
             // this._config = {...this._config, loading: false};
@@ -158,7 +163,7 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -183,8 +188,10 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
-    onClinicalAnalysisUpdate(e) {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+    onClinicalAnalysisUpdate() {
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {
+            study: this.opencgaSession.study.fqn,
+        })
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -201,17 +208,17 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
-            new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
+            // new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
+            LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
+                message: "Clinical analysis refreshed"
+            }, null);
         });
     }
 
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
-
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
-            return this.onClinicalAnalysisUpdate().then(() => {
-                new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
-            });
+            this.onClinicalAnalysisUpdate();
         });
     }
 
@@ -223,7 +230,7 @@ class VariantInterpreter extends LitElement {
             tools: [
                 {
                     id: "select",
-                    title: "Case Manager",
+                    title: "Case Info",
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-folder-open"
@@ -293,7 +300,7 @@ class VariantInterpreter extends LitElement {
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
                                         <div class="text-muted">
-                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation.primaryFindings.length}</strong></div>
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
                                         </div>
                                     </div>
                                 ` : null}
@@ -353,21 +360,21 @@ class VariantInterpreter extends LitElement {
                                 <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
                                     <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
                                 </a>
-                             -->
+                            -->
                             </div>
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config?.tools?.map(item => html`
                                         ${!item.hidden ? html`
-                                                <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                                   href="javascript: void 0" data-view="${item.id}"
-                                                   @click="${this.onClickSection}">
-                                                    <div class="hi-icon ${item.icon}"></div>
-                                                    <p>${item.title}</p>
-                                                    <span class="smaller"></span>
-                                                </a>` :
-                                            ""}
+                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                                href="javascript: void 0" data-view="${item.id}"
+                                                @click="${this.onClickSection}">
+                                                <div class="hi-icon ${item.icon}"></div>
+                                                <p>${item.title}</p>
+                                                <span class="smaller"></span>
+                                            </a>
+                                        ` : ""}
                                     `)}
                                 </div>
                             </div>
@@ -383,7 +390,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-landing
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .config="${this._config}"
+                                        .config="${this._config.tools.find(tool => tool.id === "select")}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                         @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                     </variant-interpreter-landing>

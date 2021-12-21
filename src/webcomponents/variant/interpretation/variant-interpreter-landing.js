@@ -15,10 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../clinical/clinical-analysis-update.js";
-import "../../clinical/clinical-interpretation-manager.js";
+import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../commons/view/detail-tabs.js";
@@ -59,10 +60,23 @@ class VariantInterpreterLanding extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        }
+
+        if (changedProperties.has("config")) {
+            this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
+        }
+
+        this._config = this.getDefaultConfig();
+        super.update(changedProperties);
+    }
+
     onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             clinicalAnalysis: e.detail.clinicalAnalysis
-        });
+        }, null);
     }
 
     render() {
@@ -86,14 +100,14 @@ class VariantInterpreterLanding extends LitElement {
         }
 
         // Check if we have permissions to edit a clinical analysis
-        if (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
+        /* if (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
                     <h3>You do not have permissions to edit this case.</h3>
                 </div>
             `;
-        }
+        } */
 
         return html`
             <detail-tabs
@@ -112,12 +126,12 @@ class VariantInterpreterLanding extends LitElement {
             items: [
                 {
                     id: "general",
-                    name: "General Info",
-                    active: true,
+                    name: "Case Manager",
+                    active: this.writeMode,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
-                                <tool-header title="General Info - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
+                                <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"
@@ -149,12 +163,12 @@ class VariantInterpreterLanding extends LitElement {
                 },
                 {
                     id: "clinical",
-                    name: "Clinical",
+                    name: "Clinical Data",
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
-                                <tool-header title="Clinical" class="bg-white"></tool-header>
+                                <tool-header title="Clinical Data" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <individual-view
                                         .individual="${clinicalAnalysis.proband}"
@@ -205,13 +219,14 @@ class VariantInterpreterLanding extends LitElement {
                 {
                     id: "overview",
                     name: "Overview",
-                    active: false,
+                    active: !this.writeMode,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <opencga-clinical-analysis-view
+                                        .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
                                     </opencga-clinical-analysis-view>

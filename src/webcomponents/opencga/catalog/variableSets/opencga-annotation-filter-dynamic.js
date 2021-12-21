@@ -1,14 +1,13 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import {NotificationQueue} from "../../../../core/NotificationQueue.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
 import "./opencga-variable-selector.js";
 import "./../../../commons/forms/select-field-filter.js";
 
 /**
  * @deprecated
  */
-
 export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
     constructor() {
@@ -55,7 +54,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
 
         // Get selected variable
-        /*const variableSetSelector = $(`button[data-id=${this._prefix}-annotation-picker]`)[0];
+        /* const variableSetSelector = $(`button[data-id=${this._prefix}-annotation-picker]`)[0];
         console.log("variableSetSelector", variableSetSelector);
         if (typeof variableSetSelector !== "undefined") {
             this.selectedVariable = this.getVariable(variableSetSelector.title);
@@ -103,10 +102,10 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             this.requestUpdate();
             await this.updateComplete;
 
-            for (let v of variables) {
-                let [, variableSetId, variable, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
-                //const indx = this.selectedVariables[variableSetId].findIndex(s => s.id === variable);
-                //console.log("ind", indx);
+            for (const v of variables) {
+                const [, variableSetId, variable, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
+                // const indx = this.selectedVariables[variableSetId].findIndex(s => s.id === variable);
+                // console.log("ind", indx);
 
                 // add new variable
                 const variableSet = this.variableSets.find(_ => _.id === variableSetId);
@@ -114,9 +113,9 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
                 this.selectedVariables[variableSetId] = [...this.selectedVariables[variableSetId], {...newvar, value: value}];
             }
 
-            //the update of the select picker cannot be done in the same loop
-            for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
-                console.log("VARIABLE", variables)
+            // the update of the select picker cannot be done in the same loop
+            for (const [variableSetId, variables] of Object.entries(this.selectedVariables)) {
+                console.log("VARIABLE", variables);
                 $("#" + this._prefix + "-annotation-picker-" + variableSetId).selectpicker("val", variables.map(_ => _.id));
             }
         } else {
@@ -134,13 +133,13 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
      */
     // fire in case of selectedVariables change
     selectedVariablesSerializer() {
-        //console.log("selectedVariableObserver", this.selectedVariables);
-        let selected = [];
+        // console.log("selectedVariableObserver", this.selectedVariables);
+        const selected = [];
         this.selectedVariablesFormatted = "";
-        for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
+        for (const [variableSetId, variables] of Object.entries(this.selectedVariables)) {
             // avoid adding empty arrays (every value in selectedVariables is init as empty array)
             if (variables.length) {
-                //each variableSet is an item
+                // each variableSet is an item
                 selected.push(variables.filter(variable => !!variable.value).map(variable => `${variableSetId}:${variable.id}=${variable.value}`).join(";"));
             }
         }
@@ -156,7 +155,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         // it seems there is no way to get just the currently selected/deselected item (you can get the whole array of selected items only)
         // so this method computes the symmetric difference (in terms of sets, Union minus Intersection) between this.selectedVariables and $(e.target).selectpicker("val")
         const currentSelected = $(e.target).selectpicker("val") || [];
-        const selectedIds = this.selectedVariables[variableSetId].map(_ => _.id); //empty array in case of first selection
+        const selectedIds = this.selectedVariables[variableSetId].map(_ => _.id); // empty array in case of first selection
         const differences = selectedIds
             .filter(a => !currentSelected.includes(a))
             .concat(currentSelected.filter(id => !selectedIds.includes(id)));
@@ -165,13 +164,13 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
         const difference = differences[0];
         if (currentSelected.length > selectedIds.length) {
-            //add the variable
+            // add the variable
             const variableSet = this.variableSets.find(set => set.id === variableSetId);
             const variable = variableSet.variables.find(variable => variable.id === difference);
 
-            //if a variable in the same variableSet has been already selected
+            // if a variable in the same variableSet has been already selected
             // there is no need for this check this.selectedVariables[variableSetId] is always defined
-            /*if (this.selectedVariables[variableSetId] && this.selectedVariables[variableSetId].length) {
+            /* if (this.selectedVariables[variableSetId] && this.selectedVariables[variableSetId].length) {
                 this.selectedVariables[variableSetId] = [...this.selectedVariables[variableSetId], variable];
             } else {
                 this.selectedVariables[variableSetId] = [variable];
@@ -179,11 +178,11 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
 
             this.selectedVariables[variableSetId] = [...this.selectedVariables[variableSetId], variable];
 
-            //console.log("adding", difference, this.selectedVariables[variableSetId]);
+            // console.log("adding", difference, this.selectedVariables[variableSetId]);
         } else {
-            //remove the variable
+            // remove the variable
             this.selectedVariables[variableSetId] = this.selectedVariables[variableSetId].filter(variable => variable.id !== difference);
-            //console.log("removing", difference, this.selectedVariables[variableSetId]);
+            // console.log("removing", difference, this.selectedVariables[variableSetId]);
         }
         this.requestUpdate();
         await this.updateComplete;
@@ -192,7 +191,10 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
     /** @deprecated */
     onAddAnnotationClicked(e) {
         if (typeof this.lastAnnotationFilter === "undefined") {
-            new NotificationQueue().push("Please choose or input a value", "", "warning");
+            // new NotificationQueue().push("Please choose or input a value", "", "warning");
+            LitUtils.dispatchCustomEvent(this, "notifyWarning", null, {
+                message: "Please choose or input a value"
+            }, null);
             return;
         }
         this.dispatchEvent(new CustomEvent("filterannotation", {detail: {value: this.lastAnnotationFilter}}));
@@ -211,7 +213,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
     addCategoricalFilter(e) {
         this.lastAnnotationFilter = undefined;
         const values = $(e.target).selectpicker("val");
-        /*if (values === null) {
+        /* if (values === null) {
             return;
         }*/
         // Note: in case of single variable set the select #${this._prefix}-variableSetSelect is not actually present in DOM, this.singleVariableSet contains the value
@@ -223,7 +225,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
     addInputFilter(e) {
         const {variableId, variableSetId} = e.target.dataset;
         const value = e.target.value.trim();
-        //this.lastAnnotationFilter = `${variableSetId}:${variableId}=${value}`;
+        // this.lastAnnotationFilter = `${variableSetId}:${variableId}=${value}`;
         const indx = this.selectedVariables[variableSetId].findIndex(variable => variable.id === variableId);
         this.selectedVariables[variableSetId][indx] = {...this.selectedVariables[variableSetId][indx], value: value};
         this.selectedVariables = {...this.selectedVariables};
@@ -260,11 +262,11 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             const _this = this;
 
             this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-                .then(function(response) {
+                .then(function (response) {
                     console.log("RES", response.response[0].result[0]);
                     _this._updateVariableSets(response.response[0].result[0]);
                 })
-                .catch(function() {
+                .catch(function () {
                     _this.multipleVariableSets = false;
 
                     // Hide all selectpicker selectors
@@ -289,7 +291,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
                     variableSet["name"] = UtilsNew.defaultString(variableSet.name, variableSet.id);
                     _variableSets.push(variableSet);
 
-                    //init a map of ids to track the selected variables
+                    // init a map of ids to track the selected variables
                     this.selectedVariables[variableSet.id] = [];
                 }
             }
@@ -310,7 +312,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
     }
 
     onSelectedVariableSetChange(e) {
-        //console.log("onSelectedVariableSetChange", e)
+        // console.log("onSelectedVariableSetChange", e)
         const selectedVariableSet = e.detail.value;
         this.selectedVariableSet = this.variableSets.find(variableSet => variableSet.name === selectedVariableSet);
         this.requestUpdate();

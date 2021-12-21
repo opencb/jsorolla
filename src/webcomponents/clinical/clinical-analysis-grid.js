@@ -20,6 +20,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -337,29 +338,31 @@ export default class ClinicalAnalysisGrid extends LitElement {
         if (action === "statusChange") {
             const {status} = e.currentTarget.dataset;
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    if (!restResponse.getResultEvents("ERROR").length) {
+                .then(response => {
+                    if (!response.getResultEvents("ERROR").length) {
                         this.renderTable();
                     } else {
-                        console.error(restResponse);
+                        // console.error(response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     }
                 })
                 .catch(response => {
-                    UtilsNew.notifyError(response);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
         }
         if (action === "priorityChange") {
             const {priority} = e.currentTarget.dataset;
             this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    if (!restResponse.getResultEvents("ERROR").length) {
+                .then(response => {
+                    if (!response.getResultEvents("ERROR").length) {
                         this.renderTable();
                     } else {
-                        console.error(restResponse);
+                        // console.error(response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     }
                 })
                 .catch(response => {
-                    UtilsNew.notifyError(response);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
         }
     }
@@ -585,7 +588,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         } catch (e) {
             // in case it is a restResponse
-            UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();

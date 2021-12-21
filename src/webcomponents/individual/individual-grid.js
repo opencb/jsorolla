@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+
 
 export default class IndividualGrid extends LitElement {
 
@@ -327,11 +329,15 @@ export default class IndividualGrid extends LitElement {
     }
 
     sexFormatter(value, row) {
-        let sexHtml = `<span>${row.sex}</span>`;
-        if (UtilsNew.isNotEmpty(row.karyotypicSex)) {
-            sexHtml += ` (${row.karyotypicSex})`;
+        let sexHtml = `<span>${row.sex?.id || row.sex}</span>`;
+        if (row.karyotypicSex) {
+            sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
         }
         return sexHtml;
+    }
+
+    ethnicityFormatter(value, row) {
+        return row.ethnicity?.id || row.population?.name || "-";
     }
 
     fatherFormatter(value, row) {
@@ -345,14 +351,6 @@ export default class IndividualGrid extends LitElement {
     motherFormatter(value, row) {
         if (row.mother?.id) {
             return row.mother.id;
-        } else {
-            return "-";
-        }
-    }
-
-    ethnicityFormatter(value) {
-        if (value) {
-            return value;
         } else {
             return "-";
         }
@@ -498,7 +496,8 @@ export default class IndividualGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -540,7 +539,7 @@ export default class IndividualGrid extends LitElement {
                         @columnChange="${this.onColumnChange}"
                         @download="${this.onDownload}"
                         @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : null
+                    </opencb-grid-toolbar>` : nothing
             }
 
             <div id="${this._prefix}GridTableDiv">

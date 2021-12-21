@@ -115,10 +115,7 @@ export default class SelectTokenFilterStatic extends LitElement {
         //     }
         // });
         // this.dispatchEvent(event);
-        LitUtils.dispatchEventCustom(
-            this,
-            "filterChange",
-            selection);
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection);
     }
 
     getDefaultConfig() {

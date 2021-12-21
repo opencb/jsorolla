@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 // import Circos from "./test/circos.js";
 // import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
@@ -109,7 +110,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             this.signature = {
                 errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
             };
-            UtilsNew.notifyError(restResponse);
+            // UtilsNew.notifyError(restResponse);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
         }).finally(() => {
             this.requestUpdate();
         });
@@ -118,11 +120,11 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     deletionsStats() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_INS_DEL_TYPE",
+            field: "EXT_INS_DEL_TYPE",
             sample: this.sampleId,
             // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
-            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
-            // ...this.query
+            ...this.query,
+            ...this.queries?.["INDEL"]
         };
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
@@ -150,7 +152,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 this.stats = {
                     errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
                 };
-                UtilsNew.notifyError(restResponse);
+                // UtilsNew.notifyError(restResponse);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
             })
             .finally(() => {
                 this.requestUpdate();
@@ -160,10 +163,10 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     statsQuery() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_REARR",
+            field: "EXT_REARR",
             sample: this.sampleId,
-            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
-            // ...this.query
+            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
+            ...this.query
         };
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
@@ -219,7 +222,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     .active="${this.active}"
                                     @changeCircosPlot="${this.onChangeCircosPlot}">
                                 </circos-view>
-                                        <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
+            <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
                             </div>
                             <div class="col-md-5">
                                 <div style="margin-bottom: 20px">
@@ -231,26 +234,28 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     <h2>Deletions</h2>
                                     <div class="">
                                         <h3>${this.deletionAggregationStatsResults?.[0].count} deletions and insertions</h3>
-                                        <simple-chart  .title="Type"
-                                                       .xAxisTitle="types"
-                                                       .type="${"bar"}"
-                                                       .data="${this.deletionTypeStats}"
-                                                       .config="${this.facetConfig}"
-                                                       ?active="${true}">
+                                        <simple-chart
+                                            .title="Type"
+                                            .xAxisTitle="types"
+                                            .type="${"bar"}"
+                                            .data="${this.deletionTypeStats}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${true}">
                                         </simple-chart>
                                     </div>
                                 </div>
-                                 <div style="padding-top: 20px">
+                                <div style="padding-top: 20px">
                                     <h2>Rearrangements Stats</h2>
                                     <!--<img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">-->
                                     <div class="">
                                         <h3>${this.aggregationStatsResults?.[0].count} rearrangements</h3>
-                                        <simple-chart  .title="Type"
-                                                       .xAxisTitle="types"
-                                                       .type="${"bar"}"
-                                                       .data="${this.typeStats}"
-                                                       .config="${this.facetConfig}"
-                                                       ?active="${true}">
+                                        <simple-chart
+                                            .title="Type"
+                                            .xAxisTitle="types"
+                                            .type="${"bar"}"
+                                            .data="${this.typeStats}"
+                                            .config="${this.facetConfig}"
+                                            ?active="${true}">
                                         </simple-chart>
                                     </div>
                                 </div>

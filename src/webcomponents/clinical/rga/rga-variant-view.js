@@ -24,7 +24,7 @@ import "../../variant/annotation/variant-annotation-clinical-view.js";
 import "./rga-variant-individual.js";
 import "./rga-variant-allele-pairs.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class RgaVariantView extends LitElement {
 
@@ -596,7 +596,8 @@ export default class RgaVariantView extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -639,7 +640,11 @@ export default class RgaVariantView extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-individual .query=${this.query} .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-individual>
+                            <rga-variant-individual
+                                .query=${this.query}
+                                .variant="${variant}"
+                                .opencgaSession="${opencgaSession}">
+                            </rga-variant-individual>
                         `;
                     }
                 },
@@ -648,7 +653,11 @@ export default class RgaVariantView extends LitElement {
                     name: "Allele Pairs",
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-allele-pairs .variant="${variant}" .config=${this._config} .opencgaSession="${opencgaSession}"></rga-variant-allele-pairs>
+                            <rga-variant-allele-pairs
+                                .variant="${variant}"
+                                .config=${this._config}
+                                .opencgaSession="${opencgaSession}">
+                            </rga-variant-allele-pairs>
                         `;
                     }
                 },
@@ -657,9 +666,10 @@ export default class RgaVariantView extends LitElement {
                     name: "Clinical",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`
-                            <variant-annotation-clinical-view .variantId="${variant?.id}"
-                                                              .opencgaSession="${opencgaSession}"
-                                                              .cellbaseClient="${cellbaseClient}">
+                            <variant-annotation-clinical-view
+                                .variantId="${variant?.id}"
+                                .opencgaSession="${opencgaSession}"
+                                .cellbaseClient="${cellbaseClient}">
                             </variant-annotation-clinical-view>
                         `;
                     }
@@ -669,10 +679,11 @@ export default class RgaVariantView extends LitElement {
                     name: "Population Frequencies",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`
-                            <cellbase-population-frequency-grid .variantId="${variant?.id}"
-                                                                .assembly="${opencgaSession?.project?.organism?.assembly}"
-                                                                .cellbaseClient="${cellbaseClient}"
-                                                                .active="${active}">
+                            <cellbase-population-frequency-grid
+                                .variantId="${variant?.id}"
+                                .assembly="${opencgaSession?.project?.organism?.assembly}"
+                                .cellbaseClient="${cellbaseClient}"
+                                .active="${active}">
                             </cellbase-population-frequency-grid>`;
                     }
                 }
@@ -687,19 +698,22 @@ export default class RgaVariantView extends LitElement {
 
         return html`
             <div class="container-fluid">
-                <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                     @columnChange="${this.onColumnChange}"
-                                     @download="${this.onDownload}">
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}">
                 </opencb-grid-toolbar>
 
                 <div id="${this._prefix}GridTableDiv" class="row" data-cy="variant-view-grid">
                     <table id="${this.gridId}"></table>
                 </div>
                 ${this.variant ? html`
-                    <detail-tabs .data="${this.variant}"
-                                 .config="${this.detailConfig}"
-                                 .opencgaSession="${this.opencgaSession}"
-                                 .cellbaseClient="${this.cellbaseClient}"></detail-tabs>
+                    <detail-tabs
+                        .data="${this.variant}"
+                        .config="${this.detailConfig}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient}">
+                    </detail-tabs>
                 ` : null}
             </div>
         `;

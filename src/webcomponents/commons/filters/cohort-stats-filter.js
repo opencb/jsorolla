@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import {join} from "lodash";
 
 
 export default class CohortStatsFilter extends LitElement {

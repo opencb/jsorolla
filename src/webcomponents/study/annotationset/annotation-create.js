@@ -147,14 +147,14 @@ export default class AnnotationCreate extends LitElement {
 
     onSendAnnotationSet(e) {
         e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.annotationSet);
         this.annotationSet = {};
     }
 
     onClear(e) {
         e.stopPropagation();
         this.annotationSet = {};
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {

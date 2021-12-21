@@ -35,20 +35,19 @@ export default class SignatureView extends LitElement {
             signature: {
                 type: Object
             },
-            // active: {
-            //     type: Boolean
-            // },
             mode: {
                 type: String // view | plot
             },
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = UtilsNew.randomString(8);
+
+        this.mode = "SBS";
     }
 
     connectedCallback() {
@@ -75,13 +74,20 @@ export default class SignatureView extends LitElement {
         }
 
         const counts = this.signature.counts;
-        const categories = counts.map(point => point?.context)
-        const data = counts.map(point => point?.total)
+        const categories = counts.map(point => point?.context);
+        const data = counts.map(point => point?.total);
 
         const substitutionClass = string => {
             const [,pair,letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
             return {pair, letter};
-        }
+        };
+
+        const rearragementClass = string => {
+            const fields = string.split("_");
+            const pair = fields[0] + "_" + fields[1];
+            const letter = fields[2] || "";
+            return {pair, letter};
+        };
 
         const dataset = {
             "C>A": {
@@ -107,22 +113,61 @@ export default class SignatureView extends LitElement {
             "T>G": {
                 color: "#edc8c5",
                 data: []
-            }
+            },
+
+            "clustered_del": {
+                color: "#31bef0",
+                data: []
+            },
+            "clustered_tds": {
+                color: "#000000",
+                data: []
+            },
+            "clustered_inv": {
+                color: "#e62725",
+                data: []
+            },
+            "clustered_trans": {
+                color: "#cbcacb",
+                data: []
+            },
+            "non-clustered_del": {
+                color: "#31bef0",
+                data: []
+            },
+            "non-clustered_tds": {
+                color: "#000000",
+                data: []
+            },
+            "non-clustered_inv": {
+                color: "#e62725",
+                data: []
+            },
+            "non-clustered_trans": {
+                color: "#cbcacb",
+                data: []
+            },
         };
 
-        for (let count of counts) {
+        for (const count of counts) {
             if (count) {
-                const {pair} = substitutionClass(count.context);
-                dataset[pair].data.push(count.total);
+                if (this.mode === "SBS") {
+                    const {pair} = substitutionClass(count.context);
+                    dataset[pair].data.push(count.total);
+                } else {
+                    const {pair} = rearragementClass(count.context);
+                    dataset[pair].data.push(count.total);
+                }
             }
         }
-        const addRects = function(chart) {
+
+        const addRects = function (chart) {
             $(".rect", this).remove();
             $(".rect-label", this).remove();
             let lastStart = 0;
             for (const k in dataset) {
-                //console.log("chart.categories", chart.xAxis)
-                //console.log("k", dataset[k].data.length)
+                // console.log("chart.categories", chart.xAxis)
+                // console.log("k", dataset[k].data.length)
                 const xAxis = chart.xAxis[0];
                 chart.renderer.rect(xAxis.toPixels(lastStart), 30, xAxis.toPixels(dataset[k].data.length) - xAxis.toPixels(1), 10, 0)
                     .attr({
@@ -154,10 +199,10 @@ export default class SignatureView extends LitElement {
                 height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
                 type: "column",
                 events: {
-                    redraw: function() {
+                    redraw: function () {
                         addRects(this);
                     },
-                    load: function() {
+                    load: function () {
                         addRects(this);
                     }
                 },
@@ -170,18 +215,32 @@ export default class SignatureView extends LitElement {
                 enabled: false
             },
             tooltip: {
-                formatter: function() {
-                    const {pair, letter} = substitutionClass(this.x)
-                    return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>:${this.y}</strong>`;
+                formatter: function () {
+                    if (this.x.includes('[')) {
+                        const {pair, letter} = substitutionClass(this.x);
+                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>: ${this.y}</strong>`;
+                    } else {
+                        const {pair, letter} = rearragementClass(this.x);
+                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>: ${this.y}</strong>`;
+                    }
+                    // const {pair, letter} = substitutionClass(this.x);
+                    // return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>:${this.y}</strong>`;
                 }
             },
             xAxis: {
                 categories: categories,
                 labels: {
                     rotation: -90,
-                    formatter: function () {
-                        const {pair, letter} = substitutionClass(this.value)
-                        return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                    formatter: data => {
+                        if (this.mode === "SBS") {
+                            const {pair, letter} = substitutionClass(data.value);
+                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                        } else {
+                            const {pair, letter} = rearragementClass(data.value);
+                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                        }
+                        // const {pair, letter} = substitutionClass(this.value);
+                        // return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
                     }
                 }
             },
@@ -195,9 +254,9 @@ export default class SignatureView extends LitElement {
 
     getDefaultConfig() {
         return {
-            //width: null, width is always 100% of the visible container
+            // width: null, width is always 100% of the visible container
             height: 240,
-        }
+        };
     }
 
     render() {
@@ -207,16 +266,15 @@ export default class SignatureView extends LitElement {
 
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature
-                        ? html`
-                            <div style="margin: 10px">
-                                <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
-                            </div>
-                            <div id="${this._prefix}SignaturePlot"></div>`
-                        : html`<loading-spinner></loading-spinner>`
+                ${this.signature ? html`
+                    <div style="margin: 10px">
+                        <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
+                    </div>
+                    <div id="${this._prefix}SignaturePlot"></div>` : html`
+                    <loading-spinner></loading-spinner>`
                 }
             </div>
-            <!-- list of files -->`
+        `;
     }
 
 }

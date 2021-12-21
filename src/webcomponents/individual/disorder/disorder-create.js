@@ -72,14 +72,14 @@ export default class DiosrderCreate extends LitElement {
 
     onSendDisorder(e) {
         e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.disorder);
         this.disorder = {};
     }
 
     onClear(e) {
         e.stopPropagation();
         this.disorder = {};
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {

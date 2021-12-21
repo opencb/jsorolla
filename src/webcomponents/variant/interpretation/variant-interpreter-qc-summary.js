@@ -122,121 +122,6 @@ class VariantInterpreterQcSummary extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {
-            title: "",
-            icon: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
-            sections: [
-                {
-                    title: "",
-                    collapsed: false,
-                    elements: [
-                        {
-                            name: "Case ID",
-                            field: "id"
-                        },
-                        {
-                            name: "Proband",
-                            field: "proband.id",
-                            type: "custom",
-                            display: {
-                                render: probandId => html`<strong>${probandId}</strong>`
-                            }
-                        },
-                        {
-                            name: "Disorder",
-                            field: "disorder",
-                            type: "custom",
-                            display: {
-                                render: disorder => {
-                                    if (disorder) {
-                                        let id;
-                                        if (disorder.id?.startsWith("OMIM:")) {
-                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                        }
-                                        return html`${disorder.name || "-"} (${id})`;
-                                    } else {
-                                        return "-";
-                                    }
-
-                                }
-                            }
-                        },
-                        {
-                            name: "Analysis Type",
-                            field: "type"
-                        }
-                    ]
-                },
-                {
-                    title: "BAM QC Stats",
-                    collapsed: false,
-                    display: {
-                        visible: this.clinicalAnalysis?.annotations ?? false
-                    },
-                    elements: [
-                        {
-                            name: "BAM Stats",
-                            field: "annotations",
-                            type: "table",
-                            display: {
-                                columns: [
-                                    {
-                                        name: "BAM File",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div><span style="font-weight: bold">${data.file}</span></div>`
-                                        }
-                                    },
-                                    {
-                                        name: "SD insert size",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.sdInsertSize}</div>`
-                                        }
-                                    },
-                                    {
-                                        name: "Average insert size",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.avgInsertSize}</div>`
-                                        }
-                                    },
-                                    {
-                                        name: "Duplicate read rate",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.duplicateReadRate}</div>`
-                                        }
-                                    },
-                                    {
-                                        name: "Average sequence depth",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.avgSequenceDepth}</div>`
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                    ]
-                }
-            ]
-        };
-    }
-
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -260,6 +145,127 @@ class VariantInterpreterQcSummary extends LitElement {
                 <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "",
+            icon: "",
+            display: {
+                buttonsVisible: false,
+                collapsable: true,
+                titleVisible: false,
+                titleWidth: 2,
+                defaultValue: "-",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    title: "",
+                    collapsed: false,
+                    elements: [
+                        {
+                            title: "Case ID",
+                            field: "id"
+                        },
+                        {
+                            title: "Proband",
+                            field: "proband.id",
+                            type: "custom",
+                            display: {
+                                render: probandId => html`<strong>${probandId}</strong>`,
+                            },
+                        },
+                        {
+                            title: "Disorder",
+                            field: "disorder",
+                            type: "custom",
+                            display: {
+                                render: disorder => {
+                                    if (disorder) {
+                                        let id;
+                                        if (disorder.id?.startsWith("OMIM:")) {
+                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                        }
+                                        return html`${disorder.name || "-"} (${id})`;
+                                    } else {
+                                        return "-";
+                                    }
+
+                                }
+                            }
+                        },
+                        {
+                            title: "Analysis Type",
+                            field: "type",
+                        }
+                    ]
+                },
+                {
+                    title: "BAM QC Stats",
+                    collapsed: false,
+                    display: {
+                        visible: this.clinicalAnalysis?.annotations ?? false,
+                    },
+                    elements: [
+                        {
+                            title: "BAM Stats",
+                            field: "annotations",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        title: "BAM File",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`
+                                                <div><span style="font-weight: bold">${data.file}</span></div>
+                                            `,
+                                        }
+                                    },
+                                    {
+                                        title: "SD insert size",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`
+                                                <div>${data.sdInsertSize}</div>
+                                            `,
+                                        }
+                                    },
+                                    {
+                                        title: "Average insert size",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`
+                                                <div>${data.avgInsertSize}</div>
+                                            ,`
+                                        }
+                                    },
+                                    {
+                                        title: "Duplicate read rate",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`
+                                                <div>${data.duplicateReadRate}</div>
+                                            `,
+                                        }
+                                    },
+                                    {
+                                        title: "Average sequence depth",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`
+                                                <div>${data.avgSequenceDepth}</div>
+                                            `,
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                    ]
+                }
+            ]
+        };
     }
 
 }

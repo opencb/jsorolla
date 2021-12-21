@@ -33,8 +33,7 @@ import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
-import NotificationUtils from "../../webcomponents/NotificationUtils.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import NotificationManager from "../../core/notification-manager.js";
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
@@ -54,7 +53,7 @@ import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
-import "../../webcomponents/job/opencga-job-browser.js";
+import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
@@ -84,15 +83,14 @@ import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/Notification.js";
+import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
-
 import "../../webcomponents/clinical/rga/rga-browser.js";
-
 
 
 class IvaApp extends LitElement {
@@ -215,7 +213,8 @@ class IvaApp extends LitElement {
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
-            "study-admin"];
+            "study-admin",
+            "rest-api"];
 
         for (const component of components) {
             _config.enabledComponents[component] = false;
@@ -257,6 +256,20 @@ class IvaApp extends LitElement {
         this.samples = [];
         this._samplesPerTool = {};
 
+        // Notifications
+        this.notificationManager = new NotificationManager({});
+
+        // Global notification
+        this.addEventListener("notify", e => this.notificationManager.show(e.detail));
+
+        // Shortcuts for common notifications
+        this.addEventListener("notifyInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
+        this.addEventListener("notifySuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
+        this.addEventListener("notifyWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
+        this.addEventListener("notifyError", e => this.notificationManager.error(e.detail.title, e.detail.message));
+
+        // Notify a response
+        this.addEventListener("notifyResponse", e => this.notificationManager.showResponse(e.detail.value));
 
         // TODO remove browserSearchQuery
         this.browserSearchQuery = {};
@@ -270,7 +283,8 @@ class IvaApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("signingInError", e => {
-            new NotificationQueue().push("Error", e.detail.value, "error", true, false);
+            // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
+            this.notificationManager.error("Signing in error", e.detail.value);
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
@@ -282,7 +296,6 @@ class IvaApp extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        new NotificationQueue().setContext(this);
 
         // Initialise clients and create the session
         // this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
@@ -389,12 +402,12 @@ class IvaApp extends LitElement {
             })
             .catch(e => {
                 console.error(e);
-                UtilsNew.notifyError(e);
+                this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
-            // this.updateComplete;
-        });
+                this.signingIn = false;
+                this.requestUpdate();
+                // this.updateComplete;
+            });
     }
 
     // TODO turn this into a Promise
@@ -506,8 +519,8 @@ class IvaApp extends LitElement {
         window.location.hash = hashFrag;
     }
 
+    // TODO: we should move this code to an OpenCGA Utils
     checkSessionActive() {
-        let _message = "";
         // We check if refresh token has updated session id cookie
         // let sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
 
@@ -522,37 +535,53 @@ class IvaApp extends LitElement {
 
                 // _message = html`Your session is close to expire. <strong>${remainingMinutes}
                 // minutes remaining</strong> <a href="javascript:void 0" @click="${() => this.notifySession.refreshToken()}"> Click here to refresh </a>`
-                new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
+                // new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
+
+                // Handle session refresh
+                const handleSessionRefresh = () => {
+                    this.opencgaClient.refresh().then(response => {
+                        const sessionId = response.getResult(0).token;
+                        const decoded = jwt_decode(sessionId);
+                        const dateExpired = new Date(decoded.exp * 1000);
+                        const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
+
+                        // Display confirmation message
+                        this.notificationManager.success(null, `Your session is now valid until ${validTimeSessionId}.`);
+                    });
+                };
+
+                // Display expiration notification
+                this.notificationManager.show({
+                    type: "warning",
+                    display: {
+                        showIcon: true,
+                        showCloseButton: true,
+                    },
+                    title: "Your session is close to expire",
+                    message: `
+                        In <b>${remainingMinutes} minutes</b> your session will be automatically closed.
+                        To keep working, please click on <b>Refresh Session</b> button.
+                    `,
+                    removeAfter: 20000,
+                    buttons: [
+                        {
+                            text: "Refresh session",
+                            onClick: () => handleSessionRefresh(),
+                            removeOnClick: true,
+                        }
+                    ]
+                });
 
             } else {
-                // TODO remove NotificationUtils
                 if (remainingTime < this.config.session.minRemainingTime) {
-                    _message = "Your session has expired.";
                     this.logout();
                     window.clearInterval(this.intervalCheckSession);
-                } else {
-                    if (UtilsNew.isNotUndefinedOrNull(this.notifySession)) {
-                        NotificationUtils.closeNotify(this.notifySession);
-                    }
-                    return;
+
+                    // Display notification message
+                    this.notificationManager.info(null, "Your session has expired");
                 }
             }
-        } else {
-            // _message = "Your session has expired.";
-            // window.clearInterval(this.intervalCheckSession);
         }
-        // delay = 0 to fix the notify until user closes it.
-        if (UtilsNew.isNotEmpty(_message)) {
-            this.notifySession = NotificationUtils.showNotify(_message, UtilsNew.MESSAGE_INFO,
-                {}, {
-                    delay: 0,
-                    onClosed: this.onCloseRefreshNotify.bind(this)
-                }, this.opencgaClient, this.notifySession);
-        }
-    }
-
-    onCloseRefreshNotify() {
-        delete this.notifySession;
     }
 
     changeTool(e) {
@@ -626,7 +655,7 @@ class IvaApp extends LitElement {
         let arr = window.location.hash.split("/");
 
         // TODO evaluate refactor
-        let [hashTool, hashProject, hashStudy, feature] = arr;
+        const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
         if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
@@ -814,7 +843,8 @@ class IvaApp extends LitElement {
     onNotifyMessage(e) {
         // NotificationUtils.closeNotify(this.notifySession);
         // NotificationUtils.showNotify(e.detail.message, e.detail.type, e.detail.options, e.detail.settings);
-        new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
+        // new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
+        this.notificationManager.info(e.detail.title, e.detail.message);
     }
 
     // TODO this should keep in sync the query object between variant-browser and variant-facet
@@ -1337,13 +1367,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.job ? html`
                     <div class="content" id="job">
-                        <opencga-job-browser
+                        <job-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${OPENCGA_JOB_BROWSER_SETTINGS}"
                             .query="${this.queries.job}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
-                        </opencga-job-browser>
+                        </job-browser>
                     </div>
                 ` : null}
 
@@ -1619,18 +1649,22 @@ class IvaApp extends LitElement {
                         </study-admin>
                     </div>
                 ` : null}
+
+                ${this.config.enabledComponents["rest-api"] ? html`
+                    <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
+                    </div>
+                ` : null}
             </div>
 
             <custom-footer
                 .host=${this.host}
                 .config=${this.config}>
             </custom-footer>
-
-            <notification-element .queue="${new NotificationQueue().get()}"></notification-element>
         `;
     }
 
 }
 
 customElements.define("iva-app", IvaApp);
-

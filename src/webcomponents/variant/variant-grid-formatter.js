@@ -439,51 +439,66 @@ export default class VariantGridFormatter {
         const selectedConsequenceTypes = [];
         const notSelectedConsequenceTypes = [];
         const showArrayIndexes = [];
+
+        const geneSet = filter?.geneSet ? filter.geneSet : {};
         for (let i = 0; i < cts.length; i++) {
             const ct = cts[i];
-            // TODO Remove in IVA 2.2
+
+            // Check if gene source is valid
+            let isSourceValid = false;
+            if (geneSet["ensembl"] && (!ct.source || ct.source.toUpperCase() === "ENSEMBL")) { // FIXME: Ensembl regulatory CT do not have 'source'
+                isSourceValid = true;
+            } else {
+                if (geneSet["refseq"] && ct.source?.toUpperCase() === "REFSEQ") {
+                    isSourceValid = true;
+                }
+            }
+            if (!isSourceValid) {
+                // Not a valid source, let's continue to next ct
+                continue;
+            }
+
+            // TODO Remove in IVA 2.3
             // To keep compatability with CellBase 4
             const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
-            let result = false;
-            if (filter) {
-                if (filter.consequenceType.maneTranscript && transcriptFlags?.includes("MANE")) {
-                    result = result || ct.transcriptAnnotationFlags?.includes("MANE");
+            let isCtSelected = filter.consequenceType?.all || false;
+            if (filter && isCtSelected === false) {
+                if (filter.consequenceType.maneTranscript) {
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("MANE Select")|| transcriptFlags?.includes("MANE Plus Clinical");
                 }
                 if (filter.consequenceType.ensemblCanonicalTranscript) {
-                    result = result || transcriptFlags?.includes("canonical");
-                }
-                if (filter.consequenceType.refseqTranscript) {
-                    result = result || ct?.source?.toUpperCase() === "REFSEQ";
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("canonical");
                 }
                 if (filter.consequenceType.gencodeBasicTranscript) {
-                    result = result || transcriptFlags?.includes("basic");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("basic");
                 }
                 if (filter.consequenceType.ccdsTranscript) {
-                    result = result || transcriptFlags?.includes("CCDS");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("CCDS");
                 }
                 if (filter.consequenceType.lrgTranscript) {
-                    result = result || transcriptFlags?.includes("LRG");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("LRG");
                 }
                 if (filter.consequenceType.ensemblTslTranscript) {
-                    result = result || transcriptFlags?.includes("TSL:1");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("TSL:1");
                 }
                 if (filter.consequenceType.illuminaTSO500Transcript) {
-                    result = result || transcriptFlags?.includes("TSO500");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("TSO500");
                 }
                 if (filter.consequenceType.eglhHaemoncTranscript) {
-                    result = result || transcriptFlags?.includes("EGLH_HaemOnc");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("EGLH_HaemOnc");
                 }
                 if (filter.consequenceType.proteinCodingTranscript && ct.biotype === "protein_coding") {
-                    result = result || ct.biotype === "protein_coding";
+                    isCtSelected = isCtSelected || ct.biotype === "protein_coding";
                 }
                 if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
                     for (const so of ct.sequenceOntologyTerms) {
                         const impact = CONSEQUENCE_TYPES?.impact[so.name]?.toUpperCase();
-                        result = result || impact === "HIGH" || impact === "MODERATE";
+                        isCtSelected = isCtSelected || impact === "HIGH" || impact === "MODERATE";
                     }
                 }
             }
-            if (result) {
+            // Check if the CT satisfy any condition
+            if (isCtSelected) {
                 showArrayIndexes.push(i);
                 selectedConsequenceTypes.push(ct);
             } else {

@@ -127,9 +127,9 @@ class VariantInterpreterBrowser extends LitElement {
     }
 
     onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             clinicalAnalysis: e.detail.clinicalAnalysis,
-        });
+        }, null);
     }
 
     render() {
@@ -243,9 +243,7 @@ class VariantInterpreterBrowser extends LitElement {
                 }
 
                 // Check for adding germline browser
-                // TODO: this has been disabled by default
-                // eslint-disable-next-line no-constant-condition
-                if (false && this._germlineSample) {
+                if (this._germlineSample) {
                     items.push({
                         id: "cancer-germline-variant-browser",
                         name: "Germline Variant Browser",

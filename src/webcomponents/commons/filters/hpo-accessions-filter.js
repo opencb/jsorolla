@@ -18,8 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
 import "./accessions-autocomplete-filter.js";
-import {NotificationQueue} from "../../../core/NotificationQueue";
-
+import LitUtils from "../utils/lit-utils.js";
 
 export default class HpoAccessionsFilter extends LitElement {
 
@@ -91,7 +90,10 @@ export default class HpoAccessionsFilter extends LitElement {
             if (arr.length > 100) {
                 console.log("more than 100 terms");
                 this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
-                new NotificationQueue().push("Warning", `${arr.length} has been selected. Only the first 100 will be taken into account.`, "warning");
+                // new NotificationQueue().push("Warning", `${arr.length} has been selected. Only the first 100 will be taken into account.`, "warning");
+                LitUtils.dispatchCustomEvent(this, "notifyWarning", null, {
+                    message: `${arr.length} has been selected. Only the first 100 will be taken into account.`
+                }, null);
                 arr = arr.slice(0, 99);
                 terms = arr.join(",");
             }

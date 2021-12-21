@@ -21,11 +21,11 @@ import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatte
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantUtils from "../variant-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-grid-config.js";
-import "../../clinical/clinical-interpretation-variant-review.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
-
 
 export default class VariantInterpreterRearrangementGrid extends LitElement {
 
@@ -87,7 +87,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     firstUpdated(_changedProperties) {
@@ -119,13 +119,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
@@ -481,10 +481,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             for (const caller of this._config.callers) {
                 if (fileCallers.includes(caller.id)) {
                     // New Columns
+                    // eslint-disable-next-line no-empty
                     if (caller.columns?.length > 0) {
 
                     }
-
                     // INFO column
                     if (caller.info?.length > 0) {
                         for (let i = 0; i < caller.info.length; i++) {
@@ -642,7 +642,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
+                    title: `Interpretation
+                        <a class='interpretation-info-icon'
+                            tooltip-title='Interpretation'
+                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class='fa fa-info-circle' aria-hidden='true'></i>
+                        </a>`,
                     field: "interpretation",
                     rowspan: 1,
                     colspan: 2,
@@ -856,7 +862,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         colspan: 1,
                         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         formatter: (value, row) => {
-                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`
+                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`;
                         },
                         align: "center",
                         nucleotideGenotype: true
@@ -913,7 +919,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -1035,7 +1042,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
     }
 
@@ -1060,7 +1068,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                         <i class="fas fa-cog icon-padding"></i> Settings ...
                     </button>`
             }

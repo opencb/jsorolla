@@ -19,7 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class RgaVariantIndividual extends LitElement {
 
@@ -277,7 +277,8 @@ export default class RgaVariantIndividual extends LitElement {
             }
         } catch (e) {
             console.error(e);
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             return Promise.reject(e);
         }
 
