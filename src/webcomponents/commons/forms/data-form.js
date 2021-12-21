@@ -1174,7 +1174,7 @@ export default class DataForm extends LitElement {
         const btnClassName = this.config.display?.buttonsClassName ?? this.config.buttons?.classes ?? "";
         const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? "";
         const btnWidth = this.config.display?.buttonsWidth ?? 12;
-        const btnAlign = this.config.display?.buttonsAlign ?? "left";
+        const btnAlign = this.config.display?.buttonsAlign ?? "right";
 
         return html`
             ${this.renderGlobalValidationError()}
