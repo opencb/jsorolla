@@ -8,6 +8,7 @@ export default class Types {
     **/
 
     /**
+    * ! Deprecated
     * Help type definitions
     * @typedef {Object} Help
     * @property {string} icon - indicate the mode of the help
@@ -45,6 +46,8 @@ export default class Types {
     /**
     * Column type definitions
     * @typedef {Object} Column
+    * @property {string} name - name of the element
+    * @property {string} title - name of the element
     * @property {string} className - name of the element
     * @property {string} style - type of element form
     * @property {boolean} defaultValue - is it the element required? True or False
@@ -68,9 +71,13 @@ export default class Types {
     * @property {string} style - add a style for the display
     * @property {string} buttonClassName -
     * @property {string} buttonStyle -
-    * @property {string} showButtons -
-    * @property {string} showTopButtons -
-    * @property {mode} mode -
+    * @property {boolean} buttonVisible -
+    * @property {string} buttonLayout -
+    * @property {string} buttonsWidth -
+    * @property {string} buttonsAlign -
+    * @property {string} buttonOkText - text for the ok buttons
+    * @property {string} buttonCancelText - text for the cancel buttons
+    * @property {string} type -
     * @property {string} [defaultValue] - add a default value for display
     * @property {string} [defaultWidth] - add a default value for display
     * @property {string} [defaultLayout] - add a default value for display
@@ -82,8 +89,13 @@ export default class Types {
     * @property {string} helpIcon -
     * @property {string} titleClassName -
     * @property {string} titleStyle -
-    * @property {boolean} showtitle -
-    * @property {boolean} modalWidth  -
+    * @property {boolean} titleVisible -
+    * @property {string} titleWidth -
+    * @property {string} showTitle -
+    * @property {string} modalWidth -
+    * @property {boolean} modalDisabled  -
+    * @property {string} modalButtonClassName  -
+    * @property {string} modalButtonStyle
     **/
 
     /**
@@ -91,6 +103,7 @@ export default class Types {
     * @typedef {Object} DisplaySection
     * @property {number} labelWidth - add a with for the display
     * @property {string} errorIcon -
+    * @property {string} errorMessage -
     * @property {string} helpIcon - show a help for the display
     * @property {string} titleHeader -
     * @property {string} titleWidth -
@@ -98,27 +111,32 @@ export default class Types {
     * @property {string} titleStyle - add a style for the display
     * @property {string} textClassName -
     * @property {string} textStyle -
+    * @property {string} descriptionClassName -
+    * @property {string} descriptionStyle -
     * @property {string} className -
     * @property {string} style -
     * @property {string} leftColumnWidth -
     * @property {string} rightColumnWidth -
     * @property {string} columnSeparatorStyle -
     * @property {string} defaultLayout -
+    * @property {boolean} visible -
     **/
 
     /**
     * Display type definitions
     * @typedef {Object} DisplayElement
+    * @property {string} className -
+    * @property {string} style -
     * @property {string} visible -
     * @property {string} disabled -
     * @property {string} rows -
     * @property {string} errorIcon -
+    * @property {string} errorMessage -
     * @property {string} helpIcon -
     * @property {string} helpMessage -
     * @property {string} helpMode -
     * @property {string} [defaultValue] - add a default value for display
     * @property {string} [defaultLayout] - add a default value for display
-    * @property {string} errorMessage -
     * @property {string} width -
     * @property {string} [defaultWidth] - add a default value for display
     * @property {string} labelAlign - add a label align for the display
@@ -129,10 +147,9 @@ export default class Types {
     * @property {string} titleWidth -
     * @property {string} titleClassName -
     * @property {string} titleStyle -
-    * @property {string} showTitle -
+    * @property {string} titleVisible -
     * @property {string} textClassName -
     * @property {string} textStyle -
-    * @property {string} style -
     * @property {string} placeholder -
     * @property {Function} render -
     * @property {string} onText -
@@ -142,8 +159,9 @@ export default class Types {
     * @property {string} template -
     * @property {string} contentLayout -
     * @property {string} separator -
-    * @property {string} errorClasses -
+    * @property {string} errorClassName -
     * @property {Function} transform -
+    * @property {boolean} headerVisible -
     * @property {Column} columns -
     * @property {Data[]} data -
     * @property {boolean} sort -
@@ -170,7 +188,7 @@ export default class Types {
     * @typedef {Object} Section
     * @property {string} id - The id of this section, used to identify section.
     * @property {string} title - The title of this section
-    * @property {string} text - The content of this section
+    * @property {string} description - The content of this section
     * @property {DisplaySection} display - Custom Config for display to the section
     * @property {Array<Element>} elements - A list of elements
     **/
