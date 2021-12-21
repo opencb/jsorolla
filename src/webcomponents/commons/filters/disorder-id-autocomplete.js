@@ -20,10 +20,6 @@ import "../../commons/forms/select-token-filter.js";
 
 export default class DisorderIdAutocomplete extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
@@ -62,23 +58,19 @@ export default class DisorderIdAutocomplete extends LitElement {
             /* fields: item => ({
                 name: item
             }),*/
-            source: async (params, success, failure) => {
-                const _params = params;
-                _params.data.page = params.data.page || 1;
-                const disorders = _params?.data?.term ? {disorders: "~^" + _params?.data?.term} : "";
+            source: (params, success, failure) => {
+                const page = params?.data?.page || 1;
+                const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
-                    skip: (_params.data.page - 1) * this._config.limit,
+                    skip: (page - 1) * this._config.limit,
                     ...disorders
                 };
-                try {
-                    const restResponse = await this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters);
-                    success(restResponse);
-                } catch (e) {
-                    failure(e);
-                }
+                this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters)
+                    .then(response => success(response))
+                    .catch(error => failure(error));
             },
         };
     }
@@ -86,10 +78,10 @@ export default class DisorderIdAutocomplete extends LitElement {
     render() {
         return html`
             <select-token-filter
-                    .opencgaSession="${this.opencgaSession}"
-                    .config=${this._config}
-                    .value="${this.value}"
-                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>
         `;
     }

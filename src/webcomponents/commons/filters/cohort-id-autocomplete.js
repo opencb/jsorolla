@@ -20,10 +20,6 @@ import "../../commons/forms/select-token-filter.js";
 
 export default class CohortIdAutocomplete extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
@@ -62,24 +58,20 @@ export default class CohortIdAutocomplete extends LitElement {
             fields: item => ({
                 name: item.id
             }),
-            source: async (params, success, failure) => {
-                const _params = params;
-                _params.data.page = params.data.page || 1;
-                const id = _params?.data?.term ? {id: "~^" + _params?.data?.term} : "";
+            source: (params, success, failure) => {
+                const page = params?.data?.page || 1;
+                const id = params?.data?.term ? {id: "~/" + params.data.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: true,
-                    skip: (_params.data.page - 1) * this._config.limit,
+                    skip: (page - 1) * this._config.limit,
                     include: "id",
                     ...id
                 };
-                try {
-                    const restResponse = await this.opencgaSession.opencgaClient.cohorts().search(filters);
-                    success(restResponse);
-                } catch (e) {
-                    failure(e);
-                }
+                this.opencgaSession.opencgaClient.cohorts().search(filters)
+                    .then(response => success(response))
+                    .catch(error => failure(error));
             },
         };
     }
@@ -88,7 +80,7 @@ export default class CohortIdAutocomplete extends LitElement {
         return html`
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
-                .config=${this._config}
+                .config="${this._config}"
                 .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>
