@@ -76,7 +76,7 @@ export default class Types {
     * @property {string} buttonsWidth -
     * @property {string} buttonsAlign -
     * @property {string} buttonOkText - text for the ok buttons
-    * @property {string} buttonCancelText - text for the cancel buttons
+    * @property {string} buttonClearText - text for the clear
     * @property {string} type -
     * @property {string} [defaultValue] - add a default value for display
     * @property {string} [defaultWidth] - add a default value for display
