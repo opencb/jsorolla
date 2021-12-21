@@ -227,74 +227,100 @@ export default class ClinicalAnalysisGrid extends LitElement {
             </a>`;
     }
 
-    priorityFormatter(value) {
+    priorityFormatter(value, row) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
         const _priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
+
+        // Priorities classes
         const priorityMap = {
             URGENT: "label-danger",
             HIGH: "label-warning",
             MEDIUM: "label-primary",
             LOW: "label-info"
         };
+        const priorityRankToColor = [
+            "label-danger",
+            "label-warning",
+            "label-primary",
+            "label-info",
+            "label-success",
+            "label-default"
+        ];
 
-        const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
-        if (UtilsNew.isEmpty(value)) {
-            return "<span>-</span>";
-        } else {
-            if (!this._config.readOnlyMode && OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
-                return `
-                    <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
-                            <span class="label ${priorityRankToColor[value.rank] ?? priorityMap[value]}">
-                                ${value.id ?? value}
-                            </span>
-                            <span class="caret" style="margin-left: 5px"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            ${_priorities.map(priority => {
-                                return `
-                                    <li>
-                                        <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
-                                            <span class="label ${priorityRankToColor[priority.rank]}">
-                                                ${priority.id}
-                                            </span>
-                                            <p class="text-muted"><small>${priority.description}</small></p>
-                                            ${priority.id === value.id ? "<i class=\"fas fa-check\"></i>" : ""}
-                                        </a>
-                                    </li>`;
-                            }).join("")}
-                        </ul>
-                    </div>`;
-            } else {
-                return `<span class='label ${priorityRankToColor[value.rank]}'>${value.id}</span>`;
-            }
-        }
+        const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
+
+        // Dropdown button styles and classes
+        const btnClassName = "btn btn-default btn-sm btn-block dropdown-toggle";
+        const btnStyle = "display:inline-flex;align-items:center;";
+
+        // Current priority
+        const currentPriorityText = value?.id ?? value ?? "-";
+        const currentPriorityLabel = priorityRankToColor[value?.rank ?? ""] ?? priorityMap[value ?? ""] ?? "";
+
+        return `
+            <div class="dropdown">
+                <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0px;">
+                        ${currentPriorityText}
+                    </span>
+                    <span class="caret"></span>
+                </button>
+                ${isEditable ? `
+                    <ul class="dropdown-menu">
+                        ${_priorities.map(priority => `
+                            <li>
+                                <a class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
+                                    <span class="label ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                        ${priority.id}
+                                    </span>
+                                    <p class="text-muted">
+                                        <small>${priority.description}</small>
+                                    </p>
+                                    ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
+                                </a>
+                            </li>
+                        `).join("")}
+                    </ul>
+                ` : ""}
+            </div>
+        `;
     }
 
     statusFormatter(value, row) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
         const _status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-        value = {id: value.name, ...value};
-        // TODO /remove this code as soon as new OpenCGA configuration is in place
 
-        return !this._config.readOnlyMode && OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? `
-                <div class="dropdown">
-                    <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">${value.id}
-                        <span class="caret" style="margin-left: 5px"></span>
-                    </button>
+        const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
+
+        const currentStatus = value.id || value.name || "-"; // Get current status
+
+        // Dropdown button styles and classes
+        const btnClassName = "btn btn-default btn-sm btn-block dropdown-toggle";
+        const btnStyle = "display:inline-flex;align-items:center;";
+
+        return `
+            <div class="dropdown">
+                <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                    <span style="margin-right:auto;">${currentStatus}</span>
+                    <span class="caret"></span>
+                </button>
+                ${isEditable ? `
                     <ul class="dropdown-menu dropdown-menu-right">
                         ${_status[row.type].map(({id, description}) => `
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
-                                    ${id === value.id ? `<strong>${id}</strong>` : id}
+                                <a class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
+                                    ${id === currentStatus ? `<strong>${id}</strong>` : id}
                                     <p class="text-muted"><small>${description}</small></p>
-                                    ${id === value.id ? `<i class="fas fa-check"></i>` : ""}
+                                    ${id === currentStatus ? "<i class=\"fas fa-check\"></i>" : ""}
                                 </a>
                             </li>
                         `).join("")}
                     </ul>
-                </div>` :
-            value.id;
+                `: ""}
+            </div>
+        `;
     }
 
     onActionClick(e, _, row) {
