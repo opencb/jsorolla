@@ -161,16 +161,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     caseFormatter(value, row) {
         if (row?.id) {
+            const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
+            const lockIcon = row.locked ? "fa-lock" : "fa-unlock";
+
             return `
                 <div style="margin: 5px 0px">
-                    <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}" data-cy="case-id">${row.id}</a>
+                    <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
+                        <i class="fas ${lockIcon} icon-padding" aria-hidden="true"></i>
+                        ${row.id}
+                    </a>
                 </div>
                 <div style="margin: 5px 0px" data-cy="case-type">
                     <span class="help-block">${row.type}</span>
-                </div>`;
-        } else {
-            return "-";
+                </div>
+            `;
         }
+
+        return "-";
     }
 
     interpretationFormatter(value, row) {
