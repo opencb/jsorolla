@@ -177,20 +177,20 @@ export default class DataForm extends LitElement {
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
      */
-    _getBooleanValue(visible, defaultValue) {
-        let _visible = typeof defaultValue !== "undefined" ? defaultValue : true;
-        if (typeof visible !== "undefined" && visible !== null) {
-            if (typeof visible === "boolean") {
-                _visible = visible;
+    _getBooleanValue(value, defaultValue) {
+        let _value = typeof defaultValue !== "undefined" ? defaultValue : true;
+        if (typeof value !== "undefined" && value !== null) {
+            if (typeof value === "boolean") {
+                _value = value;
             } else {
-                if (typeof visible === "function") {
-                    _visible = visible(this.data);
+                if (typeof value === "function") {
+                    _value = value(this.data);
                 } else {
-                    console.error(`Field 'visible' not boolean or function: ${typeof visible}`);
+                    console.error(`Expected boolean or function value, but got '${typeof value}'`);
                 }
             }
         }
-        return _visible;
+        return _value;
     }
 
     _getWidth(element) {
