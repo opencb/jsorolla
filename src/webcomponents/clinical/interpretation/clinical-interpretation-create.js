@@ -57,6 +57,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
         this.displayConfigDefault = {
             width: 10,
             buttonsAlign: "right",
+            buttonCancelText: "Clear",
+            buttonOkText: "Create Interpretation",
             titleVisible: false,
             titleWidth: 4,
             defaultLayout: "horizontal"
@@ -74,10 +76,12 @@ export default class ClinicalInterpretationCreate extends LitElement {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
             this.initClinicalInterpretation();
         }
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -177,17 +181,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
             type: this.mode,
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
-            links: [
-                {
-                    title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
-                    icon: ""
-                }
-            ],
-            buttons: {
-                clearText: "Clear",
-                okText: "Create Interpretation",
-            },
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {

@@ -51,9 +51,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
             mode: {
                 type: String
             },
-            buttonsConfig: {
-                type: Object
-            },
             displayConfig: {
                 type: Object
             },
@@ -64,13 +61,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
         this.updateParams = {};
         this.mode = "";
 
-        this.buttonsConfigDefault = {
-            clearText: "Clear",
-            okText: "Update",
-        };
         this.displayConfigDefault = {
             modalButtonClassName: "btn-primary btn-sm",
             buttonsAlign: "right",
+            buttonCancelText: "Clear",
+            buttonOkText: "Update",
             titleVisible: false,
             titleAlign: "left",
             titleWidth: 4,
@@ -83,23 +78,24 @@ export default class ClinicalInterpretationCreate extends LitElement {
         if (changedProperties.has("interpretation")) {
             this.interpretationObserver();
         }
+
         if (changedProperties.has("interpretationId")) {
             this.interpretationIdObserver();
         }
+
         if (changedProperties.has("opencgaSession")) {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
         }
+
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
         }
-        if (changedProperties.has("buttonsConfig")) {
-            this.buttonsConfig = {...this.buttonsConfigDefault, ...this.buttonsConfig};
-            this.config = this.getDefaultConfig();
-        }
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -201,7 +197,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
             icon: "fas fa-edit",
             type: this.mode,
             description: "Update an interpretation",
-            buttons: this.buttonsConfig || this.buttonsConfigDefault,
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {

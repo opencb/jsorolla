@@ -140,12 +140,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .opencgaSession="${this.opencgaSession}"
                             .mode="${"modal"}"
-                            .buttonsConfig="${{
-                                clearText: "Clear",
-                                okText: "Update",
-                            }}"
                             .displayConfig="${{
-                                modalButtonClassName: "btn-default btn-sm"
+                                buttonCancelText: "Clear",
+                                buttonOkText: "Update",
+                                modalButtonClassName: "btn-primary btn-sm"
                             }}">
                         </clinical-interpretation-update>
                         <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
