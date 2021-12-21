@@ -64,7 +64,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
         this.displayConfigDefault = {
             modalButtonClassName: "btn-primary btn-sm",
             buttonsAlign: "right",
-            buttonCancelText: "Clear",
+            buttonClearText: "Clear",
             buttonOkText: "Update",
             titleVisible: false,
             titleAlign: "left",
