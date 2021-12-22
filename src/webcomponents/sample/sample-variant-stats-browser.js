@@ -21,6 +21,7 @@ import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -171,13 +172,11 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     stats: response.responses[0].results[0],
                     query: this.query
                 };
-                // debugger
             })
-            .catch(e => {
-                console.log(e);
+            .catch(response => {
+                // console.log(response);
                 this.sampleQcVariantStats = null;
-                // UtilsNew.notifyError(e);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.loading = false;

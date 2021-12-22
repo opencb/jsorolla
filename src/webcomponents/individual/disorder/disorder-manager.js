@@ -135,12 +135,12 @@ export default class DisorderManager extends LitElement {
 
     onSendDisorder(e) {
         e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.disorder);
     }
 
     onClearForm(e) {
         e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {

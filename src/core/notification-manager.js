@@ -43,7 +43,11 @@ export default class NotificationManager {
                 <div style="flex-grow:1;">
                     <div>
                         ${options.title ? `<h4 style="font-weight:bold;margin-bottom:8px;">${options.title}</h4>` : ""}
-                        ${options.message || ""}
+                        ${options.message ? `
+                            <div style="word-break:break-all;max-height:${this.config.display.messageMaxHeight};overflow-y:auto;">
+                                ${options.message}
+                            </div>
+                        ` : ""}
                     </div>
                     ${options.buttons && options.buttons?.length > 0 ? `
                         <div align="right" style="margin-top:12px;">
@@ -199,6 +203,7 @@ export default class NotificationManager {
             },
             display: {
                 width: "600px",
+                messageMaxHeight: "200px",
                 alertClassName: {
                     error: "alert alert-danger",
                     info: "alert alert-info",

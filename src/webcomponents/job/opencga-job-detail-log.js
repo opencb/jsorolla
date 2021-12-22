@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
 export default class OpencgaJobDetailLog extends LitElement {
@@ -156,10 +157,9 @@ export default class OpencgaJobDetailLog extends LitElement {
             } else {
                 // this.content = "No content";
             }
-        }).catch(restResponse => {
+        }).catch(response => {
             this.content = "An error occurred while fetching log.\n";
-            // UtilsNew.notifyError(restResponse);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         }).finally(() => {
             this.loading = false;
             this.requestUpdate();

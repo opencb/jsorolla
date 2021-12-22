@@ -17,6 +17,7 @@
 import {html} from "lit";
 import AnalysisConfig from "../analysis-config.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../../commons/utils/notification-utils.js";
 
 // this class will be in config folder
 /**
@@ -205,8 +206,7 @@ export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
             .then(restResponse => {
             })
             .catch(e => {
-                // UtilsNew.notifyError(e)
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             });
     }
 

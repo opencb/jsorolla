@@ -64,14 +64,14 @@ export default class PhenotypeCreate extends LitElement {
     onSendPhenotype(e) {
         // Send the phenotype to the upper component
         e.stopPropagation();
-        LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.phenotype);
         this.phenotype = {};
     }
 
     onClearForm(e) {
         e.stopPropagation();
         this.phenotype = {};
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {

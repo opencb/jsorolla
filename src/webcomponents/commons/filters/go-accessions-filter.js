@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
 import "./accessions-autocomplete-filter.js";
 import LitUtils from "../utils/lit-utils.js";
+import NotificationUtils from "../utils/notification-utils.js";
 
 
 export default class GoAccessionsFilter extends LitElement {
@@ -68,9 +69,8 @@ export default class GoAccessionsFilter extends LitElement {
             if (arr.length > 100) {
                 console.log("more than 100 terms");
                 this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
-                // new NotificationQueue().push("Warning", `${arr.length} has been selected. Only the first 100 will be taken into account.`, "warning");
-                LitUtils.dispatchEventCustom(this, "notifyWarning", null, null, {
-                    message: `${arr.length} has been selected. Only the first 100 will be taken into account.`
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                    message: `${arr.length} has been selected. Only the first 100 will be taken into account.`,
                 });
                 terms = arr.slice(0, 99).join(",");
             }

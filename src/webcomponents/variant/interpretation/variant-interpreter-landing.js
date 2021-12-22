@@ -61,8 +61,6 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     update(changedProperties) {
-        this._config = this.getDefaultConfig();
-
         if (changedProperties.has("opencgaSession")) {
             this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         }
@@ -71,13 +69,14 @@ class VariantInterpreterLanding extends LitElement {
             this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
         }
 
+        this._config = this.getDefaultConfig();
         super.update(changedProperties);
     }
 
     onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             clinicalAnalysis: e.detail.clinicalAnalysis
-        });
+        }, null);
     }
 
     render() {

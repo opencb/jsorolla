@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import LitUtils from "../utils/lit-utils";
 
 export default class FormUtils {
 
@@ -170,23 +169,8 @@ export default class FormUtils {
     * @deprecated since version 2.2
     */
     // ! Deprecated Don't Used This Code
-    static notifyError(response) {
-        if (response?.getEvents?.("ERROR")?.length) {
-            // const errors = response.getEvents("ERROR");
-            // errors.forEach(error => {
-            //     new NotificationQueue().push(error.name, error.message, "ERROR");
-            // });
-            LitUtils.dispatchEventCustom(this, "notifyError", response);
-        } else if (response instanceof Error) {
-            // new NotificationQueue().push(response.name, response.message, "ERROR");
-            LitUtils.dispatchEventCustom(this, "notifyError", response);
-        } else {
-            // new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
-            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
-                title: "Generic Error",
-                message: JSON.stringify(response)
-            });
-        }
+    static notifyError() {
+        // Nothing to do
     }
 
     // Deprecated

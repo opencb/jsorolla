@@ -20,6 +20,7 @@ import "../../commons/forms/data-form.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../filters/clinical-priority-filter.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
@@ -676,40 +677,42 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             }
 
             if (this.mode === "create") {
-                opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn, createDefaultInterpretation: true})
-                    .then(response => {
-                        // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
-                            message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
+                opencgaSession.opencgaClient.clinical().create(data, {
+                    study: opencgaSession.study.fqn,
+                    createDefaultInterpretation: true
+                })
+                    .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            // message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
+                            message: "Clinical analysis created successfully",
                         });
                         this.notifyClinicalAnalysisWrite();
                         this.onClear();
                     })
                     .catch(response => {
-                        console.error(response);
-                        // UtilsNew.notifyError(response);
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        // console.error(response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
             } else {
-                opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
-                    .then(response => {
-                        // new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
-                            message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
+                opencgaSession.opencgaClient.clinical().update(data, {
+                    study: opencgaSession.study.fqn
+                })
+                    .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            // message: `Clinical analysis ${response.responses[0].results[0].id} created successfully`,
+                            message: "Clinical analysis created successfully",
                         });
                         this.notifyClinicalAnalysisWrite();
                         this.onClear();
                     })
                     .catch(response => {
-                        console.log(response);
-                        // UtilsNew.notifyError(response);
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        // console.log(response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
             }
         } catch (response) {
-            console.log(response);
-            // UtilsNew.notifyError(response);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+            // console.log(response);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         }
     }
 

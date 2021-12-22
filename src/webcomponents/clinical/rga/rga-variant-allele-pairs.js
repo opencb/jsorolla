@@ -19,7 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class RgaVariantAllelePairs extends LitElement {
 
@@ -203,9 +203,7 @@ export default class RgaVariantAllelePairs extends LitElement {
                 return [];
             }
         } catch (e) {
-            console.error(e);
-            // UtilsNew.notifyError(e);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             return Promise.reject(e);
         }
 

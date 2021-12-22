@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
+import NotificationUtils from "../utils/notification-utils.js";
 
 export default class AccessionsAutocompleteFilter extends LitElement {
 
@@ -106,9 +107,8 @@ export default class AccessionsAutocompleteFilter extends LitElement {
                             const results = json.response.docs.map(i => ({text: i.obo_id, id: i.obo_id, iri: i.iri, label: i.label}));
                             success(results);
                         } catch (e) {
-                            console.error(e);
-                            // UtilsNew.notifyError(e);
-                            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                            // console.error(e);
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
                             failure(e);
                         }
                     },

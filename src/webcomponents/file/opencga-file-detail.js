@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 
 import "./file-preview.js";
-import "./opencga-file-view.js";
+import "./file-view.js";
 import UtilsNew from "../../core/utilsNew.js";
 
 export default class OpencgaFileDetail extends LitElement {
@@ -53,7 +53,7 @@ export default class OpencgaFileDetail extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.file = null;
         }
@@ -64,8 +64,9 @@ export default class OpencgaFileDetail extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
         }
+
+        super.update(changedProperties);
     }
 
     fileIdObserver() {
@@ -85,6 +86,16 @@ export default class OpencgaFileDetail extends LitElement {
         }
     }
 
+    render() {
+        return this.opencgaSession && this.file ? html`
+            <detail-tabs
+                .data="${this.file}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        ` : null;
+    }
+
     getDefaultConfig() {
         return {
             title: "File",
@@ -94,26 +105,26 @@ export default class OpencgaFileDetail extends LitElement {
                     id: "file-view",
                     name: "Overview",
                     active: true,
-                    render: (file, active, opencgaSession) => {
-                        return html` <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
-                    }
+                    render: (file, active, opencgaSession) => html`
+                        <file-view
+                            .opencgaSession="${opencgaSession}"
+                            .file="${file}">
+                        </file-view>
+                    `,
                 },
                 {
                     id: "file-preview",
                     name: "Preview",
-                    render: (file, active, opencgaSession) => {
-                        return html`<file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></file-preview>`;
-                    }
+                    render: (file, active, opencgaSession) => html`
+                        <file-preview
+                            .opencgaSession=${opencgaSession}
+                            .active="${active}"
+                            .file="${file}">
+                        </file-preview>
+                    `,
                 }
             ]
         };
-    }
-
-    render() {
-        return this.opencgaSession && this.file ?
-            html`
-                <detail-tabs .data="${this.file}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
-            null;
     }
 
 }

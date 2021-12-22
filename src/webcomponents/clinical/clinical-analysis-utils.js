@@ -16,9 +16,9 @@
 
 export default class ClinicalAnalysisUtils {
 
-    static getStatuses() {
-        return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];  // , "READY_FOR_REVIEW"
-    }
+    // static getStatuses() {
+    //     return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];  // , "READY_FOR_REVIEW"
+    // }
 
     static getInterpretationStatuses() {
         return ["IN_PROGRESS", "READY", "REJECTED"];
@@ -36,79 +36,5 @@ export default class ClinicalAnalysisUtils {
         return qc;
     }
 
-    /*
-        This can be REPLACED by using UtilsNew.objectKeySort and CHROMOSOMES constants.
-     */
-    static chromosomeFilterSorter(chromosomeCount) {
-        let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map(([ch, val]) => {
-            if (!isNaN(ch) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val};
-        }));
-        let ordered = {};
-        Object.keys(filtered).sort((a, b) => {
-            const chA = a;
-            const chB = b;
-            const A = Boolean(parseInt(chA));
-            const B = Boolean(parseInt(chB));
-            if (A && !B) return -1;
-            if (!A && B) return 1;
-            if (!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1;
-            return chA - chB;
-        }).forEach(k => ordered[k] = filtered[k]);
-        return ordered;
-    }
-
-    static updateInterpretation(clinicalAnalysis, interpretation, opencgaSession, callback) {
-        if (!clinicalAnalysis) {
-            console.error("It is not possible have this error");
-            return;
-        }
-
-        let _interpretation = {
-            primaryFindings: [],
-            ...clinicalAnalysis.interpretation,
-            // clinicalAnalysisId: clinicalAnalysis.id,
-            methods: [{name: "IVA"}]
-        };
-
-        _interpretation.primaryFindings = JSON.parse(JSON.stringify(clinicalAnalysis.interpretation.primaryFindings));
-        for (let variant of _interpretation.primaryFindings) {
-            // delete variant.checkbox;
-            if (!variant.attributes.creationDate) {
-                variant.attributes.creationDate = new Date().getTime();
-            }
-        }
-        clinicalAnalysis.interpretation = _interpretation;
-        opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis.id, clinicalAnalysis.interpretation.id, clinicalAnalysis.interpretation,
-            {
-                study: opencgaSession.study.fqn,
-                primaryFindingsAction: "SET",
-                secondaryFindingsAction: "SET",
-            })
-            .then(restResponse => {
-                Swal.fire(
-                    "Interpretation Saved",
-                    "Primary findings have been saved.",
-                    "success"
-                );
-                callback(clinicalAnalysis);
-                // this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                //     detail: {
-                //         clinicalAnalysis: clinicalAnalysis
-                //     },
-                //     bubbles: true,
-                //     composed: true
-                // }));
-            })
-            .catch(restResponse => {
-                console.error(restResponse);
-                //optional chaining is to make sure the response is a restResponse instance
-                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
-                Swal.fire({
-                    title: "Error",
-                    icon: "error",
-                    html: msg
-                });
-            });
-    }
-
 }
+

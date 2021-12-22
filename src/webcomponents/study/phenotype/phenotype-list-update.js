@@ -84,7 +84,7 @@ export default class PhenotypeListUpdate extends LitElement {
 
     addPhenotype(phenotype) {
         this.phenotypes = [...this.phenotypes, phenotype];
-        LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
+        LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
     }
 
     editPhenotype(phenotype) {
@@ -92,7 +92,7 @@ export default class PhenotypeListUpdate extends LitElement {
         const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
         this.phenotypes[indexPheno] = phenotype;
         this.phenotype = {};
-        LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
+        LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
         this.requestUpdate();
     }
 
@@ -111,7 +111,7 @@ export default class PhenotypeListUpdate extends LitElement {
             if (result.isConfirmed) {
                 this.phenotypes = UtilsNew.removeArrayByIndex(this.phenotypes, i);
                 // this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
-                LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
+                LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
                 Swal.fire(
                     "Deleted!",
                     "The phenotype has been deleted.",

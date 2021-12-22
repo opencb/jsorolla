@@ -18,7 +18,7 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {RestClient} from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
-import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/json-viewer.js";
 
 
@@ -196,8 +196,7 @@ export default class RestEndpoint extends LitElement {
                 this.result = response.responses[0];
             })
             .catch(response => {
-                // console.error(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.isLoading = false;

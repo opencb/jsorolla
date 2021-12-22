@@ -137,7 +137,7 @@ export default class SelectFieldFilter extends LitElement {
 
     filterChange(e) {
         const selection = this.selectPicker.selectpicker("val");
-        let val;
+        let val = null;
         if (selection && selection.length) {
             if (this.multiple) {
                 val = selection.join(",");
@@ -153,9 +153,9 @@ export default class SelectFieldFilter extends LitElement {
             }
         }
 
-        LitUtils.dispatchEventCustom(this, "filterChange", val || null, null, {
+        LitUtils.dispatchCustomEvent(this, "filterChange", val, {
             data: this.data,
-        }, {bubbles: false, composed: false});
+        }, null, {bubbles: false, composed: false});
     }
 
     render() {

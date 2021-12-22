@@ -16,9 +16,10 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../core/utilsNew.js";
-import GridCommons from "../../commons/grid-commons.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import GridCommons from "../../commons/grid-commons.js";
 import "./clinical-interpretation-summary.js";
 import "./clinical-interpretation-create.js";
 import "./clinical-interpretation-update.js";
@@ -65,7 +66,7 @@ export default class ClinicalInterpretationManager extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     updated(changedProperties) {
@@ -77,7 +78,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -96,7 +97,7 @@ export default class ClinicalInterpretationManager extends LitElement {
 
     async clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
             // this.interpretations = [
             //     {
@@ -126,60 +127,81 @@ export default class ClinicalInterpretationManager extends LitElement {
 
     renderInterpretation(interpretation, primary) {
         return html`
-            <div style="padding: 10px 0">
-                <div class="pull-left">
-                    <h5 style="font-weight: bold">Interpretation #${interpretation.id.split(".")[1]}  -  ${interpretation.id}</h5>
+            <div style="display:flex;padding-bottom:4px;">
+                <div style="margin-right:auto;">
+                    <h5 style="font-weight: bold">
+                        Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}
+                    </h5>
                 </div>
-                <div class="pull-right ${classMap({primary: primary})}">
+                <div class="${classMap({primary: primary})}">
                     <div class="dropdown action-dropdown">
                         <clinical-interpretation-update
                             .interpretation="${interpretation}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .opencgaSession="${this.opencgaSession}"
-                            .mode=${"modal"}
-                            .buttonsConfig="${{
-                                show: true,
-                                clearText: "Clear",
-                                okText: "Update",
-                                classes: "btn btn-default btn-small ripple"
+                            .mode="${"modal"}"
+                            .displayConfig="${{
+                                buttonClearText: "Clear",
+                                buttonOkText: "Update",
+                                modalButtonClassName: "btn-primary btn-sm"
                             }}">
                         </clinical-interpretation-update>
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
                             Action <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             ${primary ? html`
                                 <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}"
-                                       @click="${this.onActionClick}">
-                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
+                                    <a
+                                        class="btn disabled force-text-left"
+                                        data-action="restorePrevious"
+                                        data-interpretation-id="${interpretation.id}"
+                                        @click="${this.onActionClick}">
+                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i>
+                                        Restore previous version
                                     </a>
                                 </li>
                                 <li role="separator" class="divider"></li>
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
-                                       @click="${this.onActionClick}">
-                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
+                                    <a
+                                        class="btn force-text-left"
+                                        data-action="clear"
+                                        data-interpretation-id="${interpretation.id}"
+                                        @click="${this.onActionClick}">
+                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
+                                        Clear
                                     </a>
                                 </li>
                             ` : html`
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="setAsPrimary" data-interpretation-id="${interpretation.id}"
-                                       @click="${this.onActionClick}">
+                                    <a
+                                        class="btn force-text-left"
+                                        data-action="setAsPrimary"
+                                        data-interpretation-id="${interpretation.id}"
+                                        @click="${this.onActionClick}">
                                         <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
                                     </a>
                                 </li>
                                 <li role="separator" class="divider"></li>
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
-                                       @click="${this.onActionClick}">
-                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
+                                    <a
+                                        class="btn force-text-left"
+                                        data-action="clear"
+                                        data-interpretation-id="${interpretation.id}"
+                                        @click="${this.onActionClick}">
+                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
+                                        Clear
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="delete" data-interpretation-id="${interpretation.id}"
-                                       @click="${this.onActionClick}">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
+                                    <a
+                                        class="btn force-text-left"
+                                        data-action="delete"
+                                        data-interpretation-id="${interpretation.id}"
+                                        @click="${this.onActionClick}">
+                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i>
+                                        Delete
+                                    </a>
                                 </li>
                             `}
                         </ul>
@@ -187,12 +209,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                 </div>
             </div>
 
-            <div style="padding: 15px 15px">
-                <clinical-interpretation-summary
-                    .interpretation=${interpretation}
-                    .primary=${primary}>
-                </clinical-interpretation-summary>
-            </div>
+            <clinical-interpretation-summary
+                .interpretation="${interpretation}"
+                .primary="${primary}">
+            </clinical-interpretation-summary>
         `;
     }
 
@@ -207,8 +227,8 @@ export default class ClinicalInterpretationManager extends LitElement {
             sidePagination: "local",
             pagination: true,
             formatNoMatches: () => "No previous versions",
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
         });
     }
 
@@ -238,11 +258,12 @@ export default class ClinicalInterpretationManager extends LitElement {
             },
             {
                 title: "Actions",
-                formatter: (_, interpretation) => `
+                formatter: () => `
                     <div class="btn-group" role="group" aria-label="...">
                         <button class="btn btn-link disabled" type="button" data-action="view">View</button>
                         <button class="btn btn-link" type="button" data-action="restore">Restore</button>
-                    </div>`,
+                    </div>
+                `,
                 valign: "middle",
                 events: {
                     "click button": this.onActionClick.bind(this)
@@ -254,25 +275,18 @@ export default class ClinicalInterpretationManager extends LitElement {
         return this._columns;
     }
 
-    onActionClick(e, _, row) {
+    onActionClick(e) {
         const {action, interpretationId} = e.currentTarget.dataset;
         const interpretationCallback = () => {
-            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                detail: {
-                    clinicalAnalysis: this.clinicalAnalysis
-                },
-                bubbles: true,
-                composed: true
-            }));
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis
+            });
         };
 
         switch (action) {
             case "setAsPrimary":
                 this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
                 break;
-            // case "restore":
-            //     this.clinicalAnalysisManager.restoreInterpretation(interpretationId, interpretationCallback);
-            //     break;
             case "clear":
                 this.clinicalAnalysisManager.clearInterpretation(interpretationId, interpretationCallback);
                 break;
@@ -283,8 +297,7 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
     render() {
@@ -299,26 +312,33 @@ export default class ClinicalInterpretationManager extends LitElement {
         return html`
             <div class="interpreter-content-tab">
                 <div class="row">
-                    <div class="col-md-8" style="margin-bottom: 10px">
+                    <div class="col-md-8" style="margin-bottom:16px">
                         <h3 style="padding-bottom: 5px">Interpretations</h3>
                         <div class="pull-right">
                             <clinical-interpretation-create
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .opencgaSession="${this.opencgaSession}"
-                                .mode=${"modal"}>
+                                .mode="${"modal"}"
+                                .displayConfig="${{
+                                    modalButtonClassName: "btn-primary",
+                                }}">
                             </clinical-interpretation-create>
                         </div>
                     </div>
 
-                    <div class="col-md-8" style="margin-bottom: 10px">
+                    <div class="col-md-8" style="margin-bottom:16px">
                         <h4>Primary Interpretation</h4>
                         ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
                     </div>
 
-                    <div class="col-md-8" style="margin-bottom: 10px">
+                    <div class="col-md-8" style="margin-bottom:16px">
                         <h4>Secondary Interpretations</h4>
                         ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
-                            ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => this.renderInterpretation(interpretation, false))}
+                            ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => html`
+                                <div style="margin-bottom:16px">
+                                    ${this.renderInterpretation(interpretation, false)}
+                                </div>
+                            `)}
                         ` : html`
                             <label>No secondary interpretations found</label>
                         `}

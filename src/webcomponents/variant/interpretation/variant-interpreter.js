@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -32,6 +31,7 @@ import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -148,7 +148,7 @@ class VariantInterpreter extends LitElement {
                     // this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
             // .finally(async () => {
             // this._config = {...this._config, loading: false};
@@ -162,7 +162,7 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
@@ -187,8 +187,10 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
-    onClinicalAnalysisUpdate(e) {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+    onClinicalAnalysisUpdate() {
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {
+            study: this.opencgaSession.study.fqn,
+        })
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -205,22 +207,36 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
-            // new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
-            LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
-                message: "Clinical analysis refreshed"
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                message: "Clinical analysis refreshed",
             });
         });
     }
 
+    onClinicalAnalysisLock = () => {
+        const id = this.clinicalAnalysis.id;
+        const updateParams = {
+            locked: !this.clinicalAnalysis.locked,
+        };
+
+        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {
+            study: this.opencgaSession.study.fqn,
+        })
+            .then(() => this.onClinicalAnalysisUpdate())
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Case '${id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    };
+
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
-            return this.onClinicalAnalysisUpdate().then(() => {
-                // new NotificationQueue().push(`Changed primary interpretation to '${interpretationId}'.`, "", "info");
-                LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
-                    message: `Changed primary interpretation to '${interpretationId}'.`
-                });
-            });
+            this.onClinicalAnalysisUpdate();
         });
     }
 
@@ -293,7 +309,13 @@ class VariantInterpreter extends LitElement {
                 ${this.clinicalAnalysis?.id ? html`
                     <tool-header
                         icon="${this._config.icon}"
-                        .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
+                        .title="${`
+                            ${this._config.title}
+                            <span class="inverse">
+                                Case ${this.clinicalAnalysis?.id}
+                                ${this.clinicalAnalysis.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
+                            </span>
+                        `}"
                         .rhs="${html`
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
@@ -329,6 +351,12 @@ class VariantInterpreter extends LitElement {
                                             `)}
                                             <li role="separator" class="divider"></li>
                                         ` : null}
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
+                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"}
+                                            </a>
+                                        </li>
                                         <li>
                                             <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
                                                 <i class="fa fa-sync icon-padding"></i> Refresh

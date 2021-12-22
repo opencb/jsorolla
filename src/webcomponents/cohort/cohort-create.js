@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import Types from "../commons/types.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
 
@@ -119,42 +120,36 @@ export default class CohortCreate extends LitElement {
 
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Save"
-            },
             display: {
+                buttonsVisible: true,
+                buttonClearText: "Cancel",
+                buttonOkText: "Save",
                 style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
+                titleWidth: 3,
+                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block" // icon
-                }
+                // help: {
+                //     mode: "block" // icon
+                // }
             },
             sections: [
                 {
                     elements: [
                         {
-                            name: "Cohort ID",
+                            title: "Cohort ID",
                             field: "id",
                             type: "input-text",
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                help: {
-                                    text: "short Sample id"
-                                },
-                                validation: {
-                                }
+                                helpMessage: "short Sample id",
                             }
                         },
                         {
-                            name: "Cohort Type",
+                            title: "Cohort Type",
                             field: "type",
                             type: "select",
                             allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
@@ -163,7 +158,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -172,7 +167,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Samples",
+                            title: "Samples",
                             field: "samples",
                             type: "custom",
                             display: {
@@ -185,7 +180,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "input-date",
                             display: {
@@ -196,7 +191,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Modification Date",
+                            title: "Modification Date",
                             field: "modificationDate",
                             type: "input-date",
                             display: {
@@ -207,7 +202,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Status name",
+                            title: "Status name",
                             field: "status.name",
                             type: "input-text",
                             display: {
@@ -215,7 +210,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Status Description",
+                            title: "Status Description",
                             field: "status.description",
                             type: "input-text",
                             display: {
@@ -225,30 +220,30 @@ export default class CohortCreate extends LitElement {
                         }
                     ]
                 },
-                {
-                    title: "Annotations Sets",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: cohort => html`
-                                    <annotation-set-update
-                                        .annotationSets="${cohort?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                                    </annotation-set-update>
-                                `
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: cohort => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${cohort?.annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
-        };
+        });
     }
 
 }

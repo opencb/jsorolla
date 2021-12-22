@@ -17,6 +17,7 @@
 import {html} from "lit";
 import AnalysisConfig from "./analysis-config.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 // this class will be in config folder
 /**
@@ -202,11 +203,11 @@ export default class OpencgaKnockoutAnalysis { // extends LitElement
         data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
         data.filter ? body.filter = data.filter.join(",") : null;
         opencgaSession.opencgaClient.variants().runKnockout(body, params)
-            .then(restResponse => {
+            .then(response => {
+                // ??
             })
             .catch(e => {
-                // UtilsNew.notifyError(e)
-                LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             });
     }
 

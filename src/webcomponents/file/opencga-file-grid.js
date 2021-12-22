@@ -21,6 +21,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -320,9 +321,8 @@ export default class OpencgaFileGrid extends LitElement {
                 }
             })
             .catch(response => {
-                console.log(response);
-                // UtilsNew.notifyError(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                // console.log(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

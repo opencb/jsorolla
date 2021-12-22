@@ -23,6 +23,7 @@ import "../commons/opencga-active-filters.js";
 import "../commons/visualisation/circos-view.js";
 import "../commons/view/signature-view.js";
 import "../loading-spinner.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class SampleCancerVariantStatsPlots extends LitElement {
 
@@ -106,12 +107,11 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 bubbles: true,
                 composed: true
             }));
-        }).catch(restResponse => {
+        }).catch(response => {
             this.signature = {
-                errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+                errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
             };
-            // UtilsNew.notifyError(restResponse);
-            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         }).finally(() => {
             this.requestUpdate();
         });
@@ -148,12 +148,11 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                     composed: true
                 }));
             })
-            .catch(restResponse => {
+            .catch(response => {
                 this.stats = {
-                    errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+                    errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
                 };
-                // UtilsNew.notifyError(restResponse);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.requestUpdate();

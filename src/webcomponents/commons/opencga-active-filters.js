@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import LitUtils from "./utils/lit-utils.js";
+import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaActiveFilters extends LitElement {
 
@@ -352,37 +353,27 @@ export default class OpencgaActiveFilters extends LitElement {
                     }).then(result => {
                         if (result.value) {
                             this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
-                                .then(restResponse => {
-                                    if (!restResponse?.getEvents?.("ERROR")?.length) {
-                                        for (const i in this._filters) {
-                                            if (this._filters[i].id === filterName) {
-                                                this._filters[i] = restResponse.response[0].result[0];
-                                            }
-                                        }
-                                        Swal.fire(
-                                            "Filter Saved",
-                                            "Filter has been saved.",
-                                            "success"
-                                        );
-                                        this.requestUpdate();
-                                        this.updateComplete.then(() => UtilsNew.initTooltip(this));
-                                    } else {
-                                        console.error(restResponse);
-                                        Swal.fire(
-                                            "Server Error!",
-                                            "Filter has not been correctly saved.",
-                                            "error"
-                                        );
+                                .then(response => {
+                                    if (restResponse?.getEvents?.("ERROR")?.length) {
+                                        return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                                     }
+
+                                    for (const i in this._filters) {
+                                        if (this._filters[i].id === filterName) {
+                                            this._filters[i] = response.response[0].result[0];
+                                        }
+                                    }
+
+                                    // Display success message
+                                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                        message: "Filter has been saved",
+                                    });
+                                    this.requestUpdate();
+                                    this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     $("#" + this._prefix + "filterName").val("");
                                     $("#" + this._prefix + "filterDescription").val("");
-                                }).catch(restResponse => {
-                                    console.error(restResponse);
-                                    Swal.fire(
-                                        "Server Error!",
-                                        "Filter has not been correctly saved.",
-                                        "error"
-                                    );
+                                }).catch(response => {
+                                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                                 });
                         }
                     });
@@ -396,54 +387,32 @@ export default class OpencgaActiveFilters extends LitElement {
                         query: query,
                         options: {}
                     };
-                    this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
-                        .then(restResponse => {
-                            if (!restResponse.getEvents?.("ERROR")?.length) {
-                                this._filters = [...this._filters, data];
-                                $("#" + this._prefix + "filterName").val("");
-                                $("#" + this._prefix + "filterDescription").val("");
-                                Swal.fire(
-                                    "Filter Saved",
-                                    "Filter has been saved.",
-                                    "success"
-                                );
-                                this.requestUpdate();
-                                this.updateComplete.then(() => UtilsNew.initTooltip(this));
-                            } else {
-                                console.error(restResponse);
-                                Swal.fire(
-                                    "Server Error!",
-                                    "Filter has not been correctly saved.",
-                                    "error"
-                                );
+                    this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {
+                        action: "ADD"
+                    })
+                        .then(response => {
+                            if (restResponse.getEvents?.("ERROR")?.length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                             }
+
+                            this._filters = [...this._filters, data];
+                            $("#" + this._prefix + "filterName").val("");
+                            $("#" + this._prefix + "filterDescription").val("");
+
+                            // Display success message
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: "Filter has been saved",
+                            });
                             this.requestUpdate();
-                        }).catch(restResponse => {
-                            console.error(restResponse);
-                            Swal.fire(
-                                "Server Error!",
-                                "Filter has not been correctly saved.",
-                                "error"
-                            );
+                            this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
                 }
 
             })
-            .catch(restResponse => {
-                if (restResponse.getEvents?.("ERROR")?.length) {
-                    // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                    // new NotificationQueue().push("Error saving the filter", msg, "error");
-                    LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
-                } else {
-                    // new NotificationQueue().push("Error saving the filter", "", "error");
-                    LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
-                        message: "Error saving the filter"
-                    });
-                }
-                console.error(restResponse);
-            })
-            .finally(() => {
-
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -507,27 +476,16 @@ export default class OpencgaActiveFilters extends LitElement {
                     resource: this.resource,
                     options: {}
                 };
-                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
-                    .then(restResponse => {
-                        console.log("restResponse", restResponse);
-                        Swal.fire(
-                            "Filter Deleted",
-                            "Filter has been deleted.",
-                            "success"
-                        );
+                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {
+                    action: "REMOVE"
+                })
+                    .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: "Filter has been deleted",
+                        });
                         this.refreshFilters();
-                    }).catch(restResponse => {
-                        if (restResponse.getEvents?.("ERROR")?.length) {
-                            // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                            // new NotificationQueue().push("Error deleting filter", msg, "error");
-                            LitUtils.dispatchEventCustom(this, "notifyResponse", restResponse);
-                        } else {
-                            // new NotificationQueue().push("Error deleting filter", "", "error");
-                            LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
-                                message: "Error deleting filter"
-                            });
-                        }
-                        console.error(restResponse);
+                    }).catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
             }
         });

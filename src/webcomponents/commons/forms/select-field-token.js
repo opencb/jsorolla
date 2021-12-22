@@ -108,7 +108,7 @@ export default class SelectFieldToken extends LitElement {
     onSendValues(e) {
         // name: addItem, addToken or addTags
         const val = $(e.target).val();
-        LitUtils.dispatchEventCustom(this, "addToken", val);
+        LitUtils.dispatchCustomEvent(this, "addToken", val);
     }
 
     getDefaultConfig() {

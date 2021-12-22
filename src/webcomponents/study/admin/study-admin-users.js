@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/text-field-filter.js";
 
 export default class StudyAdminUsers extends LitElement {
@@ -179,13 +180,17 @@ export default class StudyAdminUsers extends LitElement {
         try {
             const resp = await this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, group, data, params);
             const results = resp.responses[0].results;
-            LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
-                message: messageAlert
+            // this.showMessage("Message", messageAlert, "success");
+            // NotificationUtils.showNotify(messageAlert, "SUCCESS");
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: messageAlert,
             });
-            LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+            // this.notifyStudyUpdateRequest();
+            LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
-        } catch (err) {
-            console.error("Message error: ", err);
+        } catch (error) {
+            // console.error("Message error: ", error);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 
@@ -379,7 +384,7 @@ export default class StudyAdminUsers extends LitElement {
                 this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [row.id]}, {action: "REMOVE"})
                     .then(res => {
                         this.requestUpdate();
-                        LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+                        LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                         this.requestUpdate();
                         Swal.fire(
                             "User Removed",
@@ -439,7 +444,7 @@ export default class StudyAdminUsers extends LitElement {
                 this.addGroupId = "";
                 this.requestUpdate();
                 // this.notifyStudyUpdateRequest();
-                LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                 Swal.fire(
                     "Group Add",
                     "Group created correctly.",
@@ -492,10 +497,13 @@ export default class StudyAdminUsers extends LitElement {
         const messageAlert = `${!message.error.length ?
             `Group deleted correctly: ${message.success.join()}` :
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
-        LitUtils.dispatchEventCustom(this, "notifyInfo", null, null, {
-            message: messageAlert
+        // this.showMessage("Message", messageAlert, "info");
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+            message: messageAlert,
         });
-        LitUtils.dispatchEventCustom(this, "studyUpdateRequest", this.study.fqn);
+
+        // this.notifyStudyUpdateRequest();
+        LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
         this.requestUpdate();
     }
 

@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./rga-individual-family.js";
 import "./../../commons/view/detail-tabs.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 
 export default class RgaIndividualView extends LitElement {
@@ -493,9 +494,7 @@ export default class RgaIndividualView extends LitElement {
                 }
             })
             .catch(response => {
-                console.log(response);
-                // UtilsNew.notifyError(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

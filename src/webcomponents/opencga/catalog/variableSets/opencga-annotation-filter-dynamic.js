@@ -4,6 +4,7 @@ import PolymerUtils from "../../../PolymerUtils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
 import "./opencga-variable-selector.js";
 import "./../../../commons/forms/select-field-filter.js";
+import NotificationUtils from "../../../commons/utils/notification-utils.js";
 
 /**
  * @deprecated
@@ -89,9 +90,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         }
     }
 
-    /**
-     * It builds this.selectedVariables from the serialized string this.selectedVariablesText
-     */
+    // It builds this.selectedVariables from the serialized string this.selectedVariablesText
     async selectedVariablesTextObserver() {
         if (this.selectedVariablesText) {
 
@@ -188,12 +187,11 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         await this.updateComplete;
     }
 
-    /** @deprecated */
+    // Deprecated
     onAddAnnotationClicked(e) {
         if (typeof this.lastAnnotationFilter === "undefined") {
-            // new NotificationQueue().push("Please choose or input a value", "", "warning");
-            LitUtils.dispatchEventCustom(this, "notifyWarning", null, null, {
-                message: "Please choose or input a value"
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                message: "Please choose or input a value",
             });
             return;
         }
@@ -303,7 +301,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
         });
     }
 
-    /** @deprecated */
+    // DEPRECATED
     renderVariableTemplate() {
         const myTemplate = PolymerUtils.getElementById(this._prefix + "VariableTemplate");
         if (UtilsNew.isNotNull(myTemplate)) {

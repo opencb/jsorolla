@@ -23,6 +23,7 @@ import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -102,10 +103,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 break;
             case "disorder.id":
                 if (e.detail.value) {
-                    const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
-                    this.clinicalAnalysis.disorder = {
-                        id: disorder.id
-                    };
+                    if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+                        const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
+                        this.clinicalAnalysis.disorder = {
+                            id: disorder.id
+                        };
+                    }
                 } else {
                     delete this.clinicalAnalysis.disorder;
                 }
@@ -215,10 +218,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     notifyClinicalAnalysisWrite() {
-        LitUtils.dispatchEventCustom(this, "clinicalAnalysisCreate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisCreate", null, {
             id: this.clinicalAnalysis.id,
             clinicalAnalysis: this.clinicalAnalysis
-        });
+        }, null);
     }
 
     onClear() {
@@ -244,17 +247,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
 
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
-            .then(response => {
-                LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
-                    message: `The clinical analysis ${response.responses[0].results[0].id} has been created successfully`,
+                    message: `The clinical analysis ${data.id} has been created successfully`,
                 });
                 this.notifyClinicalAnalysisWrite();
                 this.onClear();
             })
             .catch(response => {
                 // console.error(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -279,49 +282,29 @@ export default class ClinicalAnalysisCreate extends LitElement {
         `;
     }
 
-    isEmptyRequiredFields(data) {
-        // const getConfigVisible = this._config.sections?.filter(section =>
-        //     FormUtils.getBooleanValue(data, section?.display?.visible));
-        return UtilsNew.isEmptyFields(data, ["id", "proband"]);
-    }
-
     getDefaultConfig() {
         return {
             id: "clinical-analysis",
             title: "Create Case",
             icon: "fas fa-user-md",
-            type: "form",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
-            links: [
-                {
-                    title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
-                    icon: ""
-                }
-            ],
-            buttons: {
-                show: true,
-                disabled: data => this.isEmptyRequiredFields(data),
-                clearText: "Clear",
-                okText: "Create"
-            },
             display: {
-                width: "8",
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "4",
-                defaultLayout: "horizontal"
+                buttonsWidth: 8,
+                buttonClearText: "Clear",
+                buttonOkText: "Create Clinical Analysis",
+                width: 8,
+                titleVisible: false,
+                titleAlign: "left",
+                titleWidth: 4,
+                defaultLayout: "horizontal",
             },
             sections: [
                 {
                     title: "General Information",
-                    display: {
-                    },
                     elements: [
                         {
-                            name: "Case ID",
+                            title: "Case ID",
                             field: "id",
                             type: "input-text",
                             required: true,
@@ -336,34 +319,30 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             },
                         },
                         {
-                            name: "Analysis Type",
+                            title: "Analysis Type",
                             field: "type",
                             type: "select",
                             allowedValues: ["SINGLE", "FAMILY", "CANCER"],
                             defaultValue: "FAMILY",
-                            errorMessage: "Not found...",
-                            display: {}
                         },
                         {
-                            name: "Disease Panels",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => {
-                                    return html`
-                                        <disease-panel-filter
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .diseasePanels="${this.opencgaSession.study?.panels}"
-                                            .panel="${panels?.map(p => p.id).join(",")}"
-                                            .showExtendedFilters="${false}"
-                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
-                                        </disease-panel-filter>
-                                    `;
-                                }
-                            }
+                                render: panels => html`
+                                    <disease-panel-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .diseasePanels="${this.opencgaSession.study?.panels}"
+                                        .panel="${panels?.map(p => p.id).join(",")}"
+                                        .showExtendedFilters="${false}"
+                                        @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                    </disease-panel-filter>
+                                `,
+                            },
                         },
                         {
-                            name: "Flags",
+                            title: "Flags",
                             field: "flags",
                             type: "custom",
                             display: {
@@ -373,29 +352,30 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
                                         .multiple=${true}
                                         @filterChange="${e => this.onFieldChange(e, "flags.id")}">
-                                    </clinical-flag-filter>`
-                            }
+                                    </clinical-flag-filter>
+                                `,
+                            },
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             defaultValue: "",
                             display: {
                                 rows: 2,
                                 placeholder: "Add a description to this case..."
-                            }
+                            },
                         }
                     ]
                 },
                 {
                     title: "Single Analysis Configuration",
                     display: {
-                        visible: data => data.type && data.type.toUpperCase() === "SINGLE"
+                        visible: data => data.type && data.type.toUpperCase() === "SINGLE",
                     },
                     elements: [
                         {
-                            name: "Select Proband",
+                            title: "Select Proband",
                             field: "proband.id",
                             type: "custom",
                             required: true,
@@ -411,45 +391,49 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             }} @filterChange="${e => this.onIndividualChange(e)}">
                                         </individual-id-autocomplete>
                                     `;
-                                }
-                            }
+                                },
+                            },
                         },
                         {
-                            name: "Select Disorder",
+                            title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
-                                errorMessage: "No disorders available"
+                                errorMessage: "No disorders available",
                             }
                         },
                         {
-                            name: "Samples",
+                            title: "Samples",
                             field: "proband.samples",
                             type: "table",
                             display: {
                                 // defaultLayout: "vertical",
                                 // errorMessage: "No proband selected",
-                                errorClasses: "",
+                                errorClassName: "",
                                 columns: [
                                     {
-                                        name: "ID", type: "custom",
+                                        title: "ID",
+                                        type: "custom",
                                         display: {
-                                            render: sample => html`
-                                                <div><span style="font-weight: bold">${sample.id}</span></div>`
-                                        }
+                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
+                                        },
                                     },
                                     {
-                                        name: "Files", field: "fileIds", type: "custom",
+                                        title: "Files",
+                                        field: "fileIds",
+                                        type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`
-                                        }
+                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                        },
                                     },
                                     {
-                                        name: "Status", field: "status.name", defaultValue: "-"
-                                    }
+                                        title: "Status",
+                                        field: "status.name",
+                                        defaultValue: "-",
+                                    },
                                 ]
                             }
                         }
@@ -458,86 +442,92 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 {
                     title: "Family Analysis Configuration",
                     display: {
-                        visible: data => data.type && data.type.toUpperCase() === "FAMILY"
+                        visible: data => data.type && data.type.toUpperCase() === "FAMILY",
                     },
                     elements: [
                         {
-                            name: "Select Family",
+                            title: "Select Family",
                             field: "family.id",
                             type: "custom",
                             display: {
-                                render: data => {
-                                    return html`
-                                        <family-id-autocomplete
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config=${{
-                                                addButton: false,
-                                                multiple: false
-                                            }} @filterChange="${e => this.onFamilyChange(e)}">
-                                        </family-id-autocomplete>
-                                    `;
-                                }
-                            }
+                                render: () => html`
+                                    <family-id-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}"
+                                        @filterChange="${e => this.onFamilyChange(e)}">
+                                    </family-id-autocomplete>
+                                `,
+                            },
                         },
                         {
-                            name: "Select Family",
+                            title: "Select Family",
                             field: "family.id",
                             type: "basic",
-                            display: {}
                         },
                         {
-                            name: "Select Proband",
+                            title: "Select Proband",
                             field: "proband.id",
                             type: "select",
                             allowedValues: "family.members",
                             required: true,
                             display: {
-                                errorMessage: "No family selected"
-                            }
+                                errorMessage: "No family selected",
+                            },
                         },
                         {
-                            name: "Select Disorder",
+                            title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
-                                errorMessage: "No disorders available"
-                            }
+                                errorMessage: "No disorders available",
+                            },
                         },
                         {
-                            name: "Members",
+                            title: "Members",
                             field: "family.members",
                             type: "table",
                             display: {
-                                width: "12",
+                                width: 12,
                                 defaultLayout: "vertical",
                                 errorMessage: "No family selected",
-                                errorClasses: "",
+                                errorClassName: "",
                                 columns: [
                                     {
-                                        name: "Individual", type: "custom",
+                                        title: "Individual",
+                                        type: "custom",
                                         display: {
                                             render: individual => html`
                                                 <div><span style="font-weight: bold">${individual.id}</span></div>
-                                                <div><span class="help-block">${individual.sex} (${individual.karyotypicSex})</span></div>`
-                                        }
+                                                <div><span class="help-block">${individual.sex} (${individual.karyotypicSex})</span></div>
+                                            `,
+                                        },
                                     },
                                     {
-                                        name: "Sample", field: "samples", type: "custom",
+                                        title: "Sample",
+                                        field: "samples",
+                                        type: "custom",
                                         display: {
-                                            render: samples => html`${samples[0].id}`
-                                        }
+                                            render: samples => html`${samples[0].id}`,
+                                        },
                                     },
                                     {
-                                        name: "Father", field: "father.id"
+                                        title: "Father",
+                                        field: "father.id",
                                     },
                                     {
-                                        name: "Mother", field: "mother.id"
+                                        title: "Mother",
+                                        field: "mother.id",
                                     },
                                     {
-                                        name: "Disorders", field: "disorders", type: "custom",
+                                        title: "Disorders",
+                                        field: "disorders",
+                                        type: "custom",
                                         display: {
                                             render: disorders => {
                                                 if (disorders && disorders.length > 0) {
@@ -558,7 +548,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Pedigree",
+                            title: "Pedigree",
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
@@ -568,7 +558,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         return html`<pedigree-view .family="${data.family}"></pedigree-view>`;
                                     }
                                 },
-                                errorMessage: "No family selected"
+                                errorMessage: "No family selected",
                             }
                         }
                     ]
@@ -577,66 +567,69 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     title: "Cancer Analysis Configuration",
                     collapsed: false,
                     display: {
-                        visible: data => {
-                            return data.type && data.type.toUpperCase() === "CANCER";
-                        }
+                        visible: data => data.type && data.type.toUpperCase() === "CANCER",
                     },
                     elements: [
                         {
-                            name: "Select Proband",
+                            title: "Select Proband",
                             type: "custom",
                             display: {
-                                render: data => {
-                                    return html`
-                                        <individual-id-autocomplete
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config=${{
-                                                addButton: false,
-                                                multiple: false
-                                            }} @filterChange="${e => this.onCancerChange(e)}">
-                                        </individual-id-autocomplete>`;
-                                }
-                            }
+                                render: () => html`
+                                    <individual-id-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}"
+                                        @filterChange="${e => this.onCancerChange(e)}">
+                                    </individual-id-autocomplete>
+                                `,
+                            },
                         },
                         {
-                            name: "Select Disorder",
+                            title: "Select Disorder",
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
-                                errorMessage: "No disorders available"
+                                errorMessage: "No disorders available",
                             }
                         },
                         {
-                            name: "Samples",
+                            title: "Samples",
                             field: "proband.samples",
                             type: "table",
                             display: {
                                 // width: "12",
                                 // defaultLayout: "vertical",
                                 errorMessage: "No proband selected",
-                                errorClasses: "",
+                                errorClassName: "",
                                 columns: [
                                     {
-                                        name: "ID", type: "custom",
+                                        title: "ID",
+                                        type: "custom",
                                         display: {
-                                            render: sample => html`
-                                                <div><span style="font-weight: bold">${sample.id}</span></div>`
+                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
                                         }
                                     },
                                     {
-                                        name: "Files", field: "fileIds", type: "custom",
+                                        title: "Files",
+                                        field: "fileIds",
+                                        type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`
-                                        }
+                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                        },
                                     },
                                     {
-                                        name: "Somatic", field: "somatic"
+                                        title: "Somatic",
+                                        field: "somatic",
                                     },
                                     {
-                                        name: "Status", field: "status.name", defaultValue: "-"
+                                        title: "Status",
+                                        field: "status.name",
+                                        defaultValue: "-",
                                     }
                                 ]
                             }
@@ -647,7 +640,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     title: "Management Information",
                     elements: [
                         {
-                            name: "Priority",
+                            title: "Priority",
                             field: "priority",
                             type: "custom",
                             display: {
@@ -655,29 +648,29 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <clinical-priority-filter
                                         .priority="${priority}"
                                         .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
-                                        .multiple=${false}
+                                        .multiple="${false}"
                                         @filterChange="${e => this.onCustomFieldChange("priority", e)}">
-                                    </clinical-priority-filter>`
+                                    </clinical-priority-filter>
+                                `,
                             }
                         },
                         {
-                            name: "Assigned To",
-                            field: "analyst.assignee",
+                            title: "Assigned To",
+                            field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
                             allowedValues: "_users",
-                            display: {}
                         },
                         {
-                            name: "Due Date",
+                            title: "Due Date",
                             field: "dueDate",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
                             }
                         },
                         {
-                            name: "Comment",
+                            title: "Comment",
                             field: "_comments",
                             type: "input-text",
                             defaultValue: "",

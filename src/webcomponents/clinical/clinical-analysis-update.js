@@ -17,13 +17,17 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import FormUtils from "../commons/forms/form-utils";
+import FormUtils from "../commons/forms/form-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "./clinical-analysis-comment-editor.js";
-import "../commons/forms/data-form.js";
-import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import "../commons/forms/data-form.js";
+import "../commons/filters/disease-panel-filter.js";
+
+import LitUtils from "../commons/utils/lit-utils";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 class ClinicalAnalysisUpdate extends LitElement {
 
@@ -127,23 +131,17 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     postUpdate(response) {
-        Swal.fire({
-            title: "Success",
-            icon: "success",
-            html: "Case info updated successfully"
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Case info updated successfully",
         });
 
         // Reset values after success update
         this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
         this.updateParams = {};
 
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            detail: {
-                clinicalAnalysis: this.clinicalAnalysis
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+            clinicalAnalysis: this.clinicalAnalysis
+        });
     }
 
     onFieldChange(e) {
@@ -201,7 +199,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                     this.postUpdate(response);
                 })
                 .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    // console.error("An error occurred updating clinicalAnalysis: ", response);
                 });
         } else {
             this.updateOrDeleteComments(true);
@@ -230,63 +229,72 @@ class ClinicalAnalysisUpdate extends LitElement {
             id: "clinical-analysis",
             title: "Case Editor",
             icon: "fas fa-user-md",
-            type: "form",
             buttons: {
-                show: true,
                 clearText: "Cancel",
-                okText: "Update",
-                classes: "col-md-offset-4 col-md-3"
+                okText: "Update Case",
             },
             display: {
-                width: "8",
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "4",
+                width: 8,
+                titleVisible: false,
+                titleWidth: 4,
                 defaultLayout: "horizontal",
+                buttonsVisible: true,
+                buttonsWidth: 8,
+                buttonsAlign: "right",
             },
             sections: [
                 {
                     id: "summary",
                     title: "Summary",
                     display: {
-                        style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; padding: 10px",
-                        elementLabelStyle: "padding-top: 0px; padding-left: 20px", // form add control-label which has an annoying top padding
+                        style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
                     },
                     elements: [
                         {
-                            name: "Case ID",
+                            title: "Case ID",
                             type: "custom",
                             display: {
                                 render: clinicalAnalysis => html`
-                                    <span style="font-weight: bold; padding-right: 40px">${clinicalAnalysis.id}</span>
-                                    <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}</span>`
+                                    <span style="font-weight: bold; padding-right: 40px">
+                                        ${clinicalAnalysis.id}
+                                    </span>
+                                    <span>
+                                        <i class="far fa-calendar-alt"></i>
+                                        ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}
+                                    </span>
+                                `,
                             }
                         },
                         {
-                            name: "Proband",
+                            title: "Proband",
                             field: "proband",
                             type: "custom",
                             display: {
                                 render: proband => {
-                                    const sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
+                                    const sex = (proband?.sex?.id !== "UNKNOWN") ? `(${proband.sex.id || proband.sex})` : "(Sex not reported)";
                                     const sampleIds = proband.samples.map(sample => sample.id).join(", ");
                                     return html`
-                                        <span style="padding-right: 25px">${proband.id} ${sex}</span>
-                                        <span style="font-weight: bold; padding-right: 10px">Sample(s):</span><span>${sampleIds}</span>`;
+                                        <span style="padding-right: 25px">
+                                            ${proband.id} ${sex}
+                                        </span>
+                                        <span style="font-weight: bold; padding-right: 10px">
+                                            Sample(s):
+                                        </span>
+                                        <span>${sampleIds}</span>
+                                    `;
                                 }
                             }
                         },
                         {
-                            name: "Clinical Condition",
+                            title: "Clinical Condition",
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
                             }
                         },
                         {
-                            name: "Disease Panel",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
@@ -298,7 +306,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                                                     return html`
                                                         <div style="margin: 5px 0px">
-                                                            <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                                                             </a>
                                                         </div>`;
@@ -312,17 +320,22 @@ class ClinicalAnalysisUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Analysis Type",
+                            title: "Analysis Type",
                             field: "type",
                         },
                         {
-                            name: "Interpretation ID",
+                            title: "Interpretation ID",
                             field: "interpretation",
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span>
-                                    <span style="color: grey; padding-right: 40px">version ${interpretation?.version}</span>`
+                                    <span style="font-weight: bold; margin-right: 10px">
+                                        ${interpretation?.id}
+                                    </span>
+                                    <span style="color: grey; padding-right: 40px">
+                                        version ${interpretation?.version}
+                                    </span>
+                                `,
                             }
                         }
                     ]
@@ -332,19 +345,15 @@ class ClinicalAnalysisUpdate extends LitElement {
                     title: "Management",
                     elements: [
                         {
-                            name: "Lock",
+                            title: "Lock",
                             field: "locked",
                             type: "toggle-switch",
-                            display: {
-                                width: "9",
-                            }
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "status",
                             type: "custom",
                             display: {
-                                width: "9",
                                 render: status => html`
                                     <clinical-status-filter
                                         .status="${status.id}"
@@ -356,15 +365,15 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             e.detail.param = "status.id";
                                             this.onFieldChange(e);
                                         }}">
-                                    </clinical-status-filter>`
+                                    </clinical-status-filter>
+                                `,
                             }
                         },
                         {
-                            name: "Priority",
+                            title: "Priority",
                             field: "priority.id",
                             type: "custom",
                             display: {
-                                width: "9",
                                 render: priority => html`
                                     <clinical-priority-filter
                                         .priority="${priority}"
@@ -376,26 +385,25 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             e.detail.param = "priority.id";
                                             this.onFieldChange(e);
                                         }}">
-                                    </clinical-priority-filter>`
+                                    </clinical-priority-filter>
+                                `,
                             }
                         },
                         {
-                            name: "Analyst",
+                            title: "Analyst",
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
                             allowedValues: () => this.users,
                             display: {
-                                width: "9",
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
                         {
-                            name: "Due Date",
+                            title: "Due Date",
                             field: "dueDate",
                             type: "input-date",
                             display: {
-                                width: "9",
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
@@ -407,7 +415,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     title: "General",
                     elements: [
                         {
-                            name: "Disease Panels",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
@@ -431,11 +439,10 @@ class ClinicalAnalysisUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Disease Panel Lock",
+                            title: "Disease Panel Lock",
                             field: "panelLock",
                             type: "toggle-switch",
                             display: {
-                                width: "9",
                                 disabled: clinicalAnalysis => {
                                     if (clinicalAnalysis?.locked) {
                                         return true;
@@ -459,7 +466,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Flags",
+                            title: "Flags",
                             field: "flags",
                             type: "custom",
                             display: {
@@ -474,11 +481,12 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             e.detail.param = "flags.id";
                                             this.onFieldChange(e);
                                         }}">
-                                    </clinical-flag-filter>`
+                                    </clinical-flag-filter>
+                                `,
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             defaultValue: "",
@@ -488,7 +496,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Comments",
+                            title: "Comments",
                             field: "comments",
                             type: "custom",
                             display: {
