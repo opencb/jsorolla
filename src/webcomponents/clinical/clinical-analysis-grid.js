@@ -167,8 +167,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
             return `
                 <div style="margin: 5px 0px">
                     <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
-                        <i class="fas ${lockIcon} icon-padding" aria-hidden="true"></i>
                         ${row.id}
+                        <i class="fas ${lockIcon}" aria-hidden="true" style="padding-left:4px;"></i>
                     </a>
                 </div>
                 <div style="margin: 5px 0px" data-cy="case-type">
