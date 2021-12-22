@@ -98,6 +98,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
+            validation: {
+                validate: data => {
+                    return data.geneSet?.ensembl || data.geneSet?.refseq;
+                }
+            },
             display: {
                 width: 10,
                 titleVisible: false,
