@@ -33,7 +33,10 @@ import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
+
+import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
+
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
@@ -82,7 +85,6 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
-import "../../webcomponents/Notification.js";
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -260,16 +262,16 @@ class IvaApp extends LitElement {
         this.notificationManager = new NotificationManager({});
 
         // Global notification
-        this.addEventListener("notify", e => this.notificationManager.show(e.detail));
+        this.addEventListener(NotificationUtils.NOTIFY, e => this.notificationManager.show(e.detail));
 
         // Shortcuts for common notifications
-        this.addEventListener("notifyInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
-        this.addEventListener("notifySuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
-        this.addEventListener("notifyWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
-        this.addEventListener("notifyError", e => this.notificationManager.error(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_INFO, e => this.notificationManager.info(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_SUCCESS, e => this.notificationManager.success(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_WARNING, e => this.notificationManager.warning(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_ERROR, e => this.notificationManager.error(e.detail.title, e.detail.message));
 
         // Notify a response
-        this.addEventListener("notifyResponse", e => this.notificationManager.showResponse(e.detail.value));
+        this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.showResponse(e.detail));
 
         // TODO remove browserSearchQuery
         this.browserSearchQuery = {};
@@ -283,7 +285,6 @@ class IvaApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("signingInError", e => {
-            // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
             this.notificationManager.error("Signing in error", e.detail.value);
         }, false);
 
@@ -535,7 +536,6 @@ class IvaApp extends LitElement {
 
                 // _message = html`Your session is close to expire. <strong>${remainingMinutes}
                 // minutes remaining</strong> <a href="javascript:void 0" @click="${() => this.notifySession.refreshToken()}"> Click here to refresh </a>`
-                // new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
 
                 // Handle session refresh
                 const handleSessionRefresh = () => {
@@ -841,9 +841,6 @@ class IvaApp extends LitElement {
 
     // TODO remove
     onNotifyMessage(e) {
-        // NotificationUtils.closeNotify(this.notifySession);
-        // NotificationUtils.showNotify(e.detail.message, e.detail.type, e.detail.options, e.detail.settings);
-        // new NotificationQueue().push(e.detail.title, e.detail.message, e.detail.type);
         this.notificationManager.info(e.detail.title, e.detail.message);
     }
 

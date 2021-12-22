@@ -22,11 +22,15 @@ import {LitElement, html} from "lit";
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
+
 import UtilsNew from "../../core/utilsNew.js";
+
+import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
+import NotificationManager from "../../core/notification-manager.js";
+
 import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/commons/tool-header.js";
-import "../../webcomponents/Notification.js";
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
@@ -129,16 +133,16 @@ class ApiApp extends LitElement {
         this.notificationManager = new NotificationManager({});
 
         // Global notification
-        this.addEventListener("notify", e => this.notificationManager.show(e.detail));
+        this.addEventListener(NotificationUtils.NOTIFY, e => this.notificationManager.show(e.detail));
 
         // Shortcuts for common notifications
-        this.addEventListener("notifyInfo", e => this.notificationManager.info(e.detail.title, e.detail.message));
-        this.addEventListener("notifySuccess", e => this.notificationManager.success(e.detail.title, e.detail.message));
-        this.addEventListener("notifyWarning", e => this.notificationManager.warning(e.detail.title, e.detail.message));
-        this.addEventListener("notifyError", e => this.notificationManager.error(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_INFO, e => this.notificationManager.info(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_SUCCESS, e => this.notificationManager.success(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_WARNING, e => this.notificationManager.warning(e.detail.title, e.detail.message));
+        this.addEventListener(NotificationUtils.NOTIFY_ERROR, e => this.notificationManager.error(e.detail.title, e.detail.message));
 
         // Notify a response
-        this.addEventListener("notifyResponse", e => this.notificationManager.showResponse(e.detail.value));
+        this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.showResponse(e.detail));
 
         // TODO remove browserSearchQuery
         // this.browserSearchQuery = {};
@@ -152,7 +156,6 @@ class ApiApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("signingInError", e => {
-            // new NotificationQueue().push("Error", e.detail.value, "error", true, false);
             this.notificationManager.error("Signing in error", e.detail.value);
         }, false);
 
@@ -438,23 +441,7 @@ class ApiApp extends LitElement {
                 }
             }
         }
-        // else {
-        //     // _message = "Your session has expired.";
-        //     // window.clearInterval(this.intervalCheckSession);
-        // }
-        // delay = 0 to fix the notify until user closes it.
-        // if (UtilsNew.isNotEmpty(_message)) {
-        //     this.notifySession = NotificationUtils.showNotify(_message, UtilsNew.MESSAGE_INFO,
-        //         {}, {
-        //             delay: 0,
-        //             onClosed: this.onCloseRefreshNotify.bind(this)
-        //         }, this.opencgaClient, this.notifySession);
-        // }
     }
-
-    // onCloseRefreshNotify() {
-    //     delete this.notifySession;
-    // }
 
     changeTool(e) {
         e.preventDefault();

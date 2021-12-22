@@ -25,6 +25,7 @@ import "./rga-variant-individual.js";
 import "./rga-variant-allele-pairs.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class RgaVariantView extends LitElement {
 
@@ -595,9 +596,7 @@ export default class RgaVariantView extends LitElement {
                 }
             })
             .catch(response => {
-                console.log(response);
-                // UtilsNew.notifyError(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
