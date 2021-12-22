@@ -1148,7 +1148,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         <clinical-interpretation-variant-review
                             .opencgaSession="${this.opencgaSession}"
                             .variant="${this.variantReview}"
-                            mode=${"form"}
+                            .mode="${"form"}"
                             @variantChange="${e => this.onVariantChange(e)}">
                         </clinical-interpretation-variant-review>
                         <div class="modal-footer">

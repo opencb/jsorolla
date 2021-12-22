@@ -30,35 +30,46 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         return this;
     }
 
-
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             variant: {
                 type: Object,
             },
             mode: {
-                type: String    // Values: form, modal
-            }
-        }
+                type: String, // Values: form, modal
+            },
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.updateParams = {};
         this.mode = "form";
+        this.variant = {};
+        this._config = this.getDefaultconfig();
     }
 
-    updated(changedProperties) {
-        // if (changedProperties.has("variant")) {
-        //     this.variantObserver();
-        // }
+    update(changedProperties) {
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
+        }
+
+        if (changedProperties.has("mode")) {
+            this.modeObserver();
+        }
+
+        super.update(changedProperties);
     }
 
     variantObserver() {
+        this.variant = this.variant || {}; // Prevent undefined variant review
+    }
+
+    modeObserver() {
+        this._config = this.getDefaultconfig();
     }
 
     onCommentChange(e) {
@@ -74,92 +85,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                 update: this.updateParams
             },
         }));
-    }
-
-    getSaveForm() {
-        let sections = {
-            sections: [
-                {
-                    elements: [
-                        {
-                            name: "Status",
-                            field: "status",
-                            type: "select",
-                            allowedValues: ["NOT_REVIEWED", "REVIEW_REQUESTED", "REVIEWED", "DISCARDED", "REPORTED"],
-                            display: {
-                            }
-                        },
-                        {
-                            name: "Discussion",
-                            field: "discussion",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a discussion",
-                                rows: 5
-                            }
-                        },
-                        {
-                            name: "Comments",
-                            field: "comments",
-                            type: "custom",
-                            display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor .comments="${comments}"
-                                                                      @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>`
-                            }
-                        },
-                    ]
-                }
-            ]
-        };
-
-        if (this.mode === "modal") {
-            return {
-                title: "Edit",
-                icon: "fas fa-edit",
-                type: "form",
-                buttons: {
-                    show: true,
-                    cancelText: "Cancel",
-                    okText: "Save",
-                    classes: "btn btn-primary"
-                },
-                display: {
-                    style: "margin: 25px 50px 0px 0px",
-                    mode: {
-                        type: "modal",
-                        title: "Review Variant",
-                        buttonClass: "btn-link"
-                    },
-                    labelWidth: 3,
-                    labelAlign: "right",
-                    defaultValue: "",
-                    defaultLayout: "horizontal",
-                },
-                ...sections
-            }
-        } else {
-            return {
-                title: "Save",
-                icon: "fas fa-save",
-                type: "form",
-                // buttons: {
-                //     show: true,
-                //     cancelText: "Cancel",
-                //     okText: "OK",
-                //     classes: "btn btn-primary"
-                // },
-                display: {
-                    style: "margin: 25px 50px 0px 0px",
-                    labelWidth: 3,
-                    labelAlign: "right",
-                    defaultValue: "",
-                    defaultLayout: "horizontal",
-                },
-                ...sections
-            }
-        }
     }
 
     onSaveFieldChange(e) {
@@ -187,19 +112,91 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         }));
     }
 
-    onSave(e) {
-        debugger
-    }
-
     render() {
         return html`
-            <data-form  .data=${this.variant}
-                        .config="${this.getSaveForm()}"
-                        @fieldChange="${e => this.onSaveFieldChange(e)}"
-                        @submit="${this.onSave}">
+            <data-form 
+                .data="${this.variant}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onSaveFieldChange(e)}">
             </data-form>
         `;
     }
+
+    getDefaultconfig() {
+        const sections = [
+            {
+                elements: [
+                    {
+                        title: "Status",
+                        field: "status",
+                        type: "select",
+                        allowedValues: [
+                            "NOT_REVIEWED",
+                            "REVIEW_REQUESTED",
+                            "REVIEWED",
+                            "DISCARDED",
+                            "REPORTED"
+                        ],
+                    },
+                    {
+                        title: "Discussion",
+                        field: "discussion",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a discussion",
+                            rows: 5,
+                        },
+                    },
+                    {
+                        title: "Comments",
+                        field: "comments",
+                        type: "custom",
+                        display: {
+                            render: comments => html`
+                                <clinical-analysis-comment-editor
+                                    .comments="${comments}"
+                                    @commentChange="${e => this.onCommentChange(e)}">
+                                </clinical-analysis-comment-editor>
+                            `,
+                        },
+                    },
+                ]
+            }
+        ];
+
+        if (this.mode === "modal") {
+            return {
+                title: "Edit",
+                icon: "fas fa-edit",
+                type: "modal",
+                display: {
+                    // style: "margin: 25px 50px 0px 0px",
+                    titleWidth: 3,
+                    defaultValue: "",
+                    defaultLayout: "horizontal",
+                    buttonClearText: "Cancel",
+                    buttonOkText: "Save",
+                },
+                sections: sections,
+            };
+        } else {
+            return {
+                title: "Save",
+                // icon: "fas fa-save",
+                display: {
+                    style: "padding:16px;",
+                    titleWidth: 3,
+                    titleAlign: "right",
+                    defaultValue: "",
+                    defaultLayout: "horizontal",
+                    titleVisible: false,
+                    buttonsVisible: false,
+                },
+                sections: sections,
+            };
+        }
+    }
+
 }
 
 customElements.define("clinical-interpretation-variant-review", ClinicalInterpretationVariantReview);
