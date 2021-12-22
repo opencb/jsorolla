@@ -21,6 +21,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -341,27 +342,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
                         study: this.opencgaSession.study.fqn,
                         force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
-                    }).then(restResponse => {
-                        if (restResponse.getResultEvents("ERROR").length) {
-                            Swal.fire({
-                                title: "Error",
-                                icon: "error",
-                                html: restResponse.getResultEvents("ERROR").map(event => event.message).join("<br>")
-                            });
-                        } else {
-                            Swal.fire(
-                                "Deleted!",
-                                "Clinical Analysis has been deleted.",
-                                "success"
-                            );
-                            this.renderTable();
+                    }).then(response => {
+                        if (response.getResultEvents("ERROR").length) {
+                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         }
-                    }).catch(restResponse => {
-                        Swal.fire(
-                            "Server Error!",
-                            "Clinical Analysis has not been correctly deleted.",
-                            "error"
-                        );
+                        // Display confirmation message and update the table
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Case '${clinicalAnalysisId}' has been deleted.`,
+                        });
+                        this.renderTable();
+                    }).catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
                 }
             });
@@ -377,13 +368,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 study: this.opencgaSession.study.fqn,
             })
                 .then(() => {
-                    LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
                     });
                     this.renderTable();
                 })
                 .catch(response => {
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         }
 
@@ -399,11 +390,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         this.renderTable();
                     } else {
                         // console.error(response);
-                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     }
                 })
                 .catch(response => {
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         }
 
@@ -415,11 +406,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         this.renderTable();
                     } else {
                         // console.error(response);
-                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     }
                 })
                 .catch(response => {
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         }
     }
@@ -674,7 +665,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         } catch (e) {
             // in case it is a restResponse
-            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();

@@ -19,6 +19,7 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../individual/disorder/disorder-list-update.js";
 import "../commons/tool-header.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class IndividualUpdate extends LitElement {
 
@@ -159,16 +160,17 @@ export default class IndividualUpdate extends LitElement {
 
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
-            .then(res => {
+            .then(() => {
                 // TODO get individual from database, ideally it should be returned by OpenCGA
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
-                FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Individual updated",
+                });
             })
-            .catch(err => {
-                console.error(err);
-                // FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
-                FormUtils.notifyError(err);
+            .catch(response => {
+                // console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 

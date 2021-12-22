@@ -26,6 +26,7 @@ import "./variant-interpreter-grid-config.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class VariantInterpreterRearrangementGrid extends LitElement {
 
@@ -918,9 +919,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             })
             .catch(response => {
-                console.log(response);
-                // UtilsNew.notifyError(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+                // console.log(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -1042,8 +1042,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
-            // UtilsNew.notifyError(e);
-            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
     }
 

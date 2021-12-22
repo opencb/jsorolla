@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class OpencgaVariantSamples extends LitElement {
 
@@ -387,8 +388,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 }
             }
         } catch (e) {
-            // UtilsNew.notifyError(e);
-            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();

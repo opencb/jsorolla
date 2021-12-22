@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import {RestResponse} from "../../core/clients/rest-response.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
 export default class OpencgaLogin extends LitElement {
@@ -101,8 +102,7 @@ export default class OpencgaLogin extends LitElement {
                         if (response instanceof RestResponse) {
                             if (response.getEvents?.("ERROR")?.length) {
                                 this.errorState = response.getEvents("ERROR");
-                                // UtilsNew.notifyError(response);
-                                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                             } else if (response) {
                                 this.querySelector("#opencgaUser").value = "";
                                 this.querySelector("#opencgaPassword").value = "";
@@ -117,9 +117,9 @@ export default class OpencgaLogin extends LitElement {
                                     token: token
                                 }, null);
 
-                                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                                     message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
-                                }, null);
+                                });
                             }
                         } else {
                             this.errorState = [
@@ -128,27 +128,23 @@ export default class OpencgaLogin extends LitElement {
                                     message: "Unexpected response format. Please check your host is up and running.",
                                 },
                             ];
-                            // new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                                 title: this.errorState[0].name,
                                 message: this.errorState[0].message
-                            }, null);
+                            });
                         }
                     })
                     .catch(response => {
-                        // response isn't necessarily a restResponse instance
-                        // UtilsNew.notifyError(response);
-                        return LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
             } else {
-                // new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
-                LitUtils.dispatchCustomEvent(this, "notifyError", null, {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                     title: "Error retrieving OpencgaSession",
                     message: `
                         There was an error retrieving the OpencgaSession.
                         Please try again later or contact the administrator if the problem persists.
                     `,
-                }, null);
+                });
             }
         }
     }

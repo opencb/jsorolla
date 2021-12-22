@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -32,6 +31,7 @@ import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -148,8 +148,7 @@ class VariantInterpreter extends LitElement {
                     // this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    // console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
             // .finally(async () => {
             // this._config = {...this._config, loading: false};
@@ -208,10 +207,9 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
-            // new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
-            LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
-                message: "Clinical analysis refreshed"
-            }, null);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                message: "Clinical analysis refreshed",
+            });
         });
     }
 

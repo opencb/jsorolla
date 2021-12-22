@@ -22,6 +22,7 @@ import {CountUp} from "countup.js";
 import "../commons/simple-chart.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class OpencgaProjects extends LitElement {
 
@@ -273,16 +274,11 @@ export default class OpencgaProjects extends LitElement {
                 // TODO avoid extra step and build data straight this way?
                 this.data = this.prepareData(this.data);
             } else if (catalogProjectResponse.getEvents("ERROR").length) {
-                const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                // new NotificationQueue().push("Error", msg, "error");
-                LitUtils.dispatchCustomEvent(this, "notifyError", null, {
-                    message: `${msg}`
-                }, null);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, catalogProjectResponse);
             }
         } catch (e) {
-            console.error(e);
-            // UtilsNew.notifyError(e);
-            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+            // console.error(e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
         this.requestUpdate();
         // await this.updateComplete; // this causes intermittent refresh issues

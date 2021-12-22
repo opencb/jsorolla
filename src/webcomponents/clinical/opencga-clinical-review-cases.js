@@ -16,8 +16,11 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import PolymerUtils from "../PolymerUtils.js";
+
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+
 import "./clinical-analysis-grid.js";
 import "./opencga-clinical-analysis-view.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
@@ -28,7 +31,6 @@ import "../commons/filters/proband-id-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
 import "../commons/view/detail-tabs.js";
-
 
 export default class OpencgaClinicalReviewCases extends LitElement {
 
@@ -173,31 +175,17 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     resource: this.resource,
                     options: {}
                 };
-                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
-                    .then(restResponse => {
-                        console.log("restResponse", restResponse);
-                        Swal.fire(
-                            "Filter Deleted",
-                            "Filter has been deleted.",
-                            "success"
-                        );
+                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {
+                    action: "REMOVE",
+                })
+                    .then(() => {
+                        // console.log("response", response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: "Filter has been deleted",
+                        });
                         this.refreshFilters();
-                    }).catch(restResponse => {
-                        if (restResponse.getEvents?.("ERROR")?.length) {
-                            // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                            // new NotificationQueue().push("Error deleting filter", msg, "error");
-                            // LitUtils.dispatchEventCustom(this, "notifyError", null, null, {
-                            //     title: "Error deleting filter",
-                            //     message: msg
-                            // });
-                            LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
-                        } else {
-                            // new NotificationQueue().push("Error deleting filter", "", "error");
-                            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
-                                message: "Error deleting filter",
-                            }, null);
-                        }
-                        console.error(restResponse);
+                    }).catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
             }
         });
@@ -239,17 +227,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
         this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
-                console.log("GET filters", restResponse);
                 const savedFilters = restResponse.getResults() || [];
-
-                console.log("savedFilters", savedFilters);
 
                 if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
                     // updating an existing filter
                     const data = {
                         description: filterDescription,
                         query: query,
-                        options: {}
+                        options: {},
                     };
 
                     Swal.fire({
@@ -263,32 +248,29 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     }).then(result => {
                         if (result.value) {
                             this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
-                                .then(restResponse => {
-                                    if (!restResponse?.getEvents?.("ERROR")?.length) {
-                                        for (const i in this._filters) {
-                                            if (this._filters[i].id === filterName) {
-                                                this._filters[i] = restResponse.response[0].result[0];
-                                            }
+                                .then(response => {
+                                    if (response?.getEvents?.("ERROR")?.length) {
+                                        return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                                    }
+
+                                    // Update filters
+                                    for (const i in this._filters) {
+                                        if (this._filters[i].id === filterName) {
+                                            this._filters[i] = response.response[0].result[0];
                                         }
-                                        this.requestUpdate();
-                                        this.updateComplete.then(() => UtilsNew.initTooltip(this));
-                                    } else {
-                                        console.error(restResponse);
-                                        Swal.fire(
-                                            "Server Error!",
-                                            "Filter has not been correctly saved.",
-                                            "error"
-                                        );
                                     }
                                     $("#" + this._prefix + "filterName").val("");
                                     $("#" + this._prefix + "filterDescription").val("");
-                                }).catch(restResponse => {
-                                    console.error(restResponse);
-                                    Swal.fire(
-                                        "Server Error!",
-                                        "Filter has not been correctly saved.",
-                                        "error"
-                                    );
+
+                                    // Display confirmation message
+                                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                        message: "Filter has been saved",
+                                    });
+
+                                    this.requestUpdate();
+                                    this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                                }).catch(response => {
+                                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                                 });
                         }
                     });
@@ -303,53 +285,31 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         options: {}
                     };
                     this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
-                        .then(restResponse => {
-                            if (!restResponse.getEvents?.("ERROR")?.length) {
-                                this._filters = [...this._filters, data];
-                                $("#" + this._prefix + "filterName").val("");
-                                $("#" + this._prefix + "filterDescription").val("");
-                                Swal.fire(
-                                    "Filter Saved",
-                                    "Filter has been saved.",
-                                    "success"
-                                );
-                                this.requestUpdate();
-                                this.updateComplete.then(() => UtilsNew.initTooltip(this));
-                            } else {
-                                console.error(restResponse);
-                                Swal.fire(
-                                    "Server Error!",
-                                    "Filter has not been correctly saved.",
-                                    "error"
-                                );
+                        .then(response => {
+                            if (response.getEvents?.("ERROR")?.length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                             }
+
+                            // Update filters
+                            this._filters = [...this._filters, data];
+                            $("#" + this._prefix + "filterName").val("");
+                            $("#" + this._prefix + "filterDescription").val("");
+
+                            // Display confirmation message
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: "Filter has been saved",
+                            });
+
                             this.requestUpdate();
-                        }).catch(restResponse => {
-                            console.error(restResponse);
-                            Swal.fire(
-                                "Server Error!",
-                                "Filter has not been correctly saved.",
-                                "error"
-                            );
+                            this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
                 }
 
             })
-            .catch(restResponse => {
-                if (restResponse.getEvents?.("ERROR")?.length) {
-                    // const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                    // new NotificationQueue().push("Error saving the filter", msg, "error");
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", restResponse);
-                } else {
-                    // new NotificationQueue().push("Error saving the filter", "", "error");
-                    LitUtils.dispatchCustomEvent(this, "notifyError", null, {
-                        message: "Error saving the filter"
-                    }, null);
-                }
-                console.error(restResponse);
-            })
-            .finally(() => {
-
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -419,22 +379,23 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             id: "clinical-analysis-view",
                             name: "Overview",
                             active: true,
-                            render: (clinicalAnalysis, active, opencgaSession) => {
-                                return html`
-                                    <opencga-clinical-analysis-view .opencgaSession="${opencgaSession}"
-                                                                    .clinicalAnalysisId=${clinicalAnalysis.id}
-                                                                    .settings="${OPENCGA_CLINICAL_ANALYSIS_VIEW_SETTINGS}">
-                                    </opencga-clinical-analysis-view>
-                                `;
-                            }
+                            render: (clinicalAnalysis, active, opencgaSession) => html`
+                                <opencga-clinical-analysis-view
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysisId="${clinicalAnalysis.id}"
+                                    .settings="${OPENCGA_CLINICAL_ANALYSIS_VIEW_SETTINGS}">
+                                </opencga-clinical-analysis-view>
+                            `,
                         },
                         {
                             id: "proband-view",
                             name: "Proband",
-                            render: (clinicalAnalysis, active, opencgaSession) => {
-                                return html`
-                                    <individual-view .opencgaSession="${opencgaSession}" .individual="${clinicalAnalysis.proband}"></individual-view>`;
-                            }
+                            render: (clinicalAnalysis, active, opencgaSession) => html`
+                                <individual-view
+                                    .opencgaSession="${opencgaSession}"
+                                    .individual="${clinicalAnalysis.proband}">
+                                </individual-view>
+                            `,
                         }
                     ]
                 }

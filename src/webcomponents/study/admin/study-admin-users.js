@@ -18,8 +18,8 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../../NotificationUtils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/text-field-filter.js";
 
 export default class StudyAdminUsers extends LitElement {
@@ -182,14 +182,15 @@ export default class StudyAdminUsers extends LitElement {
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
             // NotificationUtils.showNotify(messageAlert, "SUCCESS");
-            LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
-                message: messageAlert
-            }, null);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: messageAlert,
+            });
             // this.notifyStudyUpdateRequest();
             LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
             this.requestUpdate();
-        } catch (err) {
-            console.error("Message error: ", err);
+        } catch (error) {
+            // console.error("Message error: ", error);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 
@@ -498,10 +499,9 @@ export default class StudyAdminUsers extends LitElement {
             `Group deleted correctly: ${message.success.join()}` :
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
         // this.showMessage("Message", messageAlert, "info");
-        // NotificationUtils.showNotify(messageAlert, "INFO");
-        LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
-            message: messageAlert
-        }, null);
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+            message: messageAlert,
+        });
 
         // this.notifyStudyUpdateRequest();
         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);

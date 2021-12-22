@@ -23,6 +23,7 @@ import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -246,8 +247,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
 
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
-            .then(response => {
-                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
                     message: `The clinical analysis ${data.id} has been created successfully`,
                 });
@@ -255,8 +256,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 this.onClear();
             })
             .catch(response => {
-                console.error(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                // console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 

@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import "./opencga-knockout-analysis-result.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 // this class will be in config folder
 class OpencgaKnockoutAnalysisConfig {
@@ -200,11 +201,11 @@ export default class OpencgaKnockoutAnalysis { // extends LitElement
         data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
         data.filter ? body.filter = data.filter.join(",") : null;
         opencgaSession.opencgaClient.variants().runKnockout(body, params)
-            .then(restResponse => {
+            .then(response => {
+                // ??
             })
             .catch(e => {
-                // UtilsNew.notifyError(e)
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             });
     }
 
