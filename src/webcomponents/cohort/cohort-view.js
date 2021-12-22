@@ -63,9 +63,11 @@ export default class CohortView extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
+
         if (changedProperties.has("config")) {
             this.configObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -110,141 +112,6 @@ export default class CohortView extends LitElement {
         }));
     }
 
-    getDefaultConfig() {
-        return {
-            title: "Summary",
-            icon: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                labelAlign: "left"
-            },
-            sections: [
-                {
-                    title: "Search",
-                    display: {
-                        visible: cohort => !cohort?.id
-                    },
-                    elements: [
-                        {
-                            name: "Cohort ID",
-                            field: "cohortId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <cohort-id-autocomplete
-                                        .value="${this.cohort?.id}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </cohort-id-autocomplete>`
-                            }
-                        }
-                    ]
-                },
-                {
-                    title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: cohort => cohort?.id
-                    },
-                    elements: [
-                        // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
-                        {
-                            name: "Cohort Id",
-                            field: "id"
-                        },
-                        {
-                            name: "Cohort Type",
-                            field: "type",
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                        },
-                        {
-                            name: "Status",
-                            field: "internal.status",
-                            type: "custom",
-                            display: {
-                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
-                            }
-                        },
-                        {
-                            name: "Creation date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: field => {
-                                    return html`${UtilsNew.dateFormatter(field)}`;
-                                }
-                            }
-                        },
-                        {
-                            name: "Modification Date",
-                            field: "modificationDate",
-                            type: "custom",
-                            display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
-                            }
-                        },
-                        {
-                            name: "Annotation sets",
-                            field: "annotationSets",
-                            type: "custom",
-                            defaultValue: "N/A",
-                            display: {
-                                render: field => html`
-                                    <annotation-set-view
-                                        .annotationSets="${field}">
-                                    </annotation-set-view>`
-                            }
-                        }
-                    ]
-                },
-                {
-                    title: "Samples",
-                    display: {
-                        visible: cohort => cohort?.id
-                    },
-                    elements: [
-                        {
-                            name: "List of samples",
-                            field: "samples",
-                            type: "table",
-                            display: {
-                                columns: [
-                                    {
-                                        name: "Samples ID", field: "id"
-                                    },
-                                    {
-                                        name: "Somatic", field: "somatic", defaultValue: "false"
-                                    },
-                                    {
-                                        name: "Phenotypes",
-                                        field: "phenotypes",
-                                        type: "custom",
-                                        defaultValue: "-",
-                                        display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
-                                        }
-                                    }
-                                ],
-                                defaultValue: "No phenotypes found"
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
-    }
-
     render() {
         if (this.isLoading) {
             return html`
@@ -258,6 +125,145 @@ export default class CohortView extends LitElement {
                 .config="${this._config}">
             </data-form>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Summary",
+            icon: "",
+            display: {
+                buttonsVisible: false,
+                collapsable: true,
+                titleAlign: "left",
+                titleVisible: false,
+                titleWidth: 2,
+                defaultValue: "-",
+            },
+            sections: [
+                {
+                    title: "Search",
+                    display: {
+                        visible: cohort => !cohort?.id
+                    },
+                    elements: [
+                        {
+                            title: "Cohort ID",
+                            field: "cohortId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <cohort-id-autocomplete
+                                        .value="${this.cohort?.id}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            select2Config: {
+                                                multiple: false
+                                            }
+                                        }}"
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </cohort-id-autocomplete>
+                                `,
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "General",
+                    collapsed: false,
+                    display: {
+                        visible: cohort => cohort?.id,
+                    },
+                    elements: [
+                        // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
+                        {
+                            title: "Cohort Id",
+                            field: "id"
+                        },
+                        {
+                            title: "Cohort Type",
+                            field: "type",
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                        },
+                        {
+                            title: "Status",
+                            field: "internal.status",
+                            type: "custom",
+                            display: {
+                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                            }
+                        },
+                        {
+                            title: "Creation date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                            }
+                        },
+                        {
+                            title: "Modification Date",
+                            field: "modificationDate",
+                            type: "custom",
+                            display: {
+                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                            }
+                        },
+                        {
+                            title: "Annotation sets",
+                            field: "annotationSets",
+                            type: "custom",
+                            defaultValue: "N/A",
+                            display: {
+                                render: field => html`
+                                    <annotation-set-view
+                                        .annotationSets="${field}">
+                                    </annotation-set-view>
+                                `,
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Samples",
+                    display: {
+                        visible: cohort => cohort?.id,
+                    },
+                    elements: [
+                        {
+                            title: "List of samples",
+                            field: "samples",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        title: "Samples ID",
+                                        field: "id",
+                                    },
+                                    {
+                                        title: "Somatic",
+                                        field: "somatic",
+                                        defaultValue: "false",
+                                    },
+                                    {
+                                        title: "Phenotypes",
+                                        field: "phenotypes",
+                                        type: "custom",
+                                        defaultValue: "-",
+                                        display: {
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
+                                        }
+                                    }
+                                ],
+                                defaultValue: "No phenotypes found",
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
     }
 
 }

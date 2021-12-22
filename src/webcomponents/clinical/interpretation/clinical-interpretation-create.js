@@ -44,15 +44,25 @@ export default class ClinicalInterpretationCreate extends LitElement {
             mode: {
                 type: String
             },
-            // config: {
-            //     type: Object
-            // }
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
     _init() {
         this.mode = "";
         this.interpretation = {};
+
+        this.displayConfigDefault = {
+            width: 10,
+            buttonsAlign: "right",
+            buttonClearText: "Clear",
+            buttonOkText: "Create Interpretation",
+            titleVisible: false,
+            titleWidth: 4,
+            defaultLayout: "horizontal"
+        };
     }
 
     connectedCallback() {
@@ -63,16 +73,15 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            // We store the available users from opencgaSession in 'clinicalAnalysis._users'
-            this._users = this.opencgaSession?.study ? OpencgaCatalogUtils.getUsers(this.opencgaSession.study) : [];
+            this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
             this.initClinicalInterpretation();
-
-            this.requestUpdate();
         }
 
-        // if (changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -122,7 +131,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     notifyClinicalAnalysisWrite() {
-        LitUtils.dispatchEventCustom(this, "clinicalAnalysisUpdate", null, null, {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             id: this.interpretation.id,
             clinicalAnalysis: this.interpretation,
         });
@@ -139,16 +148,16 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
         this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {study: this.opencgaSession.study.fqn})
             .then(response => {
-                LitUtils.dispatchEventCustom(this, "notifySuccess", null, null, {
+                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
                     title: "Clinical Interpretation created",
                     message: `The clinical interpretation ${response.responses[0].results[0].id} has been created successfully`,
-                });
+                }, null);
                 this.notifyClinicalAnalysisWrite();
                 this.onClear();
             })
             .catch(response => {
                 // console.error(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             });
     }
 
@@ -169,55 +178,33 @@ export default class ClinicalInterpretationCreate extends LitElement {
             id: "clinical-interpretation",
             title: "Create Interpretation",
             icon: "fas fa-file-medical",
-            type: "form",
+            type: this.mode,
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
-            links: [
-                {
-                    title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
-                    icon: ""
-                }
-            ],
-            buttons: {
-                show: true,
-                clearText: "Clear",
-                submitText: "Create",
-            },
-            display: {
-                mode: {
-                    type: this.mode,
-                },
-                width: "10",
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "4",
-                defaultLayout: "horizontal"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            name: "Interpretation ID",
+                            title: "Interpretation ID",
                             field: "id",
                             type: "input-text",
                             defaultValue: this.clinicalAnalysis.id,
                             display: {
                                 disabled: true
-                            }
+                            },
                         },
                         {
-                            name: "Assigned To",
+                            title: "Assigned To",
                             field: "analyst.id",
                             type: "select",
                             defaultValue: this.opencgaSession?.user?.id,
-                            allowedValues: () => this._users,
-                            display: {}
+                            allowedValues: () => this.users,
+                            display: {},
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "status",
                             type: "custom",
                             display: {
@@ -235,17 +222,20 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Disease Panels",
+                            title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
                                 render: panels => {
+                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                    const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
                                     return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
-                                            .diseasePanels="${this.opencgaSession.study?.panels}"
+                                            .diseasePanels="${panelList}"
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
+                                            .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
                                     `;
@@ -253,7 +243,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             defaultValue: "",
@@ -263,7 +253,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Comment",
+                            title: "Comment",
                             field: "_comments",
                             type: "input-text",
                             defaultValue: "",

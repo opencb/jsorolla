@@ -265,7 +265,7 @@ export default class CohortGrid extends LitElement {
             })
             .catch(response => {
                 // console.log(response);
-                LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

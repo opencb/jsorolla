@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class RgaGeneView extends LitElement {
 
@@ -360,7 +360,8 @@ export default class RgaGeneView extends LitElement {
             }
         } catch (e) {
             console.error(e);
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyError", e);
             return Promise.reject(e);
         }
 
@@ -425,7 +426,8 @@ export default class RgaGeneView extends LitElement {
             })
             .catch(response => {
                 console.log(response);
-                UtilsNew.notifyError(response);
+                // UtilsNew.notifyError(response);
+                LitUtils.dispatchCustomEvent(this, "notifyError", e);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

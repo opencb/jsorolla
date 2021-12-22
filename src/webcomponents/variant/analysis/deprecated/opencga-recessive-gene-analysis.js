@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import "../opencga-knockout-analysis-result.js";
 import UtilsNew from "../../../../core/utilsNew.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
 
 // this class will be in config folder
 class OpencgaRecessiveGeneAnalysisConfig {
@@ -201,18 +202,31 @@ export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
         opencgaSession.opencgaClient.variants().runKnockout(body, params)
             .then(restResponse => {
             })
-            .catch(e => UtilsNew.notifyError(e));
+            .catch(e => {
+                // UtilsNew.notifyError(e)
+                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+            });
     }
 
     form(opencgaSession, cellbaseClient) {
         return html`
-           <opencga-analysis-tool .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}" .config="${this.config}" @execute="${e => this.execute(e, opencgaSession)}"></opencga-analysis-tool>
+            <opencga-analysis-tool
+                .opencgaSession="${opencgaSession}"
+                .cellbaseClient="${cellbaseClient}"
+                .config="${this.config}"
+                @execute="${e => this.execute(e, opencgaSession)}">
+            </opencga-analysis-tool>
         `;
     }
 
     result(job, opencgaSession, cellbaseClient) {
         // this.check(job);
-        return html`<opencga-knockout-analysis-result .jobId=${job?.id} .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}"></opencga-knockout-analysis-result>`;
+        return html`
+            <opencga-knockout-analysis-result
+                .jobId=${job?.id}
+                .opencgaSession="${opencgaSession}"
+                .cellbaseClient="${cellbaseClient}">
+            </opencga-knockout-analysis-result>`;
     }
 
     // render() {

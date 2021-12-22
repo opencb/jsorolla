@@ -66,11 +66,12 @@ export default class SampleView extends LitElement {
             console.log("Loading...");
             this.isLoading = true;
             this.sampleIdObserver();
-
         }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
         super.update(changedProperties);
     }
 
@@ -95,7 +96,7 @@ export default class SampleView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    LitUtils.dispatchEventCustom(this, "sampleSearch", this.sample, error, {query: {includeIndividual: true}});
+                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
                 });
         }
     }
@@ -123,42 +124,56 @@ export default class SampleView extends LitElement {
         }));
     }
 
+    render() {
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
+        }
+
+        return html`
+            <data-form
+                .data=${this.sample}
+                .config="${this._config}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
             icon: "",
             display: {
-                buttons: {
-                    show: false
-                },
+                buttonsVisible: false,
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
+                titleVisible: false,
+                titleWidth: 2,
                 defaultValue: "-"
             },
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: sample => !sample?.id
+                        visible: sample => !sample?.id,
                     },
                     elements: [
                         {
-                            name: "Sample ID",
+                            title: "Sample ID",
                             field: "sampleId",
                             type: "custom",
                             display: {
-                                render: () => html `
+                                render: () => html`
                                     <sample-id-autocomplete
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
+                                        .config="${{
                                             select2Config: {
                                                 multiple: false
                                             }
-                                        }}
+                                        }}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </sample-id-autocomplete>`
+                                    </sample-id-autocomplete>
+                                `,
                             }
                         }
                     ]
@@ -167,23 +182,23 @@ export default class SampleView extends LitElement {
                     title: "General",
                     collapsed: false,
                     display: {
-                        visible: sample => sample?.id
+                        visible: sample => sample?.id,
                     },
                     elements: [
                         {
-                            name: "Sample ID",
+                            title: "Sample ID",
                             type: "custom",
                             display: {
                                 visible: sample => sample?.id,
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
+                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
                             }
                         },
                         {
-                            name: "Individual ID",
+                            title: "Individual ID",
                             field: "individualId"
                         },
                         {
-                            name: "Files",
+                            title: "Files",
                             field: "fileIds",
                             type: "list",
                             display: {
@@ -192,47 +207,47 @@ export default class SampleView extends LitElement {
                             }
                         },
                         {
-                            name: "Somatic",
+                            title: "Somatic",
                             field: "somatic",
                             display: {
                                 defaultValue: "false"
                             }
                         },
                         {
-                            name: "Version",
+                            title: "Version",
                             field: "version"
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
+                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
                             }
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                                render: field => html`${UtilsNew.dateFormatter(field)}`,
                             }
                         },
                         {
-                            name: "Modification Date",
+                            title: "Modification Date",
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                                render: field => html`${UtilsNew.dateFormatter(field)}`,
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             defaultValue: "N/A",
                         },
                         {
-                            name: "Phenotypes",
+                            title: "Phenotypes",
                             field: "phenotypes",
                             type: "list",
                             defaultValue: "N/A",
@@ -249,7 +264,7 @@ export default class SampleView extends LitElement {
                         },
                         /*
                             {
-                                name: "Annotation sets",
+                                title: "Annotation sets",
                                 field: "annotationSets",
                                 type: "custom",
                                 display: {
@@ -261,21 +276,6 @@ export default class SampleView extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        return html`
-            <data-form
-                .data=${this.sample}
-                .config="${this._config}">
-            </data-form>
-        `;
     }
 
 }

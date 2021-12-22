@@ -83,14 +83,14 @@ export default class AnnotationSetUpdate extends LitElement {
 
     addAnnotationSet(annotationSet) {
         this.annotationSets = [...this.annotationSets, annotationSet];
-        LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
+        LitUtils.dispatchCustomEvent(this, "changeAnnotationSets", this.annotationSets);
     }
 
     updateAnnotationSet(annotationSet) {
         const index = this.annotationSets.findIndex(ann => ann.variableSetId === this.annotationSet.variableSetId);
         this.annotationSets[index] = annotationSet;
         this.annotationSet = {};
-        LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
+        LitUtils.dispatchCustomEvent(this, "changeAnnotationSets", this.annotationSets);
         this.requestUpdate();
     }
 
@@ -108,7 +108,7 @@ export default class AnnotationSetUpdate extends LitElement {
         }).then(result => {
             if (result.isConfirmed) {
                 this.annotationSets = this.annotationSets.filter(annotationSet => annotationSet !== item);
-                LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
+                LitUtils.dispatchCustomEvent(this, "changeAnnotationSets", this.annotationSets);
                 Swal.fire(
                     "Deleted!",
                     "The annotationSet has been deleted.",

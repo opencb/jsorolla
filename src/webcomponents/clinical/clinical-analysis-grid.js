@@ -343,11 +343,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         this.renderTable();
                     } else {
                         // console.error(response);
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     }
                 })
                 .catch(response => {
-                    LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
         }
         if (action === "priorityChange") {
@@ -358,11 +358,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         this.renderTable();
                     } else {
                         // console.error(response);
-                        LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                        LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                     }
                 })
                 .catch(response => {
-                    LitUtils.dispatchEventCustom(this, "notifyResponse", response);
+                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
                 });
         }
     }
@@ -588,7 +588,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         } catch (e) {
             // in case it is a restResponse
-            LitUtils.dispatchEventCustom(this, "notifyResponse", e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();

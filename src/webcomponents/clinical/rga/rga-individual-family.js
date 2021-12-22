@@ -20,9 +20,7 @@ import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
-import {NotificationQueue} from "../../../core/NotificationQueue";
-
-
+import LitUtils from "../../commons/utils/lit-utils.js";
 export default class RgaIndividualFamily extends LitElement {
 
     constructor() {
@@ -93,7 +91,10 @@ export default class RgaIndividualFamily extends LitElement {
                 trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
             } else {
                 // NOTE TODO clinicalAnalysis must be defined
-                new NotificationQueue().push("Clinical Analysis not available", "", "error");
+                // new NotificationQueue().push("Clinical Analysis not available", "", "error");
+                LitUtils.dispatchCustomEvent(this, "notifyError", null, {
+                    message: "Clinical Analysis not available"
+                }, null);
             }
         } else {
             trio.proband = this.individual;
@@ -113,7 +114,10 @@ export default class RgaIndividualFamily extends LitElement {
         ];
 
         if (!this.sampleIds[0]) {
-            new NotificationQueue().push("Sample of the Proband not available", "", "error");
+            // new NotificationQueue().push("Sample of the Proband not available", "", "error");
+            LitUtils.dispatchCustomEvent(this, "notifyError", null, {
+                message: "Sample of the Proband not available"
+            }, null);
         }
 
         // in case father is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
@@ -293,7 +297,8 @@ export default class RgaIndividualFamily extends LitElement {
             }
 
         } catch (e) {
-            UtilsNew.notifyError(e);
+            // UtilsNew.notifyError(e);
+            LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
             return Promise.reject(e);
         }
 

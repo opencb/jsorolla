@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "./variant-interpreter-detail.js";
@@ -83,12 +84,12 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
 
         if (changedProperties.has("clinicalAnalysis")) {
@@ -116,7 +117,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this._sample) {
             // Set query object
@@ -252,16 +253,11 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     onSaveVariants(e) {
         const comment = e.detail.comment;
-        const saveCallback = () => {
-            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                detail: {
-                    clinicalAnalysis: this.clinicalAnalysis
-                },
-                bubbles: true,
-                composed: true
-            }));
-        };
-        this.clinicalAnalysisManager.updateInterpretation(comment, saveCallback);
+        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
     }
 
     onVariantFilterChange(e) {

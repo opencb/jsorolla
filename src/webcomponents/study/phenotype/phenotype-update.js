@@ -82,14 +82,14 @@ export default class PhenotypeUpdate extends LitElement {
         // Send the phenotype to the upper component
         e.stopPropagation();
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.phenotype);
     }
 
     onClear(e) {
         e.stopPropagation();
         this.phenotype = JSON.parse(JSON.stringify(this._phenotype));
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {

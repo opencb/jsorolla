@@ -188,7 +188,7 @@ export default class SampleUpdate extends LitElement {
         };
 
         const showBrowser = () => {
-            LitUtils.dispatchEventCustom(this, "querySearch", null, null, {query: query});
+            LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query}, null);
             const hash = window.location.hash.split("/");
             const newHash = "#sample/" + hash[1] + "/" + hash[2];
             window.location.hash = newHash;
@@ -433,27 +433,27 @@ export default class SampleUpdate extends LitElement {
                         },
                     ]
                 },
-                {
-                    title: "Annotation Set",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                <annotation-set-update
-                                    .annotationSets="${this.sample?.annotationSets}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                                </annotation-set-update>`
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotation Set",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: () => html`
+                //                 <annotation-set-update
+                //                     .annotationSets="${this.sample?.annotationSets}"
+                //                     .opencgaSession="${this.opencgaSession}"
+                //                     @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                //                 </annotation-set-update>`
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         };
     }
