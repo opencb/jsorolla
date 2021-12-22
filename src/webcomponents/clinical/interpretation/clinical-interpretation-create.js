@@ -108,6 +108,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     id: e.detail.value
                 };
                 break;
+            case "status.id":
+                this.interpretation.status = {
+                    id: e.detail.value,
+                };
+                break;
             case "panels.id":
                 const [field, prop] = param.split(".");
                 if (e.detail.value) {
