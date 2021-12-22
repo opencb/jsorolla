@@ -1152,8 +1152,10 @@ export default class VariantInterpreterGrid extends LitElement {
                             @variantChange="${e => this.onVariantChange(e)}">
                         </clinical-interpretation-variant-review>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">
+                                Save Review
+                            </button>
                         </div>
                     </div>
                 </div>
