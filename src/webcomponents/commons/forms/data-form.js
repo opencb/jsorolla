@@ -1127,10 +1127,10 @@ export default class DataForm extends LitElement {
     }
 
     onSubmit(e) {
-        // Check if has invalid fields (not valid or required not filled)
+        // Check if it has invalid fields (not valid or required not filled)
         const hasInvalidFields = this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
         if (hasInvalidFields) {
-            this.formSubmitted = true; // Form has been submited, display errors
+            this.formSubmitted = true; // Form has been submitted, display errors
             return this.requestUpdate();
         }
 
@@ -1294,19 +1294,19 @@ export default class DataForm extends LitElement {
                     ${this.config.logo ? html`
                         <div style="margin-left:auto;">
                             <img src="${this.config.logo}" />
-                        </div>
-                    `: null}
-                </div>
-            ` : null}
+                        </div>` : null
+                    }
+                </div>` : null
+            }
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout === "top" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
 
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout === "bottom" ? this.renderButtons(null) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
         `;
     }
 

@@ -57,6 +57,7 @@ export default class IndividualUpdate extends LitElement {
         super.connectedCallback();
         this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("individual:", this.individual);
     }
 
     update(changedProperties) {
@@ -101,7 +102,17 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
+            // case "dateOfBirth":
                 this.updateParams = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                break;
+            case "phenotypes":
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.updateParams = {...this.updateParams, disorders: e.detail.value};
+                break;
+            case "annotationSets":
+                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
                 break;
             case "location.address":
             case "location.postalCode":
@@ -117,6 +128,20 @@ export default class IndividualUpdate extends LitElement {
                 break;
         }
         this.requestUpdate();
+    }
+
+    onSync(e, type) {
+        e.stopPropagation();
+        switch (type) {
+            case "phenotypes":
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.updateParams = {...this.updateParams, disorders: e.detail.value};
+                break;
+            case "annotationsets":
+                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
+        }
     }
 
     onClear() {
@@ -145,20 +170,6 @@ export default class IndividualUpdate extends LitElement {
                 // FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
                 FormUtils.notifyError(err);
             });
-    }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.updateParams = {...this.updateParams, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-        }
     }
 
     render() {
@@ -244,7 +255,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 render: date =>
                                     moment(date, "YYYYMMDDHHmmss")
-                                        .format("DD/MM/YYYY")
+                                        .format("yyyy/MM/dd")
                             }
                         },
                         {
@@ -347,11 +358,11 @@ export default class IndividualUpdate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: individual => html`
+                                render: phenotypes => html`
                                 <phenotype-list-update
-                                    .phenotypes="${individual?.phenotypes}"
+                                    .phenotypes="${phenotypes}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                                    @changePhenotypes="${e => this.onFieldChange(e)}">
                                 </phenotype-list-update>`
                             }
                         },
@@ -368,39 +379,39 @@ export default class IndividualUpdate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: individual => html`
+                                render: disorders => html`
                                     <disorder-list-update
-                                        .disorders="${individual?.disorders}"
-                                        .evidences="${individual?.phenotypes}"
+                                        .disorders="${disorders}"
+                                        .evidences="${this.individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeDisorders="${e => this.onSync(e, "disorders")}">
+                                        @changeDisorders="${e => this.onFieldChange(e)}">
                                     </disorder-list-update>`
                             }
                         }
                     ]
                 },
-                {
-                    title: "Annotations Sets",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: individual => html`
-                                    <annotation-set-update
-                                        .annotationSets="${individual?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                                    </annotation-set-update>
-                                `
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: annotationSets => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         };
     }
