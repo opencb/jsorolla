@@ -309,7 +309,13 @@ class VariantInterpreter extends LitElement {
                 ${this.clinicalAnalysis?.id ? html`
                     <tool-header
                         icon="${this._config.icon}"
-                        .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
+                        .title="${`
+                            ${this._config.title}
+                            <span class="inverse">
+                                Case ${this.clinicalAnalysis?.id}
+                                ${this.clinicalAnalysis.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
+                            </span>
+                        `}"
                         .rhs="${html`
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
