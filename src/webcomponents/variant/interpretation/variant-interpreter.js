@@ -213,6 +213,26 @@ class VariantInterpreter extends LitElement {
         });
     }
 
+    onClinicalAnalysisLock = () => {
+        const id = this.clinicalAnalysis.id;
+        const updateParams = {
+            locked: !this.clinicalAnalysis.locked,
+        };
+
+        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {
+            study: this.opencgaSession.study.fqn,
+        })
+            .then(() => this.onClinicalAnalysisUpdate())
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Case '${id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    };
+
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
@@ -325,6 +345,12 @@ class VariantInterpreter extends LitElement {
                                             `)}
                                             <li role="separator" class="divider"></li>
                                         ` : null}
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
+                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"}
+                                            </a>
+                                        </li>
                                         <li>
                                             <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
                                                 <i class="fa fa-sync icon-padding"></i> Refresh
