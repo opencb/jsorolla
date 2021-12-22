@@ -16,10 +16,12 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
+import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+
 
 export default class IndividualCreate extends LitElement {
 
@@ -116,21 +118,18 @@ export default class IndividualCreate extends LitElement {
 
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Edit",
             icon: "fas fa-edit",
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Save"
-            },
             display: {
-                labelWidth: 3,
+                buttonsVisible: true,
+                buttonOkText: "Save",
+                buttonClearText: "Cancel",
+                titleWidth: 3,
                 with: "8",
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                defaultValue: ""
+                defaultValue: "",
+                defaultLayout: "horizontal"
             },
             validation: {
                 validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
@@ -141,7 +140,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Individual General Information",
                     elements: [
                         {
-                            name: "Individual id",
+                            title: "Individual id",
                             field: "id",
                             type: "input-text",
                             required: true,
@@ -153,7 +152,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
@@ -161,7 +160,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Father id",
+                            title: "Father id",
                             field: "father",
                             type: "custom",
                             display: {
@@ -186,7 +185,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Mother Id",
+                            title: "Mother Id",
                             field: "mother",
                             type: "custom",
                             display: {
@@ -211,7 +210,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Sex",
+                            title: "Sex",
                             field: "sex",
                             type: "select",
                             allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
@@ -220,7 +219,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Birth",
+                            title: "Birth",
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {
@@ -231,7 +230,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Ethnicity",
+                            title: "Ethnicity",
                             field: "ethnicity",
                             type: "input-text",
                             display: {
@@ -239,14 +238,14 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Parental Consanguinity",
+                            title: "Parental Consanguinity",
                             field: "parentalConsanguinity",
                             type: "checkbox",
                             checked: false,
                             display: {}
                         },
                         {
-                            name: "Karyotypic Sex",
+                            title: "Karyotypic Sex",
                             field: "karyotypicSex",
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
@@ -255,7 +254,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Life Status",
+                            title: "Life Status",
                             field: "lifeStatus",
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
@@ -269,7 +268,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Location Info",
                     elements: [
                         {
-                            name: "Address",
+                            title: "Address",
                             field: "location.address",
                             type: "input-text",
                             display: {
@@ -277,7 +276,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Portal code",
+                            title: "Portal code",
                             field: "location.postalCode",
                             type: "input-text",
                             display: {
@@ -285,7 +284,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "City",
+                            title: "City",
                             field: "location.city",
                             type: "input-text",
                             display: {
@@ -293,7 +292,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "State",
+                            title: "State",
                             field: "location.state",
                             type: "input-text",
                             display: {
@@ -301,7 +300,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Country",
+                            title: "Country",
                             field: "location.country",
                             type: "input-text",
                             display: {
@@ -314,7 +313,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Population Info",
                     elements: [
                         {
-                            name: "Population name",
+                            title: "Population name",
                             field: "population.name",
                             type: "input-text",
                             display: {
@@ -322,7 +321,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Subpopulation",
+                            title: "Subpopulation",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {
@@ -330,7 +329,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            name: "populaton description",
+                            title: "populaton description",
                             field: "population.description",
                             type: "input-text",
                             display: {
@@ -405,7 +404,7 @@ export default class IndividualCreate extends LitElement {
                 //     ]
                 // }
             ]
-        };
+        });
     }
 
 }

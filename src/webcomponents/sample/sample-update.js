@@ -18,6 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 export default class SampleUpdate extends LitElement {
@@ -217,245 +218,225 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
+
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Sample Update",
             icon: "fas fa-edit",
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Update"
-            },
             display: {
                 style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block"
-                }
+                defaultLayout: "horizontal",
+                labelAlign: "right",
+                labelWidth: 3,
             },
-            sections: [
-                {
-                    title: "Sample General Information",
-                    elements: [
-                        {
-                            name: "Sample ID",
-                            field: "id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a short ID...",
-                                disabled: true,
-                                help: {
-                                    text: "Add short sample id"
-                                }
-                            }
-                        },
-                        {
-                            name: "Individual ID",
-                            field: "individualId",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a short ID...",
-                                disabled: true,
-                                help: {
-                                    text: "Search individual to select"
-                                }
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a description...",
-                                rows: 3,
-                            }
-                        },
-                        {
-                            name: "Somatic",
-                            field: "somatic",
-                            type: "checkbox"
-                        },
-                        {
-                            name: "Status name",
-                            field: "status.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a status name..."
-                            }
-                        },
-                        {
-                            name: "Status Description",
-                            field: "status.description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a description for the status..."
-                            }
-                        },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
-                            }
-                        },
-                        // {
-                        //     name: "Modification Date",
-                        //     field: "modificationDate",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: modificationDate => html`${UtilsNew.dateFormatter(modificationDate)}`
-                        //     }
-                        // }
-                    ]
-                },
-                {
-                    title: "Processing Info",
-                    elements: [
-                        {
-                            name: "Product",
-                            field: "processing.product",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a product..."
-                            }
-                        },
-                        {
-                            name: "Preparation Method",
-                            field: "processing.preparationMethod",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a preparation method..."
-                            }
-                        },
-                        {
-                            name: "Extraction Method",
-                            field: "processing.extractionMethod",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a extraction method..."
-                            }
-                        },
-                        {
-                            name: "Lab Sample ID",
-                            field: "processing.labSambpleId",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add the lab sample ID..."
-                            }
-                        },
-                        {
-                            name: "Quantity",
-                            field: "processing.quantity",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a quantity..."
-                            }
-                        },
-                        {
-                            name: "Date",
-                            field: "processing.date",
-                            type: "input-date",
-                            display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
+            sections: [{
+                title: "Sample General Information",
+                elements: [
+                    {
+                        title: "Sample ID",
+                        field: "id",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a short ID...",
+                            disabled: true,
+                            helpMessage: "Add short sample id",
                         }
-                    ]
-                },
-                {
-                    title: "Collection Info",
-                    elements: [
-                        {
-                            name: "Tissue",
-                            field: "collection.tissue",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a tissue..."
-                            }
-                        },
-                        {
-                            name: "Organ",
-                            field: "collection.organ",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add an organ..."
-                            }
-                        },
-                        {
-                            name: "Quantity",
-                            field: "collection.quantity",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a quantity..."
-                            }
-                        },
-                        {
-                            name: "Method",
-                            field: "collection.method",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a method..."
-                            }
-                        },
-                        {
-                            name: "Date",
-                            field: "collection.date",
-                            type: "input-date",
-                            display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
+                    },
+                    {
+                        title: "Individual ID",
+                        field: "individualId",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a short ID...",
+                            disabled: true,
+                            helpMessage: "Search individual to select"
                         }
-                    ]
-                },
-                {
-                    title: "Phenotypes",
-                    elements: [
-                        {
-                            field: "phenotype",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <phenotype-list-update
-                                        .phenotypes="${this.sample?.phenotypes}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
-                                    </phenotype-list-update>`
-                            }
-                        },
-                    ]
-                },
-                // {
-                //     title: "Annotation Set",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                 <annotation-set-update
-                //                     .annotationSets="${this.sample?.annotationSets}"
-                //                     .opencgaSession="${this.opencgaSession}"
-                //                     @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                //                 </annotation-set-update>`
-                //             }
-                //         }
-                //     ]
-                // }
+                    },
+                    {
+                        title: "Description",
+                        field: "description",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a description...",
+                            rows: 3,
+                        }
+                    },
+                    {
+                        title: "Somatic",
+                        field: "somatic",
+                        type: "checkbox"
+                    },
+                    {
+                        title: "Status name",
+                        field: "status.name",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a status name..."
+                        }
+                    },
+                    {
+                        title: "Status Description",
+                        field: "status.description",
+                        type: "input-text",
+                        display: {
+                            rows: 3,
+                            placeholder: "Add a description for the status..."
+                        }
+                    },
+                    {
+                        title: "Creation Date",
+                        field: "creationDate",
+                        type: "custom",
+                        display: {
+                            render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                        }
+                    },
+                ]
+            },
+            {
+                title: "Processing Info",
+                elements: [
+                    {
+                        title: "Product",
+                        field: "processing.product",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a product..."
+                        }
+                    },
+                    {
+                        title: "Preparation Method",
+                        field: "processing.preparationMethod",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a preparation method..."
+                        }
+                    },
+                    {
+                        title: "Extraction Method",
+                        field: "processing.extractionMethod",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a extraction method..."
+                        }
+                    },
+                    {
+                        title: "Lab Sample ID",
+                        field: "processing.labSambpleId",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add the lab sample ID..."
+                        }
+                    },
+                    {
+                        title: "Quantity",
+                        field: "processing.quantity",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a quantity..."
+                        }
+                    },
+                    {
+                        title: "Date",
+                        field: "processing.date",
+                        type: "input-date",
+                        display: {
+                            render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                        }
+                    }
+                ]
+            },
+            {
+                title: "Collection Info",
+                elements: [
+                    {
+                        title: "Tissue",
+                        field: "collection.tissue",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a tissue..."
+                        }
+                    },
+                    {
+                        title: "Organ",
+                        field: "collection.organ",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add an organ..."
+                        }
+                    },
+                    {
+                        title: "Quantity",
+                        field: "collection.quantity",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a quantity..."
+                        }
+                    },
+                    {
+                        title: "Method",
+                        field: "collection.method",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add a method..."
+                        }
+                    },
+                    {
+                        title: "Date",
+                        field: "collection.date",
+                        type: "input-date",
+                        display: {
+                            render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                        }
+                    }
+                ]
+            },
+            {
+                title: "Phenotypes",
+                elements: [
+                    {
+                        field: "phenotype",
+                        type: "custom",
+                        display: {
+                            layout: "vertical",
+                            defaultLayout: "vertical",
+                            width: 12,
+                            style: "padding-left: 0px",
+                            render: () => html`
+                                <phenotype-list-update
+                                    .phenotypes="${this.sample?.phenotypes}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                                </phenotype-list-update>`
+                        }
+                    },
+                ]
+            },
+            // {
+            //     title: "Annotation Set",
+            //     elements: [
+            //         {
+            //             field: "annotationSets",
+            //             type: "custom",
+            //             display: {
+            //                 layout: "vertical",
+            //                 defaultLayout: "vertical",
+            //                 width: 12,
+            //                 style: "padding-left: 0px",
+            //                 render: () => html`
+            //                 <annotation-set-update
+            //                     .annotationSets="${this.sample?.annotationSets}"
+            //                     .opencgaSession="${this.opencgaSession}"
+            //                     @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+            //                 </annotation-set-update>`
+            //             }
+            //         }
+            //     ]
+            // }
             ]
-        };
+        });
     }
 
 }

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import Types from "../commons/types.js";
 
 export default class FamilyUpdate extends LitElement {
 
@@ -159,44 +160,40 @@ export default class FamilyUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Edit",
             icon: "fas fa-edit",
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Save"
-            },
             display: {
+                buttonsVisible: true,
+                buttonOkText: "Save",
+                buttonClearText: "Cancel",
                 style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
+                titleWidth: 3,
+                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block",
-                }
+                // help: {
+                //     mode: "block",
+                // }
             },
             sections: [
                 {
                     title: "Family General Information",
                     elements: [
                         {
-                            name: "Family ID",
+                            title: "Family ID",
                             field: "id",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                help: {
-                                    text: "short family id "
-                                },
+                                helpMessage: "short family id ",
                                 validation: {}
                             },
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
@@ -204,7 +201,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -213,7 +210,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Individual ID",
+                            title: "Individual ID",
                             field: "individualId",
                             type: "custom",
                             display: {
@@ -227,7 +224,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "input-date",
                             display: {
@@ -238,7 +235,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Modification Date",
+                            title: "Modification Date",
                             field: "modificationDate",
                             type: "input-date",
                             display: {
@@ -249,7 +246,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Expected Size",
+                            title: "Expected Size",
                             field: "expectedSize",
                             type: "input-text",
                             display: {
@@ -257,7 +254,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Status name",
+                            title: "Status name",
                             field: "status.name",
                             type: "input-text",
                             display: {
@@ -265,7 +262,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Status Description",
+                            title: "Status Description",
                             field: "status.description",
                             type: "input-text",
                             display: {
@@ -298,7 +295,7 @@ export default class FamilyUpdate extends LitElement {
                 //     ]
                 // }
             ]
-        };
+        });
     }
 
 }

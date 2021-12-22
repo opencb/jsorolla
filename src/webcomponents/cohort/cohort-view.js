@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
@@ -128,7 +129,7 @@ export default class CohortView extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Summary",
             icon: "",
             display: {
@@ -263,7 +264,7 @@ export default class CohortView extends LitElement {
                     ]
                 }
             ]
-        };
+        });
     }
 
 }
