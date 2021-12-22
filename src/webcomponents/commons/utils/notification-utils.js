@@ -1,5 +1,4 @@
-import LitUtils from "./lit-utils.js";
-
+// Notification utils class
 export default class NotificationUtils {
 
     // Notification types
@@ -12,10 +11,11 @@ export default class NotificationUtils {
 
     // Dispatch a notification event
     static dispatch(self, type, value) {
-        return LitUtils.dispatchCustomEvent(self, type, null, value, null, {
+        self.dispatchEvent(new CustomEvent(type, {
+            detail: value,
             bubbles: true,
             composed: true,
-        });
+        }));
     }
 
 }
