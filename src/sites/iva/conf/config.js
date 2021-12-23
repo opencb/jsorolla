@@ -469,9 +469,10 @@ const SUITE = {
                             name: "Case Portal",
                             acronym: "",
                             description: `
+                                <p>Analyse and create clinical Interpretations in current projects.</p>
                                 <ul>
-                                    <li>Analyse the genomes of participants in the 100,000 Genomes Project</li>
-                                    <li>Filter by gene, consequence, frequency and much more</li>
+                                    <li>Filter by gene, consequence, frequency and much more.</li>
+                                    <li>Create clinical interpretations and reports.</li>
                                 </ul>
                             `,
                             visibility: "public",
