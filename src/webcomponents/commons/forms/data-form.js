@@ -26,7 +26,6 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
-import moment from "moment";
 
 export default class DataForm extends LitElement {
 
