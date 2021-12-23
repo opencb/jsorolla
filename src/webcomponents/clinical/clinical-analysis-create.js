@@ -665,9 +665,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Due Date",
                             field: "dueDate",
                             type: "input-date",
-                            display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
-                            }
                         },
                         {
                             title: "Comment",
