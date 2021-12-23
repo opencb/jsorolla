@@ -26,6 +26,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import moment from "moment";
 
 export default class DataForm extends LitElement {
 
@@ -58,7 +59,6 @@ export default class DataForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this._prefixDates = [];
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
         this.emptyRequiredFields = new Set();
@@ -66,20 +66,6 @@ export default class DataForm extends LitElement {
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
-    }
-
-    firstUpdated(_changedProperties) {
-        if (UtilsNew.isNotEmptyArray(this._prefixDates)) {
-            console.log("Date Prefixes", this._prefixDates);
-            this._prefixDates.forEach(prefix =>{
-                $("#" + prefix + "DuePickerDate").datetimepicker({
-                    format: "DD/MM/YYYY"
-                });
-                $("#" + prefix + "DuePickerDate").on("dp.change", e => {
-                    this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
-                });
-            });
-        }
     }
 
     update(changedProperties) {
@@ -97,9 +83,7 @@ export default class DataForm extends LitElement {
     }
 
     dataObserver() {
-        if (this.config?.type?.toUpperCase() === "FORM") {
-            this.data = this.data ?? {};
-        }
+        this.data = this.data ?? {};
     }
 
     getValue(field, object, defaultValue, format) {
@@ -614,33 +598,20 @@ export default class DataForm extends LitElement {
     }
 
     _createInputDateElement(element) {
-        const prefix = UtilsNew.randomString(8);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
-        this._prefixDates = [...this._prefixDates, prefix];
         const value = this.getValue(element.field) || this._getDefaultValue(element);
-        if (typeof value !== "undefined" && value !== null) {
-            const inputDate = this.querySelector("#" + prefix + "DueDate");
-            if (inputDate) {
-                if (typeof element?.display?.render === "function") {
-                    inputDate.value = element.display.render(value);
-                } else {
-                    inputDate.value = value;
-                }
-            }
-        }
+        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const parseInputDate = e => {
+            // Date returned by <input> is in YYYY-MM-DD format, but we need YYYYMMDDHHmmss format
+            return e.target.value ? moment(e.target.value, "YYYY-MM-DD").format("YYYYMMDDHHmmss") : "";
+        };
 
         const content = html`
-            <div class="input-group date" id="${prefix}DuePickerDate" data-field="${element.field}">
-                <input
-                    type="text"
-                    id="${prefix}DueDate"
-                    class="${prefix}Input form-control"
-                    data-field="${element.field}"
-                    ?disabled="${disabled}">
-                <span class="input-group-addon">
-                    <span class="fa fa-calendar"></span>
-                </span>
-            </div>
+            <input
+                type="date"
+                value="${value ? UtilsNew.dateFormatter(value, "YYYY-MM-DD") : ""}"
+                class="form-control ${this._isUpdated(element) ? "updated" : ""}"
+                @change="${e => this.onFilterChange(element.field, parseInputDate(e))}"
+                ?disabled="${disabled}">
         `;
 
         return this._createElementTemplate(element, value, content);
