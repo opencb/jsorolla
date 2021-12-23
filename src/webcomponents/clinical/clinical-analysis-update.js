@@ -145,9 +145,11 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     onFieldChange(e) {
+        console.log(e.detail);
         switch (e.detail.param) {
             case "locked":
             case "panelLock":
+            case "dueDate":
             case "description":
                 this.updateParams = FormUtils
                     .updateScalar(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
@@ -404,9 +406,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "dueDate",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
-                            }
+                            },
                         }
                     ]
                 },
