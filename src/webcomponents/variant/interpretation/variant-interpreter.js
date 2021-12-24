@@ -103,7 +103,7 @@ class VariantInterpreter extends LitElement {
 
     opencgaSessionObserver() {
         if (this.opencgaSession?.study?.fqn) {
-            // With each property change we must updated config and create the columns again. No extra checks are needed.
+            // With each property change we must update config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
             this._changeView(this._config?.tools[0].id);
@@ -120,41 +120,13 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            // this._config = {...this._config, loading: true};
-            // this.requestUpdate();
-            // await this.updateComplete;http://localhost:3000/src/sites/iva/index.html#interpreter/rd_grch38/panel/C-NA12878-NA12878-TWE-N-EGG4_S32_L001
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    // FIXME delete soon!
-                    const _clinicalAnalysis = response.responses[0].results[0];
-                    if (_clinicalAnalysis.panels) {
-                        const panelIdToPanel = {};
-                        _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
-                        if (_clinicalAnalysis?.interpretation?.panels) {
-                            _clinicalAnalysis.interpretation.panels.forEach(panel => {
-                                panel.name = panelIdToPanel[panel.id].name;
-                                panel.source = panelIdToPanel[panel.id].source;
-                            });
-                        }
-                        for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
-                            secondaryInterpretation.panels.forEach(panel => {
-                                panel.name = panelIdToPanel[panel.id].name;
-                                panel.source = panelIdToPanel[panel.id].source;
-                            });
-                        }
-                    }
-                    this.clinicalAnalysis = _clinicalAnalysis;
-                    // FIXME Replace horrible code above by this one:
-                    // this.clinicalAnalysis = response.responses[0].results[0];
+                    this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
-            // .finally(async () => {
-            // this._config = {...this._config, loading: false};
-            // await this.updateComplete;
-            // this.requestUpdate();
-            // });
         } else {
             this.clinicalAnalysis = null;
         }
@@ -188,9 +160,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {
-            study: this.opencgaSession.study.fqn,
-        })
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn,})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -219,9 +189,7 @@ class VariantInterpreter extends LitElement {
             locked: !this.clinicalAnalysis.locked,
         };
 
-        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {
-            study: this.opencgaSession.study.fqn,
-        })
+        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {study: this.opencgaSession.study.fqn})
             .then(() => this.onClinicalAnalysisUpdate())
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -398,8 +366,8 @@ class VariantInterpreter extends LitElement {
                                     ${this._config?.tools?.map(item => html`
                                         ${!item.hidden ? html`
                                             <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                                href="javascript: void 0" data-view="${item.id}"
-                                                @click="${this.onClickSection}">
+                                               href="javascript: void 0" data-view="${item.id}"
+                                               @click="${this.onClickSection}">
                                                 <div class="hi-icon ${item.icon}"></div>
                                                 <p>${item.title}</p>
                                                 <span class="smaller"></span>
