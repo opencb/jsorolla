@@ -429,7 +429,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("\n")}`,
+                                            render: fileIds => {
+                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("\n");
+                                                return html`${fileVcfs}`;
+                                            },
                                         },
                                     },
                                     {
