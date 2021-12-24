@@ -429,7 +429,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                            render: fileIds => html`${fileIds.join("\n")}`,
                                         },
                                     },
                                     {
@@ -620,7 +620,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                            render: fileIds => html`${fileIds.join("\n")}`,
                                         },
                                     },
                                     {
