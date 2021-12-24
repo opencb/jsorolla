@@ -17,7 +17,10 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "./../../core/utilsNew.js";
+import LitUtils from "./utils/lit-utils.js";
 import "./forms/select-token-filter";
+import NotificationUtils from "./utils/notification-utils.js";
+
 
 export default class VariantModalOntology extends LitElement {
 
@@ -137,8 +140,8 @@ export default class VariantModalOntology extends LitElement {
                 }
                 this.requestUpdate();
             } catch (e) {
-                console.error(e);
-                UtilsNew.notifyError(e);
+                // console.error(e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             }
         }
     }
@@ -215,8 +218,8 @@ export default class VariantModalOntology extends LitElement {
                             const results = json.response.docs.map(i => ({text: i.label, id: i.obo_id, iri: i.iri}));
                             success(results);
                         } catch (e) {
-                            console.error(e);
-                            UtilsNew.notifyError(e);
+                            // console.error(e);
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
                             failure(e);
                         }
                     },

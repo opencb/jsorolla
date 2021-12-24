@@ -15,18 +15,18 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
 export default class OpencgaLogin extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
+
     createRenderRoot() {
         return this;
     }
@@ -95,53 +95,58 @@ export default class OpencgaLogin extends LitElement {
             const user = this.querySelector("#opencgaUser").value;
             const pass = this.querySelector("#opencgaPassword").value;
 
-            try {
-                // in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
-                if (this.opencgaSession) {
-                    this.opencgaSession.opencgaClient.login(user, pass)
-                        .then(restResponse => {
+            // in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
+            if (this.opencgaSession) {
+                this.opencgaSession.opencgaClient.login(user, pass)
+                    .then(response => {
+                        if (response instanceof RestResponse) {
+                            if (response.getEvents?.("ERROR")?.length) {
+                                this.errorState = response.getEvents("ERROR");
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            } else if (response) {
+                                this.querySelector("#opencgaUser").value = "";
+                                this.querySelector("#opencgaPassword").value = "";
 
-                            if (restResponse instanceof RestResponse) {
-                                if (restResponse.getEvents?.("ERROR")?.length) {
-                                    this.errorState = restResponse.getEvents("ERROR");
-                                    UtilsNew.notifyError(restResponse);
-                                } else if (restResponse) {
-                                    this.querySelector("#opencgaUser").value = "";
-                                    this.querySelector("#opencgaPassword").value = "";
-                                    const token = restResponse.getResult(0).token;
-                                    const decoded = jwt_decode(token);
-                                    const dateExpired = new Date(decoded.exp * 1000);
-                                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
-                                    this.dispatchEvent(new CustomEvent("login", {
-                                        detail: {
-                                            userId: user,
-                                            token: token
-                                        },
-                                        bubbles: true,
-                                        composed: true
-                                    }));
-                                    new NotificationQueue().push("Welcome, " + user, "Your session is valid until " + validTimeSessionId, UtilsNew.MESSAGE_SUCCESS);
+                                const token = response.getResult(0).token;
+                                const decoded = jwt_decode(token);
+                                const dateExpired = new Date(decoded.exp * 1000);
+                                const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
-                                }
-                            } else {
-                                this.errorState = [{name: "Generic Server Error", message: "Unexpected response format. Please check your host is up and running."}];
-                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                LitUtils.dispatchCustomEvent(this, "login", null, {
+                                    userId: user,
+                                    token: token
+                                }, null);
+
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                    message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
+                                });
                             }
-                        })
-                        .catch(response => {
-                            // response isn't necessarily a restResponse instance
-                            UtilsNew.notifyError(response);
-                        }).finally(() => this.requestUpdate());
-                } else {
-                    new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
-                }
-            } catch (e) {
-                this.errorState = [{name: "Generic Error", message: "Please contact your administrator."}];
-
+                        } else {
+                            this.errorState = [
+                                {
+                                    name: "Generic Server Error",
+                                    message: "Unexpected response format. Please check your host is up and running.",
+                                },
+                            ];
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                                title: this.errorState[0].name,
+                                message: this.errorState[0].message
+                            });
+                        }
+                    })
+                    .catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    });
+            } else {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                    title: "Error retrieving OpencgaSession",
+                    message: `
+                        There was an error retrieving the OpencgaSession.
+                        Please try again later or contact the administrator if the problem persists.
+                    `,
+                });
             }
-
         }
-
     }
 
     checkEnterKey(e) {

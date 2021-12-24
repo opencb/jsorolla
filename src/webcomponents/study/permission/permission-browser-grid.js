@@ -17,7 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
-import NotificationUtils from "../../NotificationUtils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class PermissionBrowserGrid extends LitElement {
 
@@ -155,11 +156,15 @@ export default class PermissionBrowserGrid extends LitElement {
             const resp = await this.opencgaSession.opencgaClient.studies().updateAcl(group, paramsAction, params);
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
-            NotificationUtils.showNotify(messageAlert, "SUCCESS");
+            // NotificationUtils.showNotify(messageAlert, "SUCCESS");
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: messageAlert,
+            });
             // this.notifyStudyUpdateRequest();
             this.requestUpdate();
-        } catch (err) {
-            console.error("Message error: ", err);
+        } catch (error) {
+            // console.error("Message error: ", error);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 

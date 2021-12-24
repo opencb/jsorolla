@@ -133,14 +133,14 @@ export default class AnnotationUpdate extends LitElement {
     onSendAnnotationSet(e) {
         e.stopPropagation();
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.annotationSet);
     }
 
     onClear(e) {
         e.stopPropagation();
         this.annotationSet = JSON.parse(JSON.stringify(this._annotationSet));
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     renderVariables() {

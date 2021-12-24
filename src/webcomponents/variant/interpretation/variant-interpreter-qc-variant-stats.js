@@ -278,7 +278,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         <div class="form-group">
                             <label class="col-md-2">Select Sample</label>
                             <div class="col-md-4">
-                                <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.sampleId} @filterChange="${this.onSampleChange}"></select-field-filter>
+                                <select-field-filter forceSelection .data="\${this.statsSelect}" .value=\${this.sampleId} @filterChange="\${this.onSampleChange}"></select-field-filter>
                             </div>
                         </div>
 
@@ -300,7 +300,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
 
 
             <div style="margin: 20px 10px;padding-top: 10px">
-<!--                <h4>Sample Variant Stats - ${this.variantStats?.stats.id}</h4>-->
+<!--                <h4>Sample Variant Stats - \${this.variantStats?.stats.id}</h4>-->
                 <div>
                     <sample-variant-stats-view  .opencgaSession="${this.opencgaSession}"
                                                 .sample="${this.sample}">

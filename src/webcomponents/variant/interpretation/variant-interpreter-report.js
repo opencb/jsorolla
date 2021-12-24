@@ -102,6 +102,7 @@ class VariantInterpreterReport extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             console.log(this.opencgaSession);
             console.log(this.clinicalAnalysis);
+            console.log(this.clinicalAnalysis.proband.samples[0].qualityControl);
 
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
@@ -114,8 +115,8 @@ class VariantInterpreterReport extends LitElement {
                     project: `${this.opencgaSession.project.name} (${this.opencgaSession.project.id})`,
                     study: `${this.opencgaSession.study.name} (${this.opencgaSession.study.id})`,
                     clinicalAnalysisId: this.clinicalAnalysis.id,
-                    tumourId: somaticSample.id || null,
-                    germlineId: germlineSample.id || null,
+                    tumourId: somaticSample?.id || null,
+                    germlineId: germlineSample?.id || null,
                     tumourType: "Ovarian", // TODO
                 },
                 // clinicalAnalysis: this.clinicalAnalysis,
@@ -202,17 +203,17 @@ class VariantInterpreterReport extends LitElement {
                     if (ascatFile) {
                         const ascatMetrics = ascatFile.qualityControl.variant.ascatMetrics;
                         this._data.ascatMetrics = [
-                            {field: "Ploidy", value: ascatMetrics.ploidy},
-                            {field: "Aberrant cell fraction", value: ascatMetrics.aberrantCellFraction},
+                            {field: "Ploidy", value: ascatMetrics?.ploidy || "NA"},
+                            {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
-                        this._data.ascatPlots = ascatMetrics.images
+                        this._data.ascatPlots = ascatMetrics?.files
                             .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
-                            .map(id => files.find(f => f.id === id));
+                            .map(id => files.find(f => f.id === id)) || [];
                     }
 
                     this._data.qcPlots = {};
-                    if (somaticSample.qualityControl?.variant?.genomePlots?.length > 0) {
-                        this._data.qcPlots.genomePlots = somaticSample.qualityControl.variant.genomePlots;
+                    if (somaticSample.qualityControl?.variant?.files?.length > 0) {
+                        this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
@@ -232,8 +233,29 @@ class VariantInterpreterReport extends LitElement {
         // TODO
     }
 
+    render() {
+        if (!this.clinicalAnalysis || !this._ready) {
+            return html``;
+        }
+
+        return html`
+            <data-form
+                .data="${this._data}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onRun}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
-        const SEPARATOR = {type: "separator", display: {style: "border-top: 1px solid lightgrey;"}};
+        const SEPARATOR = {
+            type: "separator",
+            display: {
+                style: "border-top: 1px solid lightgrey;",
+            },
+        };
         const SUBSTITUTIONS_AND_INDELS_TYPES = ["SNV", "MNV", "INDEL"];
         const REARRANGEMENTS_TYPES = ["BREAKEND", "SV", "DUPLICATION", "TANDEM_DUPLICATION", "TRANSLOCATION", "DELETION", "INSERTION", "INVERSION"];
         const COPY_NUMBER_TYPES = ["COPY_NUMBER", "COPY_NUMBER_GAIN", "COPY_NUMBER_LOSS"];
@@ -275,53 +297,44 @@ class VariantInterpreterReport extends LitElement {
             title: "AcademicGenome.SNZ.v4 CONFIDENTIAL FOR RESEARCH PURPOSES ONLY",
             logo: "img/opencb-logo.png",
             icon: "fas fa-user-md",
-            type: "form",
             buttons: {
-                show: true,
                 clearText: "Cancel",
-                okText: "Save",
-                classes: "col-md-offset-4 col-md-3"
+                okText: "Save Report",
             },
             display: {
-                width: "12",
-                labelWidth: "3",
-                showTitle: true,
-                title: {
-                    style: "padding: 20px 5px"
-                },
-                infoIcon: "",
-                labelAlign: "left",
+                width: 12,
+                buttonsAlign: "right",
+                titleWidth: 3,
+                titleVisible: true,
+                titleStyle: "padding: 20px 5px",
+                titleAlign: "left",
                 defaultLayout: "horizontal",
                 layout: [
                     {
                         id: "",
-                        classes: "row",
+                        className: "row",
                         sections: [
                             {
                                 id: "qc-metrics",
-                                classes: "col-md-8"
+                                className: "col-md-8"
                             },
                             {
                                 id: "case-info",
-                                classes: "col-md-4"
+                                className: "col-md-4"
                             }
                         ]
                     },
                     {
                         id: "qc-metrics-plots",
-                        classes: ""
                     },
                     {
                         id: "results",
-                        classes: ""
                     },
                     {
                         id: "mutational-signatures",
-                        classes: ""
                     },
                     {
                         id: "final-summary",
-                        classes: ""
                     }
                 ]
             },
@@ -330,48 +343,55 @@ class VariantInterpreterReport extends LitElement {
                     id: "case-info",
                     title: "Case Info",
                     display: {
-                        style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 15px 0px; padding: 25px",
-                        labelWidth: "4",
+                        style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 16px 0px; padding: 24px",
+                        titleWidth: 4,
                     },
                     elements: [
                         {
-                            name: "Project",
+                            title: "Project",
                             field: "info.project",
                         },
                         {
-                            name: "Study",
+                            title: "Study",
                             field: "info.study",
                         },
                         {
-                            name: "Clinical analysis ID",
+                            title: "Clinical analysis ID",
                             field: "info.clinicalAnalysisId",
                         },
                         {
-                            name: "Tumour ID",
+                            title: "Tumour ID",
                             field: "info.tumourId",
                         },
                         {
-                            name: "Germline ID",
+                            title: "Germline ID",
                             field: "info.germlineId",
                         },
                         {
-                            name: "Tumour type",
+                            title: "Tumour type",
                             field: "info.tumourType",
                         },
                         {
-                            name: "Genotyping check match and contamination",
+                            title: "Genotyping check match and contamination",
                             field: "info.genotypingCheck",
                             defaultValue: "100% match (25/25 markers)",
                         },
                         {
-                            name: "ASCAT Metrics",
+                            title: "ASCAT Metrics",
                             field: "ascatMetrics",
                             type: "table",
                             display: {
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
-                                    {field: "field", display: {style: "font-weight: bold"}},
-                                    {field: "value"},
+                                    {
+                                        field: "field",
+                                        display: {
+                                            style: "font-weight: bold",
+                                        },
+                                    },
+                                    {
+                                        field: "value",
+                                    },
                                 ],
                             },
                         },
@@ -381,15 +401,15 @@ class VariantInterpreterReport extends LitElement {
                     id: "qc-metrics",
                     title: "1. QC Metrics",
                     display: {
-                        labelWidth: "3",
+                        titleWidth: 3,
                     },
                     elements: [
                         {
-                            name: "Sequence metrics",
+                            title: "Sequence metrics",
                             field: "sequenceMetrics",
                             type: "table",
                             display: {
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -397,11 +417,11 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Tumour",
+                            title: "Tumour",
                             field: "tumourStats",
                             type: "table",
                             display: {
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -409,11 +429,11 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Normal",
+                            title: "Normal",
                             field: "normalStats",
                             type: "table",
                             display: {
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -421,11 +441,11 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Processing",
+                            title: "Processing",
                             field: "processingInfo",
                             type: "table",
                             display: {
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -433,14 +453,14 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Somatic Calling",
+                            title: "Somatic Calling",
                             field: "somaticCallingInfo",
                             type: "table",
                             display: {
                                 transform: somaticCallingInfo => somaticCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "name"},
@@ -449,11 +469,11 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Custom filtering",
+                            title: "Custom filtering",
                             field: "customFilteringInfo",
                             type: "table",
                             display: {
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -461,14 +481,14 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Germline Calling",
+                            title: "Germline Calling",
                             field: "germlineCallingInfo",
                             type: "table",
                             display: {
                                 transform: germlineCallingInfo => germlineCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                hideHeader: true,
+                                headerVisible: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "name"},
@@ -477,7 +497,7 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Overall",
+                            title: "Overall",
                             field: "overallText",
                             type: "input-text",
                             display: {
@@ -490,12 +510,12 @@ class VariantInterpreterReport extends LitElement {
                     id: "qc-metrics-plots",
                     title: "",
                     display: {
-                        labelWidth: "2",
+                        titleWidth: 2,
                     },
                     elements: [
                         SEPARATOR,
                         {
-                            name: "ASCAT Copy Number Plots",
+                            title: "ASCAT Copy Number Plots",
                             field: "ascatPlots",
                             type: "custom",
                             display: {
@@ -543,7 +563,7 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "ASCAT Plot Interpretation",
+                            title: "ASCAT Plot Interpretation",
                             field: "ascatInterpretation",
                             type: "input-text",
                             display: {
@@ -552,15 +572,15 @@ class VariantInterpreterReport extends LitElement {
                         },
                         SEPARATOR,
                         {
-                            name: "Genome Plot",
+                            title: "Genome Plot",
                             field: "qcPlots",
                             type: "custom",
                             display: {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-                                            <!-- <image-viewer .data="${qcPlots.genomePlots?.[0].file}"></image-viewer> -->
-                                            <img class="img-responsive" src="${qcPlots.genomePlots?.[0].file}"/>
+                                            <image-viewer .data="${qcPlots.genomePlot}"></image-viewer>
+                                            <img class="img-responsive" src="${qcPlots.genomePlot}"/>
                                         </div>
                                         <div class="col-md-5">
                                             <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
@@ -582,7 +602,7 @@ class VariantInterpreterReport extends LitElement {
                             }
                         },
                         {
-                            name: "Genome plot interpretation",
+                            title: "Genome plot interpretation",
                             field: "genomePlotInterpretation",
                             type: "input-text",
                             defaultValue: "Free text",
@@ -597,17 +617,18 @@ class VariantInterpreterReport extends LitElement {
                     title: "2. Results",
                     elements: [
                         {
-                            name: "Driver mutations",
+                            title: "Driver mutations",
                             type: "title",
                             display: {
-                                labelStyle: "font-size:20px;",
+                                titleStyle: "font-size:20px;",
                             },
                         },
                         {
-                            name: "Germline substitutions and indels",
+                            title: "Germline substitutions and indels",
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -630,10 +651,11 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Germline structural rearrangement drivers",
+                            title: "Germline structural rearrangement drivers",
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -656,24 +678,26 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Somatic mutations",
+                            title: "Somatic mutations",
                             type: "title",
                             display: {
-                                labelStyle: "font-size:20px;",
+                                titleStyle: "font-size:20px;",
                             },
                         },
                         {
-                            name: "High-confidence (category 1) driver events in this tumour include:",
+                            title: "High-confidence (category 1) driver events in this tumour include:",
                             type: "title",
                             display: {
-                                labelStyle: "font-size:18px",
+                                titleWidth: 8,
+                                titleStyle: "font-size:18px",
                             },
                         },
                         {
-                            name: "Substitutions and indels",
+                            title: "Substitutions and indels",
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -696,10 +720,11 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Structural rearrangements",
+                            title: "Structural rearrangements",
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -723,10 +748,11 @@ class VariantInterpreterReport extends LitElement {
                             defaultValue: "No variants found in this category",
                         },
                         {
-                            name: "Copy number",
+                            title: "Copy number",
                             type: "custom",
                             field: "primaryFindings",
                             display: {
+                                defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => {
@@ -750,27 +776,34 @@ class VariantInterpreterReport extends LitElement {
                             defaultValue: "No variants found in this category",
                         },
                         {
-                            name: "Variants of interest with lower confidence as drivers (category 2) in this tumour include:",
+                            title: "Variants of interest with lower confidence as drivers (category 2) in this tumour include:",
                             type: "title",
                             display: {
-                                labelStyle: "font-size:18px",
+                                titleWidth: 8,
+                                titleStyle: "font-size:18px",
                             },
                         },
                         {
-                            name: "Substitutions and indels",
+                            title: "Substitutions and indels",
                             defaultValue: "No variants found in this category",
+                            display: {
+                                defaultLayout: "vertical",
+                            }
                         },
                         {
-                            name: "Structural rearrangements",
+                            title: "Structural rearrangements",
                             defaultValue: "No variants found in this category",
+                            display: {
+                                defaultLayout: "vertical",
+                            }
                         },
                         {
-                            name: "",
+                            title: "",
                             type: "custom",
                             display: {
                                 render: () => html`
                                     <div class="help-block">
-                                        Variant Allele Fraction (VAF). Loss of Heterozygosity (LOH) (Chr, start position of segment, 
+                                        Variant Allele Fraction (VAF). Loss of Heterozygosity (LOH) (Chr, start position of segment,
                                         stop position of segment, total copy number, minor copy number).
                                     </div>
                                 `,
@@ -782,7 +815,75 @@ class VariantInterpreterReport extends LitElement {
                     id: "mutational-signatures",
                     title: "3. Mutational Signatures",
                     elements: [
-
+                        {
+                            title: "Single base pair substitution signatures (SBS)",
+                            type: "title",
+                            display: {
+                                titleStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            title: "",
+                            type: "custom",
+                            display: {
+                                defaultLayout: "vertical",
+                                render: clinicalAnalysis => html`
+                                    <div class="row" style="padding: 20px">
+                                        <div class="col-md-6">
+                                            <h4>SBS Profile</h4>
+                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"></signature-view>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4>SBS signature contributions</h4>
+                                            <span style="font-weight: bold">Pending</span>
+                                        </div>
+                                    </div>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Indel signatures",
+                            type: "title",
+                            display: {
+                                titleStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            title: "",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div>
+                                        <span style="font-weight: bold">Pending</span>
+                                    </div>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Rearrangement signatures:",
+                            type: "title",
+                            display: {
+                                titleStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            title: "",
+                            type: "custom",
+                            display: {
+                                render: clinicalAnalysis => html`
+                                    <div class="row" style="padding: 20px">
+                                        <div class="col-md-6">
+                                            <h4>SBS Profile</h4>
+                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}" .mode="${"SV"}"></signature-view>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4>SBS signature contributions</h4>
+                                            <span style="font-weight: bold">Pending</span>
+                                        </div>
+                                    </div>
+                                `,
+                            },
+                        },
                     ]
                 },
                 {
@@ -790,7 +891,14 @@ class VariantInterpreterReport extends LitElement {
                     title: "4. Final Summary",
                     elements: [
                         {
-                            name: "Discussion",
+                            title: "Case Status",
+                            field: "status.id",
+                            type: "select",
+                            allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
+                            required: true,
+                        },
+                        {
+                            title: "Discussion",
                             type: "input-text",
                             field: "discussion",
                             defaultValue: "",
@@ -799,17 +907,17 @@ class VariantInterpreterReport extends LitElement {
                             },
                         },
                         {
-                            name: "Analysed by",
+                            title: "Analysed by",
                             field: "analyst",
                         },
                         {
-                            name: "Signed off by",
+                            title: "Signed off by",
                             type: "input-text",
                             field: "signedBy",
                             defaultValue: "",
                         },
                         {
-                            name: "Date",
+                            title: "Date",
                             type: "input-date",
                             field: "date",
                             display: {
@@ -820,22 +928,6 @@ class VariantInterpreterReport extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        if (!this.clinicalAnalysis || !this._ready) {
-            return html``;
-        }
-
-        return html`
-            <data-form
-                .data="${this._data}"
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onRun}">
-            </data-form>
-        `;
     }
 
 }

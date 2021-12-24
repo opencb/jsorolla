@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "../../clinical/clinical-interpretation-view.js";
+import "../../clinical/interpretation/clinical-interpretation-view.js";
 
 
 export default class VariantInterpreterReviewSummary extends LitElement {

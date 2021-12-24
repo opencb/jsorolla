@@ -19,7 +19,8 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class RgaVariantIndividual extends LitElement {
 
@@ -276,8 +277,7 @@ export default class RgaVariantIndividual extends LitElement {
                 return [];
             }
         } catch (e) {
-            console.error(e);
-            UtilsNew.notifyError(e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             return Promise.reject(e);
         }
 

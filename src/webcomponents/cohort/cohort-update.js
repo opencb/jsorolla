@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import Types from "../commons/types.js";
 import "../commons/tool-header.js";
 export default class CohortUpdate extends LitElement {
 
@@ -176,45 +177,41 @@ export default class CohortUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Edit",
             icon: "fas fa-edit",
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Update"
-            },
             display: {
+                buttonsVisible: true,
+                buttonClearText: "Cancel",
+                buttonOkText: "Update",
                 style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
+                titleWidth: 3,
+                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block"
-                }
+                // help: {
+                //     mode: "block"
+                // }
             },
             sections: [
                 {
                     elements: [
                         {
-                            name: "Cohort ID",
+                            title: "Cohort ID",
                             field: "id",
                             type: "input-text",
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                help: {
-                                    text: "short cohort Id"
-                                },
+                                helpMessage: "short cohort Id",
                                 validation: {
                                 }
                             }
                         },
                         {
-                            name: "Cohort Type",
+                            title: "Cohort Type",
                             field: "type",
                             type: "select",
                             allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
@@ -223,7 +220,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -232,7 +229,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Samples",
+                            title: "Samples",
                             field: "samples",
                             type: "custom",
                             display: {
@@ -248,7 +245,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "input-date",
                             display: {
@@ -259,7 +256,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Modification Date",
+                            title: "Modification Date",
                             field: "modificationDate",
                             type: "input-date",
                             display: {
@@ -270,7 +267,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Status name",
+                            title: "Status name",
                             field: "status.name",
                             type: "input-text",
                             display: {
@@ -278,7 +275,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Status Description",
+                            title: "Status Description",
                             field: "status.description",
                             type: "input-text",
                             display: {
@@ -288,30 +285,30 @@ export default class CohortUpdate extends LitElement {
                         }
                     ]
                 },
-                {
-                    title: "Annotations Sets",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: cohort => html`
-                                    <annotation-set-update
-                                        .annotationSets="${cohort?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
-                                    </annotation-set-update>
-                                `
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: cohort => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${cohort?.annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
-        };
+        });
     }
 
 }

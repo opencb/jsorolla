@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "./variant-interpreter-review-primary.js";
-import "../../clinical/clinical-interpretation-editor.js";
+import "../../clinical/interpretation/clinical-interpretation-editor.js";
 import "../../commons/view/detail-tabs.js";
 
 

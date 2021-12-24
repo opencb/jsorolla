@@ -149,7 +149,7 @@ export default class OpencgaProteinView extends LitElement {
             //                    });
 
             _this.cellbaseClient.getProteinClient(this.protein, "info", {}, {})
-                .then(function(response) {
+                .then(function (response) {
                     _this.proteinObj = response.response[0].result[0];
 
                     if (typeof _this.proteinObj !== "undefined" && typeof _this.project !== "undefined" && typeof _this.study !== "undefined" && typeof _this.study.alias !== "undefined") {
@@ -166,7 +166,7 @@ export default class OpencgaProteinView extends LitElement {
                         };
 
                         _this.opencgaClient.variants().query(params)
-                            .then(function(variants) {
+                            .then(function (variants) {
                                 const lollipop = new Lollipop();
                                 const svgSettings = {
                                     // width: _this.proteinObj.sequence.length,
@@ -180,7 +180,7 @@ export default class OpencgaProteinView extends LitElement {
                                 querySelector.appendChild(svg);
                                 _this.requestUpdate();
 
-                            }).catch(function(e) {
+                            }).catch(function (e) {
                                 console.log(e);
                             });
                     }
@@ -194,17 +194,17 @@ export default class OpencgaProteinView extends LitElement {
         PolymerUtils.addClass(e.target.id, "active");
         const query = this.query;
         switch (e.target.innerText) {
-        case "Missense":
-            query.ct = "missense_variant";
-            break;
-        case "LoF":
-            query.ct = this.consequenceTypes.lof.join(",");
-            break;
-        default:
-            if (typeof query.ct !== "undefined") {
-                delete query.ct;
-            }
-            break;
+            case "Missense":
+                query.ct = "missense_variant";
+                break;
+            case "LoF":
+                query.ct = this.consequenceTypes.lof.join(",");
+                break;
+            default:
+                if (typeof query.ct !== "undefined") {
+                    delete query.ct;
+                }
+                break;
         }
         this.query = Object.assign({}, query);
     }
@@ -262,7 +262,7 @@ export default class OpencgaProteinView extends LitElement {
                         <div class="block">
                             <label class="protein-align-left">Name</label>
                             <div class="protein-align-right">
-                                ${this.proteinObj.name && this.proteinObj.name.length ? this.proteinObj.name.map( item => html`
+                                ${this.proteinObj.name && this.proteinObj.name.length ? this.proteinObj.name.map(item => html`
                                     ${item}<br>
                                 `) : null}
                             </div>
@@ -278,7 +278,7 @@ export default class OpencgaProteinView extends LitElement {
                             <label class="protein-align-left">Accession</label>
                             <div class="protein-align-right">
                                 <!-- TODO refactor with join-->
-                                ${this.proteinObj.accession && this.proteinObj.accession.length ? this.proteinObj.accession.map( item => html`
+                                ${this.proteinObj.accession && this.proteinObj.accession.length ? this.proteinObj.accession.map(item => html`
                                     ${this.item}
                                     ${!this.checkLastItem(this.proteinObj.accession, item) ? "," : ""}
                                 `) : null }
@@ -289,7 +289,7 @@ export default class OpencgaProteinView extends LitElement {
                             <label class="protein-align-left">Gene</label>
                             <div class="protein-align-right">
                                 <!-- TODO add checkPrimary filter above! (see original file) -->
-                                ${this.proteinObj.gene && this.proteinObj.gene.length ? this.proteinObj.gene.map( gene => gene.name.map(item => html`
+                                ${this.proteinObj.gene && this.proteinObj.gene.length ? this.proteinObj.gene.map(gene => gene.name.map(item => html`
                                     ${item}
                                 `)) : null}
                             </div>
@@ -350,32 +350,32 @@ export default class OpencgaProteinView extends LitElement {
 
                 <br>
                 <br>
-                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
-                                        .project="${this.project}"
-                                        .study="${this.study}"
-                                        .opencgaClient="${this.opencgaClient}"
-                                        .populationFrequencies="${this.populationFrequencies}"
-                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                        .consequenceTypes="${this.consequenceTypes}"
-                                        .search="${this.query}"
-                                        .query="${this.query}"
-                                        .variant="${this.variant}"
-                                        .summary="${this.summary}"
-                                        style="font-size: 12px"
-                                        @selectvariant="onSelectVariant">
+                <variant-browser-grid
+                    .opencgaSession="${this.opencgaSession}"
+                    .project="${this.project}"
+                    .study="${this.study}"
+                    .opencgaClient="${this.opencgaClient}"
+                    .populationFrequencies="${this.populationFrequencies}"
+                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                    .consequenceTypes="${this.consequenceTypes}"
+                    .search="${this.query}"
+                    .query="${this.query}"
+                    .variant="${this.variant}"
+                    .summary="${this.summary}"
+                    style="font-size: 12px">
                 </variant-browser-grid>
 
-                 <!-- Bottom tabs with specific variant information -->
+                <!-- Bottom tabs with specific variant information -->
                 ${this.checkVariant(this.variant) ? html`
                     <div style="padding-top: 20px; height: 400px">
                         <h3>Advanced Annotation for Variant: ${this.variant}</h3>
-                        <!--<cellbase-variantannotation-view data="${this.variant}" prefix="${this._prefix}"-->
-                                                         <!--cellbase-client="${this.cellbaseClient}" assembly=${this.project.organism.assembly} -->
-                                                         <!--hash-fragment-credentials="${this.hashFragmentCredentials}"-->
-                                                         <!--style="font-size: 12px"-->
-                                                         <!--population-frequencies="${this.populationFrequencies}"-->
-                                                         <!--protein-substitution-scores="${this.proteinSubstitutionScores}"-->
-                                                         <!--consequence-types="${this.consequenceTypes}">-->
+                        <!--<cellbase-variantannotation-view data="\${this.variant}" prefix="\${this._prefix}"-->
+                                <!--cellbase-client="\${this.cellbaseClient}" assembly=\${this.project.organism.assembly} -->
+                                <!--hash-fragment-credentials="\${this.hashFragmentCredentials}"-->
+                                <!--style="font-size: 12px"-->
+                                <!--population-frequencies="\${this.populationFrequencies}"-->
+                                <!--protein-substitution-scores="\${this.proteinSubstitutionScores}"-->
+                                <!--consequence-types="\${this.consequenceTypes}">-->
                         <!--</cellbase-variantannotation-view>-->
                     </div>
                     ` : html`

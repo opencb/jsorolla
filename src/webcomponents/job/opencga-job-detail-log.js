@@ -16,6 +16,9 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+
 
 export default class OpencgaJobDetailLog extends LitElement {
 
@@ -66,7 +69,6 @@ export default class OpencgaJobDetailLog extends LitElement {
         }
 
         if (changedProperties.has("active")) {
-            //console.log("active", this.active);
             this.content = null;
             this.requestUpdate();
             await this.updateComplete;
@@ -96,9 +98,8 @@ export default class OpencgaJobDetailLog extends LitElement {
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
-        //console.log(this.job)
         if (this.active && this._config.command === "tail" && this.job.internal.status.name === "RUNNING") {
-            //console.log("setting interval");
+            // console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
                 // this.content += "\n" + UtilsNew.randomString(6);
@@ -117,7 +118,6 @@ export default class OpencgaJobDetailLog extends LitElement {
         this.contentOffset = 0;
         clearInterval(this.interval);
         this.requestUpdate();
-        //console.log("cleared")
     }
 
     async fetchContent(job, params = {}, append = false) {
@@ -129,8 +129,8 @@ export default class OpencgaJobDetailLog extends LitElement {
         await this.updateComplete;
 
         const command = params.command || this._config.command;
-        //const offset = params.offset || 0;
-        //console.log("request ", "command", command, "params", params, "offset", offset, "append", append);
+        // const offset = params.offset || 0;
+        // console.log("request ", "command", command, "params", params, "offset", offset, "append", append);
 
         this.opencgaSession.opencgaClient.jobs()[command + "Log"](job.id, {
             study: this.opencgaSession.study.fqn,
@@ -138,7 +138,7 @@ export default class OpencgaJobDetailLog extends LitElement {
             type: this._config.type,
             offset: params.offset || 0,
             ...params
-        }).then( restResponse => {
+        }).then(restResponse => {
             const result = restResponse.getResult(0);
             if (result.content) {
                 // if command=tail this is the first tail call (the subsequents will be head)
@@ -157,21 +157,18 @@ export default class OpencgaJobDetailLog extends LitElement {
             } else {
                 // this.content = "No content";
             }
-        }).catch( restResponse => {
-            if (restResponse.getEvents("ERROR").length) {
-                this.content = restResponse.getEvents("ERROR").map(error => error.message).join("\n");
-            } else {
-                this.content = "Unknown error";
-            }
-        }).finally( () => {
+        }).catch(response => {
+            this.content = "An error occurred while fetching log.\n";
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        }).finally(() => {
             this.loading = false;
             this.requestUpdate();
         });
     }
 
     onScroll(e) {
-        //TODO custom infinite scroll
-        //console.log(e)
+        // TODO custom infinite scroll
+        // console.log(e)
     }
 
     getDefaultConfig() {

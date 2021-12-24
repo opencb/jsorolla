@@ -451,7 +451,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                                 <!--<th rowspan="2" style="width: 100px">Min. Depth
                                     <br>
                                     <label>
-                                        <input type="checkbox" title="Apply to all samples" .checked="${this.depthAll}" @change="${this.changeDepthAll}"/> All
+                                        <input type="checkbox" title="Apply to all samples" .checked="\${this.depthAll}" @change="\${this.changeDepthAll}"/> All
                                     </label>
                                 </th>-->
                             </tr>
@@ -512,11 +512,11 @@ export default class FamilyGenotypeFilter extends LitElement {
                                                 </td>`
                                     }
                                     <!--<td style="padding-left: 10px;">
-                                        <select-field-filter .data="${this.depths}"
-                                                             .value="${this.state?.[sample.id]?.dp}"
-                                                             @filterChange="${e => this.onSampleTableDepthChange(e, sample.id)}"
+                                        <select-field-filter .data="\${this.depths}"
+                                                             .value="\${this.state?.[sample.id]?.dp}"
+                                                             @filterChange="\${e => this.onSampleTableDepthChange(e, sample.id)}"
                                                              placeholder="Depth"
-                                                             .disabled="${"PROBAND" !== sample.role.toUpperCase() && this.depthAll}">
+                                                             .disabled="\${"PROBAND" !== sample.role.toUpperCase() && this.depthAll}">
                                         </select-field-filter>
                                     </td>-->
 

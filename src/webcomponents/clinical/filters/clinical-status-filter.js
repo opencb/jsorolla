@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalStatusFilter extends LitElement {
@@ -69,15 +70,11 @@ export default class ClinicalStatusFilter extends LitElement {
     }
 
     filterChange(e) {
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: e.detail.value,
-                query: {
-                    status: e.detail.value
-                }
+        LitUtils.dispatchCustomEvent(this, "filterChange", e.detail.value, {
+            query: {
+                status: e.detail.value
             }
-        });
-        this.dispatchEvent(event);
+        }, null, {bubbles: false, composed: false});
     }
 
     render() {

@@ -108,14 +108,14 @@ export default class DisorderListUpdate extends LitElement {
     addDisorder(disorder) {
         console.log("AddDiosrder with evidences object", disorder);
         this.disorders = [...this.disorders, disorder];
-        LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
+        LitUtils.dispatchCustomEvent(this, "changeDisorders", this.disorders);
     }
 
     updateDisorder(disorder) {
         const indexItem = this.disorders.findIndex(item => item.id === this.disorder.id);
         this.disorders[indexItem] = disorder;
         this.disorder = {};
-        LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
+        LitUtils.dispatchCustomEvent(this, "changeDisorders", this.disorders);
         this.requestUpdate();
     }
 
@@ -133,7 +133,7 @@ export default class DisorderListUpdate extends LitElement {
         }).then(result => {
             if (result.isConfirmed) {
                 this.disorders = this.disorders.filter(disorder => disorder !== item);
-                LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
+                LitUtils.dispatchCustomEvent(this, "changeDisorders", this.disorders);
                 Swal.fire(
                     "Deleted!",
                     "The disorder has been deleted.",

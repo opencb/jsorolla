@@ -18,11 +18,11 @@ import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
-// import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 import {CountUp} from "countup.js";
 import "../commons/simple-chart.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class OpencgaProjects extends LitElement {
 
@@ -274,12 +274,11 @@ export default class OpencgaProjects extends LitElement {
                 // TODO avoid extra step and build data straight this way?
                 this.data = this.prepareData(this.data);
             } else if (catalogProjectResponse.getEvents("ERROR").length) {
-                const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                new NotificationQueue().push("Error", msg, "error");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, catalogProjectResponse);
             }
         } catch (e) {
-            console.error(e);
-            UtilsNew.notifyError(e);
+            // console.error(e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
         }
         this.requestUpdate();
         // await this.updateComplete; // this causes intermittent refresh issues

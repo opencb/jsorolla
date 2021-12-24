@@ -20,8 +20,8 @@ import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
-import {NotificationQueue} from "../../../core/NotificationQueue";
-
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class RgaIndividualFamily extends LitElement {
 
@@ -93,7 +93,9 @@ export default class RgaIndividualFamily extends LitElement {
                 trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
             } else {
                 // NOTE TODO clinicalAnalysis must be defined
-                new NotificationQueue().push("Clinical Analysis not available", "", "error");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                    message: "Clinical Analysis not available"
+                });
             }
         } else {
             trio.proband = this.individual;
@@ -113,7 +115,9 @@ export default class RgaIndividualFamily extends LitElement {
         ];
 
         if (!this.sampleIds[0]) {
-            new NotificationQueue().push("Sample of the Proband not available", "", "error");
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "Sample of the Proband not available"
+            });
         }
 
         // in case father is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
@@ -293,7 +297,7 @@ export default class RgaIndividualFamily extends LitElement {
             }
 
         } catch (e) {
-            UtilsNew.notifyError(e);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             return Promise.reject(e);
         }
 

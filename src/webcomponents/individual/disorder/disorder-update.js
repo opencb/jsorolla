@@ -85,14 +85,14 @@ export default class DisorderUpdate extends LitElement {
     onSendDisorder(e) {
         e.stopPropagation();
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
+        LitUtils.dispatchCustomEvent(this, "addItem", this.disorder);
     }
 
     onClear(e) {
         e.stopPropagation();
         this.disorder = JSON.parse(JSON.stringify(this._disorder));
         this.updateParams = {};
-        LitUtils.dispatchEventCustom(this, "closeForm");
+        LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {

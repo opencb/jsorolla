@@ -67,5 +67,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         // hiddenColumns: ["id", "gene", "type"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
+    // It is supported either details[] or hiddenDetails[].
     details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "cohortStats", "samples", "beacon", "json-view"]
+    // hiddenDetails: ["json-view"]
 };

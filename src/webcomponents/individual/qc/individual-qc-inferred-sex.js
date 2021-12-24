@@ -103,7 +103,7 @@ export default class IndividualQcInferredSex extends LitElement {
                             inferredSex.inferredKaryotypicSex ?? "-",
                             inferredSex.method
                         ] : ["-", "-", "-", "-"])
-                ].join("\t")
+                ].join("\t");
             });
             const dataString = [
                 [
@@ -174,21 +174,13 @@ export default class IndividualQcInferredSex extends LitElement {
                                             </span>
                                         </td>
                                         <td>${inferredSex.method}</td>
-                                        <!--
-                                            <td>
-                                                <span>${individual.karyotypicSex === inferredSex.inferredKaryotypicSex
-                                                    ? html`<i class='fa fa-check' style='color: green'></i>`
-                                                    : html`<i class='fa fa-times' style='color: red'></i>`
-                                                }
-                                                </span>
-                                            </td>
-                                        -->
                                     ` : html`
                                         <td colspan="4"><div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div></td>
                                     `}
                                 </tr>
-                            `})
+                            `;
                         }
+                    )}
                     </tbody>
                 </table>`;
         }

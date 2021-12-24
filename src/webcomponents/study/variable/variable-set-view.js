@@ -86,7 +86,7 @@ export default class VariableSetView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    LitUtils.dispatchEventCustom(this, "variableSetSearch", this.variableSet, error);
+                    LitUtils.dispatchCustomEvent(this, "variableSetSearch", this.variableSet, null, error);
                 });
         }
     }
@@ -201,8 +201,10 @@ export default class VariableSetView extends LitElement {
         }
 
         return html`
-            <data-form .data=${this.variableSet} .config="${this._config}"></data-form>
-        `;
+            <data-form
+                .data=${this.variableSet}
+                .config="${this._config}">
+            </data-form>`;
     }
 
 }

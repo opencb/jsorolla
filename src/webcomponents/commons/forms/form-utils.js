@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {NotificationQueue} from "../../../core/NotificationQueue";
 
 export default class FormUtils {
 
@@ -166,17 +165,12 @@ export default class FormUtils {
         return data;
     }
 
-    static notifyError(response) {
-        if (response?.getEvents?.("ERROR")?.length) {
-            const errors = response.getEvents("ERROR");
-            errors.forEach(error => {
-                new NotificationQueue().push(error.name, error.message, "ERROR");
-            });
-        } else if (response instanceof Error) {
-            new NotificationQueue().push(response.name, response.message, "ERROR");
-        } else {
-            new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
-        }
+    /**
+    * @deprecated since version 2.2
+    */
+    // ! Deprecated Don't Used This Code
+    static notifyError() {
+        // Nothing to do
     }
 
     // Deprecated

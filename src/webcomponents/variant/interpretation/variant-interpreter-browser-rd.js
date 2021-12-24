@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -83,7 +84,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     update(changedProperties) {
@@ -91,7 +92,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             this.settingsObserver();
         }
         if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -135,7 +136,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         let isSettingsObserverCalled = false;
 
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
@@ -183,8 +184,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                 }
             }
 
+            // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
+            if (this.clinicalAnalysis.panelLock) {
+                this.query.panelIntersection = true;
+            }
 
-            // 3. 'fileData' query param: fetch non SV files and set init query
+            // 4. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 const nonSvGermlineVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => !vc.somatic)
@@ -324,16 +329,11 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     onSaveVariants(e) {
         const comment = e.detail.comment;
-        const saveCallback = () => {
-            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                detail: {
-                    clinicalAnalysis: this.clinicalAnalysis
-                },
-                bubbles: true,
-                composed: true
-            }));
-        };
-        this.clinicalAnalysisManager.updateInterpretation(comment, saveCallback);
+        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
     }
 
     onVariantFilterChange(e) {
@@ -356,10 +356,17 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterClear() {
-        const _query = {study: this.opencgaSession.study.fqn, sample: this._sampleQuery};
+        const _query = {
+            study: this.opencgaSession.study.fqn,
+            sample: this._sampleQuery
+        };
+
+        // Check if panelLock is enabled
         if (this.clinicalAnalysis.panelLock) {
             _query.panel = this.query.panel;
+            _query.panelIntersection = true;
         }
+
         this.query = _query;
         this.requestUpdate();
     }
@@ -367,13 +374,11 @@ class VariantInterpreterBrowserRd extends LitElement {
     getDefaultConfig() {
         // Add case panels to query object
         // TODO should we also check main interpretation panels?
-        const lockedFields = [
-            {
-                id: "sample"
-            }
-        ];
+        const lockedFields = [{id: "sample"}];
+
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
+            lockedFields.push({id: "panelIntersection"});
         }
 
         return {
@@ -459,12 +464,20 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: tooltips.region
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.region,
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Feature regions will be intersected with selected panels.",
+                                },
+                                tooltip: tooltips.feature,
                             },
                             {
                                 id: "biotype",
@@ -487,9 +500,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                disabled: {
-                                    check: () => this.clinicalAnalysis.panelLock,
-                                    message: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
                                 tooltip: tooltips.diseasePanels
                             },
@@ -794,7 +808,10 @@ class VariantInterpreterBrowserRd extends LitElement {
             </style>
 
             ${this._config.showTitle ? html`
-                <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
+                <tool-header
+                    title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
+                    icon="${this._config.icon}">
+                </tool-header>
             ` : null}
 
             <div class="row">
@@ -822,7 +839,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     @filterVariants="${this.onFilterVariants}"
                                     @resetVariants="${this.onResetVariants}"
                                     @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-browser-toolbar>` : null
+                                </variant-interpreter-browser-toolbar>
+                            ` : null
                         }
                     </div>
 

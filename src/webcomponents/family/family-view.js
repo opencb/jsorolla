@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
 import "../loading-spinner.js";
@@ -159,25 +160,40 @@ export default class FamilyView extends LitElement {
         }));
     }
 
+    render() {
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
+        }
+
+        return html`
+            <data-form
+                .data=${this.family}
+                .config="${this._config}">
+            </data-form>`;
+    }
+
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Summary",
             icon: "",
             display: {
+                buttonsVisible: false,
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
+                titleVisible: false,
+                titleWidth: 2,
                 defaultValue: "-"
             },
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: family => !family?.id
+                        visible: family => !family?.id,
                     },
                     elements: [
                         {
-                            name: "Family ID",
+                            title: "Family ID",
                             field: "familyId",
                             type: "custom",
                             display: {
@@ -185,13 +201,14 @@ export default class FamilyView extends LitElement {
                                     <family-id-autocomplete
                                         .value="${this.family?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
+                                        .config="${{
                                             select2Config: {
                                                 multiple: false
                                             }
-                                        }}
+                                        }}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </family-id-autocomplete>`
+                                    </family-id-autocomplete>
+                                `,
                             }
                         }
                     ]
@@ -200,22 +217,22 @@ export default class FamilyView extends LitElement {
                     title: "General",
                     collapsed: false,
                     display: {
-                        visible: family => family?.id
+                        visible: family => family?.id,
                     },
                     elements: [
                         {
-                            name: "Family ID",
+                            title: "Family ID",
                             type: "custom",
                             display: {
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
+                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
                             }
                         },
                         {
-                            name: "Family Name",
+                            title: "Family Name",
                             field: "name"
                         },
                         {
-                            name: "Disorders",
+                            title: "Disorders",
                             field: "disorders",
                             type: "list",
                             display: {
@@ -232,7 +249,7 @@ export default class FamilyView extends LitElement {
                             }
                         },
                         {
-                            name: "Phenotypes",
+                            title: "Phenotypes",
                             field: "phenotypes",
                             type: "list",
                             display: {
@@ -249,20 +266,20 @@ export default class FamilyView extends LitElement {
                             }
                         },
                         {
-                            name: "Expected Size",
+                            title: "Expected Size",
                             field: "expectedSize"
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "custom",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("creationDate"),
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                                render: field => html`${UtilsNew.dateFormatter(field)}`,
                             }
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("description"),
@@ -277,83 +294,69 @@ export default class FamilyView extends LitElement {
                     },
                     elements: [
                         {
-                            name: "List of Members:",
+                            title: "List of Members:",
                             field: "members",
                             type: "table",
                             display: {
                                 layout: "horizontal",
                                 columns: [
                                     {
-                                        name: "Individual ID", field: "id"
+                                        title: "Individual ID",
+                                        field: "id"
                                     },
                                     {
-                                        name: "Sex", field: "sex"
+                                        title: "Sex",
+                                        field: "sex"
                                     },
                                     {
-                                        name: "Father ID", field: "father.id", defaultValue: "-"
+                                        title: "Father ID",
+                                        field: "father.id",
+                                        defaultValue: "-"
                                     },
                                     {
-                                        name: "Mother ID", field: "mother.id", defaultValue: "-"
+                                        title: "Mother ID",
+                                        field: "mother.id",
+                                        defaultValue: "-"
                                     },
                                     {
-                                        name: "Disorders",
+                                        title: "Disorders",
                                         field: "disorders",
                                         type: "custom",
                                         display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
                                         }
                                     },
                                     {
-                                        name: "Phenotypes",
+                                        title: "Phenotypes",
                                         field: "phenotypes",
                                         type: "custom",
                                         defaultValue: "-",
                                         display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
                                         }
                                     },
                                     {
-                                        name: "Life Status", field: "lifeStatus"
+                                        title: "Life Status",
+                                        field: "lifeStatus",
                                     }
                                 ]
                             }
                         },
                         {
-                            name: "Pedigree",
+                            title: "Pedigree",
                             type: "custom",
                             display: {
-                                layout: "vertical",
+                                defaultLayout: "vertical",
                                 visible: !this._config?.hiddenFields?.includes("pedigree"),
-                                render: data => html`<pedigree-view .family="${this.family}"></pedigree-view>`
+                                render: () => html`
+                                    <pedigree-view .family="${this.family}"></pedigree-view>
+                                `,
                             }
                         }
                     ]
                 }
             ]
-        };
-    }
-
-    render() {
-
-        // if (!this.family && this.familyId) {
-        //     return html`
-        //         <div class="alert alert-info">
-        //             <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.
-        //         </div>
-        //     `;
-        // }
-
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        return html`
-            <data-form
-                .data=${this.family}
-                .config="${this._config}">
-            </data-form>`;
+        });
     }
 
 }

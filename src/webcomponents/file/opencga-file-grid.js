@@ -16,11 +16,12 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -320,8 +321,8 @@ export default class OpencgaFileGrid extends LitElement {
                 }
             })
             .catch(response => {
-                console.log(response);
-                UtilsNew.notifyError(response);
+                // console.log(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
@@ -347,12 +348,13 @@ export default class OpencgaFileGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                          .query="${this.query}"
-                                          .opencgaSession="${this.opencgaSession}"
-                                          @columnChange="${this.onColumnChange}"
-                                          @download="${this.onDownload}"
-                                          @export="${this.onDownload}">
+                    <opencb-grid-toolbar
+                        .config="${this.toolbarConfig}"
+                        .query="${this.query}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
                 ""
             }

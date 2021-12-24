@@ -17,10 +17,10 @@
 import {LitElement, html} from "lit";
 import {RestResponse} from "../../core/clients/rest-response.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "../loading-spinner.js";
+import NotificationUtils from "./utils/notification-utils.js";
 
 class OpencbFacetResults extends LitElement {
 
@@ -81,9 +81,6 @@ class OpencbFacetResults extends LitElement {
         this.facetResults = [];
     }
 
-    firstUpdated(_changedProperties) {
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") && this.active) {
             this.queryObserver();
@@ -116,20 +113,14 @@ class OpencbFacetResults extends LitElement {
                     this.facetResults = restResponse.getResults() || [];
                 })
                 .catch(response => {
-                    if (response instanceof RestResponse) {
-                        if (response.getEvents?.("ERROR")?.length) {
-                            this.errorState = response.getEvents("ERROR");
-                            this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
-                        } else {
-                            this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
-                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                        }
-                    } else if (response instanceof Error) {
-                        this.errorState = [{name: response.name, message: response.message}];
-                        new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                    if (response instanceof RestResponse || response instanceof Error) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     } else {
                         this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
-                        new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                            title: this.errorState[0].name,
+                            message: this.errorState[0].message,
+                        });
                     }
                 })
                 .finally(() => {
@@ -238,8 +229,14 @@ class OpencbFacetResults extends LitElement {
 
             ${!this.facetResults.length && !this.loading && !this.errorState ?
                 !this.query ? html`
-                    <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.</div>` : html`
-                    <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> Empty results</div>
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-3x fa-info-circle align-middle"></i>
+                        Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.
+                    </div>
+                ` : html`
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-3x fa-exclamation-circle align-middle"></i> Empty results
+                    </div>
             ` : null}
         </div>
     `;

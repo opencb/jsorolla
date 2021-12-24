@@ -18,6 +18,7 @@
 import {LitElement, html} from "lit";
 
 import "./file-preview.js";
+import "./file-view.js";
 import "../commons/opencga-browser.js";
 import UtilsNew from "../../core/utilsNew.js";
 
@@ -218,10 +219,12 @@ export default class OpencgaFileBrowser extends LitElement {
                             id: "file-view",
                             name: "Overview",
                             active: true,
-                            render: (file, active, opencgaSession) => {
-                                return html`
-                                    <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
-                            }
+                            render: (file, active, opencgaSession) => html`
+                                <file-view
+                                    .opencgaSession="${opencgaSession}"
+                                    .file="${file}">
+                                </file-view>
+                            `,
                         },
                         {
                             id: "file-preview",

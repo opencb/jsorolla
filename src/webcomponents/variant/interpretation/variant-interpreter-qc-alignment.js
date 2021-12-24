@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../alignment/alignment-stats-view.js";
-import "../../commons/forms/data-form.js";;
+import "../../commons/forms/data-form.js";
 
 class VariantInterpreterQcAlignment extends LitElement {
 
@@ -89,10 +89,10 @@ class VariantInterpreterQcAlignment extends LitElement {
 
     setAlignmentstats() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.files) {
-            let _alignmentStats = [];
-            for (let file of this.clinicalAnalysis.files) {
+            const _alignmentStats = [];
+            for (const file of this.clinicalAnalysis.files) {
                 if (file.format === "BAM" && file.annotationSets) {
-                    for (let annotationSet of file.annotationSets) {
+                    for (const annotationSet of file.annotationSets) {
                         if (annotationSet.id.toUpperCase() === "OPENCGA_ALIGNMENT_STATS") {
                             _alignmentStats.push(annotationSet.annotations);
                             break;
@@ -105,14 +105,50 @@ class VariantInterpreterQcAlignment extends LitElement {
         this.requestUpdate();
     }
 
+    render() {
+        // Check Project exists
+        if (!this.opencgaSession.project) {
+            return html`
+                <div>
+                    <h3>
+                        <i class="fas fa-lock"></i>
+                        No public projects available to browse. Please login to continue
+                    </h3>
+                </div>
+            `;
+        }
+
+        // Check Clinical Analysis exist
+        if (!this.clinicalAnalysis) {
+            return html`
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case found</h3>
+                </div>
+            `;
+        }
+
+        // Alignment stats are the same for FAMILY and CANCER analysis
+        return html`
+            <div class="container" style="margin-bottom: 20px">
+                ${this.alignmentStats ? html`
+                    <data-form
+                        .data="${this.alignmentStats[0]}"
+                        .config="${this._config}">
+                    </data-form>
+                ` : html`No Stats available.`}
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
             icon: "",
             display: {
+                buttonsVisible: false,
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 3,
+                titleVisible: false,
+                titleWidth: 3,
                 defaultValue: "-"
             },
             sections: [
@@ -123,11 +159,11 @@ class VariantInterpreterQcAlignment extends LitElement {
                     },
                     elements: [
                         {
-                            name: "File",
+                            title: "File",
                             field: "fileId"
                         },
                         {
-                            name: "Sample ID",
+                            title: "Sample ID",
                             field: "sampleId"
                         }
                     ]
@@ -139,193 +175,161 @@ class VariantInterpreterQcAlignment extends LitElement {
                     },
                     elements: [
                         {
-                            name: "rawTotalSequences",
+                            title: "rawTotalSequences",
                             field: "rawTotalSequences"
                         },
                         {
-                            name: "filteredSequences",
+                            title: "filteredSequences",
                             field: "filteredSequences"
                         },
                         {
-                            name: "sequences",
+                            title: "sequences",
                             field: "sequences"
                         },
                         {
-                            name: "isSorted",
+                            title: "isSorted",
                             field: "isSorted"
                         },
                         {
-                            name: "firstFragments",
+                            title: "firstFragments",
                             field: "firstFragments"
                         },
                         {
-                            name: "lastFragments",
+                            title: "lastFragments",
                             field: "lastFragments"
                         },
                         {
-                            name: "readsMapped",
+                            title: "readsMapped",
                             field: "readsMapped"
                         },
                         {
-                            name: "readsMappedAndPaired",
+                            title: "readsMappedAndPaired",
                             field: "readsMappedAndPaired"
                         },
                         {
-                            name: "readsUnmapped",
+                            title: "readsUnmapped",
                             field: "readsUnmapped"
                         },
                         {
-                            name: "readsProperlyPaired",
+                            title: "readsProperlyPaired",
                             field: "readsProperlyPaired"
                         },
                         {
-                            name: "readsPaired",
+                            title: "readsPaired",
                             field: "readsPaired"
                         },
                         {
-                            name: "readsDuplicated",
+                            title: "readsDuplicated",
                             field: "readsDuplicated"
                         },
                         {
-                            name: "readsMq0",
+                            title: "readsMq0",
                             field: "readsMq0"
                         },
                         {
-                            name: "readsQcFailed",
+                            title: "readsQcFailed",
                             field: "readsQcFailed"
                         },
                         {
-                            name: "nonPrimaryAlignments",
+                            title: "nonPrimaryAlignments",
                             field: "nonPrimaryAlignments"
                         },
                         {
-                            name: "totalLength",
+                            title: "totalLength",
                             field: "totalLength"
                         },
                         {
-                            name: "totalFirstFragmentLength",
+                            title: "totalFirstFragmentLength",
                             field: "totalFirstFragmentLength"
                         },
                         {
-                            name: "totalLastFragmentLength",
+                            title: "totalLastFragmentLength",
                             field: "totalLastFragmentLength"
                         },
                         {
-                            name: "basesMapped",
+                            title: "basesMapped",
                             field: "basesMapped"
                         },
                         {
-                            name: "basesMappedCigar",
+                            title: "basesMappedCigar",
                             field: "basesMappedCigar"
                         },
                         {
-                            name: "basesTrimmed",
+                            title: "basesTrimmed",
                             field: "basesTrimmed"
                         },
                         {
-                            name: "basesDuplicated",
+                            title: "basesDuplicated",
                             field: "basesDuplicated"
                         },
                         {
-                            name: "mismatches",
+                            title: "mismatches",
                             field: "mismatches"
                         },
                         {
-                            name: "errorRate",
+                            title: "errorRate",
                             field: "errorRate"
                         },
                         {
-                            name: "averageLength",
+                            title: "averageLength",
                             field: "averageLength"
                         },
                         {
-                            name: "averageFirstFragmentLength",
+                            title: "averageFirstFragmentLength",
                             field: "averageFirstFragmentLength"
                         },
                         {
-                            name: "averageLastFragmentLength",
+                            title: "averageLastFragmentLength",
                             field: "averageLastFragmentLength"
                         },
                         {
-                            name: "maximumLength",
+                            title: "maximumLength",
                             field: "maximumLength"
                         },
                         {
-                            name: "maximumFirstFragmentLength",
+                            title: "maximumFirstFragmentLength",
                             field: "maximumFirstFragmentLength"
                         },
                         {
-                            name: "maximumLastFragmentLength",
+                            title: "maximumLastFragmentLength",
                             field: "maximumLastFragmentLength"
                         },
                         {
-                            name: "averageQuality",
+                            title: "averageQuality",
                             field: "averageQuality"
                         },
                         {
-                            name: "insertSizeAverage",
+                            title: "insertSizeAverage",
                             field: "insertSizeAverage"
                         },
                         {
-                            name: "insertSizeStandardDeviation",
+                            title: "insertSizeStandardDeviation",
                             field: "insertSizeStandardDeviation"
                         },
                         {
-                            name: "inwardOrientedPairs",
+                            title: "inwardOrientedPairs",
                             field: "inwardOrientedPairs"
                         },
                         {
-                            name: "outwardOrientedPairs",
+                            title: "outwardOrientedPairs",
                             field: "outwardOrientedPairs"
                         },
                         {
-                            name: "pairsWithOtherOrientation",
+                            title: "pairsWithOtherOrientation",
                             field: "pairsWithOtherOrientation"
                         },
                         {
-                            name: "pairsOnDifferentChromosomes",
+                            title: "pairsOnDifferentChromosomes",
                             field: "pairsOnDifferentChromosomes"
                         },
                         {
-                            name: "percentageOfProperlyPairedReads",
+                            title: "percentageOfProperlyPairedReads",
                             field: "percentageOfProperlyPairedReads"
                         }
                     ]
                 }
             ]
         };
-    }
-
-    render() {
-        // Check Project exists
-        if (!this.opencgaSession.project) {
-            return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
-        }
-
-        // Check Clinical Analysis exist
-        if (!this.clinicalAnalysis) {
-            return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No Case found</h3>
-                    </div>`;
-        }
-
-        // Alignment stats are the same for FAMILY and CANCER analysis
-        return html`
-            <div class="container" style="margin-bottom: 20px">
-<!--                <div>-->
-<!--                    <h2>QC Alignment Stats</h2>-->
-<!--                </div>-->
-                ${this.alignmentStats
-                    ? html`
-                       <data-form .data="${this.alignmentStats[0]}" .config="${this._config}"></data-form>`
-                    : html`No Stats available.`
-                }
-            </div>
-        `;
     }
 
 }

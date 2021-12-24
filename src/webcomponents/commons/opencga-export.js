@@ -17,8 +17,8 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
-
+import LitUtils from "./utils/lit-utils.js";
+import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaExport extends LitElement {
 
@@ -215,10 +215,12 @@ const client = new OpenCGAClient({
                 }
                 const restResponse = await this.opencgaSession.opencgaClient.variants().runExport(data, params);
                 const job = restResponse.getResult(0);
-                new NotificationQueue().push(`Job ${job.id} is now PENDING`, null, "info");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                    message: `Job ${job.id} is now PENDING`,
+                });
             } catch (e) {
-                console.error(e);
-                UtilsNew.notifyError(e);
+                // console.error(e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             }
         }
     }
@@ -232,7 +234,9 @@ const client = new OpenCGAClient({
     }
 
     clipboard(e) {
-        new NotificationQueue().push("Code has been copied to Clipboard", null, "success");
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Code has been copied to Clipboard"
+        });
     }
 
     changeMode(e) {

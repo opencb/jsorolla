@@ -17,8 +17,9 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import {NotificationQueue} from "../../../../core/NotificationQueue.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
 import "./opencga-variable-selector.js";
+import NotificationUtils from "../../../commons/utils/notification-utils.js";
 
 /**
  * @deprecated
@@ -127,7 +128,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
     onAddAnnotationClicked(e) {
         if (typeof this.lastAnnotationFilter === "undefined") {
-            new NotificationQueue().push("Please choose or input a value", "", "warning");
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                message: "Please choose or input a value"
+            });
             return;
         }
         this.dispatchEvent(new CustomEvent("filterannotation", {detail: {value: this.lastAnnotationFilter}}));

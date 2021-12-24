@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 
-export default class OpencgaFileView extends LitElement {
+export default class FileView extends LitElement {
 
     constructor() {
         super();
@@ -51,7 +51,6 @@ export default class OpencgaFileView extends LitElement {
 
     _init() {
         this._config = this.getDefaultConfig();
-
         this.file = {};
     }
 
@@ -61,7 +60,7 @@ export default class OpencgaFileView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
@@ -69,21 +68,31 @@ export default class OpencgaFileView extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     fileIdObserver() {
         if (this.opencgaSession && this.fileId) {
             this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.file = restResponse.responses[0].results[0];
-                    this.requestUpdate();
+                .then(response => {
+                    this.file = response.responses[0].results[0];
                 })
-                .catch(restResponse => {
-                    console.error(restResponse);
+                .catch(response => {
+                    console.error(response);
                 });
         } else {
             this.file = null;
         }
+    }
+
+    render() {
+        return this.file && html`
+            <data-form
+                .data=${this.file}
+                .config="${this._config}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -91,10 +100,11 @@ export default class OpencgaFileView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
+                buttonsVisible: false,
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-"
+                titleVisible: false,
+                titleWidth: 2,
+                defaultValue: "-",
             },
             sections: [
                 {
@@ -105,22 +115,24 @@ export default class OpencgaFileView extends LitElement {
                     },
                     elements: [
                         {
-                            name: "File ID",
+                            title: "File ID",
                             type: "custom",
                             display: {
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
+                                render: data => html`
+                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
+                                `,
                             }
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name"
                         },
                         {
-                            name: "Study Path",
+                            title: "Study Path",
                             field: "path"
                         },
                         {
-                            name: "Size",
+                            title: "Size",
                             field: "size",
                             type: "custom",
                             display: {
@@ -128,53 +140,57 @@ export default class OpencgaFileView extends LitElement {
                             }
                         },
                         {
-                            name: "Format (Bioformat)",
+                            title: "Format (Bioformat)",
                             type: "complex",
                             display: {
-                                template: "${format} (${bioformat})"
+                                template: "${format} (${bioformat})",
                             }
                         },
                         {
-                            name: "Tags",
+                            title: "Tags",
                             field: "tags",
                             type: "list",
                             display: {
-                                separator: ", "
+                                separator: ", ",
                             }
                         },
                         {
-                            name: "Creation Date",
+                            title: "Creation Date",
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                                render: field => html`${UtilsNew.dateFormatter(field)}`,
                             }
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
+                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
                             }
                         },
                         {
-                            name: "Index Status",
+                            title: "Index Status",
                             field: "internal.index.status",
                             type: "custom",
                             display: {
-                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
+                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
                             }
                         },
                         {
-                            name: "Preview",
+                            title: "Preview",
                             type: "custom",
 
                             display: {
                                 visible: this.mode === "full",
-                                render: file => {
-                                    return html`<file-preview .opencgaSession=${this.opencgaSession} .active="${true}" .file="${file}"></file-preview>`;
-                                }
+                                render: file => html`
+                                    <file-preview
+                                        .opencgaSession=${this.opencgaSession}
+                                        .active="${true}"
+                                        .file="${file}">
+                                    </file-preview>
+                                `,
                             }
                         }
                     ]
@@ -183,12 +199,6 @@ export default class OpencgaFileView extends LitElement {
         };
     }
 
-    render() {
-        return html`
-            <data-form .data=${this.file} .config="${this._config}"></data-form>
-        `;
-    }
-
 }
 
-customElements.define("opencga-file-view", OpencgaFileView);
+customElements.define("file-view", FileView);

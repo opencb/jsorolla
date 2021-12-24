@@ -84,7 +84,7 @@ export default class FileQcAscatMetrics extends LitElement {
                 const file = response.responses[0].results[0];
                 this._ascatMetrics = file.qualityControl.variant.ascatMetrics;
                 this._ascatMetrics.file = file.name;
-                const images = file.qualityControl.variant.ascatMetrics.images.join(",");
+                const images = file.qualityControl.variant.ascatMetrics.files.join(",");
                 return this.opencgaSession.opencgaClient.files().info(images, {
                     study: this.opencgaSession.study.fqn,
                 });
@@ -102,9 +102,10 @@ export default class FileQcAscatMetrics extends LitElement {
             title: "",
             icon: "",
             display: {
+                buttonsVisible: false,
                 collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
+                titleVisible: false,
+                titleWidth: 2,
                 defaultValue: "-",
                 defaultLayout: "horizontal",
             },
@@ -114,38 +115,30 @@ export default class FileQcAscatMetrics extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "ASCAT Stats",
+                            title: "ASCAT Stats",
                             field: "ascat",
                             type: "table",
                             display: {
                                 columns: [
                                     {
-                                        name: "ASCAT File",
+                                        title: "ASCAT File",
                                         type: "custom",
                                         display: {
-                                            render: data => html` <div>
-                                                <span
-                                                    style="font-weight: bold"
-                                                    >${data.file}</span>
-                                            </div>`,
+                                            render: data => html`<span style="font-weight:bold">${data.file}</span>`,
                                         },
                                     },
                                     {
-                                        name: "ASCAT Aberrant Fraction",
+                                        title: "ASCAT Aberrant Fraction",
                                         type: "custom",
                                         display: {
-                                            render: data => html` <div>
-                                                ${data.aberrantCellFraction}
-                                            </div>`,
+                                            render: data => html`${data.aberrantCellFraction}`,
                                         },
                                     },
                                     {
-                                        name: "ASCAT Ploidy",
+                                        title: "ASCAT Ploidy",
                                         type: "custom",
                                         display: {
-                                            render: data => html` <div>
-                                                ${data.ploidy}
-                                            </div>`,
+                                            render: data => html`${data.ploidy}`,
                                         },
                                     },
                                 ],
@@ -162,7 +155,10 @@ export default class FileQcAscatMetrics extends LitElement {
         if (!this.opencgaSession?.project) {
             return html`
                 <div>
-                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
+                    <h3>
+                        <i class="fas fa-lock"></i>
+                        No public projects available to browse. Please login to continue
+                    </h3>
                 </div>
             `;
         }

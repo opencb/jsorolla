@@ -69,7 +69,7 @@ export class RestClient {
     call(url, options, k) {
         let method = "GET";
         let async = true;
-        const key = RestClient.hash(k);
+        const key = RestClient.hash(k || "RandomString");
         let dataResponse = null;
 
         const eventFire = new CustomEvent("request", {
@@ -84,7 +84,7 @@ export class RestClient {
         });
         globalThis.dispatchEvent(eventFire);
 
-        if (typeof options !== "undefined") {
+        if (options) {
             method = options.method || "GET";
             async = options.async || true;
         }

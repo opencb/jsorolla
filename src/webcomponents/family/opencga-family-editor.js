@@ -18,8 +18,8 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../individual/individual-browser.js";
-import {NotificationQueue} from "../../core/NotificationQueue.js";
-
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 export default class OpencgaFamilyEditor extends LitElement {
 
     constructor() {
@@ -113,7 +113,7 @@ export default class OpencgaFamilyEditor extends LitElement {
                 include: "id"
             };
             _this.opencgaClient.individuals().search(params)
-                .then(function(response) {
+                .then(function (response) {
                     let options = "";
                     for (const id of response.response[0].result) {
                         options += `<option value="${id.id}">`;
@@ -131,7 +131,7 @@ export default class OpencgaFamilyEditor extends LitElement {
                 study: this.study
             };
             _this.opencgaClient.individuals().info(individualId, params)
-                .then(function(response) {
+                .then(response => {
                     const individual = response.response[0].result[0];
                     _this._addIndividualToSelectedArray(individual);
                     _this.computePhenotypes();
@@ -142,11 +142,13 @@ export default class OpencgaFamilyEditor extends LitElement {
                     //     _this.selectedIndividuals.push(_this._parseIndividual(individual.mother));
                     // }
                 })
-                .catch(function(response) {
-                    new NotificationQueue().push(response.error, null, "danger");
+                .catch(response => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         } else {
-            new NotificationQueue().push("Please start typing an individual id", null,"danger");
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "Please start typing an individual id",
+            });
         }
     }
 
@@ -177,9 +179,10 @@ export default class OpencgaFamilyEditor extends LitElement {
     _addIndividualToSelectedArray(individual) {
         for (let i = 0; i < this.selectedIndividuals.length; i++) {
             if (this.selectedIndividuals[i].id === individual.id) {
-                new NotificationQueue().push(`Individual ${individual.id} already added`, null, "warning");
                 // The individual was already added
-                return;
+                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                    message: `Individual ${individual.id} already added`,
+                });
             }
         }
 
@@ -200,15 +203,17 @@ export default class OpencgaFamilyEditor extends LitElement {
     createFamily(e) {
         const params = this.obtainAllFamilyParameters();
         if (UtilsNew.isNotUndefinedOrNull(params)) {
-            const _this = this;
             this.opencgaClient.families().create({study: this.study}, params)
-                .then(function(response) {
-                    _this.resetFields();
-                    new NotificationQueue().push(`Family ${response.response[0].result[0].id} created successfully`, "", "success");
+                .then(() => {
+                    this.resetFields();
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        // message: `Family ${response.response[0].result[0].id} created successfully`,
+                        message: "Family created successfully",
+                    });
                 })
-                .catch(function(response) {
-                    console.error(response);
-                    new NotificationQueue().push(response.error, "", "danger");
+                .catch(response => {
+                    // console.error(response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         }
     }
@@ -243,7 +248,9 @@ export default class OpencgaFamilyEditor extends LitElement {
         }
 
         if (UtilsNew.isNotEmptyArray(missingFields)) {
-            new NotificationQueue().push("Missing " + missingFields.join(", ") + " fields", null, "danger");
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                message: `Missing ${missingFields.join(", ")} fields.`,
+            });
             return null;
         }
 

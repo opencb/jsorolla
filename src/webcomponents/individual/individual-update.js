@@ -16,9 +16,11 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../individual/disorder/disorder-list-update.js";
 import "../commons/tool-header.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class IndividualUpdate extends LitElement {
 
@@ -57,6 +59,7 @@ export default class IndividualUpdate extends LitElement {
         super.connectedCallback();
         this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("individual:", this.individual);
     }
 
     update(changedProperties) {
@@ -101,7 +104,17 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
+            // case "dateOfBirth":
                 this.updateParams = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                break;
+            case "phenotypes":
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.updateParams = {...this.updateParams, disorders: e.detail.value};
+                break;
+            case "annotationSets":
+                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
                 break;
             case "location.address":
             case "location.postalCode":
@@ -119,6 +132,20 @@ export default class IndividualUpdate extends LitElement {
         this.requestUpdate();
     }
 
+    onSync(e, type) {
+        e.stopPropagation();
+        switch (type) {
+            case "phenotypes":
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "disorders":
+                this.updateParams = {...this.updateParams, disorders: e.detail.value};
+                break;
+            case "annotationsets":
+                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
+        }
+    }
+
     onClear() {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.individual = JSON.parse(JSON.stringify(this._individual));
@@ -134,31 +161,18 @@ export default class IndividualUpdate extends LitElement {
 
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
-            .then(res => {
+            .then(() => {
                 // TODO get individual from database, ideally it should be returned by OpenCGA
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
-                FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Individual updated",
+                });
             })
-            .catch(err => {
-                console.error(err);
-                // FormUtils.showAlert("Update Individual", "Individual not updated correctly", "error");
-                FormUtils.notifyError(err);
+            .catch(response => {
+                // console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
-    }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.updateParams = {...this.updateParams, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-        }
     }
 
     render() {
@@ -175,19 +189,17 @@ export default class IndividualUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Edit",
             icon: "fas fa-edit",
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Save"
-            },
             display: {
-                labelWidth: 3,
+                buttonsVisible: true,
+                buttonClearText: "Cancel",
+                buttonOkText: "Save",
+                titleWidth: 3,
                 with: "8",
-                labelAlign: "right",
+                // labelAlign: "right",
                 defaultLayout: "horizontal",
             },
             sections: [
@@ -195,7 +207,7 @@ export default class IndividualUpdate extends LitElement {
                     title: "Individual General Information",
                     elements: [
                         {
-                            name: "Individual id",
+                            title: "Individual id",
                             field: "id",
                             type: "input-text",
                             display: {
@@ -207,7 +219,7 @@ export default class IndividualUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
@@ -215,14 +227,14 @@ export default class IndividualUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Father id",
+                            title: "Father id",
                             field: "father.id",
                             defaultValue: "-",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "Mother id",
+                            title: "Mother id",
                             field: "mother.id",
                             defaultValue: "-",
                             type: "input-text",
@@ -231,43 +243,43 @@ export default class IndividualUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Sex",
+                            title: "Sex",
                             field: "sex",
                             type: "select",
                             allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
                             display: {}
                         },
                         {
-                            name: "Birth",
+                            title: "Birth",
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {
                                 render: date =>
                                     moment(date, "YYYYMMDDHHmmss")
-                                        .format("DD/MM/YYYY")
+                                        .format("yyyy/MM/dd")
                             }
                         },
                         {
-                            name: "Ethnicity",
+                            title: "Ethnicity",
                             field: "ethnicity",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "Parental Consanguinity",
+                            title: "Parental Consanguinity",
                             field: "parentalConsanguinity",
                             type: "checkbox",
                             display: {}
                         },
                         {
-                            name: "Karyotypic Sex",
+                            title: "Karyotypic Sex",
                             field: "karyotypicSex",
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
                             display: {}
                         },
                         {
-                            name: "Life Status",
+                            title: "Life Status",
                             field: "lifeStatus",
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
@@ -279,31 +291,31 @@ export default class IndividualUpdate extends LitElement {
                     title: "Location Info",
                     elements: [
                         {
-                            name: "Address",
+                            title: "Address",
                             field: "location.address",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "Portal code",
+                            title: "Portal code",
                             field: "location.postalCode",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "City",
+                            title: "City",
                             field: "location.city",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "State",
+                            title: "State",
                             field: "location.state",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "Country",
+                            title: "Country",
                             field: "location.country",
                             type: "input-text",
                             display: {}
@@ -314,19 +326,19 @@ export default class IndividualUpdate extends LitElement {
                     title: "Population Info",
                     elements: [
                         {
-                            name: "Population name",
+                            title: "Population name",
                             field: "population.name",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "Subpopulation",
+                            title: "Subpopulation",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {}
                         },
                         {
-                            name: "populaton description",
+                            title: "populaton description",
                             field: "population.description",
                             type: "input-text",
                             display: {
@@ -347,11 +359,11 @@ export default class IndividualUpdate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: individual => html`
+                                render: phenotypes => html`
                                 <phenotype-list-update
-                                    .phenotypes="${individual?.phenotypes}"
+                                    .phenotypes="${phenotypes}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                                    @changePhenotypes="${e => this.onFieldChange(e)}">
                                 </phenotype-list-update>`
                             }
                         },
@@ -368,41 +380,41 @@ export default class IndividualUpdate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: individual => html`
+                                render: disorders => html`
                                     <disorder-list-update
-                                        .disorders="${individual?.disorders}"
-                                        .evidences="${individual?.phenotypes}"
+                                        .disorders="${disorders}"
+                                        .evidences="${this.individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeDisorders="${e => this.onSync(e, "disorders")}">
+                                        @changeDisorders="${e => this.onFieldChange(e)}">
                                     </disorder-list-update>`
                             }
                         }
                     ]
                 },
-                {
-                    title: "Annotations Sets",
-                    elements: [
-                        {
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: individual => html`
-                                    <annotation-set-update
-                                        .annotationSets="${individual?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                                    </annotation-set-update>
-                                `
-                            }
-                        }
-                    ]
-                }
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: annotationSets => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
-        };
+        });
     }
 
 }

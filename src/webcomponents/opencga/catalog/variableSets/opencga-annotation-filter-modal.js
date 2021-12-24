@@ -251,7 +251,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             case "MAP_STRING":
                 // copy of MAP_INTEGER without operator select
                 content = html`
-                    <!--<pre> ${JSON.stringify(variable)}</pre>-->
+                    <!--<pre> \${JSON.stringify(variable)}</pre>-->
                     ${variable?.allowedKeys?.length ? html`
                         <div class="col-md-12 map-field-wrapper">
                             <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
@@ -281,7 +281,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             case "MAP_DOUBLE":
             case "MAP_INTEGER":
                 content = html`
-                    <!--<pre> ${JSON.stringify(variable)}</pre>-->
+                    <!--<pre> \${JSON.stringify(variable)}</pre>-->
                     ${variable?.allowedKeys?.length ? html`
                         <div class="col-md-12 map-field-wrapper">
                             <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>

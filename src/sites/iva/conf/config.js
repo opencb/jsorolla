@@ -175,6 +175,7 @@ const SUITE = {
             {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
             {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
             {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
+            {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
@@ -468,9 +469,10 @@ const SUITE = {
                             name: "Case Portal",
                             acronym: "",
                             description: `
+                                <p>Analyse and create clinical Interpretations in current projects.</p>
                                 <ul>
-                                    <li>Analyse the genomes of participants in the 100,000 Genomes Project</li>
-                                    <li>Filter by gene, consequence, frequency and much more</li>
+                                    <li>Filter by gene, consequence, frequency and much more.</li>
+                                    <li>Create clinical interpretations and reports.</li>
                                 </ul>
                             `,
                             visibility: "public",
@@ -575,7 +577,7 @@ const SUITE = {
                         // },
                     ]
                 },
-                CATALOG_NAVBAR_MENU
+                CATALOG_NAVBAR_MENU,
             ],
             fileExplorer: {
                 visibility: "private"
@@ -594,7 +596,10 @@ const SUITE = {
                     {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
                     {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
                     {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-                    {id: "faq", name: "FAQ", icon: "fa fa-question"}
+                    {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
+                    {id: "faq", name: "FAQ", icon: "fa fa-question"},
+
+
                 ]
             },
             userMenu: [
@@ -746,6 +751,7 @@ const SUITE = {
                     {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
                     {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
                     {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
+                    {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
                     {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"}
                 ]
             },
@@ -812,6 +818,7 @@ const SUITE = {
                     {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
                     {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
                     {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
+                    {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
                     {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"}
                 ]
             },

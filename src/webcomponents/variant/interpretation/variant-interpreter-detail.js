@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../clinical/clinical-interpretation-variant-review.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
 import "../annotation/variant-consequence-type-view.js";
 import "../annotation/variant-annotation-clinical-view.js";
