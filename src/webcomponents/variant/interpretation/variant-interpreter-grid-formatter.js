@@ -77,16 +77,10 @@ export default class VariantInterpreterGridFormatter {
         let clinicalSignificanceCode = 0;
         let clinicalSignificanceHtml = "NA";
         let clinicalSignificanceTooltipText = "";
-        const modeOfInheritances = [];
 
         for (const re of row.evidences) {
-            if (re.modeOfInheritance && !modeOfInheritances.includes(re.modeOfInheritance)) {
-                modeOfInheritances.push(re.modeOfInheritance);
-            }
-
             if (CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
                 clinicalSignificanceCode = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].code;
-                // let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 clinicalSignificanceHtml = `
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
@@ -151,12 +145,10 @@ export default class VariantInterpreterGridFormatter {
                                         <th rowspan="2">Transcript Flags</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
-                                        <th rowspan="2">Actionable</th>
                                         <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding-top: 5px">Classification</th>
                                     </tr>
                                     <tr>
-                                        <th rowspan="1" style="padding-top: 5px">ACMG</th>
-                                        <th rowspan="1">Clinical Significance</th>
+                                        <th rowspan="1" style="padding-top: 5px">ACMG Prediction</th>
                                         <th rowspan="1">Tier</th>
                                         ${review ? "<th rowspan=\"1\">Select</th>" : ""}
                                         ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
@@ -172,7 +164,6 @@ export default class VariantInterpreterGridFormatter {
                                     <th rowspan="2">Transcript Flags</th>
                                     <th rowspan="2">Panel</th>
                                     <th rowspan="2">Role in Cancer</th>
-                                    <th rowspan="2">Actionable</th>
                                     <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding-top: 5px">Classification</th>
                                 </tr>
                                 <tr>
@@ -285,14 +276,14 @@ export default class VariantInterpreterGridFormatter {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
                 }
 
-                let actionable = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.actionable) && re.actionable) {
-                    actionable = "Yes";
-                }
-
-                let acmg = "-";
+                let acmgPrediction = "-";
                 if (UtilsNew.isNotEmptyArray(re.classification.acmg)) {
-                    acmg = re.classification.acmg.join(", ");
+                    acmgPrediction = `
+                        <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
+                            ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
+                        </div>
+                        <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                    `;
                 }
 
                 let tier = "-";
@@ -303,14 +294,6 @@ export default class VariantInterpreterGridFormatter {
                     color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
                     color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
                     tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
-                }
-
-                let clinicalSignificance = "-";
-                if (re.classification.clinicalSignificance) {
-                    clinicalSignificance = `
-                        <span style='color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}'>
-                            ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
-                        </span>`;
                 }
 
                 let checboxHtml = "";
@@ -340,9 +323,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
-                            <td>${actionable}</td>
-                            <td>${acmg}</td>
-                            <td>${clinicalSignificance}</td>
+                            <td>${acmgPrediction}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
@@ -355,7 +336,6 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panel}</td>
                             <td>${roleInCancer}</td>
-                            <td>${actionable}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
