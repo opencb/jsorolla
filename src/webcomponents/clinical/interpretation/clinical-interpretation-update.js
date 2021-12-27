@@ -165,7 +165,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
         const id = this.interpretation.id;
 
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, data, {
-            study: this.opencgaSession.study.fqn
+            study: this.opencgaSession.study.fqn,
+            panelsAction: "SET",
         })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
