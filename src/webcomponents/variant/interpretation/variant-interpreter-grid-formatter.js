@@ -139,16 +139,16 @@ export default class VariantInterpreterGridFormatter {
             if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
                 ctHtml += `<thead>
                                     <tr>
-                                        <th rowspan="2">Gene</th>
-                                        <th rowspan="2">Transcript</th>
-                                        <th rowspan="2">Consequence Type</th>
-                                        <th rowspan="2">Transcript Flags</th>
-                                        <th rowspan="2">Panel</th>
-                                        <th rowspan="2">Mode of Inheritance</th>
-                                        <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding-top: 5px">Classification</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Gene</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Transcript</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Consequence Type</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Disease Panel<br>Mode of Inheritance</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Automatic<br>Prediction</th>
+                                        <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding: 5px 5px">User Classification</th>
                                     </tr>
                                     <tr>
-                                        <th rowspan="1" style="padding-top: 5px">ACMG Prediction</th>
+                                        <th rowspan="1" style="padding-top: 5px">ACMG</th>
                                         <th rowspan="1">Tier</th>
                                         ${review ? "<th rowspan=\"1\">Select</th>" : ""}
                                         ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
@@ -158,13 +158,13 @@ export default class VariantInterpreterGridFormatter {
             } else {
                 ctHtml += `<thead>
                                 <tr>
-                                    <th rowspan="2">Gene</th>
-                                    <th rowspan="2">Transcript</th>
-                                    <th rowspan="2">Consequence Type</th>
-                                    <th rowspan="2">Transcript Flags</th>
-                                    <th rowspan="2">Panel</th>
-                                    <th rowspan="2">Role in Cancer</th>
-                                    <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding-top: 5px">Classification</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Gene</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Transcript</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Consequence Type</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Disease Panel<br>Mode of Inheritance</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Role in Cancer</th>
+                                    <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding: 5px 5px">Classification</th>
                                 </tr>
                                 <tr>
                                     <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
@@ -261,14 +261,20 @@ export default class VariantInterpreterGridFormatter {
                         ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
                 }
 
-                let panel = "-";
+                let panelHtml = "-";
                 if (re.panelId) {
-                    panel = re.panelId;
-                }
-
-                let moi = "-";
-                if (re.modeOfInheritance) {
-                    moi = re.modeOfInheritance;
+                    const panel = variantGrid.opencgaSession?.study?.panels?.find(panel => panel.id === re.panelId);
+                    if (panel) {
+                        const gene = panel.genes.find(gene => gene.name === re.genomicFeature.geneName);
+                        panelHtml = `
+                            <div style="margin: 5px 0px">
+                                ${panel.id}
+                            </div>
+                            <div class="help-block">${gene.modeOfInheritance}</div>
+                        `;
+                    } else {
+                        panelHtml = re.panelId;
+                    }
                 }
 
                 let roleInCancer = "-";
@@ -321,9 +327,9 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptHtml}</td>
                             <td>${soArray.join("")}</td>
                             <td>${transcriptFlagHtml.join("")}</td>
-                            <td>${panel}</td>
-                            <td>${moi}</td>
+                            <td>${panelHtml}</td>
                             <td>${acmgPrediction}</td>
+                            <td>${tier}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
@@ -334,7 +340,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptHtml}</td>
                             <td>${soArray.join("")}</td>
                             <td>${transcriptFlagHtml.join("")}</td>
-                            <td>${panel}</td>
+                            <td>${panelHtml}</td>
                             <td>${roleInCancer}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}

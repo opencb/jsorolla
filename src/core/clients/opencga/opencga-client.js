@@ -438,7 +438,7 @@ export class OpenCGAClient {
                                             const promise = _this.panels().search({
                                                 study: study,
                                                 limit: 2000,
-                                                include: "id,name,stats,source,genes.id,genes.name,regions.id"
+                                                include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
                                             });
                                             panelPromises.push(promise);
                                         }
