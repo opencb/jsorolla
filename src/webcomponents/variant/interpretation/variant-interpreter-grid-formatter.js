@@ -74,31 +74,16 @@ export default class VariantInterpreterGridFormatter {
             return "-";
         }
 
-        const clinicalSignificanceCodes = {
-            NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
-            BENIGN: {id: "B", code: 1, color: "green"},
-            LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
-            UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
-            LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
-            PATHOGENIC: {id: "P", code: 5, color: "red"}
-        };
-
         let clinicalSignificanceCode = 0;
         let clinicalSignificanceHtml = "NA";
         let clinicalSignificanceTooltipText = "";
-        const modeOfInheritances = [];
 
         for (const re of row.evidences) {
-            if (re.modeOfInheritance && !modeOfInheritances.includes(re.modeOfInheritance)) {
-                modeOfInheritances.push(re.modeOfInheritance);
-            }
-
-            if (clinicalSignificanceCodes[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
-                clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
-                // let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
-                const clinicalSignificance = clinicalSignificanceCodes[re.classification.clinicalSignificance].id;
+            if (CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
+                clinicalSignificanceCode = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].code;
+                const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 clinicalSignificanceHtml = `
-                    <div style="margin: 5px 0px; color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
+                    <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
                     <div class="help-block">${re.classification.acmg.join(", ")}</div>
                 `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
@@ -124,119 +109,6 @@ export default class VariantInterpreterGridFormatter {
     /*
     * File attributes formatters
     */
-    // DEPRECATED
-    static variantAlleleFrequencyDetailFormatter(value, row, variantGrid) {
-        let fileAttrHtml = "";
-        if (row && row.studies?.length > 0) {
-            fileAttrHtml = `<table class="table table-hover table-no-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th rowspan="2" style="padding: 0px 10px"><span style="white-space: nowrap">Sample ID</span></th>
-                                            <th rowspan="2" style="padding: 0px 10px">VCF Call</th>
-                                            <th rowspan="2" style="padding: 0px 10px">Genotype</th>
-                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Reference</th>
-                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Alternate</th>
-                                            <th rowspan="2" style="padding: 0px 10px">Secondary Alternate</th>
-                                            <th rowspan="2" style="padding: 0px 10px">Other</th>
-                                        </tr>
-                                        <tr>
-                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
-                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
-                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
-                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
-
-            const study = row.studies[0];
-            for (const sample of study.samples) {
-                const file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
-
-                let referenceFreq,      referenceCount,      alternateFreq,      alternateCount,      secondaryAlternate = "-";
-                     let secondaryAlternateFreq;
-                     let originalCall;
-
-                     let ad;
-                     let af;
-                     let dp;
-
-                // Get DP value
-                const dpIdx = study.sampleDataKeys.findIndex(e => e === "DP");
-                if (dpIdx !== -1) {
-                    dp = Number.parseInt(sample.data[dpIdx]);
-                } else {
-                    dp = file.data.DP ? Number.parseInt(file.data.DP) : null;
-                }
-
-                // Sample format can contain AD or AF
-                const adIdx = study.sampleDataKeys.findIndex(e => e === "AD");
-                if (adIdx !== -1) {
-                    ad = sample.data[adIdx]?.split(",");
-                    referenceCount = Number.parseInt(ad[0]);
-                    alternateCount = Number.parseInt(ad[1]);
-                    if (ad > 1) {
-                        secondaryAlternateFreq = ad[2];
-                    }
-                    if (dp) {
-                        referenceFreq = referenceCount !== 0 && referenceCount !== dp ? Number.parseFloat(referenceCount / dp).toFixed(3) : referenceCount / dp;
-                        alternateFreq = alternateCount !== 0 && alternateCount !== dp ? Number.parseFloat(alternateCount / dp).toFixed(3) : alternateCount / dp;
-                    }
-                } else {
-                    const afIdx = study.sampleDataKeys.findIndex(e => e === "AF");
-                    if (afIdx !== -1) {
-                        af = sample.data[afIdx]?.split(",");
-                        referenceFreq = af[0];
-                        alternateFreq = af[1];
-                        if (af > 1) {
-                            secondaryAlternateFreq = af[2];
-                        }
-                        referenceCount = "NA";
-                        alternateCount = "NA";
-                    }
-                }
-
-                if (file?.call?.variantId) {
-                    originalCall = file.call.variantId.replace("<", "&lt;").replace(">", "&gt;");
-                    if (originalCall.includes(",")) {
-                        const split = originalCall.split(",");
-                        secondaryAlternate = split[1] !== "&lt;NON_REF&gt;" ? split[1] : "none";
-                    }
-                } else {
-                    originalCall = `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
-                }
-
-                const format = [];
-                for (let i = 0; i < study.sampleDataKeys.length; i++) {
-                    format.push(study.sampleDataKeys[i] + ": " + sample.data[i]);
-                }
-
-                let genotypeColor = "black";
-                if (sample.data[0] === "0/1" || sample.data[0] === "0|1" && sample.data[0] === "1|0") {
-                    genotypeColor = "darkorange";
-                } else {
-                    if (sample.data[0] === "1/1" || sample.data[0] === "1|1") {
-                        genotypeColor = "red";
-                    }
-                }
-                const sampleIdColor = variantGrid?.clinicalAnalysis?.proband?.samples[0]?.id === sample.sampleId ? "darkred" : "black";
-                fileAttrHtml += `<tr class="detail-view-row">
-                                    <td><span style="font-weight: bold; color: ${sampleIdColor}">${sample.sampleId}</span></td>
-                                    <td><span style="white-space: nowrap">${originalCall}</span></td>
-                                    <td><span style="color: ${genotypeColor}">${sample.data[0]}</span></td>
-                                    <td>${row.reference}</td>
-                                    <td>${referenceFreq} (${referenceCount})</td>
-                                    <td>${row.alternate}</td>
-                                    <td>${alternateFreq} (${alternateCount})</td>
-                                    <td>${secondaryAlternate}</td>
-                                    <td>${format.join("; ")}</td>
-                                 </tr>`;
-            }
-
-            fileAttrHtml += "</tbody></table>";
-        }
-        return fileAttrHtml;
-    }
-
     static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
         if (row && row.evidences.length > 0) {
             // Sort and group CTs by Gene name
@@ -267,18 +139,16 @@ export default class VariantInterpreterGridFormatter {
             if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
                 ctHtml += `<thead>
                                     <tr>
-                                        <th rowspan="2">Gene</th>
-                                        <th rowspan="2">Transcript</th>
-                                        <th rowspan="2">Consequence Type</th>
-                                        <th rowspan="2">Transcript Flags</th>
-                                        <th rowspan="2">Panel</th>
-                                        <th rowspan="2">Mode of Inheritance</th>
-                                        <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding-top: 5px">Classification</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Gene</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Transcript</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Consequence Type</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Disease Panel<br>Mode of Inheritance</th>
+                                        <th rowspan="2" style="padding: 2px 5px">Automatic<br>Prediction</th>
+                                        <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding: 5px 5px">User Classification</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1" style="padding-top: 5px">ACMG</th>
-                                        <th rowspan="1">Clinical Significance</th>
                                         <th rowspan="1">Tier</th>
                                         ${review ? "<th rowspan=\"1\">Select</th>" : ""}
                                         ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
@@ -288,14 +158,13 @@ export default class VariantInterpreterGridFormatter {
             } else {
                 ctHtml += `<thead>
                                 <tr>
-                                    <th rowspan="2">Gene</th>
-                                    <th rowspan="2">Transcript</th>
-                                    <th rowspan="2">Consequence Type</th>
-                                    <th rowspan="2">Transcript Flags</th>
-                                    <th rowspan="2">Panel</th>
-                                    <th rowspan="2">Role in Cancer</th>
-                                    <th rowspan="2">Actionable</th>
-                                    <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding-top: 5px">Classification</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Gene</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Transcript</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Consequence Type</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Disease Panel<br>Mode of Inheritance</th>
+                                    <th rowspan="2" style="padding: 2px 5px">Role in Cancer</th>
+                                    <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding: 5px 5px">Classification</th>
                                 </tr>
                                 <tr>
                                     <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
@@ -366,7 +235,7 @@ export default class VariantInterpreterGridFormatter {
                                     <div style="margin: 5px 0px">
                                         ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
                                     </div>` : ""
-                                }
+                    }
                             </span>
                         </div>`;
                 }
@@ -392,14 +261,20 @@ export default class VariantInterpreterGridFormatter {
                         ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
                 }
 
-                let panel = "-";
+                let panelHtml = "-";
                 if (re.panelId) {
-                    panel = re.panelId;
-                }
-
-                let moi = "-";
-                if (re.modeOfInheritance) {
-                    moi = re.modeOfInheritance;
+                    const panel = variantGrid.opencgaSession?.study?.panels?.find(panel => panel.id === re.panelId);
+                    if (panel) {
+                        const gene = panel.genes.find(gene => gene.name === re.genomicFeature.geneName);
+                        panelHtml = `
+                            <div style="margin: 5px 0px">
+                                ${panel.id}
+                            </div>
+                            <div class="help-block">${gene.modeOfInheritance}</div>
+                        `;
+                    } else {
+                        panelHtml = re.panelId;
+                    }
                 }
 
                 let roleInCancer = "-";
@@ -407,14 +282,14 @@ export default class VariantInterpreterGridFormatter {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
                 }
 
-                let actionable = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.actionable) && re.actionable) {
-                    actionable = "Yes";
-                }
-
-                let acmg = "-";
+                let acmgPrediction = "-";
                 if (UtilsNew.isNotEmptyArray(re.classification.acmg)) {
-                    acmg = re.classification.acmg.join(", ");
+                    acmgPrediction = `
+                        <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
+                            ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
+                        </div>
+                        <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                    `;
                 }
 
                 let tier = "-";
@@ -425,35 +300,6 @@ export default class VariantInterpreterGridFormatter {
                     color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
                     color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
                     tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
-                }
-
-                let clinicalSignificance = "-";
-                if (re.classification.clinicalSignificance) {
-                    clinicalSignificance = re.classification.clinicalSignificance;
-                    switch (clinicalSignificance) {
-                        case "PATHOGENIC":
-                        case "PATHOGENIC_VARIANT":
-                        case "LIKELY_PATHOGENIC":
-                        case "LIKELY_PATHOGENIC_VARIANT":
-                            clinicalSignificance = `<span style='color: red'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        case "UNCERTAIN_SIGNIFICANCE":
-                        case "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE":
-                            clinicalSignificance = `<span style='color: darkorange'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        case "LIKELY_BENIGN":
-                        case "LIKELY_BENIGN_VARIANT":
-                        case "BENIGN":
-                        case "BENIGN_VARIANT":
-                            clinicalSignificance = `<span style='color: blue'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        case "NOT_ASSESSED":
-                            clinicalSignificance = `<span style='color: black'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        default:
-                            clinicalSignificance = "NA";
-                            break;
-                    }
                 }
 
                 let checboxHtml = "";
@@ -481,11 +327,9 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptHtml}</td>
                             <td>${soArray.join("")}</td>
                             <td>${transcriptFlagHtml.join("")}</td>
-                            <td>${panel}</td>
-                            <td>${moi}</td>
-                            <td>${actionable}</td>
-                            <td>${acmg}</td>
-                            <td>${clinicalSignificance}</td>
+                            <td>${panelHtml}</td>
+                            <td>${acmgPrediction}</td>
+                            <td>${tier}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
@@ -496,9 +340,8 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptHtml}</td>
                             <td>${soArray.join("")}</td>
                             <td>${transcriptFlagHtml.join("")}</td>
-                            <td>${panel}</td>
+                            <td>${panelHtml}</td>
                             <td>${roleInCancer}</td>
-                            <td>${actionable}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
@@ -942,7 +785,7 @@ export default class VariantInterpreterGridFormatter {
                                     <div class="form-group" style="margin: 2px 2px">
                                         <label class="col-md-4">File VCF call</label>
                                         <div class="col-md-8">${file?.call?.variantId ? file.call.variantId :
-                                            `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
+            `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin: 2px 2px">
@@ -957,7 +800,7 @@ export default class VariantInterpreterGridFormatter {
                                         <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
                                     </div>
                                     ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("") :
-                                        `<div class="form-group" style="margin: 2px 2px">
+            `<div class="form-group" style="margin: 2px 2px">
                                                 <label class="col-md-12">-</label>
                                            </div>`
         }

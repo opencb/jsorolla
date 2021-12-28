@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
@@ -163,6 +164,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Single Analyisis Configuration
+            // Empty disorder and samples field when remove item from proband field.
+            this.clinicalAnalysis = {...this.clinicalAnalysis, proband: {disorders: []}};
+            this.requestUpdate();
         }
     }
 
@@ -409,7 +415,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "table",
                             display: {
                                 // defaultLayout: "vertical",
-                                // errorMessage: "No proband selected",
+                                errorMessage: "No proband selected",
                                 errorClassName: "",
                                 columns: [
                                     {
@@ -424,7 +430,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                            render: fileIds => {
+                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("<br>");
+                                                return UtilsNew.renderHTML(`${fileVcfs}`);
+                                            },
                                         },
                                     },
                                     {
@@ -600,10 +609,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "table",
                             display: {
-                                // width: "12",
-                                // defaultLayout: "vertical",
-                                errorMessage: "No proband selected",
                                 errorClassName: "",
+                                errorMessage: "No proband selected",
                                 columns: [
                                     {
                                         title: "ID",
@@ -617,7 +624,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                            render: fileIds => html`${fileIds.join("\n")}`,
                                         },
                                     },
                                     {
