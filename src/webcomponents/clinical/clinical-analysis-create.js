@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
@@ -430,8 +431,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: fileIds => {
-                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("\n");
-                                                return html`${fileVcfs}`;
+                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("<br>");
+                                                return UtilsNew.renderHTML(`${fileVcfs}`);
                                             },
                                         },
                                     },
