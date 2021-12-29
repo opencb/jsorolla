@@ -26,18 +26,18 @@ import "../forms/toggle-switch.js";
  *
  * Usage:
  * <disease-panel-filter    .opencgaSession="${this.opencgaSession}"
- .diseasePanels="${this.opencgaSession.study.panels}"
- .panel="${this.preparedQuery.panel}"
- .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
- .panelConfidence="${this.preparedQuery.panelConfidence}"
- .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
- @filterChange="${e => this.onFilterChange({
-                                  panel: "panel",
-                                  panelModeOfInheritance: "panelModeOfInheritance",
-                                  panelConfidence: "panelConfidence",
-                                  panelRoleInCancer: "panelRoleInCancer"
-                              }, e.detail)}">
- </disease-panel-filter>
+.diseasePanels="${this.opencgaSession.study.panels}"
+.panel="${this.preparedQuery.panel}"
+.panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
+.panelConfidence="${this.preparedQuery.panelConfidence}"
+.panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
+@filterChange="${e => this.onFilterChange({
+                                panel: "panel",
+                                panelModeOfInheritance: "panelModeOfInheritance",
+                                panelConfidence: "panelConfidence",
+                                panelRoleInCancer: "panelRoleInCancer"
+                            }, e.detail)}">
+</disease-panel-filter>
  */
 export default class DiseasePanelFilter extends LitElement {
 
@@ -201,6 +201,7 @@ export default class DiseasePanelFilter extends LitElement {
                             .multiple="${this.multiple}"
                             .classes="${this.classes}"
                             .disabled="${this.disabled}"
+                            separator="\n"
                             @filterChange="${e => this.filterChange(e, "panel")}">
                         </select-field-filter>
                     </div>
