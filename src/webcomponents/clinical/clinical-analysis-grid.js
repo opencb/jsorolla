@@ -323,6 +323,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
         `;
     }
 
+    removeRowTable(clinicalAnalysisId) {
+        this.table.bootstrapTable("remove", {
+            field: "id",
+            values: clinicalAnalysisId
+        });
+    }
+
     onActionClick(e, _, row) {
         const {action} = e.currentTarget.dataset;
 
@@ -349,7 +356,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Case '${clinicalAnalysisId}' has been deleted.`,
                         });
-                        this.renderTable();
+                        // this.renderTable();
+                        this.removeRowTable(clinicalAnalysisId);
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
