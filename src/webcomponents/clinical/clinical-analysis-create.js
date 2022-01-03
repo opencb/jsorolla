@@ -84,7 +84,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.opencgaSession?.user?.id
             },
             dueDate: moment().format("YYYYMMDDHHmmss"),
-            comments: [],
             _users: this._users
         };
     }
@@ -126,13 +125,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 } else {
                     delete this.clinicalAnalysis[field];
                 }
-                break;
-            case "_comments":
-                this.clinicalAnalysis.comments = [
-                    {
-                        message: e.detail.value
-                    }
-                ];
                 break;
             default:
                 this.clinicalAnalysis[param] = e.detail.value;
@@ -237,6 +229,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onSubmit() {
         // Prepare the data for the REST create
         const data = {...this.clinicalAnalysis};
+
         // remove private fields
         delete data._users;
 
@@ -249,6 +242,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.clinicalAnalysis.family.id,
                 members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
             };
+        }
+
+        // Fix comments field --> convert to array of messages
+        if (data.comments) {
+            data.comments = [
+                {message: data.comments},
+            ];
         }
 
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
@@ -673,15 +673,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Comment",
-                            field: "_comments",
+                            field: "comments",
                             type: "input-text",
                             defaultValue: "",
                             display: {
                                 rows: 2,
-                                placeholder: "Initial comment..."
-                                // render: comments => html`
-                                //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
-                            }
+                                placeholder: "Initial comment...",
+                            },
                         }
                     ]
                 }
