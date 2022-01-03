@@ -83,7 +83,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             analyst: {
                 id: this.opencgaSession?.user?.id
             },
-            dueDate: moment().format("YYYYMMDDHHmmss"),
+            // dueDate: moment().format("YYYYMMDDHHmmss"),
             _users: this._users
         };
     }
@@ -249,6 +249,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
             data.comments = [
                 {message: data.comments},
             ];
+        }
+
+        // Clear dueDate field if not provided a valid value
+        if (!data.dueDate) {
+            delete data.dueDate;
         }
 
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
