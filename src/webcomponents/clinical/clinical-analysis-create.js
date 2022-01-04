@@ -159,7 +159,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Single Analyisis Configuration
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {...this.clinicalAnalysis, proband: {disorders: []}};
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
             this.requestUpdate();
         }
     }
@@ -195,10 +198,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             // Empty family fields
             this.clinicalAnalysis = {
                 ...this.clinicalAnalysis,
-                disorder: {},
-                proband: {
-                    disorders: [],
-                },
+                proband: null,
                 family: null,
             };
             this.requestUpdate();
@@ -222,6 +222,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty disorder and samples field when remove item from proband field.
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -591,6 +598,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         {
                             title: "Select Proband",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <individual-id-autocomplete
@@ -609,7 +617,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
