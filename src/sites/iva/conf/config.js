@@ -32,12 +32,8 @@ const hosts = [
     },
     {
         id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga"
-    },
-    {
-        id: "eglh-uat",
-        url: "https://uat.eglh.app.zettagenomics.com/opencga"
-    },
+        url: "https://ws.opencb.org/opencga-pipelines"
+    }
 ];
 
 const opencga = {

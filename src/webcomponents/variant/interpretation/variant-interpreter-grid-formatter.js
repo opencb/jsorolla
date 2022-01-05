@@ -69,7 +69,7 @@ export default class VariantInterpreterGridFormatter {
         }
     }
 
-    static predictionFormatter(value, row, index) {
+    static predictionFormatter(value, row) {
         if (!row.evidences) {
             return "-";
         }
@@ -195,28 +195,8 @@ export default class VariantInterpreterGridFormatter {
                            <tbody>`;
             }
 
-            // FIXME Maybe this should happen in the server?
-            // let consequenceTypeSet = new Set();
-            // if (variantGrid.query?.ct) {
-            //     consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
-            // }
-
             for (let i = 0; i < newEvidences.length; i++) {
                 const re = newEvidences[i];
-
-                // FIXME Maybe this should happen in the server?
-                // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
-                // if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
-                //     let hasConsequenceType = false;
-                //     for (const ct of re.consequenceTypeIds) {
-                //         if (consequenceTypeSet.has(ct)) {
-                //             hasConsequenceType = true;
-                //         }
-                //     }
-                //     if (!hasConsequenceType) {
-                //         continue;
-                //     }
-                // }
 
                 // Prepare data info for columns
                 let geneHtml = "-";
@@ -296,8 +276,8 @@ export default class VariantInterpreterGridFormatter {
                                     `<div style="margin: 5px 0">${panel.id}</div>`
                                 }
                             </div>
-                            <div class="help-block" style="margin: 5px 0" title="Mode of Inheritance">${gene.modeOfInheritance}</div>
-                            <div style="color: ${confidenceColor}" title="Confidence">${gene.confidence}</div>
+                            <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
+                            <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
                         `;
                     } else {
                         panelHtml = re.panelId;
@@ -305,17 +285,20 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let roleInCancer = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
+                if (re.roleInCancer) {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
                 }
 
                 let acmgPrediction = "-";
-                if (re.classification?.acmg?.length > 0) {
+                if (re.classification?.clinicalSignificance || re.classification?.acmg?.length > 0) {
                     acmgPrediction = `
-                        <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
-                            ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
-                        </div>
-                        <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                        ${re.classification?.clinicalSignificance ? `
+                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
+                            </div>
+                        ` : ""
+                        }
+                        <div class="help-block">${re.classification.acmg?.join(", ")}</div>
                     `;
                 }
 
@@ -337,9 +320,10 @@ export default class VariantInterpreterGridFormatter {
                     // }
                     checboxHtml = `<input type="checkbox" ${checked}>`;
                 }
+
                 const editButtonLink = `
-                        <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
-                            <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>Edit
+                        <button class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton" data-variant-id="${row.id}" data-variant-evidence="${re}">
+                            <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
                         </button>`;
 
                 // Create the table row
