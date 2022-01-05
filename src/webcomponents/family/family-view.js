@@ -138,6 +138,7 @@ export default class FamilyView extends LitElement {
                     this.requestUpdate();
                     this.notify(error);
                 });
+            this.familyId = "";
         }
     }
 

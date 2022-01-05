@@ -91,6 +91,7 @@ export default class CohortView extends LitElement {
                     this.requestUpdate();
                     this.notify(error);
                 });
+            this.cohortId = "";
         }
     }
 

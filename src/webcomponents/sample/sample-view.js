@@ -64,7 +64,6 @@ export default class SampleView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
-            console.log("Loading...");
             this.isLoading = true;
             this.sampleIdObserver();
         }
@@ -78,6 +77,7 @@ export default class SampleView extends LitElement {
 
     sampleIdObserver() {
         if (this.sampleId && this.opencgaSession) {
+            console.log("loading: ", this.sampleId);
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
@@ -99,6 +99,7 @@ export default class SampleView extends LitElement {
                     this.requestUpdate();
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
                 });
+            this.sampleId = "";
         }
     }
 

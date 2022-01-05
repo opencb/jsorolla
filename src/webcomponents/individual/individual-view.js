@@ -91,6 +91,7 @@ export default class IndividualView extends LitElement {
                     this.requestUpdate();
                     this.notify(error);
                 });
+            this.individualId = "";
         }
     }
 
