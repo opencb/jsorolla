@@ -117,18 +117,14 @@ export default class StudyFilter extends LitElement {
         }
 
         return html`
-           <!-- <select class="form-control input-sm ${this._prefix}FilterSelect" id="${this._prefix}includeOtherStudy"
-                    @change="${this.onChangeOperator}">
+            <!-- <select class="form-control input-sm \${this._prefix}FilterSelect" id="\${this._prefix}includeOtherStudy"
+                    @change="\${this.onChangeOperator}">
                     <option value="in" selected>In all (AND)</option>
                     <option value="atleast">In any of (OR)</option>
                 </select>
-                <input type="checkbox" value="${this.opencgaSession.study.alias}" data-id="${this.opencgaSession.study.id}" checked disabled>
-                <span style="font-weight: bold;font-style: italic;color: darkred">${this.opencgaSession.study.alias}</span>
-                ${this.differentStudies && this.differentStudies.length ? this.differentStudies.map(study => html`
-                    <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.fqn}" class="${this._prefix}FilterCheckBox" .checked="${~this.selectedStudies.indexOf(study.fqn)}" >
-                     ${study.alias}
-                 `) : null}
-           -->
+                <input type="checkbox" value="\${this.opencgaSession.study.alias}" data-id="\${this.opencgaSession.study.id}" checked disabled>
+                <span style="font-weight: bold;font-style: italic;color: darkred">\${this.opencgaSession.study.alias}</span>
+            -->
 
             <div id="${this._prefix}DifferentStudies" class="form-group">
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"

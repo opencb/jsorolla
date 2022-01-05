@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
@@ -63,7 +64,6 @@ export default class SampleView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
-            console.log("Loading...");
             this.isLoading = true;
             this.sampleIdObserver();
         }
@@ -77,6 +77,7 @@ export default class SampleView extends LitElement {
 
     sampleIdObserver() {
         if (this.sampleId && this.opencgaSession) {
+            console.log("loading: ", this.sampleId);
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
@@ -98,6 +99,7 @@ export default class SampleView extends LitElement {
                     this.requestUpdate();
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
                 });
+            this.sampleId = "";
         }
     }
 
@@ -140,7 +142,7 @@ export default class SampleView extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Summary",
             icon: "",
             display: {
@@ -275,7 +277,7 @@ export default class SampleView extends LitElement {
                     ]
                 }
             ]
-        };
+        });
     }
 
 }

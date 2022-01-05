@@ -48,6 +48,15 @@ const CLINICAL_SIGNIFICANCE = [
     }
 ];
 
+const CLINICAL_SIGNIFICANCE_SETTINGS = {
+    NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
+    BENIGN: {id: "B", code: 1, color: "green"},
+    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+    UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
+    LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
+    PATHOGENIC: {id: "P", code: 5, color: "red"}
+};
+
 // const MODE_OF_INHERITANCE = ["AUTOSOMAL_DOMINANT", "AUTOSOMAL_RECESSIVE", "X_LINKED_DOMINANT", "X_LINKED_RECESSIVE", "Y_LINKED", "MITOCHONDRIAL"];
 const MODE_OF_INHERITANCE = [
     {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
@@ -67,7 +76,7 @@ const CONSEQUENCE_TYPES = {
         // This is the impact color. It allows to customise both the impact categories and desired colors
         high: "red",
         moderate: "darkorange",
-        low: "#5d91a2",
+        low: "blue",
         modifier: "green"
     },
 

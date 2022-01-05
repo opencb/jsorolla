@@ -215,7 +215,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             <div class="panel-group">
                 <!--
                     <pre style="font-size: 10px;height: 25vh;">
-                        ${JSON.stringify(this.config.sections, null, "\t")}
+                        \${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
@@ -233,7 +233,11 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                                  <div class="panel-body">
                                      <div class="row">
                                          ${section.parameters && section.parameters.length ? section.parameters.map(param => html`
-                                             <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                             <opencga-analysis-tool-form-field
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .cellbaseClient=${this.cellbaseClient}
+                                                .config="${param}" @fieldChange="${this.onFieldChange}">
+                                            </opencga-analysis-tool-form-field>
                                          `) : null }
                                      </div>
                                  </div>

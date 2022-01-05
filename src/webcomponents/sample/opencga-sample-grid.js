@@ -22,6 +22,7 @@ import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class OpencgaSampleGrid extends LitElement {
 
@@ -428,9 +429,8 @@ export default class OpencgaSampleGrid extends LitElement {
                 }
             })
             .catch(response => {
-                console.log(response);
-                // UtilsNew.notifyError(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                // console.log(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

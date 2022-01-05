@@ -72,7 +72,7 @@ export default class VariantGenomeBrowser extends LitElement {
     }
 
     _init() {
-        //this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        // this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         if (UtilsNew.isEmpty(this._prefix)) {
             this._prefix = `VarGenBrowser${UtilsNew.randomString(6)}`;
         }
@@ -114,7 +114,7 @@ export default class VariantGenomeBrowser extends LitElement {
     _hasFilesSamples() {
         let result = false;
         if (UtilsNew.isNotEmptyArray(this.samplesWithFiles)) {
-            let someWithfiles = this.samplesWithFiles.some((element) => {
+            const someWithfiles = this.samplesWithFiles.some(element => {
                 return UtilsNew.isNotEmptyArray(element.files);
             });
             result = someWithfiles;
@@ -134,7 +134,7 @@ export default class VariantGenomeBrowser extends LitElement {
                 settings = {};
             }
             const samples = [];
-            this.samples.forEach((sample) => {
+            this.samples.forEach(sample => {
                 samples.push(sample.id);
             });
             const query = {
@@ -144,17 +144,17 @@ export default class VariantGenomeBrowser extends LitElement {
                 include: "id,name,path,samples"
             };
             const _this = this;
-            let _samplesWithFiles = [];
-            let currentFilesSelectedAlignment = new Set();
-            let currentFilesSelectedNameAlignment = [];
+            const _samplesWithFiles = [];
+            const currentFilesSelectedAlignment = new Set();
+            const currentFilesSelectedNameAlignment = [];
             this.opencgaClient.files()
                 .search(query)
-                .then((response) => {
+                .then(response => {
                     if (UtilsNew.isNotEmptyArray(response.response[0].result)) {
 
-                        _this.samples.forEach((sampleSelected) => {
+                        _this.samples.forEach(sampleSelected => {
                             const filesSamples = [];
-                            response.response[0].result.forEach((file) => {
+                            response.response[0].result.forEach(file => {
                                 const containSample = file.samples.some(sampleFile => sampleFile.id === sampleSelected.id);
                                 if (containSample) {
                                     file.checked = false;
@@ -178,7 +178,7 @@ export default class VariantGenomeBrowser extends LitElement {
                     _this._filesSelectedAlignmentName = currentFilesSelectedNameAlignment;
                     _this.samplesWithFiles = _samplesWithFiles;
 
-//                            _this._files = currentFilesSelectedAlignment;
+                    //                            _this._files = currentFilesSelectedAlignment;
                     _this.tracks.alignment.config.files = _this._filesSelectedAlignment;
                     _this.tracks.alignment.config.filesName = _this._filesSelectedAlignmentName;
                     _this.tracks.variant.config.samples = _this.samples;
@@ -187,16 +187,16 @@ export default class VariantGenomeBrowser extends LitElement {
                     // Update sampleswithfiles to show in checkbox
 
                     // Update _samples to render variant track
-//                            _this._samples = _this.samples;
+                    //                            _this._samples = _this.samples;
 
                 })
-                .catch((response) => {
+                .catch(response => {
                     console.log(response);
                 });
         } else {
-//                    this._samples = [];
-//                    this._files = [];
-            let _tracks = {
+            //                    this._samples = [];
+            //                    this._files = [];
+            const _tracks = {
                 sequence: {type: "sequence"},
                 gene: {type: "gene"},
                 variant: {type: "variant"},
@@ -208,8 +208,8 @@ export default class VariantGenomeBrowser extends LitElement {
 
     render() {
         this.variant = ""; // Empty the variant every time the grid is loaded
-        if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.opencgaSession !== "undefined"
-            && typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
+        if (typeof this.opencgaClient !== "undefined" && this.opencgaClient instanceof OpenCGAClient && typeof this.opencgaSession !== "undefined" &&
+            typeof this.opencgaSession.project !== "undefined" && typeof this.opencgaSession.study !== "undefined" && typeof this.opencgaSession.study.alias !== "undefined") {
             const urlQueryParams = this._getUrlQueryParams();
             const queryParams = urlQueryParams.queryParams;
             let _numTotal = -1;
@@ -379,12 +379,12 @@ export default class VariantGenomeBrowser extends LitElement {
     toggleSelection(e) {
         if (UtilsNew.isNotUndefinedOrNull(e.target)) {
             let idFile = e.target.getAttribute("data-file-id");
-            let filename = e.target.getAttribute("data-file-name");
+            const filename = e.target.getAttribute("data-file-name");
             if (UtilsNew.isNotUndefinedOrNull(idFile)) {
                 idFile = parseInt(idFile);
                 if (this._filesSelectedAlignment.has(idFile)) {
                     this._filesSelectedAlignment.delete(idFile);
-                    let filesSelectedAlignmentName = [];
+                    const filesSelectedAlignmentName = [];
                     this._filesSelectedAlignmentName.forEach((element, index) => {
                         if (idFile !== index) {
                             filesSelectedAlignmentName[index] = element;
@@ -403,7 +403,7 @@ export default class VariantGenomeBrowser extends LitElement {
 
     render_NEW() {
         return html`
-        <!--<div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="padding: 10px">-->
+        <!--<div class="alert alert-warning" role="alert" id="\${this._prefix}Warning" style="padding: 10px">-->
         <!--<span style="font-weight: bold;font-size: 1.20em">Warning!</span>&nbsp;&nbsp;Genome Browser is not fully integrated yet, this is just a prototype.-->
         <!--</div>-->
 
@@ -432,7 +432,7 @@ export default class VariantGenomeBrowser extends LitElement {
                     <div style="padding-left: 20px">
                         ${this.existsSamplesWithfiles ? html`
                             ${this.samplesWithFiles && this.samplesWithFiles.length ? this.samplesWithFiles.map(sample => html`
-                                ${this.sample.files.map( file => html`
+                                ${this.sample.files.map(file => html`
                                     <input type="checkbox" style="padding-left: 25px" class="${this._prefix}FileCheckbox"
                                            data-file-id="${file.id}" @change="${this.toggleSelection}"
                                            .checked="${file.checked}" data-file-name="${file.name}" >
@@ -460,19 +460,21 @@ export default class VariantGenomeBrowser extends LitElement {
                        style="padding: 0px 0px"></table>
             </div>
             <div class="" style="width: 80%;float: right;padding: 0px 5px">
-                <genome-browser .cellbaseClient="${this.cellbaseClient}"
-                                .opencgaClient="${this.opencgaClient}"
-                                .species="${this.species}"
-                                .region="${this.region}"
-                                .tracks="${this.tracks}"
-                                .study="${this.opencgaSession.study}"
-                                .project="${this.opencgaSession.project}"
-                                .active="${this.active}"
-                                .width="${this.genomeBrowserWidth}">
+                <genome-browser
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .opencgaClient="${this.opencgaClient}"
+                    .species="${this.species}"
+                    .region="${this.region}"
+                    .tracks="${this.tracks}"
+                    .study="${this.opencgaSession.study}"
+                    .project="${this.opencgaSession.project}"
+                    .active="${this.active}"
+                    .width="${this.genomeBrowserWidth}">
                 </genome-browser>
             </div>
         </div>`;
     }
+
 }
 
 customElements.define("variant-genome-browser", VariantGenomeBrowser);

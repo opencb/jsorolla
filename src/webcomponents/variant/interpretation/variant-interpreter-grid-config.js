@@ -98,6 +98,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
+            validation: {
+                validate: data => {
+                    return data.geneSet?.ensembl || data.geneSet?.refseq;
+                }
+            },
             display: {
                 width: 10,
                 titleVisible: false,
@@ -122,7 +127,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "Select the Gene Set to be displayed",
                             display: {
                                 containerStyle: "margin: 5px 5px 5px 0px",
-                                visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
+                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version === "v5"
                             }
                         },
                         {

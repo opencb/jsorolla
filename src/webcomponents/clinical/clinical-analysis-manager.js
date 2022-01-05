@@ -15,6 +15,7 @@
  */
 
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisManager {
 
@@ -100,14 +101,14 @@ export default class ClinicalAnalysisManager {
         })
             .then(() => {
                 // Notify interpretation saved
-                LitUtils.dispatchCustomEvent(this.ctx, "notifySuccess", null, {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     // title: "Interpretation Saved",
                     message: `Changed primary interpretation to '${interpretationId}'.`,
                 });
                 callback(this.clinicalAnalysis);
             })
             .catch(response => {
-                LitUtils.dispatchCustomEvent(this.ctx, "notifyResponse", response);
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -158,7 +159,7 @@ export default class ClinicalAnalysisManager {
         })
             .then(() => {
                 // Notify
-                LitUtils.dispatchCustomEvent(this.ctx, "notifySuccess", null, {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     // title: "Interpretation saved",
                     message: "The interpretation has been updated.",
                 });
@@ -169,7 +170,7 @@ export default class ClinicalAnalysisManager {
             })
             .catch(response => {
                 // console.error(response);
-                LitUtils.dispatchCustomEvent(this.ctx, "notifyResponse", response);
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -185,7 +186,7 @@ export default class ClinicalAnalysisManager {
             study: this.opencgaSession.study.fqn,
         })
             .then(() => {
-                LitUtils.dispatchCustomEvent(this.ctx, "notifySuccess", {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     // title: "Interpretation Created",
                     message: "The new interpretation has been created.",
                 });
@@ -193,7 +194,7 @@ export default class ClinicalAnalysisManager {
             })
             .catch(response => {
                 // console.error("An error occurred creating an interpretation: ", restResponse);
-                LitUtils.dispatchCustomEvent(this.ctx, "notifyResponse", response);
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -202,14 +203,14 @@ export default class ClinicalAnalysisManager {
             study: this.opencgaSession.study.fqn,
         })
             .then(() => {
-                LitUtils.dispatchCustomEvent(this.ctx, "notifySuccess", null, {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Interpretation '${interpretationId}' cleared.`,
                 });
                 callback(this.clinicalAnalysis);
             })
             .catch(response => {
                 // console.error("An error occurred clearing an interpretation: ", restResponse);
-                LitUtils.dispatchCustomEvent(this.ctx, "notifyResponse", response);
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -218,14 +219,14 @@ export default class ClinicalAnalysisManager {
             study: this.opencgaSession.study.fqn
         })
             .then(() => {
-                LitUtils.dispatchCustomEvent(this.ctx, "notifySuccess", null, {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Interpretation '${interpretationId}' deleted.`,
                 });
                 callback(this.clinicalAnalysis);
             })
             .catch(response => {
                 // console.error("An error occurred deleting an interpretation: ", restResponse);
-                LitUtils.dispatchCustomEvent(this.ctx, "notifyResponse", response);
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -235,7 +236,7 @@ export default class ClinicalAnalysisManager {
             primaryFindingsAction: "REPLACE",
         })
             .then(() => {
-                LitUtils.dispatchCustomEvent(this.ctx, "notifySuccess", null, {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     // title: "Variant Updated",
                     message: `Variant '${variant.id}' has been updated.`,
                 });
@@ -243,7 +244,7 @@ export default class ClinicalAnalysisManager {
             })
             .catch(response => {
                 // console.error("An error occurred deleting an interpretation: ", restResponse);
-                LitUtils.dispatchCustomEvent(this.ctx, "notifyResponse", response);
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 

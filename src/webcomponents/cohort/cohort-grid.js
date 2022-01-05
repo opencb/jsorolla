@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
 export default class CohortGrid extends LitElement {
@@ -264,8 +264,7 @@ export default class CohortGrid extends LitElement {
                 }
             })
             .catch(response => {
-                // console.log(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

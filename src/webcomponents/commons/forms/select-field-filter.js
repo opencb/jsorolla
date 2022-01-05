@@ -76,6 +76,9 @@ export default class SelectFieldFilter extends LitElement {
             size: {
                 type: Number,
             },
+            separator: {
+                type: String,
+            },
             // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -91,11 +94,16 @@ export default class SelectFieldFilter extends LitElement {
         this.classes = "";
         this.elm = this._prefix + "selectpicker";
         this.size = 20; // Default size
+        this.separator = ","; // Default separator
     }
 
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
-        this.selectPicker.selectpicker("val", "");
+        this.selectPicker.selectpicker({
+            val: "",
+            multipleSeparator: this.separator
+        });
+        // this.selectPicker.selectpicker("val", "");
     }
 
     updated(changedProperties) {

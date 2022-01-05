@@ -82,8 +82,8 @@ export default class OpencgaTranscriptView extends LitElement {
             this.transcriptChanged();
         }
 
-        if (changedProperties.has("settings")) {
-        }
+        // if (changedProperties.has("settings")) {
+        // }
         /* if(changedProperties.has("project") || changedProperties.has("study")) {
             this.projectStudyObtained();
         }*/
@@ -209,8 +209,7 @@ export default class OpencgaTranscriptView extends LitElement {
                         <tr>
                             <td class="transcript-summary-title">Genome Browser</td>
                             <td>
-                                <a target="_blank"
-                                   href="http://genomemaps.org/?region=${this.transcriptObj.chromosome}:${this.transcriptObj.start}-${this.transcriptObj.end}">
+                                <a target="_blank" href=${`http://genomemaps.org/?region=${this.transcriptObj.chromosome}:${this.transcriptObj.start}-${this.transcriptObj.end}`}>
                                     ${this.transcriptObj.chromosome}:${this.transcriptObj.start}-${this.transcriptObj.end}
                                 </a>
                             </td>
@@ -252,31 +251,34 @@ export default class OpencgaTranscriptView extends LitElement {
                 <br>
                 <br>
 
-                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
-                                                  .query="${this.query}"
-                                                  .populationFrequencies="${this.populationFrequencies}"
-                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                  .consequenceTypes="${this.consequenceTypes}"
-                                                  .config="${this.config}"
-                                                  @selectrow="${this.onSelectVariant}">
+                <variant-browser-grid
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.query}"
+                    .populationFrequencies="${this.populationFrequencies}"
+                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                    .consequenceTypes="${this.consequenceTypes}"
+                    .config="${this.config}"
+                    @selectrow="${this.onSelectVariant}">
                 </variant-browser-grid>
 
                 ${this.checkVariant(this.variantId) ? html`
                     <!-- Bottom tabs with specific variant information -->
-                        <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}"
-                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                    .variantId="${this.variantId}"
-                                                    .config="${this._config?.filter?.detail}">
+                        <opencga-variant-detail-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .variantId="${this.variantId}"
+                            .config="${this._config?.filter?.detail}">
                         </opencga-variant-detail-view>
                         <!--
-                        <h3 class="break-word">Advanced Annotation for Variant: ${this.variantId}</h3>
-                        <cellbase-variantannotation-view .data="${this.variantId}"
-                                                         .cellbaseClient="${this.cellbaseClient}"
-                                                         .assembly=${this.opencgaSession.project.organism.assembly}
-                                                         .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                         .populationFrequencies="${this.populationFrequencies}"
-                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                         .consequenceTypes="${this.consequenceTypes}">
+                        <h3 class="break-word">Advanced Annotation for Variant: \${this.variantId}</h3>
+                        <cellbase-variantannotation-view
+                            .data="\${this.variantId}"
+                            .cellbaseClient="\${this.cellbaseClient}"
+                            .assembly=\${this.opencgaSession.project.organism.assembly}
+                            .hashFragmentCredentials="\${this.hashFragmentCredentials}"
+                            .populationFrequencies="\${this.populationFrequencies}"
+                            .proteinSubstitutionScores="\${this.proteinSubstitutionScores}"
+                            .consequenceTypes="\${this.consequenceTypes}">
                         </cellbase-variantannotation-view> -->
                     </div>
                 ` : null}
@@ -284,12 +286,13 @@ export default class OpencgaTranscriptView extends LitElement {
 
             ${false ? html`
                 <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
-                    <variant-protein-view .opencgaClient="${this.opencgaClient}"
-                                          .cellbaseClient="${this.cellbaseClient}"
-                                          .project="${this.project}"
-                                          .study="${this.study}"
-                                          .ids="${this.transcriptObj.id}"
-                                          .config="${this.config.protein}">
+                    <variant-protein-view
+                        .opencgaClient="${this.opencgaClient}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .project="${this.project}"
+                        .study="${this.study}"
+                        .ids="${this.transcriptObj.id}"
+                        .config="${this.config.protein}">
                     </variant-protein-view>
                 </div>
             ` : null}

@@ -18,6 +18,8 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/disease-panel-filter.js";
@@ -78,24 +80,19 @@ export default class ClinicalInterpretationCreate extends LitElement {
         if (changedProperties.has("interpretation")) {
             this.interpretationObserver();
         }
-
         if (changedProperties.has("interpretationId")) {
             this.interpretationIdObserver();
         }
-
         if (changedProperties.has("opencgaSession")) {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
         }
-
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -112,8 +109,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     this.interpretation = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                    // console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         }
     }
@@ -162,9 +159,12 @@ export default class ClinicalInterpretationCreate extends LitElement {
         const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
         const id = this.interpretation.id;
 
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, data, {study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, data, {
+            study: this.opencgaSession.study.fqn,
+            panelsAction: "SET",
+        })
             .then(() => {
-                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical interpretation updated",
                     message: `The clinical interpretation ${id} has been updated successfully`,
                 });
@@ -172,8 +172,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 this.onClear();
             })
             .catch(response => {
-                console.error(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                // console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 

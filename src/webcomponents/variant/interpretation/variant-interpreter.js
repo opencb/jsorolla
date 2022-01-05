@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -32,6 +31,7 @@ import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -103,7 +103,7 @@ class VariantInterpreter extends LitElement {
 
     opencgaSessionObserver() {
         if (this.opencgaSession?.study?.fqn) {
-            // With each property change we must updated config and create the columns again. No extra checks are needed.
+            // With each property change we must update config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
             this._changeView(this._config?.tools[0].id);
@@ -120,42 +120,13 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            // this._config = {...this._config, loading: true};
-            // this.requestUpdate();
-            // await this.updateComplete;http://localhost:3000/src/sites/iva/index.html#interpreter/rd_grch38/panel/C-NA12878-NA12878-TWE-N-EGG4_S32_L001
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    // FIXME delete soon!
-                    const _clinicalAnalysis = response.responses[0].results[0];
-                    if (_clinicalAnalysis.panels) {
-                        const panelIdToPanel = {};
-                        _clinicalAnalysis.panels.forEach(panel => panelIdToPanel[panel.id] = panel);
-                        if (_clinicalAnalysis?.interpretation?.panels) {
-                            _clinicalAnalysis.interpretation.panels.forEach(panel => {
-                                panel.name = panelIdToPanel[panel.id].name;
-                                panel.source = panelIdToPanel[panel.id].source;
-                            });
-                        }
-                        for (const secondaryInterpretation of _clinicalAnalysis.secondaryInterpretations) {
-                            secondaryInterpretation.panels.forEach(panel => {
-                                panel.name = panelIdToPanel[panel.id].name;
-                                panel.source = panelIdToPanel[panel.id].source;
-                            });
-                        }
-                    }
-                    this.clinicalAnalysis = _clinicalAnalysis;
-                    // FIXME Replace horrible code above by this one:
-                    // this.clinicalAnalysis = response.responses[0].results[0];
+                    this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    // console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
-            // .finally(async () => {
-            // this._config = {...this._config, loading: false};
-            // await this.updateComplete;
-            // this.requestUpdate();
-            // });
         } else {
             this.clinicalAnalysis = null;
         }
@@ -189,9 +160,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {
-            study: this.opencgaSession.study.fqn,
-        })
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn,})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -208,12 +177,29 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisRefresh = () => {
         this.onClinicalAnalysisUpdate().then(() => {
-            // new NotificationQueue().push("Clinical analysis refreshed.", "", "info");
-            LitUtils.dispatchCustomEvent(this, "notifyInfo", null, {
-                message: "Clinical analysis refreshed"
-            }, null);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
+                message: "Clinical analysis refreshed",
+            });
         });
     }
+
+    onClinicalAnalysisLock = () => {
+        const id = this.clinicalAnalysis.id;
+        const updateParams = {
+            locked: !this.clinicalAnalysis.locked,
+        };
+
+        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {study: this.opencgaSession.study.fqn})
+            .then(() => this.onClinicalAnalysisUpdate())
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Case '${id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    };
 
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
@@ -291,7 +277,13 @@ class VariantInterpreter extends LitElement {
                 ${this.clinicalAnalysis?.id ? html`
                     <tool-header
                         icon="${this._config.icon}"
-                        .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
+                        .title="${`
+                            ${this._config.title}
+                            <span class="inverse">
+                                Case ${this.clinicalAnalysis?.id}
+                                ${this.clinicalAnalysis.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
+                            </span>
+                        `}"
                         .rhs="${html`
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
@@ -327,6 +319,12 @@ class VariantInterpreter extends LitElement {
                                             `)}
                                             <li role="separator" class="divider"></li>
                                         ` : null}
+                                        <li>
+                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
+                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"}
+                                            </a>
+                                        </li>
                                         <li>
                                             <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
                                                 <i class="fa fa-sync icon-padding"></i> Refresh
@@ -368,8 +366,8 @@ class VariantInterpreter extends LitElement {
                                     ${this._config?.tools?.map(item => html`
                                         ${!item.hidden ? html`
                                             <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                                href="javascript: void 0" data-view="${item.id}"
-                                                @click="${this.onClickSection}">
+                                               href="javascript: void 0" data-view="${item.id}"
+                                               @click="${this.onClickSection}">
                                                 <div class="hi-icon ${item.icon}"></div>
                                                 <p>${item.title}</p>
                                                 <span class="smaller"></span>

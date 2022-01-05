@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../loading-spinner.js";
@@ -90,6 +91,7 @@ export default class IndividualView extends LitElement {
                     this.requestUpdate();
                     this.notify(error);
                 });
+            this.individualId = "";
         }
     }
 
@@ -126,7 +128,7 @@ export default class IndividualView extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             title: "Summary",
             icon: "",
             display: {
@@ -177,7 +179,7 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => html`
-                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})    
+                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
                                 `,
                             },
                         },
@@ -322,7 +324,7 @@ export default class IndividualView extends LitElement {
                     ]
                 }
             ]
-        };
+        });
     }
 
 }

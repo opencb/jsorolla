@@ -19,7 +19,9 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/disease-panel-filter.js";
+
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class ClinicalInterpretationCreate extends LitElement {
 
@@ -106,6 +108,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     id: e.detail.value
                 };
                 break;
+            case "status.id":
+                this.interpretation.status = {
+                    id: e.detail.value,
+                };
+                break;
             case "panels.id":
                 const [field, prop] = param.split(".");
                 if (e.detail.value) {
@@ -146,18 +153,20 @@ export default class ClinicalInterpretationCreate extends LitElement {
         // remove private fields
         const data = {...this.interpretation};
 
-        this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {study: this.opencgaSession.study.fqn})
-            .then(response => {
-                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+        this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {
+            study: this.opencgaSession.study.fqn
+        })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical Interpretation created",
-                    message: `The clinical interpretation ${response.responses[0].results[0].id} has been created successfully`,
-                }, null);
+                    // message: `The clinical interpretation ${response.responses[0].results[0].id} has been created successfully`,
+                    message: "The new clinical interpretation has been created successfully",
+                });
                 this.notifyClinicalAnalysisWrite();
                 this.onClear();
             })
             .catch(response => {
-                // console.error(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 

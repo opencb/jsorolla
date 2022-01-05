@@ -41,7 +41,7 @@ import "../cohort/cohort-detail.js";
 import "../job/job-grid.js";
 import "../job/opencga-job-filter.js";
 import "../job/opencga-job-detail.js";
-import "../job/job-browser.js";
+// import "../job/job-browser.js";
 import "../job/job-timeline.js";
 import "../clinical/clinical-analysis-grid.js";
 import "../clinical/clinical-analysis-browser-filter.js";

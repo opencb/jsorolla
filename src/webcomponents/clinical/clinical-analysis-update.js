@@ -25,7 +25,9 @@ import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
+
 import LitUtils from "../commons/utils/lit-utils";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 class ClinicalAnalysisUpdate extends LitElement {
 
@@ -129,7 +131,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     postUpdate(response) {
-        LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
             message: "Case info updated successfully",
         });
 
@@ -143,9 +145,11 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     onFieldChange(e) {
+        console.log(e.detail);
         switch (e.detail.param) {
             case "locked":
             case "panelLock":
+            case "dueDate":
             case "description":
                 this.updateParams = FormUtils
                     .updateScalar(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
@@ -197,8 +201,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                     this.postUpdate(response);
                 })
                 .catch(response => {
-                    LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    // console.error("An error occurred updating clinicalAnalysis: ", response);
                 });
         } else {
             this.updateOrDeleteComments(true);
@@ -402,9 +406,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "dueDate",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
-                            }
+                            },
                         }
                     ]
                 },

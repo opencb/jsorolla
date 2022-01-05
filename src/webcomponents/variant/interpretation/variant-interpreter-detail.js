@@ -21,6 +21,7 @@ import "../annotation/variant-consequence-type-view.js";
 import "../annotation/variant-annotation-clinical-view.js";
 import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
+import "../variant-samples.js";
 import "../../commons/view/detail-tabs.js";
 
 export default class VariantInterpreterDetail extends LitElement {
@@ -89,6 +90,24 @@ export default class VariantInterpreterDetail extends LitElement {
                     };
                 });
         }
+    }
+
+    render() {
+        if (!this.variant?.annotation) {
+            return html`<h3>Error: No valid variant or annotation</h3>`;
+        }
+
+        if (!this._config?.items) {
+            return html`<h3>Error: No valid tab configuration</h3>`;
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.variant}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
     }
 
     getDefaultConfig() {
@@ -169,14 +188,13 @@ export default class VariantInterpreterDetail extends LitElement {
                 {
                     id: "samples",
                     name: "Samples",
-                    render: (variant, active, opencgaSession) => {
-                        return html`
-                            <opencga-variant-samples
-                                    .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
-                                    .active="${active}">
-                            </opencga-variant-samples>`;
-                    }
+                    render: (variant, active, opencgaSession) => html`
+                        <variant-samples
+                            .opencgaSession="${opencgaSession}"
+                            .variantId="${variant.id}"
+                            .active="${active}">
+                        </variant-samples>
+                    `,
                 },
                 {
                     id: "beacon",
@@ -206,23 +224,6 @@ export default class VariantInterpreterDetail extends LitElement {
                 // }
             ]
         };
-    }
-
-    render() {
-        if (!this.variant?.annotation) {
-            return html`<h3>Error: No valid variant or annotation</h3>`;
-        }
-
-        if (!this._config?.items) {
-            return html`<h3>Error: No valid tab configuration</h3>`;
-        }
-
-        return html`
-            <detail-tabs
-                    .data="${this.variant}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>`;
     }
 
 }

@@ -15,14 +15,15 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import FormUtils from "../commons/forms/form-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -82,8 +83,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             analyst: {
                 id: this.opencgaSession?.user?.id
             },
-            dueDate: moment().format("YYYYMMDDHHmmss"),
-            comments: [],
+            // dueDate: moment().format("YYYYMMDDHHmmss"),
             _users: this._users
         };
     }
@@ -126,13 +126,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     delete this.clinicalAnalysis[field];
                 }
                 break;
-            case "_comments":
-                this.clinicalAnalysis.comments = [
-                    {
-                        message: e.detail.value
-                    }
-                ];
-                break;
             default:
                 this.clinicalAnalysis[param] = e.detail.value;
                 break;
@@ -163,6 +156,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Single Analyisis Configuration
+            // Empty disorder and samples field when remove item from proband field.
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -193,6 +194,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty family fields
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+                family: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -213,6 +222,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty disorder and samples field when remove item from proband field.
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -231,6 +247,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onSubmit() {
         // Prepare the data for the REST create
         const data = {...this.clinicalAnalysis};
+
         // remove private fields
         delete data._users;
 
@@ -245,9 +262,21 @@ export default class ClinicalAnalysisCreate extends LitElement {
             };
         }
 
+        // Fix comments field --> convert to array of messages
+        if (data.comments) {
+            data.comments = [
+                {message: data.comments},
+            ];
+        }
+
+        // Clear dueDate field if not provided a valid value
+        if (!data.dueDate) {
+            delete data.dueDate;
+        }
+
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
-            .then(response => {
-                LitUtils.dispatchCustomEvent(this, "notifySuccess", null, {
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
                     message: `The clinical analysis ${data.id} has been created successfully`,
                 });
@@ -255,8 +284,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 this.onClear();
             })
             .catch(response => {
-                console.error(response);
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", response);
+                // console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -398,7 +427,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
@@ -410,7 +438,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "table",
                             display: {
                                 // defaultLayout: "vertical",
-                                // errorMessage: "No proband selected",
+                                errorMessage: "No proband selected",
                                 errorClassName: "",
                                 columns: [
                                     {
@@ -425,7 +453,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                            render: fileIds => {
+                                                const fileVcfs = fileIds.filter(file => file.includes(".vcf")).join("<br>");
+                                                return UtilsNew.renderHTML(`${fileVcfs}`);
+                                            },
                                         },
                                     },
                                     {
@@ -448,6 +479,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Select Family",
                             field: "family.id",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <family-id-autocomplete
@@ -460,11 +492,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     </family-id-autocomplete>
                                 `,
                             },
-                        },
-                        {
-                            title: "Select Family",
-                            field: "family.id",
-                            type: "basic",
                         },
                         {
                             title: "Select Proband",
@@ -481,7 +508,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
@@ -493,7 +519,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "table",
                             display: {
                                 width: 12,
-                                defaultLayout: "vertical",
+                                // defaultLayout: "vertical",
                                 errorMessage: "No family selected",
                                 errorClassName: "",
                                 columns: [
@@ -550,7 +576,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                defaultLayout: "vertical",
+                                // defaultLayout: "vertical",
                                 // visible: data => application.appConfig === "opencb", // TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
@@ -572,6 +598,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         {
                             title: "Select Proband",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <individual-id-autocomplete
@@ -590,7 +617,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
@@ -601,10 +627,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "proband.samples",
                             type: "table",
                             display: {
-                                // width: "12",
-                                // defaultLayout: "vertical",
-                                errorMessage: "No proband selected",
                                 errorClassName: "",
+                                errorMessage: "No proband selected",
                                 columns: [
                                     {
                                         title: "ID",
@@ -618,7 +642,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         field: "fileIds",
                                         type: "custom",
                                         display: {
-                                            render: fileIds => html`${fileIds.join("<br>")}`,
+                                            render: fileIds => html`${fileIds.join("\n")}`,
                                         },
                                     },
                                     {
@@ -664,21 +688,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Due Date",
                             field: "dueDate",
                             type: "input-date",
-                            display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
-                            }
                         },
                         {
                             title: "Comment",
-                            field: "_comments",
+                            field: "comments",
                             type: "input-text",
                             defaultValue: "",
                             display: {
                                 rows: 2,
-                                placeholder: "Initial comment..."
-                                // render: comments => html`
-                                //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
-                            }
+                                placeholder: "Initial comment...",
+                            },
                         }
                     ]
                 }

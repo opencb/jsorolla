@@ -108,14 +108,14 @@ export default class ClinicalInterpretationView extends LitElement {
 
             const table = $("#" + this._prefix + "mainTable");
             const _this = this;
-            table.on("expand-row.bs.table", function(e, index, row, $detail) {
+            table.on("expand-row.bs.table", function (e, index, row, $detail) {
                 const res = _this.detailFormatter(index, row);
                 $detail.html(res);
                 console.log("row expanded", e, index);
             });
 
             // Add click event to "Add to Report" button
-            PolymerUtils.querySelectorAll(".interpretation-add-to-report").forEach(elem => elem.addEventListener("click", function(e) {
+            PolymerUtils.querySelectorAll(".interpretation-add-to-report").forEach(elem => elem.addEventListener("click", function (e) {
                 _this.onAddVariantToReport(e.target.dataset.variantId);
                 e.stopPropagation();
             }, true));
@@ -299,17 +299,17 @@ export default class ClinicalInterpretationView extends LitElement {
         $("#" + this._prefix + "mainTable").bootstrapTable({
             data: _this.interpretation.reportedVariants,
             columns: _this.cols,
-            onPageChange: function(page, size) {
+            onPageChange: function (page, size) {
                 _this.from = (page - 1) * size + 1;
                 _this.to = page * size;
             },
-            onClickRow: function(row, $element) {
+            onClickRow: function (row, $element) {
                 $(".success").removeClass("success");
                 $($element).addClass("success");
                 _this._onSelectVariant(row);
                 _this.regionGenomeBrowser = new Region({chromosome: row.chromosome, start: row.start, end: row.end});
             },
-            onPostBody: function(data) {
+            onPostBody: function (data) {
                 if (UtilsNew.isNotUndefinedOrNull(_table)) {
                     PolymerUtils.querySelector(_table.selector).rows[2].setAttribute("class", "success");
                     _this._onSelectVariant(data[0]);
@@ -397,25 +397,25 @@ export default class ClinicalInterpretationView extends LitElement {
     zigosityFormatter(value, row, index) {
         let res = "";
         if (UtilsNew.isNotUndefinedOrNull(row.studies)) {
-            let left; let right;
+            let left, right;
             if (UtilsNew.isNotUndefinedOrNull(row.studies[0]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData) &&
                 UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx]) && UtilsNew.isNotUndefinedOrNull(row.studies[0].samplesData[this.field.memberIdx][0])) {
                 switch (row.studies[0].samplesData[this.field.memberIdx][0]) {
-                case "0/0":
-                case "0|0":
-                    left = "white";
-                    right = "white";
-                    break;
-                case "0/1":
-                case "1/0":
-                    left = "black";
-                    right = "white";
-                    break;
-                case "1/1":
-                case "1|1":
-                    left = "black";
-                    right = "black";
-                    break;
+                    case "0/0":
+                    case "0|0":
+                        left = "white";
+                        right = "white";
+                        break;
+                    case "0/1":
+                    case "1/0":
+                        left = "black";
+                        right = "white";
+                        break;
+                    case "1/1":
+                    case "1|1":
+                        left = "black";
+                        right = "black";
+                        break;
                 }
             }
             res = `<table>
@@ -468,7 +468,7 @@ export default class ClinicalInterpretationView extends LitElement {
             UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.subjects) && UtilsNew.isNotEmptyArray(this.interpretation.clinicalAnalysis.subjects))) {
             const zigosityIdx = 5;
             let members = [];
-            if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0 ) {
+            if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0) {
                 members = this.interpretation.clinicalAnalysis.family.members;
             } else {
                 members.push(this.interpretation.clinicalAnalysis.subjects[0]);
@@ -578,7 +578,7 @@ export default class ClinicalInterpretationView extends LitElement {
     }
 
     _toArray(obj) {
-        return Object.keys(obj).map(function(key) {
+        return Object.keys(obj).map(function (key) {
             const spacers= [",", ";"];
             return {
                 name: key,
@@ -592,7 +592,7 @@ export default class ClinicalInterpretationView extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById(this._prefix + "PedigreeView"))) {
             PolymerUtils.innerHTML(this._prefix + "PedigreeView", "");
         }
-        if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0 ) {
+        if (UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis.family) && this.interpretation.clinicalAnalysis.family.id > 0) {
             //                    if (UtilsNew.isNotUndefined(this.svg)) {
             //                        PolymerUtils.getElementById(this._prefix + "PedigreeView").removeChild(this.svg);
             //                    }
@@ -693,11 +693,11 @@ export default class ClinicalInterpretationView extends LitElement {
                                                             </div>
                                                             <!--<div class="form-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">File:</label>-->
-                                                            <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.germline.name}</span>-->
+                                                            <!--<span class="col-md-8">\${this.interpretation.clinicalAnalysis.germline.name}</span>-->
                                                             <!--</div>-->
                                                             <!--<div class="form-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Genome Assembly:</label>-->
-                                                            <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.germline.assembly}</span>-->
+                                                            <!--<span class="col-md-8">\${this.interpretation.clinicalAnalysis.germline.assembly}</span>-->
                                                             <!--</div>-->
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-4">Somatic:</label>
@@ -706,14 +706,14 @@ export default class ClinicalInterpretationView extends LitElement {
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-4">Phenotypes:</label>
                                                                 <span class="col-md-8">
-                                                                    ${this.interpretation.clinicalAnalysis.subjects[0].samples[0].phenotypes.map( phenotype => html`
+                                                                    ${this.interpretation.clinicalAnalysis.subjects[0].samples[0].phenotypes.map(phenotype => html`
                                                                         <span>${phenotype.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${phenotype.id}" target="_blank">${phenotype.id}</a>)</span>
                                                                     `) }
                                                                 </span>
                                                             </div>
                                                             <!--<div class="form-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Description:</label>-->
-                                                            <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.subjects[0].samples[0].description}</span>-->
+                                                            <!--<span class="col-md-8">\${this.interpretation.clinicalAnalysis.subjects[0].samples[0].description}</span>-->
                                                             <!--</div>-->
                                                         </form>
                                                     </div>
@@ -753,7 +753,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                             </div>
                                                             <!--<div class="form-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Description:</label>-->
-                                                            <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.subjects[0].description}</span>-->
+                                                            <!--<span class="col-md-8">\${this.interpretation.clinicalAnalysis.subjects[0].description}</span>-->
                                                             <!--</div>-->
                                                         </form>
                                                     </div>
@@ -768,7 +768,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-4">Phenotypes:</label>
                                                                 <span class="col-md-8">
-                                                                        ${this.interpretation.clinicalAnalysis.family.phenotypes && this.interpretation.clinicalAnalysis.family.phenotypes.length ? this.interpretation.clinicalAnalysis.family.phenotypes.map( item => html`
+                                                                        ${this.interpretation.clinicalAnalysis.family.phenotypes && this.interpretation.clinicalAnalysis.family.phenotypes.length ? this.interpretation.clinicalAnalysis.family.phenotypes.map(item => html`
                                                                             <span>${this.item.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}" target="_blank">${this.item.id}</a>)</span>
                                                                             <br>
                                                                         `) : null}
@@ -839,7 +839,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-4">Dependencies:</label>
                                                                 <span class="col-md-8">
-                                                                        ${this.interpretation.versions && this.interpretation.versions.length ? this.interpretation.versions.map( item => html`
+                                                                        ${this.interpretation.versions && this.interpretation.versions.length ? this.interpretation.versions.map(item => html`
                                                                             <span>${this.item.name} (v${this.item.version})</span>
                                                                         `) : null }
                                                                     </span>
@@ -850,7 +850,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                         <label>Variant Filters</label>
                                                         <hr style="margin: 2px 0px;border-top: 2px solid #eee">
                                                         <form class="form-horizontal">
-                                                            ${this._toArray(this.interpretation.filters).map( item => html`
+                                                            ${this._toArray(this.interpretation.filters).map(item => html`
                                                                 <div class="form-group" style="margin: 0px 2px">
                                                                     <label class="col-md-4">${item.name}:</label>
                                                                     <span class="col-md-8">${item.value}</span>
@@ -981,7 +981,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                         </a>
                                     </li>
                                     <!--<li role="presentation">-->
-                                    <!--<a href="#${this._prefix}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
+                                    <!--<a href="#\${this._prefix}Genotype" role="tab" data-toggle="tab" class="clinical-bottom-tab-title">-->
                                     <!--Genotype Stats-->
                                     <!--</a>-->
                                     <!--</li>-->
@@ -1019,7 +1019,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                     </div>
 
                                     <!--&lt;!&ndash; Genotypes & Files Tab &ndash;&gt;-->
-                                    <!--<div id="${this._prefix}Genotype" role="tabpanel" class="tab-pane">-->
+                                    <!--<div id="\${this._prefix}Genotype" role="tabpanel" class="tab-pane">-->
                                     <!--Under construction.-->
                                     <!--</div>-->
 
@@ -1030,16 +1030,16 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 <thead>
                                                 <tr>
                                                     <th>VCF Attribute</th>
-                                                    ${this.interpretation.clinicalAnalysis.family.members.map( member => html`
+                                                    ${this.interpretation.clinicalAnalysis.family.members.map(member => html`
                                                         <th>${member.name}</th>
                                                     `)}
                                                 </tr>
                                                 </thead>
                                                 <tbody id="${this._prefix}TableTBody">
-                                                ${this._getFileMetricsArray(this.variantObj.studies[0].files).map( attrs => html`
+                                                ${this._getFileMetricsArray(this.variantObj.studies[0].files).map(attrs => html`
                                                     <tr id="${attrs.name}" class="file-metrics-table-${attrs.name}">
                                                         <td><span style="font-weight: bold">${attrs.name}</span></td>
-                                                        ${attrs.values.map( attr => html`
+                                                        ${attrs.values.map(attr => html`
                                                             <td>${attr}</td>
                                                         `) }
                                                     </tr>
@@ -1068,8 +1068,8 @@ export default class ClinicalInterpretationView extends LitElement {
                                     <!-- Genome Browser -->
                                     <div role="tabpanel" class="tab-pane" id="${this._prefix}GenomeBrowser">
                                         <div class="" style="padding: 0px 5px">
-                                            <!--<variant-genome-browser project="${this.project}" study="${this.study}" samples="${this.samples}" active="${this._genomeBrowserActive}"-->
-                                            <!--opencga-client="${this.opencgaClient}" cellbase-client="${this.cellbaseClient}" region="${this.regionGenomeBrowser}">-->
+                                            <!--<variant-genome-browser project="\${this.project}" study="\${this.study}" samples="\${this.samples}" active="\${this._genomeBrowserActive}"-->
+                                            <!--opencga-client="\${this.opencgaClient}" cellbase-client="\${this.cellbaseClient}" region="\${this.regionGenomeBrowser}">-->
                                             <!--</variant-genome-browser>-->
                                             <genome-browser .cellbaseclient="${this.cellbaseClient}"
                                                             .opencgaClient="${this.opencgaClient}"

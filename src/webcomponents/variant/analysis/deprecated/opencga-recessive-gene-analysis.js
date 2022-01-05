@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import "../opencga-knockout-analysis-result.js";
-import UtilsNew from "../../../../core/utilsNew.js";
+import {html} from "lit";
+import AnalysisConfig from "../analysis-config.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../../commons/utils/notification-utils.js";
 
 // this class will be in config folder
+/**
+ * @deprecated
+ */
 class OpencgaRecessiveGeneAnalysisConfig {
 
     static get() {
@@ -179,7 +182,7 @@ class OpencgaRecessiveGeneAnalysisConfig {
 export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
 
     constructor(config) {
-        this._config = {...OpencgaRecessiveGeneAnalysisConfig.get(), ...config};
+        this._config = {...AnalysisConfig.opencgaRecessiveGene(), ...config};
     }
 
     get config() {
@@ -203,8 +206,7 @@ export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
             .then(restResponse => {
             })
             .catch(e => {
-                // UtilsNew.notifyError(e)
-                LitUtils.dispatchCustomEvent(this, "notifyResponse", e);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             });
     }
 

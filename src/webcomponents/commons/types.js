@@ -8,7 +8,7 @@ export default class Types {
     **/
 
     /**
-    * ! Deprecated
+    * ! DEPRECATED
     * Help type definitions
     * @typedef {Object} Help
     * @property {string} icon - indicate the mode of the help
@@ -69,10 +69,10 @@ export default class Types {
     * @typedef {Object} DisplayForm
     * @property {string} className -
     * @property {string} style - add a style for the display
-    * @property {string} buttonClassName -
-    * @property {string} buttonStyle -
-    * @property {boolean} buttonVisible -
-    * @property {string} buttonLayout -
+    * @property {string} buttonsClassName -
+    * @property {string} buttonsStyle -
+    * @property {boolean} buttonsVisible -
+    * @property {string} buttonsLayout -
     * @property {string} buttonsWidth -
     * @property {string} buttonsAlign -
     * @property {string} buttonOkText - text for the ok buttons
@@ -82,7 +82,6 @@ export default class Types {
     * @property {string} [defaultWidth] - add a default value for display
     * @property {string} [defaultLayout] - add a default value for display
     * @property {Layout} layout -
-    * @property {number} labelWidth - add a with for the display
     * @property {number} width -
     * @property {string} errorIcon -
     * @property {string} errorMessage -
@@ -90,8 +89,7 @@ export default class Types {
     * @property {string} titleClassName -
     * @property {string} titleStyle -
     * @property {boolean} titleVisible -
-    * @property {string} titleWidth -
-    * @property {string} showTitle -
+    * @property {number} titleWidth - add a with for the display
     * @property {string} modalWidth -
     * @property {boolean} modalDisabled  -
     * @property {string} modalButtonClassName  -
@@ -101,7 +99,7 @@ export default class Types {
     /**
     * Display type definitions
     * @typedef {Object} DisplaySection
-    * @property {number} labelWidth - add a with for the display
+    * @property {number} titleWidth - add a with for the display
     * @property {string} errorIcon -
     * @property {string} errorMessage -
     * @property {string} helpIcon - show a help for the display
@@ -139,11 +137,10 @@ export default class Types {
     * @property {string} [defaultLayout] - add a default value for display
     * @property {string} width -
     * @property {string} [defaultWidth] - add a default value for display
-    * @property {string} labelAlign - add a label align for the display
-    * @property {number} labelWidth - add a with for the display
-    * @property {string} labelClassName -
-    * @property {string} labelStyle - add a style for the display
-    * @property {string} titleAlign -
+    * @property {string} titleAlign - add a label align for the display
+    * @property {number} titleWidth - add a with for the display
+    * @property {string} titleClassName -
+    * @property {string} titleStyle - add a style for the display
     * @property {string} titleWidth -
     * @property {string} titleClassName -
     * @property {string} titleStyle -
@@ -172,7 +169,6 @@ export default class Types {
     /**
     * Element type definitions
     * @typedef {Object} Element Define the element that makes up a section
-    * @property {string} name - name of the element
     * @property {string} title - name of the element
     * @property {string} field - data name of element form
     * @property {elementType} type - type of element form
@@ -202,7 +198,7 @@ export default class Types {
      * @property {string} type - Define the type to the data-form
      * @property {Button} buttons - Custom Config for the button to data-form
      * @property {DisplayForm} display - Custom Config for the display to data-form
-     * @property {Section[]} section - Define sections to teh config
+     * @property {Section[]} sections - Define sections to teh config
      * @property {Validation} validation - Define validation to the data-form
      */
 
@@ -229,7 +225,7 @@ export default class Types {
      * Represents a detail tabs config
      * @typedef {Object} TabsConfig - define the config for detail-tab
      * @property {string} title - the title of the detail-tab
-     * @property {boolean} showTitle -
+     * @property {boolean} titleVisible -
      * @property {Item[]} items - tabs
      */
 

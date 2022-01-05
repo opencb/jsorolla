@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 
 
-export default class ClinicalInterpretationVariantReview extends LitElement {
+export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
 
     constructor() {
         super();
@@ -41,35 +41,46 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             mode: {
                 type: String, // Values: form, modal
             },
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         this.updateParams = {};
-        this.mode = "form";
+        this.mode = "";
+
         this.variant = {};
-        this._config = this.getDefaultconfig();
+        // this.displayConfigDefault = {
+        //     modalButtonClassName: "btn-primary btn-sm",
+        //     buttonsAlign: "right",
+        //     buttonClearText: "Clear",
+        //     buttonOkText: "Update",
+        //     titleVisible: false,
+        //     titleAlign: "left",
+        //     titleWidth: 4,
+        //     defaultLayout: "horizontal"
+        // };
+        this.config = this.getDefaultconfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
-
         if (changedProperties.has("mode")) {
-            this.modeObserver();
+            this.config = this.getDefaultConfig();
         }
-
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
     variantObserver() {
         this.variant = this.variant || {}; // Prevent undefined variant review
-    }
-
-    modeObserver() {
-        this._config = this.getDefaultconfig();
     }
 
     onCommentChange(e) {
@@ -114,9 +125,9 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     render() {
         return html`
-            <data-form 
+            <data-form
                 .data="${this.variant}"
-                .config="${this._config}"
+                .config="${this.config}"
                 @fieldChange="${e => this.onSaveFieldChange(e)}">
             </data-form>
         `;
@@ -199,5 +210,5 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
 }
 
-customElements.define("clinical-interpretation-variant-review", ClinicalInterpretationVariantReview);
+customElements.define("clinical-interpretation-variant-evidence-review", ClinicalInterpretationVariantEvidenceReview);
 

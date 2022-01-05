@@ -67,13 +67,13 @@ export default class OpencgaAnalysisTool extends LitElement {
 
     onAnalysisRun(e) {
         // Execute function provided in the configuration
-        /*if (this.analysisClass.execute) {
+        /* if (this.analysisClass.execute) {
             this.analysisClass.execute(this.opencgaSession, e.detail.data, e.detail.params);
         } else {
             console.error(`No execute() function provided for analysis: ${this._config.id}`)
         }*/
 
-        //TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
+        // TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
         this.dispatchEvent(new CustomEvent("execute", {
             detail: e.detail
         }));
@@ -105,9 +105,13 @@ export default class OpencgaAnalysisTool extends LitElement {
 
         return html`
             <div class="opencga-analysis-tool">
-                <tool-header title="${this._config.title}" icon="${this._config.icon}" .rhs="${html`<button class="btn btn-default ripple" @click="${e => this.openModal()}"><i class="fas fa-info-circle"></i> Info</button>`}"></tool-header>
-                <!-- <tool-header title="${`<text-icon title="${this._config.title}" acronym="${this._config.acronym ? this._config.acronym : this._config.title[0] + this._config.title[1] + this._config.title[2].toLowerCase()}"></text-icon>` + this._config.title}"></tool-header> -->
-
+                <tool-header
+                    title="${this._config.title}"
+                    icon="${this._config.icon}"
+                    .rhs="${html`<button class="btn btn-default ripple"
+                    @click="${e => this.openModal()}">
+                    <i class="fas fa-info-circle"></i> Info</button>`}">
+                </tool-header>
                 <div class="container">
                     <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession}
                                                 .cellbaseClient="${this.cellbaseClient}"
