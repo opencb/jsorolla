@@ -159,7 +159,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Single Analyisis Configuration
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {...this.clinicalAnalysis, proband: {disorders: []}};
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
             this.requestUpdate();
         }
     }
@@ -191,6 +194,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty family fields
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+                family: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -211,6 +222,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty disorder and samples field when remove item from proband field.
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -461,6 +479,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Select Family",
                             field: "family.id",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <family-id-autocomplete
@@ -473,11 +492,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     </family-id-autocomplete>
                                 `,
                             },
-                        },
-                        {
-                            title: "Select Family",
-                            field: "family.id",
-                            type: "basic",
                         },
                         {
                             title: "Select Proband",
@@ -494,7 +508,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
@@ -506,7 +519,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "table",
                             display: {
                                 width: 12,
-                                defaultLayout: "vertical",
+                                // defaultLayout: "vertical",
                                 errorMessage: "No family selected",
                                 errorClassName: "",
                                 columns: [
@@ -563,7 +576,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                defaultLayout: "vertical",
+                                // defaultLayout: "vertical",
                                 // visible: data => application.appConfig === "opencb", // TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
@@ -585,6 +598,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         {
                             title: "Select Proband",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <individual-id-autocomplete
@@ -603,7 +617,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",

@@ -23,6 +23,7 @@ import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
+import "../variant-samples.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
 
@@ -727,14 +728,13 @@ class VariantInterpreterBrowserRd extends LitElement {
                         {
                             id: "samples",
                             name: "Samples",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <opencga-variant-samples
-                                        .opencgaSession="${opencgaSession}"
-                                        .variantId="${variant.id}"
-                                        .active="${active}">
-                                    </opencga-variant-samples>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-samples
+                                    .opencgaSession="${opencgaSession}"
+                                    .variantId="${variant.id}"
+                                    .active="${active}">
+                                </variant-samples>
+                            `,
                         },
                         {
                             id: "beacon",
