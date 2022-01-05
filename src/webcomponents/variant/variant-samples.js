@@ -107,13 +107,8 @@ export default class VariantSamples extends LitElement {
         }
     }
 
-    sexFormatter(value, row, index) {
-        // debugger
-        if (value) {
-            return `${value.sex} (${value.karyotypicSex})`;
-        } else {
-            return "-";
-        }
+    sexFormatter(value) {
+        return value ? `${value.sex?.id || ""} (${value.karyotypicSex})` : "-";
     }
 
     disorderFormatter(value, row, index) {
@@ -405,15 +400,15 @@ export default class VariantSamples extends LitElement {
     render() {
         return html`
             <div>
-                ${this.numSamples !== this.numUserTotalSamples ?
-                    html`
-                        <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>
-                            Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>${this.approximateCount === true ? html` (<i>please note this is an estimated number</i>)` : ""}, and
-                            your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
-                            Note that you might not have permission to view all samples for any variant.
-                        </div>` :
-                    null
-                }
+                ${this.numSamples !== this.numUserTotalSamples ? html`
+                    <div class="alert alert-warning">
+                        <i class="fas fa-3x fa-exclamation-circle align-middle"></i>
+                        Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>
+                        ${this.approximateCount === true ? html` (<i>please note this is an estimated number</i>)` : ""}, and
+                        your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
+                        Note that you might not have permission to view all samples for any variant.
+                    </div>
+                ` : null}
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
@@ -424,7 +419,7 @@ export default class VariantSamples extends LitElement {
                     <table id="${this._prefix}SampleTable"></table>
                 </div>
             </div>
-            `;
+        `;
     }
 
 }
