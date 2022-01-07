@@ -204,6 +204,39 @@ export default class RestEndpoint extends LitElement {
             });
     }
 
+    getUrlLinkModelClass(responseClass) {
+        // https://github.com/opencb/opencga/blob/develop/opencga-core/src/main/java/org/opencb/opencga/core/models/user/UserFilter.java
+        // https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/variantAnnotation.avdl
+        // https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/java/org/opencb/biodata/models/alignment/RegionCoverage.java
+
+        // org.opencb.biodata.models.variant.avro.VariantAnnotation;
+        // org.opencb.biodata.models.alignment.RegionCoverage;
+        // org.opencb.commons.datastore.core.QueryResponse;
+
+        if (responseClass.includes("opencb.opencga")) {
+            return `https://github.com/opencb/opencga/blob/develop/opencga-core/src/main/java/${responseClass.replaceAll(".", "/").replace(";", "")}.java`;
+        }
+
+        if (responseClass.includes("avro")) {
+            const response = responseClass.split(".");
+            const className = response[response.length - 1].replace(";", "");
+            const modelClassName = className => {
+                return className.charAt(0).toLowerCase() + className.slice(1);
+            };
+            return `https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/${modelClassName(className)}.avdl`;
+        }
+
+        if (responseClass.includes("opencb.biodata") && !responseClass.includes("avro")) {
+            return `https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/java/${responseClass.replaceAll(".", "/").replace(";", "")}.java`;
+        }
+    }
+
+    renderResponseClass(responseClass) {
+        return responseClass.includes("opencga") || responseClass.includes("biodata") ? html `
+            <a target="_blank" href="${this.getUrlLinkModelClass(this.endpoint.responseClass)}">${this.endpoint.responseClass}</a>
+            ` : html `${this.endpoint.responseClass}`;
+    }
+
     render() {
         if (!this.endpoint) {
             return;
@@ -229,7 +262,9 @@ export default class RestEndpoint extends LitElement {
                         </div>
                         <div>
                             <label>Response Class</label>
-                            <div>${this.endpoint.responseClass}</div>
+                            <div>
+                                ${this.renderResponseClass(this.endpoint.responseClass)}
+                            </div>
                         </div>
                     </div>
 
