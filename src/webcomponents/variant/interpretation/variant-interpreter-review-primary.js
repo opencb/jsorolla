@@ -228,6 +228,15 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     render() {
+        // No primary findings in interpretation --> display message
+        if (!this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
+            return html`
+                <div class="alert alert-warning">
+                    <b>Warning</b>: there are not variants or annotations for this clinical interpretation.
+                </div>
+            `;
+        }
+
         return html`
             <div class="pull-right save-button">
                 <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">
