@@ -465,7 +465,7 @@ const SUITE = {
                             name: "Case Portal",
                             acronym: "",
                             description: `
-                                <p>Analyse and create clinical Interpretations in current projects.</p>
+                                <p>Analyse and create clinical Interpretations in the current project.</p>
                                 <ul>
                                     <li>Filter by gene, consequence, frequency and much more.</li>
                                     <li>Create clinical interpretations and reports.</li>
