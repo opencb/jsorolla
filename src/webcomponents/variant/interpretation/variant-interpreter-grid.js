@@ -29,6 +29,7 @@ import "../../loading-spinner.js";
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import CacheUtils from "../../../core/cache/cache-utils";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -272,6 +273,13 @@ export default class VariantInterpreterGrid extends LitElement {
                         // unknownGenotype: "0/0"
                     };
 
+                    const key = JSON.stringify(filters);
+                    if (CacheUtils.contains(key)) {
+                        // debugger;
+                        params.success(CacheUtils.get(key));
+                        return;
+                    }
+
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
@@ -321,12 +329,14 @@ export default class VariantInterpreterGrid extends LitElement {
                                             }
                                         }
 
+                                        CacheUtils.put(key, res);
                                         params.success(res);
                                     })
                                     .catch(e =>{
                                         console.error(e);
                                     });
                             } else {
+                                CacheUtils.put(key, res);
                                 params.success(res);
                             }
                         })
@@ -1106,8 +1116,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onSaveVariant(e, variantId) {
         if (this.checkedVariants?.has(variantId)) {
-            this.clinicalAnalysisManager.updateVariant(this.checkedVariants.get(variantId), this.clinicalAnalysis.interpretation);
-            // this._variantChanged = null;
+            this.clinicalAnalysisManager.updateVariant(this.checkedVariants.get(variantId), this.clinicalAnalysis.interpretation, () => {
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: this.clinicalAnalysis,
+                });
+            });
         }
     }
 

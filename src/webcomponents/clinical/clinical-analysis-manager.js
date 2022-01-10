@@ -240,7 +240,9 @@ export default class ClinicalAnalysisManager {
                     // title: "Variant Updated",
                     message: `Variant '${variant.id}' has been updated.`,
                 });
-                // callback(this.clinicalAnalysis);
+                if (callback) {
+                    callback(this.clinicalAnalysis);
+                }
             })
             .catch(response => {
                 // console.error("An error occurred deleting an interpretation: ", restResponse);
