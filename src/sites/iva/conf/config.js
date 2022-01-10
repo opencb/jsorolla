@@ -245,11 +245,12 @@ const SUITE = {
                     visibility: "public",
                     featured: true,
                     description: `
-                                <p>Explore all variants identified by the current project</p>
-                                <ul>
-                                    <li>Rich annotation and links to leading reference databases</li>
-                                    <li>Filter by gene, consequence, frequency and much more</li>
-                                </ul>`,
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
                 },
                 {
                     id: "analysis",
@@ -465,7 +466,7 @@ const SUITE = {
                             name: "Case Portal",
                             acronym: "",
                             description: `
-                                <p>Analyse and create clinical Interpretations in the current project.</p>
+                                <p>Analyse and create clinical Interpretations in the current study.</p>
                                 <ul>
                                     <li>Filter by gene, consequence, frequency and much more.</li>
                                     <li>Create clinical interpretations and reports.</li>
