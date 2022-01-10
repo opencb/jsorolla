@@ -80,6 +80,7 @@ export default class RestEndpoint extends LitElement {
             const queryElements = [];
             const pathElements = [];
             const bodyElements = [];
+
             for (const parameter of this.endpoint.parameters) {
                 if (parameter.param === "body") {
                     if (!this.data.body) {
@@ -118,6 +119,21 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
+            queryElements.sort((fieldA, fieldB) => {
+                const fa = fieldA.name.toLowerCase();
+                const fb = fieldB.name.toLowerCase();
+
+                if (fa < fb) {
+                    return -1;
+                }
+                if (fa > fb) {
+                    return 1;
+                }
+                return 0;
+            });
+
+            const fieldElements = [...pathElements, ...queryElements];
+
             this.form = {
                 type: "form",
                 buttons: {
@@ -130,22 +146,28 @@ export default class RestEndpoint extends LitElement {
                     labelWidth: "3",
                     defaultLayout: "horizontal",
                 },
-                sections: [
-                    {
-                        title: "",
-                        display: {
-                        },
-                        elements: [...pathElements, ...queryElements]
-                    }
-                ]
+                sections: []
             };
+
+            if (fieldElements.length > 0) {
+                this.form.sections.push(
+                    {
+                        title: "Parameters",
+                        display: {
+                            // titleHeader: "h4",
+                            style: "margin-left: 20px"
+                        },
+                        elements: [...fieldElements]
+                    }
+                );
+            }
 
             if (bodyElements.length > 0) {
                 this.form.sections.push(
                     {
                         title: "Body",
                         display: {
-                            titleHeader: "h4",
+                            // titleHeader: "h4",
                             style: "margin-left: 20px"
                         },
                         elements: bodyElements
@@ -269,7 +291,7 @@ export default class RestEndpoint extends LitElement {
                     </div>
 
                     <div style="padding: 10px 10px">
-                        <h3>Parameters</h3>
+                        <!-- <h3>Parameters</h3> -->
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"
