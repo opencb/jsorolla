@@ -792,4 +792,14 @@ export default class UtilsNew {
         return stringArray;
     }
 
+    // Escape HTML characters from the provided string
+    static escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
 }
