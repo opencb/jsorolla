@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -327,6 +328,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        VariantUtils.validatePanelFilter(e.detail);
         this.query = {...e.detail};
         this.queryObserver();
     }
