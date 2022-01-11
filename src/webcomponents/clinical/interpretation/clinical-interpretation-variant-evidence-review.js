@@ -15,6 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
+import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 
 
@@ -35,7 +37,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             opencgaSession: {
                 type: Object,
             },
-            variant: {
+            variantEvidence: {
                 type: Object,
             },
             mode: {
@@ -50,24 +52,13 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     _init() {
         this.updateParams = {};
         this.mode = "";
-
-        this.variant = {};
-        // this.displayConfigDefault = {
-        //     modalButtonClassName: "btn-primary btn-sm",
-        //     buttonsAlign: "right",
-        //     buttonClearText: "Clear",
-        //     buttonOkText: "Update",
-        //     titleVisible: false,
-        //     titleAlign: "left",
-        //     titleWidth: 4,
-        //     defaultLayout: "horizontal"
-        // };
-        this.config = this.getDefaultconfig();
+        this.variantEvidence = {};
+        this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("variant")) {
-            this.variantObserver();
+        if (changedProperties.has("variantEvidence")) {
+            this.variantEvidenceObserver();
         }
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
@@ -79,96 +70,75 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         super.update(changedProperties);
     }
 
-    variantObserver() {
-        this.variant = this.variant || {}; // Prevent undefined variant review
-    }
-
-    onCommentChange(e) {
-        this.commentsUpdate = e.detail;
-
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
-        }
-
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
+    variantEvidenceObserver() {
+        this.variantEvidence = this.variantEvidence || {}; // Prevent undefined variant review
+        this._variantEvidence = JSON.parse(JSON.stringify(this.variantEvidence));
     }
 
     onSaveFieldChange(e) {
         switch (e.detail.param) {
-            case "status":
+            case "tier":
+            case "clinicalSignificance":
             case "discussion":
-                if (e.detail.value !== null) {
-                    this.variant[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
+                this.updateParams = FormUtils
+                    .updateObject(this._variantEvidence, this.variantEvidence, this.updateParams, e.detail.param, e.detail.value);
                 break;
         }
 
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
-        }
-
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
+        LitUtils.dispatchCustomEvent(this, "variantEvidenceChange", null, {
+            value: this.variantEvidence,
+            update: this.updateParams,
+        });
     }
 
     render() {
+        if (!this.variantEvidence) {
+            return null; // Noting to render
+        }
+
         return html`
             <data-form
-                .data="${this.variant}"
+                .data="${this.variantEvidence}"
                 .config="${this.config}"
                 @fieldChange="${e => this.onSaveFieldChange(e)}">
             </data-form>
         `;
     }
 
-    getDefaultconfig() {
+    getDefaultConfig() {
         const sections = [
             {
                 elements: [
                     {
-                        title: "Status",
-                        field: "status",
-                        type: "select",
-                        allowedValues: [
-                            "NOT_REVIEWED",
-                            "REVIEW_REQUESTED",
-                            "REVIEWED",
-                            "DISCARDED",
-                            "REPORTED"
-                        ],
+                        title: "Clinical Significance",
+                        field: "classification.clinicalSignificance",
+                        type: "input-text",
+                        display: {
+                            rows: 1,
+                        },
+                    },
+                    {
+                        title: "ACMG",
+                        type: "input-text",
+                        display: {
+                            rows: 1,
+                        },
+                    },
+                    {
+                        title: "Tier",
+                        field: "classification.tier",
+                        type: "input-text",
+                        display: {
+                            rows: 1,
+                        },
                     },
                     {
                         title: "Discussion",
-                        field: "discussion",
+                        field: "classification.discussion",
                         type: "input-text",
                         display: {
                             placeholder: "Add a discussion",
                             rows: 5,
-                        },
-                    },
-                    {
-                        title: "Comments",
-                        field: "comments",
-                        type: "custom",
-                        display: {
-                            render: comments => html`
-                                <clinical-analysis-comment-editor
-                                    .comments="${comments}"
-                                    @commentChange="${e => this.onCommentChange(e)}">
-                                </clinical-analysis-comment-editor>
-                            `,
                         },
                     },
                 ]

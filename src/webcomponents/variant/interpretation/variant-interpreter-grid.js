@@ -23,6 +23,7 @@ import GridCommons from "../../commons/grid-commons.js";
 import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-grid-config.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
@@ -366,8 +367,22 @@ export default class VariantInterpreterGrid extends LitElement {
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
+                    // Enable or disable evidence select
+                    Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+                        if (row.id === element.dataset.variantId) {
+                            // eslint-disable-next-line no-param-reassign
+                            element.disabled = !this.checkedVariants.has(row.id);
+                        }
+                    });
+
+                    // Enable or disable evidence edit and register event listeners
                     Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-                        element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                        if (row.id === element.dataset.variantId) {
+                            // Prevent editing evidences of not selected variants
+                            // eslint-disable-next-line no-param-reassign
+                            element.disabled = !this.checkedVariants.has(row.id);
+                            element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                        }
                     });
 
                     UtilsNew.initTooltip(this);
@@ -419,8 +434,22 @@ export default class VariantInterpreterGrid extends LitElement {
                 document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
+                // Enable or disable evidence select
+                Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+                    if (row.id === element.dataset.variantId) {
+                        // eslint-disable-next-line no-param-reassign
+                        element.disabled = !this.checkedVariants.has(row.id);
+                    }
+                });
+
+                // Enable or disable evidence edit and register event listeners
                 Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-                    element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                    if (row.id === element.dataset.variantId) {
+                        // Prevent editing evidences of not selected variants
+                        // eslint-disable-next-line no-param-reassign
+                        element.disabled = !this.checkedVariants.has(row.id);
+                        element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                    }
                 });
 
                 UtilsNew.initTooltip(this);
@@ -445,6 +474,23 @@ export default class VariantInterpreterGrid extends LitElement {
         // Set 'Edit' button as enabled/disabled
         document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
 
+        // Enable or disable evidences select
+        Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+            if (variant.id === element.dataset.variantId) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !this.checkedVariants.has(variant.id);
+            }
+        });
+
+        // Set 'Edit' button of evidences review as enabled/disabled
+        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+            if (variant.id === element.dataset.variantId) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !this.checkedVariants.has(variant.id);
+            }
+        });
+
+
         this.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 id: variantId,
@@ -467,6 +513,8 @@ export default class VariantInterpreterGrid extends LitElement {
     onVariantEvidenceReview(e) {
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.variantEvidence);
+            this.evidenceReview = this.variantReview.evidences[this.evidenceReviewIndex];
             this.requestUpdate();
 
             $("#" + this._prefix + "EvidenceReviewModal").modal("show");
@@ -1185,12 +1233,12 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Review Variant Evidence</h3>
                         </div>
-                        <clinical-interpretation-variant-review
+                        <clinical-interpretation-variant-evidence-review
                             .opencgaSession="${this.opencgaSession}"
-                            .variant="${this.variantReview}"
+                            .variantEvidence="${this.evidenceReview}"
                             .mode="${"form"}"
                             @variantChange="${e => this.onVariantEvidenceChange(e)}">
-                        </clinical-interpretation-variant-review>
+                        </clinical-interpretation-variant-evidence-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e, this.variantReview.id)}">
