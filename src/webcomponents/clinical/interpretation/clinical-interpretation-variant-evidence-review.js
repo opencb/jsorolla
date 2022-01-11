@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/filters/acmg-filter.js";
 import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
@@ -72,7 +73,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
     variantEvidenceObserver() {
         this.review = this.review || {}; // Prevent undefined clinical evidence review
-        this._review = JSON.parse(JSON.stringify(this.review));
+        this._review = UtilsNew.objectClone(this.review);
     }
 
     onFieldChange(e, field) {
@@ -110,6 +111,21 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                     @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
                                 </select-field-filter>
                             `,
+                            defaultValue: "",
+                        },
+                    },
+                    {
+                        title: "ACMG",
+                        type: "custom",
+                        field: "acmg",
+                        display: {
+                            render: acmg => html`
+                                <acmg-filter
+                                    .acmg="${acmg || []}"
+                                    @filterChange="${e => this.onFieldChange(e, "acmg")}">
+                                </acmg-filter>
+                            `,
+                            defaultValue: [],
                         },
                     },
                     {
