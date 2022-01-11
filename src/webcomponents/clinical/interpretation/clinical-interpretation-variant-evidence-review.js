@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
 
@@ -37,7 +37,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             opencgaSession: {
                 type: Object,
             },
-            variantEvidence: {
+            review: {
                 type: Object,
             },
             mode: {
@@ -52,7 +52,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     _init() {
         this.updateParams = {};
         this.mode = "";
-        this.variantEvidence = {};
+        this.review = {};
         this.config = this.getDefaultConfig();
     }
 
@@ -71,36 +71,25 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     variantEvidenceObserver() {
-        this.variantEvidence = this.variantEvidence || {}; // Prevent undefined variant review
-        this._variantEvidence = JSON.parse(JSON.stringify(this.variantEvidence));
+        this.review = this.review || {}; // Prevent undefined clinical evidence review
+        this._review = JSON.parse(JSON.stringify(this.review));
     }
 
-    onSaveFieldChange(e) {
-        switch (e.detail.param) {
-            case "tier":
-            case "clinicalSignificance":
-            case "discussion":
-                this.updateParams = FormUtils
-                    .updateObject(this._variantEvidence, this.variantEvidence, this.updateParams, e.detail.param, e.detail.value);
-                break;
-        }
+    onFieldChange(e, field) {
+        this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, field || e.detail.param, e.detail.value);
 
-        LitUtils.dispatchCustomEvent(this, "variantEvidenceChange", null, {
-            value: this.variantEvidence,
+        LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
+            value: this.review,
             update: this.updateParams,
         });
     }
 
     render() {
-        if (!this.variantEvidence) {
-            return null; // Noting to render
-        }
-
         return html`
             <data-form
-                .data="${this.variantEvidence}"
+                .data="${this.review}"
                 .config="${this.config}"
-                @fieldChange="${e => this.onSaveFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }
@@ -111,22 +100,21 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                 elements: [
                     {
                         title: "Clinical Significance",
-                        field: "classification.clinicalSignificance",
-                        type: "input-text",
+                        field: "clinicalSignificance",
+                        type: "custom",
                         display: {
-                            rows: 1,
-                        },
-                    },
-                    {
-                        title: "ACMG",
-                        type: "input-text",
-                        display: {
-                            rows: 1,
+                            render: clinicalSignificance => html`
+                                <select-field-filter
+                                    .data=${CLINICAL_SIGNIFICANCE}
+                                    .value=${clinicalSignificance}
+                                    @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
+                                </select-field-filter>
+                            `,
                         },
                     },
                     {
                         title: "Tier",
-                        field: "classification.tier",
+                        field: "tier",
                         type: "input-text",
                         display: {
                             rows: 1,
@@ -134,7 +122,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                     },
                     {
                         title: "Discussion",
-                        field: "classification.discussion",
+                        field: "discussion",
                         type: "input-text",
                         display: {
                             placeholder: "Add a discussion",
