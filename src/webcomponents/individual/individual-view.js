@@ -199,9 +199,9 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Reported Sex (Karyotypic)",
-                            type: "complex",
+                            type: "custom",
                             display: {
-                                template: "${sex.id} (${karyotypicSex})",
+                                render: data => `${data.sex?.id ?? data.sex ?? ""} (${data.karyotypicSex})`
                             }
                         },
                         {
