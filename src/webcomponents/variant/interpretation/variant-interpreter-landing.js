@@ -69,7 +69,7 @@ class VariantInterpreterLanding extends LitElement {
             this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
         }
 
-        this._config = this.getDefaultConfig();
+        // this._config = this.getDefaultConfig();
         super.update(changedProperties);
     }
 

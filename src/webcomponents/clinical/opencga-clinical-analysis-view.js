@@ -99,12 +99,12 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
     }
 
     render() {
-        return html`
+        return this.clinicalAnalysis ? html`
             <data-form
                 .data=${this.clinicalAnalysis}
                 .config="${this._config}">
             </data-form>
-        `;
+        ` : "";
     }
 
     getDefaultConfig() {
@@ -259,9 +259,9 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Sex (Karyotypic)",
-                            type: "complex",
+                            type: "custom",
                             display: {
-                                template: "${proband.sex.id} (${proband.karyotypicSex})"
+                                render: ({proband}) => `${proband.sex?.id ?? proband.sex ?? ""} (${proband.karyotypicSex})`
                             },
                         },
                         {

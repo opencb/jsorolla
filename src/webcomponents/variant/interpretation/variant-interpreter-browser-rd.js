@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -349,6 +350,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        VariantUtils.validatePanelFilter(e.detail);
         this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
         // this.preparedQuery = {...e.detail};
         // // TODO is this really needed? it seems to work without this line.
