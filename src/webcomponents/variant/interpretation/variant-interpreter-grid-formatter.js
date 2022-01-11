@@ -329,7 +329,7 @@ export default class VariantInterpreterGridFormatter {
                     <button
                         class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
                         data-variant-id="${row.id}"
-                        data-variant-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}">
                         <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
                     </button>
                 `;
