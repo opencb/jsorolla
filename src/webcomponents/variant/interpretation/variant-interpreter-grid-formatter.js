@@ -120,16 +120,17 @@ export default class VariantInterpreterGridFormatter {
             const transcriptMap = new Map();
             row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
             const newEvidences = [];
-            for (const evidence of row.evidences) {
+            row.evidences.forEach((evidence, index) => {
                 // we are missing regulatory variants
                 if (evidence.genomicFeature?.transcriptId) {
                     const newEvidence = {
+                        index,
                         ...evidence,
                         ...transcriptMap.get(evidence.genomicFeature.transcriptId)
                     };
                     newEvidences.push(newEvidence);
                 }
-            }
+            });
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, config).indexes;
 
             let message = "";
@@ -312,19 +313,17 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
                 }
 
-                let checboxHtml = "";
-                if (review) {
-                    const checked = "";
-                    // if (transcriptFlagChecked && tier !== "-") {
-                    //     checked = "checked";
-                    // }
-                    checboxHtml = `<input type="checkbox" ${checked}>`;
-                }
+                // Evidence selected checkbox
+                const checboxHtml = `
+                    <input type="checkbox" class="${variantGrid._prefix}EvidenceReviewCheckbox" data-variant-id="${row.id}" data-variant-evidence="${re.index}">
+                `;
 
+                // Evidence edit button
                 const editButtonLink = `
-                        <button class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton" data-variant-id="${row.id}" data-variant-evidence="${re}">
-                            <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
-                        </button>`;
+                    <button class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton" data-variant-id="${row.id}" data-variant-evidence="${re.index}">
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
+                    </button>
+                `;
 
                 // Create the table row
                 const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
