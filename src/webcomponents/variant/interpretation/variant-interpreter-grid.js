@@ -372,15 +372,19 @@ export default class VariantInterpreterGrid extends LitElement {
                         if (row.id === element.dataset.variantId) {
                             // eslint-disable-next-line no-param-reassign
                             element.disabled = !this.checkedVariants.has(row.id);
+                            element.addEventListener("change", e => this.onEvidenceCheck(e));
                         }
                     });
 
                     // Enable or disable evidence edit and register event listeners
                     Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
                         if (row.id === element.dataset.variantId) {
+                            const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                            const isEvidenceSelected = row.evidences[evidenceIndex]?.review?.selected || false;
+
                             // Prevent editing evidences of not selected variants
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !this.checkedVariants.has(row.id);
+                            element.disabled = !this.checkedVariants.has(row.id) || !isEvidenceSelected;
                             element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                         }
                     });
@@ -439,15 +443,19 @@ export default class VariantInterpreterGrid extends LitElement {
                     if (row.id === element.dataset.variantId) {
                         // eslint-disable-next-line no-param-reassign
                         element.disabled = !this.checkedVariants.has(row.id);
+                        element.addEventListener("change", e => this.onEvidenceCheck(e));
                     }
                 });
 
                 // Enable or disable evidence edit and register event listeners
                 Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
                     if (row.id === element.dataset.variantId) {
+                        const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                        const isEvidenceSelected = row.evidences[evidenceIndex]?.review?.selected || false;
+
                         // Prevent editing evidences of not selected variants
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !this.checkedVariants.has(row.id);
+                        element.disabled = !this.checkedVariants.has(row.id) || !isEvidenceSelected;
                         element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                     }
                 });
@@ -485,8 +493,10 @@ export default class VariantInterpreterGrid extends LitElement {
         // Set 'Edit' button of evidences review as enabled/disabled
         Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
             if (variant.id === element.dataset.variantId) {
+                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.selected || false;
                 // eslint-disable-next-line no-param-reassign
-                element.disabled = !this.checkedVariants.has(variant.id);
+                element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
             }
         });
 
@@ -501,6 +511,28 @@ export default class VariantInterpreterGrid extends LitElement {
         }));
     }
 
+    onEvidenceCheck(e) {
+        const variantId = e.currentTarget.dataset.variantId;
+        const evidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+        // Update clinical evidence review data
+        const evidence = this.checkedVariants.get(variantId).evidences[evidenceIndex];
+        // TODO: remove this check when the evidence review is implemented in OpenCGA
+        if (typeof evidence.review === "undefined") {
+            evidence.review = {};
+        }
+        evidence.review.selected = e.currentTarget.checked;
+
+        // Enable or disable evidence review edit
+        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+            const dataset = element.dataset;
+            if (variantId === dataset.variantId && parseInt(dataset.clinicalEvidenceIndex) === evidenceIndex) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !evidence.review.selected;
+            }
+        });
+    }
+
     onVariantReview(e) {
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
@@ -513,8 +545,10 @@ export default class VariantInterpreterGrid extends LitElement {
     onVariantEvidenceReview(e) {
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
-            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.variantEvidence);
-            this.evidenceReview = this.variantReview.evidences[this.evidenceReviewIndex];
+            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+            // Generate a clone of the evidence review to prevent changing original values
+            this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
             this.requestUpdate();
 
             $("#" + this._prefix + "EvidenceReviewModal").modal("show");
@@ -1147,9 +1181,14 @@ export default class VariantInterpreterGrid extends LitElement {
         this.checkedVariants?.set(e.detail.value.id, e.detail.value);
     }
 
-    onVariantEvidenceChange(e) {
-        // this._variantChanged = e.detail.value;
-        this.checkedVariants?.set(e.detail.value.id, e.detail.value);
+    onEvidenceReviewChange(e) {
+        // Update evidence review object
+        this.evidenceReview = e.detail.value;
+    }
+
+    onEvidenceReviewOk() {
+        // Update review object of the current variant
+        this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
     }
 
     onSaveVariant(e, variantId) {
@@ -1235,15 +1274,13 @@ export default class VariantInterpreterGrid extends LitElement {
                         </div>
                         <clinical-interpretation-variant-evidence-review
                             .opencgaSession="${this.opencgaSession}"
-                            .variantEvidence="${this.evidenceReview}"
+                            .review="${this.evidenceReview}"
                             .mode="${"form"}"
-                            @variantChange="${e => this.onVariantEvidenceChange(e)}">
+                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                         </clinical-interpretation-variant-evidence-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e, this.variantReview.id)}">
-                                Save
-                            </button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
                         </div>
                     </div>
                 </div>
