@@ -290,6 +290,7 @@ export default class VariantInterpreterGridFormatter {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
                 }
 
+                const acmgCustom = re.review?.acmg ? re.review.acmg.join(",") : "-";
                 let acmgPrediction = "-";
                 if (re.classification?.clinicalSignificance || re.classification?.acmg?.length > 0) {
                     acmgPrediction = `
@@ -305,22 +306,30 @@ export default class VariantInterpreterGridFormatter {
 
                 let tier = "-";
                 let color = "black";
-                if (re.classification?.tier) {
-                    const tierClassification = re.classification.tier?.toUpperCase();
+                if (re.review?.tier) {
+                    const tierClassification = re.review.tier?.toUpperCase();
                     color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
                     color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
                     color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
+                    tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
                 // Evidence selected checkbox
                 const checboxHtml = `
-                    <input type="checkbox" class="${variantGrid._prefix}EvidenceReviewCheckbox" data-variant-id="${row.id}" data-variant-evidence="${re.index}">
+                    <input
+                        type="checkbox"
+                        ${re?.review?.selected ? "checked" : ""} 
+                        class="${variantGrid._prefix}EvidenceReviewCheckbox"
+                        data-variant-id="${row.id}"
+                        data-clinical-evidence-index="${re.index}">
                 `;
 
                 // Evidence edit button
                 const editButtonLink = `
-                    <button class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton" data-variant-id="${row.id}" data-variant-evidence="${re.index}">
+                    <button
+                        class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
+                        data-variant-id="${row.id}"
+                        data-variant-evidence-index="${re.index}">
                         <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
                     </button>
                 `;
@@ -339,7 +348,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panelHtml}</td>
                             <td>${acmgPrediction}</td>
-                            <td>${tier}</td>
+                            <td>${acmgCustom}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
