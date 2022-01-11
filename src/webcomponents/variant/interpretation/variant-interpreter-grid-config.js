@@ -136,7 +136,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "Ensembl",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
+                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version === "v5"
                             }
                         },
                         {
@@ -145,7 +145,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "RefSeq",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
+                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version === "v5"
                             }
                         },
                         {

@@ -263,7 +263,7 @@ export default class VariantInterpreterGridFormatter {
                 if (re.panelId) {
                     const panel = variantGrid.opencgaSession?.study?.panels?.find(panel => panel.id === re.panelId);
                     if (panel) {
-                        const gene = panel.genes.find(gene => gene.name === re.genomicFeature.geneName);
+                        const gene = panel.genes.find(gene => gene.id === re.genomicFeature.geneName || gene.name === re.genomicFeature.geneName);
                         const confidenceColor = gene.confidence === "HIGH" ? "green" : gene.confidence === "MEDIUM" ? "darkorange" : "red";
                         panelHtml = `
                             <div style="margin: 5px 0">
@@ -276,8 +276,14 @@ export default class VariantInterpreterGridFormatter {
                                     `<div style="margin: 5px 0">${panel.id}</div>`
                                 }
                             </div>
-                            <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
-                            <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
+                            ${gene.modeOfInheritance ? `
+                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
+                            ` : ""
+                            }
+                            ${gene.confidence ? `
+                                <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
+                            ` : ""
+                            }
                         `;
                     } else {
                         panelHtml = re.panelId;
