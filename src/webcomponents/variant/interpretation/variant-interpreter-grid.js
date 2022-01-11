@@ -484,7 +484,7 @@ export default class VariantInterpreterGrid extends LitElement {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (row?.annotation) {
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
+            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Evidences</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
             detailHtml += "</div>";
