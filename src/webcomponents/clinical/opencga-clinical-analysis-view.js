@@ -99,12 +99,12 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
     }
 
     render() {
-        return html`
+        return this.clinicalAnalysis ? html`
             <data-form
                 .data=${this.clinicalAnalysis}
                 .config="${this._config}">
             </data-form>
-        `;
+        ` : "";
     }
 
     getDefaultConfig() {
