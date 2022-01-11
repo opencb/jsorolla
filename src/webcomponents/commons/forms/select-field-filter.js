@@ -193,7 +193,7 @@ export default class SelectFieldFilter extends LitElement {
                                                 ?disabled="${subopt.disabled}"
                                                 ?selected="${subopt.selected}"
                                                 .value="${subopt.id ?? subopt.name}"
-                                                data-content="${subopt.name}">
+                                                data-content="${subopt.name ?? subopt.id}">
                                             </option>
                                         ` : html`
                                             <option>${subopt}</option>
