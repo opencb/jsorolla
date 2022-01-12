@@ -214,8 +214,6 @@ class ClinicalAnalysisUpdate extends LitElement {
             return "";
         }
 
-        console.log(this.clinicalAnalysis);
-
         return html`
             <data-form
                 .data="${this.clinicalAnalysis}"
