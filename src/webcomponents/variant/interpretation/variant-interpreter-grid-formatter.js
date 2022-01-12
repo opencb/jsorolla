@@ -296,7 +296,6 @@ export default class VariantInterpreterGridFormatter {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
                 }
 
-                const acmgCustom = re.review?.acmg ? re.review.acmg.join(",") : "-";
                 let acmgPrediction = "-";
                 if (re.classification?.clinicalSignificance || re.classification?.acmg?.length > 0) {
                     acmgPrediction = `
@@ -307,6 +306,20 @@ export default class VariantInterpreterGridFormatter {
                         ` : ""
                         }
                         <div class="help-block">${re.classification.acmg?.join(", ")}</div>
+                    `;
+                }
+
+                // const acmgCustom = re.review?.acmg ? re.review.acmg.join(",") : "-";
+                let acmgCustom = "-";
+                if (re.review?.clinicalSignificance || re.review?.acmg?.length > 0) {
+                    acmgCustom = `
+                        ${re.review?.clinicalSignificance ? `
+                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].id}
+                            </div>
+                        ` : ""
+                    }
+                        <div class="help-block">${re.review.acmg?.join(", ")}</div>
                     `;
                 }
 
@@ -324,7 +337,7 @@ export default class VariantInterpreterGridFormatter {
                 const checboxHtml = `
                     <input
                         type="checkbox"
-                        ${re?.review?.selected ? "checked" : ""} 
+                        ${re?.review?.selected ? "checked" : ""}
                         class="${variantGrid._prefix}EvidenceReviewCheckbox"
                         data-variant-id="${row.id}"
                         data-clinical-evidence-index="${re.index}">
