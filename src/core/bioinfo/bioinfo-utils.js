@@ -88,6 +88,10 @@ export default class BioinfoUtils {
             return null;
         }
 
+        if (id.startsWith("rs")) {
+            return `http://ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
+        }
+
         // create +/- 5,000 bp region
         const split = location.split(new RegExp("[:-]"));
         const region = split[0] + ":" + (Number(split[1]) - 5000) + "-" + (Number(split[2]) + 5000);
