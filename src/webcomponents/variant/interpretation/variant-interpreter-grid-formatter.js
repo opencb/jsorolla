@@ -337,7 +337,7 @@ export default class VariantInterpreterGridFormatter {
                 const checboxHtml = `
                     <input
                         type="checkbox"
-                        ${re?.review?.selected ? "checked" : ""}
+                        ${re?.review?.select ? "checked" : ""}
                         class="${variantGrid._prefix}EvidenceReviewCheckbox"
                         data-variant-id="${row.id}"
                         data-clinical-evidence-index="${re.index}">

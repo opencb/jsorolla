@@ -380,7 +380,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
                         if (row.id === element.dataset.variantId) {
                             const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                            const isEvidenceSelected = row.evidences[evidenceIndex]?.review?.selected || false;
+                            const isEvidenceSelected = row.evidences[evidenceIndex]?.review?.select || false;
 
                             // Prevent editing evidences of not selected variants
                             // eslint-disable-next-line no-param-reassign
@@ -451,7 +451,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
                     if (row.id === element.dataset.variantId) {
                         const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                        const isEvidenceSelected = row.evidences[evidenceIndex]?.review?.selected || false;
+                        const isEvidenceSelected = row.evidences[evidenceIndex]?.review?.select || false;
 
                         // Prevent editing evidences of not selected variants
                         // eslint-disable-next-line no-param-reassign
@@ -494,7 +494,7 @@ export default class VariantInterpreterGrid extends LitElement {
         Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
             if (variant.id === element.dataset.variantId) {
                 const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.selected || false;
+                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.select || false;
                 // eslint-disable-next-line no-param-reassign
                 element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
             }
@@ -521,14 +521,14 @@ export default class VariantInterpreterGrid extends LitElement {
         if (typeof evidence.review === "undefined") {
             evidence.review = {};
         }
-        evidence.review.selected = e.currentTarget.checked;
+        evidence.review.select = e.currentTarget.checked;
 
         // Enable or disable evidence review edit
         Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
             const dataset = element.dataset;
             if (variantId === dataset.variantId && parseInt(dataset.clinicalEvidenceIndex) === evidenceIndex) {
                 // eslint-disable-next-line no-param-reassign
-                element.disabled = !evidence.review.selected;
+                element.disabled = !evidence.review.select;
             }
         });
     }
