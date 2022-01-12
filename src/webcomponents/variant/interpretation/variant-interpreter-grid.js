@@ -1139,7 +1139,7 @@ export default class VariantInterpreterGrid extends LitElement {
             consequenceType: {
                 // all: false,
                 maneTranscript: true,
-                gencodeBasicTranscript: true,
+                gencodeBasicTranscript: false,
                 ensemblCanonicalTranscript: true,
                 refseqTranscript: true,
                 ccdsTranscript: false,
