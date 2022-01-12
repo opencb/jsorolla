@@ -541,6 +541,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 element.disabled = !evidence.review.select;
             }
         });
+
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: variantId,
+            row: this.checkedVariants.get(variantId),
+            rows: Array.from(this.checkedVariants.values()),
+        });
     }
 
     onVariantReview(e) {
@@ -1214,8 +1220,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onEvidenceReviewOk() {
         // Update review object of the current variant
-        // FIXME Josemi, do we need to add this to make sure we edit the right variant?
-        // this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
         this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
 
         // Dispatch variant update
@@ -1224,14 +1228,6 @@ export default class VariantInterpreterGrid extends LitElement {
             row: this.variantReview,
             rows: Array.from(this.checkedVariants.values()),
         });
-    }
-
-    // DEPRECATED
-    onSaveVariant(e, variantId) {
-        if (this.checkedVariants?.has(variantId)) {
-            this.clinicalAnalysisManager.updateVariant(this.checkedVariants.get(variantId), this.clinicalAnalysis.interpretation);
-            // this._variantChanged = null;
-        }
     }
 
     onCancelVariant(e) {

@@ -289,6 +289,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
     }
 
+    onUpdateVariant(e) {
+        this.clinicalAnalysisManager.updateSingleVariant(e.detail.row);
+        this.requestUpdate();
+    }
+
     onFilterVariants(e) {
         const variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
@@ -840,6 +845,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     .review="${true}"
                                     .config="${this._config.filter.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>
 
