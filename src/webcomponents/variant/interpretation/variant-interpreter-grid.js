@@ -545,7 +545,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReview(e) {
         if (this.checkedVariants) {
-            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            // Generate a clone of the variant review to prevent changing original values
+            this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
 
             $("#" + this._prefix + "ReviewSampleModal").modal("show");
@@ -1186,9 +1187,20 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
 
-    onVariantChange(e) {
-        // this._variantChanged = e.detail.value;
-        this.checkedVariants?.set(e.detail.value.id, e.detail.value);
+    onVariantReviewChange(e) {
+        this.variantReview = e.detail.value;
+        // this.checkedVariants?.set(e.detail.value.id, e.detail.value);
+    }
+
+    onVariantReviewOk() {
+        this.checkedVariants?.set(this.variantReview.id, this.variantReview);
+
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReview.id,
+            row: this.variantReview,
+            rows: Array.from(this.checkedVariants.values()),
+        });
     }
 
     onEvidenceReviewChange(e) {
@@ -1201,8 +1213,16 @@ export default class VariantInterpreterGrid extends LitElement {
         // FIXME Josemi, do we need to add this to make sure we edit the right variant?
         // this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
         this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
+
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReview.id,
+            row: this.variantReview,
+            rows: Array.from(this.checkedVariants.values()),
+        });
     }
 
+    // DEPRECATED
     onSaveVariant(e, variantId) {
         if (this.checkedVariants?.has(variantId)) {
             this.clinicalAnalysisManager.updateVariant(this.checkedVariants.get(variantId), this.clinicalAnalysis.interpretation);
@@ -1265,13 +1285,11 @@ export default class VariantInterpreterGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .variant="${this.variantReview}"
                             .mode="${"form"}"
-                            @variantChange="${e => this.onVariantChange(e)}">
+                            @variantChange="${e => this.onVariantReviewChange(e)}">
                         </clinical-interpretation-variant-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e, this.variantReview.id)}">
-                                Save
-                            </button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
                         </div>
                     </div>
                 </div>
