@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { intersection } from "lodash";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
@@ -105,8 +104,7 @@ export default class ClinicalAnalysisManager {
         } else {
             this.state.updatedVariants.push(variant);
         }
-        console.log("UPDATE VARIANT");
-        console.log(this.state.updatedVariants);
+        this.state = {...this.state};
     }
 
     setInterpretationAsPrimary(interpretationId, callback) {
@@ -169,7 +167,7 @@ export default class ClinicalAnalysisManager {
         // Update variants
         if (this.state.updatedVariants.length > 0) {
             this.state.updatedVariants.forEach(variant => {
-                const index = intersection.primaryFindings.findIndex(v => v.id === variant.id);
+                const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
                 if (index >= 0) {
                     interpretation.primaryFindings[index] = variant; // Update variant
                 } else {
