@@ -313,7 +313,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                                             </a>
                                                         </div>`;
                                                 } else {
-                                                    panelHtml = panel.id;
+                                                    return html`<div>${panel.id}</div>`;
                                                 }
                                             })}`;
                                     }

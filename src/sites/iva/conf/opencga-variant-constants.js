@@ -846,3 +846,5 @@ const PROTEIN_SUBSTITUTION_SCORE = {
     }
 };
 
+const ACMG = [];
+

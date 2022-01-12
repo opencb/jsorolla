@@ -120,16 +120,17 @@ export default class VariantInterpreterGridFormatter {
             const transcriptMap = new Map();
             row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
             const newEvidences = [];
-            for (const evidence of row.evidences) {
+            row.evidences.forEach((evidence, index) => {
                 // we are missing regulatory variants
                 if (evidence.genomicFeature?.transcriptId) {
                     const newEvidence = {
+                        index,
                         ...evidence,
                         ...transcriptMap.get(evidence.genomicFeature.transcriptId)
                     };
                     newEvidences.push(newEvidence);
                 }
-            }
+            });
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, config).indexes;
 
             let message = "";
@@ -308,29 +309,49 @@ export default class VariantInterpreterGridFormatter {
                     `;
                 }
 
+                // const acmgCustom = re.review?.acmg ? re.review.acmg.join(",") : "-";
+                let acmgCustom = "-";
+                if (re.review?.clinicalSignificance || re.review?.acmg?.length > 0) {
+                    acmgCustom = `
+                        ${re.review?.clinicalSignificance ? `
+                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].id}
+                            </div>
+                        ` : ""
+                    }
+                        <div class="help-block">${re.review.acmg?.join(", ")}</div>
+                    `;
+                }
+
                 let tier = "-";
                 let color = "black";
-                if (re.classification?.tier) {
-                    const tierClassification = re.classification.tier?.toUpperCase();
+                if (re.review?.tier) {
+                    const tierClassification = re.review.tier?.toUpperCase();
                     color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
                     color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
                     color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
+                    tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
-                let checboxHtml = "";
-                if (review) {
-                    const checked = "";
-                    // if (transcriptFlagChecked && tier !== "-") {
-                    //     checked = "checked";
-                    // }
-                    checboxHtml = `<input type="checkbox" ${checked}>`;
-                }
+                // Evidence selected checkbox
+                const checboxHtml = `
+                    <input
+                        type="checkbox"
+                        ${re?.review?.selected ? "checked" : ""}
+                        class="${variantGrid._prefix}EvidenceReviewCheckbox"
+                        data-variant-id="${row.id}"
+                        data-clinical-evidence-index="${re.index}">
+                `;
 
+                // Evidence edit button
                 const editButtonLink = `
-                        <button class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton" data-variant-id="${row.id}" data-variant-evidence="${re}">
-                            <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
-                        </button>`;
+                    <button
+                        class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
+                        data-variant-id="${row.id}"
+                        data-clinical-evidence-index="${re.index}">
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
+                    </button>
+                `;
 
                 // Create the table row
                 const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
@@ -346,7 +367,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panelHtml}</td>
                             <td>${acmgPrediction}</td>
-                            <td>${tier}</td>
+                            <td>${acmgCustom}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;

@@ -884,6 +884,24 @@ class VariantInterpreterReport extends LitElement {
                                 `,
                             },
                         },
+                        {
+                            title: "Downstream Algorithms",
+                            type: "title",
+                            display: {
+                                titleStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            title: "HRDetect",
+                            type: "custom",
+                            display: {
+                                render: clinicalAnalysis => html`
+                                    <span>
+                                        0.998
+                                    </span>
+                                `,
+                            },
+                        },
                     ]
                 },
                 {
