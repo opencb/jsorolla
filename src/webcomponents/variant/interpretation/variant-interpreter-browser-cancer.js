@@ -87,7 +87,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
@@ -103,7 +103,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        super.update(changedProperties);
+        // super.update(changedProperties);
     }
 
     settingsObserver() {
