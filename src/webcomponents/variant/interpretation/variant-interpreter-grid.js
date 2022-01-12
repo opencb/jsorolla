@@ -541,6 +541,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 element.disabled = !evidence.review.select;
             }
         });
+
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: variantId,
+            row: this.checkedVariants.get(variantId),
+            rows: Array.from(this.checkedVariants.values()),
+        });
     }
 
     onVariantReview(e) {
