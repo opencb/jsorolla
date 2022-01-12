@@ -90,7 +90,7 @@ export default class BioinfoUtils {
 
         // create +/- 5,000 bp region
         const split = location.split(new RegExp("[:-]"));
-        const region = split[0] + ":" + Number(split[1]) - 5000 + "-" + Number(split[2]) + 5000;
+        const region = split[0] + ":" + (Number(split[1]) - 5000) + "-" + (Number(split[2]) + 5000);
 
         switch (source.toUpperCase()) {
             case "ENSEMBL_GENOME_BROWSER":
