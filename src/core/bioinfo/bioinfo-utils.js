@@ -88,7 +88,7 @@ export default class BioinfoUtils {
             return null;
         }
 
-        if (id.startsWith("rs")) {
+        if (id?.startsWith("rs")) {
             return `http://ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
         }
 
