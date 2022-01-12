@@ -205,7 +205,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
@@ -417,7 +417,7 @@ export default class VariantInterpreterGrid extends LitElement {
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
@@ -574,17 +574,21 @@ export default class VariantInterpreterGrid extends LitElement {
      *  GRID FORMATTERS
      */
     detailFormatter(value, row, a) {
+        let variant = row;
+        if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
+            variant = this.checkedVariants.get(variant.id);
+        }
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (row?.annotation) {
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Evidences</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
+            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, variant, this, this.query, this.review, this._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this, this.query, this._config, this.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
