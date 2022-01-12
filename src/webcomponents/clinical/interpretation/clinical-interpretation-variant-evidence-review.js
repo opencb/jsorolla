@@ -41,6 +41,9 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             review: {
                 type: Object,
             },
+            somatic: {
+                type: Boolean,
+            },
             mode: {
                 type: String, // Values: form, modal
             },
@@ -60,6 +63,9 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     update(changedProperties) {
         if (changedProperties.has("variantEvidence")) {
             this.variantEvidenceObserver();
+        }
+        if (changedProperties.has("somatic")) {
+            this.config = this.getDefaultConfig();
         }
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
@@ -119,6 +125,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         type: "custom",
                         field: "acmg",
                         display: {
+                            visible: !this.somatic,
                             render: acmg => html`
                                 <acmg-filter
                                     .acmg="${acmg || []}"
