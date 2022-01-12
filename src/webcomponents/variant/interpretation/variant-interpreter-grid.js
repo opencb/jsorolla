@@ -1188,6 +1188,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onEvidenceReviewOk() {
         // Update review object of the current variant
+        // FIXME Josemi, do we need to add this to make sure we edit the right variant?
+        // this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
         this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
     }
 
