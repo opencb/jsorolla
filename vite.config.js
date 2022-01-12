@@ -3,7 +3,7 @@ import path from "path";
 import {defineConfig} from "vite";
 
 const env = process.env || {};
-const sites = ["iva"];
+const sites = ["iva", "rest-api"];
 
 const getCustomSitePath = (name, folder) => {
     if (env.npm_config_custom_site) {

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
+import VariantUtils from "./variant-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
@@ -29,6 +30,7 @@ import "./annotation/cellbase-population-frequency-grid.js";
 import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
+
 
 export default class VariantBrowser extends LitElement {
 
@@ -264,6 +266,9 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
+
+        // panelModeOfInheritance,panelConfidence,panelRoleInCancer,panel
+        VariantUtils.validatePanelFilter(e.detail);
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);

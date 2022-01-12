@@ -20,6 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "./variant-interpreter-detail.js";
@@ -279,6 +280,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     onActiveFilterChange(e) {
         // debugger
+        VariantUtils.validatePanelFilter(e.detail);
         this.query = {...e.detail};
         // this.preparedQuery = {...e.detail};
         // // TODO is this really needed? it seems to work without this line.
