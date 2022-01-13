@@ -479,103 +479,6 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
-    onVariantCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const variant = this._rows.find(e => e.id === variantId);
-
-        if (e.currentTarget.checked) {
-            this.checkedVariants.set(variantId, variant);
-        } else {
-            this.checkedVariants.delete(variantId);
-        }
-
-        // Set 'Edit' button as enabled/disabled
-        document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
-
-        // Enable or disable evidences select
-        Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
-            if (variant.id === element.dataset.variantId) {
-                // eslint-disable-next-line no-param-reassign
-                element.disabled = !this.checkedVariants.has(variant.id);
-            }
-        });
-
-        // Set 'Edit' button of evidences review as enabled/disabled
-        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-            if (variant.id === element.dataset.variantId) {
-                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.select || false;
-                // eslint-disable-next-line no-param-reassign
-                element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
-            }
-        });
-
-
-        this.dispatchEvent(new CustomEvent("checkrow", {
-            detail: {
-                id: variantId,
-                row: variant,
-                checked: e.currentTarget.checked,
-                rows: Array.from(this.checkedVariants.values())
-            }
-        }));
-    }
-
-    onEvidenceCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const evidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
-
-        // Update clinical evidence review data
-        const evidence = this.checkedVariants.get(variantId).evidences[evidenceIndex];
-        // TODO: remove this check when the evidence review is implemented in OpenCGA
-        if (typeof evidence.review === "undefined") {
-            evidence.review = {};
-        }
-        evidence.review.select = e.currentTarget.checked;
-
-        // Enable or disable evidence review edit
-        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-            const dataset = element.dataset;
-            if (variantId === dataset.variantId && parseInt(dataset.clinicalEvidenceIndex) === evidenceIndex) {
-                // eslint-disable-next-line no-param-reassign
-                element.disabled = !evidence.review.select;
-            }
-        });
-
-        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: variantId,
-            row: this.checkedVariants.get(variantId),
-            rows: Array.from(this.checkedVariants.values()),
-        });
-    }
-
-    onVariantReview(e) {
-        if (this.checkedVariants) {
-            // Generate a clone of the variant review to prevent changing original values
-            this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
-            this.requestUpdate();
-
-            $("#" + this._prefix + "ReviewSampleModal").modal("show");
-        }
-    }
-
-    onVariantEvidenceReview(e) {
-        if (this.checkedVariants) {
-            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
-            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
-
-            // Generate a clone of the evidence review to prevent changing original values
-            this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
-            this.requestUpdate();
-
-            $("#" + this._prefix + "EvidenceReviewModal").modal("show");
-        }
-    }
-
-    onConfigClick(e) {
-        $("#" + this._prefix + "ConfigModal").modal("show");
-    }
-
     /*
      *  GRID FORMATTERS
      */
@@ -1110,6 +1013,291 @@ export default class VariantInterpreterGrid extends LitElement {
             });
     }
 
+    showLoading() {
+        $("#" + this.gridId).bootstrapTable("showLoading");
+    }
+
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    async onApplySettings(e) {
+        try {
+            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
+
+            // TODO Delete old config values. Remove this in IVA 2.2
+            delete this._config.consequenceType.canonicalTranscript;
+            delete this._config.consequenceType.gencodeBasic;
+            delete this._config.consequenceType.highQualityTranscripts;
+            delete this._config.consequenceType.proteinCodingTranscripts;
+            delete this._config.consequenceType.worstConsequenceTypes;
+            delete this._config.consequenceType.filterByBiotype;
+            delete this._config.consequenceType.filterByConsequenceType;
+            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
+
+            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
+                interpreterGrid: this._config
+            });
+            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+            this.renderVariants();
+        } catch (e) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+        }
+    }
+
+    onConfigClick(e) {
+        $("#" + this._prefix + "ConfigModal").modal("show");
+    }
+
+    onVariantCheck(e) {
+        const variantId = e.currentTarget.dataset.variantId;
+        const variant = this._rows.find(e => e.id === variantId);
+
+        if (e.currentTarget.checked) {
+            this.checkedVariants.set(variantId, variant);
+        } else {
+            this.checkedVariants.delete(variantId);
+        }
+
+        // Set 'Edit' button as enabled/disabled
+        document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
+
+        // Enable or disable evidences select
+        Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+            if (variant.id === element.dataset.variantId) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !this.checkedVariants.has(variant.id);
+            }
+        });
+
+        // Set 'Edit' button of evidences review as enabled/disabled
+        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+            if (variant.id === element.dataset.variantId) {
+                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.select || false;
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
+            }
+        });
+
+
+        this.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                id: variantId,
+                row: variant,
+                checked: e.currentTarget.checked,
+                rows: Array.from(this.checkedVariants.values())
+            }
+        }));
+    }
+
+    onVariantReview(e) {
+        if (this.checkedVariants) {
+            // Generate a clone of the variant review to prevent changing original values
+            this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
+            this.requestUpdate();
+
+            $("#" + this._prefix + "ReviewSampleModal").modal("show");
+        }
+    }
+
+    onVariantReviewChange(e) {
+        this.variantReview = e.detail.value;
+        // this.checkedVariants?.set(e.detail.value.id, e.detail.value);
+    }
+
+    onVariantReviewOk() {
+        this.checkedVariants?.set(this.variantReview.id, this.variantReview);
+
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReview.id,
+            row: this.variantReview,
+            rows: Array.from(this.checkedVariants.values()),
+        });
+
+        // Clear selected variant to review
+        this.variantReview = null;
+    }
+
+    onEvidenceCheck(e) {
+        const variantId = e.currentTarget.dataset.variantId;
+        const evidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+        // Update clinical evidence review data
+        const evidence = this.checkedVariants.get(variantId).evidences[evidenceIndex];
+        // TODO: remove this check when the evidence review is implemented in OpenCGA
+        if (typeof evidence.review === "undefined") {
+            evidence.review = {};
+        }
+        evidence.review.select = e.currentTarget.checked;
+
+        // Enable or disable evidence review edit
+        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+            const dataset = element.dataset;
+            if (variantId === dataset.variantId && parseInt(dataset.clinicalEvidenceIndex) === evidenceIndex) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !evidence.review.select;
+            }
+        });
+
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: variantId,
+            row: this.checkedVariants.get(variantId),
+            rows: Array.from(this.checkedVariants.values()),
+        });
+    }
+
+    onVariantEvidenceReview(e) {
+        if (this.checkedVariants) {
+            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+            // Generate a clone of the evidence review to prevent changing original values
+            this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
+            this.requestUpdate();
+
+            $("#" + this._prefix + "EvidenceReviewModal").modal("show");
+        }
+    }
+
+    onEvidenceReviewChange(e) {
+        // Update evidence review object
+        this.evidenceReview = e.detail.value;
+    }
+
+    onEvidenceReviewOk() {
+        // Update review object of the current variant
+        this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
+
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReview.id,
+            row: this.variantReview,
+            rows: Array.from(this.checkedVariants.values()),
+        });
+
+        // Clear evidence and variant review
+        this.variantReview = null;
+        this.evidenceReview = null;
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                    </button>`
+            }
+        ];
+    }
+
+    render() {
+        return html`
+            <style>
+                .variant-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+                .qtip-custom-class {
+                    font-size: 13px;
+                    max-width: none;
+                }
+                .check-variant {
+                    transform: scale(1.2);
+                }
+            </style>
+
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                .query="${this.query}"
+                .opencgaSession="${this.opencgaSession}"
+                .rightToolbar="${this.getRightToolbar()}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}"
+                @export="${this.onDownload}">
+            </opencb-grid-toolbar>
+
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                <table id="${this._prefix}VariantBrowserGrid"></table>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 768px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Review Variant</h3>
+                        </div>
+                        ${this.variantReview ? html`
+                            <clinical-interpretation-variant-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .variant="${this.variantReview}"
+                                .mode="${"form"}"
+                                @variantChange="${e => this.onVariantReviewChange(e)}">
+                            </clinical-interpretation-variant-review>
+                        ` : null}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 768px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Review Variant Evidence</h3>
+                        </div>
+                        ${this.evidenceReview ? html`
+                            <clinical-interpretation-variant-evidence-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .review="${this.evidenceReview}"
+                                .mode="${"form"}"
+                                .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                                @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+                            </clinical-interpretation-variant-evidence-review>
+                        ` : null}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
+                                </variant-interpreter-grid-config>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -1160,188 +1348,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 showSelectCheckbox: true
             }
         };
-    }
-
-    showLoading() {
-        $("#" + this.gridId).bootstrapTable("showLoading");
-    }
-
-
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
-    async onApplySettings(e) {
-        try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
-
-            // TODO Delete old config values. Remove this in IVA 2.2
-            delete this._config.consequenceType.canonicalTranscript;
-            delete this._config.consequenceType.gencodeBasic;
-            delete this._config.consequenceType.highQualityTranscripts;
-            delete this._config.consequenceType.proteinCodingTranscripts;
-            delete this._config.consequenceType.worstConsequenceTypes;
-            delete this._config.consequenceType.filterByBiotype;
-            delete this._config.consequenceType.filterByConsequenceType;
-            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
-
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                interpreterGrid: this._config
-            });
-            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-            this.renderVariants();
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-        }
-    }
-
-
-    onVariantReviewChange(e) {
-        this.variantReview = e.detail.value;
-        // this.checkedVariants?.set(e.detail.value.id, e.detail.value);
-    }
-
-    onVariantReviewOk() {
-        this.checkedVariants?.set(this.variantReview.id, this.variantReview);
-
-        // Dispatch variant update
-        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this.variantReview.id,
-            row: this.variantReview,
-            rows: Array.from(this.checkedVariants.values()),
-        });
-    }
-
-    onEvidenceReviewChange(e) {
-        // Update evidence review object
-        this.evidenceReview = e.detail.value;
-    }
-
-    onEvidenceReviewOk() {
-        // Update review object of the current variant
-        this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
-
-        // Dispatch variant update
-        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this.variantReview.id,
-            row: this.variantReview,
-            rows: Array.from(this.checkedVariants.values()),
-        });
-    }
-
-    onCancelVariant(e) {
-        this._variantChanged = null;
-    }
-
-    getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
-            }
-        ];
-    }
-
-    render() {
-        return html`
-            <style>
-                .variant-link-dropdown:hover .dropdown-menu {
-                    display: block;
-                }
-                .qtip-custom-class {
-                    font-size: 13px;
-                    max-width: none;
-                }
-                .check-variant {
-                    transform: scale(1.2);
-                }
-            </style>
-
-            <opencb-grid-toolbar
-                .config="${this.toolbarConfig}"
-                .query="${this.query}"
-                .opencgaSession="${this.opencgaSession}"
-                .rightToolbar="${this.getRightToolbar()}"
-                @columnChange="${this.onColumnChange}"
-                @download="${this.onDownload}"
-                @export="${this.onDownload}">
-            </opencb-grid-toolbar>
-
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}VariantBrowserGrid"></table>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 768px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Review Variant</h3>
-                        </div>
-                        <clinical-interpretation-variant-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .variant="${this.variantReview}"
-                            .mode="${"form"}"
-                            @variantChange="${e => this.onVariantReviewChange(e)}">
-                        </clinical-interpretation-variant-review>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 768px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Review Variant Evidence</h3>
-                        </div>
-                        <clinical-interpretation-variant-evidence-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .review="${this.evidenceReview}"
-                            .mode="${"form"}"
-                            .somatic="${this.clinicalAnalysis.type === "CANCER"}"
-                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
-                        </clinical-interpretation-variant-evidence-review>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
     }
 
 }
