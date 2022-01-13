@@ -103,7 +103,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-
                 ajax: async params => {
                     const query = {
                         study: this.opencgaSession.study.fqn,
@@ -326,8 +325,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
     removeRowTable(clinicalAnalysisId) {
         this.table.bootstrapTable("remove", {
             field: "id",
-            values: clinicalAnalysisId
+            values: [clinicalAnalysisId]
         });
+        this.table.bootstrapTable('refresh');
     }
 
     onActionClick(e, _, row) {
