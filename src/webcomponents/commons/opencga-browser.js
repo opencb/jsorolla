@@ -26,9 +26,9 @@ import "./tool-header.js";
 import "../file/opencga-file-grid.js";
 import "../file/opencga-file-filter.js";
 import "../file/opencga-file-detail.js";
-import "../sample/opencga-sample-grid.js";
+import "../sample/sample-grid.js";
 import "../sample/sample-browser-filter.js";
-import "../sample/opencga-sample-detail.js";
+import "../sample/sample-detail.js";
 import "../individual/individual-grid.js";
 import "../individual/individual-browser-filter.js";
 import "../individual/individual-detail.js";
@@ -333,18 +333,18 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-sample-grid
+                        <sample-grid
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.executedQuery}"
                             .config="${this.config.filter.result.grid}"
                             .active="${true}"
                             @selectrow="${e => this.onClickRow(e, "sample")}">
-                        </opencga-sample-grid>
-                        <opencga-sample-detail
+                        </sample-grid>
+                        <sample-detail
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config.filter.detail}"
                             .sampleId="${this.detail.sample?.id}">
-                        </opencga-sample-detail>
+                        </sample-detail>
                     </div>
                     ${facetView}`;
             case "INDIVIDUAL":

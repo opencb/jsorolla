@@ -5,7 +5,7 @@ export {ReactomeClient} from "./core/clients/reactome/reactome-client.js";
 export OpencgaVariantBrowser from "./webcomponents/variant/variant-browser.js";
 export VariantBeacon from "./webcomponents/variant/variant-beacon.js";
 export OpencgaProjects from "./webcomponents/user/opencga-projects.js";
-export OpencgaSampleBrowser from "./webcomponents/sample/opencga-sample-browser.js";
+export OpencgaSampleBrowser from "./webcomponents/sample/sample-browser.js";
 export OpencgaFileBrowser from "./webcomponents/file/opencga-file-browser.js";
 export OpencgaTranscriptView from "./webcomponents/opencga/opencga-transcript-view.js";
 export OpencgaGeneView from "./webcomponents/opencga/opencga-gene-view.js";

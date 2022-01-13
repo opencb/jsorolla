@@ -65,7 +65,7 @@ export default class OpenCGAParentClass {
 
     _post(category1, ids1, category2, ids2, action, body, params = {}, options = {}) {
         // Clear and Revert actions do not need a body, but needs a params
-        if (action === "clear" || action === "revert") {
+        if (category2 === "interpretation" && (action === "clear" || action === "revert")) {
             // eslint-disable-next-line no-param-reassign
             params = body;
             // eslint-disable-next-line no-param-reassign
@@ -73,7 +73,7 @@ export default class OpenCGAParentClass {
         }
         const host = this._config.host;
         const version = this._config.version;
-        const rpc = this._config.mode;
+        // const rpc = this._config.mode;
         const k = this.generateKey(params);
         const _options = {...options, method: "POST"};
         if (this._config.token) {
