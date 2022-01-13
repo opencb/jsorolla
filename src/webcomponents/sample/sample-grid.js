@@ -24,7 +24,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-export default class OpencgaSampleGrid extends LitElement {
+export default class SampleGrid extends LitElement {
 
     constructor() {
         super();
@@ -61,6 +61,7 @@ export default class OpencgaSampleGrid extends LitElement {
         this.gridId = this._prefix + "SampleBrowserGrid";
         this.catalogUiUtils = new CatalogWebUtils();
         this.active = true;
+        this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
@@ -476,4 +477,4 @@ export default class OpencgaSampleGrid extends LitElement {
 
 }
 
-customElements.define("opencga-sample-grid", OpencgaSampleGrid);
+customElements.define("sample-grid", SampleGrid);

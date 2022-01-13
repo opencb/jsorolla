@@ -83,7 +83,10 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     onFieldChange(e, field) {
-        this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, field || e.detail.param, e.detail.value);
+        const param = field || e.detail.param;
+        // Fix clinical significance value --> must be in uppercase
+        const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
+        this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
 
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
             value: this.review,
@@ -113,7 +116,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             render: clinicalSignificance => html`
                                 <select-field-filter
                                     .data=${CLINICAL_SIGNIFICANCE}
-                                    .value=${clinicalSignificance}
+                                    .value=${(clinicalSignificance || "").toLowerCase()}
                                     @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
                                 </select-field-filter>
                             `,

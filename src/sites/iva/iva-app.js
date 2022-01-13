@@ -46,7 +46,7 @@ import "../../webcomponents/opencga/opencga-gene-view.js";
 import "../../webcomponents/opencga/opencga-transcript-view.js";
 import "../../webcomponents/opencga/opencga-protein-view.js";
 import "../../webcomponents/user/opencga-projects.js";
-import "../../webcomponents/sample/opencga-sample-browser.js";
+import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
@@ -168,7 +168,6 @@ class IvaApp extends LitElement {
             "gene",
             "transcript",
             "protein",
-            "sample-grid",
             "sampleUpdate",
             "browser",
             "family",
@@ -1204,12 +1203,12 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.sample ? html`
                     <div class="content" id="sample">
-                        <opencga-sample-browser .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.queries.sample}"
-                                                .settings="${OPENCGA_SAMPLE_BROWSER_SETTINGS}"
-                                                @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
-                                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
-                        </opencga-sample-browser>
+                        <sample-browser .opencgaSession="${this.opencgaSession}"
+                                        .query="${this.queries.sample}"
+                                        .settings="${OPENCGA_SAMPLE_BROWSER_SETTINGS}"
+                                        @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
+                                        @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
+                        </sample-browser>
                     </div>
                 ` : null}
 
