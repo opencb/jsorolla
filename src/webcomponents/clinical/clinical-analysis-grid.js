@@ -323,16 +323,20 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     removeRowTable(clinicalAnalysisId) {
+        const data = this.table.bootstrapTable("getData");
         this.table.bootstrapTable("remove", {
             field: "id",
             values: [clinicalAnalysisId]
         });
-        this.table.bootstrapTable('refresh');
+        if (data?.length === 0) {
+            this.table.bootstrapTable("prevPage");
+            this.table.bootstrapTable("refresh");
+        }
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.currentTarget.dataset;
 
+        const {action} = e.currentTarget.dataset;
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
