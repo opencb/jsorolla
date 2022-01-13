@@ -477,7 +477,8 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
                                             .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
+                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                            .assembly=${this.opencgaSession.project.organism.assembly}>
                                     </cellbase-variant-annotation-summary>`;
                             }
                         },

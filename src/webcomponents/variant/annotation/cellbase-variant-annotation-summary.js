@@ -42,6 +42,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             },
             minimumFreq: {
                 type: Array
+            },
+            assembly: {
+                type: String
             }
         };
     }
@@ -201,7 +204,11 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Id</label>
                                 <!-- <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=\${this.variantAnnotation.id}">\${this.variantAnnotation.id}</a></span> -->
-                                <span class="col-md-9"><a target="_blank" href="${BioinfoUtils.getVariantLink(this.variantAnnotation.id, variantRegion, "ensembl_genome_browser")}">${this.variantAnnotation.id}</a></span>
+                                <span class="col-md-9">
+                                    <a target="_blank" href="${BioinfoUtils.getVariantLink(this.variantAnnotation.id, variantRegion, "ensembl_genome_browser", this.assembly)}">
+                                    ${this.variantAnnotation.id}
+                                    </a>
+                                </span>
                             </div>
 
                                 ${this.variantAnnotation?.hgvs?.length ? html`

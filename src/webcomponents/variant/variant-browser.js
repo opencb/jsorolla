@@ -496,11 +496,12 @@ export default class VariantBrowser extends LitElement {
                             id: "annotationSummary",
                             name: "Summary",
                             active: true,
-                            render: variant => html`
+                            render: (variant, active, opencgaSession) => html`
                                 <cellbase-variant-annotation-summary
                                     .variantAnnotation="${variant.annotation}"
                                     .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
+                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                    .assembly="${opencgaSession?.project?.organism?.assembly}">
                                 </cellbase-variant-annotation-summary>
                             `,
                         },
