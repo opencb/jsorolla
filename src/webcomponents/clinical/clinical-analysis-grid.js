@@ -103,7 +103,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-
                 ajax: async params => {
                     const query = {
                         study: this.opencgaSession.study.fqn,
@@ -324,15 +323,20 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     removeRowTable(clinicalAnalysisId) {
+        const data = this.table.bootstrapTable("getData");
         this.table.bootstrapTable("remove", {
             field: "id",
-            values: clinicalAnalysisId
+            values: [clinicalAnalysisId]
         });
+        if (data?.length === 0) {
+            this.table.bootstrapTable("prevPage");
+            this.table.bootstrapTable("refresh");
+        }
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.currentTarget.dataset;
 
+        const {action} = e.currentTarget.dataset;
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",

@@ -227,6 +227,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                     <clinical-status-filter
                                         .status="${status?.id}"
                                         .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .classes="${this.updateParams.status ? "updated" : ""}"
                                         .multiple=${false}
                                         @filterChange="${e => {
                                             e.detail.param = "status.id";
@@ -250,6 +251,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
+                                            .classes="${this.updateParams.panels ? "updated" : ""}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
