@@ -1,5 +1,6 @@
 import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
+import UtilsNew from "../core/utilsNew.js";
 import TrackListPanel from "./tracks/tracklist-panel.js";
 import FeatureTrack from "./tracks/feature-track.js";
 import NavigationBar from "./navigation-bar.js";
@@ -14,7 +15,7 @@ export default class GenomeBrowser {
     constructor(args) {
         Object.assign(this, Backbone.Events);
 
-        this.id = Utils.genId("GenomeBrowser");
+        this.id = UtilsNew.randomString(8);
 
         // set default args
         this.autoRender = true;
@@ -965,4 +966,10 @@ export default class GenomeBrowser {
         console.log(this.checkRenderedTrack);
         this.trackExists(trackId);
     }
+
+    // Get default configuration for GenomeBrowser
+    static getDefaultConfig() {
+        return {};
+    }
+
 }
