@@ -1,3 +1,4 @@
+import {CellBaseClient} from "../core/clients/cellbase/cellbase-client.js";
 import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 import UtilsNew from "../core/utilsNew.js";
@@ -8,72 +9,46 @@ import KaryotypePanel from "./karyotype-panel.js";
 import ChromosomePanel from "./chromosome-panel.js";
 import StatusBar from "./status-bar.js";
 import FeatureRenderer from "./renderers/feature-renderer.js";
+import GenomeBrowserConstants from "./genome-browser-constants.js";
 
 
 export default class GenomeBrowser {
 
-    constructor(args) {
+    constructor(target, config) {
+        // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
         this.id = UtilsNew.randomString(8);
+        this.config = {...GenomeBrowser.getDefaultConfig(), ...config};
 
-        // set default args
-        this.autoRender = true;
-        this.version = 'Powered by <a target="_blank" href="http://www.opencb.org/">OpenCB</a>';
-        this.target;
+        // Initialize target element: can be an HTMLElement reference or an ID selector
+        this.target = target instanceof HTMLElement ? target : document.querySelector(`#${target}`);
 
-        this.width = 1;
-        this.height = 1;
-
-        this.client;
-        this.cellBaseHost = args.cellBaseHost? args.cellBaseHost : CELLBASE_HOST;
-        this.cellBaseVersion = args.cellBaseVersion? args.cellBaseVersion : CELLBASE_VERSION;
-
-        this.quickSearchResultFn;
-        this.quickSearchDisplayKey = "name";
-
-        this.drawNavigationBar = true;
-        this.drawKaryotypePanel = true;
-        this.drawChromosomePanel = true;
-        this.drawOverviewTrackListPanel = true;
-        this.overviewZoomMultiplier = 8;
-        this.karyotypePanelConfig = {
-            hidden: false,
-            collapsed: false,
-            collapsible: true
-        };
-        this.chromosomePanelConfig = {
-            hidden: false,
-            collapsed: false,
-            collapsible: true
-        };
-        this.regionPanelConfig = {
-            hidden: false,
-            collapsed: false,
-            collapsible: true
-        };
-        this.navigationBarConfig = {};
-        this.drawStatusBar = true;
-        this.resizable = true;
-        this.sidePanel = false;// enable or disable sidePanel at construction
-        this.trackListTitle = "Detailed information";// enable or disable sidePanel at construction
-        this.trackPanelScrollWidth = 18;
-
+        this.version = "Powered by <a target=\"_blank\" href=\"http://www.opencb.org/\">OpenCB</a>";
+        this.chromosomes = {};
         this.zoom = 1;
+        this.width = this.config.width || 1;
+        this.height = this.config.height || 1;
 
-        this.chromosomes = [];
-        this.chromosomeList = [];
+        // Initialize CellBase client
+        if (this.config.cellBaseClient) {
+            this.cellBaseClient = this.config.cellBaseClient;
+        } else {
+            // Initialize a new cellbase client with the host and version from config
+            this.cellBaseClient = new CellBaseClient({
+                host: this.config.cellBaseHost,
+                version: this.config.cellBaseVersion,
+                cache: {
+                    active: false,
+                },
+            });
+        }
 
-        // set instantiation args, must be last
-        Object.assign(this, args);
+        this.sidePanelWidth = this.config.sidePanel ? 25 : 0;
 
-        this.sidePanelWidth = (this.sidePanel) ? 25 : 0;
-
+        this.region = this.config.region;
         this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.defaultRegion = new Region(this.region);
-
-        // events attachments
-        this.on(this.handlers);
 
         this.fullscreen = false;
         this.resizing = false;
@@ -141,68 +116,71 @@ export default class GenomeBrowser {
             this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
         }
         this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
-        this.getChromosomes();
+
+        // Import chromosomes and initialize GB
+        this.getChromosomes().then(() => {
+            return this._init();
+        });
     }
 
     _init() {
-        const _this = this;
         // this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.zoom = this._calculateZoomByRegion(this.region);
+        this._updateSpecies(this.config.species);
 
-        this._updateSpecies(this.species);
-
-        /* Navigation Bar */
-        if (this.drawNavigationBar) {
+        // Create Navigation Bar
+        if (this.config.drawNavigationBar) {
             this.navigationBar = this._createNavigationBar(this.navigationbarDiv);
         }
 
-        /* karyotype Panel */
-        if (this.drawKaryotypePanel) {
+        // Create karyotype Panel
+        if (this.config.drawKaryotypePanel) {
             this.karyotypePanel = this._drawKaryotypePanel(this.karyotypeDiv);
         }
 
-        /* Chromosome Panel */
-        if (this.drawChromosomePanel) {
+        // Create Chromosome panel
+        if (this.config.drawChromosomePanel) {
             this.chromosomePanel = this._drawChromosomePanel(this.chromosomeDiv);
         }
 
-        /* Region Panel, is a TrackListPanel Class */
-        // if (this.drawOverviewTrackListPanel) {
-        //     this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
-        // }
-        /*TrackList Panel*/
-        // this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
-
-        /*Status Bar*/
-        if (this.drawStatusBar) {
+        // Create status bar
+        if (this.config.drawStatusBar) {
             this.statusBar = this._createStatusBar(this.statusbarDiv);
         }
 
-        this.on("region:change region:move", function (event) {
-            if (event.sender !== _this) {
-                _this.region.load(event.region);
+        // Register event listeners
+        this.on("region:change region:move", event => {
+            if (event.sender !== this) {
+                this.region.load(event.region);
             }
         });
-        this.on("width:change", function (event) {
-            if (event.sender !== _this) {
-                _this.width = event.width;
-                $(_this.div).width(event.width);
-                $(_this.targetDiv).width(event.width);
+        this.on("width:change", event => {
+            if (event.sender !== this) {
+                this.width = event.width;
+                this.div.style.width = event.width;
+                this.target.style.width = event.width;
+                // $(this.div).width(event.width);
+                // $(this.targetDiv).width(event.width);
             }
         });
 
-        $("html").bind("keydown.genomeViewer", function (e) {
-            switch (e.keyCode) {
-                case 40:    // down arrow
-                case 109:   // minus key
-                    if (e.shiftKey) {
-                        _this.increaseZoom(-10);
+        // TODO: fix an alternative to $.bind
+        // TODO: event.keyCode is deprecated, we should replace it when event.key
+        // See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
+        $("html").bind("keydown.genomeViewer", event => {
+            switch (event.keyCode) {
+                // ArrowDown or "-" keys
+                case 40:
+                case 109:
+                    if (event.shiftKey) {
+                        this.increaseZoom(-10);
                     }
                     break;
-                case 38:    // up arrow
-                case 107:   // plus key
-                    if (e.shiftKey) {
-                        _this.increaseZoom(10);
+                    // ArrowUp or "+" keys
+                case 38:
+                case 107:
+                    if (event.shiftKey) {
+                        this.increaseZoom(10);
                     }
                     break;
             }
@@ -210,12 +188,12 @@ export default class GenomeBrowser {
     }
 
     draw() {
-        this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
-        if (!this.targetDiv) {
+        // this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
+        if (!this.target) {
             console.log("target not found");
             return;
         }
-        this.targetDiv.appendChild(this.div);
+        this.target.appendChild(this.div);
     }
 
     destroy() {
@@ -230,55 +208,46 @@ export default class GenomeBrowser {
         delete this;
     }
 
+    // Get chromosomes from CellBase
+    // Returns a promise that will resolve when chromosomes have been loaded
     getChromosomes() {
-        const saveChromosomes = function (chromosomeList) {
-            let chromosomes = {};
-            for (let i = 0; i < chromosomeList.length; i++) {
-                let chromosome = chromosomeList[i];
-                chromosomes[chromosome.name] = chromosome;
-            }
-            return chromosomes;
+        // Generate a chromosomes map using the chromosone name as key
+        const saveChromosomes = chromosomeList => {
+            return Object.fromEntries(chromosomeList.map(chromosome => {
+                return [chromosome.name, chromosome];
+            }));
         };
 
-        if (typeof this.chromosomeList !== 'undefined' && this.chromosomeList !== null && this.chromosomeList.length > 0) {
-            this.chromosomes = saveChromosomes(this.chromosomeList);
-            this.species.chromosomes = this.chromosomes;
+        if (this.config.chromosomeList?.length > 0) {
+            // Chromosomes list has been provided in the configuration
+            this.chromosomes = saveChromosomes(this.config.chromosomeList);
+            return Promise.resolve();
         } else {
-            const _this = this;
-
-            _this.client.get("genomic", "chromosome", undefined, "search")
-                .then(function (response) {
-                    let chromosomesOld = _this.chromosomes;
-                    _this.chromosomes = saveChromosomes(response.response[0].result[0].chromosomes);
-                    if (chromosomesOld !== undefined && chromosomesOld.length === 0) {
-                        _this._init();
-                        _this.rendered = true;
-                    }
-                });
+            // Import chromosomes from cellbase
+            return this.cellBaseClient.get("genomic", "chromosome", undefined, "search").then(res => {
+                this.chromosomes = saveChromosomes(res.responses[0].results[0].chromosomes);
+            });
         }
     }
-    /**/
-    /* Components*/
-    /**/
 
     _createNavigationBar(target) {
-        const _this = this;
-
-        if (!$.isFunction(this.quickSearchResultFn)) {
-            this.quickSearchResultFn = function (query) {
-                return _this.client.get("feature", "id", query, "starts_with", {limit: 10});
+        let quickSearchResultFn = this.config.quickSearchResultFn;
+        if (typeof quickSearchResultFn !== "function") {
+            quickSearchResultFn = query => {
+                return this.cellBaseClient.get("feature", "id", query, "starts_with", {limit: 10});
             };
         }
 
-        const goFeature = function (feature) {
-            _this._regionChangeHandler({region: new Region(feature)});
-        };
+        // Helper method to center in the specified feature region
+        const goToFeature = feature => this._regionChangeHandler({region: new Region(feature)});
 
-        const navigationBar = new NavigationBar({
-            target: target,
-            cellBaseHost: this.cellBaseHost,
-            cellBaseVersion: this.cellBaseVersion,
-            availableSpecies: this.availableSpecies,
+        // TODO: change initialization of NavigationBar
+        // TODO: fix configuration values
+        const navigationBar = new NavigationBar(target, {
+            cellBaseClient: this.cellBaseClient,
+            cellBaseHost: this.config.cellBaseHost,
+            cellBaseVersion: this.config.cellBaseVersion,
+            availableSpecies: this.config.availableSpecies,
             species: this.species,
             region: this.region,
             width: this.width,
@@ -290,292 +259,239 @@ export default class GenomeBrowser {
             karyotypePanelConfig: this.karyotypePanelConfig,
             chromosomePanelConfig: this.chromosomePanelConfig,
             regionPanelConfig: this.regionPanelConfig,
-            handlers: {
-                "region:change": function (event) {
-                    _this._regionChangeHandler(event);
-                },
-                "region:move": function (event) {
-                    _this._regionMoveHandler(event);
-                },
-                "zoom:change": function (event) {
-                    _this._zoomChangeHandler(event);
-                },
-                "species:change": function (event) {
-                    _this._speciesChangeHandler(event);
-                },
+        });
 
-                "karyotype-button:change": function (event) {
-                    if (event.selected) {
-                        _this.karyotypePanel.show();
-                    } else {
-                        _this.karyotypePanel.hide();
-                    }
-                },
-                "chromosome-button:change": function (event) {
-                    if (event.selected) {
-                        _this.chromosomePanel.show();
-                    } else {
-                        _this.chromosomePanel.hide();
-                    }
-                },
-                "region-button:change": function (event) {
-                    if (event.selected) {
-                        _this.overviewTrackListPanel.show();
-                    } else {
-                        _this.overviewTrackListPanel.hide();
-                    }
-                },
-                "fullscreen:click": function (event) {
-                    if (_this.fullscreen) {
-                        $(_this.div).css({width: "auto"});
-                        Utils.cancelFullscreen();// no need to pass the dom object;
-                        _this.fullscreen = false;
-                    } else {
-                        $(_this.div).css({width: screen.width});
-                        Utils.launchFullScreen(_this.div);
-                        _this.fullscreen = true;
-                    }
-                },
-                "restoreDefaultRegion:click": function (event) {
-                    event.region = _this.defaultRegion;
-                    _this._regionChangeHandler(event);
-                },
-                "autoHeight-button:change": function (event) {
-                    _this.toggleAutoHeight(event.selected);
-                },
-                "quickSearch:select": function (event) {
-                    goFeature(event.item);
-                    _this.trigger("quickSearch:select", event);
-                },
-                "quickSearch:go": function (event) {
-                    goFeature(event.item);
-                }
+        // Register event listeners
+        navigationBar.on("region:change", event => this._regionChangeHandler(event));
+        navigationBar.on("region:move", event => this._regionMoveHandler(event));
+        navigationBar.on("zoom:change", event => this._zoomChangeHandler(event));
+        navigationBar.on("species:change", event => this._speciesChangeHandler(event));
+        navigationBar.on("karyotype-button:change", event => {
+            event.selected ? this.karyotypePanel.show() : this.karyotypePanel.hide();
+        });
+        navigationBar.on("chromosome-button:change", event => {
+            event.selected ? this.chromosomePanel.show() : this.chromosomePanel.hide();
+        });
+        navigationBar.on("region-button:change", event => {
+            event.selected ? this.overviewTrackListPanel.show() : this.overviewTrackListPanel.hide();
+        });
+        navigationBar.on("fullscreen:click", () => {
+            // TODO: move this to a separate function called toggleFullScreen
+            if (this.fullscreen) {
+                $(this.div).css({width: "auto"});
+                Utils.cancelFullscreen(); // no need to pass the dom object;
+            } else {
+                $(this.div).css({width: screen.width});
+                Utils.launchFullScreen(this.div);
             }
+            this.fullscreen = !this.fullscreen; // Change fullscreen
         });
+        navigationBar.on("restoreDefaultRegion:click", event => {
+            this._regionChangeHandler({...event, region: this.defaultRegion});
+        });
+        navigationBar.on("autoHeight-button:change", event => this.toggleAutoHeight(event.selected));
+        navigationBar.on("quickSearch:select", event => {
+            goToFeature(event.item);
+            this.trigger("quickSearch:select", event);
+        });
+        navigationBar.on("quickSearch:go", event => goToFeature(event.item));
 
-        this.on("region:change", function (event) {
-            _this.navigationBar.setRegion(event.region, _this.zoom);
-        });
-        this.on("region:move", function (event) {
+        // Listen to events in GB
+        this.on("region:change", event => navigationBar.setRegion(event.region, this.zoom));
+        this.on("region:move", event => {
             if (event.sender != navigationBar) {
-                _this.navigationBar.moveRegion(event.region);
+                navigationBar.moveRegion(event.region);
             }
         });
-        this.on("width:change", function (event) {
-            _this.navigationBar.setWidth(event.width);
-        });
+        this.on("width:change", event => navigationBar.setWidth(event.width));
 
+        // Draw navigation bar
         navigationBar.draw();
 
         return navigationBar;
     }
 
     _drawKaryotypePanel(target) {
-        const _this = this;
-        const karyotypePanel = new KaryotypePanel({
-            target: target,
-            client: this.client,
-            cellBaseHost: this.cellBaseHost,
-            cellBaseVersion: this.cellBaseVersion,
+        const karyotypePanel = new KaryotypePanel(target, {
+            cellBaseClient: this.cellBaseClient,
+            cellBaseHost: this.config.cellBaseHost,
+            cellBaseVersion: this.config.cellBaseVersion,
             width: this.width - this.sidePanelWidth,
             height: 125,
             species: this.species,
             title: "Karyotype",
-            collapsed: this.karyotypePanelConfig.collapsed,
-            collapsible: this.karyotypePanelConfig.collapsible,
-            hidden: this.karyotypePanelConfig.hidden,
+            collapsed: this.config.karyotypePanelConfig.collapsed,
+            collapsible: this.config.karyotypePanelConfig.collapsible,
+            hidden: this.config.karyotypePanelConfig.hidden,
             region: this.region,
             autoRender: true,
-            handlers: {
-                "region:change": function (event) {
-                    _this._regionChangeHandler(event);
-                }
-            }
         });
 
-        this.on("region:change region:move", function (event) {
-            karyotypePanel.setRegion(event.region);
-        });
-        this.on("width:change", function (event) {
-            karyotypePanel.setWidth(event.width - _this.sidePanelWidth);
-        });
+        // Register event listeners
+        karyotypePanel.on("region:change", event => this._regionChangeHandler(event));
 
+        // Listen to GB events
+        this.on("region:change region:move", event => karyotypePanel.setRegion(event.region));
+        this.on("width:change", event => karyotypePanel.setWidth(event.width - this.sidePanelWidth));
+
+        // Draw karyotype panel
         karyotypePanel.draw();
 
         return karyotypePanel;
     }
 
     _drawChromosomePanel(target) {
-        const _this = this;
-        const chromosomePanel = new ChromosomePanel({
-            target: target,
-            client: this.client,
-            cellBaseHost: this.cellBaseHost,
-            cellBaseVersion: this.cellBaseVersion,
+        const chromosomePanel = new ChromosomePanel(target, {
+            cellBaseClient: this.cellBaseClient,
+            cellBaseHost: this.config.cellBaseHost,
+            cellBaseVersion: this.config.cellBaseVersion,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
             height: 65,
             species: this.species,
             title: "Chromosome",
-            collapsed: this.chromosomePanelConfig.collapsed,
-            collapsible: this.chromosomePanelConfig.collapsible,
-            hidden: this.chromosomePanelConfig.hidden,
+            collapsed: this.config.chromosomePanelConfig.collapsed,
+            collapsible: this.config.chromosomePanelConfig.collapsible,
+            hidden: this.config.chromosomePanelConfig.hidden,
             region: this.region,
-            handlers: {
-                "region:change": function (event) {
-                    _this._regionChangeHandler(event);
-                }
-            }
         });
 
-        this.on("region:change region:move", function (event) {
-            chromosomePanel.setRegion(event.region);
-        });
-        this.on("width:change", function (event) {
-            chromosomePanel.setWidth(event.width - _this.sidePanelWidth);
-        });
+        // Register chromosome panel event listeners
+        chromosomePanel.on("region:change", event => this._regionChangeHandler(event));
 
+        // Listen to GB events
+        this.on("region:change region:move", event => chromosomePanel.setRegion(event.region));
+        this.on("width:change", event => chromosomePanel.setWidth(event.width - this.sidePanelWidth));
+
+        // Render chromosome panel
         chromosomePanel.draw();
 
         return chromosomePanel;
     }
 
     _createOverviewTrackListPanel(target) {
-        const _this = this;
-
-        const trackListPanel = new TrackListPanel({
-            cellBaseHost: this.cellBaseHost,
-            cellBaseVersion: this.cellBaseVersion,
-            target: target,
+        const trackListPanel = new TrackListPanel(target, {
+            CellBaseClient: this.cellBaseClient,
+            cellBaseHost: this.config.cellBaseHost,
+            cellBaseVersion: this.config.cellBaseVersion,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
             zoomMultiplier: this.overviewZoomMultiplier,
             title: "Region overview",
             showRegionOverviewBox: true,
-            collapsible: this.regionPanelConfig.collapsible,
+            collapsible: this.config.regionPanelConfig?.collapsible,
             region: this.region,
             species: this.species,
-            handlers: {
-                "region:change": function (event) {
-                    event.sender = undefined;
-                    _this._regionChangeHandler(event);
-                },
-                "region:move": function (event) {
-                    _this._regionMoveHandler(event);
-                }
-            }
         });
 
-        this.on("region:change", function (event) {
+        // Register overview track list event listeners
+        trackListPanel.on("region:change", event => this._regionChangeHandler(event));
+        trackListPanel.on("region:move", event => this._regionMoveHandler(event));
+
+        // Listen to GB events
+        this.on("region:change", event => {
             if (event.sender !== trackListPanel) {
                 trackListPanel.setRegion(event.region);
             }
         });
-        this.on("region:move", function (event) {
+        this.on("region:move", event => {
             if (event.sender !== trackListPanel) {
                 trackListPanel.moveRegion(event);
             }
         });
-        this.on("width:change", function (event) {
-            trackListPanel.setWidth(event.width - _this.sidePanelWidth);
-        });
+        this.on("width:change", event => trackListPanel.setWidth(event.width - this.sidePanelWidth));
 
+        // Draw track list panel
         trackListPanel.draw();
 
         return trackListPanel;
     }
 
     _createTrackListPanel(target) {
-        const _this = this;
-        const trackListPanel = new TrackListPanel({
-            target: target,
-            cellBaseHost: this.cellBaseHost,
-            cellBaseVersion: this.cellBaseVersion,
+        const trackListPanel = new TrackListPanel(target, {
+            cellBaseClient: this.cellBaseClient,
+            cellBaseHost: this.config.cellBaseHost,
+            cellBaseVersion: this.config.cellBaseVersion,
             autoRender: true,
             width: this.width - this.sidePanelWidth,
-            title: this.trackListTitle,
+            title: this.config.trackListTitle,
             region: this.region,
             species: this.species,
-            hidden: this.regionPanelConfig.hidden,
-            handlers: {
-                "region:change": function (event) {
-                    event.sender = undefined;
-                    _this._regionChangeHandler(event);
-                },
-                "region:move": function (event) {
-                    _this._regionMoveHandler(event);
-                }
-            }
+            hidden: this.config.regionPanelConfig.hidden,
         });
 
-        this.on("region:change", function (event) {
+        // Register event listeners
+        trackListPanel.on("region:change", event => this._regionChangeHandler(event));
+        trackListPanel.on("region:move", event => this._regionMoveHandler(event));
+
+        // Listen to GB events
+        this.on("region:change", event => {
             if (event.sender !== trackListPanel) {
                 trackListPanel.setRegion(event.region);
             }
         });
-        this.on("region:move", function (event) {
+        this.on("region:move", event => {
             if (event.sender !== trackListPanel) {
                 trackListPanel.moveRegion(event);
             }
         });
-        this.on("width:change", function (event) {
-            trackListPanel.setWidth(event.width - _this.sidePanelWidth);
-        });
+        this.on("width:change", event => trackListPanel.setWidth(event.width - this.sidePanelWidth));
+        this.on("feature:highlight", event => trackListPanel.highlight(event));
 
-        this.on("feature:highlight", function (event) {
-            trackListPanel.highlight(event);
-        });
-
+        // Draw tracklist
         trackListPanel.draw();
 
         return trackListPanel;
     }
 
     _createStatusBar(target) {
-        const statusBar = new StatusBar({
-            target: target,
+        const statusBar = new StatusBar(target, {
             autoRender: true,
             region: this.region,
             width: this.width,
             version: this.version
         });
 
-        this.on("region:change", function (event) {
-            statusBar.setRegion(event);
-        });
+        // Listen to events in GB
+        this.on("region:change", event => statusBar.setRegion(event));
 
-        this.trackListPanel.on("mousePosition:change", function (event) {
-            statusBar.setMousePosition(event);
-        });
+        // Listen to events in tracklistPanel
+        this.trackListPanel.on("mousePosition:change", event => statusBar.setMousePosition(event));
 
+        // Draw status bar
         statusBar.draw();
         return statusBar;
     }
 
-
-    /*****************/
-    /** PRIVATE HELPER METHODS **/
-    /*****************/
+    //
+    // Private helpers
+    //
     _checkAndSetNewChromosomeRegion(region) {
-        if (this.chromosomes.length > 0) {
-            let newChr = this.chromosomes[region.chromosome];
+        if (this.chromosomes && this.chromosomes[region.chromosome]) {
+            const chr = this.chromosomes[region.chromosome];
             if (region.chromosome !== this.region.chromosome) {
-                if (region.start > newChr.size || region.end > newChr.size) {
-                    region.start = Math.round(newChr.size / 2);
-                    region.end = Math.round(newChr.size / 2);
+                if (region.start > chr.size || region.end > chr.size) {
+                    // eslint-disable-next-line no-param-reassign
+                    region.start = Math.round(chr.size / 2);
+                    // eslint-disable-next-line no-param-reassign
+                    region.end = Math.round(chr.size / 2);
                 }
             }
         }
     }
+
     _checkAndSetMinimumRegion(region, width) {
         const minLength = Math.floor(width / 10);
         if (region.length() < minLength) {
             const centerPosition = region.center();
             const aux = Math.ceil((minLength / 2) - 1);
+            // eslint-disable-next-line no-param-reassign
             region.start = Math.floor(centerPosition - aux);
+            // eslint-disable-next-line no-param-reassign
             region.end = Math.floor(centerPosition + aux);
         }
     }
+
     _calculateRegionByZoom(zoom) {
         const minNtPixels = 10; // 10 is the minimum pixels per nt
         const chr = this.chromosomes[this.region.chromosome];
@@ -584,18 +500,20 @@ export default class GenomeBrowser {
         const regionLength = minRegionLength * (Math.pow(zoomLevelMultiplier, 100 - zoom)); // invert   100 - zoom
         const centerPosition = this.region.center();
         const aux = Math.ceil((regionLength / 2) - 1);
-        const start = Math.floor(centerPosition - aux);
-        const end = Math.floor(centerPosition + aux);
 
-        return {start: start, end: end};
+        return {
+            start: Math.floor(centerPosition - aux),
+            end: Math.floor(centerPosition + aux),
+        };
     }
+
     _calculateZoomByRegion(region) {
         const minNtPixels = 10; // 10 is the minimum pixels per nt
         const minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
 
         let zoomLevelMultiplier = 0.01;
-        if (this.chromosomes !== undefined && Object.keys(this.chromosomes).length > 0) {
-            let chr = this.chromosomes[region.chromosome];
+        if (this.chromosomes && this.chromosomes[region.chromosome]) {
+            const chr = this.chromosomes[region.chromosome];
             zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
         }
         const regionLength = region.length();
@@ -605,22 +523,19 @@ export default class GenomeBrowser {
     }
 
     _checkChangingRegion() {
-        if (typeof this.overviewTrackListPanel !== "undefined") {
-            if (!this.overviewTrackListPanel.checkTracksReady()) {
-                return false;
-            }
+        if (this.overviewTrackListPanel && !this.overviewTrackListPanel.checkTracksReady()) {
+            return false;
         }
-        if (typeof this.trackListPanel !== "undefined") {
-            if (!this.trackListPanel.checkTracksReady()) {
-                return false;
-            }
+        if (this.trackListPanel && !this.trackListPanel.checkTracksReady()) {
+            return false;
         }
         return true;
     }
 
-    /*****************/
-    /** EVENT METHODS **/
-    /*****************/
+    //
+    // EVENT METHODS
+    //
+
     _regionChangeHandler(event) {
         if (this._checkChangingRegion()) {
 
@@ -643,46 +558,44 @@ export default class GenomeBrowser {
             return false;
         }
     }
+
     _regionMoveHandler(event) {
-        // Relaunch
         this.trigger("region:move", event);
     }
+
     _zoomChangeHandler(event) {
-        event.zoom = Math.min(100, event.zoom);
-        event.zoom = Math.max(0, event.zoom);
-        this.zoom = event.zoom;
+        this.zoom = Math.min(100, Math.max(0, event.zoom));
         this.region.load(this._calculateRegionByZoom(event.zoom));
         this.setRegion(this.region);
     }
+
     _speciesChangeHandler(event) {
-        const _this = this;
-        // Relaunch
         this.trigger("species:change", event);
         this._updateSpecies(event.species);
 
-        let firstGeneRegion;
         const args = {
             category: "feature",
             subcategory: "gene",
             resource: "first",
             species: event.species,
             params: {
-                include: "chromosome,start,end"
-            }
+                include: "chromosome,start,end",
+            },
         };
 
-        _this.client.getOldWay(args)
+        this.cellBaseClient.getOldWay(args)
             .then(response =>{
-                firstGeneRegion = response.response[0].result[0];
+                const firstGeneRegion = response.response[0].result[0];
                 const region = new Region(firstGeneRegion);
                 this.setRegion(region);
             })
             .catch(e => {
                 console.error(e);
-                console.error( "Cellbase host not available. Genome-browser.js fail. _speciesChangeHandler");
+                console.error("Cellbase host not available. Genome-browser.js fail. _speciesChangeHandler");
             });
     }
 
+    // TODO: register event listeners in panels instead of doing this
     _updateSpecies(species) {
         this.species = species;
         // this.chromosomes = this.getChromosomes();
@@ -707,28 +620,30 @@ export default class GenomeBrowser {
 
     _getSpeciesByTaxonomy(taxonomyCode) {
         // find species object
-        let speciesObject = null;
-        if (taxonomyCode !== undefined) {
+        // let speciesObject = null;
+        if (taxonomyCode) {
             for (let i = 0; i < this.availableSpecies.items.length; i++) {
                 for (let j = 0; j < this.availableSpecies.items[i].items.length; j++) {
-                    let species = this.availableSpecies.items[i].items[j];
-                    let taxonomy = Utils.getSpeciesCode(species.scientificName);
+                    const species = this.availableSpecies.items[i].items[j];
+                    const taxonomy = Utils.getSpeciesCode(species.scientificName);
                     if (taxonomy === taxonomyCode) {
-                        speciesObject = species;
-                        break;
+                        // speciesObject = species;
+                        // break;
+                        return species;
                     }
                 }
             }
         }
-        return speciesObject;
+        // return speciesObject;
+        return null;
     }
 
-    /*****************/
-    /** API METHODS **/
-    /*****************/
+    //
+    // API METHODS
+    //
 
     setSpeciesByTaxonomy(taxonomyCode) {
-        let species = this._getSpeciesByTaxonomy(taxonomyCode);
+        const species = this._getSpeciesByTaxonomy(taxonomyCode);
         if (species !== null) {
             this._speciesChangeHandler({species: species});
         } else {
@@ -737,8 +652,8 @@ export default class GenomeBrowser {
     }
 
     setRegion(region, taxonomy) {
-        if (taxonomy !== undefined && taxonomy !== null) {
-            let species = this._getSpeciesByTaxonomy(taxonomy);
+        if (taxonomy) {
+            const species = this._getSpeciesByTaxonomy(taxonomy);
             this._updateSpecies(species);
         }
         return this._regionChangeHandler({region: new Region(region)});
@@ -750,11 +665,12 @@ export default class GenomeBrowser {
         this.trigger("region:move", {region: this.region, disp: -disp, sender: this});
     }
 
+    // TODO: use events instead of calling the setWidth method of each panel
     setWidth(width) {
-        let newRegion = new Region(this.region);
-        let newLength = width * this.region.length() / this.width;
-        let centerPosition = this.region.center();
-        let aux = Math.ceil((newLength / 2) - 1);
+        const newRegion = new Region(this.region);
+        const newLength = width * this.region.length() / this.width;
+        const centerPosition = this.region.center();
+        const aux = Math.ceil((newLength / 2) - 1);
         newRegion.start = Math.floor(centerPosition - aux);
         newRegion.end = Math.floor(centerPosition + aux);
 
@@ -776,63 +692,56 @@ export default class GenomeBrowser {
             this.navigationBar.setWidth(width);
         }
 
-        let hasChanged = this._regionChangeHandler({
-            region: newRegion
-        });
+        this._regionChangeHandler({region: newRegion});
     }
 
     setZoom(zoom) {
-        zoom = Math.min(100, zoom);
-        zoom = Math.max(0, zoom);
-        this.zoom = zoom;
+        this.zoom = Math.min(100, Math.max(0, zoom));
         this.region.load(this._calculateRegionByZoom(zoom));
         this.setRegion(this.region);
     }
 
-    increaseZoom(zoomToIncrease) {
-        let zoom = this.zoom + zoomToIncrease;
-        this.setZoom(zoom);
+    increaseZoom(increment) {
+        this.setZoom(this.zoom + increment);
     }
 
-    setCellBaseHost(host) {
-        if (host !== this.cellBaseHost) {
-            this.cellBaseHost = host;
-            this.navigationBar.setCellBaseHost(this.cellBaseHost);
-            this.chromosomePanel.setCellBaseHost(this.cellBaseHost);
-            this.karyotypePanel.setCellBaseHost(this.cellBaseHost);
-            this.trackListPanel.setCellBaseHost(this.cellBaseHost);
-            this.overviewTrackListPanel.setCellBaseHost(this.cellBaseHost);
+    // We need this method?
+    // setCellBaseHost(host) {
+    //     if (host !== this.cellBaseHost) {
+    //         this.cellBaseHost = host;
+    //         this.navigationBar.setCellBaseHost(this.cellBaseHost);
+    //         this.chromosomePanel.setCellBaseHost(this.cellBaseHost);
+    //         this.karyotypePanel.setCellBaseHost(this.cellBaseHost);
+    //         this.trackListPanel.setCellBaseHost(this.cellBaseHost);
+    //         this.overviewTrackListPanel.setCellBaseHost(this.cellBaseHost);
 
-            this._updateSpecies(this.species);
-            this.setRegion(new Region(this.region));
-        }
-    }
+    //         this._updateSpecies(this.species);
+    //         this.setRegion(new Region(this.region));
+    //     }
+    // }
 
-    /* ****************/
     getSVGCanvasWidth() {
         return this.width - this.trackPanelScrollWidth - this.sidePanelWidth;
     }
-    /* ****************/
 
     mark(args) {
-        let attrName = args.attrName || "feature_id";
-        let cssClass = args.class || "ocb-feature-mark";
-        if ("attrValues" in args) {
-            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
-            for (let key in args.attrValues) {
+        const attrName = args.attrName || "feature_id";
+        const cssClass = args.class || "ocb-feature-mark";
+        if (typeof args.attrValues !== "undefined") {
+            [args.attrValues].flat().forEach(key => {
+                // TODO: Use a native document selector instead of using jquery
                 $(`rect[${attrName} ~= ${args.attrValues[key]}]`).attr("class", cssClass);
-            }
-
+            });
         }
     }
 
     unmark(args) {
-        let attrName = args.attrName || "feature_id";
-        if ("attrValues" in args) {
-            args.attrValues = ($.isArray(args.attrValues)) ? args.attrValues : [args.attrValues];
-            for (let key in args.attrValues) {
+        const attrName = args.attrName || "feature_id";
+        if (typeof args.attrValues !== "undefined") {
+            [args.attrValues].flat().forEach(key => {
+                // TODO: Use a native document selector instead of using jquery
                 $(`rect[${attrName} ~= ${args.attrValues[key]}]`).attr("class", "");
-            }
+            });
         }
     }
 
@@ -840,6 +749,7 @@ export default class GenomeBrowser {
         this.trigger("feature:highlight", args);
     }
 
+    // TODO: use native alternatives instead of jquery
     getRightSidePanelId() {
         return $(this.rightSidebarDiv).attr("id");
     }
@@ -857,15 +767,14 @@ export default class GenomeBrowser {
     }
 
     setNavigationBar(navigationBar) {
-        this.navigationBar = navigationBar;
-        let config = {
+        this.navigationBar = Object.assign(navigationBar, {
             availableSpecies: this.availableSpecies,
             species: this.species,
             region: this.region,
             width: this.width,
-            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth
-        };
-        _.extend(this.navigationBar, config);
+            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
+        });
+        // TODO: this must be improved
         navigationBar.render(this.getNavigationPanelId());
     }
 
@@ -905,14 +814,16 @@ export default class GenomeBrowser {
     setRegionTextBoxVisible(bool) {
         this.navigationBar.setRegionTextBoxVisible(bool);
     }
+
     setSearchVisible(bool) {
         this.navigationBar.setSearchVisible(bool);
     }
+
     setFullScreenVisible(bool) {
         this.navigationBar.setFullScreenButtonVisible(bool);
     }
 
-    /* Track management*/
+    // Track management
     addOverviewTrack(track) {
         this.overviewTrackListPanel.addTrack(track);
     }
@@ -948,13 +859,15 @@ export default class GenomeBrowser {
     hideTrack(track) {
         this.trackListPanel.hideTrack(track);
     }
+
     containsTrack(track) {
         return this.trackListPanel.containsTrack(track);
     }
+
     containsTrackById(trackId) {
-        var track = this.getTrackById(trackId);
-        return typeof track !== "undefined" && track != null;
+        return !!this.getTrackById(trackId);
     }
+
     deleteTracksCache() {
         this.overviewTrackListPanel.deleteTracksCache();
         this.trackListPanel.deleteTracksCache();
@@ -969,7 +882,53 @@ export default class GenomeBrowser {
 
     // Get default configuration for GenomeBrowser
     static getDefaultConfig() {
-        return {};
+        return {
+            // General configuration
+            autoRender: true,
+            resizable: true,
+            region: null,
+            width: 1,
+            height: 1,
+
+            // CellBase configuration
+            cellBaseClient: null,
+            cellBaseHost: GenomeBrowserConstants.CELLBASE_HOST,
+            cellBaseVersion: GenomeBrowserConstants.CELLBASE_VERSION,
+
+            // TO REVIEW
+            sidePanel: false,
+            trackListTitle: "Detailed information",
+            trackPanelScrollWidth: 18,
+
+            drawStatusBar: true,
+            drawNavigationBar: true,
+            navigationBarConfig: {},
+            drawKaryotypePanel: true,
+            drawChromosomePanel: true,
+            drawOverviewTrackListPanel: true,
+            overviewZoomMultiplier: 8,
+            karyotypePanelConfig: {
+                hidden: false,
+                collapsed: false,
+                collapsible: true,
+            },
+            chromosomePanelConfig: {
+                hidden: false,
+                collapsed: false,
+                collapsible: true,
+            },
+            regionPanelConfig: {
+                hidden: false,
+                collapsed: false,
+                collapsible: true,
+            },
+
+            quickSearchResultFn: null,
+            quickSearchDisplayKey: "name",
+
+            species: [],
+            availableSpecies: [],
+        };
     }
 
 }
