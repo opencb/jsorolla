@@ -84,7 +84,7 @@ export default class CheckboxFieldFilter extends LitElement {
                         <li>
                             <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
                             <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
-                                ${name}
+                                ${UtilsNew.renderHTML(name)}
                             </label>
                         </li>
                     `;
