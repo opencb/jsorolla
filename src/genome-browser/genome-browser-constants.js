@@ -2,7 +2,7 @@
 export default class GenomeBrowserConstants {
 
     // CellBase constants
-    static CELLBASE_HOST = "https://ws.zettagenomics.com/cellbase/";
-    static CELLBASE_VERSION = "v4";
+    static CELLBASE_HOST = "https://ws.zettagenomics.com/cellbase";
+    static CELLBASE_VERSION = "v5";
 
 }
