@@ -108,7 +108,7 @@ export default class VariantSamples extends LitElement {
     }
 
     sexFormatter(value) {
-        return value ? `${value.sex?.id || ""} (${value.karyotypicSex})` : "-";
+        return value ? `${value.sex?.id ?? value.sex ?? "Not specified"} (${value.karyotypicSex ?? "Not specified"})` : "Not specified";
     }
 
     disorderFormatter(value, row, index) {
