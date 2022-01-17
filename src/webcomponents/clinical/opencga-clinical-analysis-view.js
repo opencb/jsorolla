@@ -260,8 +260,11 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         {
                             title: "Sex (Karyotypic)",
                             type: "custom",
+                            field: "proband",
                             display: {
-                                render: ({proband}) => `${proband.sex?.id ?? proband.sex ?? ""} (${proband.karyotypicSex})`
+                                render: proband => `
+                                    ${proband?.sex?.id ?? proband?.sex ?? "Not specified"} (${proband?.karyotypicSex ?? "Not specified"})
+                                `,
                             },
                         },
                         {
