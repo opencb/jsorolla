@@ -50,6 +50,7 @@ export default class CheckboxFieldFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("value")) {
+            this.state = {};
             if (this.value) {
                 if (Array.isArray(this.value)) {
                     this.value.forEach(v => this.state[v] = true);
@@ -57,8 +58,6 @@ export default class CheckboxFieldFilter extends LitElement {
                     this.value.split(",").forEach(v => this.state[v] = true);
                 }
                 this.state = {...this.state};
-            } else {
-                this.state = {};
             }
         }
         super.update(changedProperties);
@@ -85,7 +84,7 @@ export default class CheckboxFieldFilter extends LitElement {
                         <li>
                             <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
                             <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
-                                ${name}
+                                ${UtilsNew.renderHTML(name)}
                             </label>
                         </li>
                     `;

@@ -201,7 +201,9 @@ export default class IndividualView extends LitElement {
                             title: "Reported Sex (Karyotypic)",
                             type: "custom",
                             display: {
-                                render: data => `${data.sex?.id ?? data.sex ?? ""} (${data.karyotypicSex})`
+                                render: individual => `
+                                    ${individual.sex?.id ?? individual.sex ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
+                                `,
                             }
                         },
                         {
