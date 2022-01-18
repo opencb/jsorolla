@@ -451,12 +451,11 @@ export default class GenomeBrowser {
     }
 
     _createStatusBar(target) {
-        const statusBar = new StatusBar({
-            target: target,
+        const statusBar = new StatusBar(target, {
             autoRender: true,
             region: this.region,
             width: this.width,
-            version: this.version
+            version: this.version,
         });
 
         // Listen to events in GB
