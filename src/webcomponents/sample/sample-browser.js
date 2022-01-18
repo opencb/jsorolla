@@ -77,10 +77,11 @@ export default class SampleBrowser extends LitElement {
         }
 
         return html`
-            <opencga-browser resource="SAMPLE"
-                             .opencgaSession="${this.opencgaSession}"
-                             .query="${this.query}"
-                             .config="${this.config}">
+            <opencga-browser
+                resource="SAMPLE"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this.config}">
             </opencga-browser>
         `;
     }
@@ -218,10 +219,11 @@ export default class SampleBrowser extends LitElement {
                             name: "Files",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <opencga-file-grid .query="${{sampleIds: sample.id}}"
-                                                       .active="${active}"
-                                                       .config="${{downloadFile: this.config.downloadFile}}"
-                                                       .opencgaSession="${opencgaSession}">
+                                    <opencga-file-grid
+                                        .query="${{sampleIds: sample.id}}"
+                                        .active="${active}"
+                                        .config="${{downloadFile: this.config.downloadFile}}"
+                                        .opencgaSession="${opencgaSession}">
                                     </opencga-file-grid>`;
                             }
                         },
