@@ -231,8 +231,7 @@ export default class GenomeBrowser {
 
         // TODO: change initialization of NavigationBar
         // TODO: fix configuration values
-        const navigationBar = new NavigationBar({
-            target: target,
+        const navigationBar = new NavigationBar(target, {
             cient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
