@@ -19,7 +19,10 @@ export default class GenomeBrowser {
         Object.assign(this, Backbone.Events);
 
         this.id = UtilsNew.randomString(8);
-        this.config = {...GenomeBrowser.getDefaultConfig(), ...config};
+        this.config = {
+            ...GenomeBrowser.getDefaultConfig(),
+            ...config,
+        };
 
         // Initialize target element: can be an HTMLElement reference or an ID selector
         this.target = target instanceof HTMLElement ? target : document.querySelector(`#${target}`);
@@ -62,53 +65,37 @@ export default class GenomeBrowser {
     }
 
     render() {
-        // HTML skel
-        this.div = document.createElement("div");
-        this.div.setAttribute("id", this.id);
-        this.div.setAttribute("class", "ocb-gv ocb-box-vertical");
+        // Generate GB template
+        const template = UtilsNew.renderHTML(`
+            <div id="${this.id}" class="ocb-gv ocb-box-vertical">
+                <div id="${this.id}Navigation" class="ocb-gv-navigation"></div>
+                <div class="ocb-gv-center">
+                    <div id="${this.id}LeftSide" class="ocb-gv-left-side"></div>
+                    <div id="${this.id}RightSide" class="ocb-gv-right-side"></div>
+                    <div id="${this.id}Karyotype" class="ocb-gv-karyotype"></div>
+                    <div id="${this.id}Chromosome" class="ocb-gv-chromosome"></div>
+                    <div class="ocb-gv-tracklist-target">
+                        <div id="${this.id}Region" class="ocb-gv-overview"></div>
+                        <div id="${this.id}Tracks" class="ocb-gv-detailed"></div>
+                    </div>
+                </div>
+                <div id="${this.id}Status" class="ocb-gv-status"></div>
+            </div>
+        `);
 
-        this.navigationbarDiv = document.createElement("div");
-        this.navigationbarDiv.setAttribute("class", "ocb-gv-navigation");
-        this.div.appendChild(this.navigationbarDiv);
+        this.div = template.querySelector(`div#${this.id}`);
+        this.navigationbarDiv = this.div.querySelector(`div#${this.id}Navigation`);
+        this.statusbarDiv = this.div.querySelector(`div#${this.id}Status`);
 
-        this.centerPanelDiv = document.createElement("div");
-        this.centerPanelDiv.setAttribute("class", "ocb-gv-center");
-        this.div.appendChild(this.centerPanelDiv);
+        // TODO: check if we really need the left and right sidebar components
+        this.leftSidebarDiv = this.div.querySelector(`div#${this.id}LeftSide`);
+        this.rightSidebarDiv = this.div.querySelector(`div#${this.id}RightSide`);
 
-        this.statusbarDiv = document.createElement("div");
-        this.statusbarDiv.setAttribute("class", "ocb-gv-status");
-        this.div.appendChild(this.statusbarDiv);
+        this.karyotypeDiv = this.div.querySelector(`div#${this.id}Karyotype`);
+        this.chromosomeDiv = this.div.querySelector(`div#${this.id}Chromosome`);
 
-
-        this.rightSidebarDiv = document.createElement("div");
-        this.rightSidebarDiv.setAttribute("class", "ocb-gv-right-side");
-        this.centerPanelDiv.appendChild(this.rightSidebarDiv);
-
-        this.leftSidebarDiv = document.createElement("div");
-        this.leftSidebarDiv.setAttribute("class", "ocb-gv-left-side");
-        this.centerPanelDiv.appendChild(this.leftSidebarDiv);
-
-
-        this.karyotypeDiv = document.createElement("div");
-        this.karyotypeDiv.setAttribute("class", "ocb-gv-karyotype");
-        this.centerPanelDiv.appendChild(this.karyotypeDiv);
-
-        this.chromosomeDiv = document.createElement("div");
-        this.chromosomeDiv.setAttribute("class", "ocb-gv-chromosome");
-        this.centerPanelDiv.appendChild(this.chromosomeDiv);
-
-
-        this.trackListPanelsDiv = document.createElement("div");
-        this.trackListPanelsDiv.setAttribute("class", "ocb-gv-tracklist-target");
-        this.centerPanelDiv.appendChild(this.trackListPanelsDiv);
-
-        this.regionDiv = document.createElement("div");
-        this.regionDiv.setAttribute("class", "ocb-gv-overview");
-        this.trackListPanelsDiv.appendChild(this.regionDiv);
-
-        this.tracksDiv = document.createElement("div");
-        this.tracksDiv.setAttribute("class", "ocb-gv-detailed");
-        this.trackListPanelsDiv.appendChild(this.tracksDiv);
+        this.regionDiv = this.div.querySelector(`div#${this.id}Region`);
+        this.tracksDiv = this.div.querySelector(`div#${this.id}Tracks`);
 
         if (this.config.drawOverviewTrackListPanel) {
             this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
@@ -163,7 +150,7 @@ export default class GenomeBrowser {
         });
 
         // TODO: fix an alternative to $.bind
-        // TODO: event.keyCode is deprecated, we should replace it when event.key
+        // TODO: event.keyCode is deprecated, we should replace it whith event.key
         // See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
         $("html").bind("keydown.genomeViewer", event => {
             switch (event.keyCode) {
@@ -520,7 +507,6 @@ export default class GenomeBrowser {
         let zoomLevelMultiplier = 0.01;
         if (this.chromosomes && this.chromosomes[region.chromosome]) {
             const chr = this.chromosomes[region.chromosome];
-            console.log(chr);
             zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
         }
         const regionLength = region.length();
