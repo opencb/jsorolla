@@ -652,20 +652,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 4,
                     halign: "center"
-                },
-                {
-                    title: "Review",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: this.reviewFormatter.bind(this),
-                    align: "center",
-                    events: {
-                        "click button": this.onReviewClick.bind(this)
-                    },
-                    // visible: this._config.showReview
-                    visible: this.review
                 },
                 {
                     title: "Actions",
@@ -731,8 +719,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click input": this.onCheck.bind(this)
                     },
-                    visible: this._config.showSelectCheckbox
-                }
+                    visible: this._config.showSelectCheckbox,
+                },
+                {
+                    title: "Review",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.reviewFormatter.bind(this),
+                    align: "center",
+                    events: {
+                        "click button": this.onReviewClick.bind(this)
+                    },
+                    // visible: this._config.showReview
+                    visible: !!this.review,
+                },
             ]
         ];
 
