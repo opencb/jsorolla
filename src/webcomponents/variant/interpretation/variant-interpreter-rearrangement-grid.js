@@ -80,18 +80,23 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         // Set colors
         // consequenceTypesImpact;
+        // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this.table = $("#" + this.gridId);
@@ -118,14 +123,22 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
+        };
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
@@ -430,34 +443,39 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     // DEPRECATED
     pathogeniticyFormatter(value, row, index) {
         // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
-        const val = `<div class="col-md-12" style="padding: 0px">
-                                <form class="form-horizontal">
-                                    <div class="col-md-12" style="padding: 0px">
-                                        <form class="form-horizontal">
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                                            </div>
-                                             <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                                             </div>
-                                         </form>
-                                      </div>
-                                </form>
-                           </div>`;
-        return val;
+        return `
+            <div class="col-md-12" style="padding: 0px">
+                <form class="form-horizontal">
+                    <div class="col-md-12" style="padding: 0px">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
+                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
+                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
+                            </div>
+                        </form>
+                    </div>
+                </form>
+            </div>
+        `;
     }
 
     checkFormatter(value, row, index) {
         const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
-        return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
+        return `
+            <input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>
+        `;
     }
 
     reviewFormatter(value, row, index) {
-        return `<button class="btn btn-link reviewButton" data-variant-id="${row.id}">
-                    <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>&nbsp;Edit
-                </button>`;
+        return `
+            <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
+                <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>&nbsp;Edit
+            </button>
+        `;
         // return `
         //     <div>
         //         <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
@@ -949,69 +967,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [5, 10, 25],
-            showExport: false,
-            detailView: true,
-            showReview: true,
-            showSelectCheckbox: false,
-            showActions: false,
-            multiSelection: false,
-            nucleotideGenotype: true,
-
-            alleleStringLengthMax: 50,
-
-            genotype: {
-                type: "VCF_CALL"
-            },
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
-            quality: {
-                qual: 30,
-                dp: 20
-            },
-            populationFrequencies: [],
-
-            consequenceType: {
-                maneTranscript: true,
-                gencodeBasicTranscript: true,
-                ensemblCanonicalTranscript: true,
-                ccdsTranscript: false,
-                ensemblTslTranscript: false,
-                proteinCodingTranscript: false,
-                highImpactConsequenceTypeTranscript: false,
-
-                showNegativeConsequenceTypes: true
-            },
-            callers: [
-                {
-                    id: "brass",
-                    // TODO
-                    columns: [
-                        {name: "Assembly Score", field: "BAS", position: 5},
-                        {name: "...", field: "CNCH", position: 6},
-                        {name: "...", field: "FFV", position: 9},
-                    ],
-                    info: [
-                        {name: "Gene", fields: ["GENE", "TID"], separator: "<br>"},
-                        {name: "Region Type", fields: ["RGN"]},
-                        {name: "Region Position", fields: ["RGNNO", "RGNC"]}
-                    ]
-                }
-            ],
-
-            evidences: {
-                showSelectCheckbox: true
-            }
-        };
-    }
-
     showLoading() {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
@@ -1069,7 +1024,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 render: () => html`
                     <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                         <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
+                    </button>
+                `,
             }
         ];
     }
@@ -1089,14 +1045,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             </style>
 
-            <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 .rightToolbar="${this.getRightToolbar()}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}"
-                                 @sharelink="${this.onShare}">
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                .rightToolbar="${this.getRightToolbar()}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}"
+                @sharelink="${this.onShare}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
@@ -1107,10 +1064,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Review Variant</h3>
                         </div>
-                        <clinical-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
-                                                                .variant="${this.variantReview}"
-                                                                mode=${"form"}
-                                                                @variantChange="${e => this.onVariantChange(e)}">
+                        <clinical-interpretation-variant-review
+                            .opencgaSession="${this.opencgaSession}"
+                            .variant="${this.variantReview}"
+                            mode=${"form"}
+                            @variantChange="${e => this.onVariantChange(e)}">
                         </clinical-interpretation-variant-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
@@ -1130,8 +1088,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                <variant-interpreter-grid-config .config="${this._config}"
-                                                                 @configChange="${this.onGridConfigChange}">
+                                <variant-interpreter-grid-config
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>
                             </div>
                         </div>
@@ -1143,6 +1102,68 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            showExport: false,
+            detailView: true,
+            showReview: true,
+            showSelectCheckbox: false,
+            showActions: false,
+            multiSelection: false,
+            nucleotideGenotype: true,
+
+            alleleStringLengthMax: 50,
+
+            genotype: {
+                type: "VCF_CALL"
+            },
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+
+            quality: {
+                qual: 30,
+                dp: 20
+            },
+            populationFrequencies: [],
+
+            consequenceType: {
+                maneTranscript: true,
+                gencodeBasicTranscript: true,
+                ensemblCanonicalTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
+            callers: [
+                {
+                    id: "brass",
+                    // TODO
+                    columns: [
+                        {name: "Assembly Score", field: "BAS", position: 5},
+                        {name: "...", field: "CNCH", position: 6},
+                        {name: "...", field: "FFV", position: 9},
+                    ],
+                    info: [
+                        {name: "Gene", fields: ["GENE", "TID"], separator: "<br>"},
+                        {name: "Region Type", fields: ["RGN"]},
+                        {name: "Region Position", fields: ["RGNNO", "RGNC"]}
+                    ]
+                }
+            ],
+            evidences: {
+                showSelectCheckbox: true,
+            },
+        };
     }
 
 }
