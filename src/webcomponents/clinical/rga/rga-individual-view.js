@@ -485,7 +485,7 @@ export default class RgaIndividualView extends LitElement {
                                 _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
                                 _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
                             ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_individual_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
