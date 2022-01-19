@@ -1,445 +1,520 @@
 import Region from "../core/bioinfo/region.js";
-import Utils from "../core/utils.js";
+import UtilsNew from "../core/utilsNew.js";
 
 
 export default class NavigationBar {
 
-    constructor(args) {
+    constructor(target, config) {
+        // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
-        this.id = Utils.genId("NavigationBar");
-
-        this.target;
-        this.autoRender = true;
-
-        this.cellBaseHost = 'http://bioinfo.hpc.cam.ac.uk/cellbase';
-        this.cellBaseVersion = 'v3';
-
-        this.species = 'Homo sapiens';
-        this.increment = 3;
-        this.componentsConfig = {
-            menuButton: false,
-            leftSideButton: false,
-            restoreDefaultRegionButton: true,
-            regionHistoryButton: true,
-            speciesButton: true,
-            chromosomesButton: true,
-            karyotypeButtonLabel: true,
-            chromosomeButtonLabel: true,
-            regionButtonLabel: true,
-            zoomControl: true,
-            windowSizeControl: true,
-            positionControl: true,
-            moveControl: true,
-            autoheightButton: true,
-            compactButton: true,
-            searchControl: true
+        this.id = UtilsNew.randomString(8);
+        this.target = target;
+        this.config = {
+            ...NavigationBar.getDefaultConfig(),
+            ...config,
         };
-        this.zoom = 50;
 
-        this.quickSearchDisplayKey = 'name';
+        // set new region object
+        this.region = new Region(this.config.region);
+        this.zoom = this.config.zoom || 50;
 
-
-        Object.assign(this.componentsConfig, args.componentsConfig);
-        delete args.componentsConfig;
-
-        //set instantiation args, must be last
-        Object.assign(this, args);
-
-
-        //set new region object
-        this.region = new Region(this.region);
-
-        this.currentChromosomeList = [];
-
-        this.on(this.handlers);
-
-
-        this.els = {};
+        // this.els = {};
+        this.elements = {};
+        this.currentChromosomesList = [];
         this.zoomChanging = false;
         this.regionChanging = false;
 
         this.rendered = false;
-        if (this.autoRender) {
+        if (this.config.autoRender) {
             this.render();
         }
     }
 
-
     render() {
-        let _this = this;
+        const template = UtilsNew.renderHTML(`
+            <div id="${this.id}" class="ocb-gv-navigation-bar unselectable">
+                <div id="${this.id}LeftSideButton" title="Restore previous region" style="margin-right:5px;" class="ocb-ctrl">
+                    <i class="fa fa-bars"></i>
+                </div>
+                <div id="${this.id}RestoreDefaultRegionButton" class="ocb-ctrl">
+                    <i class="fa fa-redo"></i>
+                </div>
+                <div title="Region history" class="ocb-dropdown" style="margin-left: 5px">
+                    <div id="${this.id}RegionHistoryButton" class="ocb-ctrl" tabindex="-1">
+                        <i class="fa fa-history"></i>
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                    <ul id="${this.id}RegionHistoryMenu"></ul>
+                </div>
+                <div title="Species menu" class="ocb-dropdown" style="margin-left: 5px">
+                    <div id="${this.id}SpeciesButton" class="ocb-ctrl" tabindex="-1">
+                        <span id="${this.id}SpeciesText"></span>
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                    <ul id="${this.id}SpeciesMenu"></ul>
+                </div>
+                <div title="Chromosomes menu" class="ocb-dropdown" style="margin-left: 5px">
+                    <div id="${this.id}ChromosomesButton" class="ocb-ctrl" tabindex="-1">
+                        <span id="${this.id}ChromosomesText"></span>
+                        <i class="fa fa-caret-down"></i>
+                    </div>
+                    <ul id="${this.id}ChromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>
+                </div>
+                <div style="margin-left:5px;float:left;">
+                    <label title="Toggle karyotype panel" class="ocb-ctrl" id="${this.id}KaryotypeButtonLabel">
+                        <input id="${this.id}KaryotypeButton" type="checkbox" />
+                        <span style="border-right:none">
+                            <span class="ocb-icon ocb-icon-karyotype"></span>
+                        </span>
+                    </label>
+                    <label title="Toggle chromosome panel" class="ocb-ctrl" id="${this.id}ChromosomeButtonLabel">
+                        <input id="${this.id}ChromosomeButton" type="checkbox" />
+                        <span style="border-right:none">
+                            <span class="ocb-icon ocb-icon-chromosome"></span>
+                        </span>
+                    </label>
+                    <label title="Toggle overview panel" class="ocb-ctrl" id="${this.id}RegionButtonLabel">
+                        <input id="${this.id}RegionButton" type="checkbox" />
+                        <span>
+                            <span class="ocb-icon ocb-icon-region"></span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Zoom control -->
+                <div id="${this.id}ZoomControl" style="float:left;">
+                    <div title="Minimum window size" id="${this.id}ZoomMinButton" class="ocb-ctrl" style="">Min</div>
+                    <div title="Decrease window size" id="${this.id}ZoomOutButton" class="ocb-ctrl">
+                        <span class="fa fa-minus"></span>
+                    </div>
+                    <div id="${this.id}ProgressBarCont" class="ocb-zoom-bar">
+                        <div id="${this.id}ProgressBarBack" class="back"></div>
+                        <div id="${this.id}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
+                        <div id="${this.id}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
+                    </div>
+                    <div title="Increase window size" id="${this.id}ZoomInButton" class="ocb-ctrl" style="border-right:none;">
+                        <span class="fa fa-plus"></span>
+                    </div>
+                    <div title="Maximum window size" id="${this.id}ZoomMaxButton" class="ocb-ctrl">Max</div>
+                </div>
+
+                <div title="Window size (Nucleotides)" id="${this.id}WindowSizeControl" style="float:left;margin-left:5px;">
+                    <input id="${this.id}WindowSizeField" class="ocb-ctrl" type="text" style="width:70px;" />
+                </div>
+
+                <div title="Position" id="${this.id}PositionControl" style="float:left;margin-left:5px">
+                    <input id="${this.id}RegionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width:170px;">
+                    <div id="${this.id}GoButton" class="ocb-ctrl" style="border-left: none;">Go!</div>
+                </div>
+
+                <div id="${this.id}MoveControl" style="float:left;font-size:18px;">
+                    <div id="${this.id}MoveFurtherLeftButton" class="ocb-ctrl" style="border-right:none;margin-left:5px;">
+                        <i class="fa fa-angle-double-left"></i>
+                    </div>
+                    <div id="${this.id}MoveLeftButton" class="ocb-ctrl" style="border-right:none;">
+                        <i class="fa fa-angle-left"></i>
+                    </div>
+                    <div id="${this.id}MoveRightButton" class="ocb-ctrl" style="border-right:none;">
+                        <i class="fa fa-angle-right"></i>
+                    </div>
+                    <div id="${this.id}MoveFurtherRightButton" class="ocb-ctrl">
+                        <i class="fa fa-angle-double-right"></i>
+                    </div>
+                </div>
+
+                <label class="ocb-ctrl">
+                    <input type="checkbox" id="${this.id}AutoheightButton" />
+                    <span style="margin-left:5px;font-size:18px;">
+                        <i class="fa fa-compress"></i>
+                    </span>
+                </label>
+
+                <div id="${this.id}SearchControl" style="float:left;">
+                    <input
+                        type="text"
+                        id="${this.id}SearchField"
+                        list="${this.id}SearchDataList"
+                        class="ocb-ctrl"
+                        placeholder="gene"
+                        style="width:90px;margin-left:5px;"
+                    />
+                    <datalist id="${this.id}SearchDataList"></datalist>
+                    <div id="${this.id}SearchButton" class="ocb-ctrl" style="border-left:none;">
+                        <i class="fa fa-search"></i>
+                    </div>
+                </div>
+
+                <div style="float:right;margin-right:10px;" id="${this.id}MenuButton" class="ocb-ctrl">
+                    <i class="fa fa-navicon"></i> Configure
+                </div>
+            </div>
+        `);
+
+        this.div = template.querySelector(`div#${this.id}`);
+
+        // Initialize elements
+        this.elements.karyotypeButton = this.div.querySelector(`input#${this.id}KaryotypeButton`);
+        this.elements.chromosomeButton = this.div.querySelector(`input#${this.id}ChromosomeButton`);
+        this.elements.regionButton = this.div.querySelector(`input#${this.id}RegionButton`);
+
+        this.elements.leftSideButton = this.div.querySelector(`div#${this.id}LeftSideButton`);
+        this.elements.restoreDefaultRegionButton = this.div.querySelector(`div#${this.id}RestoreDefaultRegionButton`);
+        this.elements.menuButton = this.div.querySelector(`div#${this.id}MenuButton`);
+
+        this.elements.chromosomesText = this.div.querySelector(`span#${this.id}ChromosomesText`);
+        this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.id}ChromosomesMenu`);
+
+        this.elements.zoomOutButton = this.div.querySelector(`div#${this.id}ZoomOutButton`);
+        this.elements.zoomInButton = this.div.querySelector(`div#${this.id}ZoomInButton`);
+        this.elements.zoomMaxButton = this.div.querySelector(`div#${this.id}ZoomMaxButton`);
+        this.elements.zoomMinButton = this.div.querySelector(`div#${this.id}ZoomMinButton`);
+
+        this.elements.progressBarCont = this.div.querySelector(`div#${this.id}ProgressBarCont`);
+        this.elements.progressBarBall = this.div.querySelector(`div#${this.id}ProgressBarBall`);
+        this.elements.progressBar = this.div.querySelector(`div#${this.id}ProgressBar`);
+
+        this.elements.regionField = this.div.querySelector(`input#${this.id}RegionField`);
+        this.elements.goButton = this.div.querySelector(`div#${this.id}GoButton`);
+
+        this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.id}RegionHistoryMenu`);
+        this.elements.regionHistoryButton = this.div.querySelector(`div#${this.id}RegionHistoryButton`);
+
+        this.elements.moveFurtherLeftButton = this.div.querySelector(`div#${this.id}MoveFurtherLeftButton`);
+        this.elements.moveFurtherRightButton = this.div.querySelector(`div#${this.id}MoveFurtherRightButton`);
+        this.elements.moveLeftButton = this.div.querySelector(`div#${this.id}MoveLeftButton`);
+        this.elements.moveRightButton = this.div.querySelector(`div#${this.id}MoveRightButton`);
+
+        this.elements.autoheightButton = this.div.querySelector(`input#${this.id}AutoheightButton`);
+
+        this.elements.searchField = this.div.querySelector(`input#${this.id}SearchField`);
+        this.elements.searchButton = this.div.querySelector(`div#${this.id}SearchButton`);
+        this.elements.searchDataList = this.div.querySelector(`datalist#${this.id}SearchDataList`);
+
+        this.elements.speciesButton = this.div.querySelector(`div#${this.id}SpeciesButton`);
+        this.elements.speciesMenu = this.div.querySelector(`ul#${this.id}SpeciesMenu`);
+        this.elements.speciesText = this.div.querySelector(`span#${this.id}SpeciesText`);
+
+        this.elements.windowSizeField = this.div.querySelector(`input#${this.id}WindowSizeField`);
+
+        // let els = this.div.querySelectorAll('[id]');
+        // for (let i = 0; i < els.length; i++) {
+        //     let elid = els[i].getAttribute('id');
+        //     if (elid) {
+        //         this.els[elid] = els[i];
+        //     }
+        // }
 
 
-        let HTML = '' +
-            '<div title="Restore previous region" style="margin-right: 5px;" id="leftSideButton" class="ocb-ctrl"><i class="fa fa-bars"></i></div>' +
-            '<div id="restoreDefaultRegionButton" class="ocb-ctrl"><i class="fa fa-redo"></i></div>' +
+        // Hide components using config.componentsConfig field
+        // for (let key in this.componentsConfig) {
+        //     if (!this.componentsConfig[key]) {
+        //         this.els[key].classList.add('hidden');
+        //     }
+        // }
 
-            '<div title="Region history" class="ocb-dropdown" style="margin-left: 5px">' +
-            '   <div tabindex="-1" id="regionHistoryButton" class="ocb-ctrl"><i class="fa fa-history"></i> <i class="fa fa-caret-down"></i></div>' +
-            '   <ul id="regionHistoryMenu"></ul>' +
-            '</div>' +
+        this.elements.karyotypeButton.checked = !this.config.karyotypePanelConfig?.hidden;
+        this.elements.chromosomeButton.checked = !this.config.chromosomePanelConfig?.hidden;
+        this.elements.regionButton.checked = !this.config.regionPanelConfig?.hidden;
 
-            '<div title="Species menu" class="ocb-dropdown" style="margin-left: 5px">' +
-            '   <div tabindex="-1" id="speciesButton" class="ocb-ctrl"><span id="speciesText"></span> <i class="fa fa-caret-down"></i></div>' +
-            '   <ul id="speciesMenu"></ul>' +
-            '</div>' +
-
-            '<div title="Chromosomes menu" class="ocb-dropdown" style="margin-left: 5px">' +
-            '   <div tabindex="-1" id="chromosomesButton" class="ocb-ctrl"><span id="chromosomesText"></span> <i class="fa fa-caret-down"></i></div>' +
-            '   <ul id="chromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>' +
-            '</div>' +
-
-            '<div style="margin-left: 5px; float: left; " >' +
-            '   <label title="Toggle karyotype panel" class="ocb-ctrl" id="karyotypeButtonLabel"><input id="karyotypeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-karyotype"></span></span></label>' +
-            '   <label title="Toggle chromosome panel" class="ocb-ctrl" id="chromosomeButtonLabel"><input id="chromosomeButton" type="checkbox"><span style="border-right: none"><span class="ocb-icon ocb-icon-chromosome"></span></span></label>' +
-            '   <label title="Toggle overview panel" class="ocb-ctrl" id="regionButtonLabel"><input id="regionButton" type="checkbox"><span><span class="ocb-icon ocb-icon-region"></span></span></label>' +
-            '</div>' +
-
-
-            '<div id="zoomControl" style="float:left;">' +
-            '<div title="Minimum window size" id="zoomMinButton" class="ocb-ctrl" style="margin-left: 5px;border-right: none;">Min</div>' +
-            '<div title="Decrease window size" id="zoomOutButton" class="ocb-ctrl"><span class="fa fa-minus"></span></div>' +
-            '<div id="progressBarCont" class="ocb-zoom-bar">' +
-            '   <div id="progressBar" class="back"></div>' +
-            '   <div id="progressBar" class="rect" style="width: ' + this.zoom + '%"></div>' +
-            '   <div id="progressBarBall" class="ball" style="left: ' + this.zoom + '%"></div>' +
-            '</div>' +
-            '<div title="Increase window size" id="zoomInButton" class="ocb-ctrl" style="border-right: none;"><span class="fa fa-plus"></span></div>' +
-            '<div title="Maximum window size" id="zoomMaxButton" class="ocb-ctrl">Max</div>' +
-            '</div>' +
-
-
-            '<div title="Window size (Nucleotides)" id="windowSizeControl" style="float:left;margin-left: 5px;">' +
-            '<input id="windowSizeField" class="ocb-ctrl"  type="text" style="width: 70px;">' +
-            '</div>' +
-
-
-            '<div title="Position" id="positionControl" style="float:left;margin-left: 5px">' +
-            '<input id="regionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width: 170px;">' +
-            '<div id="goButton" class="ocb-ctrl" style="border-left: none;">Go!</div>' +
-            '</div>' +
-
-
-            '<div id="moveControl" style="float:left;font-size:18px;">' +
-            '<div id="moveFurtherLeftButton" class="ocb-ctrl" style="border-right: none;margin-left: 5px;"><i class="fa fa-angle-double-left"></i></div>' +
-            '<div id="moveLeftButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-angle-left"></i></div>' +
-            '<div id="moveRightButton" class="ocb-ctrl" style="border-right: none;"><i class="fa fa-angle-right"></i></div>' +
-            '<div id="moveFurtherRightButton" class="ocb-ctrl"><i class="fa fa-angle-double-right"></i></div>' +
-            '</div>' +
-
-            '<label class="ocb-ctrl"><input type="checkbox" id="autoheightButton"><span style="margin-left: 5px;font-size:18px;"><i class="fa fa-compress"></i></span></label>' +
-
-            '<div id="searchControl" style="float:left;">' +
-            '<input id="searchField" class="ocb-ctrl"  list="searchDataList"  placeholder="gene" type="text" style="width: 90px;margin-left: 5px;">' +
-            '       <datalist id="searchDataList">' +
-            '       </datalist>' +
-            '<div id="quickSearchButton" class="ocb-ctrl" style="border-left: none;"><i class="fa fa-search"></i></div>' +
-            '</div>' +
-
-
-            '<div style="float:right;margin-right:10px;" id="menuButton" class="ocb-ctrl"><i class="fa fa-navicon"></i> Configure</div>' +
-            '';
-
-        /**************/
-        this.div = document.createElement('div');
-        this.div.setAttribute('class', "ocb-gv-navigation-bar unselectable");
-        this.div.innerHTML = HTML;
-
-        let els = this.div.querySelectorAll('[id]');
-        for (let i = 0; i < els.length; i++) {
-            let elid = els[i].getAttribute('id');
-            if (elid) {
-                this.els[elid] = els[i];
-            }
-        }
-        /**************/
-
-
-        /**Check components config**/
-        for (let key in this.componentsConfig) {
-            if (!this.componentsConfig[key]) {
-                this.els[key].classList.add('hidden');
-            }
-        }
-        /*****/
-
-        this.els.karyotypeButton.checked = (this.karyotypePanelConfig.hidden) ? false : true;
-        this.els.chromosomeButton.checked = (this.chromosomePanelConfig.hidden) ? false : true;
-        this.els.regionButton.checked = (this.regionPanelConfig.hidden) ? false : true;
-
-
-        /*** ***/
-
-        this.els.menuButton.addEventListener('click', function(e) {
-            _this.trigger('menuButton:click', {clickEvent: e, sender: {}});
+        this.elements.menuButton.addEventListener("click", event => {
+            this.trigger("menuButton:click", {
+                clickEvent: event,
+                sender: {},
+            });
         });
 
-        this.els.leftSideButton.addEventListener('click', function(e) {
-            _this.trigger('leftSideButton:click', {clickEvent: e, sender: {}});
+        this.elements.leftSideButton.addEventListener("click", event => {
+            this.trigger("leftSideButton:click", {
+                clickEvent: event,
+                sender: {},
+            });
         });
 
-        this.els.restoreDefaultRegionButton.addEventListener('click', function(e) {
-            _this.trigger('restoreDefaultRegion:click', {clickEvent: e, sender: {}});
+        this.elements.restoreDefaultRegionButton.addEventListener("click", event => {
+            this.trigger("restoreDefaultRegion:click", {
+                clickEvent: event,
+                sender: {},
+            });
         });
-
 
         this._addRegionHistoryMenuItem(this.region);
         this._setChromosomeMenu();
         this._setSpeciesMenu();
-        this.els.chromosomesText.textContent = this.region.chromosome;
-        this.els.speciesText.textContent = this.species.scientificName;
 
+        this.elements.chromosomesText.textContent = this.region.chromosome;
+        this.elements.speciesText.textContent = this.config.species?.scientificName || "-";
 
-        this.els.karyotypeButton.addEventListener('click', function() {
-            _this.trigger('karyotype-button:change', {selected: this.checked, sender: _this});
+        this.elements.karyotypeButton.addEventListener("click", event => {
+            this.trigger("karyotype-button:change", {
+                selected: event.target.checked,
+                sender: this,
+            });
         });
-        this.els.chromosomeButton.addEventListener('click', function() {
-            _this.trigger('chromosome-button:change', {selected: this.checked, sender: _this});
+        this.elements.chromosomeButton.addEventListener("click", event => {
+            this.trigger("chromosome-button:change", {
+                selected: event.target.checked,
+                sender: this,
+            });
         });
-        this.els.regionButton.addEventListener('click', function() {
-            _this.trigger('region-button:change', {selected: this.checked, sender: _this});
-        });
-
-
-        this.els.zoomOutButton.addEventListener('click', function() {
-            _this._handleZoomOutButton();
-        });
-        this.els.zoomInButton.addEventListener('click', function() {
-            _this._handleZoomInButton();
-        });
-        this.els.zoomMaxButton.addEventListener('click', function() {
-            _this._handleZoomSlider(100);
-        });
-        this.els.zoomMinButton.addEventListener('click', function() {
-            _this._handleZoomSlider(0);
+        this.elements.regionButton.addEventListener("click", event => {
+            this.trigger("region-button:change", {
+                selected: event.target.checked,
+                sender: this,
+            });
         });
 
+        // Zooming events
+        this.elements.zoomOutButton.addEventListener("click", () => this._handleZoomOutButton());
+        this.elements.zoomInButton.addEventListener("click", () => this._handleZoomInButton());
+        this.elements.zoomMaxButton.addEventListener("click", () => this._handleZoomSlider(100));
+        this.elements.zoomMinButton.addEventListener("click", () => this._handleZoomSlider(0));
 
-        let zoomBarMove = function(e) {
-            let progressBarCont = _this.els.progressBarCont;
-            let br = progressBarCont.getBoundingClientRect();
-            let offsetX = e.clientX - br.left;
-            let zoom = 100 / parseInt(getComputedStyle(progressBarCont).width) * offsetX;
+        const zoomBarMove = event => {
+            const width = window.getComputedStyle(this.elements.progressBarCont).width;
+            const left = this.elements.progressBarCont.getBoundingClientRect().left;
+            const zoom = 100 / parseInt(width) * (event.clientX - left);
             if (zoom > 0 && zoom < 100) {
-                _this.els.progressBarBall.style.left = zoom + '%';
+                this.elements.progressBarBall.style.left = `${zoom}%`;
             }
         };
-        this.els.progressBarCont.addEventListener('click', function(e) {
-            let br = this.getBoundingClientRect();
-            let offsetX = e.clientX - br.left;
-            let zoom = 100 / parseInt(getComputedStyle(this).width) * offsetX;
-            _this._handleZoomSlider(zoom);
 
-            this.removeEventListener('mousemove', zoomBarMove);
+        this.elements.progressBarCont.addEventListener("click", event => {
+            const width = window.getComputedStyle(this.elements.progressBarCont).width;
+            const left = this.elements.progressBarCont.getBoundingClientRect().left;
+            const zoom = 100 / parseInt(width) * (event.clientX - left);
+            this._handleZoomSlider(zoom);
+
+            this.elements.progressBarCont.removeEventListener("mousemove", zoomBarMove);
         });
-        this.els.progressBarBall.addEventListener('mousedown', function(e) {
-            _this.els.progressBarCont.addEventListener('mousemove', zoomBarMove);
+        this.elements.progressBarBall.addEventListener("mousedown", () => {
+            this.elements.progressBarCont.addEventListener("mousemove", zoomBarMove);
         });
-        this.els.progressBarBall.addEventListener('mouseleave', function(e) {
-            _this.els.progressBarCont.removeEventListener('mousemove', zoomBarMove);
-            _this.els.progressBarBall.style.left = _this.zoom + '%';
+        this.elements.progressBarBall.addEventListener("mouseleave", () => {
+            this.elements.progressBarCont.removeEventListener("mousemove", zoomBarMove);
+            this.elements.progressBarBall.style.left = `${this.zoom}%`;
         });
 
-        this.els.regionField.value = this.region.toString();
-        this.els.regionField.addEventListener('keyup', function(event) {
-            if (_this._checkRegion(this.value) && event.which === 13) {
-                _this._triggerRegionChange({region: new Region(this.value), sender: this});
+        this.elements.regionField.value = this.region.toString();
+        this.elements.regionField.addEventListener("keyup", event => {
+            const value = event.target.value;
+            if (value && this._checkRegion(value) && event.which === 13) {
+                this._triggerRegionChange({
+                    region: new Region(value),
+                    sender: event.target,
+                });
             }
         });
-        this.els.goButton.addEventListener('click', function() {
-            let value = _this.els.regionField.value;
-            if (_this._checkRegion(value)) {
-                _this._triggerRegionChange({region: new Region(value), sender: this});
+        this.elements.goButton.addEventListener("click", event => {
+            const value = this.elements.regionField.value;
+            if (this._checkRegion(value)) {
+                this._triggerRegionChange({
+                    region: new Region(value),
+                    sender: event.target,
+                });
             }
         });
 
-        this.els.moveFurtherLeftButton.addEventListener('click', function() {
-            _this._handleMoveRegion(10);
+        this.elements.moveFurtherLeftButton.addEventListener("click", () => this._handleMoveRegion(10));
+        this.elements.moveFurtherRightButton.addEventListener("click", () => this._handleMoveRegion(-10));
+
+        this.elements.moveLeftButton.addEventListener("click", () => this._handleMoveRegion(1));
+        this.elements.moveRightButton.addEventListener("click", () => this._handleMoveRegion(-1));
+
+        this.elements.autoheightButton.addEventListener("click", event => {
+            this.trigger("autoHeight-button:change", {
+                selected: event.target.checked,
+                sender: this,
+            });
         });
 
-        this.els.moveFurtherRightButton.addEventListener('click', function() {
-            _this._handleMoveRegion(-10);
-        });
-
-        this.els.moveLeftButton.addEventListener('click', function() {
-            _this._handleMoveRegion(1);
-        });
-
-        this.els.moveRightButton.addEventListener('click', function() {
-            _this._handleMoveRegion(-1);
-        });
-
-        this.els.autoheightButton.addEventListener('click', function() {
-            _this.trigger('autoHeight-button:change', {selected: this.checked, sender: _this});
-        });
-
-        let lastQuery = '';
-        this.els.searchField.addEventListener('keyup', function(event) {
-            this.classList.remove('error');
-            let query = this.value;
+        let lastQuery = "";
+        this.elements.searchField.addEventListener("keyup", event => {
+            event.target.classList.remove("error");
+            const query = event.target.value || "";
             if (query.length > 2 && lastQuery !== query && event.which !== 13) {
-                _this._setQuickSearchMenu(query);
+                this._setQuickSearchMenu(query);
                 lastQuery = query;
             }
             if (event.which === 13) {
-                let item = _this.quickSearchDataset[query];
-                if (item) {
-                    _this.trigger('quickSearch:select', {item: item, sender: _this});
-                } else {
-                    this.classList.add('error');
-                }
-            }
-        });
-
-        this.els.quickSearchButton.addEventListener('click', function() {
-            _this.els.searchField.classList.remove('error');
-            let query = _this.els.searchField.value;
-            let item = _this.quickSearchDataset[query];
-            if (item) {
-                _this.trigger('quickSearch:go', {item: item, sender: _this});
-            } else {
-                _this.els.searchField.classList.add('error');
-            }
-        });
-
-        this.els.windowSizeField.value = this.region.length();
-        this.els.windowSizeField.addEventListener('keyup', function(event) {
-            let value = this.value;
-            let pattern = /^([0-9])+$/;
-            if (pattern.test(value)) {
-                this.classList.remove('error');
-                if (event.which === 13) {
-                    let regionSize = parseInt(value);
-                    let haflRegionSize = Math.floor(regionSize / 2);
-                    let region = new Region({
-                        chromosome: _this.region.chromosome,
-                        start: _this.region.center() - haflRegionSize,
-                        end: _this.region.center() + haflRegionSize
+                if (query && this.quickSearchDataset[query]) {
+                    this.trigger("quickSearch:select", {
+                        item: this.quickSearchDataset[query],
+                        sender: this,
                     });
-                    _this._triggerRegionChange({region: region, sender: _this});
+                } else {
+                    event.target.classList.add("error");
                 }
-            } else {
-                this.classList.add('error');
             }
         });
+
+        this.elements.searchButton.addEventListener("click", () => {
+            this.elements.searchField.classList.remove("error");
+            const query = this.elements.searchField.value || "";
+            if (query && this.quickSearchDataset[query]) {
+                this.trigger("quickSearch:go", {
+                    item: this.quickSearchDataset[query],
+                    sender: this,
+                });
+            } else {
+                this.elements.searchField.classList.add("error");
+            }
+        });
+
+        this.elements.windowSizeField.value = this.region.length();
+        this.elements.windowSizeField.addEventListener("keyup", event => {
+            const value = event.target.value || "";
+            if ((/^([0-9])+$/).test(value)) {
+                event.target.classList.remove("error");
+                if (event.which === 13) {
+                    const regionSize = parseInt(value);
+                    const haflRegionSize = Math.floor(regionSize / 2);
+                    this._triggerRegionChange({
+                        region: new Region({
+                            chromosome: this.region.chromosome,
+                            start: this.region.center() - haflRegionSize,
+                            end: this.region.center() + haflRegionSize,
+                        }),
+                        sender: this,
+                    });
+                }
+            } else {
+                event.target.classList.add("error");
+            }
+        });
+
         this.rendered = true;
     }
 
     draw() {
-        this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (!this.targetDiv) {
-            console.log('target not found');
-            return;
+        // this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        if (!this.target) {
+            return console.log("target not found");
         }
-        this.targetDiv.appendChild(this.div);
+
+        this.target.appendChild(this.div);
     }
 
     _addRegionHistoryMenuItem(region) {
-        let _this = this;
-        let menuEntry = document.createElement('li');
+        const menuEntry = document.createElement("li");
         menuEntry.textContent = region.toString();
-        this.els.regionHistoryMenu.appendChild(menuEntry);
-        menuEntry.addEventListener('click', function() {
-            _this._triggerRegionChange({region: new Region(this.textContent), sender: _this});
+        menuEntry.addEventListener("click", event => {
+            this._triggerRegionChange({
+                region: new Region(event.target.textContent),
+                sender: this,
+            });
         });
+
+        this.elements.regionHistoryMenu.appendChild(menuEntry);
     }
 
     _setQuickSearchMenu(query) {
-        if (typeof this.quickSearchResultFn === 'function') {
-            while (this.els.searchDataList.firstChild) {
-                this.els.searchDataList.removeChild(this.els.searchDataList.firstChild);
+        if (typeof this.config.quickSearchResultFn === "function") {
+            while (this.elements.searchDataList.firstChild) {
+                this.elements.searchDataList.removeChild(this.elements.searchDataList.firstChild);
             }
-            this.quickSearchDataset = {};
-            let _this = this;
-            this.quickSearchResultFn(query)
-                .then(function(data) {
-                    let items = data.response[0].result;
-                    for (let i = 0; i < items.length; i++) {
-                        let item = items[i];
-                        let value = item.name;
-                        _this.quickSearchDataset[value] = item;
-                        let menuEntry = document.createElement('option');
-                        menuEntry.setAttribute('value', value);
-                        _this.els.searchDataList.appendChild(menuEntry);
-                    }
-                });
 
+            this.quickSearchDataset = {};
+            this.config.quickSearchResultFn(query).then(data => {
+                (data.response[0].result || []).forEach(item => {
+                    const menuEntry = document.createElement("option");
+                    menuEntry.setAttribute("value", item.name);
+                    this.elements.searchDataList.appendChild(menuEntry);
+                    this.quickSearchDataset[item.name] = item;
+                });
+            });
         } else {
-            console.log('the quickSearchResultFn function is not valid');
+            console.warn("the quickSearchResultFn function is not valid");
         }
     }
 
     _setChromosomeMenu() {
-        let _this = this;
 
-        while (this.els.chromosomesMenu.firstChild) {
-            this.els.chromosomesMenu.removeChild(this.els.chromosomesMenu.firstChild);
+        while (this.elements.chromosomesMenu.firstChild) {
+            this.elements.chromosomesMenu.removeChild(this.elements.chromosomesMenu.firstChild);
         }
 
-        let list = [];
-        for (let chr in this.species.chromosomes) {
-            list.push(chr);
-
-            let menuEntry = document.createElement('li');
-            menuEntry.textContent = chr;
-            this.els.chromosomesMenu.appendChild(menuEntry);
-
-            menuEntry.addEventListener('click', function() {
-                let region = new Region({
-                    chromosome: this.textContent,
-                    start: _this.region.start,
-                    end: _this.region.end
+        this.currentChromosomesList = Object.keys(this.config.species?.chromosomes || {}).map(name => {
+            // const chr = this.confif.species.chromosomes[name];
+            const menuEntry = document.createElement("li");
+            menuEntry.textContent = name;
+            menuEntry.addEventListener("click", event => {
+                return this._triggerRegionChange({
+                    region: new Region({
+                        chromosome: event.target.textContent,
+                        start: this.region.start,
+                        end: this.region.end,
+                    }),
+                    sender: this,
                 });
-                _this._triggerRegionChange({region: region, sender: _this});
             });
+            this.elements.chromosomesMenu.appendChild(menuEntry);
 
-        }
-        this.currentChromosomeList = list;
+            return name;
+        });
     }
 
     _setSpeciesMenu() {
-        let _this = this;
-
-        let createSpeciesEntry = function(species, ul) {
-            let menuEntry = document.createElement('li');
-            menuEntry.textContent = species.scientificName + ' (' + species.assembly.name + ')';
-            ul.appendChild(menuEntry);
-
-            menuEntry.addEventListener('click', function() {
-                _this.trigger('species:change', {species: species, sender: _this});
+        const createSpeciesEntry = (species, parent) => {
+            const menuEntry = document.createElement("li");
+            menuEntry.textContent = `${species.scientificName} (${species.assembly.name})`;
+            menuEntry.addEventListener("click", () => {
+                this.trigger("species:change", {
+                    species: species,
+                    sender: this,
+                });
             });
+
+            // Append specie
+            parent.appendChild(menuEntry);
         };
 
-        let createTaxonomy = function(taxonomy) {
-            let menuEntry = document.createElement('li');
-            menuEntry.setAttribute('data-sub', true);
+        const createTaxonomy = taxonomy => {
+            const menuEntry = document.createElement("li");
+            const menuList = document.createElement("ul");
+            menuEntry.setAttribute("data-sub", true);
             menuEntry.textContent = taxonomy;
-            _this.els.speciesMenu.appendChild(menuEntry);
+            menuEntry.appendChild(menuList);
 
-            let ul = document.createElement('ul');
-            menuEntry.appendChild(ul);
+            this.elements.speciesMenu.appendChild(menuEntry);
 
-            return ul;
+            return menuList;
         };
 
-        //find species object
-        for (let taxonomy in this.availableSpecies) {
-            let taxUl = createTaxonomy(taxonomy);
-            for (let i = 0; i < this.availableSpecies[taxonomy].length; i++) {
-                let species = this.availableSpecies[taxonomy][i];
-                createSpeciesEntry(species, taxUl);
-            }
-        }
+        // Generate species list
+        Object.keys(this.config.availableSpecies || {}).forEach(taxonomyName => {
+            const taxonomyList = createTaxonomy(taxonomyName);
+            this.config.availableSpecies[taxonomyName].forEach(species => {
+                createSpeciesEntry(species, taxonomyList);
+            });
+        });
     }
 
     _checkRegion(value) {
-        let reg = new Region(value);
-        if (!reg.parse(value) || reg.start < 0 || reg.end < 0 || _.indexOf(this.currentChromosomeList, reg.chromosome) == -1) {
-            this.els.regionField.classList.add('error');
+        const region = new Region(value);
+        if (!region.parse(value) || region.start < 0 || region.end < 0 || this.currentChromosomesList.indexOf(region.chromosome) === -1) {
+            this.elements.regionField.classList.add("error");
             return false;
         } else {
-            this.els.regionField.classList.remove('error');
+            this.elements.regionField.classList.remove("error");
             return true;
+        }
+    }
+
+    _handleZoomSlider(value) {
+        if (!this.zoomChanging) {
+            this.zoomChanging = true;
+            this.zoom = 5 * (Math.round(value / 5));
+
+            this.trigger("zoom:change", {
+                zoom: this.zoom,
+                sender: this,
+            });
+
+            // TODO: review this hack...
+            setTimeout(() => {
+                this.zoomChanging = false;
+            }, 700);
         }
     }
 
@@ -447,42 +522,32 @@ export default class NavigationBar {
         this._handleZoomSlider(Math.max(0, this.zoom - 5));
     }
 
-    _handleZoomSlider(value) {
-        let _this = this;
-        if (!_this.zoomChanging) {
-            _this.zoomChanging = true;
-            /**/
-            _this.zoom = 5 * (Math.round(value / 5));
-            _this.trigger('zoom:change', {zoom: _this.zoom, sender: _this});
-            /**/
-            setTimeout(function() {
-                _this.zoomChanging = false;
-            }, 700);
-        }
-    }
-
     _handleZoomInButton() {
         this._handleZoomSlider(Math.min(100, this.zoom + 5));
     }
 
     _handleMoveRegion(positions) {
-        let pixelBase = (this.width - this.svgCanvasWidthOffset) / this.region.length();
-        let disp = Math.round((positions * 10) / pixelBase);
+        // const pixelBase = (this.width - this.svgCanvasWidthOffset) / this.region.length();
+        const pixelBase = (this.config.width - this.config.svgCanvasWidthOffset) / this.region.length();
+        const disp = Math.round((positions * 10) / pixelBase);
+
         this.region.start -= disp;
         this.region.end -= disp;
-        this.els.regionField.value = this.region.toString();
-        this.trigger('region:move', {region: this.region, disp: disp, sender: this});
+        this.elements.regionField.value = this.region.toString();
+
+        // Trigger region move
+        this.trigger("region:move", {
+            region: this.region,
+            disp: disp,
+            sender: this,
+        });
     }
 
     setVisible(obj) {
-        for (let key in obj) {
-            let el = this.els[key];
-            if (obj[key]) {
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
-        }
+        const els = this.elements;
+        Object.keys(obj).forEach(key => {
+            obj[key] ? els[key].classList.remove("hidden") : els[key].classList.add("hidden");
+        });
     }
 
     setRegion(region, zoom) {
@@ -496,13 +561,13 @@ export default class NavigationBar {
 
     moveRegion(region) {
         this.region.load(region);
-        this.els.chromosomesText.textContent = this.region.chromosome;
-        this.els.regionField.value = this.region.toString()
+        this.elements.chromosomesText.textContent = this.region.chromosome;
+        this.elements.regionField.value = this.region.toString();
     }
 
     setSpecies(species) {
         this.species = species;
-        this.els.speciesText.textContent = this.species.scientificName;
+        this.elements.speciesText.textContent = this.species.scientificName;
         this._setChromosomeMenu();
     }
 
@@ -511,14 +576,13 @@ export default class NavigationBar {
     }
 
     _triggerRegionChange(event) {
-        let _this = this;
         if (!this.regionChanging) {
             this.regionChanging = true;
-            /**/
-            this.trigger('region:change', event);
-            /**/
-            setTimeout(function() {
-                _this.regionChanging = false;
+            this.trigger("region:change", event);
+
+            // TODO: review this hack...
+            setTimeout(() => {
+                this.regionChanging = false;
             }, 700);
         } else {
             this.updateRegionControls();
@@ -526,16 +590,49 @@ export default class NavigationBar {
     }
 
     updateRegionControls() {
-        this.els.chromosomesText.textContent = this.region.chromosome;
-        this.els.regionField.value = this.region.toString();
-        this.els.windowSizeField.value = this.region.length();
-        this.els.regionField.classList.remove('error');
-        this.els.progressBar.style.width = this.zoom + '%';
-        this.els.progressBarBall.style.left = this.zoom + '%';
+        this.elements.chromosomesText.textContent = this.region.chromosome;
+        this.elements.regionField.value = this.region.toString();
+        this.elements.windowSizeField.value = this.region.length();
+        this.elements.regionField.classList.remove("error");
+        this.elements.progressBar.style.width = this.zoom + "%";
+        this.elements.progressBarBall.style.left = this.zoom + "%";
     }
 
     setCellBaseHost(host) {
         this.cellBaseHost = host;
+    }
+
+    // Get default config for navigation bar
+    static getDefaultConfig() {
+        return {
+            autoRender: true,
+            species: "Homo sapiens",
+            increment: 3,
+            componentsConfig: {
+                menuButton: false,
+                leftSideButton: false,
+                restoreDefaultRegionButton: true,
+                regionHistoryButton: true,
+                speciesButton: true,
+                chromosomesButton: true,
+                karyotypeButtonLabel: true,
+                chromosomeButtonLabel: true,
+                regionButtonLabel: true,
+                zoomControl: true,
+                windowSizeControl: true,
+                positionControl: true,
+                moveControl: true,
+                autoheightButton: true,
+                compactButton: true,
+                searchControl: true
+            },
+            region: null,
+            quickSearchDisplayKey: "name",
+            zoom: 50,
+            width: 1,
+            svgCanvasWidthOffset: 0,
+            availableSpecies: [],
+        };
     }
 
 }
