@@ -770,7 +770,7 @@ export default class VariantBrowserGrid extends LitElement {
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
-                    UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results), "variants_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
