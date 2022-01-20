@@ -126,7 +126,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         $("select.selectpicker", this).selectpicker("render");
     }
 
-    /**
+    /*
      * Builds the table data
      */
     clinicalAnalysisObserver() {
@@ -174,7 +174,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.requestUpdate();
     }
 
-    /**
+    /*
      * Parses this.genotype and update state
      */
     genotypeObserver() {
@@ -196,7 +196,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.requestUpdate();
     }
 
-    /**
+    /*
      * Builds `sample` query param and emits `filterChange` event
      */
     notifySampleFilterChange() {
@@ -205,13 +205,15 @@ export default class FamilyGenotypeFilter extends LitElement {
         const _sampleData = [];
         if (this.state) {
             for (const id in this.state) {
-                const sample = this.state[id];
-                if (sample.genotypes.length) {
-                    _sample.push(id + ":" + sample.genotypes.join(","));
+                if (Object.prototype.hasOwnProperty.call(this.state, id)) {
+                    const sample = this.state[id];
+                    if (sample.genotypes.length) {
+                        _sample.push(id + ":" + sample.genotypes.join(","));
+                    }
+                    /* if (sample.dp) {
+                        _sampleData.push(id + ":DP>=" + sample.dp);
+                    }*/
                 }
-                /* if (sample.dp) {
-                    _sampleData.push(id + ":DP>=" + sample.dp);
-                }*/
             }
         }
         this.dispatchEvent(new CustomEvent("filterChange", {
@@ -228,7 +230,8 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     /**
      * Queries variant/family/genotypes to get the genotypes according to family pedigree
-     * @param mode {String} Mode of inheritance
+     * @param {String} mode Mode of inheritance
+     * @returns {undefined}
      */
     onModeOfInheritance(mode) {
         this.modeOfInheritance = mode;
@@ -244,17 +247,23 @@ export default class FamilyGenotypeFilter extends LitElement {
             if (genotypeResultMap) {
                 const _state = {};
                 for (const individualId in genotypeResultMap) {
-                    for (const sample of this.tableData) {
-                        if (sample.individualId === individualId) {
-                            _state[sample.id] = {
-                                id: sample.id,
-                                genotypes: genotypeResultMap[individualId]
-                            };
-                            countGenoypes += genotypeResultMap[individualId].length;
+                    if (Object.prototype.hasOwnProperty.call(genotypeResultMap, individualId)) {
+                        for (const sample of this.tableData) {
+                            if (sample.individualId === individualId) {
+                                _state[sample.id] = {
+                                    id: sample.id,
+                                    genotypes: genotypeResultMap[individualId]
+                                };
+                                countGenoypes += genotypeResultMap[individualId].length;
+                            }
                         }
                     }
                 }
-                this.errorState = countGenoypes <= 0 ? "The selected Mode of Inheritance is not compatible with the family pedigree" : false;
+                if (countGenoypes <= 0) {
+                    this.errorState = "The selected Mode of Inheritance is not compatible with the family pedigree";
+                } else {
+                    this.errorState = false;
+                }
                 // keeps the last legal state
                 if (!this.errorState) {
                     this.state = {..._state};
@@ -293,8 +302,16 @@ export default class FamilyGenotypeFilter extends LitElement {
             }
         }
 
+        this.errorState = false;
         // make sure the proband has at least 1 GT checked
-        this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
+        if (!this.state[probandSampleId].genotypes.length) {
+            this.errorState = "At least one genotype have to be selected for the proband.";
+        }
+        // make sure not all HOM_REF are selected
+        if (Object.values(this.state).every(s => ~s.genotypes.indexOf("0/0"))) {
+            this.errorState = "HOM_REF can't be selected for all samples.";
+        }
+
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
         this.requestUpdate();
@@ -500,7 +517,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                                                 <td style="padding-left: 20px">
                                                     <input type="checkbox" class="sample-checkbox" data-gt="0/0" data-sample-id="${sample.id}"
                                                            .checked="${this.state?.[sample.id]?.genotypes.includes("0/0")}"
-                                                           ?disabled="${this.mode !== "CUSTOM" || sample.role.toUpperCase() === "PROBAND"}" @change="${this.onSampleTableChange}">
+                                                           ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
                                                 </td>
                                                 <td style="padding-left: 20px">
                                                     <input type="checkbox" class="sample-checkbox" data-gt="0/1" data-sample-id="${sample.id}"
