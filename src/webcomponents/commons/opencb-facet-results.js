@@ -114,7 +114,7 @@ class OpencbFacetResults extends LitElement {
                     // Remove all categories with an empty 'value' (no id)
                     const results = restResponse.responses[0].results;
                     for (const result of results) {
-                        result.buckets = results[0].buckets.filter(bucket => !!bucket.value);
+                        result.buckets = result.buckets.filter(bucket => !!bucket.value);
                     }
                     this.facetResults = results || [];
                 })
