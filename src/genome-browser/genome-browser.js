@@ -18,18 +18,19 @@ export default class GenomeBrowser {
         // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
-        this.id = UtilsNew.randomString(8);
+        this.target = target instanceof HTMLElement ? target : document.querySelector(`#${target}`);
         this.config = {
-            ...GenomeBrowser.getDefaultConfig(),
+            ...this.getDefaultConfig(),
             ...config,
         };
 
-        // Initialize target element: can be an HTMLElement reference or an ID selector
-        this.target = target instanceof HTMLElement ? target : document.querySelector(`#${target}`);
+        this.#init();
+    }
 
+    // Initialize GenomeBrowser
+    async #init() {
+        this.id = UtilsNew.randomString(8);
         this.version = "Powered by <a target=\"_blank\" href=\"http://www.opencb.org/\">OpenCB</a>";
-        this.chromosomes = {};
-        this.zoom = 1;
         this.width = this.config.width || 1;
         this.height = this.config.height || 1;
 
@@ -47,24 +48,33 @@ export default class GenomeBrowser {
             });
         }
 
+        // Import chromosomes data
+        this.chromosomes = await this.#getChromosomes();
+
         this.sidePanelWidth = this.config.sidePanel ? 25 : 0;
 
+        // TODO: create a regionParser to simplify this
         this.region = this.config.region;
         this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
         this.defaultRegion = new Region(this.region);
+
+        this.zoom = this._calculateZoomByRegion(this.region);
+        this._updateSpecies(this.config.species);
 
         this.fullscreen = false;
         this.resizing = false;
 
         this.changingRegion = false;
 
-        this.rendered = false;
-        if (this.config.autoRender) {
-            this.render();
-        }
+        this.#initDom();
+        this.#initPanels();
+        this.#initEvents();
+
+        // Trigger ready event
+        this.trigger("ready");
     }
 
-    render() {
+    #initDom() {
         // Generate GB template
         const template = UtilsNew.renderHTML(`
             <div id="${this.id}" class="ocb-gv ocb-box-vertical">
@@ -97,25 +107,14 @@ export default class GenomeBrowser {
         this.regionDiv = this.div.querySelector(`div#${this.id}Region`);
         this.tracksDiv = this.div.querySelector(`div#${this.id}Tracks`);
 
-        if (this.config.drawOverviewTrackListPanel) {
-            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
-        }
-        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
-
-        // Import chromosomes and initialize GB
-        this.getChromosomes().then(() => {
-            return this._init();
-        });
+        // Append to target element
+        this.target.appendChild(this.div);
     }
 
-    _init() {
-        // this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
-        this.zoom = this._calculateZoomByRegion(this.region);
-        this._updateSpecies(this.config.species);
-
+    #initPanels() {
         // Create Navigation Bar
         if (this.config.drawNavigationBar) {
-            this.navigationBar = this._createNavigationBar(this.navigationbarDiv);
+            this.navigationBar = this.#createNavigationBar(this.navigationbarDiv);
         }
 
         // Create karyotype Panel
@@ -128,12 +127,22 @@ export default class GenomeBrowser {
             this.chromosomePanel = this._drawChromosomePanel(this.chromosomeDiv);
         }
 
-        // Create status bar
-        if (this.config.drawStatusBar) {
-            this.statusBar = this._createStatusBar(this.statusbarDiv);
+        // Create overview track list panel
+        if (this.config.drawOverviewTrackListPanel) {
+            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
         }
 
-        // Register event listeners
+        // Create status bar
+        if (this.config.drawStatusBar) {
+            this.statusBar = this.#createStatusBar(this.statusbarDiv);
+        }
+
+        // General track list panel is always visible
+        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+    }
+
+    // Initialize events
+    #initEvents() {
         this.on("region:change region:move", event => {
             if (event.sender !== this) {
                 this.region.load(event.region);
@@ -170,18 +179,11 @@ export default class GenomeBrowser {
                     break;
             }
         });
-
-        // Trigger ready event
-        this.trigger("ready");
     }
 
+    // Public draw method
     draw() {
-        // this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
-        if (!this.target) {
-            console.log("target not found");
-            return;
-        }
-        this.target.appendChild(this.div);
+        this.trigger("draw");
     }
 
     destroy() {
@@ -197,39 +199,39 @@ export default class GenomeBrowser {
     }
 
     // Get chromosomes from CellBase
-    // Returns a promise that will resolve when chromosomes have been loaded
-    getChromosomes() {
-        // Generate a chromosomes map using the chromosone name as key
-        const saveChromosomes = chromosomeList => {
-            return Object.fromEntries(chromosomeList.map(chromosome => {
+    #getChromosomes() {
+        // Check if chromosomes has been provided in configuration
+        // TODO: what if we have changed the specie in the navigation-bar?
+        if (this.config.chromosomes?.length > 0) {
+            return Promise.resolve(this.config.chromosomes);
+        }
+
+        // Import chromosomes from cellbase
+        return this.cellBaseClient.get("genomic", "chromosome", undefined, "search").then(res => {
+            const chromosomesList = res.responses[0].results[0].chromosomes;
+
+            // Convert chromosomes list to object
+            return Object.fromEntries(chromosomesList.map(chromosome => {
                 return [chromosome.name, chromosome];
             }));
-        };
-
-        if (this.config.chromosomeList?.length > 0) {
-            // Chromosomes list has been provided in the configuration
-            this.chromosomes = saveChromosomes(this.config.chromosomeList);
-            return Promise.resolve();
-        } else {
-            // Import chromosomes from cellbase
-            return this.cellBaseClient.get("genomic", "chromosome", undefined, "search").then(res => {
-                this.chromosomes = saveChromosomes(res.responses[0].results[0].chromosomes);
-            });
-        }
+        });
     }
 
-    _createNavigationBar(target) {
+    #createNavigationBar(target) {
         let quickSearchResultFn = this.config.quickSearchResultFn;
         if (typeof quickSearchResultFn !== "function") {
             quickSearchResultFn = query => {
-                return this.cellBaseClient.get("feature", "id", query, "starts_with", {limit: 10});
+                return this.cellBaseClient.get("feature", "id", query, "starts_with", {
+                    limit: 10,
+                });
             };
         }
 
         // Helper method to center in the specified feature region
-        const goToFeature = feature => this._regionChangeHandler({region: new Region(feature)});
+        const goToFeature = feature => this._regionChangeHandler({
+            region: new Region(feature),
+        });
 
-        // TODO: change initialization of NavigationBar
         // TODO: fix configuration values
         const navigationBar = new NavigationBar(target, {
             cient: this.cellBaseClient,
@@ -292,9 +294,7 @@ export default class GenomeBrowser {
             }
         });
         this.on("width:change", event => navigationBar.setWidth(event.width));
-
-        // Draw navigation bar
-        navigationBar.draw();
+        this.on("draw", () => navigationBar.draw());
 
         return navigationBar;
     }
@@ -436,7 +436,7 @@ export default class GenomeBrowser {
         return trackListPanel;
     }
 
-    _createStatusBar(target) {
+    #createStatusBar(target) {
         const statusBar = new StatusBar(target, {
             autoRender: true,
             region: this.region,
@@ -446,12 +446,11 @@ export default class GenomeBrowser {
 
         // Listen to events in GB
         this.on("region:change", event => statusBar.setRegion(event));
+        this.on("draw", () => statusBar.draw());
 
         // Listen to events in tracklistPanel
         this.trackListPanel.on("mousePosition:change", event => statusBar.setMousePosition(event));
 
-        // Draw status bar
-        statusBar.draw();
         return statusBar;
     }
 
@@ -873,10 +872,9 @@ export default class GenomeBrowser {
     }
 
     // Get default configuration for GenomeBrowser
-    static getDefaultConfig() {
+    getDefaultConfig() {
         return {
             // General configuration
-            autoRender: true,
             resizable: true,
             region: null,
             width: 1,
@@ -920,6 +918,7 @@ export default class GenomeBrowser {
 
             species: [],
             availableSpecies: [],
+            chromosomes: null,
         };
     }
 
