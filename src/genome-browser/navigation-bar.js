@@ -8,30 +8,30 @@ export default class NavigationBar {
         // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
-        this.id = UtilsNew.randomString(8);
         this.target = target;
         this.config = {
-            ...NavigationBar.getDefaultConfig(),
+            ...this.getDefaultConfig(),
             ...config,
         };
 
-        // set new region object
+        this.#init();
+    }
+
+    #init() {
+        this.id = UtilsNew.randomString(8);
         this.region = new Region(this.config.region);
         this.zoom = this.config.zoom || 50;
 
-        // this.els = {};
         this.elements = {};
         this.currentChromosomesList = [];
         this.zoomChanging = false;
         this.regionChanging = false;
 
-        this.rendered = false;
-        if (this.config.autoRender) {
-            this.render();
-        }
+        this.#initDom();
+        this.#initEvents();
     }
 
-    render() {
+    #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.id}" class="ocb-gv-navigation-bar unselectable">
                 <div id="${this.id}LeftSideButton" title="Restore previous region" style="margin-right:5px;" class="ocb-ctrl">
@@ -217,6 +217,11 @@ export default class NavigationBar {
         this.elements.chromosomeButton.checked = !this.config.chromosomePanelConfig?.hidden;
         this.elements.regionButton.checked = !this.config.regionPanelConfig?.hidden;
 
+        this.target.appendChild(this.div);
+    }
+
+    // Initialize events
+    #initEvents() {
         this.elements.menuButton.addEventListener("click", event => {
             this.trigger("menuButton:click", {
                 clickEvent: event,
@@ -382,17 +387,10 @@ export default class NavigationBar {
                 event.target.classList.add("error");
             }
         });
-
-        this.rendered = true;
     }
 
     draw() {
-        // this.targetDiv = (this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
-        if (!this.target) {
-            return console.log("target not found");
-        }
-
-        this.target.appendChild(this.div);
+        // Nothing to do
     }
 
     _addRegionHistoryMenuItem(region) {
@@ -603,9 +601,8 @@ export default class NavigationBar {
     }
 
     // Get default config for navigation bar
-    static getDefaultConfig() {
+    getDefaultConfig() {
         return {
-            autoRender: true,
             species: "Homo sapiens",
             increment: 3,
             componentsConfig: {
