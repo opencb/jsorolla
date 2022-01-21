@@ -327,9 +327,8 @@ export default class GenomeBrowser {
     }
 
     _drawChromosomePanel(target) {
-        const chromosomePanel = new ChromosomePanel({
-            target: target,
-            client: this.cellBaseClient,
+        const chromosomePanel = new ChromosomePanel(target, {
+            cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
             autoRender: true,
