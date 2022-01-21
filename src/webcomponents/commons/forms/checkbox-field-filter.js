@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
-
 
 export default class CheckboxFieldFilter extends LitElement {
 
@@ -66,13 +66,10 @@ export default class CheckboxFieldFilter extends LitElement {
     filterChange(e) {
         const {value, checked} = e.currentTarget;
         this.state[value] = checked;
-        const v = Object.entries(this.state).filter(([, value]) => value).map(([id]) => id);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: v.join(",")
-            }
-        });
-        this.dispatchEvent(event);
+        const v = Object.entries(this.state)
+            .filter(([, value]) => value)
+            .map(([id]) => id);
+        LitUtils.dispatchCustomEvent(this, "filterChange", v.join(","));
     }
 
     render() {
@@ -82,7 +79,8 @@ export default class CheckboxFieldFilter extends LitElement {
                     const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
                     return html`
                         <li>
-                            <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
+                            <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}"
+                                   @click="${this.filterChange}">
                             <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
                                 ${UtilsNew.renderHTML(name)}
                             </label>
