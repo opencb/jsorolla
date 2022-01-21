@@ -132,13 +132,13 @@ export default class GenomeBrowser {
             this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
         }
 
+        // General track list panel is always visible
+        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+
         // Create status bar
         if (this.config.drawStatusBar) {
             this.statusBar = this.#createStatusBar(this.statusbarDiv);
         }
-
-        // General track list panel is always visible
-        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
     }
 
     // Initialize events
