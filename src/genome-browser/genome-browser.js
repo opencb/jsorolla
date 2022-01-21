@@ -53,9 +53,7 @@ export default class GenomeBrowser {
 
         this.sidePanelWidth = this.config.sidePanel ? 25 : 0;
 
-        // TODO: create a regionParser to simplify this
-        this.region = this.config.region;
-        this._checkAndSetMinimumRegion(this.region, this.getSVGCanvasWidth());
+        this.region = this.#parseRegion(this.config.region);
         this.defaultRegion = new Region(this.region);
 
         this.zoom = this._calculateZoomByRegion(this.region);
@@ -300,9 +298,8 @@ export default class GenomeBrowser {
     }
 
     _drawKaryotypePanel(target) {
-        const karyotypePanel = new KaryotypePanel({
-            target: target,
-            client: this.cellBaseClient,
+        const karyotypePanel = new KaryotypePanel(target, {
+            cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
             width: this.width - this.sidePanelWidth,
@@ -471,16 +468,20 @@ export default class GenomeBrowser {
         }
     }
 
-    _checkAndSetMinimumRegion(region, width) {
+    #parseRegion(initialRegion) {
+        const region = new Region(initialRegion);
+        const width = this.getSVGCanvasWidth();
         const minLength = Math.floor(width / 10);
+
+        // Check region size
         if (region.length() < minLength) {
             const centerPosition = region.center();
             const aux = Math.ceil((minLength / 2) - 1);
-            // eslint-disable-next-line no-param-reassign
             region.start = Math.floor(centerPosition - aux);
-            // eslint-disable-next-line no-param-reassign
             region.end = Math.floor(centerPosition + aux);
         }
+
+        return region;
     }
 
     _calculateRegionByZoom(zoom) {
@@ -531,17 +532,19 @@ export default class GenomeBrowser {
         if (this._checkChangingRegion()) {
 
             this._checkAndSetNewChromosomeRegion(event.region);
-            this._checkAndSetMinimumRegion(event.region, this.getSVGCanvasWidth());
-            this.zoom = this._calculateZoomByRegion(event.region);
+            const region = this.#parseRegion(event.region);
+            this.zoom = this._calculateZoomByRegion(region);
+
             // Relaunch
-            this.trigger("region:change", event);
+            this.trigger("region:change", {
+                region: region,
+                sender: event.sender,
+            });
             /**/
             return true;
         } else {
-            if (event.sender) {
-                if (event.sender.updateRegionControls) {
-                    event.sender.updateRegionControls();
-                }
+            if (event.sender && event.sender.updateRegionControls) {
+                event.sender.updateRegionControls();
             }
             // console.log('****************************');
             // console.log('**************************** region change already in progress');
