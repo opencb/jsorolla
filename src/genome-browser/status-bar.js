@@ -7,23 +7,23 @@ export default class StatusBar {
         // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
-        this.id = UtilsNew.randomString(8);
         this.target = target;
         this.config = {
-            ...StatusBar.getDefaultConfig(),
+            ...this.getDefaultConfig(),
             ...config,
         };
-        this.rendered = false;
 
-        // Set new region object
-        this.region = new Region(this.config.region);
-
-        if (this.config.autoRender) {
-            this.render();
-        }
+        this.#init();
     }
 
-    render() {
+    #init() {
+        this.id = UtilsNew.randomString(8);
+        this.region = new Region(this.config.region);
+
+        this.#initDom();
+    }
+
+    #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.id}" class="ocb-gb-status-bar">
                 <div class="ocb-gv-status-left">
@@ -39,16 +39,12 @@ export default class StatusBar {
         this.div = template.querySelector(`div#${this.id}`);
         this.mousePositionBase = this.div.querySelector(`span#${this.id}PositionBase`);
         this.mousePositionRegion = this.div.querySelector(`span#${this.id}PositionRegion`);
-        this.rendered = true;
+
+        this.target.appendChild(this.div);
     }
 
     draw() {
-        // this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
-        if (!this.target) {
-            console.error("target not found");
-            return;
-        }
-        this.target.appendChild(this.div);
+        // Nothing to do
     }
 
     setRegion(event) {
@@ -65,7 +61,7 @@ export default class StatusBar {
     }
 
     // Get default status bar config
-    static getDefaultConfig() {
+    getDefaultConfig() {
         return {
             autoRender: true,
             region: null,
