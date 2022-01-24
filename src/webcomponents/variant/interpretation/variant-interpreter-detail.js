@@ -94,7 +94,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     render() {
         if (!this.variant?.annotation) {
-            return html`<h3>Error: No valid variant or annotation</h3>`;
+            return;
         }
 
         if (!this._config?.items) {

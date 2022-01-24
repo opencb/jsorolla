@@ -379,9 +379,9 @@ export default class JobGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "job_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
