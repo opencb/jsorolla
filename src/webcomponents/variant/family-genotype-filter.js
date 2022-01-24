@@ -450,7 +450,8 @@ export default class FamilyGenotypeFilter extends LitElement {
 
                                     <td style="padding-left: 0px">
                                         <span>
-                                            <i class='fa ${this._config.sexIconMap[sample.sex]} fa-lg'></i> ${sample.sex} (${sample.karyotypicSex})
+                                            <i class='fa ${this._config.sexIconMap[sample.sex]} fa-lg'></i>
+                                            ${sample.sex?.id || sample.sex || "Not specified"} (${sample.karyotypicSex || "Not specified"})
                                         </span>
                                     </td>
                                     <td style="padding-left: 25px">
