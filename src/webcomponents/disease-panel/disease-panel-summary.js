@@ -23,7 +23,7 @@ import "../commons/filters/sample-id-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
 
-export default class DiseasePanelView extends LitElement {
+export default class DiseasePanelSummary extends LitElement {
 
     constructor() {
         super();
@@ -242,4 +242,4 @@ export default class DiseasePanelView extends LitElement {
 
 }
 
-customElements.define("disease-panel-view", DiseasePanelView);
+customElements.define("disease-panel-summary", DiseasePanelSummary);

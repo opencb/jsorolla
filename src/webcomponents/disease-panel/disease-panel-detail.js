@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import "../commons/view/detail-tabs.js";
-import "../disease-panel/disease-panel-view.js";
+import "./disease-panel-summary.js";
 
 export default class DiseasePanelDetail extends LitElement {
 
@@ -101,10 +101,10 @@ export default class DiseasePanelDetail extends LitElement {
                     active: true,
                     render: (diseasePanel, active, opencgaSession) => {
                         return html`
-                            <disease-panel-view
+                            <disease-panel-summary
                                 .diseasePanel="${diseasePanel}"
                                 .opencgaSession="${opencgaSession}">
-                            </disease-panel-view>`;
+                            </disease-panel-summary>`;
                     }
                 },
                 {

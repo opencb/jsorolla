@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
-import "./disease-panel-view.js";
+import "./disease-panel-summary.js";
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -33,6 +33,9 @@ export default class DiseasePanelBrowser extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             query: {
@@ -73,6 +76,7 @@ export default class DiseasePanelBrowser extends LitElement {
             <opencga-browser
                 resource="DISEASE_PANEL"
                 .opencgaSession="${this.opencgaSession}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
                 .config="${this.config}">
             </opencga-browser>
@@ -110,27 +114,27 @@ export default class DiseasePanelBrowser extends LitElement {
                             },
                             {
                                 id: "feature",
-                                name: "Feature IDs(gene, SNPs...)",
+                                name: "Feature IDs (gene, SNPs...)",
                                 description: ""
                             },
                             {
                                 id: "region",
-                                name: "region",
+                                name: "Region",
                                 description: ""
                             },
                             {
                                 id: "categories",
-                                name: "categories",
+                                name: "Categories",
                                 description: ""
                             },
                             {
                                 id: "tags",
-                                name: "tags",
+                                name: "Tags",
                                 description: ""
                             },
                             {
                                 id: "date",
-                                name: "date",
+                                name: "Date",
                                 description: ""
                             }
                         ]
@@ -146,19 +150,19 @@ export default class DiseasePanelBrowser extends LitElement {
                     }
                 },
                 detail: {
-                    title: "Disease Panel",
+                    title: "Selected Disease Panel:",
                     showTitle: true,
                     items: [
                         {
                             id: "disease-panel-view",
-                            name: "Overview",
+                            name: "Summary",
                             active: true,
                             render: (diseasePanel, active, opencgaSession) => {
                                 return html`
-                                    <disease-panel-view
+                                    <disease-panel-summary
                                         .diseasePanel="${diseasePanel}"
                                         .opencgaSession="${opencgaSession}">
-                                    </disease-panel-view>`;
+                                    </disease-panel-summary>`;
                             }
                         },
                         {
