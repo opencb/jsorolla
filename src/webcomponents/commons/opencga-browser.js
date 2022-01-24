@@ -80,6 +80,9 @@ export default class OpencgaBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             query: {
                 type: Object
             },
@@ -580,6 +583,7 @@ export default class OpencgaBrowser extends LitElement {
                                 ${this.resource === "DISEASE_PANEL" ? html`
                                     <disease-panel-browser-filter
                                         .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
                                         .config="${this.config.filter}"
                                         .query="${this.query}"
                                         @queryChange="${this.onQueryFilterChange}"

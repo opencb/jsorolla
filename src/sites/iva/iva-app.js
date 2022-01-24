@@ -1248,6 +1248,7 @@ class IvaApp extends LitElement {
                     <div class="content" id="disease-panel">
                         <disease-panel-browser
                             .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
                             .query="${this.queries["disease-panel"]}"
                             .settings="${DISEASE_PANEL_BROWSER_SETTINGS}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"

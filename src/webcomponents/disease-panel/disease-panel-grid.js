@@ -119,8 +119,9 @@ export default class DiseasePanelGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
-                uniqueId: "id",
+
                 // Table properties
+                uniqueId: "id",
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -130,7 +131,7 @@ export default class DiseasePanelGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
                 ajax: async params => {
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
@@ -234,77 +235,100 @@ export default class DiseasePanelGrid extends LitElement {
         if (action === "download") {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
         }
-
-        if (action === "qualityControl") {
-            alert("Not implemented yet");
-            // UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-        }
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        let _columns = [[
             {
                 id: "id",
-                title: "id",
+                title: "Id",
                 field: "id",
+                rowspan: 2,
+                colspan: 1,
                 formatter: (value, row) => row?.id ?? "-",
-                halign: this._config.header.horizontalAlign
-
-            },
-            {
-                id: "source",
-                title: "source",
-                field: "source",
-                formatter: (value, row) => row?.source?.project ?? "-",
                 halign: this._config.header.horizontalAlign
             },
             {
                 id: "name",
-                title: "name",
+                title: "Name",
                 field: "name",
+                rowspan: 2,
+                colspan: 1,
                 halign: this._config.header.horizontalAlign
             },
-            // {
-            //     id: "stats",
-            //     title: "stats",
-            //     field: "stats",
-            //     rowspan: 1,
-            //     colspan: 3,
-            //     formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
-            //     halign: this._config.header.horizontalAlign,
-            // },
-            // [
-            //     {
-            //         id: "numberOfRegions",
-            //         title: "number of regions",
-            //         field: "numberOfRegions",
-            //         rowspan: 1,
-            //         colspan: 1,
-            //         formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
-            //         halign: this._config.header.horizontalAlign,
-            //         visible: false
-            //     },
-            //     {
-            //         id: "numberOfVariants",
-            //         title: "number of variants",
-            //         field: "numberOfVariants",
-            //         rowspan: 1,
-            //         colspan: 1,
-            //         formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
-            //         halign: this._config.header.horizontalAlign,
-            //         visible: false
-            //     },
-            //     {
-            //         id: "numberOfGenes",
-            //         title: "number of genes",
-            //         field: "numberOfGenes",
-            //         rowspan: 1,
-            //         colspan: 1,
-            //         formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
-            //         halign: this._config.header.horizontalAlign,
-            //         visible: false
-            //     },
-            // ]
+            {
+                id: "stats",
+                title: "Stats",
+                field: "stats",
+                rowspan: 1,
+                colspan: 3,
+                align: "center",
+            },
+            {
+                id: "source",
+                title: "Source",
+                field: "source",
+                rowspan: 1,
+                colspan: 3,
+                align: "center",
+            },
+        ],
+        [
+            {
+                id: "numberOfRegions",
+                title: "Number of regions",
+                field: "numberOfRegions",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
+                halign: this._config.header.horizontalAlign,
+            },
+            {
+                id: "numberOfVariants",
+                title: "Number of variants",
+                field: "numberOfVariants",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
+                halign: this._config.header.horizontalAlign,
+            },
+            {
+                id: "numberOfGenes",
+                title: "Number of genes",
+                field: "numberOfGenes",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
+                halign: this._config.header.horizontalAlign,
+            },
+            {
+                id: "author",
+                title: "Author",
+                field: "author",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.source?.author ?? "-",
+                halign: this._config.header.horizontalAlign,
+            },
+            {
+                id: "project",
+                title: "Project",
+                field: "project",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.source?.project ?? "-",
+                halign: this._config.header.horizontalAlign,
+            },
+            {
+                id: "version",
+                title: "Version",
+                field: "version",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.source?.version ?? "-",
+                halign: this._config.header.horizontalAlign,
+            },
+        ]
         ];
 
         // if (this.opencgaSession && this._config.showActions) {
@@ -370,7 +394,6 @@ export default class DiseasePanelGrid extends LitElement {
         // }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-
         return _columns;
     }
 
@@ -384,15 +407,14 @@ export default class DiseasePanelGrid extends LitElement {
             limit: 1000,
             skip: 0,
             count: false,
-            exclude: "qualityControl,annotationSets"
         };
 
-        this.opencgaSession.opencgaClient.samples().search(params)
+        this.opencgaSession.opencgaClient.panels().search(params)
             .then(response => {
                 const results = response.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toUpperCase() === "TAB") {
+                    if (e.detail.option.toUpperCase() === "tab") {
                         const fields = ["id", "individualId", "fileIds", "collection.method", "processing.preparationMethod", "somatic", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".txt", "text/plain");

@@ -43,6 +43,9 @@ export default class DiseasePanelBrowserFilter extends LitElement {
             query: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             variableSets: {
                 type: Array
             },
@@ -100,11 +103,23 @@ export default class DiseasePanelBrowserFilter extends LitElement {
     }
 
     onFilterChange(key, value) {
-        if (value && value !== "") {
-            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        if (key instanceof Object && value instanceof Object) {
+            for (const k of Object.keys(key)) {
+                const v = value[k];
+                if (v && v !== "") {
+                    this.preparedQuery = {...this.preparedQuery, ...{[k]: v}};
+                } else {
+                    delete this.preparedQuery[k];
+                    this.preparedQuery = {...this.preparedQuery};
+                }
+            }
         } else {
-            delete this.preparedQuery[key];
-            this.preparedQuery = {...this.preparedQuery};
+            if (value && value !== "") {
+                this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+            } else {
+                delete this.preparedQuery[key];
+                this.preparedQuery = {...this.preparedQuery};
+            }
         }
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate();
@@ -145,28 +160,19 @@ export default class DiseasePanelBrowserFilter extends LitElement {
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
-            // case "id":
-            //     content = html`
-            //         <disease-panel-filter
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .diseasePanels="${this.opencgaSession.study.panels}"
-            //             .panel="${this.preparedQuery.panel}"
-            //             .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
-            //             .panelConfidence="${this.preparedQuery.panelConfidence}"
-            //             .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
-            //             .panelIntersection="${this.preparedQuery.panelIntersection}"
-            //             .showPanelTitle="${true}"
-            //             .disabled="${disabled}"
-            //             .showExtendedFilters="${true}"
-            //             @filterChange="${e => this.onFilterChange({
-            //                 panel: "panel",
-            //                 panelModeOfInheritance: "panelModeOfInheritance",
-            //                 panelConfidence: "panelConfidence",
-            //                 panelRoleInCancer: "panelRoleInCancer",
-            //                 panelIntersection: "panelIntersection",
-            //             }, e.detail.query)}">
-            //         </disease-panel-filter>`;
-            //     break;
+            case "id":
+                content = html`
+                    <disease-panel-filter
+                        .opencgaSession="${this.opencgaSession}"
+                        .diseasePanels="${this.opencgaSession.study.panels}"
+                        .panel="${this.preparedQuery.panel}"
+                        .showPanelTitle="${true}"
+                        .showExtendedFilters=${false}
+                        @filterChange="${e => this.onFilterChange({
+                                panel: "panel",
+                        }, e.detail.query)}">
+                    </disease-panel-filter>`;
+                break;
             case "disorders":
                 content = html`
                     <disorder-id-autocomplete
@@ -181,7 +187,7 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                     <feature-filter
                         .cellbaseClient="${this.cellbaseClient}"
                         .query=${this.preparedQuery}
-                        @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
+                        @filterChange="${e => this.onFilterChange("genes", e.detail.value)}">
                     </feature-filter>`;
                 break;
             case "region":

@@ -6,7 +6,7 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
             {
-                filters: ["disorders", "feature", "region", "categories", "tags", "date"]
+                filters: ["id", "disorders", "feature", "region", "categories", "tags", "date"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
@@ -23,7 +23,7 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "source", "name", "stats"]
+        columns: ["id", "name", "stats", "source"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["disease-panel-view", "json-view"]
