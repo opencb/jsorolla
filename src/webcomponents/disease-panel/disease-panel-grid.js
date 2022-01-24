@@ -23,6 +23,7 @@ import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 
 export default class DiseasePanelGrid extends LitElement {
@@ -316,7 +317,15 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "project",
                 rowspan: 1,
                 colspan: 1,
-                formatter: (value, row) => row?.source?.project ?? "-",
+                formatter: (value, row) => {
+                    if (row?.source?.project === "PanelApp") {
+                        return String.raw`
+                            <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
+                                ${row.source.project}
+                            </a>`;
+                    }
+                    return row?.source?.project ?? "-";
+                },
                 halign: this._config.header.horizontalAlign,
             },
             {
