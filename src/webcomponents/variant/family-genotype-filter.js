@@ -356,6 +356,11 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.requestUpdate();
     }
 
+    getSexIcon(sample) {
+        const value = sample.sex?.id || sample.sex || null;
+        return value ? this._config.sexIconMap[value] : "";
+    }
+
     render() {
         return html`
             <style>
@@ -450,7 +455,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
                                     <td style="padding-left: 0px">
                                         <span>
-                                            <i class='fa ${this._config.sexIconMap[sample.sex]} fa-lg'></i>
+                                            <i class="fas ${this.getSexIcon(sample)} icon-padding"></i>
                                             ${sample.sex?.id || sample.sex || "Not specified"} (${sample.karyotypicSex || "Not specified"})
                                         </span>
                                     </td>
