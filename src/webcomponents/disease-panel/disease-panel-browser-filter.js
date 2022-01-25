@@ -168,9 +168,8 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .panel="${this.preparedQuery.panel}"
                         .showPanelTitle="${true}"
                         .showExtendedFilters=${false}
-                        @filterChange="${e => this.onFilterChange({
-                                panel: "panel",
-                        }, e.detail.query)}">
+                        @filterChange="${e => this.onFilterChange(
+                                subsection.id, e.detail.query["panel"])}">
                     </disease-panel-filter>`;
                 break;
             case "disorders":
