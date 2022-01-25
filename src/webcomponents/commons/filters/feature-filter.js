@@ -33,6 +33,9 @@ export default class FeatureFilter extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             cellbaseClient: {
                 type: Object
             },
@@ -92,10 +95,25 @@ export default class FeatureFilter extends LitElement {
             source: async (params, success, failure) => {
                 try {
                     let restResponse;
-                    if (params?.data?.term) {
-                        restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "starts_with", {limit: this._config.limit}, {});
+                    if (this.cellbaseClient) {
+                        if (params?.data?.term) {
+                            restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "starts_with", {limit: this._config.limit}, {});
+                        } else {
+                            restResponse = await this.cellbaseClient.get("feature", "gene", "search", "", {limit: this._config.limit}, {});
+                        }
                     } else {
-                        restResponse = await this.cellbaseClient.get("feature", "gene", "search", "", {limit: this._config.limit}, {});
+                    // Genes belong to Disease Panels
+                        const query = {
+                            study: this.opencgaSession.study.fqn,
+                            include: "genes",
+                            limit: this._config.limit,
+                            skip: 0
+                        };
+                        if (params?.data?.term) {
+                            restResponse = await this.opencgaSession.opencgaClient.panels().search({...query, genes: `~/^${params?.data?.term}/i`});
+                        } else {
+                            restResponse = await this.opencgaSession.opencgaClient.panels().search(query);
+                        }
                     }
                     success(restResponse);
                 } catch (e) {
@@ -104,12 +122,21 @@ export default class FeatureFilter extends LitElement {
             },
             /* remap results coming from opencga. config.fields fn works for the dropdown, at a different stage. */
             preprocessResults(results) {
-                return results.map(s => ({
-                    id: s.name, // force selected gene (token) to be the name not the id.
-                    name: s.name,
-                    _id: s.id,
-                }));
-
+                if (this.cellbaseClient) {
+                    return results.map(s => ({
+                        id: s.name, // force selected gene (token) to be the name not the id.
+                        name: s.name,
+                        _id: s.id,
+                    }));
+                }
+                return results.flatMap(s => s.genes.map(gen => {
+                    return {
+                        id: gen.name,
+                        name: gen.name,
+                        _id: gen.id,
+                    };
+                })
+                );
             }
         };
     }

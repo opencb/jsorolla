@@ -185,7 +185,7 @@ export default class DiseasePanelBrowserFilter extends LitElement {
             case "feature":
                 content = html`
                     <feature-filter
-                        .cellbaseClient="${this.cellbaseClient}"
+                        .opencgaSession="${this.opencgaSession}"
                         .query=${this.preparedQuery}
                         @filterChange="${e => this.onFilterChange("genes", e.detail.value)}">
                     </feature-filter>`;
@@ -200,20 +200,19 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                 break;
             case "categories":
                 content = html`
-                    <text-field-filter
-                        placeholder="${subsection.placeholder}"
+                    <select-token-filter-static
+                        .config=${subsection}
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    </select-token-filter-static>`;
                 break;
             case "tags":
                 content = html`
-                    <text-field-filter
-                        placeholder="${subsection.placeholder}"
+                    <select-token-filter-static
+                        .config=${subsection}
                         .value="${this.preparedQuery[subsection.id]}"
-                        .separator="${",;"}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    </select-token-filter-static>`;
                 break;
             case "date":
                 content = html`

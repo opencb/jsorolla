@@ -110,7 +110,9 @@ export default class DiseasePanelBrowser extends LitElement {
                             {
                                 id: "disorders",
                                 name: "Disorders",
-                                description: ""
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
                             },
                             {
                                 id: "feature",
@@ -125,12 +127,14 @@ export default class DiseasePanelBrowser extends LitElement {
                             {
                                 id: "categories",
                                 name: "Categories",
+                                placeholder: "Cancer programme...",
                                 description: ""
                             },
                             {
                                 id: "tags",
                                 name: "Tags",
-                                description: ""
+                                description: "",
+                                placeholder: "cancer...",
                             },
                             {
                                 id: "date",
