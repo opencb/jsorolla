@@ -355,7 +355,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        VariantUtils.validatePanelFilter(e.detail);
+        VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
         // this.preparedQuery = {...e.detail};
         // // TODO is this really needed? it seems to work without this line.

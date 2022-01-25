@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../utils/lit-utils.js";
 import "../forms/checkbox-field-filter.js";
 
 export default class VariantTypeFilter extends LitElement {
@@ -46,7 +47,6 @@ export default class VariantTypeFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.selectedVariantTypes = [];
         this._config = this.getDefaultConfig();
     }
 
@@ -64,12 +64,7 @@ export default class VariantTypeFilter extends LitElement {
 
     filterChange(e) {
         this.type = e.detail.value;
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.type
-            }
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
     }
 
     getDefaultConfig() {

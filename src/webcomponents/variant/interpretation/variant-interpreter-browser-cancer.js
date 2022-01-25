@@ -333,7 +333,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        VariantUtils.validatePanelFilter(e.detail);
+        VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
         this.queryObserver();
     }

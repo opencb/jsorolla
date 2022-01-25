@@ -46,7 +46,7 @@ export default class PedigreeView extends LitElement {
     }
 
     _init() {
-        this._prefix = "pr-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.pedigreeId = this._prefix + "PedigreeView";
         this._config = this.getDefaultConfig();
@@ -54,82 +54,66 @@ export default class PedigreeView extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("family")) {
-            //console.error("family", this.family)
+            // console.error("family", this.family)
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.pedigreeRender();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config
+            };
             this.pedigreeRender();
         }
     }
 
     pedigreeRender() {
         if (!this.family) {
-            console.error("Family is empty: " + this.family)
-            return;
+            return console.error("Family is empty: " + this.family);
         }
 
         if (UtilsNew.isNotUndefined(this.svg) && document.getElementById(this.pedigreeId)?.hasChildNodes()) {
             document.getElementById(this.pedigreeId).removeChild(this.svg);
         }
 
-        // const family = Object.assign({}, this.clinicalAnalysis.family);
-        const family = {...this.family};
-        const membersNew =[];
-
-        if (family.members && family.members.length > 0) {
-            /*family.members.forEach(member => {
-                const newMember = Object.assign({}, member);
-                if (UtilsNew.isNotUndefinedOrNull(newMember.father)) {
-                    const newFather = family.members.find(member => {
-                        return member.id === newMember.father.id;
-                    });
-                    if (UtilsNew.isNotUndefinedOrNull(newFather)) {
-                        newMember.father = newFather.id;
-                    } else {
-                        newMember.father = undefined;
-                    }
-                }
-
-                if (UtilsNew.isNotUndefinedOrNull(newMember.mother)) {
-                    const newMother = family.members.find(member => {
-                        return member.id === newMember.mother.id;
-                    });
-                    if (UtilsNew.isNotUndefinedOrNull(newMother)) {
-                        newMember.mother = newMother.id;
-                    } else {
-                        newMember.mother = undefined;
-                    }
-                }
-                membersNew.push(newMember);
-            });
-            family.members = membersNew;*/
+        if (this.family?.members && this.family.members.length > 0) {
+            // Fix members sex --> Pedigree expects a string with the sex, but OpenCGA returns an object
+            // See issue https://github.com/opencb/opencga/issues/1855
+            const family = {
+                ...this.family,
+                members: this.family.members.map(member => ({
+                    ...member,
+                    sex: member?.sex?.id || member?.sex || "UNKNOWN",
+                })),
+            };
 
             // Render new Pedigree
             const querySelector = this.querySelector("#" + this.pedigreeId);
-            //console.log("document.getElementById(this._prefix + \"PedigreeView\")", this.querySelector("#" + this.pedigreeId))
-            const pedigree = new Pedigree(family, {selectShowSampleNames: true});
+            const pedigree = new Pedigree(family, {
+                selectShowSampleNames: true,
+            });
+
             this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
                 width: querySelector.offsetWidth,
-                height: this._config.height
+                height: this._config.height,
             });
+
             querySelector.appendChild(this.svg);
         }
         this.requestUpdate();
-    }
-
-    getDefaultConfig() {
-        return {
-            width: 700, //this is overwritten by the container div offsetWidth
-            height: 240
-        }
     }
 
     render() {
         return html`
             <div id="${this._prefix}PedigreeView"></div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            width: 700, // this is overwritten by the container div offsetWidth
+            height: 240,
+        };
     }
 
 }

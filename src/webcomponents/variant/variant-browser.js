@@ -268,7 +268,7 @@ export default class VariantBrowser extends LitElement {
     onActiveFilterChange(e) {
 
         // panelModeOfInheritance,panelConfidence,panelRoleInCancer,panel
-        VariantUtils.validatePanelFilter(e.detail);
+        VariantUtils.validateQuery(e.detail);
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);
