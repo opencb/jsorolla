@@ -528,8 +528,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: individual => html`
-                                                <div><span style="font-weight: bold">${individual.id}</span></div>
-                                                <div><span class="help-block">${individual.sex} (${individual.karyotypicSex})</span></div>
+                                                <div style="font-weight: bold">${individual.id}</div>
+                                                <div class="help-block">
+                                                    ${individual.sex?.id || individual.sex || "Not specified"} (${individual.karyotypicSex || "Not specified"})
+                                                </div>
                                             `,
                                         },
                                     },

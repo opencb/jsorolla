@@ -280,7 +280,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     onActiveFilterChange(e) {
         // debugger
-        VariantUtils.validatePanelFilter(e.detail);
+        VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
         // this.preparedQuery = {...e.detail};
         // // TODO is this really needed? it seems to work without this line.
