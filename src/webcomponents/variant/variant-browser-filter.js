@@ -484,6 +484,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .diseasePanels="${this.opencgaSession.study.panels}"
                             .panel="${this.preparedQuery.panel}"
+                            .panelFeatureType="${this.preparedQuery.panelFeatureType}"
                             .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
                             .panelConfidence="${this.preparedQuery.panelConfidence}"
                             .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
@@ -493,6 +494,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .showExtendedFilters="${true}"
                             @filterChange="${e => this.onFilterChange({
                                 panel: "panel",
+                                panelFeatureType: "panelFeatureType",
                                 panelModeOfInheritance: "panelModeOfInheritance",
                                 panelConfidence: "panelConfidence",
                                 panelRoleInCancer: "panelRoleInCancer",

@@ -360,16 +360,17 @@ export default class VariantUtils {
     }
 
 
-    static validatePanelFilter(query) {
+    static validateQuery(query) {
         if (!query?.panel) {
+            if ("panelFeatureType" in query) {
+                delete query?.panelFeatureType;
+            }
             if ("panelModeOfInheritance" in query) {
                 delete query?.panelModeOfInheritance;
             }
-
             if ("panelConfidence" in query) {
                 delete query?.panelConfidence;
             }
-
             if ("panelRoleInCancer" in query) {
                 delete query?.panelRoleInCancer;
             }
