@@ -121,7 +121,7 @@ export default class FeatureFilter extends LitElement {
                 }
             },
             /* remap results coming from opencga. config.fields fn works for the dropdown, at a different stage. */
-            preprocessResults(results) {
+            preprocessResults: results => {
                 if (this.cellbaseClient) {
                     return results.map(s => ({
                         id: s.name, // force selected gene (token) to be the name not the id.
