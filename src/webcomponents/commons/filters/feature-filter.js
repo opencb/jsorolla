@@ -98,7 +98,7 @@ export default class FeatureFilter extends LitElement {
                     if (this.cellbaseClient) {
                         if (params?.data?.term) {
                             if (this.cellbaseClient.getConfig()?.version === "v5") {
-                                restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "startsWith", {
+                                restResponse = await this.cellbaseClient.get("feature", "gene", params?.data?.term?.toUpperCase(), "startsWith", {
                                     limit: this._config.limit,
                                 }, {});
                             } else {
