@@ -466,7 +466,7 @@ class IvaApp extends LitElement {
     onLogin(credentials) {
         // This creates a new authenticated opencga-session object
 
-        console.log("iva-app: roger I'm in", credentials);
+        // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
 

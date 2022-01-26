@@ -48,6 +48,9 @@ class ClinicalAnalysisCommentEditor extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.commentStatus = {};
+        if (!this.comments) {
+            this.comments = [];
+        }
     }
 
     connectedCallback() {
@@ -85,9 +88,15 @@ class ClinicalAnalysisCommentEditor extends LitElement {
     }
 
     onAddChange(field, e) {
+
+        // When cancel a comments with onAddDelete it's remove the entire object so the comment item haven't the properties message and tags..
+        if (!this.comments[this.comments.length - 1]) {
+            this.comments[this.comments.length - 1] = {message: "", tags: []};
+        }
+
         // Only one new Comment allowed, it is added at the end of the comments array. No date is set for the new comment.
         // If last element contains a 'date' then we need to add a new comment.
-        if (this.comments[this.comments.length - 1].date) {
+        if (this.comments[this.comments.length - 1]?.date) {
             this.comments.push({
                 message: "",
                 tags: []
@@ -114,6 +123,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         // Delete the new ADDED comment
         this.comments.splice(this.comments.length - 1, 1);
         delete this.commentStatus["ADD"];
+
         this.requestUpdate();
         this.notify();
     }
