@@ -91,6 +91,7 @@ export default class IndividualView extends LitElement {
                     this.requestUpdate();
                     this.notify(error);
                 });
+            this.individualId = "";
         }
     }
 
@@ -198,9 +199,11 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Reported Sex (Karyotypic)",
-                            type: "complex",
+                            type: "custom",
                             display: {
-                                template: "${sex.id} (${karyotypicSex})",
+                                render: individual => `
+                                    ${individual.sex?.id ?? individual.sex ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
+                                `,
                             }
                         },
                         {

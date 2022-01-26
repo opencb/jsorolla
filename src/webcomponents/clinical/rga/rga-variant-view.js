@@ -587,7 +587,7 @@ export default class RgaVariantView extends LitElement {
                                 _.individualStats?.singleParent?.numCompHet,
                                 _.individualStats?.missingParents?.numCompHet
                             ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "rga_variants_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(dataString, "rga_variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_variants_" + this.opencgaSession.study.id + ".json", "application/json");
                     }

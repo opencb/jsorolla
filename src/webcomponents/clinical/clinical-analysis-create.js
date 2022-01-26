@@ -83,9 +83,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
             analyst: {
                 id: this.opencgaSession?.user?.id
             },
-            dueDate: moment().format("YYYYMMDDHHmmss"),
-            comments: [],
-            _users: this._users
+            // dueDate: moment().format("YYYYMMDDHHmmss"),
+            _users: this._users,
+            comments: []
         };
     }
 
@@ -127,13 +127,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     delete this.clinicalAnalysis[field];
                 }
                 break;
-            case "_comments":
-                this.clinicalAnalysis.comments = [
-                    {
-                        message: e.detail.value
-                    }
-                ];
-                break;
             default:
                 this.clinicalAnalysis[param] = e.detail.value;
                 break;
@@ -167,7 +160,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Single Analyisis Configuration
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {...this.clinicalAnalysis, proband: {disorders: []}};
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
             this.requestUpdate();
         }
     }
@@ -199,6 +195,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty family fields
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+                family: null,
+            };
+            this.requestUpdate();
         }
     }
 
@@ -219,7 +223,18 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            // Empty disorder and samples field when remove item from proband field.
+            this.clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                proband: null,
+            };
+            this.requestUpdate();
         }
+    }
+
+    onCommentChange(e) {
+        this.commentsUpdate = e.detail;
     }
 
     notifyClinicalAnalysisWrite() {
@@ -237,6 +252,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onSubmit() {
         // Prepare the data for the REST create
         const data = {...this.clinicalAnalysis};
+
         // remove private fields
         delete data._users;
 
@@ -249,6 +265,21 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.clinicalAnalysis.family.id,
                 members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
             };
+        }
+
+        // Fix comments field --> convert to array of messages
+        // if (data.comments) {
+        //     data.comments = [
+        //         {message: data.comments},
+        //     ];
+        // }
+        if (this.commentsUpdate) {
+            data.comments = this.commentsUpdate.value;
+        }
+
+        // Clear dueDate field if not provided a valid value
+        if (!data.dueDate) {
+            delete data.dueDate;
         }
 
         this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
@@ -456,6 +487,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Select Family",
                             field: "family.id",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <family-id-autocomplete
@@ -468,11 +500,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     </family-id-autocomplete>
                                 `,
                             },
-                        },
-                        {
-                            title: "Select Family",
-                            field: "family.id",
-                            type: "basic",
                         },
                         {
                             title: "Select Proband",
@@ -489,7 +516,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
@@ -501,7 +527,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "table",
                             display: {
                                 width: 12,
-                                defaultLayout: "vertical",
+                                // defaultLayout: "vertical",
                                 errorMessage: "No family selected",
                                 errorClassName: "",
                                 columns: [
@@ -510,8 +536,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: individual => html`
-                                                <div><span style="font-weight: bold">${individual.id}</span></div>
-                                                <div><span class="help-block">${individual.sex} (${individual.karyotypicSex})</span></div>
+                                                <div style="font-weight: bold">${individual.id}</div>
+                                                <div class="help-block">
+                                                    ${individual.sex?.id || individual.sex || "Not specified"} (${individual.karyotypicSex || "Not specified"})
+                                                </div>
                                             `,
                                         },
                                     },
@@ -558,7 +586,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                defaultLayout: "vertical",
+                                // defaultLayout: "vertical",
                                 // visible: data => application.appConfig === "opencb", // TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
@@ -580,6 +608,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         {
                             title: "Select Proband",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: () => html`
                                     <individual-id-autocomplete
@@ -598,7 +627,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "disorder.id",
                             type: "select",
                             allowedValues: "proband.disorders",
-                            required: true,
                             display: {
                                 apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No disorders available",
@@ -671,16 +699,27 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "dueDate",
                             type: "input-date",
                         },
+                        // {
+                        //     title: "Comment",
+                        //     field: "comments",
+                        //     type: "input-text",
+                        //     defaultValue: "",
+                        //     display: {
+                        //         rows: 2,
+                        //         placeholder: "Initial comment...",
+                        //     },
+                        //
                         {
-                            title: "Comment",
-                            field: "_comments",
-                            type: "input-text",
-                            defaultValue: "",
+                            title: "Comments",
+                            field: "comments",
+                            type: "custom",
                             display: {
-                                rows: 2,
-                                placeholder: "Initial comment..."
-                                // render: comments => html`
-                                //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
+                                render: comments => html`
+                                    <clinical-analysis-comment-editor
+                                        .comments="${comments}"
+                                        @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
+                                `,
                             }
                         }
                     ]

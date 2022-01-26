@@ -19,12 +19,14 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
+import "../variant-samples.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
 
@@ -85,7 +87,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
@@ -101,7 +103,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        super.update(changedProperties);
+        // super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -287,6 +289,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
     }
 
+    onUpdateVariant(e) {
+        this.clinicalAnalysisManager.updateSingleVariant(e.detail.row);
+        this.requestUpdate();
+    }
+
     onFilterVariants(e) {
         const variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
@@ -326,6 +333,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
         this.queryObserver();
     }
@@ -632,7 +640,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     <cellbase-variant-annotation-summary
                                         .variantAnnotation="${variant.annotation}"
                                         .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                        .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
+                                        .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                        .assembly=${this.opencgaSession.project.organism.assembly}>
                                     </cellbase-variant-annotation-summary>`;
                             }
                         },
@@ -696,14 +705,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         {
                             id: "samples",
                             name: "Samples",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <opencga-variant-samples
-                                        .opencgaSession="${opencgaSession}"
-                                        .variantId="${variant.id}"
-                                        .active="${active}">
-                                    </opencga-variant-samples>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-samples
+                                    .opencgaSession="${opencgaSession}"
+                                    .variantId="${variant.id}"
+                                    .active="${active}">
+                                </variant-samples>
+                            `,
                         },
                         {
                             id: "beacon",
@@ -838,6 +846,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     .review="${true}"
                                     .config="${this._config.filter.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>
 

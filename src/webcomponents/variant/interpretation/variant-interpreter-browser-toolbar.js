@@ -220,10 +220,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         <button type="button" id="${this._prefix}SaveMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" title="Save variants in the server">
                             <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
-                            ${this.state.addedVariants?.length || this.state.removedVariants?.length
+                            ${this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length
                                 ? html`
                                     <span class="badge" style="margin-left: 5px">
-                                        ${this.state.addedVariants.length + this.state.removedVariants.length}
+                                        ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
                                     </span>`
                                 : null
                             }
@@ -242,6 +242,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                         <label style="font-weight: normal; width: 180px">Removed variants</label>
                                         <span style="color: darkred;font-weight: bold">${this.state.removedVariants?.length}</span>
                                     </div>
+                                    <div>
+                                        <label style="font-weight: normal; width: 180px">Updated variants</label>
+                                        <span style="color: darkblue;font-weight: bold">${this.state.updatedVariants?.length}</span>
+                                    </div>
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
@@ -259,7 +263,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
+                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length|| this.state.updatedVariants?.length ? "" : "disabled"}"
                                         @click="${this.onSaveInterpretation}" style="margin: 5px">Save
                                     </button>
                                 </div>

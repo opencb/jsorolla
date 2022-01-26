@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
+import VariantUtils from "./variant-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
@@ -28,7 +29,8 @@ import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
 import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
-import "./opencga-variant-samples.js";
+import "./variant-samples.js";
+
 
 export default class VariantBrowser extends LitElement {
 
@@ -264,6 +266,9 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
+
+        // panelModeOfInheritance,panelConfidence,panelRoleInCancer,panel
+        VariantUtils.validateQuery(e.detail);
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);
@@ -491,92 +496,86 @@ export default class VariantBrowser extends LitElement {
                             id: "annotationSummary",
                             name: "Summary",
                             active: true,
-                            render: variant => {
-                                return html`
-                                    <cellbase-variant-annotation-summary
-                                            .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
-                                    </cellbase-variant-annotation-summary>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <cellbase-variant-annotation-summary
+                                    .variantAnnotation="${variant.annotation}"
+                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                    .assembly="${opencgaSession?.project?.organism?.assembly}">
+                                </cellbase-variant-annotation-summary>
+                            `,
                         },
                         {
                             id: "annotationConsType",
                             name: "Consequence Type",
-                            render: (variant, active) => {
-                                return html`
-                                    <variant-consequence-type-view
-                                            .consequenceTypes="${variant.annotation.consequenceTypes}"
-                                            .active="${active}">
-                                    </variant-consequence-type-view>`;
-                            }
+                            render: (variant, active) => html`
+                                <variant-consequence-type-view
+                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                    .active="${active}">
+                                </variant-consequence-type-view>
+                            `,
                         },
                         {
                             id: "annotationPropFreq",
                             name: "Population Frequencies",
-                            render: (variant, active) => {
-                                return html`
-                                    <cellbase-population-frequency-grid
-                                            .populationFrequencies="${variant.annotation.populationFrequencies}"
-                                            .active="${active}">
-                                    </cellbase-population-frequency-grid>`;
-                            }
+                            render: (variant, active) => html`
+                                <cellbase-population-frequency-grid
+                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                    .active="${active}">
+                                </cellbase-population-frequency-grid>
+                            `,
                         },
                         {
                             id: "annotationClinical",
                             name: "Clinical",
-                            render: variant => {
-                                return html`
-                                    <variant-annotation-clinical-view
-                                            .traitAssociation="${variant.annotation.traitAssociation}"
-                                            .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
-                                    </variant-annotation-clinical-view>`;
-                            }
+                            render: variant => html`
+                                <variant-annotation-clinical-view
+                                    .traitAssociation="${variant.annotation.traitAssociation}"
+                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                </variant-annotation-clinical-view>
+                            `,
                         },
                         {
                             id: "cohortStats",
                             name: "Cohort Variant Stats",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <variant-cohort-stats
-                                            .opencgaSession="${opencgaSession}"
-                                            .variant="${variant}"
-                                            .config="${this.cohortConfig}"
-                                            .active="${active}">
-                                    </variant-cohort-stats>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-cohort-stats
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .config="${this.cohortConfig}"
+                                    .active="${active}">
+                                </variant-cohort-stats>
+                            `,
                         },
                         {
                             id: "samples",
                             name: "Samples",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <opencga-variant-samples
-                                            .opencgaSession="${opencgaSession}"
-                                            .variantId="${variant.id}"
-                                            .active="${active}">
-                                    </opencga-variant-samples>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-samples
+                                    .opencgaSession="${opencgaSession}"
+                                    .variantId="${variant.id}"
+                                    .active="${active}">
+                                </variant-samples>
+                            `,
                         },
                         {
                             id: "beacon",
                             name: "Beacon",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <variant-beacon-network
-                                            .variant="${variant.id}"
-                                            .assembly="${opencgaSession.project.organism.assembly}"
-                                            .config="${this.beaconConfig}"
-                                            .active="${active}">
-                                    </variant-beacon-network>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-beacon-network
+                                    .variant="${variant.id}"
+                                    .assembly="${opencgaSession.project.organism.assembly}"
+                                    .config="${this.beaconConfig}"
+                                    .active="${active}">
+                                </variant-beacon-network>
+                            `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (variant, active) => {
-                                return html`<json-viewer .data="${variant.annotation}" .active="${active}"></json-viewer>`;
-                            }
+                            render: (variant, active) => html`
+                                <json-viewer .data="${variant.annotation}" .active="${active}"></json-viewer>
+                            `,
                         }
                         // TODO Think about Neeworks
                         // {
@@ -660,7 +659,8 @@ export default class VariantBrowser extends LitElement {
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
                     <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>`;
+                </div>
+            `;
         }
 
         return html`
@@ -685,21 +685,23 @@ export default class VariantBrowser extends LitElement {
 
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <variant-browser-filter .opencgaSession=${this.opencgaSession}
-                                                    .query="${this.query}"
-                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                    .config="${this._config.filter}"
-                                                    @queryChange="${this.onQueryFilterChange}"
-                                                    @querySearch="${this.onVariantFilterSearch}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}">
+                            <variant-browser-filter
+                                .opencgaSession=${this.opencgaSession}
+                                .query="${this.query}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .config="${this._config.filter}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onVariantFilterSearch}"
+                                @activeFacetChange="${this.onActiveFacetChange}"
+                                @activeFacetClear="${this.onActiveFacetClear}">
                             </variant-browser-filter>
                         </div>
 
                         <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter .selectedFacet="${this.selectedFacet}"
-                                          .config="${this._config.aggregation}"
-                                          @facetQueryChange="${this.onFacetQueryChange}">
+                            <facet-filter
+                                .selectedFacet="${this.selectedFacet}"
+                                .config="${this._config.aggregation}"
+                                @facetQueryChange="${this.onFacetQueryChange}">
                             </facet-filter>
                         </div>
                     </div>
@@ -721,53 +723,55 @@ export default class VariantBrowser extends LitElement {
                     </div>
 
                     <div>
-                        <opencga-active-filters facetActive
-                                                resource="VARIANT"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study?.fqn}"
-                                                .query="${this.preparedQuery}"
-                                                .executedQuery="${this.executedQuery}"
-                                                .facetQuery="${this.preparedFacetQueryFormatted}"
-                                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                                                .alias="${this._config.filter.activeFilters.alias}"
-                                                .filters="${this._config.filter.examples}"
-                                                .config="${this._config.filter.activeFilters}"
-                                                @activeFacetChange="${this.onActiveFacetChange}"
-                                                @activeFacetClear="${this.onActiveFacetClear}"
-                                                @activeFilterChange="${this.onActiveFilterChange}"
-                                                @activeFilterClear="${this.onActiveFilterClear}">
+                        <opencga-active-filters
+                            facetActive
+                            resource="VARIANT"
+                            .opencgaSession="${this.opencgaSession}"
+                            .defaultStudy="${this.opencgaSession.study?.fqn}"
+                            .query="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
+                            .facetQuery="${this.preparedFacetQueryFormatted}"
+                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                            .alias="${this._config.filter.activeFilters.alias}"
+                            .filters="${this._config.filter.examples}"
+                            .config="${this._config.filter.activeFilters}"
+                            @activeFacetChange="${this.onActiveFacetChange}"
+                            @activeFacetClear="${this.onActiveFacetClear}"
+                            @activeFilterChange="${this.onActiveFilterChange}"
+                            @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
-
-                            <!--<div class="alert alert-info">facetQuery \${JSON.stringify(this.facetQuery)}</div>-->
 
                         <div class="main-view">
                             <div id="table-tab" class="content-tab active">
-                                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
-                                                      .query="${this.executedQuery}"
-                                                      .cohorts="${this.opencgaSession?.project?.studies ?? []}"
-                                                      .cellbaseClient="${this.cellbaseClient}"
-                                                      .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                                      .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
-                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                      .config="${this._config.filter.result.grid}"
-                                                      @selectrow="${this.onSelectVariant}">
+                                <variant-browser-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .query="${this.executedQuery}"
+                                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
+                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                    .config="${this._config.filter.result.grid}"
+                                    @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->
-                                <variant-browser-detail .variant="${this.variant}"
-                                                        .opencgaSession="${this.opencgaSession}"
-                                                        .cellbaseClient="${this.cellbaseClient}"
-                                                        .config="${this._config.filter.detail}">
+                                <variant-browser-detail
+                                    .variant="${this.variant}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config="${this._config.filter.detail}">
                                 </variant-browser-detail>
                             </div>
 
                             <div id="facet-tab" class="content-tab">
-                                <opencb-facet-results resource="VARIANT"
-                                                      .opencgaSession="${this.opencgaSession}"
-                                                      .active="${this.activeTab["facet-tab"]}"
-                                                      .query="${this.facetQuery}"
-                                                      .data="${this.facetResults}"
-                                                      .error="${this.errorState}">
+                                <opencb-facet-results
+                                    resource="VARIANT"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .active="${this.activeTab["facet-tab"]}"
+                                    .query="${this.facetQuery}"
+                                    .data="${this.facetResults}"
+                                    .error="${this.errorState}">
                                 </opencb-facet-results>
                             </div>
                         </div>

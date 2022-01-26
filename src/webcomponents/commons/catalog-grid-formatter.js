@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class CatalogGridFormatter {
 
@@ -25,7 +26,7 @@ export default class CatalogGridFormatter {
         const tooltip = [...value].sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status)).map(phenotype => {
             const result = [];
             if (phenotype.name) {
-                result.push(phenotype.name);
+                result.push(UtilsNew.escapeHtml(phenotype.name));
                 // Check if we have also the phenotype ID --> add the '-' separator
                 if (phenotype.id && phenotype.id !== phenotype.name) {
                     result.push("-");
@@ -34,7 +35,8 @@ export default class CatalogGridFormatter {
             // Add phenotype ID if exists
             if (phenotype.id && phenotype.id !== phenotype.name) {
                 if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
-                    result.push(`<a target="_blank" href="https://hpo.jax.org/app/browse/terms/${phenotype.id}">${phenotype.id}</a>`);
+                    result.push(`
+                        <a target="_blank" href="https://hpo.jax.org/app/browse/terms/${phenotype.id}">${phenotype.id}</a>`);
                 } else {
                     result.push(phenotype.id);
                 }

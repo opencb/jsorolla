@@ -69,7 +69,7 @@ export default class VariantInterpreterGridFormatter {
         }
     }
 
-    static predictionFormatter(value, row, index) {
+    static predictionFormatter(value, row) {
         if (!row.evidences) {
             return "-";
         }
@@ -120,16 +120,17 @@ export default class VariantInterpreterGridFormatter {
             const transcriptMap = new Map();
             row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
             const newEvidences = [];
-            for (const evidence of row.evidences) {
+            row.evidences.forEach((evidence, index) => {
                 // we are missing regulatory variants
                 if (evidence.genomicFeature?.transcriptId) {
                     const newEvidence = {
+                        index,
                         ...evidence,
                         ...transcriptMap.get(evidence.genomicFeature.transcriptId)
                     };
                     newEvidences.push(newEvidence);
                 }
-            }
+            });
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, config).indexes;
 
             let message = "";
@@ -195,28 +196,8 @@ export default class VariantInterpreterGridFormatter {
                            <tbody>`;
             }
 
-            // FIXME Maybe this should happen in the server?
-            // let consequenceTypeSet = new Set();
-            // if (variantGrid.query?.ct) {
-            //     consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
-            // }
-
             for (let i = 0; i < newEvidences.length; i++) {
                 const re = newEvidences[i];
-
-                // FIXME Maybe this should happen in the server?
-                // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
-                // if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
-                //     let hasConsequenceType = false;
-                //     for (const ct of re.consequenceTypeIds) {
-                //         if (consequenceTypeSet.has(ct)) {
-                //             hasConsequenceType = true;
-                //         }
-                //     }
-                //     if (!hasConsequenceType) {
-                //         continue;
-                //     }
-                // }
 
                 // Prepare data info for columns
                 let geneHtml = "-";
@@ -283,7 +264,7 @@ export default class VariantInterpreterGridFormatter {
                 if (re.panelId) {
                     const panel = variantGrid.opencgaSession?.study?.panels?.find(panel => panel.id === re.panelId);
                     if (panel) {
-                        const gene = panel.genes.find(gene => gene.name === re.genomicFeature.geneName);
+                        const gene = panel.genes.find(gene => gene.id === re.genomicFeature.geneName || gene.name === re.genomicFeature.geneName);
                         const confidenceColor = gene.confidence === "HIGH" ? "green" : gene.confidence === "MEDIUM" ? "darkorange" : "red";
                         panelHtml = `
                             <div style="margin: 5px 0">
@@ -296,8 +277,14 @@ export default class VariantInterpreterGridFormatter {
                                     `<div style="margin: 5px 0">${panel.id}</div>`
                                 }
                             </div>
-                            <div class="help-block" style="margin: 5px 0" title="Mode of Inheritance">${gene.modeOfInheritance}</div>
-                            <div style="color: ${confidenceColor}" title="Confidence">${gene.confidence}</div>
+                            ${gene.modeOfInheritance ? `
+                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
+                            ` : ""
+                            }
+                            ${gene.confidence ? `
+                                <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
+                            ` : ""
+                            }
                         `;
                     } else {
                         panelHtml = re.panelId;
@@ -305,42 +292,66 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let roleInCancer = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
+                if (re.roleInCancer) {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
                 }
 
                 let acmgPrediction = "-";
-                if (re.classification?.acmg?.length > 0) {
+                if (re.classification?.clinicalSignificance || re.classification?.acmg?.length > 0) {
                     acmgPrediction = `
-                        <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
-                            ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
-                        </div>
-                        <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                        ${re.classification?.clinicalSignificance ? `
+                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
+                            </div>
+                        ` : ""
+                        }
+                        <div class="help-block">${re.classification.acmg?.join(", ")}</div>
+                    `;
+                }
+
+                // const acmgCustom = re.review?.acmg ? re.review.acmg.join(",") : "-";
+                let acmgCustom = "-";
+                if (re.review?.clinicalSignificance || re.review?.acmg?.length > 0) {
+                    acmgCustom = `
+                        ${re.review?.clinicalSignificance ? `
+                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].id}
+                            </div>
+                        ` : ""
+                    }
+                        <div class="help-block">${re.review.acmg?.join(", ")}</div>
                     `;
                 }
 
                 let tier = "-";
                 let color = "black";
-                if (re.classification?.tier) {
-                    const tierClassification = re.classification.tier?.toUpperCase();
+                if (re.review?.tier) {
+                    const tierClassification = re.review.tier?.toUpperCase();
                     color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
                     color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
                     color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
+                    tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
-                let checboxHtml = "";
-                if (review) {
-                    const checked = "";
-                    // if (transcriptFlagChecked && tier !== "-") {
-                    //     checked = "checked";
-                    // }
-                    checboxHtml = `<input type="checkbox" ${checked}>`;
-                }
+                // Evidence selected checkbox
+                const checboxHtml = `
+                    <input
+                        type="checkbox"
+                        ${re?.review?.select ? "checked" : ""}
+                        class="${variantGrid._prefix}EvidenceReviewCheckbox"
+                        data-variant-id="${row.id}"
+                        data-clinical-evidence-index="${re.index}">
+                `;
+
+                // Evidence edit button
                 const editButtonLink = `
-                        <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
-                            <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>Edit
-                        </button>`;
+                    <button
+                        class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
+                        data-variant-id="${row.id}"
+                        data-clinical-evidence-index="${re.index}">
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
+                    </button>
+                `;
 
                 // Create the table row
                 const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
@@ -356,7 +367,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panelHtml}</td>
                             <td>${acmgPrediction}</td>
-                            <td>${tier}</td>
+                            <td>${acmgCustom}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;

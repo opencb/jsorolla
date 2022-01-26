@@ -110,7 +110,13 @@ class OpencbFacetResults extends LitElement {
             this.endpoint(this.resource).aggregationStats(this.query, {})
                 .then(restResponse => {
                     this.errorState = false;
-                    this.facetResults = restResponse.getResults() || [];
+
+                    // Remove all categories with an empty 'value' (no id)
+                    const results = restResponse.responses[0].results;
+                    for (const result of results) {
+                        result.buckets = result.buckets.filter(bucket => !!bucket.value);
+                    }
+                    this.facetResults = results || [];
                 })
                 .catch(response => {
                     if (response instanceof RestResponse || response instanceof Error) {

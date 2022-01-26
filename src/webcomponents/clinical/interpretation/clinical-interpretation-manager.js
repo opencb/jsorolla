@@ -143,7 +143,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .displayConfig="${{
                                 buttonClearText: "Clear",
                                 buttonOkText: "Update",
-                                modalButtonClassName: "btn-primary btn-sm"
+                                modalButtonClassName: "btn-default btn-sm"
                             }}">
                         </clinical-interpretation-update>
                         <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">

@@ -266,9 +266,11 @@ export default class OpencgaVariantDetail extends LitElement {
                                         <!-- Annotation Tab -->
                                         <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane active">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <cellbase-variant-annotation-summary    .variantAnnotation="${this.variant.annotation}"
-                                                                                        .consequenceTypes="${this.consequenceTypes}"
-                                                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                                                <cellbase-variant-annotation-summary
+                                                    .variantAnnotation="${this.variant.annotation}"
+                                                    .consequenceTypes="${this.consequenceTypes}"
+                                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                    .assembly="${this.opencgaSession.project.organism.assembly}">
                                                 </cellbase-variant-annotation-summary>
                                             </div>
                                         </div>

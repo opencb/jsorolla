@@ -352,6 +352,10 @@ export default class UtilsNew {
         // }
     }
 
+    // Performs a clone object specified object
+    static objectClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
 
     /**
      * Returns the object sorted by key in lexicographic order.
@@ -790,6 +794,16 @@ export default class UtilsNew {
             });
         }
         return stringArray;
+    }
+
+    // Escape HTML characters from the provided string
+    static escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
 }

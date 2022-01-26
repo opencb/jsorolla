@@ -88,6 +88,7 @@ export default class VariableSetView extends LitElement {
                     this.requestUpdate();
                     LitUtils.dispatchCustomEvent(this, "variableSetSearch", this.variableSet, null, error);
                 });
+            // this.variableSetId = "";
         }
     }
 

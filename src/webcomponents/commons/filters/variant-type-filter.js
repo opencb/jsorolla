@@ -17,7 +17,8 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import LitUtils from "../utils/lit-utils.js";
+import "../forms/checkbox-field-filter.js";
 
 export default class VariantTypeFilter extends LitElement {
 
@@ -46,7 +47,6 @@ export default class VariantTypeFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.selectedVariantTypes = [];
         this._config = this.getDefaultConfig();
     }
 
@@ -56,42 +56,15 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("type")) {
-            if (this.type) {
-                this.selectedVariantTypes = this.type.split(",");
-            } else {
-                this.selectedVariantTypes = [];
-            }
-            // this.requestUpdate();
-        }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
         }
         super.update(changedProperties);
     }
 
     filterChange(e) {
-        console.log("filterChange", this.selectedVariantTypes.join(",") || null);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.selectedVariantTypes.join(",") || null
-            }
-        });
-        this.dispatchEvent(event);
-    }
-
-    toggle(type) {
-        const checkbox = this.querySelector(`input[value=${type}]`);
-        if (!~this.selectedVariantTypes.indexOf(type)) {
-            this.selectedVariantTypes.push(type);
-            checkbox.checked = true;
-        } else {
-            this.selectedVariantTypes.splice(this.selectedVariantTypes.indexOf(type), 1);
-            checkbox.checked = false;
-        }
-        this.filterChange();
+        this.type = e.detail.value;
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
     }
 
     getDefaultConfig() {
@@ -109,15 +82,8 @@ export default class VariantTypeFilter extends LitElement {
                     margin-right: 10px;
                 }
             </style>
-            <div id="${this._prefix}Type">
-             <ul class="magic-checkbox-wrapper ${classMap({inline: this._config.layout === "horizontal"})}">
-                ${this._config.types && this._config.types.length && this._config.types.map( type => html`
-                    <li>
-                        <input class="magic-checkbox" type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}"/>
-                        <label class="" @click="${() => this.toggle(type) }">${type}</label>
-                    </li>
-                `)}
-             </ul>
+            <div id="${this._prefix}Type" class="${classMap({inline: this._config.layout === "horizontal"})}">
+                <checkbox-field-filter .value="${this.type}" .data="${this._config.types}" @filterChange="${e => this.filterChange(e)}"></checkbox-field-filter>
             </div>
         `;
     }

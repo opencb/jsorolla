@@ -138,6 +138,7 @@ export default class FamilyView extends LitElement {
                     this.requestUpdate();
                     this.notify(error);
                 });
+            this.familyId = "";
         }
     }
 
@@ -306,7 +307,11 @@ export default class FamilyView extends LitElement {
                                     },
                                     {
                                         title: "Sex",
-                                        field: "sex"
+                                        field: "sex",
+                                        type: "custom",
+                                        display: {
+                                            render: sex => sex?.id || sex || "Not specified",
+                                        },
                                     },
                                     {
                                         title: "Father ID",

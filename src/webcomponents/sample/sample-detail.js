@@ -22,7 +22,7 @@ import "./sample-variant-stats-view.js";
 import "./sample-files-view.js";
 import "../alignment/samtools-flagstats-view.js";
 
-export default class OpencgaSampleDetail extends LitElement {
+export default class SampleDetail extends LitElement {
 
     constructor() {
         super();
@@ -38,11 +38,11 @@ export default class OpencgaSampleDetail extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            sampleId: {
-                type: String
-            },
             sample: {
                 type: Object
+            },
+            sampleId: {
+                type: String
             },
             config: {
                 type: Object
@@ -51,7 +51,6 @@ export default class OpencgaSampleDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sd-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
     }
 
@@ -71,22 +70,30 @@ export default class OpencgaSampleDetail extends LitElement {
     }
 
     sampleIdObserver() {
-        if (this.opencgaSession) {
-            if (this.sampleId) {
-                this.opencgaSession.opencgaClient.samples().info(this.sampleId, {
-                    study: this.opencgaSession.study.fqn,
-                    includeIndividual: true
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {
+                study: this.opencgaSession.study.fqn,
+                includeIndividual: true
+            })
+                .then(response => {
+                    this.sample = response.getResult(0);
                 })
-                    .then(response => {
-                        this.sample = response.getResult(0);
-                    })
-                    .catch(reason => {
-                        console.error(reason);
-                    });
-            } else {
-                this.sample = null;
-            }
+                .catch(reason => {
+                    console.error(reason);
+                });
+
         }
+    }
+
+    render() {
+        return this.opencgaSession && this.sample ?
+            html`
+                <detail-tabs
+                    .data="${this.sample}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            ` : null;
     }
 
     getDefaultConfig() {
@@ -127,13 +134,6 @@ export default class OpencgaSampleDetail extends LitElement {
         };
     }
 
-    render() {
-        return this.opencgaSession && this.sample ?
-            html`
-                <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
-                ` : null;
-    }
-
 }
 
-customElements.define("opencga-sample-detail", OpencgaSampleDetail);
+customElements.define("sample-detail", SampleDetail);

@@ -88,13 +88,25 @@ export default class BioinfoUtils {
             return null;
         }
 
+        if (id?.startsWith("rs")) {
+            if (assembly?.toUpperCase() === "GRCH38") {
+                return `http://ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
+            } else {
+                return `http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
+            }
+        }
+
         // create +/- 5,000 bp region
         const split = location.split(new RegExp("[:-]"));
-        const region = split[0] + ":" + Number(split[1]) - 5000 + "-" + Number(split[2]) + 5000;
+        const region = split[0] + ":" + (Number(split[1]) - 5000) + "-" + (Number(split[2]) + 5000);
 
         switch (source.toUpperCase()) {
             case "ENSEMBL_GENOME_BROWSER":
-                return `http://www.ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+                if (assembly?.toUpperCase() === "GRCH38") {
+                    return `http://ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+                } else {
+                    return `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+                }
             case "UCSC_GENOME_BROWSER":
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
 

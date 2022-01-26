@@ -20,6 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "./variant-interpreter-detail.js";
@@ -279,6 +280,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     onActiveFilterChange(e) {
         // debugger
+        VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
         // this.preparedQuery = {...e.detail};
         // // TODO is this really needed? it seems to work without this line.
@@ -475,7 +477,8 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
                                             .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
+                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                            .assembly=${this.opencgaSession.project.organism.assembly}>
                                     </cellbase-variant-annotation-summary>`;
                             }
                         },
@@ -539,14 +542,13 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         {
                             id: "samples",
                             name: "Samples",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <opencga-variant-samples
-                                            .opencgaSession="${opencgaSession}"
-                                            .variantId="${variant.id}"
-                                            .active="${active}">
-                                    </opencga-variant-samples>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-samples
+                                    .opencgaSession="${opencgaSession}"
+                                    .variantId="${variant.id}"
+                                    .active="${active}">
+                                </variant-samples>
+                            `,
                         },
                         {
                             id: "beacon",
