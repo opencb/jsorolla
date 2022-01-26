@@ -97,7 +97,15 @@ export default class FeatureFilter extends LitElement {
                     let restResponse;
                     if (this.cellbaseClient) {
                         if (params?.data?.term) {
-                            restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "starts_with", {limit: this._config.limit}, {});
+                            if (this.cellbaseClient.getConfig()?.version === "v5") {
+                                restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "startsWith", {
+                                    limit: this._config.limit,
+                                }, {});
+                            } else {
+                                restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "starts_with", {
+                                    limit: this._config.limit,
+                                }, {});
+                            }
                         } else {
                             restResponse = await this.cellbaseClient.get("feature", "gene", "search", "", {limit: this._config.limit}, {});
                         }
@@ -121,7 +129,7 @@ export default class FeatureFilter extends LitElement {
                 }
             },
             /* remap results coming from opencga. config.fields fn works for the dropdown, at a different stage. */
-            preprocessResults(results) {
+            preprocessResults: results => {
                 if (this.cellbaseClient) {
                     return results.map(s => ({
                         id: s.name, // force selected gene (token) to be the name not the id.
