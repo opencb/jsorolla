@@ -77,11 +77,11 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 this._ct = this.ct.split(",");
                 this.presetSelected = new Map(); // Reset active presets
 
-                // Add active presets
-                (this._config.alias || []).forEach(alias => {
-                    const allTermsSelected = alias.terms.every(term => this._ct.includes(term));
+                // Add active presets using selected CT terms
+                (this._config.alias || []).forEach(preset => {
+                    const allTermsSelected = preset.terms.every(term => this._ct.includes(term));
                     if (allTermsSelected) {
-                        this.presetSelected.set(alias.name, alias);
+                        this.presetSelected.set(preset.name, preset);
                     }
                 });
             } else {
