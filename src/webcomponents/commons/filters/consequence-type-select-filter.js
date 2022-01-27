@@ -75,11 +75,15 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         if (changedProperties.has("ct")) {
             if (this.ct) {
                 this._ct = this.ct.split(",");
-                this.presetSelected = new Map();
-                // Select the checkboxes
-                // for (const alias of this._config.alias) {
-                //     this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
-                // }
+                this.presetSelected = new Map(); // Reset active presets
+
+                // Add active presets
+                (this._config.alias || []).forEach(alias => {
+                    const allTermsSelected = alias.terms.every(term => this._ct.includes(term));
+                    if (allTermsSelected) {
+                        this.presetSelected.set(alias.name, alias);
+                    }
+                });
             } else {
                 this._ct = [];
                 // this.isChecked = {};
@@ -215,7 +219,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 </div>
                 <select-field-filter
                     multiple
-                    liveSearch=${"true"}
+                    ?liveSearch="${true}"
                     .data="${this.options}"
                     .value=${this._ct}
                     @filterChange="${this.onFilterChange}">
