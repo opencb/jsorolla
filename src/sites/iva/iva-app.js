@@ -20,6 +20,7 @@
 
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
+
 import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
