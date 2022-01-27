@@ -61,6 +61,30 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
             showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
+        highlight: [
+            {
+                id: "1",
+                name: "Test highlight 1",
+                description: "",
+                condition: variant => {
+                    return true;
+                },
+                style: {
+                    background: "blue",
+                },
+            },
+            {
+                id: "2",
+                name: "Test highlight 2",
+                description: "",
+                condition: variant => {
+                    return false;
+                },
+                style: {
+                    background: "red",
+                },
+            },
+        ],
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span.
         // It is supported either columns[] or hiddenColumns[].
         columns: ["id", "gene", "type", "consequenceType", "deleteriousness", "conservation", "samples", "cohorts", "popfreq", "clinicalInfo"]

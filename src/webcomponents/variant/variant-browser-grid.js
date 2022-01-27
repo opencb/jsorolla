@@ -227,8 +227,8 @@ export default class VariantBrowserGrid extends LitElement {
 
                     UtilsNew.initTooltip(this);
                 },
-                onPostBody: data => {
-                }
+                // onPostBody: data => {},
+                rowStyle: (row, index) => this.rowHighlight(row, index),
             });
         }
     }
@@ -269,8 +269,31 @@ export default class VariantBrowserGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
+            rowStyle: (row, index) => this.rowHighlight(row, index),
         });
+    }
+
+    rowHighlight(row, index) {
+        // If no active highlight
+        if (this._config.activeHighlight === "") {
+            return {};
+        } else {
+            let backgroundColor = "";
+            (this._config.highlight || []).forEach(highlight => {
+                if (this._config.activeHighlight.includes(highlight.id)) {
+                    if (highlight.condition && highlight.condition(row, index)) {
+                        backgroundColor = highlight.style.background;
+                    }
+                }
+            });
+
+            return {
+                style: {
+                    backgroundColor: backgroundColor,
+                }
+            };
+        }
     }
 
     onConfigClick(e) {
@@ -803,6 +826,9 @@ export default class VariantBrowserGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
+
+            highlight: [],
+            activeHighlight: [],
 
             geneSet: {
                 ensembl: true,
