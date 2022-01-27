@@ -18,8 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 
-
-export default class OpencgaSampleBrowser extends LitElement {
+export default class SampleBrowser extends LitElement {
 
     constructor() {
         super();
@@ -40,12 +39,6 @@ export default class OpencgaSampleBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -53,29 +46,7 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "sb" + UtilsNew.randomString(8);
-
-        // These are for making the queries to server
-        /* this.facetFields = [];
-        this.facetRanges = [];
-
-        this.facetFieldsName = [];
-        this.facetRangeFields = [];
-
-        this.facets = new Set();
-        this.facetFilters = [];
-
-        this.facetActive = true;
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
-        this.errorState = false;*/
-
-        this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.config = this.getDefaultConfig();
     }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
@@ -88,18 +59,31 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        // merge filter list, canned filters, detail tabs
+        this.config = {...this.getDefaultConfig()};
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+            this.config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
         }
-
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
         }
         if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+            this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
+    }
+
+    render() {
+        if (!this.opencgaSession) {
+            return html`<div>Not valid session</div>`;
+        }
+
+        return html`
+            <opencga-browser
+                resource="SAMPLE"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this.config}">
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
@@ -235,10 +219,12 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "Files",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <opencga-file-grid .query="${{sampleIds: sample.id}}"
-                                                       .active="${active}"
-                                                       .config="${{downloadFile: this._config.downloadFile}}"
-                                                       .opencgaSession="${opencgaSession}"></opencga-file-grid>`;
+                                    <opencga-file-grid
+                                        .query="${{sampleIds: sample.id}}"
+                                        .active="${active}"
+                                        .config="${{downloadFile: this.config.downloadFile}}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </opencga-file-grid>`;
                             }
                         },
                         {
@@ -400,17 +386,7 @@ export default class OpencgaSampleBrowser extends LitElement {
         };
     }
 
-    render() {
-        return this.opencgaSession && this._config ? html`
-                    <opencga-browser resource="SAMPLE"
-                                     .opencgaSession="${this.opencgaSession}"
-                                     .query="${this.query}"
-                                     .config="${this._config}">
-                    </opencga-browser>` :
-            "";
-    }
-
 }
 
 
-customElements.define("opencga-sample-browser", OpencgaSampleBrowser);
+customElements.define("sample-browser", SampleBrowser);

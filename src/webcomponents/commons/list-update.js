@@ -202,14 +202,14 @@ export default class ListUpdate extends LitElement {
                                     <p class="text-muted">${item[subtitle]}</p>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" style="text-align:right">
                                     <data-form
                                         .data="${itemData}"
                                         @fieldChange=${ e => this.onFieldChange(e, i)}
                                         @submit=${e => this.onSendItem(e, i, this.node)}
                                         .config="${this._config.edit}">
                                     </data-form>
-                                    <button type="button" class="btn btn-danger" @click=${e => this.onRemoveItem(e, i, this.node)}>Delete</button>
+                                    <button type="button" class="btn btn-danger btn-sm" @click=${e => this.onRemoveItem(e, i, this.node)}>Delete</button>
                             </div>
                         </div>
                     </div>

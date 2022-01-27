@@ -408,7 +408,7 @@ const POPULATION_FREQUENCIES = {
     },
     studies: [
         {
-            id: "1kG_phase3",
+            id: "1000G", // Old value: 1kG_phase3
             title: "1000 Genomes",
             populations: [
                 {
@@ -845,4 +845,6 @@ const PROTEIN_SUBSTITUTION_SCORE = {
         }
     }
 };
+
+const ACMG = [];
 

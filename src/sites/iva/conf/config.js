@@ -101,7 +101,8 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
-            separator: true
+            separator: true,
+            visibility: "public"
         },
         {
             name: "Browsers",
@@ -118,8 +119,14 @@ const CATALOG_NAVBAR_MENU = {
             id: "sample",
             name: "Sample Browser",
             visibility: "public",
-            icon: "img/tools/icons/interpretation_portal.svg",
-            description: "Explore all samples in Catalog",
+            icon: "img/tools/icons/file_explorer.svg",
+            description: `
+                <p>Explore samples in Catalog</p>
+                <ul>
+                    <li>Search samples by different filters.</li>
+                    <li>Execute aggregations stats.</li>
+                </ul>
+            `,
             featured: true,
         },
         {
@@ -145,6 +152,11 @@ const CATALOG_NAVBAR_MENU = {
         {
             id: "job",
             name: "Job Browser",
+            visibility: "public"
+        },
+        {
+            id: "disease-panel",
+            name: "Disease Panel Browser",
             visibility: "public"
         }
     ]
@@ -214,8 +226,6 @@ const SUITE = {
             name: "Variant Analysis",
             // logo: "img/iva-black.svg",
             logo: "img/iva-white.svg",
-            // logo: "img/tools/icons/variant_browser.svg",
-            // alt: "This is the old IVA tool",
             icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             welcomePage: {
@@ -224,7 +234,7 @@ const SUITE = {
                     subtitleStyle: "text-align:center;"
                 },
                 title: "Variant Analysis",
-                subtitle: "Interactive Variant Analysis",
+                subtitle: "Explore variants in real-time and execute analysis",
                 logo: "./img/iva.svg",
                 content: `
                     <p class="text-center">
@@ -240,20 +250,20 @@ const SUITE = {
                 {
                     id: "browser",
                     name: "Variant Browser",
-                    // fa_icon: "fa fa-list",
                     icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",
                     featured: true,
                     description: `
-                                <p>Explore all variants identified by the current project</p>
-                                <ul>
-                                    <li>Rich annotation and links to leading reference databases</li>
-                                    <li>Filter by gene, consequence, frequency and much more</li>
-                                </ul>`,
+                        <p>Explore all variants identified by the current study.</p>
+                        <ul>
+                            <li>Rich annotation and links to leading reference databases</li>
+                            <li>Filter by gene, consequence, frequency and much more</li>
+                        </ul>
+                    `,
                 },
                 {
                     id: "analysis",
-                    name: "Variant Analysis",
+                    name: "Analysis",
                     description: "",
                     icon: "img/tools/icons/aggregation.svg",
                     visibility: "public",
@@ -280,7 +290,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Association Analysis",
@@ -296,7 +307,8 @@ const SUITE = {
                             visibility: "public",
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Sample Analysis",
@@ -319,7 +331,16 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            id: "rga",
+                            name: "Recessive Gene Analysis",
+                            acronym: "",
+                            icon: "",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Individual Analysis",
@@ -351,7 +372,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Cancer Analysis",
@@ -367,7 +389,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Quality Control",
@@ -396,7 +419,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Export",
@@ -424,11 +448,25 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "External Tools",
                             category: true,
+                            visibility: "public"
+                        },
+                        {
+                            id: "beacon",
+                            name: "GA4GH Beacon",
+                            description: `
+                                <ul>
+                                    <li>Federated search from the Global Alliance for Genomics and Health</li>
+                                    <li>Find databases that have information about specific variants</li>
+                                </ul>`,
+                            thumbnail: "beacon.png",
+                            fa_icon: "fa fa-globe-europe",
+                            icon: "beacon.svg",
                             visibility: "public"
                         },
                         {
@@ -447,44 +485,6 @@ const SUITE = {
                             icon: "",
                             visibility: "public"
                         },
-                    ]
-                },
-                {
-                    id: "clinical",
-                    name: "Case Interpretation",
-                    icon: "img/tools/icons/interpretation_portal.svg",
-                    visibility: "public",
-                    submenu: [
-                        {
-                            name: "Clinical Management",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "clinicalAnalysisPortal",
-                            name: "Case Portal",
-                            acronym: "",
-                            description: `
-                                <p>Analyse and create clinical Interpretations in current projects.</p>
-                                <ul>
-                                    <li>Filter by gene, consequence, frequency and much more.</li>
-                                    <li>Create clinical interpretations and reports.</li>
-                                </ul>
-                            `,
-                            visibility: "public",
-                            featured: true,
-                            // fa_icon: "fas fa-folder-open",
-                            icon: "img/tools/icons/interpretation_portal.svg",
-                            thumbnail: "interpretation_portal.png"
-                        },
-                        {
-                            id: "clinical-analysis-create",
-                            name: "Create Case",
-                            icon: "img/tools/icons/interpretation_portal.svg",
-                            description: "Create a new case",
-                            visibility: "public",
-                            featured: true,
-                        }
                     ]
                 },
                 {
@@ -514,7 +514,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            separator: true
+                            separator: true,
+                            visibility: "public"
                         },
                         {
                             name: "Summary Stats",
@@ -532,13 +533,13 @@ const SUITE = {
                 },
                 {
                     id: "tools",
-                    name: "Tools",
+                    name: "Other Tools",
                     icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "public",
+                    visibility: "none",
                     submenu: [
                         {
                             id: "rga",
-                            name: "Recessive Variant Browser",
+                            name: "Recessive Variant Analysis",
                             acronym: "",
                             icon: "",
                             description: "",
@@ -607,29 +608,40 @@ const SUITE = {
         },
         {
             id: "clinical",
-            name: "Clinical (XetaBase)",
-            logo: "img/tools/icons/interpretation_portal_white.svg",
-            logoAlt: "img/tools/icons/interpretation_portal.svg",
+            name: "Clinical Analysis",
+            logo: "img/iva-white.svg",
+            // logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             welcomePage: {
+                title: "Clinical Analysis",
                 display: {
-                    titleStyle: "text-align:center "
+                    titleStyle: "text-align:center;",
+                    subtitleStyle: "text-align:center;"
                 },
-                title: "Clinical (XetaBase)",
+                subtitle: "Interactive Case Interpreter",
+                logo: "./img/iva.svg",
                 content: `
                     <p class="text-center">
-                        Welcome to theClinical (XetaBase)
-                    </p>
-                    <br>`
+                        Welcome to the Clinical Analysis Application
+                        <br>
+                        This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                    </p>`
             },
             menu: [
                 {
                     id: "clinicalAnalysisPortal",
                     name: "Case Interpreter Portal",
                     icon: "img/tools/icons/interpretation_portal.svg",
+                    description: `
+                        <p>Explore and review Clinical Interpretations analysis</p>
+                        <ul>
+                            <li>Filter by gene, consequence, frequency and much more.</li>
+                            <li>Create clinical interpretations and reports.</li>
+                        </ul>
+                    `,
                     visibility: "public",
-                    description: "Manage cases.",
+                    thumbnail: "interpretation_portal.png",
                     featured: true,
                 },
                 {
@@ -646,8 +658,14 @@ const SUITE = {
                         {
                             id: "clinical-analysis-create",
                             name: "Create Case",
-                            icon: "img/tools/icons/interpretation_portal.svg",
-                            description: "Create a new case",
+                            icon: "img/tools/icons/genome_browser.svg",
+                            description: `
+                                <p>Create a clinical Case</p>
+                                <ul>
+                                    <li>Execute clinical interpretations analysis.</li>
+                                    <li>Create clinical reports.</li>
+                                </ul>
+                            `,
                             visibility: "public",
                             featured: true,
                         }
@@ -766,9 +784,12 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 display: {
-                    titleStyle: "text-align:center "
+                    titleStyle: "text-align:center;",
+                    subtitleStyle: "text-align:center;"
                 },
                 title: " OpenCGA Admin",
+                // subtitle: "Clinical Analysis",
+                logo: "./img/iva.svg",
                 content: `
                     <p class="text-center">
                         Welcome to the OpenCB Suite for whole genome variant analysis.<br />

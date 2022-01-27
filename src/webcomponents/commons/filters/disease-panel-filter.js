@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
 import "../forms/toggle-switch.js";
 
@@ -33,6 +34,7 @@ import "../forms/toggle-switch.js";
 .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
 @filterChange="${e => this.onFilterChange({
                                 panel: "panel",
+                                panelFeatureType: "panelFeatureType",
                                 panelModeOfInheritance: "panelModeOfInheritance",
                                 panelConfidence: "panelConfidence",
                                 panelRoleInCancer: "panelRoleInCancer"
@@ -62,6 +64,9 @@ export default class DiseasePanelFilter extends LitElement {
             },
             // Comma-separated list of selected panels
             panel: {
+                type: String
+            },
+            panelFeatureType: {
                 type: String
             },
             panelModeOfInheritance: {
@@ -94,10 +99,19 @@ export default class DiseasePanelFilter extends LitElement {
     _init() {
         this.query = {};
         this.genes = [];
+        // this.panelFeatureType = "";
+        // this.panelModeOfInheritance = "";
+        // this.panelConfidence = "";
+        // this.panelRoleInCancer = "";
 
         this.multiple = true;
         this.disabled = false;
         this.showExtendedFilters = true;
+
+        this.panelFeatureTypes = [
+            {id: "region", name: "Region"},
+            {id: "gene", name: "Gene"},
+        ];
     }
 
     update(changedProperties) {
@@ -108,6 +122,12 @@ export default class DiseasePanelFilter extends LitElement {
             this.query.panel = this.panel;
             this.panelObserver();
         }
+        if (changedProperties.has("panelIntersection")) {
+            this.query.panelIntersection = this.panelIntersection;
+        }
+        if (changedProperties.has("panelFeatureType")) {
+            this.query.panelFeatureType = this.panelFeatureType;
+        }
         if (changedProperties.has("panelModeOfInheritance")) {
             this.query.panelModeOfInheritance = this.panelModeOfInheritance;
         }
@@ -116,9 +136,6 @@ export default class DiseasePanelFilter extends LitElement {
         }
         if (changedProperties.has("panelRoleInCancer")) {
             this.query.panelRoleInCancer = this.panelRoleInCancer;
-        }
-        if (changedProperties.has("panelIntersecion")) {
-            this.query.panelIntersection = this.panelIntersection;
         }
         super.update(changedProperties);
     }
@@ -162,7 +179,7 @@ export default class DiseasePanelFilter extends LitElement {
     filterChange(e, field) {
         e.stopPropagation();
 
-        // If panel changes we must called to panelObserver
+        // If panel changes we must be called to panelObserver
         if (field === "panel") {
             this.panelObserver(e.detail.value);
         }
@@ -175,13 +192,14 @@ export default class DiseasePanelFilter extends LitElement {
             delete this.query[field];
         }
 
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.query?.panel,
-                query: this.query
-            }
-        });
-        this.dispatchEvent(event);
+        // const event = new CustomEvent("filterChange", {
+        //     detail: {
+        //         value: this.query?.panel,
+        //         query: this.query
+        //     }
+        // });
+        // this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.query?.panel, {query: this.query});
     }
 
     render() {
@@ -219,6 +237,19 @@ export default class DiseasePanelFilter extends LitElement {
                         </div>
                         <div class="help-block small">
                             Executes an intersection between the panels and the region and gene filters.
+                        </div>
+                    </div>
+
+                    <div style="margin: 15px 0px">
+                        <span>Filter by Feature Type</span>
+                        <div style="padding: 2px 0px">
+                            <select-field-filter
+                                .data="${this.panelFeatureTypes}"
+                                .value=${this.panelFeatureType}
+                                .multiple="${true}"
+                                .disabled="${this.genes?.length === 0 || this.disabled}"
+                                @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
+                            </select-field-filter>
                         </div>
                     </div>
 

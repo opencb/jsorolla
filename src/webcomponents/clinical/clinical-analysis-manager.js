@@ -91,6 +91,19 @@ export default class ClinicalAnalysisManager {
                 console.error("There must be an error, variant " + variant.id + " seems to not exist.");
             }
         }
+        // Remove this variant from the list of updated variants (if has been added)
+        this.state.updatedVariants = this.state.updatedVariants.filter(v => v.id !== variant.id);
+        this.state = {...this.state};
+    }
+
+    // TODO: rename this method
+    updateSingleVariant(variant) {
+        const index = this.state.updatedVariants.findIndex(v => v.id === variant.id);
+        if (index >= 0) {
+            this.state.updatedVariants[index] = variant; // Update variant value
+        } else {
+            this.state.updatedVariants.push(variant);
+        }
         this.state = {...this.state};
     }
 
@@ -113,7 +126,7 @@ export default class ClinicalAnalysisManager {
     }
 
     updateInterpretation(comment, callback) {
-        if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0) {
+        if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
             // console.log("Nothing to do");
             return;
         }
@@ -151,6 +164,18 @@ export default class ClinicalAnalysisManager {
             }
         }
 
+        // Update variants
+        if (this.state.updatedVariants.length > 0) {
+            this.state.updatedVariants.forEach(variant => {
+                const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
+                if (index >= 0) {
+                    interpretation.primaryFindings[index] = variant; // Update variant
+                } else {
+                    console.error("There must be an error, variant " + variant.id + " seems to not exist.");
+                }
+            });
+        }
+
         const interpretationId = this.clinicalAnalysis.interpretation.id;
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
             study: this.opencgaSession.study.fqn,
@@ -166,7 +191,12 @@ export default class ClinicalAnalysisManager {
                 callback(this.clinicalAnalysis);
 
                 // Reset internal state
-                this.state = {...this.state, addedVariants: [], removedVariants: []};
+                this.state = {
+                    ...this.state,
+                    addedVariants: [],
+                    removedVariants: [],
+                    updatedVariants: [],
+                };
             })
             .catch(response => {
                 // console.error(response);

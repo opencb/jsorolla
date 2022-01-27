@@ -82,33 +82,31 @@ export default class SampleVariantStatsBrowser extends LitElement {
         if ((changedProperties.has("sample") || changedProperties.has("active")) && this.active) {
             this.sampleObserver();
         }
-
         if ((changedProperties.has("sampleId") || changedProperties.has("active")) && this.active) {
             this.sampleIdObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     sampleObserver() {
         // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
-        if (this.sample?.qualityControl?.variantMetrics) {
-            this._variantStatsPath = "variantMetrics";
-        } else if (this.sample?.qualityControl?.variant) {
-            this._variantStatsPath = "variant";
-        } else {
-            console.error("no path for variant stats defined");
+        // if (this.sample?.qualityControl?.variantMetrics) {
+        //     this._variantStatsPath = "variantMetrics";
+        // } else if (this.sample?.qualityControl?.variant) {
+        //     this._variantStatsPath = "variant";
+        // } else {
+        //     console.error("no path for variant stats defined");
+        // }
+        if (this.sample?.qualityControl?.["variant"]?.variantStats.length > 0) {
+            this._variantStats = this.sample.qualityControl?.["variant"]?.variantStats[0];
+            this.selectVariantStats("ALL", this._variantStats);
         }
-        this._variantStats = this.sample.qualityControl?.[this._variantStatsPath]?.variantStats[0];
-        this.selectVariantStats("ALL", this._variantStats);
     }
 
     sampleIdObserver() {

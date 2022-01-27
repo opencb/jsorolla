@@ -61,15 +61,15 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
-        }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        // }
 
         if (changedProperties.has("config")) {
             this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
         }
 
-        this._config = this.getDefaultConfig();
+        // this._config = this.getDefaultConfig();
         super.update(changedProperties);
     }
 
@@ -127,7 +127,7 @@ class VariantInterpreterLanding extends LitElement {
                 {
                     id: "general",
                     name: "Case Manager",
-                    active: this.writeMode,
+                    active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
@@ -219,7 +219,7 @@ class VariantInterpreterLanding extends LitElement {
                 {
                     id: "overview",
                     name: "Overview",
-                    active: !this.writeMode,
+                    active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">

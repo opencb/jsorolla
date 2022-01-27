@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {
 
@@ -41,6 +42,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             },
             minimumFreq: {
                 type: Array
+            },
+            assembly: {
+                type: String
             }
         };
     }
@@ -187,6 +191,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     render() {
+        const variantRegion = this.variantAnnotation.chromosome + ":" + this.variantAnnotation.start + "-" + this.variantAnnotation.start;
         if (this.variantAnnotation === undefined || this.variantAnnotation === "" || this.proteinSubScore === undefined) {
             return;
         }
@@ -198,7 +203,12 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                         <div class="form-horizontal">
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Id</label>
-                                <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.variantAnnotation.id}">${this.variantAnnotation.id}</a></span>
+                                <!-- <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=\${this.variantAnnotation.id}">\${this.variantAnnotation.id}</a></span> -->
+                                <span class="col-md-9">
+                                    <a target="_blank" href="${BioinfoUtils.getVariantLink(this.variantAnnotation.id, variantRegion, "ensembl_genome_browser", this.assembly)}">
+                                    ${this.variantAnnotation.id}
+                                    </a>
+                                </span>
                             </div>
 
                                 ${this.variantAnnotation?.hgvs?.length ? html`

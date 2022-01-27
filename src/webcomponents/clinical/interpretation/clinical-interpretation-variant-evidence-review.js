@@ -15,8 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
+import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import "../../commons/filters/acmg-filter.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
 
@@ -35,8 +38,11 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             opencgaSession: {
                 type: Object,
             },
-            variant: {
+            review: {
                 type: Object,
+            },
+            somatic: {
+                type: Boolean,
             },
             mode: {
                 type: String, // Values: form, modal
@@ -50,24 +56,16 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     _init() {
         this.updateParams = {};
         this.mode = "";
-
-        this.variant = {};
-        // this.displayConfigDefault = {
-        //     modalButtonClassName: "btn-primary btn-sm",
-        //     buttonsAlign: "right",
-        //     buttonClearText: "Clear",
-        //     buttonOkText: "Update",
-        //     titleVisible: false,
-        //     titleAlign: "left",
-        //     titleWidth: 4,
-        //     defaultLayout: "horizontal"
-        // };
-        this.config = this.getDefaultconfig();
+        this.review = {};
+        this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("variant")) {
-            this.variantObserver();
+        if (changedProperties.has("variantEvidence")) {
+            this.variantEvidenceObserver();
+        }
+        if (changedProperties.has("somatic")) {
+            this.config = this.getDefaultConfig();
         }
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
@@ -79,75 +77,74 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         super.update(changedProperties);
     }
 
-    variantObserver() {
-        this.variant = this.variant || {}; // Prevent undefined variant review
+    variantEvidenceObserver() {
+        this.review = this.review || {}; // Prevent undefined clinical evidence review
+        this._review = UtilsNew.objectClone(this.review);
     }
 
-    onCommentChange(e) {
-        this.commentsUpdate = e.detail;
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        // Fix clinical significance value --> must be in uppercase
+        const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
+        this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
 
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
-        }
-
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
-    }
-
-    onSaveFieldChange(e) {
-        switch (e.detail.param) {
-            case "status":
-            case "discussion":
-                if (e.detail.value !== null) {
-                    this.variant[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
-                break;
-        }
-
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
-        }
-
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
+        LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
+            value: this.review,
+            update: this.updateParams,
+        });
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.variant}"
+                .data="${this.review}"
                 .config="${this.config}"
-                @fieldChange="${e => this.onSaveFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }
 
-    getDefaultconfig() {
+    getDefaultConfig() {
         const sections = [
             {
                 elements: [
                     {
-                        title: "Status",
-                        field: "status",
-                        type: "select",
-                        allowedValues: [
-                            "NOT_REVIEWED",
-                            "REVIEW_REQUESTED",
-                            "REVIEWED",
-                            "DISCARDED",
-                            "REPORTED"
-                        ],
+                        title: "Clinical Significance",
+                        field: "clinicalSignificance",
+                        type: "custom",
+                        display: {
+                            render: clinicalSignificance => html`
+                                <select-field-filter
+                                    .data=${CLINICAL_SIGNIFICANCE}
+                                    .value=${(clinicalSignificance || "").toLowerCase()}
+                                    @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
+                                </select-field-filter>
+                            `,
+                            defaultValue: "",
+                        },
+                    },
+                    {
+                        title: "ACMG",
+                        type: "custom",
+                        field: "acmg",
+                        display: {
+                            visible: !this.somatic,
+                            render: acmg => html`
+                                <acmg-filter
+                                    .acmg="${acmg || []}"
+                                    @filterChange="${e => this.onFieldChange(e, "acmg")}">
+                                </acmg-filter>
+                            `,
+                            defaultValue: [],
+                        },
+                    },
+                    {
+                        title: "Tier",
+                        field: "tier",
+                        type: "input-text",
+                        display: {
+                            rows: 1,
+                        },
                     },
                     {
                         title: "Discussion",
@@ -156,19 +153,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         display: {
                             placeholder: "Add a discussion",
                             rows: 5,
-                        },
-                    },
-                    {
-                        title: "Comments",
-                        field: "comments",
-                        type: "custom",
-                        display: {
-                            render: comments => html`
-                                <clinical-analysis-comment-editor
-                                    .comments="${comments}"
-                                    @commentChange="${e => this.onCommentChange(e)}">
-                                </clinical-analysis-comment-editor>
-                            `,
                         },
                     },
                 ]

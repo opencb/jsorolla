@@ -108,7 +108,7 @@ export default class VariantSamples extends LitElement {
     }
 
     sexFormatter(value) {
-        return value ? `${value.sex?.id || ""} (${value.karyotypicSex})` : "-";
+        return value ? `${value.sex?.id ?? value.sex ?? "Not specified"} (${value.karyotypicSex ?? "Not specified"})` : "Not specified";
     }
 
     disorderFormatter(value, row, index) {
@@ -376,9 +376,9 @@ export default class VariantSamples extends LitElement {
                     const dataString = [
                         header.join("\t"),
                         rows.join("\n")];
-                    UtilsNew.downloadData(dataString, "variant_samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    UtilsNew.downloadData(dataString, "variant_samples_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
-                    UtilsNew.downloadData(JSON.stringify(samples, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                    UtilsNew.downloadData(JSON.stringify(samples, null, "\t"), "variant_samples_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
             }
         } catch (e) {

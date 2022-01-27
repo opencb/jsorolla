@@ -101,17 +101,8 @@ export default class VariantBrowserDetail extends LitElement {
     }
 
     render() {
-        if (!this.cellbaseClient) {
-            return html`<h3>No CellBase Client found</h3>`;
-        }
-
-        if (!this.variant) {
-            // return html`<!--<h3>No Variant found</h3>-->`;
+        if (!this.variant?.annotation) {
             return;
-        }
-
-        if (!this.variant.annotation) {
-            return html`<h3>No Variant Annotation found</h3>`;
         }
 
         return html`

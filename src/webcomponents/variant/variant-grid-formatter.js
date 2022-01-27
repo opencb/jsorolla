@@ -81,7 +81,7 @@ export default class VariantGridFormatter {
         const tooltipText = `
             <div class="dropdown-header" style="padding-left: 5px">External Links</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser")}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
                 </a>
             </div>
@@ -189,7 +189,7 @@ export default class VariantGridFormatter {
 
                         <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
                         <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
                         </div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>

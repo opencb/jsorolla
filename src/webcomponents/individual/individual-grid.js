@@ -19,9 +19,9 @@ import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/opencb-grid-toolbar.js";
 
 
 export default class IndividualGrid extends LitElement {
@@ -359,7 +359,7 @@ export default class IndividualGrid extends LitElement {
 
     samplesFormatter(value, row) {
         if (value?.length) {
-            return `<ul class="pad-left-15">${value.map(sample => `<li>${sample.id}</li>`).join("")}</ul>`;
+            return `<ul class="pad-left-15" style="padding-top:10px" >${value.map(sample => `<li>${sample.id}</li>`).join("")}</ul>`;
         } else {
             return "-";
         }
@@ -487,7 +487,7 @@ export default class IndividualGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex", "lifeStatus", "dateOfBirth", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "individuals_" + this.opencgaSession.study.id + ".json", "application/json");
                     }

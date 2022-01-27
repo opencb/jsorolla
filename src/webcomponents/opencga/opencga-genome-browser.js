@@ -19,7 +19,7 @@ import UtilsNew from "./../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Region from "../../core/bioinfo/region.js";
 import "../../genome-browser/webcomponent/genome-browser.js";
-import "../sample/opencga-sample-browser.js";
+import "../sample/sample-browser.js";
 import "../commons/filters/sample-id-autocomplete.js";
 
 export default class OpencgaGenomeBrowser extends LitElement {
@@ -391,7 +391,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
                         <h4 class="modal-title" id="${this._prefix}SampleBrowserLabel">Sample Browser</h4>
                     </div>
                     <div class="modal-body" style="height: 780px">
-                        <opencga-sample-browser .opencgaClient="${this.opencgaClient}" .opencgaSession="${this.opencgaSession}" .config="${this.sampleBrowserConfig}"></opencga-sample-browser>
+                        <sample-browser .opencgaClient="${this.opencgaClient}" .opencgaSession="${this.opencgaSession}" .config="${this.sampleBrowserConfig}"></sample-browser>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.onAnalysisSelected}">
