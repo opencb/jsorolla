@@ -527,16 +527,6 @@ class VariantInterpreterReport extends LitElement {
                                                 .file="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
-                                            <file-preview
-                                                .active="${true}"
-                                                .file="${images[0]}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </file-preview>
-                                            <file-preview
-                                                .active="${true}"
-                                                .file="${images[1]}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
