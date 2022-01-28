@@ -48,6 +48,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array,
+            },
             query: {
                 type: Object
             },
@@ -167,8 +170,29 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    generateRowsFromVariants(variants) {
+        const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
+        (variants || []).forEach(variant => {
+            const mateId = variant.studies[0].files[0].data.MATEID;
+            let found = false;
+            pairs.forEach(pair => {
+                if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
+                    pair.push(variant);
+                    found = true;
+                }
+            });
+
+            // If not pair has been found --> inser this single variant
+            if (!found) {
+                pairs.push([variant]);
+            }
+        });
+
+        return pairs;
+    }
+
     renderVariants() {
-        if (this._config.renderLocal) {
+        if (this.clinicalVariants && this.clinicalVariants.length > 0) {
             this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
@@ -233,25 +257,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
 
-                            const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
-                            if (res?.responses[0].results) {
-                                for (const variant of res.responses[0].results) {
-                                    const mateId = variant.studies[0].files[0].data.MATEID;
-                                    let found = false;
-                                    for (const pair of pairs) {
-                                        if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
-                                            pair.push(variant);
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!found) {
-                                        pairs.push([variant]);
-                                    }
-                                }
-                                // It's important to overwrite results array
-                                res.responses[0].results = pairs;
-                            }
+                            // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
+                            const pairs = this.generateRowsFromVariants(res.responses[0].results);
+                            // It's important to overwrite results array
+                            res.responses[0].results = pairs;
 
                             params.success(res);
                         })
@@ -276,16 +285,14 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     renderLocalVariants() {
-        if (!this.clinicalAnalysis.interpretation.primaryFindings) {
-            return;
-        }
-
-        const _variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        // Generate rows from local clinical variants
+        // const variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        const variants = this.generateRowsFromVariants(this.clinicalVariants);
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _variants,
+            data: variants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
 
