@@ -329,11 +329,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
         this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
-        VariantUtils.validatePanelFilter(e.detail);
+        VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
         this.queryObserver();
     }

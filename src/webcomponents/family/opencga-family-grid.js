@@ -435,9 +435,9 @@ export default class OpencgaFamilyGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "members.id", "disorders.id", "phenotypes.id", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "families_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "families_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "families_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");

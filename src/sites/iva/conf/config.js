@@ -153,6 +153,11 @@ const CATALOG_NAVBAR_MENU = {
             id: "job",
             name: "Job Browser",
             visibility: "public"
+        },
+        {
+            id: "disease-panel",
+            name: "Disease Panel Browser",
+            visibility: "public"
         }
     ]
 };

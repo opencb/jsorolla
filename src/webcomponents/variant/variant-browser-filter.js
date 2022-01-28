@@ -108,13 +108,16 @@ export default class VariantBrowserFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -484,6 +487,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .diseasePanels="${this.opencgaSession.study.panels}"
                             .panel="${this.preparedQuery.panel}"
+                            .panelFeatureType="${this.preparedQuery.panelFeatureType}"
                             .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
                             .panelConfidence="${this.preparedQuery.panelConfidence}"
                             .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
@@ -493,6 +497,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .showExtendedFilters="${true}"
                             @filterChange="${e => this.onFilterChange({
                                 panel: "panel",
+                                panelFeatureType: "panelFeatureType",
                                 panelModeOfInheritance: "panelModeOfInheritance",
                                 panelConfidence: "panelConfidence",
                                 panelRoleInCancer: "panelRoleInCancer",

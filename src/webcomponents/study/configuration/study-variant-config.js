@@ -220,22 +220,22 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Source",
+                                title: "Source",
                                 field: "source",
                                 type: "input-text",
                             },
                             {
-                                name: "Key",
+                                title: "Key",
                                 field: "key",
                                 type: "input-text",
                             },
                             {
-                                name: "Type",
+                                title: "Type",
                                 field: "type",
                                 type: "input-text",
                             },
                             {
-                                name: "Nullable",
+                                title: "Nullable",
                                 field: "nullable",
                                 type: "checkbox",
                             },
@@ -245,12 +245,12 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Study",
+                                title: "Study",
                                 field: "study",
                                 type: "input-text",
                             },
                             {
-                                name: "Population",
+                                title: "Population",
                                 field: "population",
                                 type: "input-text",
                             },
@@ -260,12 +260,12 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "key",
+                                title: "key",
                                 field: "key",
                                 type: "input-text",
                             },
                             {
-                                name: "Values",
+                                title: "Values",
                                 field: "values",
                                 type: "custom",
                                 display: {
@@ -285,11 +285,12 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Populations",
+                                title: "Populations",
                                 field: "populations",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    // layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -302,11 +303,12 @@ export default class StudyVariantConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "thresholds",
+                                title: "thresholds",
                                 field: "thresholds",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    // layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -329,31 +331,32 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Source",
+                                title: "Source",
                                 field: "source",
                                 type: "input-text",
                             },
                             {
-                                name: "Key",
+                                title: "Key",
                                 field: "key",
                                 type: "input-text",
                             },
                             {
-                                name: "Type",
+                                title: "Type",
                                 field: "type",
                                 type: "input-text",
                             },
                             {
-                                name: "Nullable",
+                                title: "Nullable",
                                 field: "nullable",
                                 type: "checkbox",
                             },
                             {
-                                name: "Values",
+                                title: "Values",
                                 field: "values",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    // layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -365,11 +368,11 @@ export default class StudyVariantConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "ValuesMapping",
+                                title: "ValuesMapping",
                                 field: "valuesMapping",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -388,18 +391,26 @@ export default class StudyVariantConfig extends LitElement {
 
         const configForm = (key, isNew) => {
             return {
-                title: "Edit",
-                buttons: {
-                    show: modal,
-                    cancelText: "Cancel",
-                    classes: modal ? "btn btn-primary ripple pull-right": "pull-right",
-                    okText: isNew? "Add" : "Edit"
-                },
+                title: isNew ? "Add Config":"Edit",
+                type: modal ? "modal" :"",
+                // buttons: {
+                //     show: modal,
+                //     cancelText: "Cancel",
+                //     classes: modal ? "btn btn-primary ripple pull-right": "pull-right",
+                //     okText: isNew? "Add" : "Edit"
+                // },
                 display: {
-                    labelWidth: 3,
-                    labelAlign: "right",
+                    titleVisible: false,
+                    buttonOkText: "Save",
+                    buttonClearText: "Cancel",
+                    buttonsVisible: modal,
+                    buttonsLayout: false,
+                    buttonsClassName: modal ? "btn btn-primary ripple pull-right": "pull-right",
+                    modalButtonClassName: !isNew?"btn-sm":"",
+                    modalButtonStyle: isNew ? "margin-top:6px":"",
+                    titleWidth: 3,
+                    titleAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: modal ? {type: "modal"}: "",
                     defaultValue: ""
                 },
                 sections: [configSection(key)]
@@ -435,21 +446,25 @@ export default class StudyVariantConfig extends LitElement {
     getDefaultConfig() {
         return {
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Update"
-            },
+            // buttons: {
+            //     show: true,
+            //     cancelText: "Cancel",
+            //     okText: "Update"
+            // },
             display: {
-                // width: "8",
+                buttonOkText: "Update",
+                buttonClearText: "Cancel",
+                buttonsVisible: true,
+                buttonsLayout: false,
+                buttonsWidth: 8,
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block" // icon
-                }
+                // help: {
+                //     mode: "block" // icon
+                // }
             },
             sections: [
                 {
@@ -504,7 +519,7 @@ export default class StudyVariantConfig extends LitElement {
                             }
                         },
                         // {
-                        //     name: "Transcript Combination",
+                        //     title: "Transcript Combination",
                         //     field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
                         //     type: "checkbox"
                         // },

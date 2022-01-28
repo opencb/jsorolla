@@ -998,9 +998,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
                     console.log("dataString", dataString);
-                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
-                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "variant_interpreter_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
             })
             .catch(response => {

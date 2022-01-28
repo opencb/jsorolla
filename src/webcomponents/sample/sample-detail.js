@@ -88,7 +88,11 @@ export default class SampleDetail extends LitElement {
     render() {
         return this.opencgaSession && this.sample ?
             html`
-                <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
+                <detail-tabs
+                    .data="${this.sample}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
             ` : null;
     }
 
