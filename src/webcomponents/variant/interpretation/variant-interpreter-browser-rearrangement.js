@@ -229,11 +229,14 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (e.detail.checked) {
-            this.clinicalAnalysisManager.addVariant(e.detail.row);
-        } else {
-            this.clinicalAnalysisManager.removeVariant(e.detail.row);
-        }
+        // Each checked row contains a pair of variants
+        e.detail.row.forEach(variant => {
+            if (e.detail.checked) {
+                this.clinicalAnalysisManager.addVariant(variant);
+            } else {
+                this.clinicalAnalysisManager.removeVariant(variant);
+            }
+        });
     }
 
     onFilterVariants(e) {
