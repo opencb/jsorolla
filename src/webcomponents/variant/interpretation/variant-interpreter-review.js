@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "./variant-interpreter-review-primary.js";
+import "./variant-interpreter-rearrangement-grid.js";
 import "../../clinical/interpretation/clinical-interpretation-editor.js";
 import "../../commons/view/detail-tabs.js";
 
@@ -134,6 +135,40 @@ export default class VariantInterpreterReview extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .opencgaSession="${opencgaSession}">
                                 </variant-interpreter-review-primary>
+                            </div>
+                        `;
+                    },
+                },
+                {
+                    id: "somatic-rearrangements",
+                    name: "Somatic Rearrangements",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                            .filter(v => {
+                                const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                return sample && sample.somatic;
+                            })
+                            .filter(v => v.type === "BREAKEND");
+
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                ${variants.length > 0 ? html`
+                                    <variant-interpreter-rearrangement-grid
+                                        .opencgaSession="${opencgaSession}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
+                                        .review="${true}">
+                                    </variant-interpreter-rearrangement-grid>
+                                ` : html`
+                                    <div class="alert alert-warning">
+                                        <b>Warning</b>: there are not selected rearrangements to display.
+                                    </div>
+                                `}
                             </div>
                         `;
                     },
