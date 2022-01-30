@@ -139,6 +139,7 @@ export default class DiosrderCreate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
+                                rows: 3,
                                 placeholder: "Add a description..."
                             }
                         },

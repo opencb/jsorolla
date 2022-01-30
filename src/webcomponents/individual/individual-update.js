@@ -59,7 +59,7 @@ export default class IndividualUpdate extends LitElement {
         super.connectedCallback();
         this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("individual:", this.individual);
+        // console.log("individual:", this.individual);
     }
 
     update(changedProperties) {
@@ -93,8 +93,9 @@ export default class IndividualUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
             case "id":
             case "name":
             case "father":
@@ -109,9 +110,11 @@ export default class IndividualUpdate extends LitElement {
                 break;
             case "phenotypes":
                 this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                this.individual = {...this.individual, phenotypes: e.detail.value};
                 break;
             case "disorders":
                 this.updateParams = {...this.updateParams, disorders: e.detail.value};
+                this.individual = {...this.individual, disorders: e.detail.value};
                 break;
             case "annotationSets":
                 this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
@@ -129,21 +132,9 @@ export default class IndividualUpdate extends LitElement {
                 this.updateParams = FormUtils.updateObjectWithProps(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
                 break;
         }
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("updated: ", this.updateParams, "non-update ", this.individual);
         this.requestUpdate();
-    }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.updateParams = {...this.updateParams, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-        }
     }
 
     onClear() {
@@ -166,7 +157,8 @@ export default class IndividualUpdate extends LitElement {
                 this._individual = JSON.parse(JSON.stringify(this.individual));
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "Individual updated",
+                    title: "Individual Updated",
+                    message: "Individual updated correctly",
                 });
             })
             .catch(response => {
@@ -190,8 +182,8 @@ export default class IndividualUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Edit",
-            icon: "fas fa-edit",
+            // title: "Edit",
+            // icon: "fas fa-edit",
             type: "form",
             display: {
                 buttonsVisible: true,
@@ -363,7 +355,7 @@ export default class IndividualUpdate extends LitElement {
                                 <phenotype-list-update
                                     .phenotypes="${phenotypes}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @changePhenotypes="${e => this.onFieldChange(e)}">
+                                    @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
                                 </phenotype-list-update>`
                             }
                         },
@@ -383,9 +375,9 @@ export default class IndividualUpdate extends LitElement {
                                 render: disorders => html`
                                     <disorder-list-update
                                         .disorders="${disorders}"
-                                        .evidences="${this.individual?.phenotypes}"
+                                        .evidences="${this.updateParams?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @changeDisorders="${e => this.onFieldChange(e)}">
+                                        @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
                                     </disorder-list-update>`
                             }
                         }
