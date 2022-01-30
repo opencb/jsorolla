@@ -57,35 +57,43 @@ export default class StudyAdminConfiguration extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            items: [
-                {
-                    id: "clinical",
-                    name: "Clinical",
-                    icon: "fas fa-notes-medical",
-                    active: true,
-                    render: () => {
-                        return html`
-                            <study-clinical-config
-                                .clinicalConfig=${this.study.internal.configuration.clinical}
-                                .opencgaSession=${this.opencgaSession}>
-                            </study-clinical-config>`;
-                    }
-                },
-                {
-                    id: "variants",
-                    name: "Variants",
-                    icon: "fas fa-dna",
-                    render: () => {
-                        return html`
+
+        // Temporal fix, until add visible detail tabs configs.
+        let configs = {};
+        if (this.study.internal.configuration.clinical) {
+            configs = {...configs, ...{
+                id: "clinical",
+                name: "Clinical",
+                icon: "fas fa-notes-medical",
+                active: true,
+                render: () => {
+                    return html`
+                        <study-clinical-config
+                            .clinicalConfig=${this.study.internal.configuration.clinical}
+                            .opencgaSession=${this.opencgaSession}>
+                        </study-clinical-config>`;
+                }
+            }};
+        }
+
+        if (this.study.internal.configuration.variantEngine) {
+            configs = {...configs, ...{
+                id: "variants",
+                name: "Variants",
+                icon: "fas fa-dna",
+                render: () => {
+                    return html`
                             <study-variant-config
                                 .variantEngineConfig=${this.study.internal.configuration.variantEngine}
                                 .opencgaSession=${this.opencgaSession}>
                             </study-variant-config>
                         `;
-                    }
                 }
-            ]
+            }};
+        }
+
+        return {
+            items: [configs]
         };
     }
 
