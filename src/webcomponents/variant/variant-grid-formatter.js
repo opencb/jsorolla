@@ -242,9 +242,9 @@ export default class VariantGridFormatter {
             } else {
                 resultHtml = `
                     ${allGenes.slice(0, maxDisplayedGenes).join(",")}
-                    <div data-role="show-genes" data-variant-index="${index}" style="margin-top:4px;">
-                        <a style="cursor:pointer;font-size:13px;">
-                            Show more genes (${(allGenes.length - maxDisplayedGenes)})
+                    <div data-role="show-genes" data-variant-index="${index}" style="margin-top:8px;">
+                        <a style="cursor:pointer;font-size:13px;font-weight:bold;">
+                            ... show more genes (${(allGenes.length - maxDisplayedGenes)})
                         </a>
                     </div>
                     <div data-role="hidden-genes" data-variant-index="${index}" style="display:none">
