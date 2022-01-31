@@ -602,12 +602,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
-                            {
-                                id: "type",
-                                title: "Variant Type",
-                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
-                                tooltip: tooltips.type
-                            }
                         ]
                     },
                     {
