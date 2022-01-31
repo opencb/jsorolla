@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 
 export default class FamilyUpdate extends LitElement {
@@ -138,11 +139,16 @@ export default class FamilyUpdate extends LitElement {
             .then(res => {
                 this._family = JSON.parse(JSON.stringify(this.family));
                 this.updateParams = {};
-                FormUtils.showAlert("Update Family", "Family updated correctly", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Update Family",
+                    message: "family updated correctly"
+                });
+                // FormUtils.showAlert("Update Family", "Family updated correctly", "success");
             })
             .catch(err => {
-                console.error(err);
-                FormUtils.showAlert("Update Family", "Family not updated correctly", "error");
+                // console.error(err);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // FormUtils.showAlert("Update Family", "Family not updated correctly", "error");
             });
     }
 

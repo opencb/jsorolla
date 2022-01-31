@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 export default class CohortUpdate extends LitElement {
 
@@ -155,11 +156,16 @@ export default class CohortUpdate extends LitElement {
             .then(res => {
                 this._cohort = JSON.parse(JSON.stringify(this.cohort));
                 this.updateParams = {};
-                FormUtils.showAlert("Update Cohort", "Cohort updated correctly.", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Update Cohort",
+                    message: "cohort updated correctly"
+                });
+                // FormUtils.showAlert("Update Cohort", "Cohort updated correctly.", "success");
             })
             .catch(err => {
-                console.error(err);
-                FormUtils.showAlert("Update Chohoty", "Cohort not updated correctly", "error");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // console.error(err);
+                // FormUtils.showAlert("Update Chohoty", "Cohort not updated correctly", "error");
             });
     }
 
