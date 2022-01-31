@@ -368,7 +368,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 </div>
             `;
         }
-        console.log(this.query);
 
         return html`
             <style>
