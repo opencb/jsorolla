@@ -356,6 +356,17 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Add events for displaying genes list
+                    const gridElement = document.querySelector(`#${this.gridId}`);
+                    Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
+                        const index = el.dataset.variantIndex;
+                        const hiddenGelesEl = gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`);
+                        el.addEventListener("click", () => {
+                            el.style.display = "none";
+                            hiddenGelesEl.style.display = "block";
+                        });
+                    });
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row, $detail) => {
@@ -475,7 +486,18 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
+            onLoadSuccess: () => {
+                // Add events for displaying genes list
+                const gridElement = document.querySelector(`#${this.gridId}`);
+                Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
+                    const index = el.dataset.variantIndex;
+                    el.addEventListener("click", () => {
+                        el.style.display = "none";
+                        gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`).style.display = "block";
+                    });
+                });
+            },
         });
     }
 
