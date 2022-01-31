@@ -390,7 +390,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+            this.onDownload();
         }
 
         if (action === "statusChange") {
@@ -651,7 +651,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             let dataString;
             if (result) {
                 // Check if user clicked in Tab or JSON format
-                if (e.detail.option.toLowerCase() === "tab") {
+                if (e?.detail?.option?.toLowerCase() === "tab") {
                     dataString = [
                         ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretation IDs", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
                         ...result.map(_ => [
