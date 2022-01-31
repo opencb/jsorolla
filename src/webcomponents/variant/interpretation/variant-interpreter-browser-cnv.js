@@ -741,6 +741,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         detailView: true,
                         showReview: false,
                         showActions: false,
+                        showType: false,
                         showSelectCheckbox: true,
                         multiSelection: false,
                         nucleotideGenotype: true,
