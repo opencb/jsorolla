@@ -1242,7 +1242,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 @export="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
