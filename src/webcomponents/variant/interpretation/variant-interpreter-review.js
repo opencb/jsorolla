@@ -56,6 +56,10 @@ export default class VariantInterpreterReview extends LitElement {
             this.clinicalAnalysisIdObserver();
         }
 
+        if (changedProperties.has("clinicalAnalysis")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -65,6 +69,7 @@ export default class VariantInterpreterReview extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
+                    this._config = this.getDefaultConfig();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -94,52 +99,55 @@ export default class VariantInterpreterReview extends LitElement {
 
 
     getDefaultConfig() {
-        return {
-            // title: "Interpretation review",
-            display: {
-                align: "center",
+        const items = [
+            {
+                id: "general-info",
+                name: "General Info",
+                active: true,
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <clinical-interpretation-editor
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-interpretation-editor>
+                        </div>
+                    `;
+                }
             },
-            items: [
-                {
-                    id: "general-info",
-                    name: "General Info",
-                    active: true,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header
-                                    class="bg-white"
-                                    title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                                </tool-header>
-                                <clinical-interpretation-editor
-                                    .active="${active}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .opencgaSession="${opencgaSession}">
-                                </clinical-interpretation-editor>
-                            </div>
-                        `;
-                    }
+            {
+                id: "primary-findings",
+                name: "Primary Findings",
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <variant-interpreter-review-primary
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </variant-interpreter-review-primary>
+                        </div>
+                    `;
                 },
-                {
-                    id: "primary-findings",
-                    name: "Primary Findings",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header
-                                    class="bg-white"
-                                    title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
-                                </tool-header>
-                                <variant-interpreter-review-primary
-                                    .active="${active}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .opencgaSession="${opencgaSession}">
-                                </variant-interpreter-review-primary>
-                            </div>
-                        `;
-                    },
-                },
-                {
+            },
+        ];
+
+        // Check for clinicalAnalysis
+        if (this.clinicalAnalysis) {
+            const type = this.clinicalAnalysis.type.toUpperCase();
+
+            if (type === "CANCER") {
+                // TODO: add a condition for displaying rearrangements
+                items.push({
                     id: "somatic-rearrangements",
                     name: "Somatic Rearrangements",
                     render: (clinicalAnalysis, active, opencgaSession) => {
@@ -172,8 +180,16 @@ export default class VariantInterpreterReview extends LitElement {
                             </div>
                         `;
                     },
-                },
-            ],
+                });
+            }
+        }
+
+        return {
+            // title: "Interpretation review",
+            display: {
+                align: "center",
+            },
+            items: items,
         };
     }
 
