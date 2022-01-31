@@ -73,23 +73,30 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("ct")) {
-            if (this.ct) {
-                this._ct = this.ct.split(",");
-                this.presetSelected = new Map(); // Reset active presets
-
-                // Add active presets using selected CT terms
-                (this._config.alias || []).forEach(preset => {
-                    const allTermsSelected = preset.terms.every(term => this._ct.includes(term));
-                    if (allTermsSelected) {
-                        this.presetSelected.set(preset.name, preset);
-                    }
-                });
-            } else {
-                this._ct = [];
-                // this.isChecked = {};
-            }
+            this.consequenceTypesObserver();
         }
+
         super.update(changedProperties);
+    }
+
+    consequenceTypesObserver() {
+        if (this.ct) {
+            this._ct = this.ct.split(",");
+
+            // Josemi 2021-01-27 NOTE: this implementation has been reverted. We need to discuss this behavior in the future.
+            // See issue https://github.com/opencb/jsorolla/issues/376
+            // Add active presets using selected CT terms
+            // this.presetSelected = new Map(); // Reset active presets
+            // (this._config.alias || []).forEach(preset => {
+            //     const allTermsSelected = preset.terms.every(term => this._ct.includes(term));
+            //     if (allTermsSelected) {
+            //         this.presetSelected.set(preset.name, preset);
+            //     }
+            // });
+        } else {
+            this._ct = [];
+            // this.isChecked = {};
+        }
     }
 
     mapTerm(term) {
