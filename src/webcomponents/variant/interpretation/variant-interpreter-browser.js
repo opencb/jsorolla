@@ -224,14 +224,14 @@ class VariantInterpreterBrowser extends LitElement {
                 // Add CNV Variant browser
                 // TODO: check for adding this browser
                 items.push({
-                    id: "cnv-variant-browser",
-                    name: "CNV Variant Browser",
+                    id: "somatic-cnv-variant-browser",
+                    name: "Somatic CNV Variant Browser",
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-12">
                                 <tool-header
-                                    title="CNV Variant Browser - ${this._somaticSample?.id}"
+                                    title="Somatic CNV Variant Browser - ${this._somaticSample?.id}"
                                     class="bg-white">
                                 </tool-header>
                                 <variant-interpreter-browser-cnv
