@@ -141,12 +141,15 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .mode="${"modal"}"
                             .displayConfig="${{
-                                buttonClearText: "Clear",
+                                buttonClearText: "Cancel",
                                 buttonOkText: "Update",
-                                modalButtonClassName: "btn-default btn-sm"
+                                modalButtonClassName: "btn-default btn-sm",
+                                modalDisabled: this.clinicalAnalysis.locked
                             }}">
                         </clinical-interpretation-update>
-                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
+
+                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown"
+                                ?disabled="${this.clinicalAnalysis.locked ? "disabled" : ""}">
                             Action <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
@@ -321,6 +324,8 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .mode="${"modal"}"
                                 .displayConfig="${{
                                     modalButtonClassName: "btn-primary",
+                                    buttonClearText: "Cancel",
+                                    modalDisabled: this.clinicalAnalysis.locked
                                 }}">
                             </clinical-interpretation-create>
                         </div>
