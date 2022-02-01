@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
@@ -55,9 +56,6 @@ export default class IndividualCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        // Test father and mother
-        // e.stopPropagation();
-
         const param = field || e.detail.param;
         switch (param) {
             case "phenotypes":
@@ -78,8 +76,8 @@ export default class IndividualCreate extends LitElement {
                     )};
                 break;
         }
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
-        console.log("TEST", this.individual);
     }
 
     onClear(e) {
@@ -91,17 +89,20 @@ export default class IndividualCreate extends LitElement {
 
     onSubmit(e) {
         e.stopPropagation();
-        console.log("PASSS!");
-        // this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
-        //     .then(res => {
-        //         this.individual = { };
-        //         this.requestUpdate();
-        //         console.log("New individual", this.individual);
-        //         FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //     });
+        this.opencgaSession.opencgaClient.individuals()
+            .create(this.individual, {study: this.opencgaSession.study.fqn})
+            .then(res => {
+                this.individual = {};
+                this.requestUpdate();
+                // FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New Individual",
+                    message: "New Individual created correctly"
+                });
+            })
+            .catch(err => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            });
     }
 
     render() {
@@ -119,8 +120,6 @@ export default class IndividualCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Edit",
-            icon: "fas fa-edit",
             type: "form",
             display: {
                 buttonsVisible: true,
@@ -274,11 +273,11 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Portal code",
+                            title: "Postal code",
                             field: "location.postalCode",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the portal code..."
+                                placeholder: "Add the postal code..."
                             }
                         },
                         {
@@ -341,7 +340,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Phenotype",
                     elements: [
                         {
-                            field: "phenotype",
+                            field: "phenotypes",
                             type: "custom",
                             display: {
                                 layout: "vertical",
@@ -361,7 +360,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Disorder",
                     elements: [
                         {
-                            field: "disorder",
+                            field: "disorders",
                             type: "custom",
                             display: {
                                 layout: "vertical",
@@ -369,9 +368,10 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: individual => html`
+                                <!-- Pass 'this.individual' to reflect the changes -->
                                     <disorder-list-update
-                                        .disorders="${individual?.disorders}"
-                                        .evidences="${individual?.phenotypes}"
+                                        .disorders="${this.individual?.disorders}"
+                                        .evidences="${this.individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
                                     </disorder-list-update>`
