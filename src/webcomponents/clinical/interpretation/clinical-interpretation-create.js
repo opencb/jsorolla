@@ -121,13 +121,13 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     delete this.interpretation[field];
                 }
                 break;
-            case "_comments":
-                this.interpretation.comments = [
-                    {
-                        message: e.detail.value
-                    }
-                ];
-                break;
+            // case "_comments":
+            //     this.interpretation.comments = [
+            //         {
+            //             message: e.detail.value
+            //         }
+            //     ];
+            //     break;
             default:
                 this.interpretation[param] = e.detail.value;
                 break;
@@ -135,6 +135,10 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
         this.interpretation = {...this.interpretation};
         this.requestUpdate();
+    }
+
+    onCommentChange(e) {
+        this.interpretation.comments = e.detail.value;
     }
 
     notifyClinicalAnalysisWrite() {
@@ -196,7 +200,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "Interpretation ID",
+                            title: "Case Id",
                             field: "id",
                             type: "input-text",
                             defaultValue: this.clinicalAnalysis.id,
@@ -262,17 +266,30 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Comment",
-                            field: "_comments",
-                            type: "input-text",
-                            defaultValue: "",
+                            title: "Comments",
+                            field: "comments",
+                            type: "custom",
                             display: {
-                                rows: 2,
-                                placeholder: "Initial comment..."
-                                // render: comments => html`
-                                //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
+                                render: comments => html`
+                                    <clinical-analysis-comment-editor
+                                        .comments="${comments}"
+                                        @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
+                                `,
                             }
-                        },
+                        }
+                        // {
+                        //     title: "Comment",
+                        //     field: "_comments",
+                        //     type: "input-text",
+                        //     defaultValue: "",
+                        //     display: {
+                        //         rows: 2,
+                        //         placeholder: "Initial comment..."
+                        //         // render: comments => html`
+                        //         //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
+                        //     }
+                        // },
                     ]
                 },
             ]

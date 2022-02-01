@@ -295,6 +295,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onFilterVariants(e) {
+        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields, {id: "study"}];
+        VariantUtils.removeUnlockQuery(lockedFields, this.preparedQuery, this.executedQuery);
         const variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
         this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
@@ -329,6 +331,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
         this.requestUpdate();
     }
 

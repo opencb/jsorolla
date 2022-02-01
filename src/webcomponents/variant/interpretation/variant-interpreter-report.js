@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-grid.js";
+import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
 import "../../file/file-preview.js";
 
@@ -527,16 +528,6 @@ class VariantInterpreterReport extends LitElement {
                                                 .file="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
-                                            <file-preview
-                                                .active="${true}"
-                                                .file="${images[0]}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </file-preview>
-                                            <file-preview
-                                                .active="${true}"
-                                                .file="${images[1]}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
@@ -665,13 +656,13 @@ class VariantInterpreterReport extends LitElement {
                                         })
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
                                     return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-grid
+                                        <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${defaultGridConfig}">
-                                        </variant-interpreter-grid>
+                                        </variant-interpreter-rearrangement-grid>
                                     `: null;
                                 },
                                 errorMessage: "No variants found in this category",
@@ -734,13 +725,13 @@ class VariantInterpreterReport extends LitElement {
                                         })
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
                                     return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-grid
+                                        <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${defaultGridConfig}">
-                                        </variant-interpreter-grid>
+                                        </variant-interpreter-rearrangement-grid>
                                     ` : null;
                                 },
                                 errorMessage: "No variants found in this category",

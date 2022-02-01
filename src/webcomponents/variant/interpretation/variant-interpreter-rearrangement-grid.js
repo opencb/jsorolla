@@ -48,6 +48,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array,
+            },
             query: {
                 type: Object
             },
@@ -147,14 +150,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
+            // Update checked variants
             this.checkedVariants = new Map();
-            if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
-                for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
-                    this.checkedVariants.set(variant.id, variant);
-                }
-            } else {
-                this.checkedVariants.clear();
-            }
+            (this.clinicalAnalysis.interpretation?.primaryFindings || []).forEach(variant => {
+                this.checkedVariants.set(variant.id, variant);
+            });
             // this.gridCommons.checkedRows = this.checkedVariants;
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
@@ -170,8 +170,29 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    generateRowsFromVariants(variants) {
+        const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
+        (variants || []).forEach(variant => {
+            const mateId = variant.studies[0].files[0].data.MATEID;
+            let found = false;
+            pairs.forEach(pair => {
+                if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
+                    pair.push(variant);
+                    found = true;
+                }
+            });
+
+            // If not pair has been found --> inser this single variant
+            if (!found) {
+                pairs.push([variant]);
+            }
+        });
+
+        return pairs;
+    }
+
     renderVariants() {
-        if (this._config.renderLocal) {
+        if (this.clinicalVariants && this.clinicalVariants.length > 0) {
             this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
@@ -236,25 +257,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
 
-                            const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
-                            if (res?.responses[0].results) {
-                                for (const variant of res.responses[0].results) {
-                                    const mateId = variant.studies[0].files[0].data.MATEID;
-                                    let found = false;
-                                    for (const pair of pairs) {
-                                        if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
-                                            pair.push(variant);
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!found) {
-                                        pairs.push([variant]);
-                                    }
-                                }
-                                // It's important to overwrite results array
-                                res.responses[0].results = pairs;
-                            }
+                            // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
+                            const pairs = this.generateRowsFromVariants(res.responses[0].results);
+                            // It's important to overwrite results array
+                            res.responses[0].results = pairs;
 
                             params.success(res);
                         })
@@ -268,51 +274,25 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
-                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
-                    // Listen to Show/Hide link in the detail formatter consequence type table
-                    // TODO remove this
-                    document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-
-                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-
-                    UtilsNew.initTooltip(this);
-                },
-                onPostBody: data => {
-                }
             });
         }
     }
 
     renderLocalVariants() {
-        if (!this.clinicalAnalysis.interpretation.primaryFindings) {
-            return;
-        }
-
-        const _variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        // Generate rows from local clinical variants
+        // const variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        const variants = this.generateRowsFromVariants(this.clinicalVariants);
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _variants,
+            data: variants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
 
@@ -332,16 +312,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             variantGrid: this,
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onExpandRow: (index, row, $detail) => {
-                // Listen to Show/Hide link in the detail formatter consequence type table
-                document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-
-                document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-
-                UtilsNew.initTooltip(this);
-            },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
@@ -349,24 +319,41 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
     }
 
-    onCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const variant = this._rows.find(e => e.id === variantId);
+    onRowCheck(event) {
+        const index = parseInt(event.target.dataset.rowIndex);
 
-        if (e.currentTarget.checked) {
-            this.checkedVariants.set(variantId, variant);
-        } else {
-            this.checkedVariants.delete(variantId);
-        }
-
-        this.dispatchEvent(new CustomEvent("checkrow", {
-            detail: {
-                id: variantId,
-                row: variant,
-                checked: e.currentTarget.checked,
-                rows: Array.from(this.checkedVariants.values())
+        // Add or remove this pair of variants from checkedVariants list
+        this._rows[index].forEach(variant => {
+            if (event.target.checked) {
+                this.checkedVariants.set(variant.id, variant);
+            } else {
+                this.checkedVariants.delete(variant.id);
             }
-        }));
+        });
+
+        // Dispatch row check event
+        LitUtils.dispatchCustomEvent(this, "checkrow", null, {
+            checked: event.target.checked,
+            row: this._rows[index],
+            rows: Array.from(this.checkedVariants.values()),
+        });
+        // const variantId = e.currentTarget.dataset.variantId;
+        // const variant = this._rows.find(e => e.id === variantId);
+
+        // if (e.currentTarget.checked) {
+        //     this.checkedVariants.set(variantId, variant);
+        // } else {
+        //     this.checkedVariants.delete(variantId);
+        // }
+
+        // this.dispatchEvent(new CustomEvent("checkrow", {
+        //     detail: {
+        //         id: variantId,
+        //         row: variant,
+        //         checked: e.currentTarget.checked,
+        //         rows: Array.from(this.checkedVariants.values())
+        //     }
+        // }));
     }
 
     onReviewClick(e) {
@@ -460,13 +447,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     </div>
                 </form>
             </div>
-        `;
-    }
-
-    checkFormatter(value, row, index) {
-        const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
-        return `
-            <input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>
         `;
     }
 
@@ -732,10 +712,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Select",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: this.checkFormatter.bind(this),
+                    formatter: (value, row, index) => {
+                        const checked = this.checkedVariants?.has(row[0].id) ? "checked" : "";
+                        return `<input class="check check-variant" type="checkbox" data-row-index="${index}" ${checked}>`;
+                    },
                     align: "center",
                     events: {
-                        "click input": this.onCheck.bind(this)
+                        "click input": event => this.onRowCheck(event),
                     },
                     visible: this._config.showSelectCheckbox,
                 },
@@ -978,7 +961,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     async onApplySettings(e) {
         try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid, ...this.__config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid,
+                ...this.__config,
+            };
 
             // TODO Delete old config values. Remove this in IVA 2.2
             delete this._config.consequenceType.canonicalTranscript;

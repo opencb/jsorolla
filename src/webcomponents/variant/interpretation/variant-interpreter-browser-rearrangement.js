@@ -88,7 +88,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
@@ -104,9 +104,12 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         // if (changedProperties.has("query")) {
         //     this.queryObserver();
         // }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     queryObserver() {
@@ -226,14 +229,19 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (e.detail.checked) {
-            this.clinicalAnalysisManager.addVariant(e.detail.row);
-        } else {
-            this.clinicalAnalysisManager.removeVariant(e.detail.row);
-        }
+        // Each checked row contains a pair of variants
+        e.detail.row.forEach(variant => {
+            if (e.detail.checked) {
+                this.clinicalAnalysisManager.addVariant(variant);
+            } else {
+                this.clinicalAnalysisManager.removeVariant(variant);
+            }
+        });
     }
 
     onFilterVariants(e) {
+        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields, {id: "study"}];
+        VariantUtils.removeUnlockQuery(lockedFields, this.preparedQuery, this.executedQuery);
         const variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
         this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
@@ -275,6 +283,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
         this.requestUpdate();
     }
 
@@ -297,24 +306,156 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this.queryObserver();
     }
 
+    checkHasWritePermission() {
+        return OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+    }
+
+    render() {
+        // Check Project exists
+        if (!this.opencgaSession?.study) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No project available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
+        return html`
+            <style>
+                .prioritization-center {
+                    margin: auto;
+                    text-align: justify;
+                    width: 95%;
+                }
+
+                .browser-variant-tab-title {
+                    font-size: 115%;
+                    font-weight: bold;
+                }
+
+                .prioritization-variant-tab-title {
+                    font-size: 115%;
+                    font-weight: bold;
+                }
+
+                .form-section-title {
+                    padding: 5px 0px;
+                    width: 95%;
+                    border-bottom-width: 1px;
+                    border-bottom-style: solid;
+                    border-bottom-color: #ddd
+                }
+
+                #clinicalAnalysisIdText {
+                    padding: 10px;
+                }
+
+                .clinical-analysis-id-wrapper {
+                    padding: 20px;
+                }
+
+                .clinical-analysis-id-wrapper .text-filter-wrapper {
+                    margin: 20px 0;
+                }
+            </style>
+
+            ${this._config.showTitle ? html`
+                <tool-header
+                    title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
+                    icon="${this._config.icon}">
+                </tool-header>
+            ` : null}
+
+            <div class="row">
+                <div class="col-md-2">
+                    <variant-browser-filter
+                        .opencgaSession="${this.opencgaSession}"
+                        .query="${this.query}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .populationFrequencies="${this.populationFrequencies}"
+                        .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
+                        .config="${this._config.filter}"
+                        @queryChange="${this.onVariantFilterChange}"
+                        @querySearch="${this.onVariantFilterSearch}">
+                    </variant-browser-filter>
+                </div>
+
+                <div class="col-md-10">
+                    <div>
+                        ${this.checkHasWritePermission() ? html`
+                            <variant-interpreter-browser-toolbar
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .state="${this.clinicalAnalysisManager.state}"
+                                @filterVariants="${this.onFilterVariants}"
+                                @resetVariants="${this.onResetVariants}"
+                                @saveInterpretation="${this.onSaveVariants}">
+                            </variant-interpreter-browser-toolbar>
+                        ` : null}
+                    </div>
+
+                    <div id="${this._prefix}MainContent">
+                        <div id="${this._prefix}ActiveFilters">
+                            <opencga-active-filters
+                                resource="VARIANT"
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .defaultStudy="${this.opencgaSession.study.fqn}"
+                                .query="${this.preparedQuery}"
+                                .executedQuery="${this.executedQuery}"
+                                .filters="${this.activeFilterFilters}"
+                                .alias="${this._config.activeFilterAlias}"
+                                .config="${this._config.filter.activeFilters}"
+                                @activeFilterChange="${this.onActiveFilterChange}"
+                                @activeFilterClear="${this.onActiveFilterClear}">
+                            </opencga-active-filters>
+                        </div>
+
+                        <div class="main-view">
+                            <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
+                                <variant-interpreter-rearrangement-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .query="${this.executedQuery}"
+                                    .config="${this._config.filter.result.grid}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @checkrow="${this.onCheckVariant}">
+                                </variant-interpreter-rearrangement-grid>
+
+                                <!-- Bottom tabs with detailed variant information -->
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config="${this._config.filter.detail}">
+                                </variant-interpreter-detail>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         // Prepare dynamic Variant Caller INFO filters
         const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
-        const callerFilters = [];
-        for (const caller of callers) {
+        const callerFilters = callers.map(caller => {
             const callerId = caller.toLowerCase();
-            callerFilters.push(
-                {
-                    id: callerId,
-                    title: caller + " Filters",
-                    description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
-                    visible: () => this.callerToFile && this.callerToFile[callerId],
-                    params: {
-                        fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
-                    }
-                }
-            );
-        }
+            return {
+                id: callerId,
+                title: caller + " Filters",
+                description: () => html`
+                    File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>
+                `,
+                visible: () => this.callerToFile && this.callerToFile[callerId],
+                params: {
+                    fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
+                },
+            };
+        });
 
         return {
             title: "Cancer Case Interpreter",
@@ -410,7 +551,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                 types: ["TRANSLOCATION", "DUPLICATION", "INVERSION", "DELETION"],
                                 tooltip: tooltips.type,
                                 params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`
+                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
                                 }
                             }
                             // {
@@ -472,72 +613,66 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             id: "annotationSummary",
                             name: "Summary",
                             active: true,
-                            render: variant => {
-                                return html`
-                                    <cellbase-variant-annotation-summary
-                                            .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                            .assembly=${this.opencgaSession.project.organism.assembly}>
-                                    </cellbase-variant-annotation-summary>`;
-                            }
+                            render: variant => html`
+                                <cellbase-variant-annotation-summary
+                                    .variantAnnotation="${variant.annotation}"
+                                    .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
+                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                    .assembly=${this.opencgaSession.project.organism.assembly}>
+                                </cellbase-variant-annotation-summary>
+                            `,
                         },
                         {
                             id: "annotationConsType",
                             name: "Consequence Type",
-                            render: (variant, active) => {
-                                return html`
-                                    <variant-consequence-type-view
-                                            .consequenceTypes="${variant.annotation.consequenceTypes}"
-                                            .active="${active}">
-                                    </variant-consequence-type-view>`;
-                            }
+                            render: (variant, active) => html`
+                                <variant-consequence-type-view
+                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                    .active="${active}">
+                                </variant-consequence-type-view>
+                            `,
                         },
                         {
                             id: "annotationPropFreq",
                             name: "Population Frequencies",
-                            render: (variant, active) => {
-                                return html`
-                                    <cellbase-population-frequency-grid
-                                            .populationFrequencies="${variant.annotation.populationFrequencies}"
-                                            .active="${active}">
-                                    </cellbase-population-frequency-grid>`;
-                            }
+                            render: (variant, active) => html`
+                                <cellbase-population-frequency-grid
+                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                    .active="${active}">
+                                </cellbase-population-frequency-grid>
+                            `,
                         },
                         {
                             id: "annotationClinical",
                             name: "Clinical",
-                            render: variant => {
-                                return html`
-                                    <variant-annotation-clinical-view
-                                            .traitAssociation="${variant.annotation.traitAssociation}"
-                                            .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
-                                    </variant-annotation-clinical-view>`;
-                            }
+                            render: variant => html`
+                                <variant-annotation-clinical-view
+                                    .traitAssociation="${variant.annotation.traitAssociation}"
+                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                </variant-annotation-clinical-view>
+                            `,
                         },
                         {
                             id: "fileMetrics",
                             name: "File Metrics",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <opencga-variant-file-metrics
-                                            .opencgaSession="${opencgaSession}"
-                                            .variant="${variant}"
-                                            .files="${this.clinicalAnalysis}">
-                                    </opencga-variant-file-metrics>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <opencga-variant-file-metrics
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .files="${this.clinicalAnalysis}">
+                                </opencga-variant-file-metrics>
+                            `,
                         },
                         {
                             id: "cohortStats",
                             name: "Cohort Stats",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <variant-cohort-stats
-                                            .opencgaSession="${opencgaSession}"
-                                            .variant="${variant}"
-                                            .active="${active}">
-                                    </variant-cohort-stats>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-cohort-stats
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .active="${active}">
+                                </variant-cohort-stats>
+                            `,
                         },
                         {
                             id: "samples",
@@ -553,15 +688,14 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         {
                             id: "beacon",
                             name: "Beacon",
-                            render: (variant, active, opencgaSession) => {
-                                return html`
-                                    <variant-beacon-network
-                                            .variant="${variant.id}"
-                                            .assembly="${opencgaSession.project.organism.assembly}"
-                                            .config="${this.beaconConfig}"
-                                            .active="${active}">
-                                    </variant-beacon-network>`;
-                            }
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-beacon-network
+                                    .variant="${variant.id}"
+                                    .assembly="${opencgaSession.project.organism.assembly}"
+                                    .config="${this.beaconConfig}"
+                                    .active="${active}">
+                                </variant-beacon-network>
+                            `,
                         }
                     ]
                 }
@@ -569,129 +703,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             aggregation: {
             }
         };
-    }
-
-    render() {
-        // Check Project exists
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
-        return html`
-            <style>
-                .prioritization-center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 95%;
-                }
-
-                .browser-variant-tab-title {
-                    font-size: 115%;
-                    font-weight: bold;
-                }
-
-                .prioritization-variant-tab-title {
-                    font-size: 115%;
-                    font-weight: bold;
-                }
-
-                .form-section-title {
-                    padding: 5px 0px;
-                    width: 95%;
-                    border-bottom-width: 1px;
-                    border-bottom-style: solid;
-                    border-bottom-color: #ddd
-                }
-
-                #clinicalAnalysisIdText {
-                    padding: 10px;
-                }
-
-                .clinical-analysis-id-wrapper {
-                    padding: 20px;
-                }
-
-                .clinical-analysis-id-wrapper .text-filter-wrapper {
-                    margin: 20px 0;
-                }
-            </style>
-
-            ${this._config.showTitle ? html`
-                <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
-            ` : null}
-
-            <div class="row">
-                <div class="col-md-2">
-                    <variant-browser-filter .opencgaSession="${this.opencgaSession}"
-                                            .query="${this.query}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                                            .config="${this._config.filter}"
-                                            @queryChange="${this.onVariantFilterChange}"
-                                            @querySearch="${this.onVariantFilterSearch}">
-                    </variant-browser-filter>
-                </div> <!-- Close col-md-2 -->
-
-                <div class="col-md-10">
-                    <div>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ?
-                                html`
-                                    <variant-interpreter-browser-toolbar    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                            .state="${this.clinicalAnalysisManager.state}"
-                                                                            @filterVariants="${this.onFilterVariants}"
-                                                                            @resetVariants="${this.onResetVariants}"
-                                                                            @saveInterpretation="${this.onSaveVariants}">
-                                    </variant-interpreter-browser-toolbar>` :
-                                null
-                        }
-                    </div>
-
-                    <div id="${this._prefix}MainContent">
-                        <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters resource="VARIANT"
-                                                    .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
-                                                    .query="${this.preparedQuery}"
-                                                    .executedQuery="${this.executedQuery}"
-                                                    .filters="${this.activeFilterFilters}"
-                                                    .alias="${this._config.activeFilterAlias}"
-                                                    .config="${this._config.filter.activeFilters}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}">
-                            </opencga-active-filters>
-                        </div>
-
-                        <div class="main-view">
-                            <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
-                                <variant-interpreter-rearrangement-grid .opencgaSession="${this.opencgaSession}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                        .query="${this.executedQuery}"
-                                                                        .config="${this._config.filter.result.grid}"
-                                                                        @selectrow="${this.onSelectVariant}"
-                                                                        @checkrow="${this.onCheckVariant}">
-                                </variant-interpreter-rearrangement-grid>
-
-                                <!-- Bottom tabs with detailed variant information -->
-                                <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .variant="${this.variant}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .config=${this._config.filter.detail}>
-                                </variant-interpreter-detail>
-                            </div>
-                        </div>
-                    </div> <!-- Close MainContent -->
-                </div> <!-- Close col-md-10 -->
-            </div> <!-- Close row -->
-        `;
     }
 
 }

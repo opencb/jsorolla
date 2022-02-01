@@ -20,6 +20,7 @@
 
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
+
 import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
@@ -51,6 +52,7 @@ import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
+import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
@@ -94,6 +96,9 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
+
+// SETTINGS
+import DISEASE_PANEL_BROWSER_SETTINGS from "./conf/disease-panel-browser.settings.js";
 
 class IvaApp extends LitElement {
 
@@ -155,10 +160,14 @@ class IvaApp extends LitElement {
             "file-manager",
             "beacon",
             "project",
-            "sample",
             "file",
+            // Sample
             "sample",
             "sample-view",
+            "sampleVariantStatsBrowser",
+            "sampleCancerVariantStatsBrowser",
+            "sampleUpdate",
+            "sample-variant-stats",
             "individual",
             "cohort",
             "clinicalAnalysis",
@@ -168,7 +177,6 @@ class IvaApp extends LitElement {
             "gene",
             "transcript",
             "protein",
-            "sampleUpdate",
             "browser",
             "family",
             "job",
@@ -179,13 +187,9 @@ class IvaApp extends LitElement {
             "cat-catalog",
             "cat-alignment",
             "cat-ga4gh",
-            // Sample
-            "sampleVariantStatsBrowser",
-            "sampleCancerVariantStatsBrowser",
             // Variant
             "eligibility",
             "gwas",
-            "sample-variant-stats",
             "cohort-variant-stats",
             "sample-eligibility",
             "knockout",
@@ -211,6 +215,7 @@ class IvaApp extends LitElement {
             "coverage-index",
             "job-view",
             "rga",
+            "disease-panel",
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
@@ -462,7 +467,7 @@ class IvaApp extends LitElement {
     onLogin(credentials) {
         // This creates a new authenticated opencga-session object
 
-        console.log("iva-app: roger I'm in", credentials);
+        // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
 
@@ -1185,75 +1190,96 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.genomeBrowser ? html`
                     <div class="content" id="genomeBrowser">
-                        <opencga-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .opencgaClient="${this.opencgaClient}">
+                        <opencga-genome-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}">
                         </opencga-genome-browser>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.projects ? html`
                     <div class="content" id="projects">
-                        <opencga-projects  .opencgaSession="${this.opencgaSession}"
-                                           @project="${this.updateProject}"
-                                           @study="${this.updateStudy}">
+                        <opencga-projects
+                            .opencgaSession="${this.opencgaSession}"
+                            @project="${this.updateProject}"
+                            @study="${this.updateStudy}">
                         </opencga-projects>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.sample ? html`
                     <div class="content" id="sample">
-                        <sample-browser .opencgaSession="${this.opencgaSession}"
-                                        .query="${this.queries.sample}"
-                                        .settings="${OPENCGA_SAMPLE_BROWSER_SETTINGS}"
-                                        @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
-                                        @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
+                        <sample-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.sample}"
+                            .settings="${OPENCGA_SAMPLE_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
                         </sample-browser>
                     </div>
                 ` : null}
 
+
                 ${this.config.enabledComponents.panel ? html`
                     <div class="content" id="panel">
-                        <opencga-panel-browser  .opencgaSession="${this.opencgaSession}"
-                                                .opencgaClient="${this.opencgaClient}"
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .eventNotifyName="${this.config.notifyEventMessage}"
-                                                @notifymessage="${this.onNotifyMessage}">
+                        <opencga-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .eventNotifyName="${this.config.notifyEventMessage}"
+                            @notifymessage="${this.onNotifyMessage}">
                         </opencga-panel-browser>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.file ? html`
                     <div class="content" id="file">
-                        <opencga-file-browser   .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.queries.file}"
-                                                .settings="${OPENCGA_FILE_BROWSER_SETTINGS}"
-                                                @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
-                                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
+                        <opencga-file-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.file}"
+                            .settings="${OPENCGA_FILE_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
                         </opencga-file-browser>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["disease-panel"] ? html`
+                    <div class="content" id="disease-panel">
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .query="${this.queries["disease-panel"]}"
+                            .settings="${DISEASE_PANEL_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
+                        </disease-panel-browser>
                     </div>
                 ` : null}
 
                 <!--todo check-->
                 ${this.config.enabledComponents.gene ? html`
                     <div class="content" id="gene">
-                        <opencga-gene-view .opencgaSession="${this.opencgaSession}"
-                                           .cellbaseClient="${this.cellbaseClient}"
-                                           .geneId="${this.gene}"
-                                           .populationFrequencies="${this.config.populationFrequencies}"
-                                           .consequenceTypes="${this.config.consequenceTypes}"
-                                           .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                           .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                                           .summary="${this.config.opencga.summary}"
-                                           @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                        <opencga-gene-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .geneId="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
+                            .summary="${this.config.opencga.summary}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
                         </opencga-gene-view>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["sample-view"] ? html`
                     <div class="content" id="sample-view">
-                        <opencga-sample-view    .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.config.sampleView}">
+                        <opencga-sample-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.sampleView}">
                         </opencga-sample-view>
                     </div>
                 ` : null}

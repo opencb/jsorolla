@@ -1216,7 +1216,7 @@ export default class DataForm extends LitElement {
             const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
             const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
             const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
-            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled ?? this.config.display?.mode?.disabled, false);
+            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
 
             return html`
                 <button type="button"
