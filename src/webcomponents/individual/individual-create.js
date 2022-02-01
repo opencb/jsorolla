@@ -170,9 +170,8 @@ export default class IndividualCreate extends LitElement {
                                         .value="${this.sample?.father}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
+                                            // This is the default value, but it is safe to leave it
+                                            multiple: false,
                                         }}
                                         @filterChange="${e =>
                                             this.onFieldChange({
@@ -195,9 +194,8 @@ export default class IndividualCreate extends LitElement {
                                         .value="${this.sample?.mother}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
+                                            // This is the default value, but it is safe to leave it
+                                            multiple: false,
                                         }}
                                         @filterChange="${e =>
                                             this.onFieldChange({
