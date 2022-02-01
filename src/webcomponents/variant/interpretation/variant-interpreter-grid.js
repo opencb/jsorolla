@@ -356,6 +356,17 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Add events for displaying genes list
+                    const gridElement = document.querySelector(`#${this.gridId}`);
+                    Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
+                        const index = el.dataset.variantIndex;
+                        const hiddenGelesEl = gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`);
+                        el.addEventListener("click", () => {
+                            el.style.display = "none";
+                            hiddenGelesEl.style.display = "block";
+                        });
+                    });
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row, $detail) => {
@@ -475,7 +486,18 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
+            onLoadSuccess: () => {
+                // Add events for displaying genes list
+                const gridElement = document.querySelector(`#${this.gridId}`);
+                Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
+                    const index = el.dataset.variantIndex;
+                    el.addEventListener("click", () => {
+                        el.style.display = "none";
+                        gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`).style.display = "block";
+                    });
+                });
+            },
         });
     }
 
@@ -622,7 +644,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
-                    halign: "center"
+                    halign: "center",
+                    visible: !!this._config.showType,
                 },
                 {
                     id: "consequenceType",
@@ -1220,7 +1243,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 @export="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
@@ -1308,6 +1331,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showReview: true,
             showSelectCheckbox: false,
             showActions: false,
+            showType: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,

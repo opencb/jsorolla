@@ -124,6 +124,8 @@ export default class VariantInterpreterReview extends LitElement {
                 id: "primary-findings",
                 name: "Primary Findings",
                 render: (clinicalAnalysis, active, opencgaSession) => {
+                    // TODO: fix this line to get correct variants to display
+                    const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
                     return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
@@ -133,6 +135,7 @@ export default class VariantInterpreterReview extends LitElement {
                             <variant-interpreter-review-primary
                                 .active="${active}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
+                                .clinicalVariants="${variants}"
                                 .opencgaSession="${opencgaSession}">
                             </variant-interpreter-review-primary>
                         </div>
@@ -146,6 +149,34 @@ export default class VariantInterpreterReview extends LitElement {
             const type = this.clinicalAnalysis.type.toUpperCase();
 
             if (type === "CANCER") {
+                // TODO: add a condition for displaying CNV browser
+                items.push({
+                    id: "somatic-cnv-variants",
+                    name: "Somatic CNV Variants",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                            .filter(v => {
+                                const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                return sample && sample.somatic;
+                            })
+                            .filter(v => v.type === "COPY_NUMBER");
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <variant-interpreter-review-primary
+                                    .active="${active}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .clinicalVariants="${variants}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-interpreter-review-primary>
+                            </div>
+                        `;
+                    },
+                });
                 // TODO: add a condition for displaying rearrangements
                 items.push({
                     id: "somatic-rearrangements",

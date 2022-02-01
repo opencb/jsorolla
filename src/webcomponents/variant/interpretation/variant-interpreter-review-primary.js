@@ -42,6 +42,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array
+            },
             cellbaseClient: {
                 type: Object
             },
@@ -255,6 +258,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                 <variant-interpreter-grid
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
                                     .config="${this._config.result.grid}"
                                     @selected="${this.selectedGene}"
@@ -338,7 +342,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     nucleotideGenotype: true,
                     alleleStringLengthMax: 10,
 
-                    renderLocal: true,
+                    renderLocal: false,
 
                     header: {
                         horizontalAlign: "center",
