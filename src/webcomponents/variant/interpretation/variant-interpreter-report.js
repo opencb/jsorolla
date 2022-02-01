@@ -213,8 +213,9 @@ class VariantInterpreterReport extends LitElement {
                     }
 
                     this._data.qcPlots = {};
-                    if (somaticSample.qualityControl?.variant?.files?.length > 0) {
-                        this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
+                    if (somaticSample.qualityControl?.variant?.genomePlot?.file) {
+                        // this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
+                        this._data.qcPlots.genomePlotFile = somaticSample.qualityControl.variant.genomePlot.file;
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
@@ -570,8 +571,11 @@ class VariantInterpreterReport extends LitElement {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-                                            <image-viewer .data="${qcPlots.genomePlot}"></image-viewer>
-                                            <img class="img-responsive" src="${qcPlots.genomePlot}"/>
+                                            <file-preview
+                                                .active="${true}"
+                                                .fileId="${qcPlots.genomePlotFile}"
+                                                .opencgaSession="${this.opencgaSession}">
+                                            </file-preview>
                                         </div>
                                         <div class="col-md-5">
                                             <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
