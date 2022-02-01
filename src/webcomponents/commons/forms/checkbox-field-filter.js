@@ -39,6 +39,9 @@ export default class CheckboxFieldFilter extends LitElement {
             },
             data: {
                 type: Object
+            },
+            disabled: {
+                type: Boolean
             }
         };
     }
@@ -79,7 +82,12 @@ export default class CheckboxFieldFilter extends LitElement {
                     const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
                     return html`
                         <li>
-                            <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}"
+                            <input class="magic-checkbox"
+                                   type="checkbox"
+                                   id="${this._prefix}checkbox${i}"
+                                   value="${id}"
+                                   .checked="${this.state[id]}"
+                                   ?disabled="${this.disabled}"
                                    @click="${this.filterChange}">
                             <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
                                 ${UtilsNew.renderHTML(name)}

@@ -119,29 +119,7 @@ export default class VariantInterpreterReview extends LitElement {
                         </div>
                     `;
                 }
-            },
-            {
-                id: "primary-findings",
-                name: "Primary Findings",
-                render: (clinicalAnalysis, active, opencgaSession) => {
-                    // TODO: fix this line to get correct variants to display
-                    const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
-                    return html`
-                        <div class="col-md-10 col-md-offset-1">
-                            <tool-header
-                                class="bg-white"
-                                title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <variant-interpreter-review-primary
-                                .active="${active}"
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .clinicalVariants="${variants}"
-                                .opencgaSession="${opencgaSession}">
-                            </variant-interpreter-review-primary>
-                        </div>
-                    `;
-                },
-            },
+            }
         ];
 
         // Check for clinicalAnalysis
@@ -149,6 +127,31 @@ export default class VariantInterpreterReview extends LitElement {
             const type = this.clinicalAnalysis.type.toUpperCase();
 
             if (type === "CANCER") {
+                items.push(
+                    {
+                        id: "primary-findings",
+                        name: "Somatic Variants",
+                        render: (clinicalAnalysis, active, opencgaSession) => {
+                            // TODO: fix this line to get correct variants to display
+                            const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                            return html`
+                                <div class="col-md-10 col-md-offset-1">
+                                    <tool-header
+                                        class="bg-white"
+                                        title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                                    </tool-header>
+                                    <variant-interpreter-review-primary
+                                        .active="${active}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-interpreter-review-primary>
+                                </div>
+                            `;
+                        },
+                    }
+                );
+
                 // TODO: add a condition for displaying CNV browser
                 items.push({
                     id: "somatic-cnv-variants",
@@ -180,7 +183,7 @@ export default class VariantInterpreterReview extends LitElement {
                 // TODO: add a condition for displaying rearrangements
                 items.push({
                     id: "somatic-rearrangements",
-                    name: "Somatic Rearrangements",
+                    name: "Somatic Rearrangements Variants",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         const variants = clinicalAnalysis?.interpretation?.primaryFindings
                             .filter(v => {
@@ -212,6 +215,31 @@ export default class VariantInterpreterReview extends LitElement {
                         `;
                     },
                 });
+            } else {
+                items.push(
+                    {
+                        id: "primary-findings",
+                        name: "Primary Findings",
+                        render: (clinicalAnalysis, active, opencgaSession) => {
+                            // TODO: fix this line to get correct variants to display
+                            const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                            return html`
+                                <div class="col-md-10 col-md-offset-1">
+                                    <tool-header
+                                        class="bg-white"
+                                        title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                                    </tool-header>
+                                    <variant-interpreter-review-primary
+                                        .active="${active}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-interpreter-review-primary>
+                                </div>
+                            `;
+                        },
+                    }
+                );
             }
         }
 

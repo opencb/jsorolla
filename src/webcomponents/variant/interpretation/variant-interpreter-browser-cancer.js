@@ -467,8 +467,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
-                                tooltip: tooltips.type
+                                tooltip: tooltips.type,
+                                params: {
+                                    types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"]
+                                },
                             }
                         ]
                     },

@@ -433,7 +433,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                 </variant-interpreter-detail>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div>
             </div>
         `;
@@ -481,46 +481,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 callers: [],
                 sections: [ // sections and subsections, structure and order is respected
                     {
-                        title: "Sample And File",
-                        collapsed: false,
-                        filters: [
-                            // {
-                            //     id: "sample-genotype",
-                            //     title: "Sample Genotype",
-                            //     params: {
-                            //         genotypes: [
-                            //             {
-                            //                 id: "0/1", name: "HET"
-                            //             },
-                            //             {
-                            //                 id: "1/1", name: "HOM ALT"
-                            //             },
-                            //             {
-                            //                 separator: true
-                            //             },
-                            //             {
-                            //                 id: "NA", name: "NA"
-                            //             }
-                            //         ]
-                            //     }
-                            // },
-                            // {
-                            //     id: "variant-file",
-                            //     title: "VCF File",
-                            //     params: {
-                            //         files: this.callerToFile
-                            //     }
-                            // },
-                            // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filters",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     visible: UtilsNew.isEmpty(this.callerToFile)
-                            // },
-                            // ...callerFilters
-                        ]
-                    },
-                    {
                         title: "Genomic",
                         collapsed: false,
                         filters: [
@@ -554,12 +514,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                     fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
                                 }
                             }
-                            // {
-                            //     id: "type",
-                            //     title: "Variant Type",
-                            //     types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
-                            //     tooltip: tooltips.type
-                            // }
                         ]
                     }
                 ],

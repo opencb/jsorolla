@@ -177,9 +177,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => vc.somatic)
                     .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
-                        // vc.types.includes("INSERTION") || vc.types.includes("DELETION") ||
-                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                    .filter(vc => vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
 
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF")
@@ -552,6 +550,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             {
                                 id: "variant-file",
                                 title: "VCF File Filter",
+                                visible: () => this.files?.length > 0,
                                 params: {
                                     files: this.files
                                 }
@@ -588,7 +587,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
+                                title: "Feature IDs (gene, ...)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLock,
                                     text: "Feature regions will be intersected with selected panels.",
@@ -601,6 +600,15 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
+                            {
+                                id: "type",
+                                title: "Variant Type",
+                                tooltip: tooltips.type,
+                                disabled: true,
+                                params: {
+                                    types: ["COPY_NUMBER"]
+                                }
+                            }
                         ]
                     },
                     {
@@ -687,33 +695,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             }
                         ]
                     },
-                    {
-                        title: "Deleteriousness",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "proteinSubstitutionScore",
-                                title: "Protein Substitution Score",
-                                tooltip: tooltips.proteinSubstitutionScore
-                            },
-                            {
-                                id: "cadd",
-                                title: "CADD",
-                                tooltip: tooltips.cadd
-                            }
-                        ]
-                    },
-                    {
-                        title: "Conservation",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "conservation",
-                                title: "Conservation Score",
-                                tooltip: tooltips.conservation
-                            }
-                        ]
-                    }
                 ],
                 examples: [
                     {

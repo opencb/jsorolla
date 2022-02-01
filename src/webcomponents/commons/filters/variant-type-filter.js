@@ -38,6 +38,9 @@ export default class VariantTypeFilter extends LitElement {
             type: {
                 type: String
             },
+            disabled: {
+                type: Boolean
+            },
             config: {
                 type: Object
             }
@@ -83,7 +86,12 @@ export default class VariantTypeFilter extends LitElement {
                 }
             </style>
             <div id="${this._prefix}Type" class="${classMap({inline: this._config.layout === "horizontal"})}">
-                <checkbox-field-filter .value="${this.type}" .data="${this._config.types}" @filterChange="${e => this.filterChange(e)}"></checkbox-field-filter>
+                <checkbox-field-filter
+                    .value="${this.type}"
+                    .data="${this._config.types}"
+                    .disabled="${this.disabled}"
+                    @filterChange="${e => this.filterChange(e)}">
+                </checkbox-field-filter>
             </div>
         `;
     }
