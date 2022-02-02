@@ -165,8 +165,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             field: "EXT_REARR",
             sample: this.sampleId,
             fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
-            ...this.query
         };
+
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
                 this.aggregationStatsResults = response.responses[0].results;

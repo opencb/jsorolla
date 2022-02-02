@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
@@ -139,14 +140,19 @@ export default class SampleCreate extends LitElement {
                 this.sample = {};
                 this.requestUpdate();
                 // this.dispatchSessionUpdateRequest();
-                FormUtils.showAlert(
-                    "New Sample",
-                    "Sample save correctly",
-                    "success"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New Sample",
+                    message: "Sample created correctly"
+                });
+                // FormUtils.showAlert(
+                //     "New Sample",
+                //     "Sample save correctly",
+                //     "success"
+                // );
             })
             .catch(err => {
-                console.error(err);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // console.error(err);
             });
     }
 

@@ -359,6 +359,19 @@ export default class VariantUtils {
         }
     }
 
+    static removeUnlockQuery(lockedFields, preparedQuery, executedQuery) {
+        // Get all keys
+        const queryKeys = new Set([...Object.keys(preparedQuery), ...Object.keys(executedQuery)]);
+
+        // Remove keys belong to lockedFields
+        lockedFields.forEach(key => queryKeys.delete(key.id));
+
+        // Remove all key not belong to lockedFields
+        queryKeys.forEach(key =>{
+            delete preparedQuery[key];
+            delete executedQuery[key];
+        });
+    }
 
     static validateQuery(query) {
         if (!query?.panel) {

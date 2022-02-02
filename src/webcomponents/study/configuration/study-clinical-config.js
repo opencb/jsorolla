@@ -174,7 +174,7 @@ export default class StudyClinicalConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Id",
+                                title: "Id",
                                 field: "id",
                                 type: "input-text",
                                 display: {
@@ -182,7 +182,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "Description",
+                                title: "Description",
                                 field: "description",
                                 type: "input-text",
                                 display: {
@@ -196,7 +196,7 @@ export default class StudyClinicalConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Id",
+                                title: "Id",
                                 field: "id",
                                 type: "input-text",
                                 display: {
@@ -204,7 +204,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "Description",
+                                title: "Description",
                                 field: "description",
                                 type: "input-text",
                                 display: {
@@ -213,12 +213,12 @@ export default class StudyClinicalConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "Rank",
+                                title: "Rank",
                                 field: "rank",
                                 type: "input-text",
                             },
                             {
-                                name: "Default priority",
+                                title: "Default priority",
                                 field: "defaultPriority",
                                 type: "checkbox",
                             },
@@ -228,7 +228,7 @@ export default class StudyClinicalConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Id",
+                                title: "Id",
                                 field: "id",
                                 type: "input-text",
                                 display: {
@@ -236,7 +236,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "Name",
+                                title: "Name",
                                 field: "name",
                                 type: "input-text",
                                 display: {
@@ -244,7 +244,7 @@ export default class StudyClinicalConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "Description",
+                                title: "Description",
                                 field: "description",
                                 type: "input-text",
                                 display: {
@@ -259,18 +259,19 @@ export default class StudyClinicalConfig extends LitElement {
 
         const configForm = (key, isNew) => {
             return {
-                title: "Edit",
-                buttons: {
-                    show: true,
-                    cancelText: "Cancel",
-                    classes: "btn btn-primary ripple pull-right",
-                    okText: "Save"
-                },
+                title: isNew ? "Add Config" :"Edit",
+                type: modal ? "modal" :"",
                 display: {
-                    labelWidth: 3,
-                    labelAlign: "right",
+                    buttonOkText: "Save",
+                    buttonClearText: "Cancel",
+                    buttonsVisible: true,
+                    buttonsLayout: false,
+                    buttonsClassName: "btn btn-primary ripple pull-right",
+                    modalButtonClassName: !isNew?"btn-sm":"",
+                    modalButtonStyle: isNew ? "margin-top:6px":"",
+                    titleWidth: 3,
+                    titleAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: modal ? {type: "modal"} : "",
                     defaultValue: ""
                 },
                 sections: [configSection(key)]
@@ -298,21 +299,17 @@ export default class StudyClinicalConfig extends LitElement {
     getDefaultConfig() {
         return {
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Update"
-            },
             display: {
-                // width: "8",
+                buttonOkText: "Update",
+                buttonClearText: "Cancel",
+                buttonsVisible: true,
+                buttonsLayout: false,
+                buttonsWidth: 8,
                 style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
+                titleWidth: 3,
+                titleAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block" // icon
-                }
             },
             sections: [
                 {
@@ -321,7 +318,7 @@ export default class StudyClinicalConfig extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                layout: "vertical",
+                                contentLayout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
@@ -343,7 +340,7 @@ export default class StudyClinicalConfig extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                layout: "vertical",
+                                contentLayout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
@@ -365,7 +362,7 @@ export default class StudyClinicalConfig extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                layout: "vertical",
+                                contentLayout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 8,
                                 style: "padding-left: 0px",
@@ -387,7 +384,7 @@ export default class StudyClinicalConfig extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                layout: "vertical",
+                                contentLayout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
@@ -409,7 +406,7 @@ export default class StudyClinicalConfig extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                layout: "vertical",
+                                contentLayout: "vertical",
                                 defaultLayout: "vertical",
                                 width: 8,
                                 style: "padding-left: 0px",

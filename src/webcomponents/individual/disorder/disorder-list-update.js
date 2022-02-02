@@ -86,10 +86,10 @@ export default class DisorderListUpdate extends LitElement {
         e.stopPropagation();
         if (this.isAddItem) {
             // ? To add disorder, must you have evidence?
-
-            const disorder = this.addEvidencesAsObject(e.detail.value);
+            // e.detail.value -> disorder
+            const selectedEvidences = e.detail.value.evidences;
+            const disorder = {...e.detail.value, evidences: this.addEvidences(selectedEvidences)};
             this.addDisorder(disorder);
-
         } else {
             this.updateDisorder(e.detail.value);
         }
@@ -97,16 +97,13 @@ export default class DisorderListUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    addEvidencesAsObject(oldDisorder) {
-        const disorder = oldDisorder;
-        const evidencesIds = oldDisorder.evidences.split(",");
-        const evidences = evidencesIds.map(evidenceId => this.evidences.find(evidence => evidence.id === evidenceId));
-        disorder.evidences = evidences;
-        return disorder;
+    addEvidences(selectedEvidences) {
+        const evidences = this.evidences.length === 1 ? this.evidences : selectedEvidences.split(",");
+        return evidences.map(evidence => this.evidences.find(e => e.id === evidence.id));
     }
 
     addDisorder(disorder) {
-        console.log("AddDiosrder with evidences object", disorder);
+        console.log("AddDisorder with evidences object", disorder);
         this.disorders = [...this.disorders, disorder];
         LitUtils.dispatchCustomEvent(this, "changeDisorders", this.disorders);
     }

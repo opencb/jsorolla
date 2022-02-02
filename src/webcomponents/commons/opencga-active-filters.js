@@ -428,28 +428,14 @@ export default class OpencgaActiveFilters extends LitElement {
             for (const filter of this._filters) {
                 if (filter.id === e.currentTarget.dataset.filterId) {
                     filter.active = true;
-
-                    // We need to merge the selected filter query with the "save.ignoreParams" of the current query,
-                    // otherwise the sample or file are deleted.
-                    const _query = {};
-                    if (this._config?.save?.ignoreParams) {
-                        for (const key of Object.keys(this.query)) {
-                            if (this._config.save.ignoreParams.includes(key)) {
-                                _query[key] = this.query[key];
-                            }
-                        }
-                    }
-
-                    const _queryList = {..._query, ...filter.query};
-                    if (_queryList.study) {
+                    if (filter.query.study) {
                         // add the current active study
-                        const studies = [...new Set([..._queryList.study.split(","), this.opencgaSession.study.fqn])];
-                        _queryList.study = studies.join(",");
+                        const studies = [...new Set([...filter.query.study.split(","), this.opencgaSession.study.fqn])];
+                        filter.query.study = studies.join(",");
                     }
+                    // TODO move to LitUtils
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: _queryList,
-                        /* bubbles: true,
-                        composed: true*/
+                        detail: filter.query,
                     }));
                 } else {
                     filter.active = false;
@@ -808,7 +794,8 @@ export default class OpencgaActiveFilters extends LitElement {
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                            <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                            <h
+                                class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
                         </div>
                         <div class="modal-body">
                             <div class="form-group row">

@@ -109,6 +109,10 @@ export default class UtilsNew {
         return false;
     }
 
+    static filterKeys(obj, keys) {
+        return Object.fromEntries(keys.map(key => [key, obj[key]]));
+    }
+
     static removeArrayByIndex(arr, index) {
         return arr.filter((val, i) => i !== index);
     }

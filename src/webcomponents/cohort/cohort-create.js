@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
 
@@ -89,15 +90,20 @@ export default class CohortCreate extends LitElement {
             .then(res => {
                 this.cohort = {};
                 // LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
-                FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New Cohort",
+                    message: "cohort created correctly"
+                });
+                // FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
             })
             .catch(err => {
-                console.error(err);
-                FormUtils.showAlert(
-                    "New Cohort",
-                    `Could not save cohort ${err}`,
-                    "error"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // console.error(err);
+                // FormUtils.showAlert(
+                //     "New Cohort",
+                //     `Could not save cohort ${err}`,
+                //     "error"
+                // );
             });
     }
 

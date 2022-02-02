@@ -295,9 +295,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onFilterVariants(e) {
+        const lockedFields = [...this._config.filter.activeFilters.lockedFields.map(key => key.id), "study"];
         const variantIds = e.detail.variants.map(v => v.id);
-        this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
-        this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
+        this.executedQuery = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
+        this.preparedQuery = {...this.executedQuery};
         this.requestUpdate();
     }
 
@@ -329,6 +330,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
         this.requestUpdate();
     }
 
@@ -464,8 +466,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
-                                tooltip: tooltips.type
+                                tooltip: tooltips.type,
+                                params: {
+                                    types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"]
+                                },
                             }
                         ]
                     },

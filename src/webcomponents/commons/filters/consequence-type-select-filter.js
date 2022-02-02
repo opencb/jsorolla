@@ -73,19 +73,45 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("ct")) {
-            if (this.ct) {
-                this._ct = this.ct.split(",");
-                this.presetSelected = new Map();
-                // Select the checkboxes
-                // for (const alias of this._config.alias) {
-                //     this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
-                // }
-            } else {
-                this._ct = [];
-                // this.isChecked = {};
-            }
+            this.consequenceTypesObserver();
         }
+
         super.update(changedProperties);
+    }
+
+    consequenceTypesObserver() {
+        if (this.ct) {
+            this._ct = this.ct.split(",");
+
+            // Josemi 2022-01-27 NOTE: this implementation has been reverted. We need to discuss this behavior in the future.
+            // See issue https://github.com/opencb/jsorolla/issues/376
+            // Add active presets using selected CT terms
+            // this.presetSelected = new Map(); // Reset active presets
+            // (this._config.alias || []).forEach(preset => {
+            //     const allTermsSelected = preset.terms.every(term => this._ct.includes(term));
+            //     if (allTermsSelected) {
+            //         this.presetSelected.set(preset.name, preset);
+            //     }
+            // });
+
+            // NOTE (Nacho 2022-01-31): we need to check if any ALREADY select alias is incomplete to remove it.
+            // But we keep NOT selecting a new alias even all its terms are selected.
+            const aliasToBeDeleted = [];
+            for (const key of this.presetSelected.keys()) {
+                for (const value of this.presetSelected.get(key).terms) {
+                    if (!this._ct.includes(value)) {
+                        aliasToBeDeleted.push(key);
+                        break;
+                    }
+                }
+            }
+            for (const alias of aliasToBeDeleted) {
+                this.presetSelected.delete(alias);
+            }
+        } else {
+            this._ct = [];
+            this.presetSelected.clear();
+        }
     }
 
     mapTerm(term) {
@@ -215,7 +241,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 </div>
                 <select-field-filter
                     multiple
-                    liveSearch=${"true"}
+                    ?liveSearch="${true}"
                     .data="${this.options}"
                     .value=${this._ct}
                     @filterChange="${this.onFilterChange}">

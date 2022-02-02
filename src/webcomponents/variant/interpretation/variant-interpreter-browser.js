@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
+import "./variant-interpreter-browser-cnv.js";
 import "./variant-interpreter-browser-rearrangement.js";
 import "../../commons/view/detail-tabs.js";
 
@@ -215,6 +216,32 @@ class VariantInterpreterBrowser extends LitElement {
                                     .settings="${this._browserSettings}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
+                            </div>
+                        `;
+                    },
+                });
+
+                // Add CNV Variant browser
+                // TODO: check for adding this browser
+                items.push({
+                    id: "somatic-cnv-variant-browser",
+                    name: "Somatic CNV Variant Browser",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-12">
+                                <tool-header
+                                    title="Somatic CNV Variant Browser - ${this._somaticSample?.id}"
+                                    class="bg-white">
+                                </tool-header>
+                                <variant-interpreter-browser-cnv
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .query="${this.query}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .settings="${this._browserSettings}"
+                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                </variant-interpreter-browser-cnv>
                             </div>
                         `;
                     },

@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import "./variable-list-update.js";
 import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class VariableSetUpdate extends LitElement {
 
@@ -121,8 +122,8 @@ export default class VariableSetUpdate extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
+            // title: "Edit",
+            // icon: "fas fa-edit",
             type: "form",
             buttons: {
                 show: true,
@@ -264,12 +265,17 @@ export default class VariableSetUpdate extends LitElement {
         //         unique: true
         //     };
         //     this.requestUpdate();
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //     title: "New VariableSet",
+        //     message: "VariableSet updated correctly"
+        // });
         //     FormUtils.showAlert(
         //         "New VariableSet",
         //         "VariableSet save correctly",
         //         "success"
         //     );
         // } catch (err) {
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
         //     FormUtils.showAlert(
         //         "New VariableSet",
         //         `Could not save variableSet ${err}`,
