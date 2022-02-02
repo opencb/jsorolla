@@ -184,24 +184,28 @@ export default class UserProfile extends LitElement {
                     title: "General Info",
                     elements: [
                         {
-                            name: "id",
+                            title: "id",
                             field: "user.id"
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "user.name"
                         },
                         {
-                            name: "Organization",
+                            title: "Email",
+                            field: "user.email",
+                        },
+                        {
+                            title: "Organization",
                             field: "user.organization",
                             defaultValue: "-",
                         },
                         {
-                            name: "Account type",
+                            title: "Account type",
                             field: "user.account.type"
                         },
                         {
-                            name: "Status",
+                            title: "Status",
                             field: "user.internal.status",
                             type: "custom",
                             display: {
@@ -209,7 +213,7 @@ export default class UserProfile extends LitElement {
                             }
                         },
                         {
-                            name: "Data release",
+                            title: "Data release",
                             type: "custom",
                             field: "project.attributes",
                             display: {
