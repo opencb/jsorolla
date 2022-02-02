@@ -94,7 +94,41 @@ export default class UserProfile extends LitElement {
                 },
                 {
                     title: "Projects and Studies",
-                    elements: [],
+                    description: "This is the list of projects and studies that you have access.",
+                    elements: [
+                        {
+                            field: "projects",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        title: "ID",
+                                        field: "id"
+                                    },
+                                    {
+                                        title: "Mame",
+                                        field: "name"
+                                    },
+                                    {
+                                        title: "Description",
+                                        field: "description",
+                                        defaultValue: "-",
+                                    },
+                                    {
+                                        title: "Studies",
+                                        field: "studies",
+                                        type: "custom",
+                                        display: {
+                                            render: studies => {
+                                                return UtilsNew.renderHTML(`${studies.map(study => study.name).join("<br>")}`);
+                                            }
+                                        }
+                                    }
+                                ],
+                                defaultLayout: "vertical",
+                            }
+                        }
+                    ],
                 },
                 {
                     title: "Change password",
@@ -102,19 +136,19 @@ export default class UserProfile extends LitElement {
                     elements: [
                         {
                             title: "Old password",
-                            type: "input-text",
+                            type: "input-password",
                             defaultValue: "",
                             required: true,
                         },
                         {
                             title: "New password",
-                            type: "input-text",
+                            type: "input-password",
                             defaultValue: "",
                             required: true,
                         },
                         {
                             title: "Confirm new password",
-                            type: "input-text",
+                            type: "input-password",
                             defaultValue: "",
                             required: true,
                         },
