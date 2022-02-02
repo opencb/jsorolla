@@ -74,14 +74,20 @@ export default class UserProfile extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "Your password has been changed",
                 });
-                this.updateParams = {};
-                this.config = this.getDefaultConfig();
-                this.requestUpdate();
+                this.onClear();
             })
             .catch(response => {
                 // console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
+    }
+
+    onClear() {
+        this.updateParams = {};
+        // Terrible hack to reset the values in the input elements
+        // eslint-disable-next-line no-param-reassign
+        Array.from(this.querySelectorAll("input")).forEach(el => el.value = "");
+        this.requestUpdate();
     }
 
     render() {
@@ -96,7 +102,8 @@ export default class UserProfile extends LitElement {
                                 .data="${this.opencgaSession}"
                                 .config="${this.config}"
                                 @fieldChange="${e => this.onFieldChange(e)}"
-                                @submit="${() => this.onSubmit()}">
+                                @submit="${() => this.onSubmit()}"
+                                @clear="${() => this.onClear()}">
                             </data-form>
                         </div>
                     </div>
@@ -216,53 +223,19 @@ export default class UserProfile extends LitElement {
                     title: "Projects and Studies",
                     description: "This is the list of projects and studies that you have access.",
                     elements: projectsElements,
-                    // [
-                    //     {
-                    //         field: "projects",
-                    //         type: "table",
-                    //         display: {
-                    //             columns: [
-                    //                 {
-                    //                     title: "ID",
-                    //                     field: "id"
-                    //                 },
-                    //                 {
-                    //                     title: "Name",
-                    //                     field: "name"
-                    //                 },
-                    //                 {
-                    //                     title: "Description",
-                    //                     field: "description",
-                    //                     defaultValue: "-",
-                    //                 },
-                    //                 {
-                    //                     title: "Studies",
-                    //                     field: "studies",
-                    //                     type: "custom",
-                    //                     display: {
-                    //                         render: studies => {
-                    //                             return UtilsNew.renderHTML(`${studies.map(study => study.name).join("<br>")}`);
-                    //                         }
-                    //                     }
-                    //                 }
-                    //             ],
-                    //             defaultLayout: "vertical",
-                    //         }
-                    //     }
-                    // ],
                 },
                 {
                     title: "Change password",
                     // description: "Here you can change your password. Make sure it has at least 8 characters.",
                     elements: [
                         {
-                            title: "Old password",
+                            title: "Current password",
                             type: "input-password",
                             field: "oldPassword",
                             defaultValue: "",
                             validation: {
                                 validate: () => !!this.updateParams.oldPassword,
-                                message: "Old password can not be empty",
+                                message: "Please enter your existing password.",
                             },
                         },
                         {
@@ -272,7 +245,7 @@ export default class UserProfile extends LitElement {
                             defaultValue: "",
                             validation: {
                                 validate: () => !!this.updateParams.newPassword,
-                                message: "New password can not be empty",
+                                message: "Your new password can not be empty.",
                             },
                         },
                         {
@@ -284,7 +257,7 @@ export default class UserProfile extends LitElement {
                                 validate: () => {
                                     return !!this.updateParams.confirmNewPassword && this.updateParams.confirmNewPassword === this.updateParams.newPassword;
                                 },
-                                message: "New passwords do not match",
+                                message: "New passwords do not match.",
                             },
                         },
                     ],
