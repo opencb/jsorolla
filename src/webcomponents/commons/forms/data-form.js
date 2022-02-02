@@ -395,6 +395,7 @@ export default class DataForm extends LitElement {
             switch (element.type) {
                 case "text":
                 case "title":
+                case "notification":
                     content = this._createTextElement(element);
                     break;
                 case "input-text":
@@ -542,11 +543,20 @@ export default class DataForm extends LitElement {
 
     // WARNING: this method should be renamed as _createTextElement
     _createTextElement(element) {
+
+        const notificationTypes = {
+            error: "alert alert-danger",
+            info: "alert alert-info",
+            success: "alert alert-success",
+            warning: "alert alert-warning"
+        };
+
+        const NotificationClass = element.type === "notification"? notificationTypes[element?.display?.notificationType] || "alert alert-info": "";
         const textClass = element.display?.textClassName ?? element.display?.textClass ?? "";
         const textStyle = element.display?.textStyle ?? "";
 
         return html`
-            <div class="${textClass}" style="${textStyle}">
+            <div class="${textClass} ${NotificationClass}" style="${textStyle}">
                 <span>${element.text || ""}</span>
             </div>
         `;

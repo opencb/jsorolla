@@ -127,12 +127,12 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     renderPhenotypes(phenotypes) {
-        if (UtilsNew.isEmptyArray(phenotypes)) {
-            return html `
-                <div class="alert alert-info">
-                    <strong>Empty</strong>, create a new phenotype
-                </div>`;
-        }
+        // if (UtilsNew.isEmptyArray(phenotypes)) {
+        //     return html `
+        //         <div class="alert alert-info">
+        //             <strong>Empty</strong>, create a new phenotype
+        //         </div>`;
+        // }
         return html`
             ${phenotypes?.map((pheno, i) => html`
                 <li>

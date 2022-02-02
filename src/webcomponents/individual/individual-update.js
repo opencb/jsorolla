@@ -344,6 +344,15 @@ export default class IndividualUpdate extends LitElement {
                     title: "Phenotypes",
                     elements: [
                         {
+                            title: "",
+                            type: "notification",
+                            text: "Empty, create a new phenotype",
+                            display: {
+                                visible: individual => !(individual?.phenotypes && individual?.phenotypes.length > 0),
+                                notificationType: "info",
+                            }
+                        },
+                        {
                             field: "phenotypes",
                             type: "custom",
                             display: {

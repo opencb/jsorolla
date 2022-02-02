@@ -340,6 +340,15 @@ export default class IndividualCreate extends LitElement {
                     title: "Phenotype",
                     elements: [
                         {
+                            title: "",
+                            type: "notification",
+                            text: "Empty, create a new phenotype",
+                            display: {
+                                visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
+                                notificationType: "info",
+                            }
+                        },
+                        {
                             field: "phenotypes",
                             type: "custom",
                             display: {
