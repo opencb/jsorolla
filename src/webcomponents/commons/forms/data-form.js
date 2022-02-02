@@ -913,7 +913,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <table class="table" style="display: inline">
+            <table class="table">
                 ${headerVisible ? html`
                     <thead>
                     <tr>
