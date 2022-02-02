@@ -398,7 +398,10 @@ export default class DataForm extends LitElement {
                     content = this._createTextElement(element);
                     break;
                 case "input-text":
-                    content = this._createInputTextElement(element);
+                    content = this._createInputElement(element, "text");
+                    break;
+                case "input-password":
+                    content = this._createInputElement(element, "password");
                     break;
                 case "input-number":
                     content = this._createInputNumberElement(element);
@@ -540,7 +543,6 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    // WARNING: this method should be renamed as _createTextElement
     _createTextElement(element) {
         const textClass = element.display?.textClassName ?? element.display?.textClass ?? "";
         const textStyle = element.display?.textStyle ?? "";
@@ -552,7 +554,8 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    _createInputTextElement(element) {
+    // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
+    _createInputElement(element, type) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
         const rows = element.display && element.display.rows ? element.display.rows : 1;
@@ -561,6 +564,7 @@ export default class DataForm extends LitElement {
             <text-field-filter
                 placeholder="${element.display?.placeholder}"
                 .rows="${rows}"
+                .type="${type}"
                 ?disabled="${disabled}"
                 ?required="${element.required}"
                 .value="${value}"
