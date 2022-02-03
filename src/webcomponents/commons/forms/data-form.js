@@ -29,6 +29,13 @@ import "./toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 
+    static NOTIFICATION_TYPES = {
+        error: "alert alert-danger",
+        info: "alert alert-info",
+        success: "alert alert-success",
+        warning: "alert alert-warning"
+    };
+
     constructor() {
         super();
 
@@ -545,20 +552,12 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
-
-        const notificationTypes = {
-            error: "alert alert-danger",
-            info: "alert alert-info",
-            success: "alert alert-success",
-            warning: "alert alert-warning"
-        };
-
-        const NotificationClass = element.type === "notification"? notificationTypes[element?.display?.notificationType] || "alert alert-info": "";
-        const textClass = element.display?.textClassName ?? element.display?.textClass ?? "";
+        const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
+        const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
         return html`
-            <div class="${textClass} ${NotificationClass}" style="${textStyle}">
+            <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 <span>${element.text || ""}</span>
             </div>
         `;
