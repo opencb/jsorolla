@@ -86,7 +86,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.table = this.querySelector("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -98,7 +98,7 @@ export default class VariantBrowserGrid extends LitElement {
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
             // Config for the grid toolbar
@@ -112,7 +112,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -228,7 +228,7 @@ export default class VariantBrowserGrid extends LitElement {
                     UtilsNew.initTooltip(this);
                 },
                 // onPostBody: data => {},
-                rowStyle: (row, index) => this.rowHighlight(row, index),
+                rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
             });
         }
     }
@@ -270,30 +270,8 @@ export default class VariantBrowserGrid extends LitElement {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
             },
-            rowStyle: (row, index) => this.rowHighlight(row, index),
+            rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
-    }
-
-    rowHighlight(row, index) {
-        // If no active highlight
-        if (this._config.activeHighlight === "") {
-            return {};
-        } else {
-            let backgroundColor = "";
-            (this._config.highlight || []).forEach(highlight => {
-                if (this._config.activeHighlight.includes(highlight.id)) {
-                    if (highlight.condition && highlight.condition(row, index)) {
-                        backgroundColor = highlight.style.background;
-                    }
-                }
-            });
-
-            return {
-                style: {
-                    backgroundColor: backgroundColor,
-                }
-            };
-        }
     }
 
     onConfigClick(e) {
@@ -827,8 +805,8 @@ export default class VariantBrowserGrid extends LitElement {
                 verticalAlign: "bottom"
             },
 
-            highlight: [],
-            activeHighlight: [],
+            highlights: [],
+            activeHighlights: [],
 
             geneSet: {
                 ensembl: true,
@@ -850,22 +828,12 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onGridConfigChange(e) {
+        console.log(e.detail.value);
         this.__config = e.detail.value;
     }
 
-    async onApplySettings(e) {
-        try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.variantBrowser, ...this.__config};
-
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                variantBrowser: this._config
-            });
-            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-            this.renderVariants();
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-        }
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config);
     }
 
     getRightToolbar() {
@@ -917,7 +885,7 @@ export default class VariantBrowserGrid extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">OK</button>
                         </div>
                     </div>
                 </div>
