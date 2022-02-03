@@ -403,6 +403,15 @@ export default class SampleUpdate extends LitElement {
                 title: "Phenotypes",
                 elements: [
                     {
+                        title: "",
+                        type: "notification",
+                        text: "Empty, create a new phenotype",
+                        display: {
+                            visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
+                            notificationType: "info",
+                        }
+                    },
+                    {
                         field: "phenotype",
                         type: "custom",
                         display: {
