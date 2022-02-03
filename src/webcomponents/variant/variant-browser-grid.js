@@ -107,6 +107,8 @@ export default class VariantBrowserGrid extends LitElement {
                 resource: "VARIANT",
                 columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
             };
+            // this.requestUpdate();
+            this.renderVariants();
         }
     }
 
@@ -828,7 +830,6 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onGridConfigChange(e) {
-        console.log(e.detail.value);
         this.__config = e.detail.value;
     }
 

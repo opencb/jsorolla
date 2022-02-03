@@ -337,6 +337,9 @@ export default class VariantBrowser extends LitElement {
         delete newGridConfig.highlights;
         // delete newConfig.copies;
 
+        // TODO To Josemi :-)
+        // CatalogUtils.updateGridConfig("variantBrowser", newGridConfig, opencgaSession, this.settingsObserver);
+
         // Update user configuration
         try {
             const response = await this.opencgaSession.opencgaClient.updateUserConfigs({
@@ -346,11 +349,12 @@ export default class VariantBrowser extends LitElement {
                     grid: newGridConfig,
                 },
             });
+            this.opencgaSession.user.configs.IVA = response.responses[0].results[0];
+            this.settingsObserver();
+
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",
             });
-            this.opencgaSession.user.configs.IVA = response.responses[0].results[0];
-            this.settingsObserver();
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
