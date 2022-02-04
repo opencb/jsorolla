@@ -15,8 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-
+import LitUtils from "../utils/lit-utils.js";
 
 export default class SampleGenotypeFilter extends LitElement {
 
@@ -49,21 +48,15 @@ export default class SampleGenotypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("sample") && this.sample) {
-            const keyValue = this.sample.split(":");
-            if (keyValue.length === 2) {
-                this.sampleId = keyValue[0];
-                this.genotypes = keyValue[1].split(",");
-            } else {
-                // No genotypes provided
-                this.sampleId = keyValue[0];
-                this.genotypes = ["0/1", "1/1", "NA"];
+            const [sample, genotype] = this.sample.split(":");
+            this.sampleId = sample;
+            if (genotype) {
+                this.genotypes = genotype.split(",");
             }
         }
 
@@ -75,22 +68,13 @@ export default class SampleGenotypeFilter extends LitElement {
     }
 
     filterChange(e) {
-        // select-field-filter already emits a bubbled filterChange event.
-
         // Prepare sample query filter
         let sampleFilter = this.sampleId;
         if (e.detail.value) {
             sampleFilter += ":" + e.detail.value;
         }
 
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: sampleFilter
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", sampleFilter);
     }
 
     getDefaultConfig() {

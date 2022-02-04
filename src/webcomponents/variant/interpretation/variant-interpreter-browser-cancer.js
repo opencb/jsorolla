@@ -151,7 +151,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
             // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
             if (!this.query?.sample) {
-                this.query.sample = this.somaticSample.id + ":0/1,1/1,NA";
+                // We do not add GT filter ":0/1,1/1,NA" in cancer interpreter anymore
+                // because variants with weird GT would not be displayed
+                this.query.sample = this.somaticSample.id;
             }
 
             // 2. 'panel' query param: add case panels to query object
