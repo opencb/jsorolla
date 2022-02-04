@@ -400,12 +400,18 @@ export default class StudyVariantConfig extends LitElement {
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
-                                    render: valuesMapping => html`
-                                        <list-update
-                                            .node=${node}
-                                            .data="${{items: valuesMapping}}"
-                                            .config=${this.configVariant("valuesMapping", {}, true)}>
-                                        </list-update>`
+                                    render: valuesMapping => {
+                                        // debugger;
+                                        // if (UtilsNew.isEmpty(valuesMapping)) {
+                                        //     valuesMapping = undefined;
+                                        // }
+                                        return html`
+                                            <list-update
+                                                .node=${node}
+                                                .data="${{items: valuesMapping}}"
+                                                .config=${this.configVariant("valuesMapping", {}, true)}>
+                                            </list-update>`;
+                                    }
                                 }
                             },
                         ]
@@ -515,8 +521,9 @@ export default class StudyVariantConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: annotationIndexConfiguration => {
-                                    debugger;
+
                                     let itemKeys = [];
+
                                     if (annotationIndexConfiguration) {
                                         itemKeys = Object?.keys(annotationIndexConfiguration)
                                             .filter(key => annotationIndexConfiguration[key] instanceof Object);

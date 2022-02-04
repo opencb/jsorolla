@@ -151,7 +151,6 @@ export default class ListUpdate extends LitElement {
 
     renderValuesMapping() {
         const valuesMapping = this.data.items;
-        debugger
         return html `
             ${valuesMapping?
                 Object.keys(valuesMapping).map((key, i) => {
@@ -223,6 +222,26 @@ export default class ListUpdate extends LitElement {
             `;
     }
 
+    renderDataForm() {
+
+        if (UtilsNew.isEmpty(this.data.items)) {
+            return html`${nothing}`;
+        }
+
+        // This renderDataForm is just for 'open form'
+        if (this._config?.edit?.type === "modal") {
+            return html `${nothing}`;
+        }
+
+        return html`
+            <data-form
+                .data=${this.data.items}
+                @filterChange=${e => this.onAddValues(e)}
+                @fieldChange=${e => this.onFieldChange(e)}
+                .config=${this._config.edit}>
+            </data-form> `;
+    }
+
 
     render() {
         // TODO: Add a condition to know it's a key with values array
@@ -235,16 +254,11 @@ export default class ListUpdate extends LitElement {
                 html`${this.renderListItems()}`:nothing
             }
 
-            ${this.data?.items && this.data?.items.constructor === Object?
-                html`
-                    <data-form
-                        .data=${this.data.items}
-                        @filterChange=${e => this.onAddValues(e)}
-                        @fieldChange=${ e => this.onFieldChange(e)}
-                        .config=${this._config.edit}>
-                    </data-form> `:nothing
+            ${this.data?.items && this.data.items.constructor === Object?
+                html`${this.renderDataForm()}`:nothing
             }`;
     }
+
 
 }
 
