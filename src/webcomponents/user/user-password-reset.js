@@ -23,23 +23,38 @@ export default class UserPasswordReset extends LitElement {
     }
 
     #init() {
-        this.userName = "";
-        this.password = "";
-        this.buttonText = "Sign in";
-        this.signingIn = false;
+        this.hasEmptyUser = false;
     }
 
     redirect(to) {
         LitUtils.dispatchCustomEvent(this, "redirect", null, {hash: to});
     }
 
-    onSubmit() {
-        // TODO
+    onSubmit(e) {
+        e.preventDefault();
+        const user = (this.querySelector("#user").value || "").trim();
+
+        // Check for empty user ID
+        this.hasEmptyUser = user.length === 0;
+        if (this.hasEmptyUser) {
+            return this.requestUpdate();
+        }
+
+        // Reset password mockup
+        // TODO: call openCGA to the correct endpoint
+        Promise.resolve().then(() => {
+            // Reset user value
+            this.querySelector("#user").value = "";
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                "message": "We have just send you an email with the new password.",
+            });
+        });
     }
 
-    checkEnterKey(e) {
-        if (e.keyCode === 13) {
-            // this.login();
+    // Handle keyup event --> check for enter key to submit the form
+    onKeyUp(e) {
+        if (e.key === "Enter") {
+            return this.onSubmit(e);
         }
     }
 
@@ -47,23 +62,28 @@ export default class UserPasswordReset extends LitElement {
         return html`
             <div class="container-fluid" style="max-width:380px;">
                 <div class="panel panel-default" style="margin-top:96px;">
-                    <div class="panel-body" style="padding:24px;">
+                    <div class="panel-body" style="padding:32px;">
                         <div align="center">
-                            <h3 style="font-weight:bold;">Reset your password</h3>
+                            <h3 style="font-weight:bold;margin-top:0px;">
+                                Reset your password
+                            </h3>
                         </div>
                         <div class="paragraph" style="margin-bottom:16px;">
                             Please enter your user ID and we will send you an email with your password reset link.
                         </div>
-                        <div class="form-group has-feedback">
+                        <div class="form-group ${this.hasEmptyUser ? "has-error" : ""}">
                             <div class="input-group">
                                 <span class="input-group-addon" id="username">
                                     <i class="fa fa-user fa-lg"></i>
                                 </span>
-                                <input id="user" type="text" class="form-control" placeholder="User ID">
+                                <input id="user" type="text" class="form-control" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
+                            ${this.hasEmptyUser ? html`
+                                <div class="help-block">This field is required</div>
+                            ` : null}
                         </div>
-                        <button class="btn btn-lg btn-primary btn-block" @click="${() => this.onSubmit()}">
-                            Reset password
+                        <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
+                            <strong>Reset password</strong>
                         </button>
                     </div>
                 </div>
