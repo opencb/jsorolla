@@ -286,10 +286,12 @@ export default class OpencgaActiveFilters extends LitElement {
         if (this.opencgaSession?.user?.filters?.length > 0) {
             // Add passed filters
             this._filters = this.filters || [];
+
             // Add a separator
             if (this._filters.length > 0 && !this._filters[this._filters.length - 1].separator) {
                 this._filters.push({separator: true});
             }
+
             // Add user's saved filters
             this._filters = [
                 ...this._filters,
@@ -620,8 +622,10 @@ export default class OpencgaActiveFilters extends LitElement {
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
+                        <!-- Render dropdown menu -->
                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
-                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
@@ -634,6 +638,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                         html`
                                             <li role="separator" class="divider"></li>` :
                                         html`
+                                            <!-- Add header before the first Saved filter-->
+                                            ${this.opencgaSession.user.filters
+                                                .filter(f => f.resource === this.resource)?.[0]?.id === item.id ? html`
+                                                    <li class="dropdown-header">Saved Filters</li>
+                                                ` : null
+                                            }
                                             <li>
                                                 <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
                                                         @click="${this.onServerFilterChange}">
@@ -644,14 +654,23 @@ export default class OpencgaActiveFilters extends LitElement {
                                                               data-filter-id="${item.id}">
                                                             <i class="fas fa-eye" data-action="view-filter"></i>
                                                         </span>
-                                                        <i data-cy="delete" data-action="delete-filter" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+
+                                                        <!-- Add delete icon only to saved filters -->
+                                                        ${this.opencgaSession.user.filters
+                                                            .filter(f => f.resource === this.resource)
+                                                            .findIndex(f => f.id === item.id) !== -1 ? html`
+                                                                <i data-cy="delete" data-action="delete-filter" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}"
+                                                                   @click="${this.serverFilterDelete}">
+                                                                </i>` : null
+                                                        }
                                                     </span>
                                                 </a>
                                             </li>`
-                                        )}
-                                    <li role="separator" class="divider"></li>
-                                    ` :
-                                "" }
+                                        )
+                                    }
+                                    <li role="separator" class="divider"></li>` : ""
+                                }
+
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
@@ -659,12 +678,15 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong></a>
-                                    </li>
-                                ` : null}
+                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
+                                            <i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong>
+                                        </a>
+                                    </li>` : null
+                                }
                             </ul>
                         </div>
 
+                        <!-- Render active filters -->
                         ${this.queryList ? html`
                             ${this.queryList.length === 0 ?
                                 html`
@@ -770,6 +792,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             </div>
                         ` : null}
                     </div>
+
                     <!-- aggregation stat section -->
                     ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
