@@ -43,11 +43,13 @@ export default class UserPasswordReset extends LitElement {
         // Reset password mockup
         // TODO: call openCGA to the correct endpoint
         Promise.resolve().then(() => {
-            // Reset user value
-            this.querySelector("#user").value = "";
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 "message": "We have just send you an email with the new password.",
             });
+
+            this.querySelector("#user").value = "";
+            this.hasEmptyUser = false;
+            this.requestUpdate();
         });
     }
 
