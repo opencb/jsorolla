@@ -423,20 +423,32 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         $("#" + this._prefix + "Warning").hide();
-        if (!UtilsNew.isUndefinedOrNull(this._filters)) {
+        if (this._filters) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
                 if (filter.id === e.currentTarget.dataset.filterId) {
                     filter.active = true;
-                    if (filter.query.study) {
-                        // add the current active study
-                        const studies = [...new Set([...filter.query.study.split(","), this.opencgaSession.study.fqn])];
-                        filter.query.study = studies.join(",");
+
+                    // Prepare new query object
+                    let newQuery = {};
+
+                    // 1. We need to add first all the 'lockedFields' to the selected saved query
+                    if (this._config?.lockedFields) {
+                        this._config.lockedFields
+                            .filter(lockedField => this.query[lockedField.id])
+                            .forEach(lockedField => newQuery[lockedField.id] = this.query[lockedField.id]);
                     }
-                    // TODO move to LitUtils
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: filter.query,
-                    }));
+
+                    // 2. Now add the saved query filters
+                    newQuery = {...newQuery, ...filter.query};
+
+                    // 3. Make sure current active study is added if 'study' parameter exists
+                    if (newQuery.study) {
+                        const studies = [...new Set([...newQuery.study.split(","), this.opencgaSession.study.fqn])];
+                        newQuery.study = studies.join(",");
+                    }
+
+                    LitUtils.dispatchCustomEvent(this, "activeFilterChange", null, newQuery);
                 } else {
                     filter.active = false;
                 }
