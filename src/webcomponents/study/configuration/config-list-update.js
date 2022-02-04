@@ -21,6 +21,15 @@ import "../../commons/list-update.js";
 
 export default class ConfigListUpdate extends LitElement {
 
+    static annotationConfig = {
+        populationFrequency: "Population frequency",
+        biotype: "Biotype",
+        consequenceType: "Consequence type",
+        clinicalSource: "Clinical source",
+        clinicalSignificance: "Clinical significance",
+        transcriptFlagIndexConfiguration: "Transcript flag"
+    }
+
     constructor() {
         super();
         this._init();
@@ -80,7 +89,7 @@ export default class ConfigListUpdate extends LitElement {
                 const node = {parent: this.key, child: key};
                 return {
                     id: key,
-                    name: key,
+                    name: ConfigListUpdate.annotationConfig[key] || key,
                     render: () => {
                         return html`
                             <div class="col-md-6">

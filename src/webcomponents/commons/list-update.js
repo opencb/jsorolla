@@ -176,7 +176,7 @@ export default class ListUpdate extends LitElement {
                                             @submit=${e => this.onSendItem(e, key, this.node)}
                                             .config="${this._config.edit}">
                                         </data-form>
-                                        <button type="button" class="btn btn-danger" @click=${e => this.onRemoveItem(e, key, this.node)}>Delete</button>
+                                        <button type="button" class="btn btn-sm btn-danger" @click=${e => this.onRemoveItem(e, key, this.node)}>Delete</button>
                                 </div>
                             </div>
                         </div>`;

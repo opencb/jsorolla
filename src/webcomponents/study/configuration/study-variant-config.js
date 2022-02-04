@@ -364,13 +364,14 @@ export default class StudyVariantConfig extends LitElement {
             return {
                 title: isNew ? "Add Config":"Edit",
                 type: modal ? "modal" :"",
+                icon: isNew ? "fas fa-cogs":"fas fa-edit",
                 display: {
                     titleVisible: false,
                     buttonOkText: "Save",
                     buttonClearText: "Cancel",
                     buttonsVisible: modal,
                     buttonsLayout: false,
-                    buttonsClassName: modal ? "btn btn-primary ripple pull-right": "pull-right",
+                    buttonsClassName: modal ? "btn btn-primary pull-right": "pull-right",
                     modalButtonClassName: !isNew?"btn-sm":"",
                     modalButtonStyle: isNew ? "margin-top:6px":"",
                     titleWidth: 3,

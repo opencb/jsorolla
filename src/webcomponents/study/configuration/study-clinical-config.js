@@ -261,6 +261,7 @@ export default class StudyClinicalConfig extends LitElement {
             return {
                 title: isNew ? "Add Config" :"Edit",
                 type: modal ? "modal" :"",
+                icon: isNew ? "fas fa-cogs":"fas fa-edit",
                 display: {
                     buttonOkText: "Save",
                     buttonClearText: "Cancel",
