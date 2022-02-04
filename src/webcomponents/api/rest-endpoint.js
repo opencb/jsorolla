@@ -67,11 +67,11 @@ export default class RestEndpoint extends LitElement {
         this.isLoading = false;
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("endpoint")) {
             this.endpointObserver();
         }
-        // super.update(changedProperties);
+        super.update(changedProperties);
     }
 
     endpointObserver() {
@@ -89,16 +89,18 @@ export default class RestEndpoint extends LitElement {
 
                     for (const dataParameter of parameter.data) {
                         this.data.body[dataParameter.name] = dataParameter.defaultValue || "";
-                        bodyElements.push(
-                            {
-                                name: dataParameter.name,
-                                field: "body." + dataParameter.name,
-                                type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
-                                allowedValues: dataParameter.allowedValues?.split(","),
-                                defaultValue: dataParameter.defaultValue,
-                                required: !!dataParameter.required
-                            }
-                        );
+                        if (dataParameter.type?.toUpperCase() !== "OBJECT" && dataParameter.type?.toUpperCase() !== "MAP") {
+                            bodyElements.push(
+                                {
+                                    name: dataParameter.name,
+                                    field: "body." + dataParameter.name,
+                                    type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                    allowedValues: dataParameter.allowedValues?.split(","),
+                                    defaultValue: dataParameter.defaultValue,
+                                    required: !!dataParameter.required
+                                }
+                            );
+                        }
                     }
                 } else {
                     this.data[parameter.name] = parameter.defaultValue || "";
@@ -154,7 +156,7 @@ export default class RestEndpoint extends LitElement {
                     {
                         title: "Parameters",
                         display: {
-                            // titleHeader: "h4",
+                            titleHeader: "h4",
                             style: "margin-left: 20px"
                         },
                         elements: [...fieldElements]
@@ -165,12 +167,61 @@ export default class RestEndpoint extends LitElement {
             if (bodyElements.length > 0) {
                 this.form.sections.push(
                     {
-                        title: "Body",
+                        title: "",
                         display: {
                             // titleHeader: "h4",
                             style: "margin-left: 20px"
                         },
+                        elements: [
+                            {
+                                title: "",
+                                type: "custom",
+                                display: {
+                                    render: () => {
+                                        return html`
+                                            <div style="float: right; padding: 5px 20px">
+                                                <ul class="nav nav-pills">
+                                                    <li role="presentation" class="active"><a href="#">Form</a></li>
+                                                    <li role="presentation"><a href="#">JSON</a></li>
+                                                </ul>
+                                            </div>
+                                        `;
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: "Body",
+                        display: {
+                            titleHeader: "h4",
+                            // visible: this.bodyForm === true,
+                            style: "margin-left: 20px"
+                        },
                         elements: bodyElements
+                    },
+                    {
+                        title: "Body",
+                        display: {
+                            titleHeader: "h4",
+                            // visible: this.bodyForm === false,
+                            style: "margin-left: 20px"
+                        },
+                        elements: [
+                            {
+                                title: "Body",
+                                field: "id",
+                                type: "input-text",
+                                required: true,
+                                display: {
+                                    placeholder: "Data Json...",
+                                    rows: 10,
+                                    help: {
+                                        text: "json data model"
+                                    }
+                                }
+                            }
+                        ]
                     }
                 );
             }
@@ -179,13 +230,13 @@ export default class RestEndpoint extends LitElement {
         }
     }
 
-    onFieldChange(e, field) {
+    onFormFieldChange(e, field) {
         const param = field || e.detail.param;
         this.data = {...FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value)};
         this.requestUpdate();
     }
 
-    onClear() {
+    onFormClear() {
         this.data = {};
         this._data = {};
         this.requestUpdate();
@@ -224,6 +275,42 @@ export default class RestEndpoint extends LitElement {
                 this.isLoading = false;
                 this.requestUpdate();
             });
+    }
+
+    getJsonDataForm() {
+        return {
+            type: "form",
+            buttons: {
+                show: true,
+                clearText: "Clear",
+                okText: "Try it out!"
+            },
+            display: {
+                width: "12",
+                labelWidth: "3",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    title: "Individual General Information",
+                    elements: [
+                        {
+                            title: "Individual id",
+                            field: "id",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                placeholder: "Add an ID...",
+                                rows: 10,
+                                help: {
+                                    text: "json data model"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
     }
 
     getUrlLinkModelClass(responseClass) {
@@ -267,6 +354,7 @@ export default class RestEndpoint extends LitElement {
         return html`
             <div class="panel panel-default">
                 <div class="panel-body">
+                    <!-- Header Section-->
                     <h4>
                         <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[this.endpoint.method]}">
                             ${this.endpoint.method}
@@ -276,34 +364,34 @@ export default class RestEndpoint extends LitElement {
                     <div class="help-block" style="margin: 0 10px">
                         ${this.endpoint.description}
                     </div>
-                    <div style="padding: 10px 10px">
+
+                    <!-- Response Section-->
+                    <div style="padding: 5px 10px">
                         <h3>Response</h3>
                         <div>
-                            <label>Response</label>
-                            <div>${this.endpoint.response}</div>
-                        </div>
-                        <div>
-                            <label>Response Class</label>
-                            <div>
-                                ${this.renderResponseClass(this.endpoint.responseClass)}
-                            </div>
+                            <div>Type: ${this.endpoint.response} (Source code: ${this.renderResponseClass(this.endpoint.responseClass)})</div>
                         </div>
                     </div>
 
-                    <div style="padding: 10px 10px">
-                        <!-- <h3>Parameters</h3> -->
+                    <!-- Parameters Section-->
+                    <div style="padding: 5px 10px">
+                        <h3>Parameters</h3>
+
+
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"
                                 .config="${this.form}"
-                                @fieldChange="${e => this.onFieldChange(e)}"
-                                @clear="${this.onClear}"
+                                @fieldChange="${e => this.onFormFieldChange(e)}"
+                                @clear="${this.onFormClear}"
                                 @submit="${this.onSubmit}">
                             </data-form>
                         </div>
+
                     </div>
 
-                    <div style="padding: 10px 10px">
+                    <!-- Results Section-->
+                    <div style="padding: 5px 10px">
                         <h3>Results</h3>
                         <div style="padding: 20px">
                             ${this.isLoading ? html`
