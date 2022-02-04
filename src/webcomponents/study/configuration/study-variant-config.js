@@ -46,31 +46,7 @@ export default class StudyVariantConfig extends LitElement {
 
     _init() {
         // console.log("init study variant config");
-        this.updateParams = {};
-        if (!this.variantEngineConfig) {
-            this.variantEngineConfig = {
-                sampleIndex: {
-                    fileIndexConfiguration: {
-                        customFields: [],
-                    },
-                    annotationIndexConfiguration: {
-                        populationFrequency: {
-                            populations: [],
-                            thresholds: []
-                        },
-                        biotype: {},
-                        consequenceType: {},
-                        clinicalSource: {},
-                        clinicalSignificance: {},
-                        transcriptFlagIndexConfiguration: {}
-                    }
-                }
-            };
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
 
-        console.log("config init", this.variantEngineConfig);
     }
 
     connectedCallback() {
@@ -90,7 +66,6 @@ export default class StudyVariantConfig extends LitElement {
             this._variantEngineConfig = JSON.parse(JSON.stringify(this.variantEngineConfig));
         }
     }
-
 
     onSyncItem(e) {
         e.stopPropagation();
@@ -176,9 +151,7 @@ export default class StudyVariantConfig extends LitElement {
                 [param]: value
             };
         }
-
         console.log("edited", this.variantEngineConfig);
-
     }
 
     onAddValues(e) {
@@ -208,34 +181,6 @@ export default class StudyVariantConfig extends LitElement {
         //  IndexFieldConfiguration
         /** Source, key,type, thresholds, values, valuesMapping, nullable
          **/
-
-        // DEPRECATED
-        // const configModal = isNew => {
-        //     return isNew ? {
-        //         type: "modal",
-        //         title: "Add Config",
-        //         buttonStyle: "margin-top:6px"
-        //     } : {
-        //         type: "modal",
-        //         title: "Edit Config",
-        //         item: {
-        //             title: item?.title,
-        //             subtitle: item?.subtitle
-        //         },
-        //         buttonClass: "pull-right",
-        //         btnGroups: [
-        //             {
-        //                 title: "Edit",
-        //                 openModal: true,
-        //             },
-        //             {
-        //                 title: "Delete",
-        //                 btnClass: "btn-danger",
-        //                 event: "removeItem"
-        //             }
-        //         ]
-        //     };
-        // };
 
         const configSection = key => {
             let node = {};
@@ -401,10 +346,6 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: valuesMapping => {
-                                        // debugger;
-                                        // if (UtilsNew.isEmpty(valuesMapping)) {
-                                        //     valuesMapping = undefined;
-                                        // }
                                         return html`
                                             <list-update
                                                 .node=${node}
@@ -441,7 +382,7 @@ export default class StudyVariantConfig extends LitElement {
             };
         };
 
-        if (key.constructor === Array) {
+        if (Array.isArray(key)) {
             const configs = {};
             key.forEach(key => {
                 configs[key] = {
@@ -521,9 +462,7 @@ export default class StudyVariantConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: annotationIndexConfiguration => {
-
                                     let itemKeys = [];
-
                                     if (annotationIndexConfiguration) {
                                         itemKeys = Object?.keys(annotationIndexConfiguration)
                                             .filter(key => annotationIndexConfiguration[key] instanceof Object);
@@ -551,6 +490,36 @@ export default class StudyVariantConfig extends LitElement {
     }
 
     render() {
+        if (!this.variantEngineConfig) {
+            const indexFieldConfiguration = {
+                source: "",
+                key: "",
+                type: "",
+                values: [],
+                valuesMapping: {},
+                nullable: false
+            };
+
+            this.variantEngineConfig = {
+                sampleIndex: {
+                    fileIndexConfiguration: {
+                        customFields: [],
+                    },
+                    annotationIndexConfiguration: {
+                        populationFrequency: {
+                            populations: [],
+                            thresholds: []
+                        },
+                        biotype: {...indexFieldConfiguration},
+                        consequenceType: {...indexFieldConfiguration},
+                        clinicalSource: {...indexFieldConfiguration},
+                        clinicalSignificance: {...indexFieldConfiguration},
+                        transcriptFlagIndexConfiguration: {...indexFieldConfiguration}
+                    }
+                }
+            };
+
+        }
         return html`
             <div style="margin: 25px 40px">
                 <data-form

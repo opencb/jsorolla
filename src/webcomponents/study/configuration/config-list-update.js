@@ -44,17 +44,24 @@ export default class ConfigListUpdate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
-
-
         if (UtilsNew.isUndefined(this.items)) {
             this.items = [];
         }
     }
 
     _init() {
-        this.status = {};
         this._prefix = UtilsNew.randomString(8);
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig()};
     }
 
 
@@ -94,7 +101,7 @@ export default class ConfigListUpdate extends LitElement {
     render() {
         const node = {parent: this.key, child: ""};
         return html`
-            ${this.items && this.items.constructor === Object ? html `
+            ${this.items && UtilsNew.isObject(this.items) ? html `
                 <detail-tabs
                     .config="${this._config}"
                     .mode="${DetailTabs.PILLS_VERTICAL_MODE}">

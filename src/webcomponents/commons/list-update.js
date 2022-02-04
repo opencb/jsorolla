@@ -49,12 +49,16 @@ export default class ListUpdate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.config};
+
     }
 
     _init() {
         this.status = {};
         this._prefix = UtilsNew.randomString(8);
         this.item = {};
+
+        // Not working here
+        // this._config = {...this.config};
     }
 
     onFieldChange(e, index) {
@@ -149,6 +153,7 @@ export default class ListUpdate extends LitElement {
         return {index: i, node, items: this.data.items};
     }
 
+    // TODO: Refactor ValuesMapping Variant Configs.
     renderValuesMapping() {
         const valuesMapping = this.data.items;
         return html `
@@ -186,6 +191,7 @@ export default class ListUpdate extends LitElement {
     }
 
     renderListItems() {
+        // debugger
         const title = this._config?.item?.title || "id";
         const subtitle = this._config?.item?.subtitle || "description";
         return html `
@@ -246,15 +252,15 @@ export default class ListUpdate extends LitElement {
     render() {
         // TODO: Add a condition to know it's a key with values array
         return html`
-            ${this.node?.child === "valuesMapping"?
+            ${this.node?.child === "valuesMapping" ?
                 html`${this.renderValuesMapping()}`: nothing
             }
 
-            ${this.data?.items && this.data.items.constructor === Array ?
+            ${Array.isArray(this.data.items) ?
                 html`${this.renderListItems()}`:nothing
             }
 
-            ${this.data?.items && this.data.items.constructor === Object?
+            ${this.data?.items && UtilsNew.isObject(this.data.items) ?
                 html`${this.renderDataForm()}`:nothing
             }`;
     }
