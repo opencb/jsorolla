@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -335,19 +336,9 @@ export default class VariantBrowser extends LitElement {
         delete newGridConfig.highlights;
         // delete newConfig.copies;
 
-        // TODO To Josemi :-)
-        // CatalogUtils.updateGridConfig("variantBrowser", newGridConfig, opencgaSession, this.settingsObserver);
-
         // Update user configuration
         try {
-            const response = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                variantBrowser: {
-                    ...this.opencgaSession.user.configs.IVA.variantBrowser,
-                    grid: newGridConfig,
-                },
-            });
-            this.opencgaSession.user.configs.IVA = response.responses[0].results[0];
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
             this.settingsObserver();
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
