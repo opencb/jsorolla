@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import "./config-list-update.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
@@ -47,6 +47,30 @@ export default class StudyVariantConfig extends LitElement {
     _init() {
         // console.log("init study variant config");
         this.updateParams = {};
+        if (!this.variantEngineConfig) {
+            this.variantEngineConfig = {
+                sampleIndex: {
+                    fileIndexConfiguration: {
+                        customFields: [],
+                    },
+                    annotationIndexConfiguration: {
+                        populationFrequency: {
+                            populations: [],
+                            thresholds: []
+                        },
+                        biotype: {},
+                        consequenceType: {},
+                        clinicalSource: {},
+                        clinicalSignificance: {},
+                        transcriptFlagIndexConfiguration: {}
+                    }
+                }
+            };
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
+
+        console.log("config init", this.variantEngineConfig);
     }
 
     connectedCallback() {
@@ -393,12 +417,6 @@ export default class StudyVariantConfig extends LitElement {
             return {
                 title: isNew ? "Add Config":"Edit",
                 type: modal ? "modal" :"",
-                // buttons: {
-                //     show: modal,
-                //     cancelText: "Cancel",
-                //     classes: modal ? "btn btn-primary ripple pull-right": "pull-right",
-                //     okText: isNew? "Add" : "Edit"
-                // },
                 display: {
                     titleVisible: false,
                     buttonOkText: "Save",
@@ -446,11 +464,6 @@ export default class StudyVariantConfig extends LitElement {
     getDefaultConfig() {
         return {
             type: "form",
-            // buttons: {
-            //     show: true,
-            //     cancelText: "Cancel",
-            //     okText: "Update"
-            // },
             display: {
                 buttonOkText: "Update",
                 buttonClearText: "Cancel",
@@ -462,9 +475,6 @@ export default class StudyVariantConfig extends LitElement {
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                // help: {
-                //     mode: "block" // icon
-                // }
             },
             sections: [
                 {
@@ -505,8 +515,12 @@ export default class StudyVariantConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: annotationIndexConfiguration => {
-                                    const itemKeys = Object?.keys(annotationIndexConfiguration)
-                                        .filter(key => annotationIndexConfiguration[key] instanceof Object);
+                                    debugger;
+                                    let itemKeys = [];
+                                    if (annotationIndexConfiguration) {
+                                        itemKeys = Object?.keys(annotationIndexConfiguration)
+                                            .filter(key => annotationIndexConfiguration[key] instanceof Object);
+                                    }
                                     return html`
                                         <config-list-update
                                             key="annotationIndexConfiguration"

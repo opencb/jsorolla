@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/list-update.js";
 
 export default class ConfigListUpdate extends LitElement {
@@ -37,7 +35,7 @@ export default class ConfigListUpdate extends LitElement {
             key: {
                 type: String
             },
-            items: {},
+            items: {type: Object},
             config: {
                 type: Object
             }
@@ -61,7 +59,12 @@ export default class ConfigListUpdate extends LitElement {
 
 
     getDefaultConfig() {
-        const configKeys = Object.keys(this.items).filter(key => this.items[key] instanceof Object);
+
+        let configKeys = [];
+        if (this.items) {
+            configKeys = Object?.keys(this.items).filter(key => this.items[key] instanceof Object);
+        }
+
         return {
             display: {
                 contentStyle: "",
@@ -91,7 +94,7 @@ export default class ConfigListUpdate extends LitElement {
     render() {
         const node = {parent: this.key, child: ""};
         return html`
-            ${this.items.constructor === Object ? html `
+            ${this.items && this.items.constructor === Object ? html `
                 <detail-tabs
                     .config="${this._config}"
                     .mode="${DetailTabs.PILLS_VERTICAL_MODE}">

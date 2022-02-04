@@ -149,14 +149,13 @@ export default class ListUpdate extends LitElement {
         return {index: i, node, items: this.data.items};
     }
 
-    render() {
-        // TODO: Add a condition to know it's a key with values array
-        if (this.node?.child === "valuesMapping") {
-            const valuesMapping = this.data.items;
-            return html`
-                ${valuesMapping ?
-                    Object.keys(valuesMapping)?.map((key, i) => {
-                    const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
+    renderValuesMapping() {
+        const valuesMapping = this.data.items;
+        debugger
+        return html `
+            ${valuesMapping?
+                Object.keys(valuesMapping).map((key, i) => {
+                const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
                     return html`
                         <div class="list-group-item">
                             <div class="row">
@@ -176,21 +175,21 @@ export default class ListUpdate extends LitElement {
                                         <button type="button" class="btn btn-danger" @click=${e => this.onRemoveItem(e, key, this.node)}>Delete</button>
                                 </div>
                             </div>
-                        </div> `;
-                    }) : nothing}
+                        </div>`;
+                    }): nothing}
                 <data-form
                     @fieldChange=${ e => this.onFieldChange(e)}
                     @filterChange=${e => this.onAddValues(e)}
                     @submit=${e => this.onSendItem(e, -1, this.node)}
                     .config="${this._config.new}">
-                </data-form>`;
-        }
+                </data-form>
+                `;
+    }
 
-        // applies when the data is an array
-        if (this.data.items.constructor === Array) {
-            const title = this._config?.item?.title || "id";
-            const subtitle = this._config?.item?.subtitle || "description";
-            return html`
+    renderListItems() {
+        const title = this._config?.item?.title || "id";
+        const subtitle = this._config?.item?.subtitle || "description";
+        return html `
             ${this.data.items?.map((item, i) => {
                 const itemData = {...item, node: this.node, index: i};
                 return html`
@@ -214,26 +213,37 @@ export default class ListUpdate extends LitElement {
                         </div>
                     </div>
                 `;
-            })}
+                })
+            }
             <data-form
                 @fieldChange=${ e => this.onFieldChange(e)}
                 @submit=${e => this.onSendItem(e, -1, this.node)}
                 .config="${this._config.new}">
-            </data-form>`;
-        }
-
-        if (this.data.items.constructor === Object) {
-            // debugger;
-            // Annotation index config. (Configs without modal)
-            return html `
-                <data-form
-                    .data=${this.data.items}
-                    @filterChange=${e => this.onAddValues(e)}
-                    @fieldChange=${ e => this.onFieldChange(e)}
-                    .config=${this._config.edit}>
-                </data-form>
+            </data-form>
             `;
-        }
+    }
+
+
+    render() {
+        // TODO: Add a condition to know it's a key with values array
+        return html`
+            ${this.node?.child === "valuesMapping"?
+                html`${this.renderValuesMapping()}`: nothing
+            }
+
+            ${this.data?.items && this.data.items.constructor === Array ?
+                html`${this.renderListItems()}`:nothing
+            }
+
+            ${this.data?.items && this.data?.items.constructor === Object?
+                html`
+                    <data-form
+                        .data=${this.data.items}
+                        @filterChange=${e => this.onAddValues(e)}
+                        @fieldChange=${ e => this.onFieldChange(e)}
+                        .config=${this._config.edit}>
+                    </data-form> `:nothing
+            }`;
     }
 
 }
