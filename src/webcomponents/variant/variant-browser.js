@@ -330,7 +330,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     async onGridConfigSave(e) {
-        const newGridConfig = e.detail.value;
+        const newGridConfig = {...e.detail.value};
 
         // Remove highlights and copies configuration from new config
         delete newGridConfig.highlights;
