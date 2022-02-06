@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import {RestClient} from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import DetailTabs from "../commons/view/detail-tabs.js";
 import "../commons/json-viewer.js";
 
 
@@ -169,7 +170,6 @@ export default class RestEndpoint extends LitElement {
                     {
                         title: "",
                         display: {
-                            // titleHeader: "h4",
                             style: "margin-left: 20px"
                         },
                         elements: [
@@ -177,62 +177,27 @@ export default class RestEndpoint extends LitElement {
                                 title: "",
                                 type: "custom",
                                 display: {
-                                    render: () => {
-                                        return html`
-                                            <div style="float: right; padding: 5px 20px">
-                                                <ul class="nav nav-pills">
-                                                    <li role="presentation" class="active"><a href="#">Form</a></li>
-                                                    <li role="presentation"><a href="#">JSON</a></li>
-                                                </ul>
-                                            </div>
-                                        `;
-                                    }
+                                    render: () => html`
+                                            <detail-tabs
+                                                .config="${this.getTabsConfig(bodyElements)}"
+                                                .mode="${DetailTabs.PILLS_MODE}">
+                                            </detail-tabs>
+                                        `
                                 }
                             }
                         ]
                     },
-                    {
-                        title: "Body",
-                        display: {
-                            titleHeader: "h4",
-                            // visible: this.bodyForm === true,
-                            style: "margin-left: 20px"
-                        },
-                        elements: bodyElements
-                    },
-                    {
-                        title: "Body",
-                        display: {
-                            titleHeader: "h4",
-                            // visible: this.bodyForm === false,
-                            style: "margin-left: 20px"
-                        },
-                        elements: [
-                            {
-                                title: "Body",
-                                field: "id",
-                                type: "input-text",
-                                required: true,
-                                display: {
-                                    placeholder: "Data Json...",
-                                    rows: 10,
-                                    help: {
-                                        text: "json data model"
-                                    }
-                                }
-                            }
-                        ]
-                    }
                 );
             }
-
             this.requestUpdate();
         }
     }
 
     onFormFieldChange(e, field) {
+        // debugger;
         const param = field || e.detail.param;
-        this.data = {...FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value)};
+        // this.data = {...FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value)};
+        this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
         this.requestUpdate();
     }
 
@@ -346,6 +311,93 @@ export default class RestEndpoint extends LitElement {
             ` : html `${this.endpoint.responseClass}`;
     }
 
+    getTabsConfig(elements) {
+
+        const configForm = {
+            buttonsVisible: false,
+            display: {
+                // style: "margin-left: 20px",
+                buttonsVisible: false
+            },
+            sections: [{
+                title: "Body",
+                display: {
+                    titleHeader: "h4",
+                },
+                elements: elements
+            }]
+        };
+
+        const configJson = {
+            display: {
+                // style: "margin-left: 20px",
+                buttonsVisible: false
+            },
+            sections: [{
+                title: "Body",
+                display: {
+                    titleHeader: "h4",
+                },
+                elements: [
+                    {
+                        title: "Body",
+                        field: "id",
+                        type: "input-text",
+                        required: true,
+                        display: {
+                            placeholder: "Data Json...",
+                            rows: 10,
+                            help: {
+                                text: "json data model"
+                            }
+                        }
+                    }
+                ]
+            }]
+        };
+
+
+        return {
+            items: [
+                {
+                    id: "form",
+                    name: "Form",
+                    icon: "fab fa-wpforms",
+                    active: true,
+                    render: () => {
+                        return html`
+                        <!-- Body Forms -->
+                        <data-form
+                                .data="${this.data}"
+                                .config="${configForm}"
+                                @fieldChange="${e => this.onFormFieldChange(e)}"
+                                @clear="${this.onFormClear}"
+                                @submit="${this.onSubmit}">
+                            </data-form>
+                    `;
+                    }
+                },
+                {
+                    id: "json",
+                    name: "JSON",
+                    icon: "",
+                    render: () => {
+                        return html`
+                        <!-- Body Json -->
+                        <data-form
+                                .data="${this.data}"
+                                .config="${configJson}"
+                                @fieldChange="${e => this.onFormFieldChange(e)}"
+                                @clear="${this.onFormClear}"
+                                @submit="${this.onSubmit}">
+                            </data-form>
+                    `;
+                    }
+                }
+            ]
+        };
+    }
+
     render() {
         if (!this.endpoint) {
             return;
@@ -375,8 +427,7 @@ export default class RestEndpoint extends LitElement {
 
                     <!-- Parameters Section-->
                     <div style="padding: 5px 10px">
-                        <h3>Parameters</h3>
-
+                        <!-- <h3>Parameters</h3> -->
 
                         <div style="padding: 20px">
                             <data-form
@@ -387,7 +438,6 @@ export default class RestEndpoint extends LitElement {
                                 @submit="${this.onSubmit}">
                             </data-form>
                         </div>
-
                     </div>
 
                     <!-- Results Section-->
