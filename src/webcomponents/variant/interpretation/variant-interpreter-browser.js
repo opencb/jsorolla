@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
@@ -53,12 +52,6 @@ class VariantInterpreterBrowser extends LitElement {
             settings: {
                 type: Object
             }
-            // query: {
-            //     type: Object
-            // },
-            // config: {
-            //     type: Object
-            // }
         };
     }
 
@@ -70,18 +63,15 @@ class VariantInterpreterBrowser extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
         super.update(changedProperties);
     }
 
@@ -119,7 +109,6 @@ class VariantInterpreterBrowser extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -127,11 +116,11 @@ class VariantInterpreterBrowser extends LitElement {
         }
     }
 
-    onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            clinicalAnalysis: e.detail.clinicalAnalysis,
-        }, null);
-    }
+    // onClinicalAnalysisUpdate(e) {
+    //     LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+    //         clinicalAnalysis: e.detail.clinicalAnalysis,
+    //     }, null);
+    // }
 
     render() {
         // Check if project exists
@@ -187,7 +176,6 @@ class VariantInterpreterBrowser extends LitElement {
                                 <variant-interpreter-browser-rd
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .query="${this.query}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .settings="${this._browserSettings}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
@@ -198,7 +186,6 @@ class VariantInterpreterBrowser extends LitElement {
                     },
                 });
             } else if (type === "CANCER") {
-
                 // Add somatic variant browser
                 items.push({
                     id: "cancer-somatic-variant-browser",
@@ -211,7 +198,6 @@ class VariantInterpreterBrowser extends LitElement {
                                 <variant-interpreter-browser-cancer
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .query="${this.query}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .settings="${this._browserSettings}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
@@ -237,7 +223,6 @@ class VariantInterpreterBrowser extends LitElement {
                                 <variant-interpreter-browser-cnv
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .query="${this.query}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .settings="${this._browserSettings}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
@@ -259,7 +244,6 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-rearrangement
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .query="${this.query}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-rearrangement>
@@ -281,7 +265,6 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-rd
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .query="${this.query}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${this._config}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"

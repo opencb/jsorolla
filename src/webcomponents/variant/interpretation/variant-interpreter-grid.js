@@ -104,9 +104,11 @@ export default class VariantInterpreterGrid extends LitElement {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
-            // this.opencgaSessionObserver();
+        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("query")) {
             this.renderVariants();
         }
 
@@ -174,7 +176,6 @@ export default class VariantInterpreterGrid extends LitElement {
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -187,7 +188,6 @@ export default class VariantInterpreterGrid extends LitElement {
             console.warn("No sample found, query: ", this.query);
             return;
         }
-
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
