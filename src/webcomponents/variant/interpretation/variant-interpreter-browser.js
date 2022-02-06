@@ -69,9 +69,6 @@ class VariantInterpreterBrowser extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
         super.update(changedProperties);
     }
 
