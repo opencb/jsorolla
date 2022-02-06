@@ -166,6 +166,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
                 // Update query with default 'fileData' parameters
                 this.query.fileData = fileDataFilters.join(",");
+
+                // getDefaultConfig() uses this.files
+                this._config = this.getDefaultConfig();
             }
 
             // Add filter to Active Filter's menu
