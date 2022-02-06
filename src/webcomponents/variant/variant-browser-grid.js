@@ -510,6 +510,11 @@ export default class VariantBrowserGrid extends LitElement {
                     populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                 }
 
+                // FIXME CellBase v5 uses 1000G while v4 uses 1kG_phase3, remove this in v2.3
+                if (this.populationFrequencies.studies[j].id === "1000G" && this.opencgaSession.project.internal.cellbase.version === "v4") {
+                    this.populationFrequencies.studies[j].id = "1kG_phase3";
+                }
+
                 populationFrequencyColumns.push({
                     title: this.populationFrequencies.studies[j].title,
                     field: this.populationFrequencies.studies[j].id,
