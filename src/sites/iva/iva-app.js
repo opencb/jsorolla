@@ -25,7 +25,6 @@ import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
 import "./obsolete/category-page.js";
-import "./iva-profile.js";
 import "./iva-settings.js";
 
 // @dev[jsorolla]
@@ -87,6 +86,8 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/user/user-profile.js";
+
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -1580,8 +1581,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <iva-profile .opencgaSession="${this.opencgaSession}">
-                        </iva-profile>
+                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
                     </div>
                 ` : null}
 

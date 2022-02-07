@@ -157,14 +157,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                 switch (this.clinicalAnalysis.type.toUpperCase()) {
                     case "SINGLE":
                     case "CANCER":
-                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1"].join(",");
+                        this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",");
                         break;
                     case "FAMILY":
-                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1"].join(",")];
+                        // Add proband genotypes
+                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1/2"].join(",")];
                         for (const member of this.clinicalAnalysis.family?.members) {
-                            // Proband is already in the array in the first position
+                            // Proband is already in the array in the first position, we add other family members
                             if (member.id !== this.clinicalAnalysis.proband?.id && member.samples?.length > 0) {
-                                sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1"].join(","));
+                                sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1", "1/2"].join(","));
                             }
                         }
                         this._sampleQuery = sampleIds.join(";");
@@ -316,11 +317,10 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onFilterVariants(e) {
-        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields, {id: "study"}];
-        VariantUtils.removeUnlockQuery(lockedFields, this.preparedQuery, this.executedQuery);
+        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
         const variantIds = e.detail.variants.map(v => v.id);
-        this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
-        this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
+        this.executedQuery = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
+        this.preparedQuery = {...this.executedQuery};
         this.requestUpdate();
     }
 
@@ -359,10 +359,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
-        this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
-        // this.preparedQuery = {...e.detail};
-        // // TODO is this really needed? it seems to work without this line.
-        // this.executedQuery = {...e.detail};
+        this.query = {...e.detail};
         this.requestUpdate();
     }
 
@@ -431,6 +428,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                                         },
                                         {
                                             separator: true
+                                        },
+                                        {
+                                            id: "1/2", name: "BIALLELIC HET (Genotype 1/2)"
                                         },
                                         {
                                             id: "1", name: "HEMI"

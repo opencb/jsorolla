@@ -151,7 +151,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
             // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
             if (!this.query?.sample) {
-                this.query.sample = this.somaticSample.id + ":0/1,1/1,NA";
+                // We do not add GT filter ":0/1,1/1,NA" in cancer interpreter anymore
+                // because variants with weird GT would not be displayed
+                this.query.sample = this.somaticSample.id;
             }
 
             // 2. 'panel' query param: add case panels to query object
@@ -295,11 +297,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onFilterVariants(e) {
-        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields, {id: "study"}];
-        VariantUtils.removeUnlockQuery(lockedFields, this.preparedQuery, this.executedQuery);
+        const lockedFields = [...this._config.filter.activeFilters.lockedFields.map(key => key.id), "study"];
         const variantIds = e.detail.variants.map(v => v.id);
-        this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
-        this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
+        this.executedQuery = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
+        this.preparedQuery = {...this.executedQuery};
         this.requestUpdate();
     }
 

@@ -109,6 +109,10 @@ export default class UtilsNew {
         return false;
     }
 
+    static filterKeys(obj, keys) {
+        return Object.fromEntries(keys.map(key => [key, obj[key]]));
+    }
+
     static removeArrayByIndex(arr, index) {
         return arr.filter((val, i) => i !== index);
     }
@@ -224,24 +228,26 @@ export default class UtilsNew {
 
     static jobStatusFormatter(status, appendDescription = false) {
         const description = appendDescription && status.description ? `<br>${status.description}` : "";
-        switch (status.name) {
+        // FIXME remove this backward-compatibility check in next v2.3
+        const statusId = status.id || status.name;
+        switch (statusId) {
             case "PENDING":
             case "QUEUED":
             case "REGISTERING":
             case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status.name}${description}</span>`;
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${statusId}${description}</span>`;
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status.name}${description}</span>`;
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${statusId}${description}</span>`;
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status.name}${description}</span>`;
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${statusId}${description}</span>`;
             case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
             case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
             case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status.name}${description}</span>`;
+                return `<span class="text-warning"><i class="fas fa-ban"></i> ${statusId}${description}</span>`;
             case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status.name}${description}</span>`;
+                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${statusId}${description}</span>`;
         }
         return "-";
     }

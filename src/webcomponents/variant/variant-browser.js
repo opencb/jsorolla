@@ -266,10 +266,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
-
-        // panelModeOfInheritance,panelConfidence,panelRoleInCancer,panel
         VariantUtils.validateQuery(e.detail);
-        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.notifySearch(this.query);
         this.facetQueryBuilder();
@@ -574,7 +571,7 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => html`
-                                <json-viewer .data="${variant.annotation}" .active="${active}"></json-viewer>
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
                             `,
                         }
                         // TODO Think about Neeworks

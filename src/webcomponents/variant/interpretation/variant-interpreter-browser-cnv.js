@@ -296,9 +296,10 @@ class VariantInterpreterBrowserCNV extends LitElement {
     }
 
     onFilterVariants(e) {
+        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
         const variantIds = e.detail.variants.map(v => v.id);
-        this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
-        this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
+        this.executedQuery = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
+        this.preparedQuery = {...this.executedQuery};
         this.requestUpdate();
     }
 
