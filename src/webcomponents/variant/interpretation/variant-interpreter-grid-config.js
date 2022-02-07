@@ -288,9 +288,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     ]
                 },
                 {
-                    title: "Conditional highlight",
+                    title: "Variant highlight",
                     display: {
-                        visible: () => this.config?.highlights?.length > 0,
+                        visible: () => (this.config?.highlights || []).length > 0,
                         titleHeader: "h4",
                     },
                     elements: [
