@@ -81,7 +81,7 @@ export default class VariantBrowserGrid extends LitElement {
         // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(changedProperties) {
+    firstUpdated() {
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
@@ -98,16 +98,8 @@ export default class VariantBrowserGrid extends LitElement {
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-            // Config for the grid toolbar
-            this.toolbarConfig = {
-                ...this._config.toolbar,
-                resource: "VARIANT",
-                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
-            };
-            // this.requestUpdate();
+            this.configObserver();
+            this.requestUpdate();
             this.renderVariants();
         }
     }
@@ -131,6 +123,19 @@ export default class VariantBrowserGrid extends LitElement {
         this.samples = _samples;
 
         this.requestUpdate();
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("NEW VBG CONFIG", this._config.activeHighlights);
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            ...this._config.toolbar,
+            resource: "VARIANT",
+            columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
+        };
     }
 
     onColumnChange(e) {
@@ -855,18 +860,17 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config?.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .rightToolbar="${this.getRightToolbar()}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : null
-            }
+            ${this._config?.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .rightToolbar="${this.getRightToolbar()}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
 
             <div>
                 <table id="${this.gridId}"></table>
@@ -891,7 +895,7 @@ export default class VariantBrowserGrid extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
                         </div>
                     </div>
                 </div>
