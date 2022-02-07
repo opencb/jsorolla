@@ -88,7 +88,6 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     editPhenotype(phenotype) {
-        // TODO: change for the element inddex and not for id phenotype..
         const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
         this.phenotypes[indexPheno] = phenotype;
         this.phenotype = {};
@@ -97,6 +96,7 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     onRemovePhenotype(e, i) {
+        // TODO: send a warning that all disorders will be removed if the user removes the phenotype that the disorder uses as evidence.
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -110,7 +110,6 @@ export default class PhenotypeListUpdate extends LitElement {
         }).then(result => {
             if (result.isConfirmed) {
                 this.phenotypes = UtilsNew.removeArrayByIndex(this.phenotypes, i);
-                // this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
                 LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
                 Swal.fire(
                     "Deleted!",
@@ -128,12 +127,12 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     renderPhenotypes(phenotypes) {
-        if (UtilsNew.isEmptyArray(phenotypes)) {
-            return html `
-                <div class="alert alert-info">
-                    <strong>Empty</strong>, create a new phenotype
-                </div>`;
-        }
+        // if (UtilsNew.isEmptyArray(phenotypes)) {
+        //     return html `
+        //         <div class="alert alert-info">
+        //             <strong>Empty</strong>, create a new phenotype
+        //         </div>`;
+        // }
         return html`
             ${phenotypes?.map((pheno, i) => html`
                 <li>

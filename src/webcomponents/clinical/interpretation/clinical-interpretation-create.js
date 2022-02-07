@@ -205,7 +205,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             type: "input-text",
                             defaultValue: this.clinicalAnalysis.id,
                             display: {
-                                disabled: true
+                                disabled: true,
+                                helpMessage: "The interpretation Id is generated automatically",
                             },
                         },
                         {

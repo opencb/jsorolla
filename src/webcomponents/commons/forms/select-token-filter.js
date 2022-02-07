@@ -37,17 +37,17 @@ export default class SelectTokenFilter extends LitElement {
 
     static get properties() {
         return {
-            config: {
-                type: Object
-            },
             value: {
                 type: String
+            },
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "select-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
@@ -60,7 +60,7 @@ export default class SelectTokenFilter extends LitElement {
         this.select = $("#" + this._prefix);
         this.select.select2({
             tags: this._config.freeTag === true,
-            multiple: true,
+            multiple: this._config.multiple ?? true,
             width: "style",
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
@@ -101,7 +101,6 @@ export default class SelectTokenFilter extends LitElement {
             templateSelection: item => {
                 return item.id ?? item.text;
             },
-            ...this._config.select2Config
         })
             .on("select2:select", e => {
                 this.filterChange(e);

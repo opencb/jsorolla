@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../study/annotationset/annotation-set-update.js";
@@ -92,14 +93,19 @@ export default class FamilyCreate extends LitElement {
                 // TODO: Add a condition to confirm if the information has been saved to the server.
                 this.family = {};
                 this.requestUpdate();
-                FormUtils.showAlert(
-                    "New Family",
-                    "Family save correctly",
-                    "success"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New Family",
+                    message: "family created correctly"
+                });
+                // FormUtils.showAlert(
+                //     "New Family",
+                //     "Family save correctly",
+                //     "success"
+                // );
             })
             .catch(err => {
-                console.error(err);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // console.error(err);
             });
     }
 
@@ -117,8 +123,6 @@ export default class FamilyCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Edit",
-            icon: "fas fa-edit",
             type: "form",
             display: {
                 buttonsVisible: true,

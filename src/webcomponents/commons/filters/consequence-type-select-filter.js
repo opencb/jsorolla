@@ -83,7 +83,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         if (this.ct) {
             this._ct = this.ct.split(",");
 
-            // Josemi 2021-01-27 NOTE: this implementation has been reverted. We need to discuss this behavior in the future.
+            // Josemi 2022-01-27 NOTE: this implementation has been reverted. We need to discuss this behavior in the future.
             // See issue https://github.com/opencb/jsorolla/issues/376
             // Add active presets using selected CT terms
             // this.presetSelected = new Map(); // Reset active presets
@@ -93,9 +93,24 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             //         this.presetSelected.set(preset.name, preset);
             //     }
             // });
+
+            // NOTE (Nacho 2022-01-31): we need to check if any ALREADY select alias is incomplete to remove it.
+            // But we keep NOT selecting a new alias even all its terms are selected.
+            const aliasToBeDeleted = [];
+            for (const key of this.presetSelected.keys()) {
+                for (const value of this.presetSelected.get(key).terms) {
+                    if (!this._ct.includes(value)) {
+                        aliasToBeDeleted.push(key);
+                        break;
+                    }
+                }
+            }
+            for (const alias of aliasToBeDeleted) {
+                this.presetSelected.delete(alias);
+            }
         } else {
             this._ct = [];
-            // this.isChecked = {};
+            this.presetSelected.clear();
         }
     }
 
