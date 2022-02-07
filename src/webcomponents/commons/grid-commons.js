@@ -241,21 +241,22 @@ export default class GridCommons {
             return {};
         }
 
-        let backgroundColor = "";
+        let rowStyle = {};
         (this.config.highlights || []).forEach(highlight => {
             if (this.config.activeHighlights.includes(highlight.id)) {
                 if (highlight.condition && highlight.condition(row, index)) {
-                    backgroundColor = highlight.style.background;
+                    rowStyle = {
+                        css: {
+                            "background-color": highlight.style?.rowBackgroundColor || "",
+                            "opacity": highlight.style?.rowOpacity,
+                        },
+                    };
                 }
             }
         });
 
         // Return background color for this row
-        return {
-            css: {
-                "background-color": backgroundColor,
-            }
-        };
+        return rowStyle;
     }
 
 }
