@@ -66,9 +66,13 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
                 id: "highlight1",
                 name: "Test highlight 1",
                 description: "",
-                condition: (variant, index) => index % 2 === 1,
+                // condition: (variant, index) => index % 2 === 1,
+                condition: () => true,
                 style: {
-                    background: "#cfe2ff",
+                    rowBackgroundColor: "#cfe2ff",
+                    rowOpacity: 0.5,
+                    icon: "circle",
+                    iconColor: "blue",
                 },
             },
             {
@@ -77,7 +81,9 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
                 description: "",
                 condition: (variant, index) => index % 2 === 0,
                 style: {
-                    background: "#f8d7da",
+                    rowBackgroundColor: "#f8d7da",
+                    icon: "exclamation",
+                    iconColor: "red",
                 },
             },
         ],
