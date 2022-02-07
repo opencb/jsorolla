@@ -342,14 +342,13 @@ export default class ChromosomePanel {
         });
 
         Object.keys(cytobandsByStain).forEach(name => {
-            let path = "";
             if (name != "acen") {
-                cytobandsByStain[name].forEach(cytoband => {
-                    path = path + `M${cytoband.pixelStart + offset + 1},50 L${cytoband.pixelEnd + offset},50 `;
+                const paths = cytobandsByStain[name].map(cytoband => {
+                    return `M${cytoband.pixelStart + offset + 1},50 L${cytoband.pixelEnd + offset},50 `;
                 });
 
                 SVG.addChild(group, "path", {
-                    "d": path,
+                    "d": paths.join(" "),
                     "stroke": GenomeBrowserConstants.CYTOBANDS_COLORS[name] || "",
                     "stroke-width": 20,
                     "fill": "none",
