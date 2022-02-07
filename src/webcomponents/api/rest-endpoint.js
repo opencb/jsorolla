@@ -64,6 +64,10 @@ export default class RestEndpoint extends LitElement {
             "object": "input-text",
         };
 
+        // Type not support by the moment..
+        // Format, BioFormat, List, software, Map
+        // ResourceType, Resource, Query, QueryOptions
+
         this.restClient = new RestClient();
         this.isLoading = false;
     }
@@ -90,7 +94,8 @@ export default class RestEndpoint extends LitElement {
 
                     for (const dataParameter of parameter.data) {
                         this.data.body[dataParameter.name] = dataParameter.defaultValue || "";
-                        if (dataParameter.type?.toUpperCase() !== "OBJECT" && dataParameter.type?.toUpperCase() !== "MAP") {
+                        // if (dataParameter.type?.toUpperCase() !== "OBJECT" && dataParameter.type?.toUpperCase() !== "MAP") {
+                        if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
                             bodyElements.push(
                                 {
                                     name: dataParameter.name,
@@ -136,7 +141,6 @@ export default class RestEndpoint extends LitElement {
             });
 
             const fieldElements = [...pathElements, ...queryElements];
-
             this.form = {
                 type: "form",
                 buttons: {
@@ -168,13 +172,13 @@ export default class RestEndpoint extends LitElement {
             if (bodyElements.length > 0) {
                 this.form.sections.push(
                     {
-                        title: "",
+                        title: "Body",
                         display: {
+                            titleHeader: "h4",
                             style: "margin-left: 20px"
                         },
                         elements: [
                             {
-                                title: "",
                                 type: "custom",
                                 display: {
                                     render: () => html`
@@ -188,6 +192,9 @@ export default class RestEndpoint extends LitElement {
                         ]
                     },
                 );
+            }
+            if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
+                this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
             this.requestUpdate();
         }
@@ -320,7 +327,6 @@ export default class RestEndpoint extends LitElement {
                 buttonsVisible: false
             },
             sections: [{
-                title: "Body",
                 display: {
                     titleHeader: "h4",
                 },
@@ -334,7 +340,6 @@ export default class RestEndpoint extends LitElement {
                 buttonsVisible: false
             },
             sections: [{
-                title: "Body",
                 display: {
                     titleHeader: "h4",
                 },

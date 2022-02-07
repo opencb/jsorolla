@@ -87,7 +87,7 @@ export default class RestApi extends LitElement {
         return html`
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
-                    <div class="col-md-4">
+                    <div class="col-md-4 pre-scrollable-custom">
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
                             ${this.api?.map(category => {
                                 const categoryName = category.name.replaceAll(" ", "_");
