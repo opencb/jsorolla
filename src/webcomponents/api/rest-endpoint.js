@@ -127,19 +127,6 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
-            queryElements.sort((fieldA, fieldB) => {
-                const fa = fieldA.name.toLowerCase();
-                const fb = fieldB.name.toLowerCase();
-
-                if (fa < fb) {
-                    return -1;
-                }
-                if (fa > fb) {
-                    return 1;
-                }
-                return 0;
-            });
-
             const fieldElements = [...pathElements, ...queryElements];
             this.form = {
                 type: "form",
@@ -199,6 +186,53 @@ export default class RestEndpoint extends LitElement {
             this.requestUpdate();
         }
     }
+
+    // Refactor
+    orderQuery(elements) {
+        // sample/Search
+        // study, ids, (required true)
+        // const newElements = [];
+        // const _queryFilter = ["include", "exclude", "skip", "version", "limit", "release"];
+        // const _elements = elements;
+        // const queryFiltered = _elements.filter(elm => _queryFilter.includes(elm.name));
+
+        // elements.forEach(elm => {
+        //     let study = {};
+        //     const queryFilter = [];
+
+        //     if (elm.name === "study") {
+        //         study = elm;
+        //     }
+
+        //     if (_queryFilter.includes(elm.name)) {
+        //         queryFilter.push(elm);
+        //     }
+
+
+        // });
+
+
+        elements.sort((fieldA, fieldB) => {
+            const fa = fieldA.name.toLowerCase();
+            const fb = fieldB.name.toLowerCase();
+
+            // if (fa.name === "study") {
+            //     return -1;
+            // }
+            // return fb.required - fa.required;
+            if (fa < fb) {
+                return -1;
+            }
+            if (fa > fb) {
+                return 1;
+            }
+            return 0;
+        });
+
+
+        return elements;
+    }
+
 
     onFormFieldChange(e, field) {
         // debugger;
