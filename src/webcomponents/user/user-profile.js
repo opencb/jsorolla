@@ -125,6 +125,7 @@ export default class UserProfile extends LitElement {
     }
 
     render() {
+        console.log(this.opencgaSession);
         // TODO: check if opencgaSession has been provided
         return html`
             <div>
@@ -337,11 +338,11 @@ export default class UserProfile extends LitElement {
                             field: "user.account.type"
                         },
                         {
-                            title: "Status",
-                            field: "user.internal.status",
+                            title: "Member since",
+                            field: "user.account.creationDate",
                             type: "custom",
                             display: {
-                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
+                                render: date => UtilsNew.dateFormatter(date),
                             }
                         },
                         {
