@@ -1021,7 +1021,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 const results = restResponse.getResults();
                 // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
                 // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
-                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
+                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
