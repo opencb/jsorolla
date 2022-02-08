@@ -172,7 +172,8 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisDownload = () => {
-        UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
+        UtilsNew.downloadJSON(this.clinicalAnalysis,
+            `variant_interpreter_CASE_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}` + ".json");
     }
 
     onClinicalAnalysisRefresh = () => {
