@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-template.js";
 import "../variant-samples.js";
@@ -95,8 +94,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
         const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
 
