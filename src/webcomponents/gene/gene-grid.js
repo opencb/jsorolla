@@ -91,7 +91,6 @@ export default class GeneGrid extends LitElement {
 
     renderTable() {
         // If this.diseasePanel is provided as property we render the array directly
-        debugger;
         if (this.genePanels && this.genePanels.length > 0) {
             this.renderLocalTable();
         } else {
@@ -247,8 +246,8 @@ export default class GeneGrid extends LitElement {
                 title: "Reviews",
                 field: "xrefs",
                 formatter: (value, row) => {
-                    const content = String.raw `Coming soon`;
-                    return `${content}`;
+                    // const content = String.raw `Coming soon`;0
+                    return "-";
                 },
                 halign: this._config.header.horizontalAlign
             },
