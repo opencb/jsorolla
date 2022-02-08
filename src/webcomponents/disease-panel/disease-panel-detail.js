@@ -108,6 +108,27 @@ export default class DiseasePanelDetail extends LitElement {
                     }
                 },
                 {
+                    id: "disease-panel-genes",
+                    name: "Genes",
+                    render: (diseasePanel, active, opencgaSession) => {
+                        return html`<p>Comming Soon</p>`;
+                    }
+                },
+                {
+                    id: "disease-panel-regions",
+                    name: "Regions",
+                    render: (diseasePanel, active, opencgaSession) => {
+                        return html`<p>Comming Soon</p>`;
+                    }
+                },
+                {
+                    id: "disease-panel-variants",
+                    name: "Variants",
+                    render: (diseasePanel, active, opencgaSession) => {
+                        return html`<p>Comming Soon</p>`;
+                    }
+                },
+                {
                     id: "json-view",
                     name: "JSON Data",
                     mode: "development",

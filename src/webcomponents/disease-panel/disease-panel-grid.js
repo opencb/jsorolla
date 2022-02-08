@@ -242,11 +242,20 @@ export default class DiseasePanelGrid extends LitElement {
         let _columns = [[
             {
                 id: "id",
-                title: "Id",
+                title: "Panel Id",
                 field: "id",
                 rowspan: 2,
                 colspan: 1,
-                formatter: (value, row) => row?.id ?? "-",
+                // formatter: (value, row) => row?.id ?? "-",
+                formatter: (value, row) => {
+                    if (row?.source?.project === "PanelApp") {
+                        return String.raw`
+                            <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
+                                ${row?.id ?? "-"}
+                            </a>`;
+                    }
+                    return row?.id ?? "-";
+                },
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -269,74 +278,81 @@ export default class DiseasePanelGrid extends LitElement {
                 id: "source",
                 title: "Source",
                 field: "source",
-                rowspan: 1,
-                colspan: 3,
+                rowspan: 2,
+                colspan: 1,
+                formatter: (value, row) => {
+                    const {author, project, version} = row.source;
+                    return `${author? `${author} -`:""} ${project ?? ""} ${version?`(${version})`:""}`;
+                },
                 align: "center",
             },
         ],
         [
             {
                 id: "numberOfRegions",
-                title: "Number of regions",
+                title: "# regions",
                 field: "numberOfRegions",
                 rowspan: 1,
                 colspan: 1,
                 formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
                 halign: this._config.header.horizontalAlign,
+                align: "right",
             },
             {
                 id: "numberOfVariants",
-                title: "Number of variants",
+                title: "# variants",
                 field: "numberOfVariants",
                 rowspan: 1,
                 colspan: 1,
                 formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
                 halign: this._config.header.horizontalAlign,
+                align: "right",
             },
             {
                 id: "numberOfGenes",
-                title: "Number of genes",
+                title: "# genes",
                 field: "numberOfGenes",
                 rowspan: 1,
                 colspan: 1,
                 formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
                 halign: this._config.header.horizontalAlign,
-            },
-            {
-                id: "author",
-                title: "Author",
-                field: "author",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.source?.author ?? "-",
-                halign: this._config.header.horizontalAlign,
-            },
-            {
-                id: "project",
-                title: "Project",
-                field: "project",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => {
-                    if (row?.source?.project === "PanelApp") {
-                        return String.raw`
-                            <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
-                                ${row.source.project}
-                            </a>`;
-                    }
-                    return row?.source?.project ?? "-";
-                },
-                halign: this._config.header.horizontalAlign,
-            },
-            {
-                id: "version",
-                title: "Version",
-                field: "version",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.source?.version ?? "-",
-                halign: this._config.header.horizontalAlign,
-            },
+                align: "right",
+            }
+            // {
+            //     id: "author",
+            //     title: "Author",
+            //     field: "author",
+            //     rowspan: 1,
+            //     colspan: 1,
+            //     formatter: (value, row) => row?.source?.author ?? "-",
+            //     halign: this._config.header.horizontalAlign,
+            // },
+            // {
+            //     id: "project",
+            //     title: "Project",
+            //     field: "project",
+            //     rowspan: 1,
+            //     colspan: 1,
+            //     formatter: (value, row) => {
+            //         if (row?.source?.project === "PanelApp") {
+            //             return String.raw`
+            //                 <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
+            //                     ${row.source.project}
+            //                 </a>`;
+            //         }
+            //         return row?.source?.project ?? "-";
+            //     },
+            //     halign: this._config.header.horizontalAlign,
+            // },
+            // {
+            //     id: "version",
+            //     title: "Version",
+            //     field: "version",
+            //     rowspan: 1,
+            //     colspan: 1,
+            //     formatter: (value, row) => row?.source?.version ?? "-",
+            //     halign: this._config.header.horizontalAlign,
+            // },
         ]
         ];
 
