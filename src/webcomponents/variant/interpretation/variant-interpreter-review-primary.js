@@ -334,7 +334,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     showExport: true,
-                    exportFilename: `variant_interpreter_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`,
+                    exportFilename: `variant_interpreter_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_primaryFindings_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`,
                     detailView: true,
                     showReview: true,
                     showActions: false,
