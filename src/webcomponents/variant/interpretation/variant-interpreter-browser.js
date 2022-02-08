@@ -166,7 +166,7 @@ class VariantInterpreterBrowser extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .cellbaseClient="${this.cellbaseClient}"
-                                    .settings="${this._browserSettings}"
+                                    .settings="${this.settings.browsers["RD"]}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                     @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
@@ -190,7 +190,7 @@ class VariantInterpreterBrowser extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .cellbaseClient="${this.cellbaseClient}"
-                                    .settings="${this._browserSettings}"
+                                    .settings="${this.settings.browsers["CANCER_SNV"]}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
                             </div>
