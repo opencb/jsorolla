@@ -17,9 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-template.js";
-import "../variant-browser-filter.js";
-import "../../commons/tool-header.js";
-import "../../commons/opencga-active-filters.js";
 import "../variant-samples.js";
 
 class VariantInterpreterBrowserCNV extends LitElement {
@@ -91,7 +88,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
 
     clinicalAnalysisObserver() {
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
-        const _activeFilterFilters = this._config?.filter?.examples || [];
+        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
@@ -160,6 +157,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
 
                 // Update query with default 'fileData' parameters
                 this.query.fileData = fileDataFilters.join(",");
+
+                // getDefaultConfig() uses this.files
+                this._config = this.getDefaultConfig();
             }
 
             // Add filter to Active Filters menu
