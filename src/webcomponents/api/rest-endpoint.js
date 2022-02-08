@@ -50,6 +50,7 @@ export default class RestEndpoint extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.data = {};
         this._data = {};
+        this.dataJson = {};
         this.form = {};
         this.methodColor = {
             "GET": "blue",
@@ -80,6 +81,7 @@ export default class RestEndpoint extends LitElement {
     }
 
     endpointObserver() {
+
         if (this.endpoint?.parameters?.length > 0) {
             this.data = {};
             const queryElements = [];
@@ -93,7 +95,8 @@ export default class RestEndpoint extends LitElement {
                     }
 
                     for (const dataParameter of parameter.data) {
-                        this.data.body[dataParameter.name] = dataParameter.defaultValue || "";
+                        // this.data.body[dataParameter.name] = dataParameter.defaultValue || "";
+                        this.data.body[dataParameter.name] = dataParameter.type?.toLowerCase() in this.parameterTypeToHtml? dataParameter.defaultValue || "" : {};
                         // if (dataParameter.type?.toUpperCase() !== "OBJECT" && dataParameter.type?.toUpperCase() !== "MAP") {
                         if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
                             bodyElements.push(
@@ -157,32 +160,31 @@ export default class RestEndpoint extends LitElement {
             }
 
             if (bodyElements.length > 0) {
-                this.form.sections.push(
-                    {
-                        title: "Body",
-                        display: {
-                            titleHeader: "h4",
-                            style: "margin-left: 20px"
-                        },
-                        elements: [
-                            {
-                                type: "custom",
-                                display: {
-                                    render: () => html`
-                                            <detail-tabs
-                                                .config="${this.getTabsConfig(bodyElements)}"
-                                                .mode="${DetailTabs.PILLS_MODE}">
-                                            </detail-tabs>
-                                        `
-                                }
-                            }
-                        ]
+                this.form.sections.push({
+                    title: "Body",
+                    display: {
+                        titleHeader: "h4",
+                        style: "margin-left: 20px"
                     },
-                );
+                    elements: [...[],
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                        <detail-tabs
+                                            .config="${this.getTabsConfig(bodyElements)}"
+                                            .mode="${DetailTabs.PILLS_MODE}">
+                                        </detail-tabs>
+                                    `
+                            }
+                        }
+                    ]
+                });
             }
             if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
+            this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
             this.requestUpdate();
         }
     }
@@ -196,30 +198,9 @@ export default class RestEndpoint extends LitElement {
         // const _elements = elements;
         // const queryFiltered = _elements.filter(elm => _queryFilter.includes(elm.name));
 
-        // elements.forEach(elm => {
-        //     let study = {};
-        //     const queryFilter = [];
-
-        //     if (elm.name === "study") {
-        //         study = elm;
-        //     }
-
-        //     if (_queryFilter.includes(elm.name)) {
-        //         queryFilter.push(elm);
-        //     }
-
-
-        // });
-
-
         elements.sort((fieldA, fieldB) => {
             const fa = fieldA.name.toLowerCase();
             const fb = fieldB.name.toLowerCase();
-
-            // if (fa.name === "study") {
-            //     return -1;
-            // }
-            // return fb.required - fa.required;
             if (fa < fb) {
                 return -1;
             }
@@ -228,27 +209,43 @@ export default class RestEndpoint extends LitElement {
             }
             return 0;
         });
-
-
         return elements;
     }
 
 
     onFormFieldChange(e, field) {
-        // debugger;
         const param = field || e.detail.param;
         // this.data = {...FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value)};
-        this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
+
+        if (param === "body") {
+            this.dataJson = {...this.dataJson, body: e.detail.value};
+            try {
+                const dataObject = JSON.parse(e.detail.value);
+                Object.keys(dataObject).forEach(key => {
+                    if (key in this.data.body) {
+                        this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
+                    }
+                });
+            } catch (error) {
+                return false;
+            }
+        } else {
+            this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
+            this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
+        }
         this.requestUpdate();
+        e.stopPropagation();
     }
 
     onFormClear() {
+        this.dataJson = {};
         this.data = {};
         this._data = {};
         this.requestUpdate();
     }
 
     onSubmit() {
+
         let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
         url += "sid=" + this.opencgaSession.opencgaClient._config.token;
 
@@ -357,20 +354,20 @@ export default class RestEndpoint extends LitElement {
         const configForm = {
             buttonsVisible: false,
             display: {
-                // style: "margin-left: 20px",
                 buttonsVisible: false
             },
             sections: [{
                 display: {
                     titleHeader: "h4",
                 },
-                elements: elements
+                elements: [...elements]
             }]
+
         };
+
 
         const configJson = {
             display: {
-                // style: "margin-left: 20px",
                 buttonsVisible: false
             },
             sections: [{
@@ -380,7 +377,7 @@ export default class RestEndpoint extends LitElement {
                 elements: [
                     {
                         title: "Body",
-                        field: "id",
+                        field: "body",
                         type: "input-text",
                         required: true,
                         display: {
@@ -394,7 +391,6 @@ export default class RestEndpoint extends LitElement {
                 ]
             }]
         };
-
 
         return {
             items: [
@@ -424,7 +420,7 @@ export default class RestEndpoint extends LitElement {
                         return html`
                         <!-- Body Json -->
                         <data-form
-                                .data="${this.data}"
+                                .data="${this.dataJson}"
                                 .config="${configJson}"
                                 @fieldChange="${e => this.onFormFieldChange(e)}"
                                 @clear="${this.onFormClear}"
