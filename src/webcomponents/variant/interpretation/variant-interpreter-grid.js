@@ -112,6 +112,10 @@ export default class VariantInterpreterGrid extends LitElement {
             this.renderVariants();
         }
 
+        if (changedProperties.has("clinicalVariants")) {
+            this.renderVariants();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
             this.gridCommons = new GridCommons(this.gridId, this, this._config);

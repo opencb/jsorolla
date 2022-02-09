@@ -36,10 +36,10 @@ export default class VariantInterpreterReview extends LitElement {
     static get properties() {
         return {
             clinicalAnalysis: {
-                type: String
+                type: Object
             },
             clinicalAnalysisId: {
-                type: Object
+                type: String
             },
             opencgaSession: {
                 type: Object
@@ -133,7 +133,10 @@ export default class VariantInterpreterReview extends LitElement {
                         name: "Somatic Variants",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             // TODO: fix this line to get correct variants to display
-                            const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                            // const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                            const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                                .filter(v => v.type !== "COPY_NUMBER")
+                                .filter(v => v.type !== "BREAKEND");
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
                                     <tool-header
