@@ -75,6 +75,13 @@ export default class DetailTabs extends LitElement {
         this.activeTabs = _activeTabs;
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
+    }
+
     changeBottomTab(e) {
         this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
         const tabId = e.currentTarget.dataset.id;
@@ -111,6 +118,7 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
+
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }
