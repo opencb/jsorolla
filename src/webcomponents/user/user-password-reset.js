@@ -80,9 +80,6 @@ export default class UserPasswordReset extends LitElement {
                                 </span>
                                 <input id="user" type="text" class="form-control" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
                             </div>
-                            ${this.hasEmptyUser ? html`
-                                <div class="help-block">This field is required</div>
-                            ` : null}
                         </div>
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
                             <strong>Reset password</strong>
