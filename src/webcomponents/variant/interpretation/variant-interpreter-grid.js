@@ -105,9 +105,15 @@ export default class VariantInterpreterGrid extends LitElement {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
-            // this.opencgaSessionObserver();
+        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.renderVariants();
+        }
+
+        if (changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
 
@@ -118,10 +124,12 @@ export default class VariantInterpreterGrid extends LitElement {
             // Config for the grid toolbar
             // some columns have tooltips in title, we cannot used them for the dropdown
             this.toolbarConfig = {
-                ...this._config.toolbar,
+                ...this._config,
+                ...this._config.toolbar, // it comes from external settings
                 resource: "VARIANT",
                 columns: this._createDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
             };
+            this.requestUpdate();
         }
     }
 
@@ -175,7 +183,6 @@ export default class VariantInterpreterGrid extends LitElement {
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -188,7 +195,6 @@ export default class VariantInterpreterGrid extends LitElement {
             console.warn("No sample found, query: ", this.query);
             return;
         }
-
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -1074,17 +1080,19 @@ export default class VariantInterpreterGrid extends LitElement {
         this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
+                // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
+                // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
+                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
-                    console.log("dataString", dataString);
-                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                    UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
                 } else {
-                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "variant_interpreter_" + this.opencgaSession.study.id + ".json", "application/json");
+                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
                 }
             })
             .catch(response => {
-                // console.log(response);
+                console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
