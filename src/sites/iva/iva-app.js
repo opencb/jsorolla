@@ -20,11 +20,11 @@
 
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
+
 import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
 import "./obsolete/category-page.js";
-import "./iva-profile.js";
 import "./iva-settings.js";
 
 // @dev[jsorolla]
@@ -86,6 +86,8 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/user/user-profile.js";
+
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -466,7 +468,7 @@ class IvaApp extends LitElement {
     onLogin(credentials) {
         // This creates a new authenticated opencga-session object
 
-        console.log("iva-app: roger I'm in", credentials);
+        // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
 
@@ -1579,8 +1581,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <iva-profile .opencgaSession="${this.opencgaSession}">
-                        </iva-profile>
+                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
                     </div>
                 ` : null}
 

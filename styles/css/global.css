@@ -2811,7 +2811,7 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
 
 /******   opencga-export   *********/
 .export-buttons {
-    width: 160px;
+    width: 150px;
     height: 80px;
     margin: 0 10px 0 0;
     flex-direction: column;
@@ -2859,7 +2859,7 @@ opencga-export .btn-group-tab {
     margin: 32px 0;
     display: block;
     hyphens: none;
-    padding: 24px 0;
+    padding: 35px 0 20px 0;
     overflow: auto;
     tab-size: 2;
     direction: ltr;

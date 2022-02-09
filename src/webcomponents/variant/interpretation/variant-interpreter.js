@@ -160,7 +160,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn,})
+        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -172,7 +172,8 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisDownload = () => {
-        UtilsNew.downloadJSON(this.clinicalAnalysis, "clinical-analysis.json");
+        UtilsNew.downloadJSON(this.clinicalAnalysis,
+            `variant_interpreter_CASE_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}` + ".json");
     }
 
     onClinicalAnalysisRefresh = () => {
@@ -421,7 +422,6 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-browser
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .query="${this.interpretationSearchQuery}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">

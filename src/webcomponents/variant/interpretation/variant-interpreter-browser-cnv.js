@@ -19,7 +19,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-template.js";
 import "../variant-samples.js";
 
-class VariantInterpreterBrowserCancer extends LitElement {
+class VariantInterpreterBrowserCNV extends LitElement {
 
     constructor() {
         super();
@@ -43,9 +43,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // query: {
-            //     type: Object
-            // },
             cellbaseClient: {
                 type: Object
             },
@@ -69,18 +66,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
+
         super.update(changedProperties);
     }
 
-    /*
-     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
-     */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -111,7 +104,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 this.query.sample = this.somaticSample.id;
             }
 
-            // 2. 'panel' query param: add case panels to query object
+            // 2. In CNV browser the TYPE is always COPY_NUMBER
+            this.query.type = "COPY_NUMBER";
+
+            // 3. 'panel' query param: add case panels to query object
             if (this.clinicalAnalysis.interpretation?.panels?.length > 0) {
                 this.query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
             } else {
@@ -120,20 +116,18 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 }
             }
 
-            // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
+            // 4. panelIntersection param: if panel lock is enabled, this param should be also enabled
             if (this.clinicalAnalysis.panelLock) {
                 this.query.panelIntersection = true;
             }
 
-            // 4. 'fileData' query param: fetch non SV files and set init query
+            // 5. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 // FIXME remove specific code for ASCAT!
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => vc.somatic)
                     .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
-                        // vc.types.includes("INSERTION") || vc.types.includes("DELETION") ||
-                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                    .filter(vc => vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
 
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF")
@@ -168,7 +162,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 this._config = this.getDefaultConfig();
             }
 
-            // Add filter to Active Filter's menu
+            // Add filter to Active Filters menu
             // 1. Add variant stats saved queries to the Active Filters menu
             if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
                 _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
@@ -223,8 +217,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     getDefaultConfig() {
         // Add case panels to query object
-        // TODO should we also check main interpretation panels?
-        const lockedFields = [{id: "sample"}];
+        const lockedFields = [
+            {id: "sample"},
+            {id: "type"},
+        ];
 
         if (this.clinicalAnalysis?.panels?.length > 0 && this.clinicalAnalysis.panelLock) {
             lockedFields.push({id: "panel"});
@@ -232,7 +228,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
 
         return {
-            title: "Cancer Case Interpreter",
+            title: "Cancer CNV Case Interpreter",
             icon: "fas fa-search",
             active: false,
             showOtherTools: false,
@@ -280,6 +276,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "variant-file",
                                 title: "VCF File Filter",
+                                visible: () => this.files?.length > 0,
                                 params: {
                                     files: this.files
                                 }
@@ -316,7 +313,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
+                                title: "Feature IDs (gene, ...)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLock,
                                     text: "Feature regions will be intersected with selected panels.",
@@ -333,8 +330,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "type",
                                 title: "Variant Type",
                                 tooltip: tooltips.type,
+                                disabled: true,
                                 params: {
-                                    types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"]
+                                    types: ["COPY_NUMBER"],
                                 },
                             }
                         ]
@@ -423,33 +421,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             }
                         ]
                     },
-                    {
-                        title: "Deleteriousness",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "proteinSubstitutionScore",
-                                title: "Protein Substitution Score",
-                                tooltip: tooltips.proteinSubstitutionScore
-                            },
-                            {
-                                id: "cadd",
-                                title: "CADD",
-                                tooltip: tooltips.cadd
-                            }
-                        ]
-                    },
-                    {
-                        title: "Conservation",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "conservation",
-                                title: "Conservation Score",
-                                tooltip: tooltips.conservation
-                            }
-                        ]
-                    }
                 ],
                 examples: [
                     {
@@ -605,4 +576,4 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-browser-cancer", VariantInterpreterBrowserCancer);
+customElements.define("variant-interpreter-browser-cnv", VariantInterpreterBrowserCNV);

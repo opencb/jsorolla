@@ -234,32 +234,53 @@ export default class VariantGridFormatter {
 
             // Do not write more than 4 genes per line, this could be easily configurable
             let resultHtml = "";
+            const maxDisplayedGenes = 10;
+            const allGenes = geneWithCtLinks.concat(geneLinks);
+
+            if (allGenes.length <= maxDisplayedGenes) {
+                resultHtml = allGenes.join(",");
+            } else {
+                resultHtml = `
+                    ${allGenes.slice(0, maxDisplayedGenes).join(",")}
+                    <div data-role="show-genes" data-variant-index="${index}" style="margin-top:8px;">
+                        <a style="cursor:pointer;font-size:13px;font-weight:bold;">
+                            ... show more genes (${(allGenes.length - maxDisplayedGenes)})
+                        </a>
+                    </div>
+                    <div data-role="hidden-genes" data-variant-index="${index}" style="display:none">
+                        ${allGenes.slice(maxDisplayedGenes).join(",")}
+                    </div>
+                `;
+            }
 
             // First, print Genes with query CT
-            if (query?.ct) {
-                for (let i = 0; i < geneWithCtLinks.length; i++) {
-                    resultHtml += geneWithCtLinks[i];
-                    if (i + 1 !== geneWithCtLinks.length) {
-                        resultHtml += ",";
-                    }
-                }
-                resultHtml += "<br>";
-            }
+            // if (query?.ct) {
+            //     for (let i = 0; i < geneWithCtLinks.length; i++) {
+            //         resultHtml += geneWithCtLinks[i];
+            //         if (i + 1 !== geneWithCtLinks.length) {
+            //             resultHtml += ",";
+            //         }
+            //         genesCount++;
+            //     }
+            //     resultHtml += "<br>";
+            // }
 
-            // Second, the other genes
-            for (let i = 0; i < geneLinks.length; i++) {
-                resultHtml += geneLinks[i];
-                if (i + 1 !== geneLinks.length) {
-                    if (i === 0) {
-                        resultHtml += ",";
-                    } else if ((i + 1) % 2 !== 0) {
-                        resultHtml += ",";
-                    } else {
-                        resultHtml += "<br>";
-                    }
-                }
-            }
+            // // Second, the other genes
+            // for (let i = 0; i < geneLinks.length && genesCount < 10; i++) {
+            //     resultHtml += geneLinks[i];
+            //     if (i + 1 !== geneLinks.length) {
+            //         if (i === 0) {
+            //             resultHtml += ",";
+            //         } else if ((i + 1) % 2 !== 0) {
+            //             resultHtml += ",";
+            //         } else {
+            //             resultHtml += "<br>";
+            //         }
+            //     }
+            //     genesCount++;
+            // }
             return resultHtml;
+
         } else {
             return "-";
         }

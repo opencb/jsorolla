@@ -104,9 +104,15 @@ export default class VariantInterpreterGrid extends LitElement {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
-            // this.opencgaSessionObserver();
+        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.renderVariants();
+        }
+
+        if (changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
 
@@ -117,10 +123,12 @@ export default class VariantInterpreterGrid extends LitElement {
             // Config for the grid toolbar
             // some columns have tooltips in title, we cannot used them for the dropdown
             this.toolbarConfig = {
-                ...this._config.toolbar,
+                ...this._config,
+                ...this._config.toolbar, // it comes from external settings
                 resource: "VARIANT",
                 columns: this._createDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
             };
+            this.requestUpdate();
         }
     }
 
@@ -174,7 +182,6 @@ export default class VariantInterpreterGrid extends LitElement {
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -187,7 +194,6 @@ export default class VariantInterpreterGrid extends LitElement {
             console.warn("No sample found, query: ", this.query);
             return;
         }
-
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -356,6 +362,17 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Add events for displaying genes list
+                    const gridElement = document.querySelector(`#${this.gridId}`);
+                    Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
+                        const index = el.dataset.variantIndex;
+                        const hiddenGelesEl = gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`);
+                        el.addEventListener("click", () => {
+                            el.style.display = "none";
+                            hiddenGelesEl.style.display = "block";
+                        });
+                    });
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row, $detail) => {
@@ -475,7 +492,18 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
+            onLoadSuccess: () => {
+                // Add events for displaying genes list
+                const gridElement = document.querySelector(`#${this.gridId}`);
+                Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
+                    const index = el.dataset.variantIndex;
+                    el.addEventListener("click", () => {
+                        el.style.display = "none";
+                        gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`).style.display = "block";
+                    });
+                });
+            },
         });
     }
 
@@ -622,7 +650,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
-                    halign: "center"
+                    halign: "center",
+                    visible: !!this._config.showType,
                 },
                 {
                     id: "consequenceType",
@@ -994,17 +1023,19 @@ export default class VariantInterpreterGrid extends LitElement {
         this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
+                // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
+                // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
+                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
-                    console.log("dataString", dataString);
-                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                    UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
                 } else {
-                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "variant_interpreter_" + this.opencgaSession.study.id + ".json", "application/json");
+                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
                 }
             })
             .catch(response => {
-                // console.log(response);
+                console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
@@ -1220,7 +1251,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 @export="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
@@ -1308,6 +1339,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showReview: true,
             showSelectCheckbox: false,
             showActions: false,
+            showType: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,

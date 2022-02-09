@@ -29,6 +29,13 @@ import "./toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 
+    static NOTIFICATION_TYPES = {
+        error: "alert alert-danger",
+        info: "alert alert-info",
+        success: "alert alert-success",
+        warning: "alert alert-warning"
+    };
+
     constructor() {
         super();
 
@@ -395,10 +402,14 @@ export default class DataForm extends LitElement {
             switch (element.type) {
                 case "text":
                 case "title":
+                case "notification":
                     content = this._createTextElement(element);
                     break;
                 case "input-text":
-                    content = this._createInputTextElement(element);
+                    content = this._createInputElement(element, "text");
+                    break;
+                case "input-password":
+                    content = this._createInputElement(element, "password");
                     break;
                 case "input-number":
                     content = this._createInputNumberElement(element);
@@ -540,19 +551,20 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    // WARNING: this method should be renamed as _createTextElement
     _createTextElement(element) {
-        const textClass = element.display?.textClassName ?? element.display?.textClass ?? "";
+        const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
+        const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
         return html`
-            <div class="${textClass}" style="${textStyle}">
+            <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 <span>${element.text || ""}</span>
             </div>
         `;
     }
 
-    _createInputTextElement(element) {
+    // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
+    _createInputElement(element, type) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
         const rows = element.display && element.display.rows ? element.display.rows : 1;
@@ -561,6 +573,7 @@ export default class DataForm extends LitElement {
             <text-field-filter
                 placeholder="${element.display?.placeholder}"
                 .rows="${rows}"
+                .type="${type}"
                 ?disabled="${disabled}"
                 ?required="${element.required}"
                 .value="${value}"
@@ -873,7 +886,7 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        let array = this.getValue(element.field);
+        let array = this.getValue(element.field, [], element.defaultValue);
         const errorMessage = this._getErrorMessage(element);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
@@ -909,7 +922,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <table class="table" style="display: inline">
+            <table class="table">
                 ${headerVisible ? html`
                     <thead>
                     <tr>
@@ -1216,7 +1229,7 @@ export default class DataForm extends LitElement {
             const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
             const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
             const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
-            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled ?? this.config.display?.mode?.disabled, false);
+            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
 
             return html`
                 <button type="button"

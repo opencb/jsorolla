@@ -324,20 +324,36 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
         }
 
-        if (this.sample.qualityControl.variant.files) {
-            this.sample.qualityControl.variant.files.push({id: this.save.id, file: this.circosPlot});
-        } else {
-            this.sample.qualityControl.variant.files = [{id: this.save.id, file: this.circosPlot}];
-        }
-
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+        this.circosPlot;
+        const aaaa = this.circosPlot.split(", ")[1];
+        debugger
+        // if (this.sample.qualityControl.variant.files) {
+        //     this.sample.qualityControl.variant.files.push({id: this.save.id, file: this.circosPlot});
+        // } else {
+        //     this.sample.qualityControl.variant.files = [{id: this.save.id, file: this.circosPlot}];
+        // }
+        this.opencgaSession.opencgaClient.files().create(
+            {content: aaaa, path: "/circos/" + this.save.id + ".png", type: "FILE", format: "IMAGE"},
+            {study: this.opencgaSession.study.fqn, parents: true}
+        )
             .then(restResponse => {
-                console.log(restResponse);
-                Swal.fire({
-                    title: "Success",
-                    icon: "success",
-                    html: "Variant Stats saved successfully"
-                });
+                this.sample.qualityControl.variant.genomePlot.file = restResponse.responses[0].results[0].id;
+
+                this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        console.log(restResponse);
+                        Swal.fire({
+                            title: "Success",
+                            icon: "success",
+                            html: "Variant Stats saved successfully"
+                        });
+                    })
+                    .catch(restResponse => {
+                        console.error(restResponse);
+                    })
+                    .finally(() => {
+                        this.requestUpdate();
+                    });
             })
             .catch(restResponse => {
                 console.error(restResponse);
@@ -345,6 +361,22 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             .finally(() => {
                 this.requestUpdate();
             });
+
+        // this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+        //     .then(restResponse => {
+        //         console.log(restResponse);
+        //         Swal.fire({
+        //             title: "Success",
+        //             icon: "success",
+        //             html: "Variant Stats saved successfully"
+        //         });
+        //     })
+        //     .catch(restResponse => {
+        //         console.error(restResponse);
+        //     })
+        //     .finally(() => {
+        //         this.requestUpdate();
+        //     });
     }
 
     getSettingsConfig() {

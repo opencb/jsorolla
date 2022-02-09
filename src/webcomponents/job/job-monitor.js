@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
@@ -24,6 +23,7 @@ export class JobMonitor extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -54,17 +54,15 @@ export class JobMonitor extends LitElement {
         this.jobs = [];
         this.filteredJobs = [];
         this.updatedCnt = 0;
+        this.restCnt = 0;
 
         this._config = this.getDefaultConfig();
-
-        this.restCnt = 0;
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.launchMonitor();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.launchMonitor();
@@ -102,10 +100,13 @@ export class JobMonitor extends LitElement {
                 return {...job, updated: true};
             } else {
                 // handle the change of state
-                if (job.internal.status.name !== oldList[i - k].internal.status.name) {
+                // FIXME remove this in v2.3
+                const statusId = job.internal.status.id || job.internal.status.name;
+                const oldStatusId = oldList[i - k].internal.status.id || oldList[i - k].internal.status.name;
+                if (statusId !== oldStatusId) {
                     // new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
-                        message: `${job.id} The job has now status ${job?.internal?.status?.name}`,
+                        message: `${job.id} The job has now status ${job?.internal?.status?.id || job?.internal?.status?.name}`,
                     });
                     return {...job, updated: true};
                 } else {
@@ -127,18 +128,15 @@ export class JobMonitor extends LitElement {
             clearInterval(this.interval);
             return;
         }
-        // const lastAccess = moment(this.opencgaSession.user.configs.IVA.lastAccess).format("YYYYMMDDHHmmss"); // NOTE: we use creationDate because we cannot query execution.end
-        // const lastDays = moment(new Date());
-        // const d = lastDays.subtract(10, "d").format("YYYYMMDD");
+
         const query = {
             study: this.opencgaSession.study.fqn,
             internalStatus: "PENDING,QUEUED,RUNNING,REGISTERING,UNREGISTERED,DONE,ERROR,ABORTED",
             limit: this._config.limit || 10,
             sort: "creationDate",
-            include: "id,internal.status.name,tool,creationDate",
+            include: "id,internal.status,tool,creationDate",
             order: -1
         };
-
         this.opencgaSession.opencgaClient.jobs().search(query)
             .then(async restResponse => {
                 // console.log("restResponse", restResponse);
@@ -148,40 +146,18 @@ export class JobMonitor extends LitElement {
                 }
                 this.jobs = restResponse.getResults();
                 await this.applyUpdated();
-                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.name) ?? 1);
+                this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
                 this.requestUpdate();
-                // this.running = this.jobs.filter( job => ["PENDING", "QUEUED", "RUNNING"].includes(job?.internal?.status.name))
-                // this.done = this.jobs.filter( job => ["DONE", "ERROR"].includes(job?.internal?.status.name) /*job?.execution?.end >= lastDays.valueOf()*/)
-                // this.total = this.running.length + this.done.length;
-                // this.requestUpdate();
             })
             .catch(restResponse => {
                 console.error(restResponse);
             });
-
-        // mock server
-        /* fetch("http://localhost:5000/" + (this.restCnt % 3))
-            .then( async restResponse => {
-                restResponse = await restResponse.json()
-                console.log("restResponse num.", this.restCnt % 3)
-                // first call
-                if (!this._jobs.length) {
-                    this._jobs = restResponse.responses[0].results;
-                }
-                this.jobs = restResponse.responses[0].results;
-                await this.applyUpdated();
-                this.filteredJobs = this.jobs;
-                this.restCnt++;
-            })
-            .catch( restResponse => {
-                console.error(restResponse)
-            })*/
     }
 
     filterJobs(e) {
         e.stopPropagation();
         this.filterTypes = e.currentTarget.dataset?.type?.split(",");
-        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.name) ?? 1);
+        this.filteredJobs = this.jobs.filter(job => this.filterTypes?.includes(job.internal.status.id || job.internal.status.name) ?? 1);
         this.requestUpdate();
     }
 
@@ -237,9 +213,9 @@ export class JobMonitor extends LitElement {
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="javascript: void 0" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                    <a href="javascript: void 0" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}">
                                         <div class="media">
-                                            <div class="media-left rocket-${job?.internal?.status?.name ?? "default"}">
+                                            <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
                                                 <i class="fas fa-rocket"></i>
                                             </div>
                                             <div class="media-body">

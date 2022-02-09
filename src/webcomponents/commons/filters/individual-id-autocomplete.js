@@ -53,8 +53,9 @@ export default class IndividualIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            placeholder: "Start typing...",
+            multiple: false,
             limit: 10,
+            placeholder: "Start typing...",
             fields: item => ({
                 "name": item.id
             }),

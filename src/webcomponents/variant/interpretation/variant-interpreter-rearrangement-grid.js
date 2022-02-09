@@ -48,6 +48,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array,
+            },
             query: {
                 type: Object
             },
@@ -80,18 +83,23 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         // Set colors
         // consequenceTypesImpact;
+        // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this.table = $("#" + this.gridId);
@@ -118,14 +126,22 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
+        };
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
@@ -134,14 +150,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
+            // Update checked variants
             this.checkedVariants = new Map();
-            if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
-                for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
-                    this.checkedVariants.set(variant.id, variant);
-                }
-            } else {
-                this.checkedVariants.clear();
-            }
+            (this.clinicalAnalysis.interpretation?.primaryFindings || []).forEach(variant => {
+                this.checkedVariants.set(variant.id, variant);
+            });
             // this.gridCommons.checkedRows = this.checkedVariants;
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
@@ -157,8 +170,29 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    generateRowsFromVariants(variants) {
+        const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
+        (variants || []).forEach(variant => {
+            const mateId = variant.studies[0].files[0].data.MATEID;
+            let found = false;
+            pairs.forEach(pair => {
+                if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
+                    pair.push(variant);
+                    found = true;
+                }
+            });
+
+            // If not pair has been found --> inser this single variant
+            if (!found) {
+                pairs.push([variant]);
+            }
+        });
+
+        return pairs;
+    }
+
     renderVariants() {
-        if (this._config.renderLocal) {
+        if (this.clinicalVariants && this.clinicalVariants.length > 0) {
             this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
@@ -223,25 +257,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
 
-                            const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
-                            if (res?.responses[0].results) {
-                                for (const variant of res.responses[0].results) {
-                                    const mateId = variant.studies[0].files[0].data.MATEID;
-                                    let found = false;
-                                    for (const pair of pairs) {
-                                        if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
-                                            pair.push(variant);
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!found) {
-                                        pairs.push([variant]);
-                                    }
-                                }
-                                // It's important to overwrite results array
-                                res.responses[0].results = pairs;
-                            }
+                            // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
+                            const pairs = this.generateRowsFromVariants(res.responses[0].results);
+                            // It's important to overwrite results array
+                            res.responses[0].results = pairs;
 
                             params.success(res);
                         })
@@ -255,51 +274,25 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
-                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
-                    // Listen to Show/Hide link in the detail formatter consequence type table
-                    // TODO remove this
-                    document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-
-                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-
-                    UtilsNew.initTooltip(this);
-                },
-                onPostBody: data => {
-                }
             });
         }
     }
 
     renderLocalVariants() {
-        if (!this.clinicalAnalysis.interpretation.primaryFindings) {
-            return;
-        }
-
-        const _variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        // Generate rows from local clinical variants
+        // const variants = this.clinicalAnalysis.interpretation.primaryFindings;
+        const variants = this.generateRowsFromVariants(this.clinicalVariants);
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: _variants,
+            data: variants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
 
@@ -319,16 +312,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             variantGrid: this,
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onExpandRow: (index, row, $detail) => {
-                // Listen to Show/Hide link in the detail formatter consequence type table
-                document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-
-                document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-
-                UtilsNew.initTooltip(this);
-            },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
@@ -336,24 +319,41 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
     }
 
-    onCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const variant = this._rows.find(e => e.id === variantId);
+    onRowCheck(event) {
+        const index = parseInt(event.target.dataset.rowIndex);
 
-        if (e.currentTarget.checked) {
-            this.checkedVariants.set(variantId, variant);
-        } else {
-            this.checkedVariants.delete(variantId);
-        }
-
-        this.dispatchEvent(new CustomEvent("checkrow", {
-            detail: {
-                id: variantId,
-                row: variant,
-                checked: e.currentTarget.checked,
-                rows: Array.from(this.checkedVariants.values())
+        // Add or remove this pair of variants from checkedVariants list
+        this._rows[index].forEach(variant => {
+            if (event.target.checked) {
+                this.checkedVariants.set(variant.id, variant);
+            } else {
+                this.checkedVariants.delete(variant.id);
             }
-        }));
+        });
+
+        // Dispatch row check event
+        LitUtils.dispatchCustomEvent(this, "checkrow", null, {
+            checked: event.target.checked,
+            row: this._rows[index],
+            rows: Array.from(this.checkedVariants.values()),
+        });
+        // const variantId = e.currentTarget.dataset.variantId;
+        // const variant = this._rows.find(e => e.id === variantId);
+
+        // if (e.currentTarget.checked) {
+        //     this.checkedVariants.set(variantId, variant);
+        // } else {
+        //     this.checkedVariants.delete(variantId);
+        // }
+
+        // this.dispatchEvent(new CustomEvent("checkrow", {
+        //     detail: {
+        //         id: variantId,
+        //         row: variant,
+        //         checked: e.currentTarget.checked,
+        //         rows: Array.from(this.checkedVariants.values())
+        //     }
+        // }));
     }
 
     onReviewClick(e) {
@@ -430,34 +430,32 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     // DEPRECATED
     pathogeniticyFormatter(value, row, index) {
         // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
-        const val = `<div class="col-md-12" style="padding: 0px">
-                                <form class="form-horizontal">
-                                    <div class="col-md-12" style="padding: 0px">
-                                        <form class="form-horizontal">
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                                            </div>
-                                             <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
-                                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
-                                             </div>
-                                         </form>
-                                      </div>
-                                </form>
-                           </div>`;
-        return val;
-    }
-
-    checkFormatter(value, row, index) {
-        const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
-        return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
+        return `
+            <div class="col-md-12" style="padding: 0px">
+                <form class="form-horizontal">
+                    <div class="col-md-12" style="padding: 0px">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
+                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
+                            </div>
+                            <div class="form-group" style="margin: 0px 2px">
+                                <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
+                                <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
+                            </div>
+                        </form>
+                    </div>
+                </form>
+            </div>
+        `;
     }
 
     reviewFormatter(value, row, index) {
-        return `<button class="btn btn-link reviewButton" data-variant-id="${row.id}">
-                    <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>&nbsp;Edit
-                </button>`;
+        return `
+            <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
+                <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>&nbsp;Edit
+            </button>
+        `;
         // return `
         //     <div>
         //         <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
@@ -652,20 +650,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 4,
                     halign: "center"
-                },
-                {
-                    title: "Review",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: this.reviewFormatter.bind(this),
-                    align: "center",
-                    events: {
-                        "click button": this.onReviewClick.bind(this)
-                    },
-                    // visible: this._config.showReview
-                    visible: this.review
                 },
                 {
                     title: "Actions",
@@ -726,13 +712,28 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Select",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: this.checkFormatter.bind(this),
+                    formatter: (value, row, index) => {
+                        const checked = this.checkedVariants?.has(row[0].id) ? "checked" : "";
+                        return `<input class="check check-variant" type="checkbox" data-row-index="${index}" ${checked}>`;
+                    },
                     align: "center",
                     events: {
-                        "click input": this.onCheck.bind(this)
+                        "click input": event => this.onRowCheck(event),
                     },
-                    visible: this._config.showSelectCheckbox
-                }
+                    visible: this._config.showSelectCheckbox,
+                },
+                {
+                    title: "Review",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.reviewFormatter.bind(this),
+                    align: "center",
+                    events: {
+                        "click button": this.onReviewClick.bind(this)
+                    },
+                    // visible: this._config.showReview
+                    visible: !!this.review,
+                },
             ]
         ];
 
@@ -949,6 +950,147 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
     }
 
+    showLoading() {
+        $("#" + this.gridId).bootstrapTable("showLoading");
+    }
+
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    async onApplySettings(e) {
+        try {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid,
+                ...this.__config,
+            };
+
+            // TODO Delete old config values. Remove this in IVA 2.2
+            delete this._config.consequenceType.canonicalTranscript;
+            delete this._config.consequenceType.gencodeBasic;
+            delete this._config.consequenceType.highQualityTranscripts;
+            delete this._config.consequenceType.proteinCodingTranscripts;
+            delete this._config.consequenceType.worstConsequenceTypes;
+            delete this._config.consequenceType.filterByBiotype;
+            delete this._config.consequenceType.filterByConsequenceType;
+            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
+
+            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
+                interpreterGrid: this._config
+            });
+            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+            this.renderVariants();
+        } catch (e) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+        }
+    }
+
+
+    onVariantChange(e) {
+        this._variantChanged = e.detail.value;
+        // this._variantUpdates = e.detail.update;
+    }
+
+    onSaveVariant(e) {
+        if (this._variantChanged) {
+            this.clinicalAnalysisManager.updateVariant(this._variantChanged, this.clinicalAnalysis.interpretation);
+            this._variantChanged = null;
+        }
+    }
+
+    onCancelVariant(e) {
+        this._variantChanged = null;
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                    </button>
+                `,
+            }
+        ];
+    }
+
+    render() {
+        return html`
+            <style>
+                .variant-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+                .qtip-custom-class {
+                    font-size: 13px;
+                    max-width: none;
+                }
+                .check-variant {
+                    transform: scale(1.2);
+                }
+            </style>
+
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                .rightToolbar="${this.getRightToolbar()}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}"
+                @sharelink="${this.onShare}">
+            </opencb-grid-toolbar>
+
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}VariantBrowserGrid"></table>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 768px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Review Variant</h3>
+                        </div>
+                        <clinical-interpretation-variant-review
+                            .opencgaSession="${this.opencgaSession}"
+                            .variant="${this.variantReview}"
+                            mode=${"form"}
+                            @variantChange="${e => this.onVariantChange(e)}">
+                        </clinical-interpretation-variant-review>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <variant-interpreter-grid-config
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
+                                </variant-interpreter-grid-config>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -1005,144 +1147,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     ]
                 }
             ],
-
             evidences: {
-                showSelectCheckbox: true
-            }
+                showSelectCheckbox: true,
+            },
         };
-    }
-
-    showLoading() {
-        $("#" + this.gridId).bootstrapTable("showLoading");
-    }
-
-
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
-    async onApplySettings(e) {
-        try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid, ...this.__config};
-
-            // TODO Delete old config values. Remove this in IVA 2.2
-            delete this._config.consequenceType.canonicalTranscript;
-            delete this._config.consequenceType.gencodeBasic;
-            delete this._config.consequenceType.highQualityTranscripts;
-            delete this._config.consequenceType.proteinCodingTranscripts;
-            delete this._config.consequenceType.worstConsequenceTypes;
-            delete this._config.consequenceType.filterByBiotype;
-            delete this._config.consequenceType.filterByConsequenceType;
-            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
-
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                interpreterGrid: this._config
-            });
-            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-            this.renderVariants();
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-        }
-    }
-
-
-    onVariantChange(e) {
-        this._variantChanged = e.detail.value;
-        // this._variantUpdates = e.detail.update;
-    }
-
-    onSaveVariant(e) {
-        if (this._variantChanged) {
-            this.clinicalAnalysisManager.updateVariant(this._variantChanged, this.clinicalAnalysis.interpretation);
-            this._variantChanged = null;
-        }
-    }
-
-    onCancelVariant(e) {
-        this._variantChanged = null;
-    }
-
-    getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
-            }
-        ];
-    }
-
-    render() {
-        return html`
-            <style>
-                .variant-link-dropdown:hover .dropdown-menu {
-                    display: block;
-                }
-                .qtip-custom-class {
-                    font-size: 13px;
-                    max-width: none;
-                }
-                .check-variant {
-                    transform: scale(1.2);
-                }
-            </style>
-
-            <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 .rightToolbar="${this.getRightToolbar()}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}"
-                                 @sharelink="${this.onShare}">
-            </opencb-grid-toolbar>
-
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}VariantBrowserGrid"></table>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 768px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Review Variant</h3>
-                        </div>
-                        <clinical-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
-                                                                .variant="${this.variantReview}"
-                                                                mode=${"form"}
-                                                                @variantChange="${e => this.onVariantChange(e)}">
-                        </clinical-interpretation-variant-review>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config .config="${this._config}"
-                                                                 @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
     }
 
 }

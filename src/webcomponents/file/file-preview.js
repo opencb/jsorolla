@@ -39,6 +39,9 @@ export default class FilePreview extends LitElement {
             file: {
                 type: Object
             },
+            fileId: {
+                type: String
+            },
             active: {
                 type: Object
             },
@@ -64,10 +67,12 @@ export default class FilePreview extends LitElement {
         if ((changedProperties.has("file") || changedProperties.has("active")) && this.active) {
             this.fileObserver();
         }
+        if (changedProperties.has("fileId")) {
+            this.fileIdObserver();
+        }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -152,7 +157,15 @@ export default class FilePreview extends LitElement {
     }
 
     fileIdObserver() {
-        console.log("fileObserver");
+        if (this.opencgaSession && this.fileId) {
+            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.file = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error(response);
+                });
+        }
     }
 
     getDefaultConfig() {

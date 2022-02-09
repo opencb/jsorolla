@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
@@ -83,6 +84,9 @@ export default class ClinicalInterpretationCreate extends LitElement {
         if (changedProperties.has("interpretationId")) {
             this.interpretationIdObserver();
         }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.config = this.getDefaultConfig();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
         }
@@ -115,6 +119,40 @@ export default class ClinicalInterpretationCreate extends LitElement {
         }
     }
 
+    onCommentChange(e) {
+        this.commentsUpdate = e.detail;
+    }
+
+    updateOrDeleteComments(notify) {
+        const clinicalAnalysisId = this.interpretation.clinicalAnalysisId;
+        const interpretationId = this.interpretation.id;
+
+        if (this.commentsUpdate?.updated?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(clinicalAnalysisId, interpretationId, {comments: this.commentsUpdate.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify && this.commentsUpdate?.deleted?.length === 0) {
+                        this.postUpdate(response, "");
+                    }
+                })
+                .catch(response => {
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                });
+        }
+        if (this.commentsUpdate?.deleted?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(clinicalAnalysisId, interpretationId, {comments: this.commentsUpdate.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify) {
+                        this.postUpdate(response, "");
+                    }
+                })
+                .catch(response => {
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                });
+        }
+    }
+
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         switch (param) {
@@ -137,6 +175,16 @@ export default class ClinicalInterpretationCreate extends LitElement {
         this.requestUpdate();
     }
 
+    postUpdate(response, id) {
+        console.log("response: ", response);
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            title: "Clinical interpretation updated",
+            message: `The clinical interpretation ${id} has been updated successfully`,
+        });
+        this.notifyClinicalAnalysisWrite();
+        this.onClear();
+    }
+
     notifyClinicalAnalysisWrite() {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             id: this.interpretation.id,
@@ -155,26 +203,31 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     onSubmit() {
-        const data = {...this.updateParams};
+        // const data = {...this.updateParams};
         const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
         const id = this.interpretation.id;
 
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, data, {
-            study: this.opencgaSession.study.fqn,
-            panelsAction: "SET",
-        })
-            .then(() => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Clinical interpretation updated",
-                    message: `The clinical interpretation ${id} has been updated successfully`,
-                });
-                this.notifyClinicalAnalysisWrite();
-                this.onClear();
-            })
-            .catch(response => {
+        if (this.commentsUpdate) {
+            if (this.commentsUpdate.added?.length > 0) {
+                this.updateParams.comments = this.commentsUpdate.added;
+            }
+        }
+
+        if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
+            this.updateOrDeleteComments(false);
+
+            this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis, id, this.updateParams, {
+                study: this.opencgaSession.study.fqn,
+                panelsAction: "SET",
+            }).then(response => {
+                this.postUpdate(response, id);
+            }).catch(response => {
                 // console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
+        } else {
+            this.updateOrDeleteComments(true);
+        }
     }
 
     render() {

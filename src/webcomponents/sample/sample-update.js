@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
@@ -160,13 +161,18 @@ export default class SampleUpdate extends LitElement {
                 // this.sample = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
-                FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Update Sample",
+                    message: "Sample updated correclty"
+                });
+                // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
                 // sessionUpdateRequest
                 // TODO: dispacth to the user the data is saved
             })
             .catch(err => {
-                console.error(err);
-                FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
+                // console.error(err);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
     }
 
@@ -396,6 +402,15 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Phenotypes",
                 elements: [
+                    {
+                        title: "",
+                        type: "notification",
+                        text: "Empty, create a new phenotype",
+                        display: {
+                            visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
+                            notificationType: "info",
+                        }
+                    },
                     {
                         field: "phenotype",
                         type: "custom",

@@ -53,13 +53,17 @@ export default class TextFieldFilter extends LitElement {
             },
             separator: {
                 type: String
-            }
+            },
+            type: {
+                type: String,
+            },
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(9);
         this.rows = 1;
+        this.type = "text";
         this.separator = ",";
         this.classes = "";
     }
@@ -125,7 +129,7 @@ export default class TextFieldFilter extends LitElement {
             <div id="${this._prefix}-wrapper" class="" style="margin-left: 0px">
                 ${rows === 1 ? html`
                     <input
-                        type="text"
+                        type="${this.type || "text"}"
                         id="${this._prefix}-input"
                         class="form-control ${this.classes}"
                         ?disabled="${this.disabled}"

@@ -34,6 +34,7 @@ import "../commons/filters/hpo-accessions-filter.js";
 import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
+import "../commons/filters/sample-genotype-filter.js";
 import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
@@ -108,13 +109,16 @@ export default class VariantBrowserFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -276,7 +280,9 @@ export default class VariantBrowserFilter extends LitElement {
 
     renderFilterMenu() {
         if (this.config?.sections?.length > 0) {
-            return this.config.sections.map(section => this._createSection(section));
+            return this.config.sections
+                .filter(section => section.filters?.length > 0 && !section.filters.includes(undefined))
+                .map(section => this._createSection(section));
         } else {
             return html`No filter has been configured.`;
         }
@@ -301,9 +307,11 @@ export default class VariantBrowserFilter extends LitElement {
         // TODO replicate in all filters components
         const filters = section.filters.filter(filter => this._isFilterVisible(filter)) ?? [];
         const htmlFields = filters.map(filter => this._createSubSection(filter));
+
+        // TODO should we add a config variable to decide if the accordion is shown
         // We only display section accordions when more than a section exists,
         // otherwise we just render all filters without an accordion box.
-        return this.config.sections.length > 1 ? html`
+        return this.config.sections.length > 0 ? html`
             <section-filter
                 .filters="${htmlFields}"
                 .config="${section}">
@@ -419,6 +427,7 @@ export default class VariantBrowserFilter extends LitElement {
                         <variant-type-filter
                             .type="${this.preparedQuery.type}"
                             .config="${subsection.params?.types ? {types: subsection.params.types} : {}}"
+                            .disabled="${disabled}"
                             @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
                         </variant-type-filter>`;
                     break;

@@ -42,6 +42,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array
+            },
             cellbaseClient: {
                 type: Object
             },
@@ -96,13 +99,14 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // this._interpretation = this.interpretation;
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("mode") || changedProperties.has("config")) {
             this.propertyObserver();
         }
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
             // this.clinicalAnalysisObserver();
         }
+        super.update(changedProperties);
     }
 
     propertyObserver(opencgaSession, mode, config) {
@@ -255,6 +259,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                 <variant-interpreter-grid
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
                                     .review="${true}"
                                     .config="${this._config.result.grid}"
                                     @selected="${this.selectedGene}"
@@ -328,7 +333,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     pagination: true,
                     pageSize: 10,
                     pageList: [10, 25, 50],
-                    showExport: false,
+                    showExport: true,
+                    exportFilename: `variant_interpreter_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_primaryFindings_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`,
                     detailView: true,
                     showReview: true,
                     showActions: false,
@@ -338,7 +344,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     nucleotideGenotype: true,
                     alleleStringLengthMax: 10,
 
-                    renderLocal: true,
+                    renderLocal: false,
 
                     header: {
                         horizontalAlign: "center",
