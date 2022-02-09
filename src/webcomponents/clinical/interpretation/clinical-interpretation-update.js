@@ -84,6 +84,9 @@ export default class ClinicalInterpretationCreate extends LitElement {
         if (changedProperties.has("interpretationId")) {
             this.interpretationIdObserver();
         }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.config = this.getDefaultConfig();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
         }
