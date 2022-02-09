@@ -70,20 +70,22 @@ export default class ClinicalInterpretationCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = this.getDefaultConfig();
+        this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.initClinicalInterpretation();
+            this.config = this.getDefaultConfig();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
             this.initClinicalInterpretation();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -178,7 +180,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
         return html`
             <data-form
                 .data="${this.interpretation}"
-                .config="${this._config}"
+                .config="${this.config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
