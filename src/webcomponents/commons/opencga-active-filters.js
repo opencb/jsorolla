@@ -118,16 +118,18 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         if (changedProperties.has("filters")) {
+            this.refreshFilters();
+
+            // Nacho (6/2/2021): probably observers should not dispatch new events
             // If there is any active filter we set the first one in the initialisation
-            if (this.filters) {
-                this.refreshFilters();
-                const activeFilter = this.filters.find(f => f.active);
-                if (activeFilter) {
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: activeFilter.query,
-                    }));
-                }
-            }
+            // if (this.filters) {
+            //     const activeFilter = this.filters.find(f => f.active);
+            //     if (activeFilter) {
+            //         this.dispatchEvent(new CustomEvent("activeFilterChange", {
+            //             detail: activeFilter.query,
+            //         }));
+            //     }
+            // }
         }
     }
 

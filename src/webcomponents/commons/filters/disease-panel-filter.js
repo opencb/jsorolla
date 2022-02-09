@@ -173,7 +173,7 @@ export default class DiseasePanelFilter extends LitElement {
                 }
             }
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     filterChange(e, field) {

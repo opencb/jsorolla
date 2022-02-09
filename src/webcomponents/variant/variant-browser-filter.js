@@ -34,6 +34,7 @@ import "../commons/filters/hpo-accessions-filter.js";
 import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
+import "../commons/filters/sample-genotype-filter.js";
 import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
