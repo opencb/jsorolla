@@ -93,9 +93,10 @@ export default class GeneGrid extends LitElement {
         // If this.diseasePanel is provided as property we render the array directly
         if (this.genePanels && this.genePanels.length > 0) {
             this.renderLocalTable();
-        } else {
-            this.renderRemoteTable();
         }
+        // else {
+        //     this.renderRemoteTable();
+        // }
         this.requestUpdate();
     }
 
@@ -239,6 +240,7 @@ export default class GeneGrid extends LitElement {
                 id: "name",
                 title: "Entity (Gene)",
                 field: "name",
+                formatter: (value, row) => this.geneFormatter(row.name, this.opencgaSession),
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -263,10 +265,9 @@ export default class GeneGrid extends LitElement {
                     const generateList = (arr, field) => {
                         return arr? arr.map(item => String.raw `<li>${field?item[field]:item}</li>`).join(""):"";
                     };
-
                     const evidencesContent = generateList(row.evidences, "");
                     const phenotypesContent = generateList(row.phenotypes, "name");
-                    const tagsContent = generateList(row.tags);
+                    const tagsContent = generateList(row.tags, "");
                     const content = String.raw `
                         ${evidencesContent ? String.raw `
                             <label>Sources</label>
@@ -283,8 +284,8 @@ export default class GeneGrid extends LitElement {
                                 <ul>
                                     ${tagsContent}
                                 </ul>` : ""}
-                        `;
-                    return `${content}`;
+                        `.trim();
+                    return `${content? content: "-"}`;
                 },
             },
         ],
@@ -331,6 +332,69 @@ export default class GeneGrid extends LitElement {
                 this.requestUpdate();
             });
     }
+
+    geneFormatter(geneName, opencgaSession) {
+
+        const geneLinks = [];
+        const geneWithCtLinks = [];
+
+        if (geneName) {
+            let geneViewMenuLink = "";
+            if (opencgaSession.project && opencgaSession.study) {
+                geneViewMenuLink = String.raw`
+                            <div style='padding: 5px'>
+                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view2'>Gene View</a>
+                            </div>`;
+            }
+
+            const tooltipText = String.raw`
+                        ${geneViewMenuLink}
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+                        </div>
+
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+                        </div>`;
+
+            geneLinks.push(String.raw `
+                                        <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
+                                            ${geneName}
+                                        </a>`);
+        }
+
+        let resultHtml = "";
+
+        // Second, the other genes
+        for (let i = 0; i < geneLinks.length; i++) {
+            resultHtml += geneLinks[i];
+            if (i + 1 !== geneLinks.length) {
+                if (i === 0) {
+                    resultHtml += ",";
+                } else if ((i + 1) % 2 !== 0) {
+                    resultHtml += ",";
+                } else {
+                    resultHtml += "<br>";
+                }
+            }
+        }
+        return resultHtml;
+    }
+
 
     getDefaultConfig() {
         return {

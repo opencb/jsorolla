@@ -264,6 +264,7 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "name",
                 rowspan: 2,
                 colspan: 1,
+                formatter: (value, row) => row?.name ?? "-",
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -289,6 +290,16 @@ export default class DiseasePanelGrid extends LitElement {
         ],
         [
             {
+                id: "numberOfGenes",
+                title: "# genes",
+                field: "numberOfGenes",
+                rowspan: 1,
+                colspan: 1,
+                formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
+                halign: this._config.header.horizontalAlign,
+                align: "right",
+            },
+            {
                 id: "numberOfRegions",
                 title: "# regions",
                 field: "numberOfRegions",
@@ -305,16 +316,6 @@ export default class DiseasePanelGrid extends LitElement {
                 rowspan: 1,
                 colspan: 1,
                 formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            },
-            {
-                id: "numberOfGenes",
-                title: "# genes",
-                field: "numberOfGenes",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
                 halign: this._config.header.horizontalAlign,
                 align: "right",
             }
