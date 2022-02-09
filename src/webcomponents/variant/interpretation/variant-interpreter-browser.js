@@ -58,7 +58,6 @@ class VariantInterpreterBrowser extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.showRearrangementBrowser = true;
         this._config = this.getDefaultConfig();
     }
 
@@ -199,12 +198,12 @@ class VariantInterpreterBrowser extends LitElement {
                 });
 
                 // Add CNV Variant browser
-                // TODO: check for adding this browser
-                items.push({
-                    id: "somatic-cnv-variant-browser",
-                    name: "Somatic CNV Variant Browser",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                if (this.settings.browsers["CANCER_CNV"]) {
+                    items.push({
+                        id: "somatic-cnv-variant-browser",
+                        name: "Somatic CNV Variant Browser",
+                        active: false,
+                        render: (clinicalAnalysis, active, opencgaSession) => html`
                         <div class="col-md-12">
                             <tool-header
                                 title="Somatic CNV Variant Browser - ${this._somaticSample?.id}"
@@ -220,10 +219,11 @@ class VariantInterpreterBrowser extends LitElement {
                             </variant-interpreter-browser-cnv>
                         </div>
                     `,
-                });
+                    });
+                }
 
                 // Check for adding rearrangements variant browser
-                if (this.showRearrangementBrowser) {
+                if (this.settings.browsers["REARRANGEMENT"]) {
                     items.push({
                         id: "cancer-somatic-rearrangement-variant-browser",
                         name: "Somatic Rearrangement Variant Browser",
