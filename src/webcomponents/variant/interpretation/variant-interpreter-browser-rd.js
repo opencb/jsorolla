@@ -234,6 +234,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
+                .userConfigId="${"variantInterpreterRD"}"
                 .config="${this._config}">
             </variant-interpreter-browser-template>
         `;
