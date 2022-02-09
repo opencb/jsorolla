@@ -196,18 +196,42 @@ export default class DiseasePanelSummary extends LitElement {
                             defaultValue: "N/A",
                         },
                         {
-                            title: "Number of Regions",
+                            title: "Disorders",
+                            field: "disorders",
+                            type: "list",
+                            display: {
+                                contentLayout: "bullets",
+                                render: disorder => {
+                                    let id = disorder.id;
+
+                                    if (disorder.id.startsWith("OMIM:")) {
+                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                    }
+
+                                    if (disorder.id.startsWith("HP:")) {
+                                        id = html`
+                                            <a href="https://hpo.jax.org/app/browse/term/${disorder.id}" target="_blank">${disorder.id}
+                                                <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
+                                            </a>`;
+                                    }
+                                    return html`${disorder.name} (${id})`;
+                                },
+                                defaultValue: "N/A",
+                            },
+                        },
+                        {
+                            title: "# Genes",
+                            field: "stats.numberOfGenes",
+                            defaultValue: "N/A",
+                        },
+                        {
+                            title: "# Regions",
                             field: "stats.numberOfRegions",
                             defaultValue: "N/A",
                         },
                         {
-                            title: "Number of Variants",
+                            title: "# Variants",
                             field: "stats.numberOfVariants",
-                            defaultValue: "N/A",
-                        },
-                        {
-                            title: "Number of Genes",
-                            field: "stats.numberOfGenes",
                             defaultValue: "N/A",
                         },
                         {
@@ -215,8 +239,10 @@ export default class DiseasePanelSummary extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                                render: field => {
+                                    return field? html`${UtilsNew.dateFormatter(field)}`: "N/A";
+                                },
+                            },
                         },
                         // {
                         //     title: "Phenotypes",

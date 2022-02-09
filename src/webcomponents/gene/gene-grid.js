@@ -237,6 +237,21 @@ export default class GeneGrid extends LitElement {
     _getDefaultColumns() {
         let _columns = [[
             {
+                id: "confidence",
+                title: "Confidence",
+                field: "confidence",
+                align: "center",
+                formatter: (value, row) => {
+                    const statusConfidence = {
+                        "HIGH": "label label-success",
+                        "MEDIUM": "label label-warning",
+                        "LOW": "label label-danger",
+                    };
+                    return String.raw`<h4><span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence}</span></h4>`;
+                },
+                halign: this._config.header.horizontalAlign
+            },
+            {
                 id: "name",
                 title: "Entity (Gene)",
                 field: "name",

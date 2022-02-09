@@ -283,7 +283,7 @@ export default class DiseasePanelGrid extends LitElement {
                 colspan: 1,
                 formatter: (value, row) => {
                     const {author, project, version} = row.source;
-                    return `${author? `${author} -`:""} ${project ?? ""} ${version?`(${version})`:""}`;
+                    return `${author? `${author} -`:""} ${project ?? ""} ${version?`(v${version})`:""}`;
                 },
                 align: "center",
             },
