@@ -94,6 +94,9 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        // Configuration is using the clinicalAnalysis
+        this._config = this.getDefaultConfig();
+
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
         const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
 
