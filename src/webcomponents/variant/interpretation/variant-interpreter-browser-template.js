@@ -336,16 +336,27 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         <!-- SEARCH TABLE RESULT -->
                         <div class="main-view">
                             <div id="${this._prefix}Interactive" class="variant-interpretation-content">
-                                <variant-interpreter-grid
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .query="${this.executedQuery}"
-                                    .review="${true}"
-                                    .config="${this._config.filter.result.grid}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @updaterow="${this.onUpdateVariant}"
-                                    @checkrow="${this.onCheckVariant}">
-                                </variant-interpreter-grid>
+                                ${!this._config.filter.result.grid.isRearrangement ? html`
+                                    <variant-interpreter-grid
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .query="${this.executedQuery}"
+                                        .review="${true}"
+                                        .config="${this._config.filter.result.grid}"
+                                        @selectrow="${this.onSelectVariant}"
+                                        @updaterow="${this.onUpdateVariant}"
+                                        @checkrow="${this.onCheckVariant}">
+                                    </variant-interpreter-grid>` : html`
+                                    <variant-interpreter-rearrangement-grid
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .query="${this.executedQuery}"
+                                        .config="${this._config.filter.result.grid}"
+                                        @selectrow="${this.onSelectVariant}"
+                                        @checkrow="${this.onCheckVariant}">
+                                    </variant-interpreter-rearrangement-grid>`
+                                }
+
 
                                 <!-- Bottom tabs with detailed variant information -->
                                 <variant-interpreter-detail
