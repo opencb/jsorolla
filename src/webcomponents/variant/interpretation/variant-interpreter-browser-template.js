@@ -18,6 +18,7 @@ import {html, LitElement} from "lit";
 import VariantUtils from "../variant-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
@@ -53,6 +54,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             },
             cellbaseClient: {
                 type: Object
+            },
+            userConfigId: {
+                type: String
             },
             settings: {
                 type: Object
@@ -113,11 +117,21 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
+
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
+
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+
+        // Check for user configuration
+        if (this.userConfigId && this.opencgaSession.user?.configs?.IVA?.[this.userConfigId]?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA[this.userConfigId].grid,
+            };
         }
     }
 
@@ -225,6 +239,27 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         this.query = _query;
         this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        const newGridConfig = {...e.detail.value};
+
+        // Remove highlights and copies configuration from new config
+        delete newGridConfig.highlights;
+        // delete newConfig.copies;
+
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.userConfigId, newGridConfig);
+            this.settingsObserver();
+            this.requestUpdate();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
     }
 
     render() {
@@ -345,7 +380,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         .config="${this._config.filter.result.grid}"
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
-                                        @checkrow="${this.onCheckVariant}">
+                                        @checkrow="${this.onCheckVariant}"
+                                        @gridconfigsave="${this.onGridConfigSave}">
                                     </variant-interpreter-grid>` : html`
                                     <variant-interpreter-rearrangement-grid
                                         .opencgaSession="${this.opencgaSession}"
