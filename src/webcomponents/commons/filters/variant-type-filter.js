@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/checkbox-field-filter.js";
 
@@ -48,15 +47,14 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // TODO Remove this code since it does not seem necessary.
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
@@ -67,6 +65,11 @@ export default class VariantTypeFilter extends LitElement {
 
     filterChange(e) {
         this.type = e.detail.value;
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
+    }
+
+    onSelectAll() {
+        this.type = this._config.types?.join(",");
         LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
     }
 
@@ -85,7 +88,13 @@ export default class VariantTypeFilter extends LitElement {
                     margin-right: 10px;
                 }
             </style>
-            <div id="${this._prefix}Type" class="${classMap({inline: this._config.layout === "horizontal"})}">
+
+            <div style="margin-bottom: 10px">
+                <button type="button" class="btn btn-xs btn-default" @click=${this.onSelectAll}>
+                    Select All
+                </button>
+            </div>
+            <div class="${classMap({inline: this._config.layout === "horizontal"})}">
                 <checkbox-field-filter
                     .value="${this.type}"
                     .data="${this._config.types}"

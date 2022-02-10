@@ -125,7 +125,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 this.query.panelIntersection = true;
             }
 
-            // 4. 'fileData' query param: fetch non SV files and set init query
+            // 4. Get all files indexed
+            this.indexedFiles = this.clinicalAnalysis.files
+                .filter(file => file.format.toUpperCase() === "VCF");
+
+            // 5. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 // FIXME remove specific code for ASCAT!
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
@@ -163,10 +167,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
                 // Update query with default 'fileData' parameters
                 this.query.fileData = fileDataFilters.join(",");
-
-                // getDefaultConfig() uses this.files
-                this._config = this.getDefaultConfig();
             }
+
+            // getDefaultConfig() uses this.files
+            this._config = this.getDefaultConfig();
+
 
             // Add filter to Active Filter's menu
             // 1. Add variant stats saved queries to the Active Filters menu
@@ -280,16 +285,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "variant-file",
                                 title: "VCF File Filter",
+                                visible: () => this.indexedFiles?.length > 1,
                                 params: {
-                                    files: this.files
+                                    files: this.indexedFiles
                                 }
                             },
-                            // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filters",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     visible: UtilsNew.isEmpty(this.callerToFile)
-                            // },
+                            {
+                                id: "file-quality",
+                                title: "Quality Filters",
+                                tooltip: "VCF file based FILTER and QUAL filters"
+                            },
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",

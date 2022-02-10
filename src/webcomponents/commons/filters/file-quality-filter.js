@@ -167,45 +167,48 @@ export default class FileQualityFilter extends LitElement {
 
     render() {
         return html`
-
             <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
                 <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
-                        @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px" data-cy="filter-pass">
+                       @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px" data-cy="filter-pass">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
 
             ${this._config.showDepth ? html`
                 <form class="form-horizontal subsection-content">
-                <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
-                    <div class="col-md-8">
-                        <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
-                                @change="${this.onChangeDepthCheckbox}" .checked="${this.depthChecked}" style="margin-right: 5px" data-cy="filter-depth">
-                        <span>Select min. <span style="font-weight: bold;">DEPTH</span></span>
+                    <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
+                        <div class="col-md-7" style="padding-right: 5px">
+                            <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
+                                   @change="${this.onChangeDepthCheckbox}" .checked="${this.depthChecked}" style="margin-right: 5px" data-cy="filter-depth">
+                            <span>Select <span style="font-weight: bold;">DEPTH =></span></span>
+                        </div>
+                        <div class="col-md-5" style="padding-left: 5px">
+                            <select-field-filter
+                                .value="${this.depth}"
+                                .data="${this.depths}"
+                                .disabled="${!this.depthChecked}"
+                                @filterChange="${this.fileDepthChange}"
+                                data-cy="filter-pass-value">
+                            </select-field-filter>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <select-field-filter .data="${this.depths}" .value="${this.depth}" @filterChange="${this.fileDepthChange}" .disabled="${!this.depthChecked}" data-cy="filter-pass-value"></select-field-filter>
-                    </div>
-                </div>
-            </form>
+                </form>
             ` : null}
 
-
-            ${this._config.showQuality
-                ? html`
-                    <form class="form-horizontal subsection-content">
-                        <div class="form-group row">
-                            <div class="col-md-8">
-                                <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"
-                                        @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}" data-cy="filter-qual">
-                                <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
-                            </div>
-                            <div class="col-md-4">
-                                <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}" @input="${this.filterChange}" data-cy="filter-qual-value">
-                            </div>
+            ${this._config.showQuality ? html`
+                <form class="form-horizontal subsection-content">
+                    <div class="form-group row">
+                        <div class="col-md-8">
+                            <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"
+                                   @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}" data-cy="filter-qual">
+                            <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
                         </div>
-                    </form>`
-                : null
-        }
+                        <div class="col-md-4">
+                            <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}"
+                                   @input="${this.filterChange}" data-cy="filter-qual-value">
+                        </div>
+                    </div>
+                </form>` : null
+            }
         `;
     }
 
