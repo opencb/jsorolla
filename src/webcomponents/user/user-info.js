@@ -45,6 +45,15 @@ export default class UserInfo extends LitElement {
                     // title: "General Info",
                     elements: [
                         {
+                            type: "text",
+                            text: "User Info",
+                            display: {
+                                icon: "user",
+                                textClassName: "h3",
+                                textStyle: "color: var(--main-bg-color);margin-bottom:24px;font-weight:bold;",
+                            },
+                        },
+                        {
                             title: "id",
                             field: "id"
                         },
