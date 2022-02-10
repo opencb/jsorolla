@@ -1071,31 +1071,6 @@ export default class VariantInterpreterGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
-    // async onApplySettings(e) {
-    //     try {
-    //         this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
-
-    //         // TODO Delete old config values. Remove this in IVA 2.2
-    //         delete this._config.consequenceType.canonicalTranscript;
-    //         delete this._config.consequenceType.gencodeBasic;
-    //         delete this._config.consequenceType.highQualityTranscripts;
-    //         delete this._config.consequenceType.proteinCodingTranscripts;
-    //         delete this._config.consequenceType.worstConsequenceTypes;
-    //         delete this._config.consequenceType.filterByBiotype;
-    //         delete this._config.consequenceType.filterByConsequenceType;
-    //         delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
-
-    //         const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-    //             ...this.opencgaSession.user.configs.IVA,
-    //             interpreterGrid: this._config
-    //         });
-    //         this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    //         this.renderVariants();
-    //     } catch (e) {
-    //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-    //     }
-    // }
-
     onConfigClick(e) {
         $("#" + this._prefix + "ConfigModal").modal("show");
     }
