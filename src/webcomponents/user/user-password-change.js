@@ -87,6 +87,15 @@ export default class UserPasswordChange extends LitElement {
                     elements: [
                         {
                             type: "text",
+                            text: "Change password",
+                            display: {
+                                icon: "user-shield",
+                                textClassName: "h2",
+                                textStyle: "color: var(--main-bg-color);margin-bottom:16px;font-weight:bold;",
+                            },
+                        },
+                        {
+                            type: "text",
                             text: `
                                 Here you can change your password. We recommend that your new password has at least 
                                 8 characters long and uses uppercase and lowercase letters and numbers.
