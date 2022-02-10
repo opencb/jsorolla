@@ -290,7 +290,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 {
                     title: "Variant highlight",
                     display: {
-                        visible: () => (this.config?.highlights || []).length > 0,
                         titleHeader: "h4",
                     },
                     elements: [
@@ -300,7 +299,18 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             type: "select",
                             multiple: true,
                             allowedValues: this.config?.highlights || [],
-                        }
+                            display: {
+                                visible: () => (this.config?.highlights || []).length > 0,
+                            },
+                        },
+                        {
+                            type: "notification",
+                            text: "No highlight conditions defined.",
+                            display: {
+                                notificationType: "warning",
+                                visible: () => (this.config?.highlights || []).length === 0,
+                            },
+                        },
                     ],
                 },
             ]
