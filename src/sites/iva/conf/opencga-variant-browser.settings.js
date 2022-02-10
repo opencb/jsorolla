@@ -61,33 +61,22 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
             showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
-        highlights: [
-            {
-                id: "highlight1",
-                name: "Test highlight 1",
-                description: "",
-                // condition: (variant, index) => index % 2 === 1,
-                condition: () => true,
-                style: {
-                    rowBackgroundColor: "#cfe2ff",
-                    rowOpacity: 0.5,
-                    icon: "circle",
-                    iconColor: "blue",
-                },
-            },
-            {
-                id: "highlight2",
-                name: "Test highlight 2",
-                description: "",
-                condition: (variant, index) => index % 2 === 0,
-                style: {
-                    rowBackgroundColor: "#f8d7da",
-                    icon: "exclamation",
-                    iconColor: "red",
-                },
-            },
-        ],
-        activeHighlights: ["highlight2"],
+        // Highlight conditions for Variant Browser
+        // highlights: [
+        //     {
+        //         id: "highlight1",
+        //         name: "Test highlight 1",
+        //         description: "",
+        //         condition: () => true,
+        //         style: {
+        //             rowBackgroundColor: "#cfe2ff",
+        //             rowOpacity: 0.5,
+        //             icon: "circle",
+        //             iconColor: "blue",
+        //         },
+        //     },
+        // ],
+        // activeHighlights: ["highlight1"],
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span.
         // It is supported either columns[] or hiddenColumns[].
         columns: ["id", "gene", "type", "consequenceType", "deleteriousness", "conservation", "samples", "cohorts", "popfreq", "clinicalInfo"]
