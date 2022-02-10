@@ -247,7 +247,7 @@ export default class GeneGrid extends LitElement {
                         "MEDIUM": "label label-warning",
                         "LOW": "label label-danger",
                     };
-                    return String.raw`<h4><span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence}</span></h4>`;
+                    return String.raw`<h4><span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence ?? "-"}</span></h4>`;
                 },
                 halign: this._config.header.horizontalAlign
             },
