@@ -788,7 +788,7 @@ class IvaApp extends LitElement {
             this.cellbaseClient = new CellBaseClient({
                 host: this.opencgaSession.project.internal.cellbase.url.replace(/\/$/, ""),
                 version: this.opencgaSession.project.internal.cellbase.version,
-                species: "hsapiens",
+                species: this.opencgaSession.project.organism.scientificName,
             });
             console.log("cellbaseClient iva-app", this.cellbaseClient);
         }
