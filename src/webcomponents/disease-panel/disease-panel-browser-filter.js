@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import "../commons/filters/disease-panel-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
 import "../commons/filters/feature-filter.js";
 import "../commons/filters/region-filter.js";
@@ -162,15 +163,13 @@ export default class DiseasePanelBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <disease-panel-filter
+                    <disease-panel-id-autocomplete
+                        .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .diseasePanels="${this.opencgaSession.study.panels}"
-                        .panel="${this.preparedQuery.panel}"
-                        .showPanelTitle="${true}"
-                        .showExtendedFilters=${false}
-                        @filterChange="${e => this.onFilterChange(
-                                subsection.id, e.detail.query["panel"])}">
-                    </disease-panel-filter>`;
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </disease-panel-id-autocomplete>
+                    `;
                 break;
             case "disorders":
                 content = html`
