@@ -53,7 +53,7 @@ export default class UserProfile extends LitElement {
                     <div class="col-md-4">
                         <div style="position:sticky;top:0px">
                             ${this.renderTitle("h3", "user", "User info")}
-                            <user-info .opencgaSession="${this.opencgaSession}"></user-info>
+                            <user-info .user="${this.opencgaSession.user}"></user-info>
                         </div>
                     </div>
                     <div class="col-md-8">

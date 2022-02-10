@@ -15,7 +15,7 @@ export default class UserInfo extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            user: {
                 type: Object
             },
         };
@@ -26,10 +26,9 @@ export default class UserInfo extends LitElement {
     }
 
     render() {
-        // TODO: check if opencgaSession has been provided
         return html`
             <data-form
-                .data="${this.opencgaSession}"
+                .data="${this.user}"
                 .config="${this.config}">
             </data-form>
         `;
@@ -47,42 +46,42 @@ export default class UserInfo extends LitElement {
                     elements: [
                         {
                             title: "id",
-                            field: "user.id"
+                            field: "id"
                         },
                         {
                             title: "Name",
-                            field: "user.name"
+                            field: "name"
                         },
                         {
                             title: "Email",
-                            field: "user.email",
+                            field: "email",
                         },
                         {
                             title: "Organization",
-                            field: "user.organization",
+                            field: "organization",
                             defaultValue: "-",
                         },
                         {
                             title: "Account type",
-                            field: "user.account.type"
+                            field: "account.type"
                         },
                         {
                             title: "Member since",
-                            field: "user.account.creationDate",
+                            field: "account.creationDate",
                             type: "custom",
                             display: {
-                                render: date => UtilsNew.dateFormatter(date),
+                                render: date => date ? UtilsNew.dateFormatter(date) : "Not provided",
                             }
                         },
                         {
-                            title: "Data release",
+                            title: "Synced from",
+                            field: "account.authentication",
                             type: "custom",
-                            field: "project.attributes",
                             display: {
-                                visible: data => !!data.project?.attributes?.release,
-                                render: attributes => attributes?.release
+                                visible: authentication => authentication.id === "internal",
+                                render: authentication => authentication.id,
                             }
-                        },
+                        }
                     ]
                 },
             ],
