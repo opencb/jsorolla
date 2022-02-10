@@ -251,6 +251,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
+                                            .showSelectedPanels="${false}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
