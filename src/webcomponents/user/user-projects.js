@@ -36,7 +36,7 @@ export default class UserProjects extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaSession) {
+        if (this.opencgaSession?.projects) {
             // Generate a list with all owners, including the logged user
             const owners = new Set([this.opencgaSession.user.id]);
             (OpencgaCatalogUtils.getProjectOwners(this.opencgaSession.projects) || []).forEach(name => {
