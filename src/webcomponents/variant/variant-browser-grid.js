@@ -127,7 +127,6 @@ export default class VariantBrowserGrid extends LitElement {
 
     configObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("NEW VBG CONFIG", this._config.activeHighlights);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -844,7 +843,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onGridConfigSave() {
-        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config);
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
     getRightToolbar() {

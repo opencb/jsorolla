@@ -237,12 +237,12 @@ export default class GridCommons {
 
     rowHighlightStyle(row, index) {
         // If no active highlight
-        if (!this.config.activeHighlights || this.config.activeHighlights?.length === 0) {
+        if (!this.config.highlights || !this.config.activeHighlights || this.config.activeHighlights?.length === 0) {
             return {};
         }
 
         let rowStyle = {};
-        (this.config.highlights || []).forEach(highlight => {
+        this.config.highlights.forEach(highlight => {
             if (this.config.activeHighlights.includes(highlight.id)) {
                 if (highlight.condition && highlight.condition(row, index)) {
                     rowStyle = {

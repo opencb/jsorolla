@@ -93,7 +93,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
-            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
@@ -118,7 +117,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
@@ -129,7 +128,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
-            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
@@ -140,7 +138,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
-            ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid
         };
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
@@ -280,6 +277,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
             });
         }
     }
@@ -315,7 +313,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
+            rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
     }
 
@@ -959,34 +958,38 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.__config = e.detail.value;
     }
 
-    async onApplySettings(e) {
-        try {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid,
-                ...this.__config,
-            };
-
-            // TODO Delete old config values. Remove this in IVA 2.2
-            delete this._config.consequenceType.canonicalTranscript;
-            delete this._config.consequenceType.gencodeBasic;
-            delete this._config.consequenceType.highQualityTranscripts;
-            delete this._config.consequenceType.proteinCodingTranscripts;
-            delete this._config.consequenceType.worstConsequenceTypes;
-            delete this._config.consequenceType.filterByBiotype;
-            delete this._config.consequenceType.filterByConsequenceType;
-            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
-
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                interpreterGrid: this._config
-            });
-            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-            this.renderVariants();
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-        }
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
+
+    // async onApplySettings(e) {
+    //     try {
+    //         this._config = {
+    //             ...this.getDefaultConfig(),
+    //             ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid,
+    //             ...this.__config,
+    //         };
+
+    //         // TODO Delete old config values. Remove this in IVA 2.2
+    //         delete this._config.consequenceType.canonicalTranscript;
+    //         delete this._config.consequenceType.gencodeBasic;
+    //         delete this._config.consequenceType.highQualityTranscripts;
+    //         delete this._config.consequenceType.proteinCodingTranscripts;
+    //         delete this._config.consequenceType.worstConsequenceTypes;
+    //         delete this._config.consequenceType.filterByBiotype;
+    //         delete this._config.consequenceType.filterByConsequenceType;
+    //         delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
+
+    //         const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+    //             ...this.opencgaSession.user.configs.IVA,
+    //             interpreterGrid: this._config
+    //         });
+    //         this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+    //         this.renderVariants();
+    //     } catch (e) {
+    //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+    //     }
+    // }
 
 
     onVariantChange(e) {
@@ -1083,7 +1086,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>
