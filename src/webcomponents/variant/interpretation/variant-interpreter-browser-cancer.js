@@ -221,7 +221,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
-                .userConfigId="${"variantInterpreterCancerSNV"}"
+                .toolId="${"variantInterpreterCancerSNV"}"
                 .config="${this._config}">
             </variant-interpreter-browser-template>
         `;

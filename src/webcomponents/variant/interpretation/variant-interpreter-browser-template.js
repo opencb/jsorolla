@@ -55,7 +55,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            userConfigId: {
+            toolId: {
                 type: String
             },
             settings: {
@@ -127,10 +127,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
 
         // Check for user configuration
-        if (this.userConfigId && this.opencgaSession.user?.configs?.IVA?.[this.userConfigId]?.grid) {
+        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA[this.userConfigId].grid,
+                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
             };
         }
     }
@@ -250,7 +250,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // Update user configuration
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.userConfigId, newGridConfig);
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
             this.settingsObserver();
             this.requestUpdate();
 
