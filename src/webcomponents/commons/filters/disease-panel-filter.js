@@ -222,7 +222,7 @@ export default class DiseasePanelFilter extends LitElement {
                 </div>
 
                 ${this.showSelectedPanels && this.panel?.length > 0 ? html`
-                    <div class="help-block" style="padding: 0 0 0 5px">
+                    <div class="help-block small" style="padding: 0 0 0 5px">
                         Selected panels:
                         ${this.panel.split(",").map(p => html`
                             <div style="padding: 0 0 0 10px; font-style: italic">${p}</div>
