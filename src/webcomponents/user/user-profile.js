@@ -1,9 +1,5 @@
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
-import "../commons/forms/data-form.js";
 import "../commons/view/detail-tabs.js";
 import "./user-info.js";
 import "./user-projects.js";
@@ -29,19 +25,7 @@ export default class UserProfile extends LitElement {
     }
 
     #init() {
-        this.updateParams = {};
-        this.projectsByUser = {};
-        this.currentTab = "projects";
         this.config = this.getDefaultConfig();
-    }
-
-    renderTitle(headingType, icon, title) {
-        return html`
-            <div class="${headingType}" style="color: var(--main-bg-color);margin-bottom:24px;">
-                <i class="fas fa-${icon} icon-padding"></i>
-                <strong>${title}</strong>
-            </div>
-        `;
     }
 
     render() {
@@ -52,8 +36,9 @@ export default class UserProfile extends LitElement {
                 <div style="display:flex;">
                     <div class="col-md-4">
                         <div style="position:sticky;top:0px">
-                            ${this.renderTitle("h3", "user", "User info")}
-                            <user-info .user="${this.opencgaSession.user}"></user-info>
+                            <user-info
+                                .user="${this.opencgaSession?.user}">
+                            </user-info>
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -77,9 +62,9 @@ export default class UserProfile extends LitElement {
                     active: true,
                     render: (data, active, opencgaSession) => html`
                         <div>
-                            ${this.renderTitle("h2", "archive", "Projects and Studies")}
                             <user-projects
-                                .opencgaSession="${opencgaSession}">
+                                .projects="${opencgaSession?.projects}"
+                                .userId="${opencgaSession?.user?.id}">
                             </user-projects>
                         </div>
                     `,
@@ -90,7 +75,6 @@ export default class UserProfile extends LitElement {
                     active: false,
                     render: (data, active, opencgaSession) => html`
                         <div>
-                            ${this.renderTitle("h2", "user-shield", "Change Password")}
                             <user-password-change
                                 .opencgaSession="${opencgaSession}">
                             </user-password-change>
