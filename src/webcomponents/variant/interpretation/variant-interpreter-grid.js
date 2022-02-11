@@ -707,7 +707,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
-                    align: "center"
+                    align: "center",
                 },
                 {
                     id: "clinicalInfo",
@@ -790,7 +790,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "populationFrequencies",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this)
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
                 },
                 {
                     title: "ClinVar",
@@ -798,7 +799,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
                 },
                 {
                     title: "Cosmic",
@@ -806,7 +808,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
                 },
                 // Interpretation Column
                 {
@@ -1336,6 +1339,9 @@ export default class VariantInterpreterGrid extends LitElement {
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
+
+            hidePopulationFrequencies: false,
+            hideClinicalInfo: false,
 
             header: {
                 horizontalAlign: "center",
