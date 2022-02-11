@@ -340,74 +340,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         ]
                     },
                     {
-                        title: "Clinical",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                disabled: () => this.clinicalAnalysis.panelLock,
-                                message: {
-                                    visible: () => this.clinicalAnalysis.panelLock,
-                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
-                                },
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
-                            }
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
-                                tooltip: tooltips.populationFrequencies,
-                                showSetAll: false,
-                                // TODO read this from the Study.internal.configuration in OpenCGA 2.1
-                                populationFrequencies: {
-                                    studies: [
-                                        {
-                                            id: "1kG_phase3",
-                                            title: "1000 Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "All populations [ALL]"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: "GNOMAD_GENOMES",
-                                            title: "gnomAD Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "gnomAD [ALL]"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
                         title: "Phenotype",
                         collapsed: true,
                         filters: [
@@ -455,6 +387,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
 
+                        hideType: true,
                         hidePopulationFrequencies: true,
                         hideClinicalInfo: true,
 
@@ -489,39 +422,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                         .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                         .assembly=${this.opencgaSession.project.organism.assembly}>
                                     </cellbase-variant-annotation-summary>`;
-                            }
-                        },
-                        {
-                            id: "annotationConsType",
-                            name: "Consequence Type",
-                            render: (variant, active) => {
-                                return html`
-                                    <variant-consequence-type-view
-                                        .consequenceTypes="${variant.annotation.consequenceTypes}"
-                                        .active="${active}">
-                                    </variant-consequence-type-view>`;
-                            }
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            name: "Population Frequencies",
-                            render: (variant, active) => {
-                                return html`
-                                    <cellbase-population-frequency-grid
-                                        .populationFrequencies="${variant.annotation.populationFrequencies}"
-                                        .active="${active}">
-                                    </cellbase-population-frequency-grid>`;
-                            }
-                        },
-                        {
-                            id: "annotationClinical",
-                            name: "Clinical",
-                            render: variant => {
-                                return html`
-                                    <variant-annotation-clinical-view
-                                        .traitAssociation="${variant.annotation.traitAssociation}"
-                                        .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
-                                    </variant-annotation-clinical-view>`;
                             }
                         },
                         {
