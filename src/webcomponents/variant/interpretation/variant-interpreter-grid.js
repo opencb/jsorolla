@@ -96,7 +96,10 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
 
     updated(changedProperties) {
@@ -104,35 +107,53 @@ export default class VariantInterpreterGrid extends LitElement {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
-            // this.opencgaSessionObserver();
+        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.renderVariants();
+        }
+
+        if (changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
             // Config for the grid toolbar
             // some columns have tooltips in title, we cannot used them for the dropdown
             this.toolbarConfig = {
-                ...this._config.toolbar,
+                ...this._config,
+                ...this._config.toolbar, // it comes from external settings
                 resource: "VARIANT",
                 columns: this._createDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
             };
+            this.requestUpdate();
+            this.renderVariants();
         }
     }
 
     opencgaSessionObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
@@ -174,7 +195,6 @@ export default class VariantInterpreterGrid extends LitElement {
         } else {
             this.renderRemoteVariants();
         }
-        // this.requestUpdate();
     }
 
     renderRemoteVariants() {
@@ -187,7 +207,6 @@ export default class VariantInterpreterGrid extends LitElement {
             console.warn("No sample found, query: ", this.query);
             return;
         }
-
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -406,7 +425,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     });
 
                     UtilsNew.initTooltip(this);
-                }
+                },
+                rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
             });
         }
     }
@@ -498,6 +518,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     });
                 });
             },
+            rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
     }
 
@@ -1017,17 +1038,19 @@ export default class VariantInterpreterGrid extends LitElement {
         this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
+                // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
+                // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
+                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
-                    console.log("dataString", dataString);
-                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                    UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
                 } else {
-                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "variant_interpreter_" + this.opencgaSession.study.id + ".json", "application/json");
+                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
                 }
             })
             .catch(response => {
-                // console.log(response);
+                console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
@@ -1040,34 +1063,12 @@ export default class VariantInterpreterGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-
     onGridConfigChange(e) {
         this.__config = e.detail.value;
     }
 
-    async onApplySettings(e) {
-        try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
-
-            // TODO Delete old config values. Remove this in IVA 2.2
-            delete this._config.consequenceType.canonicalTranscript;
-            delete this._config.consequenceType.gencodeBasic;
-            delete this._config.consequenceType.highQualityTranscripts;
-            delete this._config.consequenceType.proteinCodingTranscripts;
-            delete this._config.consequenceType.worstConsequenceTypes;
-            delete this._config.consequenceType.filterByBiotype;
-            delete this._config.consequenceType.filterByConsequenceType;
-            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
-
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                interpreterGrid: this._config
-            });
-            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-            this.renderVariants();
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-        }
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
     onConfigClick(e) {
@@ -1313,7 +1314,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>

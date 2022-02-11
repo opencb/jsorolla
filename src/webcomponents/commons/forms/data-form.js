@@ -558,6 +558,9 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="${textClass} ${notificationClass}" style="${textStyle}">
+                ${element.display?.icon ? html`
+                    <i class="fas fa-${element.display.icon} icon-padding"></i>
+                ` : null}
                 <span>${element.text || ""}</span>
             </div>
         `;
@@ -862,7 +865,8 @@ export default class DataForm extends LitElement {
         let content = "-";
         switch (contentLayout) {
             case "horizontal":
-                content = html`${element?.display?.separator ? values.join(element.display.separator) : values}`;
+                const separator = element?.display?.separator || ", ";
+                content = html`${values.join(separator)}`;
                 break;
             case "vertical":
                 content = html`

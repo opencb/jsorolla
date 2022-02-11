@@ -15,20 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import VariantUtils from "../variant-utils.js";
-import "./variant-interpreter-browser-toolbar.js";
-import "./variant-interpreter-rearrangement-grid.js";
-import "./variant-interpreter-detail.js";
-import "../variant-browser-filter.js";
-import "../../commons/tool-header.js";
-import "../../commons/opencga-active-filters.js";
-import "../../commons/filters/sample-genotype-filter.js";
-import "../../commons/filters/variant-caller-info-filter.js";
+import "./variant-interpreter-browser-template.js";
 
 class VariantInterpreterBrowserRearrangement extends LitElement {
 
@@ -45,22 +33,19 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysisId: {
                 type: String
             },
             clinicalAnalysis: {
                 type: Object
             },
-            // query: {
-            //     type: Object
-            // },
+            opencgaSession: {
+                type: Object
+            },
             cellbaseClient: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -69,74 +54,75 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.variant = null;
-        this.reportedVariants = [];
-
         this.query = {};
         this.activeFilterFilters = [];
-        this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
-
         this.savedVariants = [];
-        this.notSavedVariantIds = 0;
-        this.removedVariantIds = 0;
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-        }
-
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
-
         super.update(changedProperties);
     }
 
-    queryObserver() {
-        if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+    /*
+     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
+     */
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
         }
-        this.requestUpdate();
     }
 
     clinicalAnalysisObserver() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-        this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
-        if (this._sample) {
-            // Set query object
+        // Init the active filters with every new Case opened. Then we add the default filters for the given sample
+        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+
+        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+        if (this.somaticSample) {
+            // Init query object if needed
+            if (!this.query) {
+                this.query = {};
+            }
+
+            // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
             if (!this.query?.sample) {
-                this.query = {
-                    ...this.query,
-                    sample: this._sample.id
-                };
-                // this.predefinedFilter = {...this.query};
+                // We do not add GT filter ":0/1,1/1,NA" in cancer interpreter anymore
+                // because variants with weird GT would not be displayed
+                this.query.sample = this.somaticSample.id;
+            }
+
+            // 2. 'panel' query param: add case panels to query object
+            if (this.clinicalAnalysis.interpretation?.panels?.length > 0) {
+                this.query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
+            } else {
+                if (this.clinicalAnalysis.panels?.length > 0) {
+                    this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+                }
+            }
+
+            // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
+            if (this.clinicalAnalysis.panelLock) {
+                this.query.panelIntersection = true;
             }
 
             this.callerToFile = {};
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this._sample.id, study: this.opencgaSession.study.fqn})
+            // 4. 'fileData' query param: fetch non SV files and set init query
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
-                    this.files = fileResponse.response[0].results;
+                    this.files = fileResponse.responses[0].results;
                     // Prepare a map from caller to File
                     this.callerToFile = {};
                     for (const file of this.files) {
@@ -157,284 +143,67 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     this.query = {
                         ...this.query,
                         fileData: fileDataFilters.join(",")
-                        // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
                     };
+
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.queryObserver();
+                    this._config = this.getDefaultConfig();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
                 });
-        }
 
-        const sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis, 1);
-        let _activeFilterFilters = [];
-        if (sampleQc) {
-            // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
-            if (sampleQc.variantMetrics) {
-                this._variantStatsPath = "variantMetrics";
-            } else if (sampleQc.variant) {
-                this._variantStatsPath = "variant";
-            } else {
-                console.error("unexpected QC data model");
-            }
-            const variantStats = sampleQc[this._variantStatsPath]?.variantStats;
-            if (variantStats && variantStats.length > 0) {
-                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}));
-            }
-        }
 
-        // this.activeFilterFilters = _activeFilterFilters && _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
-        // If WC variant stats filters are found we add them to active filters, we do not replace them.
-        if (_activeFilterFilters.length > 0) {
-            // Concat QC filters to examples
-            if (this._config?.filter?.examples && this._config.filter.examples.length > 0) {
-                _activeFilterFilters.push({separator: true});
-                _activeFilterFilters.push(...this._config.filter.examples);
+            // Add filter to Active Filter's menu
+            // 1. Add variant stats saved queries to the Active Filters menu
+            if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
+                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
+                _activeFilterFilters.push(
+                    ...this.somaticSample.qualityControl.variant.variantStats
+                        .map(variantStat => (
+                            {
+                                id: variantStat.id,
+                                active: false,
+                                query: variantStat.query
+                            }
+                        ))
+                );
             }
-            this.activeFilterFilters = _activeFilterFilters;
+
+            // 2. Add default initial query the active filter menu
+            _activeFilterFilters.unshift({separator: true});
+            _activeFilterFilters.unshift(
+                {
+                    id: "Default Initial Query",
+                    active: false,
+                    query: this.query
+                }
+            );
+
+            // Set active filters
+            this._config.filter.activeFilters.filters = _activeFilterFilters;
+            const activeFilter = this._config.filter.activeFilters.filters.find(filter => filter.active);
+            if (activeFilter?.query) {
+                this.query = {...this.query, ...activeFilter.query};
+            }
         } else {
-            this.activeFilterFilters = this._config.filter.examples;
+            // No somatic sample found, this is weird scenario but can happen if a case is created empty.
+            // We init active filters anyway.
+            this._config.filter.activeFilters.filters = [];
         }
 
-        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
-            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
-        }
-
-        // this.requestUpdate();
-    }
-
-    /*
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-     */
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
-    }
-
-    onSelectVariant(e) {
-        this.variantId = e.detail.id;
-        this.variant = e.detail.row;
-
-        this.requestUpdate();
-    }
-
-    onCheckVariant(e) {
-        // Each checked row contains a pair of variants
-        e.detail.row.forEach(variant => {
-            if (e.detail.checked) {
-                this.clinicalAnalysisManager.addVariant(variant);
-            } else {
-                this.clinicalAnalysisManager.removeVariant(variant);
-            }
-        });
-    }
-
-    onFilterVariants(e) {
-        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
-        const variantIds = e.detail.variants.map(v => v.id);
-        this.executedQuery = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
-        this.preparedQuery = {...this.executedQuery};
-        this.requestUpdate();
-    }
-
-    onResetVariants(e) {
-        this.clinicalAnalysisManager.reset();
-
-        this.preparedQuery = {...this.preparedQuery};
-        this.executedQuery = {...this.executedQuery};
-        delete this.preparedQuery.id;
-        delete this.executedQuery.id;
-
-        this.clinicalAnalysis = {...this.clinicalAnalysis};
-        // this.requestUpdate();
-    }
-
-    onSaveVariants(e) {
-        const comment = e.detail.comment;
-        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
-            });
-        });
-    }
-
-    onVariantFilterChange(e) {
-        // console.trace(e);
-        this.preparedQuery = e.detail.query;
-        // TODO quick fix to avoid warning message on sample
-        // if (!this.predefinedFilter) {
-        //     this.executedQuery = e.detail.query;
-        //     this.predefinedFilter = e.detail.query;
-        // }
-        this.requestUpdate();
-    }
-
-    onVariantFilterSearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
-        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
-        this.requestUpdate();
-    }
-
-    onActiveFilterChange(e) {
-        // debugger
-        VariantUtils.validateQuery(e.detail);
-        this.query = {...e.detail};
-        // this.preparedQuery = {...e.detail};
-        // // TODO is this really needed? it seems to work without this line.
-        // this.executedQuery = {...e.detail};
-        // this.requestUpdate();
-        this.queryObserver();
-    }
-
-    onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn, sample: this._sample.id};
-        // this.preparedQuery = {...this.query};
-        // this.executedQuery = {...this.query};
-        // this.requestUpdate();
-        this.queryObserver();
-    }
-
-    checkHasWritePermission() {
-        return OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        this.query = {...this.query};
     }
 
     render() {
-        // Check Project exists
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
         return html`
-            <style>
-                .prioritization-center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 95%;
-                }
-
-                .browser-variant-tab-title {
-                    font-size: 115%;
-                    font-weight: bold;
-                }
-
-                .prioritization-variant-tab-title {
-                    font-size: 115%;
-                    font-weight: bold;
-                }
-
-                .form-section-title {
-                    padding: 5px 0px;
-                    width: 95%;
-                    border-bottom-width: 1px;
-                    border-bottom-style: solid;
-                    border-bottom-color: #ddd
-                }
-
-                #clinicalAnalysisIdText {
-                    padding: 10px;
-                }
-
-                .clinical-analysis-id-wrapper {
-                    padding: 20px;
-                }
-
-                .clinical-analysis-id-wrapper .text-filter-wrapper {
-                    margin: 20px 0;
-                }
-            </style>
-
-            ${this._config.showTitle ? html`
-                <tool-header
-                    title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}"
-                    icon="${this._config.icon}">
-                </tool-header>
-            ` : null}
-
-            <div class="row">
-                <div class="col-md-2">
-                    <variant-browser-filter
-                        .opencgaSession="${this.opencgaSession}"
-                        .query="${this.query}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .cellbaseClient="${this.cellbaseClient}"
-                        .populationFrequencies="${this.populationFrequencies}"
-                        .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                        .config="${this._config.filter}"
-                        @queryChange="${this.onVariantFilterChange}"
-                        @querySearch="${this.onVariantFilterSearch}">
-                    </variant-browser-filter>
-                </div>
-
-                <div class="col-md-10">
-                    <div>
-                        ${this.checkHasWritePermission() ? html`
-                            <variant-interpreter-browser-toolbar
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .state="${this.clinicalAnalysisManager.state}"
-                                @filterVariants="${this.onFilterVariants}"
-                                @resetVariants="${this.onResetVariants}"
-                                @saveInterpretation="${this.onSaveVariants}">
-                            </variant-interpreter-browser-toolbar>
-                        ` : null}
-                    </div>
-
-                    <div id="${this._prefix}MainContent">
-                        <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters
-                                resource="VARIANT"
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .defaultStudy="${this.opencgaSession.study.fqn}"
-                                .query="${this.preparedQuery}"
-                                .executedQuery="${this.executedQuery}"
-                                .filters="${this.activeFilterFilters}"
-                                .alias="${this._config.activeFilterAlias}"
-                                .config="${this._config.filter.activeFilters}"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}">
-                            </opencga-active-filters>
-                        </div>
-
-                        <div class="main-view">
-                            <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
-                                <variant-interpreter-rearrangement-grid
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .query="${this.executedQuery}"
-                                    .config="${this._config.filter.result.grid}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @checkrow="${this.onCheckVariant}">
-                                </variant-interpreter-rearrangement-grid>
-
-                                <!-- Bottom tabs with detailed variant information -->
-                                <variant-interpreter-detail
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .variant="${this.variant}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .config="${this._config.filter.detail}">
-                                </variant-interpreter-detail>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <variant-interpreter-browser-template
+                .clinicalAnalysis="${this.clinicalAnalysis}"
+                .query="${this.query}"
+                .opencgaSession="${this.opencgaSession}"
+                .settings="${this.settings}"
+                .toolId="${"variantInterpreterRearrangement"}"
+                .config="${this._config}">
+            </variant-interpreter-browser-template>
         `;
     }
 
@@ -551,11 +320,11 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             verticalAlign: "bottom"
                         },
 
+                        isRearrangement: true,
                         quality: {
                             qual: 30,
                             dp: 20
                         }
-                        // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                     }
                 },
                 detail: {

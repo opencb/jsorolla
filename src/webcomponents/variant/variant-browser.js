@@ -16,7 +16,10 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
@@ -119,6 +122,7 @@ export default class VariantBrowser extends LitElement {
         if (changedProperties.has("selectedFacet")) {
             this.facetQueryBuilder();
         }
+
         super.update(changedProperties);
     }
 
@@ -128,17 +132,28 @@ export default class VariantBrowser extends LitElement {
         }
         // merge filters
         this._config = {...this.getDefaultConfig(), ...this.config};
+
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
+        // Grid configuration
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
+
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.variantBrowser?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.variantBrowser.grid,
+            };
+        }
+
         this.requestUpdate();
     }
 
@@ -176,10 +191,7 @@ export default class VariantBrowser extends LitElement {
                     this.executedQuery = {study: this.opencgaSession.study.fqn};
                 }
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
-                this.dispatchEvent(new CustomEvent("queryChange", {
-                    detail: this.preparedQuery
-                }
-                ));
+                LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.detail = {};
             } else {
                 // console.error("same queries")
@@ -315,6 +327,26 @@ export default class VariantBrowser extends LitElement {
         this.variantId = e.detail.id;
         this.variant = e.detail.row;
         this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        const newGridConfig = {...e.detail.value};
+
+        // Remove highlights and copies configuration from new config
+        delete newGridConfig.highlights;
+        // delete newConfig.copies;
+
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
     }
 
     getDefaultConfig() {
@@ -571,7 +603,7 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => html`
-                                <json-viewer .data="${variant.annotation}" .active="${active}"></json-viewer>
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
                             `,
                         }
                         // TODO Think about Neeworks
@@ -749,7 +781,8 @@ export default class VariantBrowser extends LitElement {
                                     .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                     .config="${this._config.filter.result.grid}"
-                                    @selectrow="${this.onSelectVariant}">
+                                    @selectrow="${this.onSelectVariant}"
+                                    @gridconfigsave="${this.onGridConfigSave}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->

@@ -26,7 +26,7 @@ import "../forms/toggle-switch.js";
  *  2. ...
  *
  * Usage:
- * <disease-panel-filter    .opencgaSession="${this.opencgaSession}"
+ * <disease-panel-filter
 .diseasePanels="${this.opencgaSession.study.panels}"
 .panel="${this.preparedQuery.panel}"
 .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
@@ -56,9 +56,6 @@ export default class DiseasePanelFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             diseasePanels: {
                 type: Array
             },
@@ -93,6 +90,9 @@ export default class DiseasePanelFilter extends LitElement {
             showExtendedFilters: {
                 type: Boolean
             },
+            showSelectedPanels: {
+                type: Boolean
+            },
         };
     }
 
@@ -107,6 +107,7 @@ export default class DiseasePanelFilter extends LitElement {
         this.multiple = true;
         this.disabled = false;
         this.showExtendedFilters = true;
+        this.showSelectedPanels = true;
 
         this.panelFeatureTypes = [
             {id: "region", name: "Region"},
@@ -173,6 +174,7 @@ export default class DiseasePanelFilter extends LitElement {
                 }
             }
         }
+
         this.requestUpdate();
     }
 
@@ -181,7 +183,8 @@ export default class DiseasePanelFilter extends LitElement {
 
         // If panel changes we must be called to panelObserver
         if (field === "panel") {
-            this.panelObserver(e.detail.value);
+            this.panel = e.detail.value;
+            this.panelObserver();
         }
 
         // Set values in the query object
@@ -192,13 +195,6 @@ export default class DiseasePanelFilter extends LitElement {
             delete this.query[field];
         }
 
-        // const event = new CustomEvent("filterChange", {
-        //     detail: {
-        //         value: this.query?.panel,
-        //         query: this.query
-        //     }
-        // });
-        // this.dispatchEvent(event);
         LitUtils.dispatchCustomEvent(this, "filterChange", this.query?.panel, {query: this.query});
     }
 
@@ -224,6 +220,16 @@ export default class DiseasePanelFilter extends LitElement {
                         </select-field-filter>
                     </div>
                 </div>
+
+                ${this.showSelectedPanels && this.panel?.length > 0 ? html`
+                    <div class="help-block small" style="padding: 0 0 0 5px">
+                        Selected panels:
+                        ${this.panel.split(",").map(p => html`
+                            <div style="padding: 0 0 0 10px; font-style: italic">${p}</div>
+                        `)}
+                    </div>
+                ` : null
+                }
 
                 ${this.showExtendedFilters ? html`
                     <div style="margin: 15px 0px">

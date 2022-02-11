@@ -262,6 +262,7 @@ export default class VariantInterpreterGridFormatter {
 
                 let panelHtml = "-";
                 if (re.panelId) {
+                    // TODO should we fetch the panel from the case instead the study?
                     const panel = variantGrid.opencgaSession?.study?.panels?.find(panel => panel.id === re.panelId);
                     if (panel) {
                         const gene = panel.genes.find(gene => gene.id === re.genomicFeature.geneName || gene.name === re.genomicFeature.geneName);
