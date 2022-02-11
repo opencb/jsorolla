@@ -259,10 +259,11 @@ export default class IndividualGrid extends LitElement {
     }
 
     detailFormatter(value, row) {
-        let result = `<div class='row' style="padding: 5px 10px 20px 10px">
-                        <div class='col-md-12'>
-                            <h5 style="font-weight: bold">Samples</h5>
-                `;
+        let result = `
+            <div class='row' style="padding: 5px 10px 20px 10px">
+                <div class='col-md-12'>
+                    <h5 style="font-weight: bold">Samples</h5>
+        `;
 
         if (UtilsNew.isNotEmptyArray(row.samples)) {
             let tableCheckboxHeader = "";
@@ -271,21 +272,23 @@ export default class IndividualGrid extends LitElement {
                 tableCheckboxHeader = "<th>Select</th>";
             }
 
-            result += `<div style="width: 90%;padding-left: 20px">
-                            <table class="table table-hover table-no-bordered">
-                                    <thead>
-                                        <tr class="table-header">
-                                            ${tableCheckboxHeader}
-                                            <th>Sample ID</th>
-                                            <th>Source</th>
-                                            <th>Collection Method</th>
-                                            <th>Preparation Method</th>
-                                            <th>Somatic</th>
-                                            <th>Creation Date</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
+            result += `
+                <div style="width: 90%;padding-left: 20px">
+                    <table class="table table-hover table-no-bordered">
+                        <thead>
+                            <tr class="table-header">
+                                ${tableCheckboxHeader}
+                                <th>Sample ID</th>
+                                <th>Source</th>
+                                <th>Collection Method</th>
+                                <th>Preparation Method</th>
+                                <th>Somatic</th>
+                                <th>Creation Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
 
             for (const sample of row.samples) {
                 let tableCheckboxRow = "";
@@ -300,25 +303,31 @@ export default class IndividualGrid extends LitElement {
                         }
                     }
 
-                    tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
+                    tableCheckboxRow = `
+                        <td>
+                            <input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}>
+                        </td>
+                    `;
                 }
 
                 const source = sample.source?.name || sample.source?.id || "-";
-                const collectionMethod = (sample.collection !== undefined) ? sample.collection.method : "-";
-                const preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod : "-";
-                const cellLine = (sample.somatic) ? "Somatic" : "Germline";
+                const collectionMethod = sample.collection?.method || "-";
+                const preparationMethod = sample.processing?.preparationMethod || "-";
+                const cellLine = sample.somatic ? "Somatic" : "Germline";
                 const creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
 
-                result += `<tr class="detail-view-row">
-                                        ${tableCheckboxRow}
-                                        <td>${sample.id}</td>
-                                        <td>${source}</td>
-                                        <td>${collectionMethod}</td>
-                                        <td>${preparationMethod}</td>
-                                        <td>${cellLine}</td>
-                                        <td>${creationDate}</td>
-                                        <td>${sample.status ? sample.status.name : ""}</td>
-                                   </tr>`;
+                result += `
+                    <tr class="detail-view-row">
+                        ${tableCheckboxRow}
+                        <td>${sample.id}</td>
+                        <td>${source}</td>
+                        <td>${collectionMethod}</td>
+                        <td>${preparationMethod}</td>
+                        <td>${cellLine}</td>
+                        <td>${creationDate}</td>
+                        <td>${sample.status ? sample.status.name : ""}</td>
+                    </tr>
+                `;
             }
             result += "</tbody></table></diV>";
         } else {
@@ -359,7 +368,11 @@ export default class IndividualGrid extends LitElement {
 
     samplesFormatter(value, row) {
         if (value?.length) {
-            return `<ul class="pad-left-15" style="padding-top:10px" >${value.map(sample => `<li>${sample.id}</li>`).join("")}</ul>`;
+            return `
+                <ul class="pad-left-15" style="padding-top:10px" >
+                    ${value.map(sample => `<li>${sample.id}</li>`).join("")}
+                </ul>
+            `;
         } else {
             return "-";
         }
