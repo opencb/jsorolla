@@ -198,6 +198,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         return html`
             <variant-interpreter-browser-template
                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
