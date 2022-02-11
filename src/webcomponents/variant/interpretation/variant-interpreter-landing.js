@@ -17,11 +17,11 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
+import "../../clinical/clinical-analysis-view.js";
 import "../../commons/view/detail-tabs.js";
 import "../../individual/individual-view.js";
 import "../../loading-spinner.js";
@@ -225,11 +225,11 @@ class VariantInterpreterLanding extends LitElement {
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
-                                    <opencga-clinical-analysis-view
+                                    <clinical-analysis-view
                                         .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
-                                    </opencga-clinical-analysis-view>
+                                    </clinical-analysis-view>
                                 </div>
                             </div>
                         `;
