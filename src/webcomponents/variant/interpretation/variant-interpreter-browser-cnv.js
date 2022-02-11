@@ -455,6 +455,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
 
+                        hidePopulationFrequencies: true,
+                        hideClinicalInfo: true,
+
                         genotype: {
                             type: "VAF"
                         },
