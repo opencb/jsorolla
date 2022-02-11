@@ -830,7 +830,9 @@ class VariantInterpreterReport extends LitElement {
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
                                             <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"></signature-view>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-6">
                                             <h4>SBS signature contributions</h4>
@@ -872,11 +874,14 @@ class VariantInterpreterReport extends LitElement {
                                 render: clinicalAnalysis => html`
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
-                                            <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}" .mode="${"SV"}"></signature-view>
+                                            <h4>Rearrangement Profile</h4>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
+                                                .mode="${"SV"}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-6">
-                                            <h4>SBS signature contributions</h4>
+                                            <h4>Rearrangement signature contributions</h4>
                                             <span style="font-weight: bold">Pending</span>
                                         </div>
                                     </div>
