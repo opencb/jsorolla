@@ -13,29 +13,9 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS = {
                 filters: ["region", "feature", "biotype", "type"]
             },
             {
-                title: "Clinical",
-                filters: ["diseasePanels", "clinical-annotation"]
-            },
-            {
-                title: "Consequence Type",
-                filters: ["consequence-type"]
-            },
-            {
-                title: "Population Frequency",
-                filters: ["populationFrequency"]
-            },
-            {
                 title: "Phenotype",
                 filters: ["go", "hpo"]
             },
-            {
-                title: "Deleteriousness",
-                filters: ["proteinSubstitutionScore", "cadd"]
-            },
-            {
-                title: "Conservation",
-                filters: ["conservation"]
-            }
         ]
     },
     table: {
