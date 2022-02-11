@@ -890,10 +890,12 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        let array = this.getValue(element.field, [], element.defaultValue);
+        let array = this.getValue(element.field, null, element.defaultValue);
         const errorMessage = this._getErrorMessage(element);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
+        const tableClassName = element.display?.className || "";
+        const tableStyle = element.display?.style || "";
 
         // Check values
         if (!array) {
@@ -926,7 +928,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <table class="table">
+            <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
                     <thead>
                     <tr>
