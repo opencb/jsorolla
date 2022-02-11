@@ -251,7 +251,7 @@ export default class DiseasePanelGrid extends LitElement {
                     if (row?.source?.project === "PanelApp") {
                         return String.raw`
                             <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
-                                ${row?.id ?? "-"}
+                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
                     }
                     return row?.id ?? "-";
@@ -282,8 +282,17 @@ export default class DiseasePanelGrid extends LitElement {
                 rowspan: 2,
                 colspan: 1,
                 formatter: (value, row) => {
-                    const {author, project, version} = row.source;
-                    return `${author? `${author} -`:""} ${project ?? ""} ${version?`(v${version})`:""}`;
+                    const {id, author, project, version} = row.source;
+                    let projectAndVersion = "";
+                    if (project?.toUpperCase() === "PANELAPP") {
+                        projectAndVersion = `
+                            <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
+                                ${project} ${version} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+                            </a>`;
+                    } else {
+                        projectAndVersion = `${project || ""} ${version}`;
+                    }
+                    return `${author ? `${author} -` : ""} ${projectAndVersion}`;
                 },
                 align: "center",
             },

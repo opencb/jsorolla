@@ -237,6 +237,18 @@ export default class GeneGrid extends LitElement {
     _getDefaultColumns() {
         let _columns = [[
             {
+                id: "name",
+                title: "Gene",
+                field: "name",
+                formatter: (value, row) => this.geneFormatter(row.name, this.opencgaSession),
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                id: "modeOfInheritance",
+                title: "Mode of inheritance",
+                field: "modeOfInheritance",
+            },
+            {
                 id: "confidence",
                 title: "Confidence",
                 field: "confidence",
@@ -251,28 +263,16 @@ export default class GeneGrid extends LitElement {
                 },
                 halign: this._config.header.horizontalAlign
             },
-            {
-                id: "name",
-                title: "Entity (Gene)",
-                field: "name",
-                formatter: (value, row) => this.geneFormatter(row.name, this.opencgaSession),
-                halign: this._config.header.horizontalAlign
-            },
-            {
-                id: "reviews",
-                title: "Reviews",
-                field: "xrefs",
-                formatter: (value, row) => {
-                    // const content = String.raw `Coming soon`;0
-                    return "-";
-                },
-                halign: this._config.header.horizontalAlign
-            },
-            {
-                id: "modeOfInheritance",
-                title: "Mode of inheritance",
-                field: "modeOfInheritance",
-            },
+            // {
+            //     id: "reviews",
+            //     title: "Reviews",
+            //     field: "xrefs",
+            //     formatter: (value, row) => {
+            //         // const content = String.raw `Coming soon`;0
+            //         return "-";
+            //     },
+            //     halign: this._config.header.horizontalAlign
+            // },
             {
                 id: "details",
                 title: "Details",
@@ -414,8 +414,8 @@ export default class GeneGrid extends LitElement {
     getDefaultConfig() {
         return {
             pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
+            pageSize: 5,
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
