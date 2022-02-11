@@ -64,8 +64,10 @@ export default class ListUpdate extends LitElement {
     onFieldChange(e, index) {
         e.stopPropagation();
         // Array
+        // debugger;
         const {param, value} = e.detail;
         if (index >= 0) {
+
             if (value) {
                 this.data.items[index] = {
                     ...this.data.items[index],
@@ -73,6 +75,10 @@ export default class ListUpdate extends LitElement {
                 };
             } else {
                 delete this.data.items[index][param];
+            }
+            if (this.node?.parent === "fileIndexConfiguration") {
+                this._config = {...this.config};
+                this.requestUpdate();
             }
             console.log("edited array item", this.data.items[index]);
         } else {
@@ -206,7 +212,7 @@ export default class ListUpdate extends LitElement {
                                     <p class="text-muted">${item[subtitle]}</p>
                                 </div>
                             </div>
-                            <div class="col-md-4" style="text-align:right">
+                            <div class="col-md-4">
                                     <data-form
                                         .data="${itemData}"
                                         @fieldChange=${ e => this.onFieldChange(e, i)}

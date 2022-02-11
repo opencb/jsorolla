@@ -267,7 +267,7 @@ export default class StudyClinicalConfig extends LitElement {
                     buttonClearText: "Cancel",
                     buttonsVisible: true,
                     buttonsLayout: false,
-                    buttonsClassName: "btn btn-primary ripple pull-right",
+                    buttonsClassName: "btn btn-primary",
                     modalButtonClassName: !isNew?"btn-sm":"",
                     modalButtonStyle: isNew ? "margin-top:6px":"",
                     titleWidth: 3,
