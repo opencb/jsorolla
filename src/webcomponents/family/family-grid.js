@@ -316,7 +316,7 @@ export default class FamilyGrid extends LitElement {
                     <tr class="detail-view-row">
                         ${tableCheckboxRow}
                         <td>${member.id}</td>
-                        <td>${member.sex}</td>
+                        <td>${member.sex?.id || member.sex || "Not specified"}</td>
                         <td>${father}</td>
                         <td>${mother}</td>
                         <td>${affectation}</td>
