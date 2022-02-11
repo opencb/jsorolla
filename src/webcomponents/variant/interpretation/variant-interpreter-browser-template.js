@@ -164,11 +164,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (e.detail.checked) {
-            this.clinicalAnalysisManager.addVariant(e.detail.row);
-        } else {
-            this.clinicalAnalysisManager.removeVariant(e.detail.row);
-        }
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            if (e.detail.checked) {
+                this.clinicalAnalysisManager.addVariant(row);
+            } else {
+                this.clinicalAnalysisManager.removeVariant(row);
+            }
+        });
     }
 
     onUpdateVariant(e) {
