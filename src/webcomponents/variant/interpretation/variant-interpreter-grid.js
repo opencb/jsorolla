@@ -666,7 +666,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
                     halign: "center",
-                    visible: !!this._config.showType,
+                    visible: !this._config.hideType,
                 },
                 {
                     id: "consequenceType",
@@ -1336,11 +1336,11 @@ export default class VariantInterpreterGrid extends LitElement {
             showReview: true,
             showSelectCheckbox: false,
             showActions: false,
-            showType: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 
+            hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
 
