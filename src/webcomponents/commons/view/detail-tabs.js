@@ -77,9 +77,13 @@ export default class DetailTabs extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.configObserver();
         }
         super.update(changedProperties);
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     changeBottomTab(e) {

@@ -65,12 +65,15 @@ export default class RestApi extends LitElement {
     }
 
     opencgaSessionObserver() {
+
         if (this.opencgaSession) {
             this.opencgaSession.opencgaClient.meta().api()
                 .then(responses => {
                     this.api = responses.responses[0].results[0];
                     if (this.api?.length > 0) {
-                        this.endpoint = this.api[0].endpoints.find(endpoint => endpoint.method === "GET");
+                        if (!this.endpoint) {
+                            this.endpoint = this.api[0].endpoints.find(endpoint => endpoint.method === "GET");
+                        }
                     }
                     this.requestUpdate();
                 })

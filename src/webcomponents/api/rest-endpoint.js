@@ -77,13 +77,16 @@ export default class RestEndpoint extends LitElement {
         if (changedProperties.has("endpoint")) {
             this.endpointObserver();
         }
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
         super.update(changedProperties);
     }
 
     endpointObserver() {
 
         if (this.endpoint?.parameters?.length > 0) {
-            this.data = {};
+            // this.data = {};
             const queryElements = [];
             const pathElements = [];
             const bodyElements = [];
@@ -130,7 +133,10 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
-            const fieldElements = [...pathElements, ...queryElements];
+            const fieldElements = this.isEndPointAdmin() ?
+                this.isAdministrator() ? [...pathElements, ...queryElements]:
+                    this.disabledElements([...pathElements, ...queryElements]) : [...pathElements, ...queryElements];
+
             this.form = {
                 type: "form",
                 buttons: {
@@ -142,6 +148,7 @@ export default class RestEndpoint extends LitElement {
                     width: "12",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
+                    buttonsVisible: this.isEndPointAdmin() ? this.isAdministrator() : true
                 },
                 sections: []
             };
@@ -152,7 +159,7 @@ export default class RestEndpoint extends LitElement {
                         title: "Parameters",
                         display: {
                             titleHeader: "h4",
-                            style: "margin-left: 20px"
+                            style: "margin-left: 20px",
                         },
                         elements: [...fieldElements]
                     }
@@ -160,6 +167,10 @@ export default class RestEndpoint extends LitElement {
             }
 
             if (bodyElements.length > 0) {
+                const bodyElementsT = this.isEndPointAdmin() ?
+                    this.isAdministrator() ? bodyElements:
+                        this.disabledElements(bodyElements) : bodyElements;
+
                 this.form.sections.push({
                     title: "Body",
                     display: {
@@ -172,7 +183,7 @@ export default class RestEndpoint extends LitElement {
                             display: {
                                 render: () => html`
                                         <detail-tabs
-                                            .config="${this.getTabsConfig(bodyElements)}"
+                                            .config="${this.getTabsConfig(bodyElementsT)}"
                                             .mode="${DetailTabs.PILLS_MODE}">
                                         </detail-tabs>
                                     `
@@ -181,12 +192,37 @@ export default class RestEndpoint extends LitElement {
                     ]
                 });
             }
+
             if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
+
+
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
             this.requestUpdate();
         }
+    }
+
+    opencgaSessionObserver() {
+        if (this.opencgaSession?.study && this.data?.study) {
+            this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
+        }
+    }
+
+    isAdministrator() {
+        return this.opencgaSession?.user?.account?.type === "ADMINISTRATOR" || this.opencgaSession?.user.id === "OPENCGA";
+    }
+
+    isEndPointAdmin() {
+        return this.endpoint.path.includes("/admin/");
+    }
+
+    disabledElements(elements) {
+
+        return elements.map(element => {
+            const obj = {...element, display: {disabled: true}};
+            return obj;
+        });
     }
 
     // Refactor
@@ -239,7 +275,11 @@ export default class RestEndpoint extends LitElement {
 
     onFormClear() {
         this.dataJson = {};
-        this.data = {};
+        if (this.opencgaSession?.study && this.data?.study) {
+            this.data = {study: this.opencgaSession.study.fqn};
+        } else {
+            this.data = {};
+        }
         this._data = {};
         this.requestUpdate();
     }
@@ -402,7 +442,7 @@ export default class RestEndpoint extends LitElement {
                     render: () => {
                         return html`
                         <!-- Body Forms -->
-                        <data-form
+                            <data-form
                                 .data="${this.data}"
                                 .config="${configForm}"
                                 @fieldChange="${e => this.onFormFieldChange(e)}"
@@ -419,7 +459,7 @@ export default class RestEndpoint extends LitElement {
                     render: () => {
                         return html`
                         <!-- Body Json -->
-                        <data-form
+                            <data-form
                                 .data="${this.dataJson}"
                                 .config="${configJson}"
                                 @fieldChange="${e => this.onFormFieldChange(e)}"
