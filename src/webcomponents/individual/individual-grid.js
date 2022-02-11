@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -303,7 +303,7 @@ export default class IndividualGrid extends LitElement {
                     tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
                 }
 
-                const source = (UtilsNew.isNotEmpty(sample.source)) ? sample.source : "-";
+                const source = sample.source?.name || sample.source?.id || "-";
                 const collectionMethod = (sample.collection !== undefined) ? sample.collection.method : "-";
                 const preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod : "-";
                 const cellLine = (sample.somatic) ? "Somatic" : "Germline";
@@ -505,6 +505,24 @@ export default class IndividualGrid extends LitElement {
             });
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}IndividualBrowserGrid"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -526,26 +544,6 @@ export default class IndividualGrid extends LitElement {
                 fields: []
             }
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : nothing
-            }
-
-            <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}IndividualBrowserGrid"></table>
-            </div>
-        `;
     }
 
 }
