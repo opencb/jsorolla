@@ -104,6 +104,7 @@ class VariantInterpreterQcOverview extends LitElement {
             if (bamFileIds.length) {
                 this.opencgaSession.opencgaClient.files().info(bamFileIds.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
+                        this.bamFiles = response.responses[0].results;
                         this.alignmentStats = [];
                         for (const file of response.responses[0].results) {
                             const annotSet = file.annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
@@ -250,10 +251,10 @@ class VariantInterpreterQcOverview extends LitElement {
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => {
                         return html`<button type="button"
-                                        class="list-group-item ${i === 0 ? "active" : ""}"
-                                        data-id="${field.id}"
-                                        @click="${this.onSideNavClick}">${field.title}
-                                    </button>`;
+                                            class="list-group-item ${i === 0 ? "active" : ""}"
+                                            data-id="${field.id}"
+                                            @click="${this.onSideNavClick}">${field.title}
+                        </button>`;
                     })}
                 </div>
 
@@ -312,13 +313,20 @@ class VariantInterpreterQcOverview extends LitElement {
 
                         <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Stats</h3>
-                            <alignment-stats-view .opencgaSession=${this.opencgaSession}
-                                                  .alignmentStats="${this.alignmentStats}">
-                            </alignment-stats-view>
+                            <div style="padding: 15px">
+                                <alignment-stats-view .opencgaSession=${this.opencgaSession}
+                                                      .alignmentStats="${this.alignmentStats}">
+                                </alignment-stats-view>
+                            </div>
                         </div>
 
                         <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Flagstats</h3>
+                            <div style="padding: 15px">
+                                <samtools-flagstats-view
+                                    .files="${this.bamFiles}">
+                                </samtools-flagstats-view>
+                            </div>
                             <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession}
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-alignment-stats>
