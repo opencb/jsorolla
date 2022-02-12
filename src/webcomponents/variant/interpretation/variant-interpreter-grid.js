@@ -666,7 +666,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
                     halign: "center",
-                    visible: !!this._config.showType,
+                    visible: !this._config.hideType,
                 },
                 {
                     id: "consequenceType",
@@ -707,7 +707,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
-                    align: "center"
+                    align: "center",
                 },
                 {
                     id: "clinicalInfo",
@@ -790,7 +790,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "populationFrequencies",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this)
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
                 },
                 {
                     title: "ClinVar",
@@ -798,7 +799,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
                 },
                 {
                     title: "Cosmic",
@@ -806,7 +808,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
                 },
                 // Interpretation Column
                 {
@@ -1040,7 +1043,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 const results = restResponse.getResults();
                 // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
                 // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
-                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
+                const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
@@ -1332,10 +1336,13 @@ export default class VariantInterpreterGrid extends LitElement {
             showReview: true,
             showSelectCheckbox: false,
             showActions: false,
-            showType: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
+
+            hideType: false,
+            hidePopulationFrequencies: false,
+            hideClinicalInfo: false,
 
             header: {
                 horizontalAlign: "center",
