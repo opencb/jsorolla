@@ -71,13 +71,13 @@ class SamtoolsFlagstatsView extends LitElement {
     }
 
     filesObserver() {
-        const _flagstats = [];
+        const _samtoolsFlagStats = [];
         const _columns = [];
         if (this.files) {
             for (const file of this.files) {
                 // Store Samtools flag stats
                 if (file.qualityControl?.alignment?.samtoolsFlagStats) {
-                    _flagstats.push(file.qualityControl.alignment.samtoolsFlagStats);
+                    _samtoolsFlagStats.push(file.qualityControl.alignment.samtoolsFlagStats);
 
                     // Configure the table columns only if not provided
                     if (!this.config.columns) {
@@ -85,19 +85,20 @@ class SamtoolsFlagstatsView extends LitElement {
                             {
                                 name: `${file.name}`,
                                 classes: ""
-                            });
+                            }
+                        );
                     }
                 }
             }
         }
         this.config.columns = _columns;
-        this.flagstats = _flagstats;
+        this.flagstats = _samtoolsFlagStats;
     }
 
     onDownload(e) {
-        const header = this.config?.columns?.length ? this.config.columns.map(col => col.name) : this.flagstats.map(stat => stat.sampleId)
-        const d = this.config.rows.map(variable => [variable.name, ...this.flagstats.map(stat => stat[variable.field] ?? "N/A")].join("\t"))
-        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+        const header = this.config?.columns?.length ? this.config.columns.map(col => col.name) : this.flagstats.map(stat => stat.sampleId);
+        const d = this.config.rows.map(variable => [variable.name, ...this.flagstats.map(stat => stat[variable.field] ?? "N/A")].join("\t"));
+        if (e.currentTarget.dataset.downloadOption.toUpperCase() === "TAB") {
             const dataString = [
                 ["#key", ...header].join("\t"),
                 d.join("\n")];
@@ -114,50 +115,48 @@ class SamtoolsFlagstatsView extends LitElement {
         }
 
         return html`
-            <div class="row">
-                <div class="col-md-10">
-                    <!-- Render the Download button -->
-                    <div class="btn-group pull-right">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu btn-sm">
-                            ${this.config.download?.length ?
-                                this.config.download.map(item => html`
-                                    <li>
-                                        <a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
-                                    </li>`
-                                ) : null
-                            }
-                        </ul>
-                    </div>
+            <div>
+                <!-- Render the Download button -->
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu btn-sm">
+                        ${this.config.download?.length ?
+                            this.config.download.map(item => html`
+                                <li>
+                                    <a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
+                                </li>`
+                            ) : null
+                        }
+                    </ul>
+                </div>
 
-                    <!-- Render the table -->
-                    <div>
-                        <table class="table table-hover table-no-bordered">
-                            <thead>
+                <!-- Render the table -->
+                <div>
+                    <table class="table table-hover table-no-bordered">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            ${this.config?.columns?.length ?
+                                this.config.columns.map(col => html`
+                                    <th class="${col.classes}">${col.name}</th>`) :
+                                this.flagstats.map(() => html`<th>Values</th>`)
+                            }
+                        </tr>
+                        </thead>
+                        <tbody>
+                        ${this.config.rows.map(variable => html`
                             <tr>
-                                <th></th>
-                                ${this.config?.columns?.length ?
-                                    this.config.columns.map(col => html`
-                                        <th class="${col.classes}">${col.name}</th>`) :
-                                    this.flagstats.map(() => html`<th>Values</th>`)
-                                }
+                                <td>
+                                    <label>${variable.name}</label>
+                                </td>
+                                ${this.flagstats.map(stat => html`<td>${stat[variable.field].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? "N/A"}</td>`) }
                             </tr>
-                            </thead>
-                            <tbody>
-                            ${this.config.rows.map(variable => html`
-                                <tr>
-                                    <td>
-                                        <label>${variable.name}</label>
-                                    </td>
-                                    ${this.flagstats.map(stat => html`<td>${stat[variable.field].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? "N/A"}</td>`) }
-                                </tr>
-                            `)}
-                            </tbody>
-                        </table>
-                    </div>
+                        `)}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         `;

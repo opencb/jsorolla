@@ -151,10 +151,10 @@ export default class SampleFilesView extends LitElement {
                 </div>
             `)}
 
-            ${this.files2 ? html`<div style="padding-top: 20px"><h3>BAM Plots <span class="badge">${this.files2.length > 0 ? this.files2.length : ""}</span></h3></div>` : ""}
+            ${this.files2 ? html`<div style="padding-top: 20px"><h4>BAM Plots <span class="badge">${this.files2.length > 0 ? this.files2.length : ""}</span></h4></div>` : ""}
             ${this.files2 && this.files2.map(file => html`
                 <div class="col-md-12" style="padding: 15px 5px">
-                    <h4>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h4>
+                    <h5>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h5>
                     <div style="padding: 5px 20px">
                         <file-preview
                             .active="${true}"

@@ -23,10 +23,10 @@ import "./variant-interpreter-qc-inferred-sex.js";
 import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-signature.js";
-import "./variant-interpreter-qc-alignment-stats.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "../../sample/sample-files-view.js";
-import "../../alignment/alignment-stats-view.js";
+import "../../alignment/samtools-stats-view.js";
+import "../../alignment/samtools-flagstats-view.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 
@@ -70,10 +70,7 @@ class VariantInterpreterQcOverview extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
+    update(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -87,8 +84,20 @@ class VariantInterpreterQcOverview extends LitElement {
             if (this.settings.tabs) {
                 this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.tabs);
             }
-            // debugger
-            this.requestUpdate();
+            // this.requestUpdate();
+        }
+        super.update(changedProperties);
+    }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
         }
     }
 
@@ -120,19 +129,6 @@ class VariantInterpreterQcOverview extends LitElement {
         }
     }
 
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    // this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
-    }
-
     getDefaultConfig() {
         if (!this.clinicalAnalysis) {
             return;
@@ -148,10 +144,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "Summary",
                                 title: "Summary"
                             },
-                            /* {
-                                id: "VariantStats",
-                                title: "Variant Stats"
-                            },*/
+                            // {
+                            //     id: "VariantStats",
+                            //     title: "Variant Stats"
+                            // },
                             {
                                 id: "InferredSex",
                                 title: "Sex Inference"
@@ -165,9 +161,17 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Relatedness"
                             },
                             {
+                                id: "SamtoolsPlots",
+                                title: "Samtools Plots"
+                            },
+                            {
+                                id: "Alignment",
+                                title: "Samtools Stats",
+                            },
+                            {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                            }
+                            },
                             /* {
                                 id: "GeneCoverageStats",
                                 title: "Gene Coverage Stats",
@@ -210,10 +214,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "GenomicContext",
                                 title: "Genomic Context (Signature)"
                             },
-                            {
-                                id: "GeneCoverageStats",
-                                title: "Gene Coverage Stats",
-                            }
+                            // {
+                            //     id: "GeneCoverageStats",
+                            //     title: "Gene Coverage Stats",
+                            // }
                         ]
                     }
                 ]
@@ -250,11 +254,12 @@ class VariantInterpreterQcOverview extends LitElement {
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => {
-                        return html`<button type="button"
-                                            class="list-group-item ${i === 0 ? "active" : ""}"
-                                            data-id="${field.id}"
-                                            @click="${this.onSideNavClick}">${field.title}
-                        </button>`;
+                        return html`
+                            <button type="button"
+                                    class="list-group-item ${i === 0 ? "active" : ""}"
+                                    data-id="${field.id}"
+                                    @click="${this.onSideNavClick}">${field.title}
+                            </button>`;
                     })}
                 </div>
 
@@ -277,46 +282,53 @@ class VariantInterpreterQcOverview extends LitElement {
 
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>QC Plot Files</h3>
-                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
-                                               .mode="${"sample-qc"}"
-                                               .opencgaSession="${this.opencgaSession}">
-                            </sample-files-view>
-                        </div>
-
-                        <div id="${this._prefix}SamtoolsPlots" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Samtools Plots</h3>
-                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
-                                               .opencgaSession="${this.opencgaSession}">
+                            <sample-files-view
+                                .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
+                                .mode="${"sample-qc"}"
+                                .opencgaSession="${this.opencgaSession}">
                             </sample-files-view>
                         </div>
 
                         <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
                             <h3>Inferred Sex</h3>
-                            <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession}
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            <variant-interpreter-qc-inferred-sex
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-inferred-sex>
                         </div>
 
                         <div id="${this._prefix}MendelianErrors" role="tabpanel" class="tab-pane content-tab">
                             <h3>Mendelian Errors</h3>
-                            <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession}
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                            <variant-interpreter-qc-mendelian-errors
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-mendelian-errors>
                         </div>
 
                         <div id="${this._prefix}Relatedness" role="tabpanel" class="tab-pane content-tab">
                             <h3>Relatedness</h3>
-                            <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession}
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            <variant-interpreter-qc-relatedness
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-relatedness>
+                        </div>
+
+                        <div id="${this._prefix}SamtoolsPlots" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Samtools Plots</h3>
+                            <div style="padding: 15px">
+                                <sample-files-view
+                                    .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </sample-files-view>
+                            </div>
                         </div>
 
                         <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Stats</h3>
                             <div style="padding: 15px">
-                                <alignment-stats-view .opencgaSession=${this.opencgaSession}
-                                                      .alignmentStats="${this.alignmentStats}">
-                                </alignment-stats-view>
+                                <samtools-stats-view
+                                    .files="${this.bamFiles}">
+                                </samtools-stats-view>
                             </div>
                         </div>
 
@@ -327,9 +339,6 @@ class VariantInterpreterQcOverview extends LitElement {
                                     .files="${this.bamFiles}">
                                 </samtools-flagstats-view>
                             </div>
-                            <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession}
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-alignment-stats>
                         </div>
 
                         <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
@@ -339,13 +348,14 @@ class VariantInterpreterQcOverview extends LitElement {
                             </variant-interpreter-qc-signature>
                         </div>
 
-                        <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Gene Coverage Stats</h3>
-                            <variant-interpreter-qc-gene-coverage-stats  .opencgaSession=${this.opencgaSession}
-                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-gene-coverage-stats>
-                        </div>
-
+                            <!--
+                            <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
+                                <h3>Gene Coverage Stats</h3>
+                                <variant-interpreter-qc-gene-coverage-stats  .opencgaSession=${this.opencgaSession}
+                                                                             .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </variant-interpreter-qc-gene-coverage-stats>
+                            </div>
+                        -->
                     </div>
                 </div>
             </div>
