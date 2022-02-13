@@ -78,9 +78,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
                 break;
+            case "activeHighlights":
+                this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
+                break;
         }
 
-        LitUtils.dispatchCustomEvent(this, "configChange", this.config, null, null, {bubbles: true, composed: true});
+        LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
     render() {
@@ -283,7 +286,33 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         }
                     ]
-                }
+                },
+                {
+                    title: "Variant highlight",
+                    display: {
+                        titleHeader: "h4",
+                    },
+                    elements: [
+                        {
+                            title: "Configure the highlight to apply to displayed variant rows",
+                            field: "activeHighlights",
+                            type: "select",
+                            multiple: true,
+                            allowedValues: this.config?.highlights || [],
+                            display: {
+                                visible: () => (this.config?.highlights || []).length > 0,
+                            },
+                        },
+                        {
+                            type: "notification",
+                            text: "No highlight conditions defined.",
+                            display: {
+                                notificationType: "warning",
+                                visible: () => (this.config?.highlights || []).length === 0,
+                            },
+                        },
+                    ],
+                },
             ]
         };
     }

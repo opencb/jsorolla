@@ -16,10 +16,11 @@
  */
 
 
-const cellbase = {
-    host: "https://ws.opencb.org/cellbase-4.8.2",
-    version: "v4"
-};
+// The cellbase configuration is extracted from project config (see issue #173)
+// const cellbase = {
+//     host: "https://ws.opencb.org/cellbase-4.8.2",
+//     version: "v4"
+// };
 
 const hosts = [
     {

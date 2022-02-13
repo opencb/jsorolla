@@ -32,16 +32,10 @@ class SamtoolsFlagstatsView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            file: {
                 type: Object
             },
-            // fileIds: {
-            //     type: Array
-            // },
-            sample: {
-                type: Object
-            },
-            samples: {
+            files: {
                 type: Array
             },
             flagstats: {
@@ -54,145 +48,122 @@ class SamtoolsFlagstatsView extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this.flagstats = [];
-        this._config = this.getDefaultConfig();
+        this.config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    firstUpdated(_changedProperties) {
-    }
-
-    updated(changedProperties) {
-        // if (changedProperties.has("fileIds")) {
-        //     this.fileIdsObserver();
-        // }
-
-        if (changedProperties.has("sample")) {
-            this.sampleObserver();
+    update(changedProperties) {
+        if (changedProperties.has("file")) {
+            this.fileObserver();
         }
-
-        if (changedProperties.has("samples")) {
-            this.samplesObserver();
+        if (changedProperties.has("files")) {
+            this.filesObserver();
         }
-
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.config = {...this.getDefaultConfig(), ...this.config};
         }
+        super.update(changedProperties);
     }
 
-    // fileIdsObserver() {
-    //     if (this.opencgaSession && this.fileIds) {
-    //         this.opencgaSession.opencgaClient.alignments().infoStats(this.fileIds.join(","), {study: this.opencgaSession.study.fqn})
-    //             .then(response => {
-    //                 this.alignmentStats = response.responses[0].results;
-    //                 this.requestUpdate();
-    //             })
-    //             .catch(response => {
-    //                 console.error("An error occurred fetching clinicalAnalysis: ", response);
-    //             });
-    //     }
-    // }
-
-    sampleObserver() {
-        if (this.sample && this.sample?.qualityControl?.alignmentMetrics?.length > 0  && this.sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
-            // Get BAM file name and add it to the table
-            let bamFileName = this.sample.qualityControl.alignmentMetrics[0].bamFileId || "N/A";
-            if (this.sample.qualityControl.alignmentMetrics[0].bamFileId?.includes(":")) {
-                let parts = this.sample.qualityControl.alignmentMetrics[0].bamFileId.split(":");
-                bamFileName = parts[parts.length - 1];
-            }
-
-            // Configure the table
-            this._config.columns = [
-                {
-                    name: `${bamFileName}`,
-                    classes: ""
-                }
-            ];
-            // St flagstats array
-            this.flagstats = [this.sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats];
-        }
+    fileObserver() {
+        this.files = [this.file];
+        this.filesObserver();
     }
 
-    samplesObserver() {
-        if (this.samples) {
-            this._config.columns = [];
-            let _flagstats = [];
-            for (let sample of this.samples) {
-                let alignmentMetric = sample?.qualityControl?.alignmentMetrics?.[0];
-                // if (sample?.qualityControl?.alignmentMetrics?.length > 0 && sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
-                if (alignmentMetric) {
-                    _flagstats.push(alignmentMetric.samtoolsFlagstats);
+    filesObserver() {
+        const _samtoolsFlagStats = [];
+        const _columns = [];
+        if (this.files) {
+            for (const file of this.files) {
+                // Store Samtools flag stats
+                if (file.qualityControl?.alignment?.samtoolsFlagStats) {
+                    _samtoolsFlagStats.push(file.qualityControl.alignment.samtoolsFlagStats);
 
-                    // Get BAM file name and add it to the table
-                    let bamFileName = alignmentMetric.bamFileId || "N/A";
-                    if (alignmentMetric.bamFileId?.includes(":")) {
-                        let parts = alignmentMetric.bamFileId.split(":");
-                        bamFileName = parts[parts.length - 1];
+                    // Configure the table columns only if not provided
+                    if (!this.config.columns) {
+                        _columns.push(
+                            {
+                                name: `${file.name}`,
+                                classes: ""
+                            }
+                        );
                     }
-
-                    // Configure the table
-                    this._config.columns.push(
-                        {
-                            name: `${bamFileName}`,
-                            classes: ""
-                        });
                 }
             }
-            // Set flagstats array
-            this.flagstats = _flagstats;
         }
-    }
-
-    renderTable() {
-        return html`
-            <table class="table table-hover table-no-bordered">
-                <thead>
-                    <tr>
-                        <th></th>
-                        ${// Read column name from configuration if exist, otherwise use sampleId from the stats object
-                            this._config?.columns?.length
-                                ? this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
-                                : this.flagstats.map( stat => html`<th>Values</th>`)
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    ${this._config.rows.map(variable => html`
-                        <tr>
-                            <td>
-                                <label>${variable.name}</label>
-                            </td>
-                            ${this.flagstats.map(stat => html`<td>${stat[variable.field].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? "N/A"}</td>`) }
-                        </tr>
-                    `)}
-                </tbody>
-            </table>`;
+        this.config.columns = _columns;
+        this.flagstats = _samtoolsFlagStats;
     }
 
     onDownload(e) {
-        const header = this._config?.columns?.length ? this._config.columns.map( col => col.name) : this.flagstats.map( stat => stat.sampleId)
-        const d = this._config.rows.map(variable => [variable.name, ...this.flagstats.map(stat => stat[variable.field] ?? "N/A")].join("\t"))
-        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+        const header = this.config?.columns?.length ? this.config.columns.map(col => col.name) : this.flagstats.map(stat => stat.sampleId);
+        const d = this.config.rows.map(variable => [variable.name, ...this.flagstats.map(stat => stat[variable.field] ?? "N/A")].join("\t"));
+        if (e.currentTarget.dataset.downloadOption.toUpperCase() === "TAB") {
             const dataString = [
                 ["#key", ...header].join("\t"),
                 d.join("\n")];
             UtilsNew.downloadData(dataString, "samtools_flagstats.txt", "text/plain");
         } else {
-            UtilsNew.downloadData(JSON.stringify(this.flagstats, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+            UtilsNew.downloadData(JSON.stringify(this.flagstats, null, "\t"), "samtools_flagstats.json", "application/json");
         }
     }
 
+    render() {
+        if (!this.flagstats || this.flagstats.length === 0) {
+            return html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Samtools Flagstats not found.</div>`;
+        }
+
+        return html`
+            <div>
+                <!-- Render the Download button -->
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu btn-sm">
+                        ${this.config.download?.length ?
+                            this.config.download.map(item => html`
+                                <li>
+                                    <a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
+                                </li>`
+                            ) : null
+                        }
+                    </ul>
+                </div>
+
+                <!-- Render the table -->
+                <div>
+                    <table class="table table-hover table-no-bordered">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            ${this.config?.columns?.length ?
+                                this.config.columns.map(col => html`
+                                    <th class="${col.classes}">${col.name}</th>`) :
+                                this.flagstats.map(() => html`<th>Values</th>`)
+                            }
+                        </tr>
+                        </thead>
+                        <tbody>
+                        ${this.config.rows.map(variable => html`
+                            <tr>
+                                <td>
+                                    <label>${variable.name}</label>
+                                </td>
+                                ${this.flagstats.map(stat => html`<td>${stat[variable.field].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? "N/A"}</td>`) }
+                            </tr>
+                        `)}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
 
     getDefaultConfig() {
         return {
-            // title: "Samtools Stats",
             // columns: [
             //     {
             //         name: "ISDBM322015",
@@ -203,7 +174,7 @@ class SamtoolsFlagstatsView extends LitElement {
             //         classes: ""
             //     },
             // ],
-
+            download: ["Tab", "JSON"],
             rows: [
                 {
                     name: "totalReads",
@@ -261,35 +232,8 @@ class SamtoolsFlagstatsView extends LitElement {
                     name: "diffChrMapQ5",
                     field: "diffChrMapQ5"
                 },
-            ],
-            download: ["Tab", "JSON"]
+            ]
         };
-    }
-
-    render() {
-        if (!this.flagstats || this.flagstats.length === 0) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Samtools Flagstat not found.</div>`;
-        }
-
-        // Alignment stats are the same for FAMILY and CANCER analysis
-        return html`
-            <div>
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu btn-sm">
-                        ${this._config.download.length
-                            ? this._config.download.map(item => html`
-                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`)
-                            : null
-                        }
-                    </ul>
-                </div>
-                ${this.renderTable()}
-            </div>
-        `;
     }
 
 }

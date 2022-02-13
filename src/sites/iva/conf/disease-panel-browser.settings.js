@@ -26,7 +26,7 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
         columns: ["id", "name", "stats", "source"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
-    details: ["disease-panel-view", "json-view"]
+    details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]
 };
 
 export default DISEASE_PANEL_BROWSER_SETTINGS;

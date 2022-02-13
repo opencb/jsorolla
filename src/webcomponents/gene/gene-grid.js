@@ -17,16 +17,12 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 
-export default class DiseasePanelGrid extends LitElement {
+export default class GeneGrid extends LitElement {
 
     constructor() {
         super();
@@ -45,7 +41,7 @@ export default class DiseasePanelGrid extends LitElement {
             query: {
                 type: Object
             },
-            diseasePanels: {
+            genePanels: {
                 type: Array
             },
             config: {
@@ -59,10 +55,8 @@ export default class DiseasePanelGrid extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "DiseasePanelBrowserGrid";
+        this.gridId = this._prefix + "GenePanelBrowserGrid";
         this.active = true;
-        // this.catalogUiUtils = new CatalogWebUtils();
-        // this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
@@ -75,6 +69,7 @@ export default class DiseasePanelGrid extends LitElement {
         if ((changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
+            changedProperties.has("genePanels") ||
             changedProperties.has("active")) &&
             this.active) {
             this.propertyObserver();
@@ -86,9 +81,9 @@ export default class DiseasePanelGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "DISEASE_PANEL",
-            buttons: ["columns", "download"],
+            // buttons: ["columns", "download"],
             columns: this._getDefaultColumns()
         };
         this.renderTable();
@@ -96,11 +91,12 @@ export default class DiseasePanelGrid extends LitElement {
 
     renderTable() {
         // If this.diseasePanel is provided as property we render the array directly
-        if (this.diseasePanels && this.diseasePanels.length > 0) {
+        if (this.genePanels && this.genePanels.length > 0) {
             this.renderLocalTable();
-        } else {
-            this.renderRemoteTable();
         }
+        // else {
+        //     this.renderRemoteTable();
+        // }
         this.requestUpdate();
     }
 
@@ -144,7 +140,7 @@ export default class DiseasePanelGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {..._filters};
                     try {
-                        const data = await this.fetchDiseasePanels(_filters);
+                        const data = await this.fetchGenePanels(_filters);
                         params.success(data);
                     } catch (e) {
                         console.log(e);
@@ -188,7 +184,7 @@ export default class DiseasePanelGrid extends LitElement {
         }
     }
 
-    async fetchDiseasePanels(query) {
+    async fetchGenePanels(query) {
         try {
             return await this.opencgaSession.opencgaClient.panels().search(query);
         } catch (e) {
@@ -202,7 +198,7 @@ export default class DiseasePanelGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.diseasePanels,
+            data: this.genePanels,
             sidePagination: "local",
             // Set table properties, these are read from config property
             uniqueId: "id",
@@ -241,183 +237,74 @@ export default class DiseasePanelGrid extends LitElement {
     _getDefaultColumns() {
         let _columns = [[
             {
-                id: "id",
-                title: "Panel Id",
-                field: "id",
-                rowspan: 2,
-                colspan: 1,
-                // formatter: (value, row) => row?.id ?? "-",
+                id: "confidence",
+                title: "Confidence",
+                field: "confidence",
+                align: "center",
                 formatter: (value, row) => {
-                    if (row?.source?.project === "PanelApp") {
-                        return String.raw`
-                            <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
-                                ${row?.id ?? "-"}
-                            </a>`;
-                    }
-                    return row?.id ?? "-";
+                    const statusConfidence = {
+                        "HIGH": "label label-success",
+                        "MEDIUM": "label label-warning",
+                        "LOW": "label label-danger",
+                    };
+                    return String.raw`<h4><span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence ?? "-"}</span></h4>`;
                 },
                 halign: this._config.header.horizontalAlign
             },
             {
                 id: "name",
-                title: "Name",
+                title: "Entity (Gene)",
                 field: "name",
-                rowspan: 2,
-                colspan: 1,
-                formatter: (value, row) => row?.name ?? "-",
+                formatter: (value, row) => this.geneFormatter(row.name, this.opencgaSession),
                 halign: this._config.header.horizontalAlign
             },
             {
-                id: "stats",
-                title: "Stats",
-                field: "stats",
-                rowspan: 1,
-                colspan: 3,
-                align: "center",
+                id: "reviews",
+                title: "Reviews",
+                field: "xrefs",
+                formatter: (value, row) => {
+                    // const content = String.raw `Coming soon`;0
+                    return "-";
+                },
+                halign: this._config.header.horizontalAlign
             },
             {
-                id: "source",
-                title: "Source",
-                field: "source",
-                rowspan: 2,
-                colspan: 1,
+                id: "modeOfInheritance",
+                title: "Mode of inheritance",
+                field: "modeOfInheritance",
+            },
+            {
+                id: "details",
+                title: "Details",
                 formatter: (value, row) => {
-                    const {author, project, version} = row.source;
-                    return `${author? `${author} -`:""} ${project ?? ""} ${version?`(v${version})`:""}`;
+                    const generateList = (arr, field) => {
+                        return arr? arr.map(item => String.raw `<li>${field?item[field]:item}</li>`).join(""):"";
+                    };
+                    const evidencesContent = generateList(row.evidences, "");
+                    const phenotypesContent = generateList(row.phenotypes, "name");
+                    const tagsContent = generateList(row.tags, "");
+                    const content = String.raw `
+                        ${evidencesContent ? String.raw `
+                            <label>Sources</label>
+                                <ul>
+                                    ${evidencesContent}
+                                </ul>` : ""}
+                        ${phenotypesContent ? String.raw `
+                            <label>Phenotypes</label>
+                                <ul>
+                                    ${phenotypesContent}
+                                </ul>` : ""}
+                        ${tagsContent? String.raw`
+                            <label>Phenotypes</label>
+                                <ul>
+                                    ${tagsContent}
+                                </ul>` : ""}
+                        `.trim();
+                    return `${content? content: "-"}`;
                 },
-                align: "center",
             },
         ],
-        [
-            {
-                id: "numberOfGenes",
-                title: "# genes",
-                field: "numberOfGenes",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            },
-            {
-                id: "numberOfRegions",
-                title: "# regions",
-                field: "numberOfRegions",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            },
-            {
-                id: "numberOfVariants",
-                title: "# variants",
-                field: "numberOfVariants",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            }
-            // {
-            //     id: "author",
-            //     title: "Author",
-            //     field: "author",
-            //     rowspan: 1,
-            //     colspan: 1,
-            //     formatter: (value, row) => row?.source?.author ?? "-",
-            //     halign: this._config.header.horizontalAlign,
-            // },
-            // {
-            //     id: "project",
-            //     title: "Project",
-            //     field: "project",
-            //     rowspan: 1,
-            //     colspan: 1,
-            //     formatter: (value, row) => {
-            //         if (row?.source?.project === "PanelApp") {
-            //             return String.raw`
-            //                 <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
-            //                     ${row.source.project}
-            //                 </a>`;
-            //         }
-            //         return row?.source?.project ?? "-";
-            //     },
-            //     halign: this._config.header.horizontalAlign,
-            // },
-            // {
-            //     id: "version",
-            //     title: "Version",
-            //     field: "version",
-            //     rowspan: 1,
-            //     colspan: 1,
-            //     formatter: (value, row) => row?.source?.version ?? "-",
-            //     halign: this._config.header.horizontalAlign,
-            // },
-        ]
         ];
-
-        // if (this.opencgaSession && this._config.showActions) {
-        //     _columns.push({
-        //         id: "actions",
-        //         title: "Actions",
-        //         formatter: (value, row) => `
-        //             <div class="dropdown">
-        //                 <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-        //                     <span class="caret"></span>
-        //                 </button>
-        //                 <ul class="dropdown-menu dropdown-menu-right">
-        //                     <li>
-        //                         <a data-action="download" href="javascript: void 0" class="btn force-text-left">
-        //                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
-        //                         </a>
-        //                     </li>
-        //                     <li role="separator" class="divider"></li>
-        //                     <li>
-        //                         <a data-action="variantStats" class="btn force-text-left"
-        //                                 href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-        //                             <i class="fas fa-user icon-padding" aria-hidden="true"></i> Variant Stats Browser
-        //                         </a>
-        //                     </li>
-        //                     <li>
-        //                         <a data-action="cancerVariantStats" class="btn force-text-left ${row.somatic ? "" : "disabled"}"
-        //                                 href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-        //                             <i class="fas fa-user icon-padding" aria-hidden="true"></i> Cancer Variant Plots
-        //                         </a>
-        //                     </li>
-        //                     <li>
-        //                         <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-        //                                 title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-        //                             <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
-        //                         </a>
-        //                     </li>
-        //                     <li>
-        //                         <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-        //                                 href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.attributes.OPENCGA_CLINICAL_ANALYSIS?.id}">
-        //                             <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
-        //                         </a>
-        //                     </li>
-        //                     <li role="separator" class="divider"></li>
-        //                     <li>
-        //                         <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-        //                             href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
-        //                             <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
-        //                         </a>
-        //                     </li>
-        //                     <li>
-        //                         <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-        //                             <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
-        //                         </a>
-        //                     </li>
-        //                 </ul>
-        //             </div>`,
-        //         // valign: "middle",
-        //         events: {
-        //             "click a": this.onActionClick.bind(this)
-        //         },
-        //         visible: !this._config.columns?.hidden?.includes("actions")
-        //     });
-        // }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return _columns;
@@ -461,6 +348,69 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
+    geneFormatter(geneName, opencgaSession) {
+
+        const geneLinks = [];
+        const geneWithCtLinks = [];
+
+        if (geneName) {
+            let geneViewMenuLink = "";
+            if (opencgaSession.project && opencgaSession.study) {
+                geneViewMenuLink = String.raw`
+                            <div style='padding: 5px'>
+                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view2'>Gene View</a>
+                            </div>`;
+            }
+
+            const tooltipText = String.raw`
+                        ${geneViewMenuLink}
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+                        </div>
+
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
+                        </div>
+                        <div style='padding: 5px'>
+                            <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+                        </div>`;
+
+            geneLinks.push(String.raw `
+                                        <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
+                                            ${geneName}
+                                        </a>`);
+        }
+
+        let resultHtml = "";
+
+        // Second, the other genes
+        for (let i = 0; i < geneLinks.length; i++) {
+            resultHtml += geneLinks[i];
+            if (i + 1 !== geneLinks.length) {
+                if (i === 0) {
+                    resultHtml += ",";
+                } else if ((i + 1) % 2 !== 0) {
+                    resultHtml += ",";
+                } else {
+                    resultHtml += "<br>";
+                }
+            }
+        }
+        return resultHtml;
+    }
+
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -493,11 +443,11 @@ export default class DiseasePanelGrid extends LitElement {
             }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}DiseasePanelBrowserGrid"></table>
+                <table id="${this._prefix}GenePanelBrowserGrid"></table>
             </div>
         `;
     }
 
 }
 
-customElements.define("disease-panel-grid", DiseasePanelGrid);
+customElements.define("gene-grid", GeneGrid);

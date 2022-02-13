@@ -29,6 +29,13 @@ import "./toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 
+    static NOTIFICATION_TYPES = {
+        error: "alert alert-danger",
+        info: "alert alert-info",
+        success: "alert alert-success",
+        warning: "alert alert-warning"
+    };
+
     constructor() {
         super();
 
@@ -545,20 +552,15 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
-
-        const notificationTypes = {
-            error: "alert alert-danger",
-            info: "alert alert-info",
-            success: "alert alert-success",
-            warning: "alert alert-warning"
-        };
-
-        const NotificationClass = element.type === "notification"? notificationTypes[element?.display?.notificationType] || "alert alert-info": "";
-        const textClass = element.display?.textClassName ?? element.display?.textClass ?? "";
+        const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
+        const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
         return html`
-            <div class="${textClass} ${NotificationClass}" style="${textStyle}">
+            <div class="${textClass} ${notificationClass}" style="${textStyle}">
+                ${element.display?.icon ? html`
+                    <i class="fas fa-${element.display.icon} icon-padding"></i>
+                ` : null}
                 <span>${element.text || ""}</span>
             </div>
         `;
@@ -863,7 +865,8 @@ export default class DataForm extends LitElement {
         let content = "-";
         switch (contentLayout) {
             case "horizontal":
-                content = html`${element?.display?.separator ? values.join(element.display.separator) : values}`;
+                const separator = element?.display?.separator || ", ";
+                content = html`${values.join(separator)}`;
                 break;
             case "vertical":
                 content = html`
@@ -887,10 +890,12 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        let array = this.getValue(element.field, [], element.defaultValue);
+        let array = this.getValue(element.field, null, element.defaultValue);
         const errorMessage = this._getErrorMessage(element);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
+        const tableClassName = element.display?.className || "";
+        const tableStyle = element.display?.style || "";
 
         // Check values
         if (!array) {
@@ -923,7 +928,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <table class="table">
+            <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
                     <thead>
                     <tr>

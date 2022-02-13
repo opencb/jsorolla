@@ -372,6 +372,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         .diseasePanels="${this.opencgaSession.study?.panels}"
                                         .panel="${panels?.map(p => p.id).join(",")}"
                                         .showExtendedFilters="${false}"
+                                        .showSelectedPanels="${false}"
                                         @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                     </disease-panel-filter>
                                 `,

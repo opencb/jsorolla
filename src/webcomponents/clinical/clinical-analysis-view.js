@@ -21,7 +21,7 @@ import "../commons/view/pedigree-view.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 
-export default class OpencgaClinicalAnalysisView extends LitElement {
+export default class ClinicalAnalysisView extends LitElement {
 
     constructor() {
         super();
@@ -78,7 +78,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         } else if (this.settings?.hiddenFields?.length) {
             this._config.hiddenFields = this.settings.hiddenFields;
             this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
-
         }
         this.requestUpdate();
     }
@@ -438,4 +437,4 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
 }
 
-customElements.define("opencga-clinical-analysis-view", OpencgaClinicalAnalysisView);
+customElements.define("clinical-analysis-view", ClinicalAnalysisView);
