@@ -25,8 +25,8 @@ import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-signature.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "../../sample/sample-files-view.js";
-import "../../alignment/samtools-stats-view.js";
-import "../../alignment/samtools-flagstats-view.js";
+import "../../alignment/qc/samtools-stats-view.js";
+import "../../alignment/qc/samtools-flagstats-view.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 

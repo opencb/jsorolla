@@ -31,44 +31,46 @@ export default class FileView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            file: {
                 type: Object
             },
             fileId: {
                 type: String
             },
-            file: {
+            opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
+            preview: {
+                type: Boolean
             },
             mode: {
                 type: String
+            },
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._config = this.getDefaultConfig();
         this.file = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.preview = false;
+        this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("preview")) {
+            this.config = this.getDefaultConfig();
         }
-
+        if (changedProperties.has("mode")) {
+            this.config = this.getDefaultConfig();
+        }
+        if (changedProperties.has("config")) {
+            this.config = {...this.getDefaultConfig(), ...this.config};
+        }
         super.update(changedProperties);
     }
 
@@ -79,18 +81,22 @@ export default class FileView extends LitElement {
                     this.file = response.responses[0].results[0];
                 })
                 .catch(response => {
+                    this.file = null;
                     console.error(response);
                 });
-        } else {
-            this.file = null;
         }
     }
 
     render() {
-        return this.file && html`
+        if (!this.file) {
+            return html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> File not found.</div>`;
+        }
+
+        return html`
             <data-form
                 .data=${this.file}
-                .config="${this._config}">
+                .config="${this.config}">
             </data-form>
         `;
     }
@@ -177,13 +183,25 @@ export default class FileView extends LitElement {
                             display: {
                                 render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
                             }
+                        }
+                    ]
+                },
+                {
+                    title: "File Preview",
+                    display: {
+                        visible: () => this.preview === true || this.mode === "full",
+                        layout: "vertical",
+                        collapsed: false
+                    },
+                    elements: [
+                        {
+                            // title: "Name",
+                            field: "name"
                         },
                         {
-                            title: "Preview",
+                            // title: "Preview",
                             type: "custom",
-
                             display: {
-                                visible: this.mode === "full",
                                 render: file => html`
                                     <file-preview
                                         .opencgaSession=${this.opencgaSession}
