@@ -56,18 +56,14 @@ export default class ListUpdate extends LitElement {
         this.status = {};
         this._prefix = UtilsNew.randomString(8);
         this.item = {};
-
-        // Not working here
-        // this._config = {...this.config};
     }
 
     onFieldChange(e, index) {
         e.stopPropagation();
         // Array
-        // debugger;
         const {param, value} = e.detail;
         if (index >= 0) {
-
+        // To edit the element config
             if (value) {
                 this.data.items[index] = {
                     ...this.data.items[index],
@@ -76,12 +72,14 @@ export default class ListUpdate extends LitElement {
             } else {
                 delete this.data.items[index][param];
             }
+
             if (this.node?.parent === "fileIndexConfiguration") {
                 this._config = {...this.config};
                 this.requestUpdate();
             }
-            console.log("edited array item", this.data.items[index]);
         } else {
+            // Add new config
+
             if (value) {
                 this.item = {
                     ...this.item,
@@ -89,6 +87,11 @@ export default class ListUpdate extends LitElement {
                 };
             } else {
                 delete this.item[param];
+            }
+
+            if (this.node?.parent === "fileIndexConfiguration") {
+                this._config = {...this.config};
+                this.requestUpdate();
             }
 
             if (this.node?.parent === "annotationIndexConfiguration") {
@@ -227,6 +230,7 @@ export default class ListUpdate extends LitElement {
                 })
             }
             <data-form
+                .data="${this.item}"
                 @fieldChange=${ e => this.onFieldChange(e)}
                 @submit=${e => this.onSendItem(e, -1, this.node)}
                 .config="${this._config.new}">

@@ -70,6 +70,8 @@ export default class ConfigListUpdate extends LitElement {
     }
 
     configObserver() {
+        // When user change the value of type the config.
+        // it will be render with the new value.
         this._config = {...this.getDefaultConfig()};
     }
 
