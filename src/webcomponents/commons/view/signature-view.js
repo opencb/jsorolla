@@ -38,6 +38,9 @@ export default class SignatureView extends LitElement {
             mode: {
                 type: String // view | plot
             },
+            plots: {
+                type: Array,
+            },
             config: {
                 type: Object
             }
@@ -46,7 +49,7 @@ export default class SignatureView extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        this.plots = ["counts"];
         this.mode = "SBS";
     }
 
@@ -57,12 +60,16 @@ export default class SignatureView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("signature")) {
-            this.signatureObserver();
+        if (changedProperties.has("signature") && this.plots.includes("counts")) {
+            this.signatureCountsObserver();
+        }
+
+        if (changedProperties.has("signature") && this.plots.includes("fitting")) {
+            this.signatureFittingObserver();
         }
     }
 
-    signatureObserver() {
+    signatureCountsObserver() {
         if (!this.signature || this.signature?.errorState) {
             return;
         }
@@ -155,7 +162,7 @@ export default class SignatureView extends LitElement {
             }
         });
 
-        const addRects = chart => {
+        const addRects = function (chart) {
             $(".rect", this).remove();
             $(".rect-label", this).remove();
             let lastStart = 0;
@@ -187,7 +194,7 @@ export default class SignatureView extends LitElement {
             });
         };
 
-        $(`#${this._prefix}SignaturePlot`).highcharts({
+        $(`#${this._prefix}SignatureCountsPlot`).highcharts({
             title: "title",
             chart: {
                 height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
@@ -246,6 +253,51 @@ export default class SignatureView extends LitElement {
         });
     }
 
+    signatureFittingObserver() {
+        if (!this.signature?.fitting) {
+            return;
+        }
+
+        const scores = this.signature.fitting.scores;
+
+        $(`#${this._prefix}SignatureFittingPlot`).highcharts({
+            // title: "title",
+            chart: {
+                height: this._config.height,
+                type: "bar",
+                events: {
+                    // redraw: function () {
+                    //     addRects(this);
+                    // },
+                    // load: function () {
+                    //     addRects(this);
+                    // }
+                },
+                marginTop: 70
+            },
+            title: null,
+            credits: {
+                enabled: false
+            },
+            legend: {
+                enabled: false
+            },
+            xAxis: {
+                categories: scores.map(score => score.signatureId),
+            },
+            yAxis: {
+                min: 0,
+                title: null,
+            },
+            // colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
+            series: [{
+                data: scores.map(score => score.value),
+                name: "Value",
+            }]
+        });
+
+    }
+
     render() {
         if (this.signature?.errorState) {
             return html`<div class="alert alert-danger">${this.signature.errorState}</div>`;
@@ -253,11 +305,19 @@ export default class SignatureView extends LitElement {
 
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature ? html`
-                    <div style="margin: 10px">
-                        <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
-                    </div>
-                    <div id="${this._prefix}SignaturePlot"></div>
+                ${this.signature && this.plots ? html`
+
+                    ${this.plots.includes("counts") ? html `
+                        <div style="margin: 10px">
+                            <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
+                        </div>
+                        <div id="${this._prefix}SignatureCountsPlot"></div>
+                    ` : null}
+
+                    ${this.plots.includes("fitting") ? html`
+                        <div id="${this._prefix}SignatureFittingPlot"></div>
+                    ` : null}
+
                 ` : html`
                     <loading-spinner></loading-spinner>`
                 }
