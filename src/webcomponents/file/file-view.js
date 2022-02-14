@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import "./file-preview.js";
 import "../commons/forms/data-form.js";
 
 export default class FileView extends LitElement {
@@ -204,9 +205,9 @@ export default class FileView extends LitElement {
                             display: {
                                 render: file => html`
                                     <file-preview
+                                        .file="${file}"
                                         .opencgaSession=${this.opencgaSession}
-                                        .active="${true}"
-                                        .file="${file}">
+                                        .active="${true}">
                                     </file-preview>
                                 `,
                             }

@@ -162,7 +162,7 @@ export default class UtilsNew {
         return o != null && o.constructor.name === "Object";
     }
 
-    static getDiskUsage(bytes, numDecimals) {
+    static getDiskUsage(bytes, numDecimals = 2) {
         if (bytes === 0) {
             return "0 Byte";
         }

@@ -67,7 +67,7 @@ class SamtoolsFlagstatsView extends LitElement {
 
     fileObserver() {
         this.files = [this.file];
-        this.filesObserver();
+        // this.filesObserver();
     }
 
     filesObserver() {

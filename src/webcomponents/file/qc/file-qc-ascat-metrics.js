@@ -18,8 +18,6 @@ import {LitElement, html} from "lit";
 
 import "../file-preview.js";
 import "../../commons/forms/data-form.js";
-import "../../sample/sample-files-view.js";
-import UtilsNew from "../../../core/utilsNew.js";
 
 export default class FileQcAscatMetrics extends LitElement {
 
@@ -52,18 +50,22 @@ export default class FileQcAscatMetrics extends LitElement {
 
     _init() {
         this.ascatMetrics = null;
-        this._ascatImages = [];
         this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("file")) {
+            this.fileObserver();
+        }
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-        if (changedProperties.has("file")) {
-            this.ascatMetrics = this.file.qualityControl.variant.ascatMetrics;
-        }
         super.update(changedProperties);
+    }
+
+    fileObserver() {
+        this.ascatMetrics = this.file.qualityControl.variant.ascatMetrics;
+        this.ascatMetrics.file = this.file.name;
     }
 
     sampleIdObserver() {
@@ -74,16 +76,7 @@ export default class FileQcAscatMetrics extends LitElement {
                 softwareName: "ascat",
                 study: this.opencgaSession.study.fqn,
             }).then(response => {
-                const file = response.responses[0].results[0];
-                this.ascatMetrics = file.qualityControl.variant.ascatMetrics;
-                this.ascatMetrics.file = file.name;
-                const images = file.qualityControl.variant.ascatMetrics.files.join(",");
-                return this.opencgaSession.opencgaClient.files().info(images, {
-                    study: this.opencgaSession.study.fqn,
-                });
-            }).then(response => {
-                this._ascatImages = response.responses[0].results;
-                this.requestUpdate();
+                this.file = response.responses[0].results[0];
             }).catch(error => {
                 console.error(error);
             });
@@ -95,7 +88,7 @@ export default class FileQcAscatMetrics extends LitElement {
             return html`<div>No Ascat metrics provided.</div>`;
         }
 
-        // Display ASCAT stats
+        // Display ASCAT Stats and Plots
         return html`
             <div class="container" style="margin: 20px 10px">
                 <h3>ASCAT Metrics</h3>
@@ -104,19 +97,15 @@ export default class FileQcAscatMetrics extends LitElement {
                     .data="${{ascat: [this.ascatMetrics]}}">
                 </data-form>
 
-                ${this._ascatImages?.length > 0 ? html`
+                ${this.ascatMetrics?.files?.length > 0 ? html`
                     <h3>ASCAT QC Plots</h3>
-                    ${this._ascatImages.map(image => html`
-                        <h5 style="font-weight:bold;">
-                            ${image.name}
-                        </h5>
-                        <file-preview
-                            .file=${image}
-                            .active="${true}"
-                            .opencgaSession=${this.opencgaSession}>
-                        </file-preview>
-                    `)}
-                ` : null}
+                    <file-preview
+                        .fileIds=${this.ascatMetrics.files}
+                        .active="${true}"
+                        .opencgaSession=${this.opencgaSession}>
+                    </file-preview>
+                ` : null
+                }
             </div>
         `;
     }
@@ -148,7 +137,7 @@ export default class FileQcAscatMetrics extends LitElement {
                                         title: "ASCAT File",
                                         type: "custom",
                                         display: {
-                                            render: data => html`<span style="font-weight:bold">${data.file}</span>`,
+                                            render: data => html`<span style="font-weight:bold">${data.file || ""}</span>`,
                                         },
                                     },
                                     {
@@ -173,6 +162,7 @@ export default class FileQcAscatMetrics extends LitElement {
             ],
         };
     }
+
 }
 
 customElements.define("file-qc-ascat-metrics", FileQcAscatMetrics);
