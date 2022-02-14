@@ -261,19 +261,9 @@ export default class SignatureView extends LitElement {
         const scores = this.signature.fitting.scores;
 
         $(`#${this._prefix}SignatureFittingPlot`).highcharts({
-            // title: "title",
             chart: {
                 height: this._config.height,
                 type: "bar",
-                events: {
-                    // redraw: function () {
-                    //     addRects(this);
-                    // },
-                    // load: function () {
-                    //     addRects(this);
-                    // }
-                },
-                marginTop: 70
             },
             title: null,
             credits: {
@@ -289,7 +279,6 @@ export default class SignatureView extends LitElement {
                 min: 0,
                 title: null,
             },
-            // colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
             series: [{
                 data: scores.map(score => score.value),
                 name: "Value",
@@ -328,7 +317,7 @@ export default class SignatureView extends LitElement {
     getDefaultConfig() {
         return {
             // width: null, width is always 100% of the visible container
-            height: 240,
+            height: 320,
         };
     }
 
