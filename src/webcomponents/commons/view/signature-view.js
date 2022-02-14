@@ -57,12 +57,6 @@ export default class SignatureView extends LitElement {
     }
 
     updated(changedProperties) {
-        //loading spinner is shown in case this.signature is undefined or null
-        // debugger
-        // if ((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
-        //     this.signatureObserver();
-        // }
-
         if (changedProperties.has("signature")) {
             this.signatureObserver();
         }
@@ -78,7 +72,7 @@ export default class SignatureView extends LitElement {
         const data = counts.map(point => point?.total);
 
         const substitutionClass = string => {
-            const [,pair,letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
+            const [, pair, letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
             return {pair, letter};
         };
 
@@ -149,7 +143,7 @@ export default class SignatureView extends LitElement {
             },
         };
 
-        for (const count of counts) {
+        counts.forEach(count => {
             if (count) {
                 if (this.mode === "SBS") {
                     const {pair} = substitutionClass(count.context);
@@ -159,13 +153,13 @@ export default class SignatureView extends LitElement {
                     dataset[pair].data.push(count.total);
                 }
             }
-        }
+        });
 
-        const addRects = function (chart) {
+        const addRects = chart => {
             $(".rect", this).remove();
             $(".rect-label", this).remove();
             let lastStart = 0;
-            for (const k in dataset) {
+            Object.keys(dataset).forEach(k => {
                 // console.log("chart.categories", chart.xAxis)
                 // console.log("k", dataset[k].data.length)
                 const xAxis = chart.xAxis[0];
@@ -190,7 +184,7 @@ export default class SignatureView extends LitElement {
                     .add();
 
                 lastStart += dataset[k].data.length;
-            }
+            });
         };
 
         $(`#${this._prefix}SignaturePlot`).highcharts({
@@ -216,12 +210,12 @@ export default class SignatureView extends LitElement {
             },
             tooltip: {
                 formatter: function () {
-                    if (this.x.includes('[')) {
+                    if (this.x.includes("[")) {
                         const {pair, letter} = substitutionClass(this.x);
-                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>: ${this.y}</strong>`;
+                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
                     } else {
                         const {pair, letter} = rearragementClass(this.x);
-                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>: ${this.y}</strong>`;
+                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
                     }
                     // const {pair, letter} = substitutionClass(this.x);
                     // return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>:${this.y}</strong>`;
@@ -234,10 +228,10 @@ export default class SignatureView extends LitElement {
                     formatter: data => {
                         if (this.mode === "SBS") {
                             const {pair, letter} = substitutionClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         } else {
                             const {pair, letter} = rearragementClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         }
                         // const {pair, letter} = substitutionClass(this.value);
                         // return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
@@ -252,13 +246,6 @@ export default class SignatureView extends LitElement {
         });
     }
 
-    getDefaultConfig() {
-        return {
-            // width: null, width is always 100% of the visible container
-            height: 240,
-        };
-    }
-
     render() {
         if (this.signature?.errorState) {
             return html`<div class="alert alert-danger">${this.signature.errorState}</div>`;
@@ -270,11 +257,19 @@ export default class SignatureView extends LitElement {
                     <div style="margin: 10px">
                         <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
                     </div>
-                    <div id="${this._prefix}SignaturePlot"></div>` : html`
+                    <div id="${this._prefix}SignaturePlot"></div>
+                ` : html`
                     <loading-spinner></loading-spinner>`
                 }
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            // width: null, width is always 100% of the visible container
+            height: 240,
+        };
     }
 
 }
