@@ -1311,6 +1311,31 @@ export default class DataForm extends LitElement {
             `;
         }
 
+        // Check for pills style
+        if (type === "pills") {
+            return html`
+                <div class="row">
+                    <div class="col-md-3">
+                        <ul class="nav nav-pills nav-stacked">
+                            ${this.config.sections.map((section, index) => {
+                                const active = index === this.activeSection;
+                                return html`
+                                    <li role="presentation" class="${active ? "active" : ""}">
+                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                            ${section.title || ""}
+                                        </a>
+                                    </li>
+                                `;
+                            })}
+                        </ul>
+                    </div>
+                    <div class="col-md-9">
+                        ${this.renderData()}
+                    </div>
+                </div>
+            `;
+        }
+
         // Default form style
         return html`
             <!-- Header -->
