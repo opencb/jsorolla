@@ -79,6 +79,7 @@ export default class CohortView extends LitElement {
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
                 .then(res => {
                     this.cohort = res.responses[0].results[0];
+                    console.log("this cohort:", this.cohort);
                     this.isLoading = false;
                 })
                 .catch(reason => {
