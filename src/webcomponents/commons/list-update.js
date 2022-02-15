@@ -60,9 +60,9 @@ export default class ListUpdate extends LitElement {
 
     onFieldChange(e, index) {
         e.stopPropagation();
-        // Array
         const {param, value} = e.detail;
         if (index >= 0) {
+        // Array
         // To edit the element config
             if (value) {
                 this.data.items[index] = {
@@ -73,13 +73,8 @@ export default class ListUpdate extends LitElement {
                 delete this.data.items[index][param];
             }
 
-            if (this.node?.parent === "fileIndexConfiguration") {
-                this._config = {...this.config};
-                this.requestUpdate();
-            }
         } else {
             // Add new config
-
             if (value) {
                 this.item = {
                     ...this.item,
@@ -89,15 +84,14 @@ export default class ListUpdate extends LitElement {
                 delete this.item[param];
             }
 
-            if (this.node?.parent === "fileIndexConfiguration") {
-                this._config = {...this.config};
-                this.requestUpdate();
-            }
-
             if (this.node?.parent === "annotationIndexConfiguration") {
                 const itemData = {...e.detail, node: this.node, item: this.item};
                 LitUtils.dispatchCustomEvent(this, "fieldChange", itemData);
             }
+        }
+        if (this.node?.parent === "fileIndexConfiguration") {
+            this._config = {...this.config};
+            this.requestUpdate();
         }
     }
 

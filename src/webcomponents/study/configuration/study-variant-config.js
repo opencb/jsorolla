@@ -554,6 +554,8 @@ export default class StudyVariantConfig extends LitElement {
 
     render() {
         if (!this.variantEngineConfig) {
+            // If the study does not have a configuration
+            // It'll create a new configuration object to add value.
             const indexFieldConfiguration = {
                 source: "",
                 key: "",
