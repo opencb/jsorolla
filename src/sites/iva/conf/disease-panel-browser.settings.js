@@ -10,8 +10,7 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
-        examples: [
-        ]
+        examples: []
     },
     table: {
         // merge criterium: spread operator
