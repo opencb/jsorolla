@@ -132,7 +132,7 @@ class IvaApp extends LitElement {
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
-        // _config.cellbase = cellbase;
+        _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
         _config.tools = tools;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
@@ -784,13 +784,21 @@ class IvaApp extends LitElement {
     updateCellBaseClient() {
         this.cellbaseClient = null; // Reset cellbase client
 
-        if (this.opencgaSession?.project) {
+        if (this.opencgaSession?.project && this.opencgaSession?.project?.internal?.cellbase?.url) {
             this.cellbaseClient = new CellBaseClient({
                 host: this.opencgaSession.project.internal.cellbase.url.replace(/\/$/, ""),
                 version: this.opencgaSession.project.internal.cellbase.version,
                 species: this.opencgaSession.project.organism.scientificName,
             });
-            console.log("cellbaseClient iva-app", this.cellbaseClient);
+            // console.log("cellbaseClient iva-app", this.cellbaseClient);
+        } else {
+            // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
+            // But this should be removed in future releases
+            this.cellbaseClient = new CellBaseClient({
+                host: this.config.cellbase.host,
+                version: this.config.cellbase.version,
+                species: "hsapiens",
+            });
         }
     }
 
