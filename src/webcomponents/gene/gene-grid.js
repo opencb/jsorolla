@@ -245,7 +245,7 @@ export default class GeneGrid extends LitElement {
             },
             {
                 id: "modeOfInheritance",
-                title: "Mode of inheritance",
+                title: "Mode of Inheritance",
                 field: "modeOfInheritance",
             },
             {
@@ -263,46 +263,62 @@ export default class GeneGrid extends LitElement {
                 },
                 halign: this._config.header.horizontalAlign
             },
-            // {
-            //     id: "reviews",
-            //     title: "Reviews",
-            //     field: "xrefs",
-            //     formatter: (value, row) => {
-            //         // const content = String.raw `Coming soon`;0
-            //         return "-";
-            //     },
-            //     halign: this._config.header.horizontalAlign
-            // },
             {
-                id: "details",
-                title: "Details",
+                id: "phenotypes",
+                title: "Phenotypes",
+                field: "phenotypes",
                 formatter: (value, row) => {
-                    const generateList = (arr, field) => {
-                        return arr? arr.map(item => String.raw `<li>${field?item[field]:item}</li>`).join(""):"";
-                    };
-                    const evidencesContent = generateList(row.evidences, "");
-                    const phenotypesContent = generateList(row.phenotypes, "name");
-                    const tagsContent = generateList(row.tags, "");
-                    const content = String.raw `
-                        ${evidencesContent ? String.raw `
-                            <label>Sources</label>
-                                <ul>
-                                    ${evidencesContent}
-                                </ul>` : ""}
-                        ${phenotypesContent ? String.raw `
-                            <label>Phenotypes</label>
+                    const phenotypesContent = this.generateList(row.phenotypes, "name");
+                    return String.raw `
+                        ${phenotypesContent ? String.raw`
                                 <ul>
                                     ${phenotypesContent}
-                                </ul>` : ""}
-                        ${tagsContent? String.raw`
-                            <label>Phenotypes</label>
-                                <ul>
-                                    ${tagsContent}
-                                </ul>` : ""}
-                        `.trim();
-                    return `${content? content: "-"}`;
-                },
+                                </ul>` : "-"}`;
+                }
             },
+            {
+                id: "evidences",
+                title: "Evidences",
+                field: "evidences",
+                formatter: (value, row) => {
+                    const evidencesContent = this.generateList(row.evidences, "");
+                    return String.raw `
+                        ${evidencesContent ? String.raw `
+                                <ul>
+                                    ${evidencesContent}
+                                </ul>` : "-"}`;
+                }
+            }
+            // {
+            //     id: "details",
+            //     title: "Details",
+            //     formatter: (value, row) => {
+            //         const generateList = (arr, field) => {
+            //             return arr? arr.map(item => String.raw `<li>${field?item[field]:item}</li>`).join(""):"";
+            //         };
+            //         const evidencesContent = generateList(row.evidences, "");
+            //         const phenotypesContent = generateList(row.phenotypes, "name");
+            //         const tagsContent = generateList(row.tags, "");
+            //         const content = String.raw `
+            // ${evidencesContent ? String.raw `
+            //     <label>Sources</label>
+            //         <ul>
+            //             ${evidencesContent}
+            //         </ul>` : ""}
+            //             ${phenotypesContent ? String.raw `
+            //                 <label>Phenotypes</label>
+            //                     <ul>
+            //                         ${phenotypesContent}
+            //                     </ul>` : ""}
+            //             ${tagsContent? String.raw`
+            //                 <label>Phenotypes</label>
+            //                     <ul>
+            //                         ${tagsContent}
+            //                     </ul>` : ""}
+            //             `.trim();
+            //         return `${content? content: "-"}`;
+            //     },
+            // },
         ],
         ];
 
@@ -410,6 +426,9 @@ export default class GeneGrid extends LitElement {
         return resultHtml;
     }
 
+    generateList(arr, field) {
+        return arr? arr.map(item => String.raw `<li>${field?item[field]:item}</li>`).join(""):"";
+    }
 
     getDefaultConfig() {
         return {
