@@ -57,15 +57,16 @@ export default class CohortCreate extends LitElement {
     onFieldChange(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
+
         switch (param) {
             case "samples":
-                // let samples = [];
-                // if (e.detail.value) {
-                //     samples = e.detail.value.split(",").map(sample => {
-                //         return {id: sample};
-                //     });
-                // }
-                this.cohort = {...this.cohort, samples: e.detail.value};
+                let samples = [];
+                if (e.detail.value) {
+                    samples = e.detail.value.split(",").map(sample => {
+                        return {id: sample};
+                    });
+                }
+                this.cohort = {...this.cohort, samples: samples};
                 break;
             case "annotationSets":
                 this.cohort = {...this.cohort, annotationSets: e.detail.value};
@@ -88,22 +89,14 @@ export default class CohortCreate extends LitElement {
         console.log("Cohort Saved", this.cohort);
         this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
             .then(res => {
-                this.cohort = {};
-                // LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Cohort",
                     message: "cohort created correctly"
                 });
-                // FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
+                this.onClear();
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // console.error(err);
-                // FormUtils.showAlert(
-                //     "New Cohort",
-                //     `Could not save cohort ${err}`,
-                //     "error"
-                // );
             });
     }
 
@@ -185,28 +178,29 @@ export default class CohortCreate extends LitElement {
                                 </sample-id-autocomplete>`
                             }
                         },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
+                        // Internal
+                        // {
+                        //     title: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        // {
+                        //     title: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
                         {
                             title: "Status name",
                             field: "status.name",

@@ -289,8 +289,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         approximateCount: true,
                         approximateCountSamplingSize: 500,
 
-                        ...internalQuery
-                        // unknownGenotype: "0/0"
+                        ...internalQuery,
+                        unknownGenotype: "0/0"
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)

@@ -18,6 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import "../commons/view/detail-tabs.js";
 import "./disease-panel-summary.js";
 import {construction} from "../commons/under-construction.js";
+
 export default class DiseasePanelDetail extends LitElement {
 
     constructor() {
