@@ -29,6 +29,8 @@ export default class UserPasswordChange extends LitElement {
 
     onFieldChange(e) {
         this.updateParams[e.detail.param] = e.detail.value;
+        this.updateParams = {...this.updateParams};
+        this.requestUpdate();
     }
 
     onSubmit() {
