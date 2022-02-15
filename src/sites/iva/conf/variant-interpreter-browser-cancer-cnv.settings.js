@@ -13,6 +13,10 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS = {
                 filters: ["region", "feature", "biotype", "type"]
             },
             {
+                title: "Clinical",
+                filters: ["diseasePanels"]
+            },
+            {
                 title: "Phenotype",
                 filters: ["go", "hpo"]
             },
