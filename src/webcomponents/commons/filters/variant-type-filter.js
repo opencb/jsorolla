@@ -50,12 +50,6 @@ export default class VariantTypeFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // TODO Remove this code since it does not seem necessary.
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -68,14 +62,17 @@ export default class VariantTypeFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
     }
 
-    onSelectAll() {
-        this.type = this._config.types?.join(",");
+    onToggleAll() {
+        this.setAll = !this.setAll;
+        this.type = this.setAll ?
+            this._config.types?.map(t => t?.id ?? t).join(",") :
+            null;
         LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
     }
 
     getDefaultConfig() {
         return {
-            types: VARIANT_TYPES,
+            types: VARIANT_TYPES, // it can be either an array of strings or array of objects {id, name}
             layout: "vertical"
         };
     }
@@ -90,8 +87,8 @@ export default class VariantTypeFilter extends LitElement {
             </style>
 
             <div style="margin-bottom: 10px">
-                <button type="button" class="btn btn-xs btn-default" @click=${this.onSelectAll}>
-                    Select All
+                <button type="button" class="btn btn-xs btn-default" @click=${this.onToggleAll}>
+                    ${this.setAll ? "Deselect" : "Select"} all
                 </button>
             </div>
             <div class="${classMap({inline: this._config.layout === "horizontal"})}">

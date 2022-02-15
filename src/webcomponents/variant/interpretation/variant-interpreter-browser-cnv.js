@@ -340,6 +340,22 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         ]
                     },
                     {
+                        title: "Clinical",
+                        collapsed: true,
+                        filters: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                disabled: () => this.clinicalAnalysis.panelLock,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLock,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels
+                            },
+                        ],
+                    },
+                    {
                         title: "Phenotype",
                         collapsed: true,
                         filters: [

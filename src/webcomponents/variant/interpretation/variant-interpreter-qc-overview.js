@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../file/qc/file-qc-ascat-metrics.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
@@ -24,9 +23,9 @@ import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-signature.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
-import "../../sample/sample-files-view.js";
-import "../../alignment/samtools-stats-view.js";
-import "../../alignment/samtools-flagstats-view.js";
+import "../../file/qc/file-qc-ascat-metrics.js";
+import "../../alignment/qc/samtools-stats-view.js";
+import "../../alignment/qc/samtools-flagstats-view.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 
@@ -67,7 +66,7 @@ class VariantInterpreterQcOverview extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -84,7 +83,6 @@ class VariantInterpreterQcOverview extends LitElement {
             if (this.settings.tabs) {
                 this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.tabs);
             }
-            // this.requestUpdate();
         }
         super.update(changedProperties);
     }
@@ -192,11 +190,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             },
                             {
                                 id: "AscatMetrics",
-                                title: "ASCAT Metrics",
-                            },
-                            {
-                                id: "VariantStats",
-                                title: "QC Plot Files",
+                                title: "Ascat Metrics",
                             },
                             {
                                 id: "SamtoolsPlots",
@@ -259,7 +253,8 @@ class VariantInterpreterQcOverview extends LitElement {
                                     class="list-group-item ${i === 0 ? "active" : ""}"
                                     data-id="${field.id}"
                                     @click="${this.onSideNavClick}">${field.title}
-                            </button>`;
+                            </button>
+                        `;
                     })}
                 </div>
 
@@ -271,22 +266,6 @@ class VariantInterpreterQcOverview extends LitElement {
                                 .opencgaSession=${this.opencgaSession}
                                 .clinicalAnalysis=${this.clinicalAnalysis}>
                             </variant-interpreter-qc-summary>
-                        </div>
-
-                        <div id="${this._prefix}AscatMetrics" role="tabpanel" class="tab-pane content-tab">
-                            <file-qc-ascat-metrics
-                                .opencgaSession=${this.opencgaSession}
-                                .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}">
-                            </file-qc-ascat-metrics>
-                        </div>
-
-                        <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
-                            <h3>QC Plot Files</h3>
-                            <sample-files-view
-                                .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
-                                .mode="${"sample-qc"}"
-                                .opencgaSession="${this.opencgaSession}">
-                            </sample-files-view>
                         </div>
 
                         <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
@@ -316,10 +295,18 @@ class VariantInterpreterQcOverview extends LitElement {
                         <div id="${this._prefix}SamtoolsPlots" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Plots</h3>
                             <div style="padding: 15px">
-                                <sample-files-view
-                                    .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </sample-files-view>
+                                <!-- Display Samtools plots for each BAM file -->
+                                ${this.bamFiles?.filter(file => file.qualityControl?.alignment?.samtoolsStats?.files?.length > 0).map(bamFile => html`
+                                    <div>
+                                        <h4>${bamFile.name} <span class="badge">${bamFile.qualityControl.alignment.samtoolsStats.files.length}</span></h4>
+                                    </div>
+                                    <file-preview
+                                        .fileIds="${bamFile.qualityControl.alignment.samtoolsStats.files}"
+                                        .active="${true}"
+                                        .opencgaSession=${this.opencgaSession}>
+                                    </file-preview>
+                                `)
+                                }
                             </div>
                         </div>
 
@@ -339,6 +326,13 @@ class VariantInterpreterQcOverview extends LitElement {
                                     .files="${this.bamFiles}">
                                 </samtools-flagstats-view>
                             </div>
+                        </div>
+
+                        <div id="${this._prefix}AscatMetrics" role="tabpanel" class="tab-pane content-tab">
+                            <file-qc-ascat-metrics
+                                .opencgaSession=${this.opencgaSession}
+                                .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}">
+                            </file-qc-ascat-metrics>
                         </div>
 
                         <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">

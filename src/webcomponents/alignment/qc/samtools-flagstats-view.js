@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 class SamtoolsFlagstatsView extends LitElement {
 
@@ -67,7 +67,7 @@ class SamtoolsFlagstatsView extends LitElement {
 
     fileObserver() {
         this.files = [this.file];
-        this.filesObserver();
+        // this.filesObserver();
     }
 
     filesObserver() {

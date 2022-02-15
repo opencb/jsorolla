@@ -836,7 +836,10 @@ class VariantInterpreterReport extends LitElement {
                                         </div>
                                         <div class="col-md-6">
                                             <h4>SBS signature contributions</h4>
-                                            <span style="font-weight: bold">Pending</span>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"
+                                                .plots="${["fitting"]}">
+                                            </signature-view>
                                         </div>
                                     </div>
                                 `,
@@ -882,7 +885,11 @@ class VariantInterpreterReport extends LitElement {
                                         </div>
                                         <div class="col-md-6">
                                             <h4>Rearrangement signature contributions</h4>
-                                            <span style="font-weight: bold">Pending</span>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
+                                                .plots="${["fitting"]}"
+                                                .mode="${"SV"}">
+                                            </signature-view>
                                         </div>
                                     </div>
                                 `,

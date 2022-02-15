@@ -101,6 +101,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
+            type: "pills",
             validation: {
                 validate: data => {
                     return data.geneSet?.ensembl || data.geneSet?.refseq;
@@ -270,7 +271,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     description: "Select how genotypes are displayed",
                     display: {
                         titleHeader: "h4",
-                        titleStyle: "margin: 25px 5px 5px 5px",
+                        titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.genotype?.type
@@ -291,6 +292,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     title: "Variant highlight",
                     display: {
                         titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
                     },
                     elements: [
                         {

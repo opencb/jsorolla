@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
@@ -84,7 +85,6 @@ export default class DiseasePanelSummary extends LitElement {
             this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
-                    console.log("Loaded Data");
                     this.isLoading = false;
                 })
                 .catch(reason => {
@@ -187,7 +187,16 @@ export default class DiseasePanelSummary extends LitElement {
                             type: "custom",
                             display: {
                                 visible: diseasePanel => diseasePanel?.id,
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                render: data => {
+                                    if (data?.source?.project === "PanelApp") {
+                                        return html`
+                                            <a href="${BioinfoUtils.getPanelAppLink(data.source.id)}" title="Panel ID: ${data.id}" target="_blank">
+                                                ${data?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+                                            </a> (UUID: ${data.uuid})`;
+                                    }
+                                    return data?.id ?? "-";
+                                }
+                                // render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
                             }
                         },
                         {
@@ -235,8 +244,8 @@ export default class DiseasePanelSummary extends LitElement {
                             defaultValue: "N/A",
                         },
                         {
-                            title: "Modification Date",
-                            field: "modificationDate",
+                            title: "Creation Date",
+                            field: "creationDate",
                             type: "custom",
                             display: {
                                 render: field => {

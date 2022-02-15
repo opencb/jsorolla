@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
 
@@ -33,14 +33,20 @@ export default class FilePreview extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             file: {
                 type: Object
             },
             fileId: {
                 type: String
+            },
+            files: {
+                type: Array
+            },
+            fileIds: {
+                type: Array
+            },
+            opencgaSession: {
+                type: Object
             },
             active: {
                 type: Object
@@ -53,6 +59,8 @@ export default class FilePreview extends LitElement {
 
     _init() {
         this.file = {};
+        this.files = [];
+        this.filesWithContent = [];
 
         this._config = this.getDefaultConfig();
     }
@@ -64,11 +72,17 @@ export default class FilePreview extends LitElement {
     }
 
     update(changedProperties) {
-        if ((changedProperties.has("file") || changedProperties.has("active")) && this.active) {
+        if (changedProperties.has("file")) {
             this.fileObserver();
         }
-        if (changedProperties.has("fileId")) {
+        if ((changedProperties.has("fileId") || changedProperties.has("active")) && this.active) {
             this.fileIdObserver();
+        }
+        if (changedProperties.has("files")) {
+            this.filesObserver();
+        }
+        if ((changedProperties.has("fileIds") || changedProperties.has("active")) && this.active) {
+            this.fileIdsObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -76,95 +90,103 @@ export default class FilePreview extends LitElement {
         super.update(changedProperties);
     }
 
-    async fileObserver() {
+    fileIdObserver() {
+        if (this.fileId) {
+            this.fileIds = [this.fileId];
+        }
+    }
+
+    fileIdsObserver() {
+        if (this.opencgaSession && this.fileIds) {
+            this.opencgaSession.opencgaClient.files().info(this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(","), {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.files = response.responses[0].results;
+                })
+                .catch(response => {
+                    console.error(response);
+                });
+        }
+    }
+
+    fileObserver() {
+        if (this.file) {
+            this.files = [this.file];
+        }
+    }
+
+    async filesObserver() {
         const params = {
             study: this.opencgaSession.study.fqn,
             includeIndividual: true,
             lines: 200
         };
-        // this.content = null;
-        // this.title = "";
-        // this.contentType = null;
-        // this.requestUpdate();
-        // await this.updateComplete;
-        switch (this.file.format) {
-            case "PLAIN":
-            case "VCF":
-            case "UNKNOWN":
-            case "TAB_SEPARATED_VALUES":
-                this.contentType = "text";
-                // this.title = "Head";
-                this.opencgaSession.opencgaClient.files().head(this.file.id, params)
-                    .then(response => {
-                        const {format, content} = response.getResult(0);
-                        this.format = format;
-                        this.content = content ?? "No content";
-                        this.requestUpdate();
-                    })
-                    .catch(response => {
-                        console.error(response);
-                        this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
-                        this.requestUpdate();
-                    });
-                break;
-            case "JSON":
-                this.contentType = "json";
-                this.opencgaSession.opencgaClient.files().head(this.file.id, params)
-                    .then(response => {
-                        const {content} = response.getResult(0);
-                        try {
-                            this.content = JSON.parse(content);
-                        } catch (e) {
-                            this.content = {content: "Error parsing data from the Server"};
-                        }
-                        this.requestUpdate();
-                    })
-                    .catch(response => {
-                        console.error(response);
-                        this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
-                        this.requestUpdate();
-                    });
-                break;
-            case "BAM":
-                this.contentType = "json";
-                this.opencgaSession.opencgaClient.files().info(this.file.id, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        const {attributes} = response.getResult(0);
-                        this.content = attributes?.alignmentHeader ?? {content: "No content"};
-                        this.requestUpdate();
-                    });
-                break;
-            case "IMAGE":
-                this.contentType = "image";
-                // this.title = "Image";
-                this.opencgaSession.opencgaClient.files().image(this.file.id, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        this.content = response.getResult(0).content;
-                        this.requestUpdate();
-                        // this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
-                    })
-                    .catch(response => {
-                        console.error(response);
-                        // this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
-                        // this.requestUpdate();
-                    });
-                break;
-            default:
-                this.contentType = "unsupported";
-                this.content = "Format not recognized: " + this.file.format;
-        }
-        // this.requestUpdate();
-    }
 
-    fileIdObserver() {
-        if (this.opencgaSession && this.fileId) {
-            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.file = response.responses[0].results[0];
-                })
-                .catch(response => {
-                    console.error(response);
-                });
+        this.filesWithContent = this.files.map(file => {
+            return {...file};
+        });
+
+        for (const fileWithContent of this.filesWithContent) {
+            switch (fileWithContent?.format) {
+                case "PLAIN":
+                case "VCF":
+                case "UNKNOWN":
+                case "TAB_SEPARATED_VALUES":
+                    fileWithContent.contentType = "text";
+                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                        .then(response => {
+                            const {format, content} = response.getResult(0);
+                            this.format = format;
+                            fileWithContent.content = content ?? "No content";
+                            this.requestUpdate();
+                        })
+                        .catch(response => {
+                            console.error(response);
+                            fileWithContent.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
+                            this.requestUpdate();
+                        });
+                    break;
+                case "JSON":
+                    fileWithContent.contentType = "json";
+                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                        .then(response => {
+                            const {content} = response.getResult(0);
+                            try {
+                                fileWithContent.content = JSON.parse(content);
+                            } catch (e) {
+                                fileWithContent.content = {content: "Error parsing data from the Server"};
+                            }
+                            this.requestUpdate();
+                        })
+                        .catch(response => {
+                            console.error(response);
+                            this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
+                            this.requestUpdate();
+                        });
+                    break;
+                case "BAM":
+                    fileWithContent.contentType = "json";
+                    this.opencgaSession.opencgaClient.files().info(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                        .then(response => {
+                            const {attributes} = response.getResult(0);
+                            fileWithContent.content = attributes?.alignmentHeader ?? {content: "No content"};
+                            this.requestUpdate();
+                        });
+                    break;
+                case "IMAGE":
+                    fileWithContent.contentType = "image";
+                    this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                        .then(response => {
+                            fileWithContent.content = response.responses[0].results[0].content;
+                            this.requestUpdate();
+                        })
+                        .catch(response => {
+                            console.error(response);
+                        });
+                    break;
+                default:
+                    fileWithContent.contentType = "unsupported";
+                    fileWithContent.content = "Format not recognized: " + fileWithContent.format;
+            }
         }
     }
 
@@ -174,48 +196,61 @@ export default class FilePreview extends LitElement {
 
     render() {
         return html`
-        <style>
-            .section-title {
-                border-bottom: 2px solid #eee;
-            }
-            .label-title {
-                text-align: left;
-                padding-left: 5px;
-                padding-right: 10px;
-            }
-            pre.cmd {
-                background: black;
-                font-family: "Courier New", monospace;
-                padding: 15px;
-                color: #a5a5a5;
-                font-size: .9em;
-                min-height: 150px;
-            }
-        </style>
+            <style>
+                .section-title {
+                    border-bottom: 2px solid #eee;
+                }
+                .label-title {
+                    text-align: left;
+                    padding-left: 5px;
+                    padding-right: 10px;
+                }
+                pre.cmd {
+                    background: black;
+                    font-family: "Courier New", monospace;
+                    padding: 15px;
+                    color: #a5a5a5;
+                    font-size: .9em;
+                    min-height: 150px;
+                }
+            </style>
 
-
-        ${this.content ? html`
             <div class="row">
                 <div class="col-md-12">
-                    ${this.contentType === "unsupported" ? html`
-                        <p class="alert alert-warning">${this.content}</p>
-                    ` : null}
-                    ${this.contentType === "text" ? html`
-                        <pre class="cmd">${this.content}</pre>
-                    ` : null}
-                    ${this.contentType === "image" ? html`
-                        <image-viewer .data="${this.content}"></image-viewer>
-                    ` : null}
-                    ${this.contentType === "json" ? html`
-                        <json-viewer .data="${this.content}"></json-viewer>
-                    ` : null}
+                    ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
+                        <div style="margin: 25px 0 5px 0">
+                            <label>
+                                <span>${fileWithContent.name}</span> <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                            </label>
+                        </div>
+
+                        ${fileWithContent.contentType === "unsupported" ? html`
+                            <p class="alert alert-warning">${fileWithContent.content}</p>
+                        ` : null
+                        }
+                        ${fileWithContent.contentType === "text" ? html`
+                            <pre class="cmd">${fileWithContent.content}</pre>
+                        ` : null
+                        }
+                        ${fileWithContent.contentType === "image" ? html`
+                            <image-viewer
+                                .data="${fileWithContent.content}">
+                            </image-viewer>
+                        ` : null
+                        }
+                        ${fileWithContent.contentType === "json" ? html`
+                            <json-viewer
+                                .data="${fileWithContent.content}">
+                            </json-viewer>
+                        ` : null
+                        }
+                    `) : null
+                    }
                 </div>
             </div>
-        ` : null }
         `;
     }
 
 }
 
 customElements.define("file-preview", FilePreview);
-
