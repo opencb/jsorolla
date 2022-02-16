@@ -1,5 +1,5 @@
-import UtilsNew from "../core/utilsNew.js";
-import Region from "../core/bioinfo/region.js";
+import UtilsNew from "../../core/utilsNew.js";
+import Region from "../../core/bioinfo/region.js";
 
 export default class StatusBar {
 
