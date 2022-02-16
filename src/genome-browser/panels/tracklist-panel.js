@@ -350,7 +350,7 @@ export default class TrackListPanel {
 
         this.tlTracksDiv.addEventListener("mouseleave", () => {
             this.tlTracksDiv.style.cursor = "default";
-            this.mouseLine.style.visibility = "hidden";
+            // this.mouseLine.style.visibility = "hidden";
 
             // $(this.tlTracksDiv).off("mousemove");
             this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
