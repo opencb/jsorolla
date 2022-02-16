@@ -114,7 +114,7 @@ export default class TrackListPanel {
         this.mouseLine = this.div.querySelector(`div#${this.prefix}MouseLine`);
         this.mouseLine.style.zIndex = 1;
         this.mouseLine.style.position = "absolute";
-        this.mouseLine.style.left = "-20.5px";
+        this.mouseLine.style.left = "0px";
         this.mouseLine.style.top = "0px";
         this.mouseLine.style.width = `${Math.floor(this.pixelBase)}px`;
         this.mouseLine.style.height = "calc(100% - 8px)";
@@ -171,6 +171,10 @@ export default class TrackListPanel {
     // Register events
     #initEvents() {
 
+        this.div.addEventListener("mouseenter", () => {
+            this.mouseLine.style.visibility = "visible";
+        });
+
         this.div.addEventListener("mousemove", event => {
             const centerPosition = this.region.center();
             const mid = this.width / 2;
@@ -183,14 +187,18 @@ export default class TrackListPanel {
 
             const posOffset = (mid / this.pixelBase) | 0;
 
-            this.mouseLine.style.left = pos;
+            this.mouseLine.style.left = `${pos}px`;
             this.mousePosition = centerPosition + rcX - posOffset;
 
             this.trigger("mousePosition:change", {
                 mousePos: this.mousePosition,
                 chromosome: this.region.chromosome,
-                base: this.getMousePosition(this.mousePosition)
+                base: this.getMousePosition(this.mousePosition),
             });
+        });
+
+        this.div.addEventListener("mouseleave", () => {
+            this.mouseLine.style.visibility = "hidden";
         });
 
         // $(this.tlTracksDiv).dblclick(function (event) {
@@ -258,7 +266,7 @@ export default class TrackListPanel {
                 mouseState = `ctrlKey${event.which}`;
             }
 
-            // TODO: we need to listen to other buttons than left mouse?
+            // TODO: Do we need to listen to other buttons than left mouse?
             switch (mouseState) {
                 case 1: // Left mouse button pressed
                     this.tlTracksDiv.style.cursor = "move";
