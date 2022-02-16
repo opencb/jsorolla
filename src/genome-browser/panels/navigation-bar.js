@@ -26,6 +26,7 @@ export default class NavigationBar {
         this.currentChromosomesList = [];
         this.zoomChanging = false;
         this.regionChanging = false;
+        this.quickSearchDataset = {};
 
         this.#initDom();
         this.#initEvents();

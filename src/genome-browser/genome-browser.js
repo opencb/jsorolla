@@ -219,7 +219,7 @@ export default class GenomeBrowser {
         let quickSearchResultFn = this.config.quickSearchResultFn;
         if (typeof quickSearchResultFn !== "function") {
             quickSearchResultFn = query => {
-                return this.cellBaseClient.get("feature", "id", query, "starts_with", {
+                return this.cellBaseClient.get("feature", "gene", query, "startsWith", {
                     limit: 10,
                 });
             };
@@ -241,7 +241,7 @@ export default class GenomeBrowser {
             width: this.width,
             svgCanvasWidthOffset: this.config.trackPanelScrollWidth + this.sidePanelWidth,
             zoom: this.zoom,
-            quickSearchResultFn: this.config.quickSearchResultFn,
+            quickSearchResultFn: quickSearchResultFn,
             quickSearchDisplayKey: this.config.quickSearchDisplayKey,
             componentsConfig: this.config.navigationBarConfig.componentsConfig,
             karyotypePanelConfig: this.config.karyotypePanelConfig,
