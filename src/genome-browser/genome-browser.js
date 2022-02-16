@@ -232,7 +232,7 @@ export default class GenomeBrowser {
 
         // TODO: fix configuration values
         const navigationBar = new NavigationBar(target, {
-            cient: this.cellBaseClient,
+            cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
             availableSpecies: this.config.availableSpecies,
@@ -321,7 +321,7 @@ export default class GenomeBrowser {
         this.on("width:change", event => karyotypePanel.setWidth(event.width - this.sidePanelWidth));
 
         // Draw karyotype panel
-        karyotypePanel.draw();
+        this.on("draw", () => karyotypePanel.draw());
 
         return karyotypePanel;
     }
@@ -350,18 +350,16 @@ export default class GenomeBrowser {
         this.on("width:change", event => chromosomePanel.setWidth(event.width - this.sidePanelWidth));
 
         // Render chromosome panel
-        chromosomePanel.draw();
+        this.on("draw", () => chromosomePanel.draw());
 
         return chromosomePanel;
     }
 
     _createOverviewTrackListPanel(target) {
-        const trackListPanel = new TrackListPanel({
-            target: target,
-            client: this.cellBaseClient,
+        const trackListPanel = new TrackListPanel(target, {
+            cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
-            autoRender: true,
             width: this.width - this.sidePanelWidth,
             zoomMultiplier: this.config.overviewZoomMultiplier,
             title: "Region overview",
@@ -389,18 +387,16 @@ export default class GenomeBrowser {
         this.on("width:change", event => trackListPanel.setWidth(event.width - this.sidePanelWidth));
 
         // Draw track list panel
-        trackListPanel.draw();
+        this.on("draw", () => trackListPanel.draw());
 
         return trackListPanel;
     }
 
     _createTrackListPanel(target) {
-        const trackListPanel = new TrackListPanel({
-            target: target,
-            client: this.cellBaseClient,
+        const trackListPanel = new TrackListPanel(target, {
+            cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
-            autoRender: true,
             width: this.width - this.sidePanelWidth,
             title: this.config.trackListTitle,
             region: this.region,
@@ -427,7 +423,7 @@ export default class GenomeBrowser {
         this.on("feature:highlight", event => trackListPanel.highlight(event));
 
         // Draw tracklist
-        trackListPanel.draw();
+        this.on("draw", () => trackListPanel.draw());
 
         return trackListPanel;
     }
