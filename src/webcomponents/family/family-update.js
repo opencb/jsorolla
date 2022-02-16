@@ -167,8 +167,6 @@ export default class FamilyUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Edit",
-            icon: "fas fa-edit",
             type: "form",
             display: {
                 buttonsVisible: true,
@@ -176,12 +174,8 @@ export default class FamilyUpdate extends LitElement {
                 buttonClearText: "Cancel",
                 style: "margin: 10px",
                 titleWidth: 3,
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                // help: {
-                //     mode: "block",
-                // }
             },
             sections: [
                 {
@@ -216,41 +210,59 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Individual ID",
-                            field: "individualId",
+                            title: "Members",
+                            field: "members",
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: () => html`
-                                    <individual-id-autocomplete
-                                        .value="${this.members}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @filterChange="${e => this.onSync(e, "members")}">
-                                    </individual-id-autocomplete>`
-                            }
+                                render: members => {
+                                    const individualIds = members.map(member => member.id).join(",");
+                                    return html`
+                                        <individual-id-autocomplete
+                                            .value="${individualIds}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => this.onSync(e, "members")}">
+                                        </individual-id-autocomplete>`;
+                                }
+                            },
                         },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
+                        // {
+                        //     title: "Individual ID",
+                        //     field: "individualId",
+                        //     type: "custom",
+                        //     display: {
+                        //         placeholder: "e.g. Homo sapiens, ...",
+                        //         render: () => html`
+                        //             <individual-id-autocomplete
+                        //                 .value="${this.members}"
+                        //                 .opencgaSession="${this.opencgaSession}"
+                        //                 @filterChange="${e => this.onSync(e, "members")}">
+                        //             </individual-id-autocomplete>`
+                        //     }
+                        // },
+                        // {
+                        //     title: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        // {
+                        //     title: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
                         {
                             title: "Expected Size",
                             field: "expectedSize",

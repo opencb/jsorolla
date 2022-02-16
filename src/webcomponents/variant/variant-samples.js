@@ -141,7 +141,7 @@ export default class VariantSamples extends LitElement {
                     limit: params.data.limit || tableOptions.pageSize,
                     skip: params.data.offset || 0,
                     count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
-                    genotype: "0/1,1/1,0/2,1/2,2/2"
+                    genotype: "0/1,1/1,1/2"
                 };
                 try {
                     const data = await this.fetchData(query);
@@ -354,7 +354,7 @@ export default class VariantSamples extends LitElement {
                 variant: this.variantId,
                 study: this.opencgaSession.study.fqn,
                 limit: 1000,
-                genotype: "0/1,1/1,1/2,2/2"
+                genotype: "0/1,1/1,1/2"
             };
 
             const samples = await this.fetchData(query, BATCH_SIZE);

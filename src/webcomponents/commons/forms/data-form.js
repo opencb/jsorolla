@@ -69,6 +69,7 @@ export default class DataForm extends LitElement {
         this.showGlobalValidationError = false;
         this.emptyRequiredFields = new Set();
         this.invalidFields = new Set();
+        this.activeSection = 0; // Initial active section (only for tabs and pills type)
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -296,8 +297,19 @@ export default class DataForm extends LitElement {
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
-        // Render custom display.layout array when provided
-        if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
+        if (this.config.type === "tabs" || this.config.type === "pills") {
+            // Render all sections but display only active section
+            return html`
+                <div class="${layoutClassName} ${className}" style="${style}">
+                    ${this.config.sections.map((section, index) => html`
+                        <div style="display:${this.activeSection === index ? "block": "none"}">
+                            ${this._createSection(section)}
+                        </div>
+                    `)}
+                </div>
+            `;
+        } else if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
+            // Render with a specific layout
             return html`
                 <div class="${className}" style="${style}">
                     ${this.config?.display.layout.map(section => {
@@ -890,10 +902,12 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        let array = this.getValue(element.field, [], element.defaultValue);
+        let array = this.getValue(element.field, null, element.defaultValue);
         const errorMessage = this._getErrorMessage(element);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
+        const tableClassName = element.display?.className || "";
+        const tableStyle = element.display?.style || "";
 
         // Check values
         if (!array) {
@@ -926,7 +940,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <table class="table">
+            <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
                     <thead>
                     <tr>
@@ -1139,6 +1153,12 @@ export default class DataForm extends LitElement {
         LitUtils.dispatchCustomEvent(this, eventName, data);
     }
 
+    onSectionChange(e) {
+        e.preventDefault();
+        this.activeSection = parseInt(e.target.dataset.sectionIndex) || 0;
+        this.requestUpdate();
+    }
+
     renderGlobalValidationError() {
         if (this.showGlobalValidationError) {
             return html`
@@ -1265,6 +1285,52 @@ export default class DataForm extends LitElement {
                                 </div>
                             ` : null}
                         </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Check for tabs style
+        if (type === "tabs") {
+            return html`
+                <ul class="nav nav-tabs">
+                    ${this.config.sections.map((section, index) => {
+                        const active = index === this.activeSection;
+                        return html`
+                            <li role="presentation" class="${active ? "active" : ""}">
+                                <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                    ${section.title || ""}
+                                </a>
+                            </li>
+                        `;
+                    })}
+                </ul>
+                <div style="margin-top:24px;">
+                    ${this.renderData()}
+                </div>
+            `;
+        }
+
+        // Check for pills style
+        if (type === "pills") {
+            return html`
+                <div class="row">
+                    <div class="col-md-3">
+                        <ul class="nav nav-pills nav-stacked">
+                            ${this.config.sections.map((section, index) => {
+                                const active = index === this.activeSection;
+                                return html`
+                                    <li role="presentation" class="${active ? "active" : ""}">
+                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                            ${section.title || ""}
+                                        </a>
+                                    </li>
+                                `;
+                            })}
+                        </ul>
+                    </div>
+                    <div class="col-md-9">
+                        ${this.renderData()}
                     </div>
                 </div>
             `;

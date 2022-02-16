@@ -16,11 +16,12 @@
  */
 
 
-// The cellbase configuration is extracted from project config (see issue #173)
-// const cellbase = {
-//     host: "https://ws.opencb.org/cellbase-4.8.2",
-//     version: "v4"
-// };
+// Josemi 20220216 NOTE: The cellbase configuration is extracted from project config (see issue #173)
+// We keep this global configuration to be backward compatible with OpenCGA 2.1, but will be removed in future releases
+const cellbase = {
+    host: "https://ws.opencb.org/cellbase-4.8.2",
+    version: "v4"
+};
 
 const hosts = [
     {

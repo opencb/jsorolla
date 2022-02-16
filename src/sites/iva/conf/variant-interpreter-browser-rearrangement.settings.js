@@ -4,38 +4,22 @@ const VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS = {
         // filters: []
 
         sections: [ // sections and subsections, structure and order is respected
-            {
-                title: "Sample And File",
-                filters: ["sample-genotype", "variant-file", "variant-file-info-filter"],
-            },
+            // {
+            //     title: "Sample And File",
+            //     filters: ["variant-file-info-filter"],
+            // },
             {
                 title: "Genomic",
-                filters: ["region", "feature", "biotype", "type"]
+                filters: ["region", "feature", "biotype", "variant-file-info-filter", "diseasePanels"]
             },
-            {
-                title: "Clinical",
-                filters: ["diseasePanels", "clinical-annotation"]
-            },
-            {
-                title: "Consequence Type",
-                filters: ["consequence-type"]
-            },
-            {
-                title: "Population Frequency",
-                filters: ["populationFrequency"]
-            },
-            {
-                title: "Phenotype",
-                filters: ["go", "hpo"]
-            },
-            {
-                title: "Deleteriousness",
-                filters: ["proteinSubstitutionScore", "cadd"]
-            },
-            {
-                title: "Conservation",
-                filters: ["conservation"]
-            }
+            // {
+            //     title: "Clinical",
+            //     filters: ["diseasePanels", "clinical-annotation"]
+            // },
+            // {
+            //     title: "Phenotype",
+            //     filters: ["go", "hpo"]
+            // },
         ]
     },
     table: {

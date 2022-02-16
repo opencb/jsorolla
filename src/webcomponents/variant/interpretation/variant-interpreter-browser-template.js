@@ -164,15 +164,21 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (e.detail.checked) {
-            this.clinicalAnalysisManager.addVariant(e.detail.row);
-        } else {
-            this.clinicalAnalysisManager.removeVariant(e.detail.row);
-        }
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            if (e.detail.checked) {
+                this.clinicalAnalysisManager.addVariant(row);
+            } else {
+                this.clinicalAnalysisManager.removeVariant(row);
+            }
+        });
     }
 
     onUpdateVariant(e) {
-        this.clinicalAnalysisManager.updateSingleVariant(e.detail.row);
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            this.clinicalAnalysisManager.updateSingleVariant(row);
+        });
         this.requestUpdate();
     }
 
@@ -387,8 +393,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                         .query="${this.executedQuery}"
+                                        .review="${true}"
                                         .config="${this._config.filter.result.grid}"
                                         @selectrow="${this.onSelectVariant}"
+                                        @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}">
                                     </variant-interpreter-rearrangement-grid>`
                                 }

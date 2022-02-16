@@ -65,6 +65,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             titleWidth: 4,
             defaultLayout: "horizontal"
         };
+        this.config = this.getDefaultConfig();
     }
 
     connectedCallback() {

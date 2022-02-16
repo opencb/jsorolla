@@ -71,6 +71,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
+        this.samples = [];
         this.review = false;
 
         // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
@@ -288,8 +289,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         approximateCount: true,
                         approximateCountSamplingSize: 500,
 
-                        ...internalQuery
-                        // unknownGenotype: "0/0"
+                        ...internalQuery,
+                        unknownGenotype: "0/0"
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
@@ -666,7 +667,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
                     halign: "center",
-                    visible: !!this._config.showType,
+                    visible: !this._config.hideType,
                 },
                 {
                     id: "consequenceType",
@@ -707,7 +708,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
-                    align: "center"
+                    align: "center",
                 },
                 {
                     id: "clinicalInfo",
@@ -790,7 +791,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "populationFrequencies",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this)
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
                 },
                 {
                     title: "ClinVar",
@@ -798,7 +800,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
                 },
                 {
                     title: "Cosmic",
@@ -806,7 +809,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
                 },
                 // Interpretation Column
                 {
@@ -870,22 +874,23 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     _updateTableColumns(_columns) {
+        this.samples = [];
         if (!_columns) {
             return;
         }
 
         if (this.clinicalAnalysis && (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY")) {
             // Add Samples
-            const samples = [];
+            // const samples = [];
             const sampleInfo = {};
             if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                 for (const member of this.clinicalAnalysis.family.members) {
                     if (member.samples && member.samples.length > 0) {
                         // Proband must tbe the first column
                         if (member.id === this.clinicalAnalysis.proband.id) {
-                            samples.unshift(member.samples[0]);
+                            this.samples.unshift(member.samples[0]);
                         } else {
-                            samples.push(member.samples[0]);
+                            this.samples.push(member.samples[0]);
                         }
                         sampleInfo[member.samples[0].id] = {
                             proband: member.id === this.clinicalAnalysis.proband.id,
@@ -897,7 +902,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             } else {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
-                    samples.push(this.clinicalAnalysis.proband.samples[0]);
+                    this.samples.push(this.clinicalAnalysis.proband.samples[0]);
                     sampleInfo[this.clinicalAnalysis.proband.samples[0].id] = {
                         proband: true,
                         affected: this.clinicalAnalysis.proband.disorders && this.clinicalAnalysis.proband.disorders.length > 0,
@@ -907,38 +912,38 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             }
 
-            if (samples.length > 0) {
+            if (this.samples.length > 0) {
                 _columns[0].splice(4, 0, {
                     id: "zygosity",
                     title: "Sample Genotypes",
                     field: "zygosity",
                     rowspan: 1,
-                    colspan: samples.length,
+                    colspan: this.samples.length,
                     align: "center"
                 });
 
-                for (let i = 0; i < samples.length; i++) {
+                for (let i = 0; i < this.samples.length; i++) {
                     let color = "black";
-                    if (sampleInfo[samples[i].id].proband) {
+                    if (sampleInfo[this.samples[i].id].proband) {
                         color = "darkred";
-                        if (UtilsNew.isEmpty(sampleInfo[samples[i].id].role)) {
-                            sampleInfo[samples[i].id].role = "proband";
+                        if (UtilsNew.isEmpty(sampleInfo[this.samples[i].id].role)) {
+                            sampleInfo[this.samples[i].id].role = "proband";
                         }
                     }
 
                     let affected = "<span>UnAff.</span>";
-                    if (sampleInfo[samples[i].id].affected) {
+                    if (sampleInfo[this.samples[i].id].affected) {
                         affected = "<span style='color: red'>Aff.</span>";
                     }
 
                     _columns[1].splice(i, 0, {
-                        title: `<span style="color: ${color}">${samples[i].id}</span>
+                        title: `<span style="color: ${color}">${this.samples[i].id}</span>
                                 <br>
-                                <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
+                                <span style="font-style: italic">${sampleInfo[this.samples[i].id].role}, ${affected}</span>`,
                         field: {
                             memberIdx: i,
-                            memberName: samples[i].id,
-                            sampleId: samples[i].id,
+                            memberName: this.samples[i].id,
+                            sampleId: this.samples[i].id,
                             quality: this._config.quality,
                             clinicalAnalysis: this.clinicalAnalysis,
                             config: this._config
@@ -955,29 +960,29 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
             // Add sample columns
-            let samples = null;
+            // let samples = null;
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
                 // We only render somatic sample
                 if (this.query && this.query.sample) {
-                    samples = [];
+                    // this.samples = [];
                     const _sampleGenotypes = this.query.sample.split(";");
                     for (const sampleGenotype of _sampleGenotypes) {
                         const sampleId = sampleGenotype.split(":")[0];
-                        samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
+                        this.samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
                     }
                 } else {
-                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
+                    this.samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
                 }
 
                 _columns[0].splice(5, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
-                    colspan: samples.length,
+                    colspan: this.samples.length,
                     align: "center"
                 });
-                for (let i = 0; i < samples.length; i++) {
-                    const sample = samples[i];
+                for (let i = 0; i < this.samples.length; i++) {
+                    const sample = this.samples[i];
                     const color = sample?.somatic ? "darkred" : "black";
 
                     _columns[1].splice(i, 0, {
@@ -1040,7 +1045,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 const results = restResponse.getResults();
                 // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
                 // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
-                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`;
+                const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
@@ -1332,10 +1338,13 @@ export default class VariantInterpreterGrid extends LitElement {
             showReview: true,
             showSelectCheckbox: false,
             showActions: false,
-            showType: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
+
+            hideType: false,
+            hidePopulationFrequencies: false,
+            hideClinicalInfo: false,
 
             header: {
                 horizontalAlign: "center",

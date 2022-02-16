@@ -85,8 +85,6 @@ export default class OpencgaLogin extends LitElement {
         // console.log("e", e);
         if (e.isDefaultPrevented()) {
             console.error("submitLogin() Error", e);
-            // handle the invalid form...
-            // this._clearHtmlDom(true);
         } else {
             // everything looks good!
             e.preventDefault();
@@ -136,7 +134,8 @@ export default class OpencgaLogin extends LitElement {
                     })
                     .catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
+                    })
+                    .finally(() => this.requestUpdate());
             } else {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                     title: "Error retrieving OpencgaSession",
@@ -146,12 +145,6 @@ export default class OpencgaLogin extends LitElement {
                     `,
                 });
             }
-        }
-    }
-
-    checkEnterKey(e) {
-        if (e.keyCode === 13) {
-            // this.login();
         }
     }
 
