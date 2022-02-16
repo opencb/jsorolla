@@ -1,7 +1,7 @@
-import UtilsNew from "../core/utilsNew.js";
-import Region from "../core/bioinfo/region.js";
-import {SVG} from "../core/svg.js";
-import GenomeBrowserConstants from "./genome-browser-constants.js";
+import UtilsNew from "../../core/utilsNew.js";
+import Region from "../../core/bioinfo/region.js";
+import {SVG} from "../../core/svg.js";
+import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 export default class ChromosomePanel {
 
