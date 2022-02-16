@@ -218,147 +218,140 @@ export default class TrackListPanel {
         //     }
         // });
 
-        // let downX, moveX;
-        // let lastX = 0;
+        let downX, moveX;
+        let lastX = 0;
 
-        // const handleTracksMouseMove = event => {
-        //     const newX = (downX - event.clientX) / this.pixelBase | 0; // truncate always towards zero
-        //     if (newX != lastX) {
-        //         const disp = lastX - newX;
-        //         const centerPosition = this.region.center();
-        //         if (centerPosition > disp) { // avoid 0 and negative positions
-        //             this.region.start -= disp;
-        //             this.region.end -= disp;
-        //             this.#setTextPosition();
-        //             // _this.onMove.notify(disp);
+        const handleTracksMouseMove = event => {
+            const newX = (downX - event.clientX) / this.pixelBase | 0; // truncate always towards zero
+            if (newX != lastX) {
+                const disp = lastX - newX;
+                const centerPosition = this.region.center();
+                if (centerPosition > disp) { // avoid 0 and negative positions
+                    this.region.start -= disp;
+                    this.region.end -= disp;
+                    this.#setTextPosition();
+                    // _this.onMove.notify(disp);
 
-        //             this.trigger("region:move", {
-        //                 region: this.region,
-        //                 disp: disp,
-        //                 sender: this,
-        //             });
+                    this.trigger("region:move", {
+                        region: this.region,
+                        disp: disp,
+                        sender: this,
+                    });
 
-        //             this.trigger("trackRegion:move", {
-        //                 region: this.region,
-        //                 disp: disp,
-        //                 sender: this,
-        //             });
-        //             lastX = newX;
-        //             // this.setNucleotidPosition(p);
-        //         }
-        //     }
-        // };
+                    this.trigger("trackRegion:move", {
+                        region: this.region,
+                        disp: disp,
+                        sender: this,
+                    });
+                    lastX = newX;
+                    // this.setNucleotidPosition(p);
+                }
+            }
+        };
 
-        // this.tlTracksDiv.addEventListener("mousedown", event => {
-        //     // $("html").addClass("unselectable");
-        //     this.mouseLine.style.visibility = "hidden";
+        this.tlTracksDiv.addEventListener("mousedown", event => {
+            // $("html").addClass("unselectable");
+            this.mouseLine.style.visibility = "hidden";
 
-        //     let mouseState = event.which;
-        //     if (event.ctrlKey) {
-        //         mouseState = `ctrlKey${event.which}`;
-        //     }
-        //     switch (mouseState) {
-        //         case 1: // Left mouse button pressed
-        //             this.tlTracksDiv.style.cursor = "move";
-        //             downX = event.clientX;
-        //             lastX = 0; // Reset last
-        //             this.tlTracksDiv.addEventListener("mousemove", handleTracksMouseMove);
-        //             break;
-        //         case 2: // Middle mouse button pressed
-        //         case "ctrlKey1": // ctrlKey and left mouse button
-        //             this.selBox.style.visibility = "visible";
-        //             this.selBox.style.width = 0;
+            let mouseState = event.which;
+            if (event.ctrlKey) {
+                mouseState = `ctrlKey${event.which}`;
+            }
 
-        //             downX = (event.pageX - $(this.tlTracksDiv).offset().left);
-        //             this.selBox.style.left = downX;
+            // TODO: we need to listen to other buttons than left mouse?
+            switch (mouseState) {
+                case 1: // Left mouse button pressed
+                    this.tlTracksDiv.style.cursor = "move";
+                    downX = event.clientX;
+                    lastX = 0; // Reset last
+                    this.tlTracksDiv.addEventListener("mousemove", handleTracksMouseMove);
+                    break;
+                case 2: // Middle mouse button pressed
+                case "ctrlKey1": // ctrlKey and left mouse button
+                    this.selBox.style.visibility = "visible";
+                    this.selBox.style.width = 0;
 
-        //             $(this).mousemove(function (event) {
-        //                 moveX = (event.pageX - $(this.tlTracksDiv).offset().left);
-        //                 if (moveX < downX) {
-        //                     this.selBox.style.left = moveX;
-        //                 }
-        //                 this.selBox.style.width = Math.abs(moveX - downX);
-        //             });
-        //             break;
-        //         case 3: // Right mouse button pressed
-        //             break;
-        //         default: // other button?
-        //     }
+                    downX = (event.pageX - $(this.tlTracksDiv).offset().left);
+                    this.selBox.style.left = downX;
 
+                    // $(this).mousemove(function (event) {
+                    //     moveX = (event.pageX - $(this.tlTracksDiv).offset().left);
+                    //     if (moveX < downX) {
+                    //         this.selBox.style.left = moveX;
+                    //     }
+                    //     this.selBox.style.width = Math.abs(moveX - downX);
+                    // });
+                    break;
+                case 3: // Right mouse button pressed
+                    break;
+                default: // other button?
+            }
+        });
 
-        // });
+        this.tlTracksDiv.addEventListener("mouseup", event => {
+            // $("html").removeClass("unselectable");
 
-        // $(this.tlTracksDiv).mouseup(function (event) {
-        //     $("html").removeClass("unselectable");
-        //     $(this).css({
-        //         "cursor": "default"
-        //     });
-        //     $(_this.mouseLine).css({
-        //         "visibility": "visible"
-        //     });
-        //     $(this).off("mousemove");
+            this.tlTracksDiv.style.cursor = "default";
+            this.mouseLine.style.visibility = "visible";
 
-        //     let mouseState = event.which;
-        //     if (event.ctrlKey) {
-        //         mouseState = `ctrlKey${event.which}`;
-        //     }
-        //     switch (mouseState) {
-        //         case 1: // Left mouse button pressed
+            // $(this.tlTracksDiv).off("mousemove");
+            this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
 
-        //             break;
-        //         case 2: // Middle mouse button pressed
-        //         case "ctrlKey1": // ctrlKey and left mouse button
-        //             $(selBox).css({
-        //                 "visibility": "hidden"
-        //             });
-        //             $(this).off("mousemove");
-        //             if (downX != null && moveX != null) {
-        //                 let ss = downX / _this.pixelBase;
-        //                 let ee = moveX / _this.pixelBase;
-        //                 ss += _this.visualRegion.start;
-        //                 ee += _this.visualRegion.start;
-        //                 _this.region.start = parseInt(Math.min(ss, ee));
-        //                 _this.region.end = parseInt(Math.max(ss, ee));
-        //                 _this.trigger("region:change", {
-        //                     region: _this.region,
-        //                     sender: _this
-        //                 });
-        //                 moveX = null;
-        //             } else if (downX != null && moveX == null) {
-        //                 let mouseRegion = new Region({
-        //                     chromosome: _this.region.chromosome,
-        //                     start: _this.mousePosition,
-        //                     end: _this.mousePosition
-        //                 });
-        //                 _this.trigger("region:change", {
-        //                     region: mouseRegion,
-        //                     sender: _this
-        //                 });
-        //             }
-        //             break;
-        //         case 3: // Right mouse button pressed
-        //             break;
-        //         default: // other button?
-        //     }
+            let mouseState = event.which;
+            if (event.ctrlKey) {
+                mouseState = `ctrlKey${event.which}`;
+            }
+            switch (mouseState) {
+                case 1: // Left mouse button pressed
 
-        // });
+                    break;
+                case 2: // Middle mouse button pressed
+                case "ctrlKey1": // ctrlKey and left mouse button
+                    this.selBox.style.visibility = "hidden";
+                    // $(this.tlTracksDiv).off("mousemove");
+                    if (downX != null && moveX != null) {
+                        let ss = downX / this.pixelBase;
+                        let ee = moveX / this.pixelBase;
+                        ss += this.visualRegion.start;
+                        ee += this.visualRegion.start;
+                        this.region.start = parseInt(Math.min(ss, ee));
+                        this.region.end = parseInt(Math.max(ss, ee));
+                        this.trigger("region:change", {
+                            region: this.region,
+                            sender: this,
+                        });
+                        moveX = null;
+                    } else if (downX != null && moveX == null) {
+                        const mouseRegion = new Region({
+                            chromosome: this.region.chromosome,
+                            start: this.mousePosition,
+                            end: this.mousePosition
+                        });
+                        this.trigger("region:change", {
+                            region: mouseRegion,
+                            sender: this,
+                        });
+                    }
+                    break;
+                case 3: // Right mouse button pressed
+                    break;
+                default: // other button?
+            }
 
-        // $(this.tlTracksDiv).mouseleave(function (event) {
-        //     $(this).css({
-        //         "cursor": "default"
-        //     });
-        //     $(_this.mouseLine).css({
-        //         "visibility": "hidden"
-        //     });
-        //     $(this).off("mousemove");
-        //     $("body").off("keydown.genomeViewer");
+        });
 
-        //     $(selBox).css({
-        //         "visibility": "hidden"
-        //     });
-        //     downX = null;
-        //     moveX = null;
-        // });
+        this.tlTracksDiv.addEventListener("mouseleave", () => {
+            this.tlTracksDiv.style.cursor = "default";
+            this.mouseLine.style.visibility = "hidden";
+
+            // $(this.tlTracksDiv).off("mousemove");
+            this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
+            // $("body").off("keydown.genomeViewer");
+
+            this.selBox.style.visibility = "hidden";
+            downX = null;
+            moveX = null;
+        });
 
         // const enableKeys = () => {
         //     // keys
@@ -594,40 +587,39 @@ export default class TrackListPanel {
             track.move(event.disp);
         });
 
-        // TODO: review this event
-        //
-        // track.set("trackFeature:highlight", event => {
-        //     const attrName = event.attrName || "feature_id";
-        //     if (event.attrValue) {
-        //         const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
+        // Track region highlight
+        this.on("trackFeature:highlight", event => {
+            // const attrName = event.attrName || "feature_id";
+            // if (event.attrValue) {
+            //     const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
 
-        //         attrItems.forEach(key => {
-        //             const queryStr = `${attrName}~=${event.attrValue[key]}`;
-        //             const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
+            //     attrItems.forEach(key => {
+            //         const queryStr = `${attrName}~=${event.attrValue[key]}`;
+            //         const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
 
-        //             Array.from(groups).forEach(item => {
-        //                 let animation = $(this).find("animate");
-        //                 if (animation.length == 0) {
-        //                     animation = SVG.addChild(this, "animate", {
-        //                         "attributeName": "opacity",
-        //                         "attributeType": "XML",
-        //                         // "begin": "indefinite",
-        //                         "from": "0.0",
-        //                         "to": "1",
-        //                         "begin": "0s",
-        //                         "dur": "0.5s",
-        //                         "repeatCount": "5"
-        //                     });
-        //                 } else {
-        //                     animation = animation[0];
-        //                 }
-        //                 let y = $(group).find("rect").attr("y");
-        //                 $(track.svgdiv).scrollTop(y);
-        //                 animation.beginElement();
-        //             });
-        //         });
-        //     }
-        // });
+            //         Array.from(groups).forEach(item => {
+            //             let animation = $(this).find("animate");
+            //             if (animation.length == 0) {
+            //                 animation = SVG.addChild(this, "animate", {
+            //                     "attributeName": "opacity",
+            //                     "attributeType": "XML",
+            //                     // "begin": "indefinite",
+            //                     "from": "0.0",
+            //                     "to": "1",
+            //                     "begin": "0s",
+            //                     "dur": "0.5s",
+            //                     "repeatCount": "5"
+            //                 });
+            //             } else {
+            //                 animation = animation[0];
+            //             }
+            //             let y = $(group).find("rect").attr("y");
+            //             $(track.svgdiv).scrollTop(y);
+            //             animation.beginElement();
+            //         });
+            //     });
+            // }
+        });
 
         track.on("track:close", event => this.removeTrack(event.sender));
         track.on("track:up", event => this.#reallocateAbove(event.sender));
