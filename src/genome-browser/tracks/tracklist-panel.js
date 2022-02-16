@@ -1,19 +1,24 @@
 import Region from "../../core/bioinfo/region.js";
-import Utils from "../../core/utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
 
 export default class TrackListPanel { // parent is a DOM div element
 
-    constructor(args) {
+    constructor(target, config) {
+        // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
-        this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
-        this.cellBaseVersion = "v4";
+        this.target = target;
+        this.config = {
+            ...this.getDefaultConfig(),
+            ...config,
+        };
 
-        // set default args
-        this.target;
-        this.autoRender = true;
-        this.id = Utils.genId("TrackListPanel");
+        this.#init();
+    }
+
+    #init() {
+        this.prefix = UtilsNew.randomString(8);
         this.collapsed = false;
         this.collapsible = false;
         this.hidden = false;
@@ -25,534 +30,427 @@ export default class TrackListPanel { // parent is a DOM div element
         this.mousePosition;
         this.windowSize;
 
-        this.zoomMultiplier = 1;
-        this.showRegionOverviewBox = false;
-
-
-        this.height = 0;
-
-        // set instantiation args, must be last
-        Object.assign(this, args);
-
         // set new region object
-        this.region = new Region(this.region);
-        this.width -= 18;
+        this.region = new Region(this.config.region);
+        this.width = this.config.width - 18;
+        this.height = this.config.height;
         this.status;
 
         // this region is used to do not modify original region, and will be used by trackSvg
-        this.visualRegion = new Region(this.region);
+        this.visualRegion = new Region(this.config.region);
 
-        /* *******/
-        this._setPixelBase();
-        /* *******/
-
-        this.on(this.handlers);
+        this.#setPixelBase();
 
         this.regionChanging = false;
 
-        this.rendered = false;
-        if (this.autoRender) {
-            this.render();
+        this.#initDom();
+        this.#initEvents();
+
+        this.#setTextPosition();
+        this.rendered = true;
+    }
+
+    #initDom() {
+        const template = UtilsNew.renderHTML(`
+            <div id="${this.prefix}" class="ocb-gv-tracklist">
+                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
+                    <div id="${this.prefix}WindowSize" class="ocb-gv-tracklist-windowsize"></div>
+                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                        <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
+                    </div>
+                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+                        ${this.config?.title || ""}
+                    </div>
+                </div>
+                <div id="${this.prefix}TLHeader" class="unselectable">
+                    <div id="${this.prefix}Position"class="ocb-gv-tracklist-position">
+                        <div id="${this.prefix}PositionLeft" class="ocb-gv-tracklist-position-left"></div>
+                        <div id="${this.prefix}PositionMid" class="ocb-gv-tracklist-position-mid">
+                            <div id="${this.prefix}PositionNucleotid" class="ocb-gv-tracklist-position-mid-nt"></div>
+                            <div id="${this.prefix}PositionMidPos" class="ocb-gv-tracklist-position-mid-pos"></div>
+                        </div>
+                        <div id="${this.prefix}PositionRight" class="ocb-gv-tracklist-position-right"></div>
+                    </div>
+                </div>
+                <div id="${this.prefix}TLPanel" style="position:relative;width:100%;">
+                    <div id="${this.prefix}TLTracks" style="position:relative;z-index:3;"></div>
+                    <div id="${this.prefix}CenterLine"></div>
+                    <div id="${this.prefix}MouseLine"></div>
+                    <div id="${this.prefix}SelBox"></div>
+                    <div id="${this.prefix}RegionOverviewBoxLeft" style="display:none;"></div>
+                    <div id="${this.prefix}RegionOverviewBoxRight" style="display:none;"></div>
+                </div>
+            </div>
+        `);
+
+        this.div = template.querySelector(`div#${this.prefix}`);
+
+        this.windowSizeDiv = this.div.querySelector(`div#${this.prefix}WindowSize`);
+        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
+        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
+        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
+
+        this.tlTracksDiv = this.div.querySelector(`div#${this.prefix}TLTracks`);
+
+        this.positionLeftDiv = this.div.querySelector(`div#${this.prefix}PositionLeft`);
+        this.positionNucleotidDiv = this.div.querySelector(`div#${this.prefix}PositionNucleotid`);
+        this.positionMidPosDiv = this.div.querySelector(`div#${this.prefix}PositionMidPos`);
+        this.positionRightDiv = this.div.querySelector(`div#${this.prefix}PositionRight`);
+
+        // Apply center line styles
+        this.centerLine = this.div.querySelector(`div#${this.prefix}CenterLine`);
+        this.centerLine.style.zIndex = 2;
+        this.centerLine.style.position = "absolute";
+        this.centerLine.style.left = `${this.width / 2}px`;
+        this.centerLine.style.top = "0px";
+        this.centerLine.style.width = `${Math.floor(this.pixelBase)}px`; // this.pixelBase + 1
+        this.centerLine.style.height = "calc(100% - 8px)"; // 100%
+        this.centerLine.style.opacity = 0.5;
+        this.centerLine.style.border = "1px solid orangered";
+        this.centerLine.style.backgroundColor = "orange";
+
+        // Apply mouse line styles
+        this.mouseLine = this.div.querySelector(`div#${this.prefix}MouseLine`);
+        this.mouseLine.style.zIndex = 1;
+        this.mouseLine.style.position = "absolute";
+        this.mouseLine.style.left = "-20.5px";
+        this.mouseLine.style.top = "0px";
+        this.mouseLine.style.width = `${Math.floor(this.pixelBase)}px`;
+        this.mouseLine.style.height = "calc(100% - 8px)";
+        this.mouseLine.style.border = "1px solid gray";
+        this.mouseLine.style.opacity = 0.7;
+        this.mouseLine.style.visibility = "hidden";
+        this.mouseLine.backgroundColor = "gainsboro";
+
+        // Apply selection box style
+        this.selBox = this.div.querySelector(`div#${this.prefix}SelBox`);
+        this.selBox.style.zIndex = 0;
+        this.selBox.style.position = "absolute";
+        this.selBox.style.left = "0px";
+        this.selBox.style.top = "0px";
+        this.selBox.style.height = "100%";
+        this.selBox.style.border = "2px solid deepskyblue";
+        this.selBox.style.opacity = 0.5;
+        this.selBox.style.visibility = "hidden";
+        this.selBox.style.backgroundColor = "honeydew";
+
+        this.regionOverviewBoxLeft = this.div.querySelector(`div#${this.prefix}RegionOverviewBoxLeft`);
+        this.regionOverviewBoxRight = this.div.querySelector(`div#${this.prefix}RegionOverviewBoxRight`);
+
+        if (this.config.showRegionOverviewBox) {
+            const regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            const regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
+
+            // Apply left region styles
+            this.regionOverviewBoxLeft.style.zIndex = 0;
+            this.regionOverviewBoxLeft.style.position = "absolute";
+            this.regionOverviewBoxLeft.style.left = "1px";
+            this.regionOverviewBoxLeft.style.top = "0px";
+            this.regionOverviewBoxLeft.style.width = `${regionOverviewBoxWidth}px`;
+            this.regionOverviewBoxLeft.style.height = "calc(100% - 8px)";
+            this.regionOverviewBoxLeft.style.opacity = 0.5;
+            this.regionOverviewBoxLeft.style.backgroundColor = "lightgray";
+            this.regionOverviewBoxLeft.style.display = "block";
+
+            // Apply right region styles
+            this.regionOverviewBoxRight.style.zIndex = 0;
+            this.regionOverviewBoxRight.style.position = "absolute";
+            this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
+            this.regionOverviewBoxRight.style.top = "0px";
+            this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
+            this.regionOverviewBoxRight.style.height = "calc(100% - 8px)";
+            this.regionOverviewBoxRight.style.opacity = 0.5;
+            this.regionOverviewBoxRight.style.backgroundColor = "lightgray";
+            this.regionOverviewBoxRight.style.display = "block";
         }
+
+        this.target.append(this.div);
+    }
+
+    // Register events
+    #initEvents() {
+
+        this.div.addEventListener("mousemove", event => {
+            const centerPosition = this.region.center();
+            const mid = this.width / 2;
+            const mouseLineOffset = this.pixelBase / 2;
+            const offsetX = (event.clientX - this.tlTracksDiv.getBoundingClientRect().left);
+
+            const cX = offsetX - mouseLineOffset;
+            const rcX = (cX / this.pixelBase) | 0;
+            const pos = (rcX * this.pixelBase) + (mid % this.pixelBase) - 1;
+
+            const posOffset = (mid / this.pixelBase) | 0;
+
+            this.mouseLine.style.left = pos;
+            this.mousePosition = centerPosition + rcX - posOffset;
+
+            this.trigger("mousePosition:change", {
+                mousePos: this.mousePosition,
+                chromosome: this.region.chromosome,
+                base: this.getMousePosition(this.mousePosition)
+            });
+        });
+
+        // $(this.tlTracksDiv).dblclick(function (event) {
+        //     if (!_this.regionChanging) {
+        //         _this.regionChanging = true;
+        //         /**/
+        //         /**/
+        //         /**/
+        //         let halfLength = _this.region.length() / 2;
+        //         let mouseRegion = new Region({
+        //             chromosome: _this.region.chromosome,
+        //             start: _this.mousePosition - halfLength,
+        //             end: _this.mousePosition + halfLength
+        //         });
+        //         _this.trigger("region:change", {
+        //             region: mouseRegion,
+        //             sender: _this
+        //         });
+        //         /**/
+        //         /**/
+        //         /**/
+        //         setTimeout(function () {
+        //             _this.regionChanging = false;
+        //         }, 700);
+        //     }
+        // });
+
+        // let downX, moveX;
+        // let lastX = 0;
+
+        // const handleTracksMouseMove = event => {
+        //     const newX = (downX - event.clientX) / this.pixelBase | 0; // truncate always towards zero
+        //     if (newX != lastX) {
+        //         const disp = lastX - newX;
+        //         const centerPosition = this.region.center();
+        //         if (centerPosition > disp) { // avoid 0 and negative positions
+        //             this.region.start -= disp;
+        //             this.region.end -= disp;
+        //             this.#setTextPosition();
+        //             // _this.onMove.notify(disp);
+
+        //             this.trigger("region:move", {
+        //                 region: this.region,
+        //                 disp: disp,
+        //                 sender: this,
+        //             });
+
+        //             this.trigger("trackRegion:move", {
+        //                 region: this.region,
+        //                 disp: disp,
+        //                 sender: this,
+        //             });
+        //             lastX = newX;
+        //             // this.setNucleotidPosition(p);
+        //         }
+        //     }
+        // };
+
+        // this.tlTracksDiv.addEventListener("mousedown", event => {
+        //     // $("html").addClass("unselectable");
+        //     this.mouseLine.style.visibility = "hidden";
+
+        //     let mouseState = event.which;
+        //     if (event.ctrlKey) {
+        //         mouseState = `ctrlKey${event.which}`;
+        //     }
+        //     switch (mouseState) {
+        //         case 1: // Left mouse button pressed
+        //             this.tlTracksDiv.style.cursor = "move";
+        //             downX = event.clientX;
+        //             lastX = 0; // Reset last
+        //             this.tlTracksDiv.addEventListener("mousemove", handleTracksMouseMove);
+        //             break;
+        //         case 2: // Middle mouse button pressed
+        //         case "ctrlKey1": // ctrlKey and left mouse button
+        //             this.selBox.style.visibility = "visible";
+        //             this.selBox.style.width = 0;
+
+        //             downX = (event.pageX - $(this.tlTracksDiv).offset().left);
+        //             this.selBox.style.left = downX;
+
+        //             $(this).mousemove(function (event) {
+        //                 moveX = (event.pageX - $(this.tlTracksDiv).offset().left);
+        //                 if (moveX < downX) {
+        //                     this.selBox.style.left = moveX;
+        //                 }
+        //                 this.selBox.style.width = Math.abs(moveX - downX);
+        //             });
+        //             break;
+        //         case 3: // Right mouse button pressed
+        //             break;
+        //         default: // other button?
+        //     }
+
+
+        // });
+
+        // $(this.tlTracksDiv).mouseup(function (event) {
+        //     $("html").removeClass("unselectable");
+        //     $(this).css({
+        //         "cursor": "default"
+        //     });
+        //     $(_this.mouseLine).css({
+        //         "visibility": "visible"
+        //     });
+        //     $(this).off("mousemove");
+
+        //     let mouseState = event.which;
+        //     if (event.ctrlKey) {
+        //         mouseState = `ctrlKey${event.which}`;
+        //     }
+        //     switch (mouseState) {
+        //         case 1: // Left mouse button pressed
+
+        //             break;
+        //         case 2: // Middle mouse button pressed
+        //         case "ctrlKey1": // ctrlKey and left mouse button
+        //             $(selBox).css({
+        //                 "visibility": "hidden"
+        //             });
+        //             $(this).off("mousemove");
+        //             if (downX != null && moveX != null) {
+        //                 let ss = downX / _this.pixelBase;
+        //                 let ee = moveX / _this.pixelBase;
+        //                 ss += _this.visualRegion.start;
+        //                 ee += _this.visualRegion.start;
+        //                 _this.region.start = parseInt(Math.min(ss, ee));
+        //                 _this.region.end = parseInt(Math.max(ss, ee));
+        //                 _this.trigger("region:change", {
+        //                     region: _this.region,
+        //                     sender: _this
+        //                 });
+        //                 moveX = null;
+        //             } else if (downX != null && moveX == null) {
+        //                 let mouseRegion = new Region({
+        //                     chromosome: _this.region.chromosome,
+        //                     start: _this.mousePosition,
+        //                     end: _this.mousePosition
+        //                 });
+        //                 _this.trigger("region:change", {
+        //                     region: mouseRegion,
+        //                     sender: _this
+        //                 });
+        //             }
+        //             break;
+        //         case 3: // Right mouse button pressed
+        //             break;
+        //         default: // other button?
+        //     }
+
+        // });
+
+        // $(this.tlTracksDiv).mouseleave(function (event) {
+        //     $(this).css({
+        //         "cursor": "default"
+        //     });
+        //     $(_this.mouseLine).css({
+        //         "visibility": "hidden"
+        //     });
+        //     $(this).off("mousemove");
+        //     $("body").off("keydown.genomeViewer");
+
+        //     $(selBox).css({
+        //         "visibility": "hidden"
+        //     });
+        //     downX = null;
+        //     moveX = null;
+        // });
+
+        // const enableKeys = () => {
+        //     // keys
+        //     $("body").bind("keydown.genomeViewer", function (e) {
+        //         let disp = 0;
+        //         switch (e.keyCode) {
+        //             case 37: // left arrow
+        //                 if (e.ctrlKey) {
+        //                     disp = Math.round(100 / _this.pixelBase);
+        //                 } else {
+        //                     disp = Math.round(10 / _this.pixelBase);
+        //                 }
+        //                 break;
+        //             case 39: // right arrow
+        //                 if (e.ctrlKey) {
+        //                     disp = Math.round(-100 / _this.pixelBase);
+        //                 } else {
+        //                     disp = Math.round(-10 / _this.pixelBase);
+        //                 }
+        //                 break;
+        //         }
+        //         if (disp != 0) {
+        //             _this.region.start -= disp;
+        //             _this.region.end -= disp;
+        //             _this._setTextPosition();
+        //             // _this.onMove.notify(disp);
+        //             _this.trigger("region:move", {
+        //                 region: _this.region,
+        //                 disp: disp,
+        //                 sender: _this
+        //             });
+        //             _this.trigger("trackRegion:move", {
+        //                 region: _this.region,
+        //                 disp: disp,
+        //                 sender: _this
+        //             });
+        //         }
+        //     });
+        // };
+
+        // $(this.tlTracksDiv).mouseenter(function (e) {
+        //     //            $('.qtip').qtip('enable'); // To enable them again ;)
+        //     $(_this.mouseLine).css({
+        //         "visibility": "visible"
+        //     });
+        //     $("body").off("keydown.genomeViewer");
+        //     enableKeys();
+        // });
 
     }
 
     show() {
-        $(this.div).css({
-            display: "block"
-        });
+        this.div.style.display = "block";
         this.hidden = false;
     }
 
     hide() {
-        $(this.div).css({
-            display: "none"
-        });
+        this.div.style.display = "none";
         this.hidden = true;
     }
-    setVisible(bool) {
-        if (bool) {
-            this.show();
-        } else {
-            this.hide();
-        }
+
+    setVisible(visible) {
+        visible ? this.show() : this.hide();
     }
+
     setTitle(title) {
-        if ("titleDiv" in this) {
-            $(this.titleDiv).html(title);
-        }
+        this.titleDiv.textContent = title || "";
     }
+
     showContent() {
-        $(this.tlHeaderDiv).css({
-            display: "block"
-        });
-        $(this.panelDiv).css({
-            display: "block"
-        });
+        this.tlHeaderDiv.style.display = "block";
+        this.panelDiv.style.display = "block";
+        this.collapseDiv.classList.remove("active");
+        this.collapseIcon.classList.remove("fa-plus");
+        this.collapseIcon.classList.add("fa-minus");
         this.collapsed = false;
-        $(this.collapseDiv).removeClass("active");
-        $(this.collapseDiv).children().first().removeClass("fa-plus");
-        $(this.collapseDiv).children().first().addClass("fa-minus");
     }
+
     hideContent() {
-        $(this.tlHeaderDiv).css({
-            display: "none"
-        });
-        $(this.panelDiv).css({
-            display: "none"
-        });
+        this.tlHeaderDiv.style.display = "none";
+        this.panelDiv.style.display = "none";
+        this.collapseDiv.classList.add("active");
+        this.collapseIcon.classList.add("fa-plus");
+        this.collapseIcon.classList.remove("fa-minus");
         this.collapsed = true;
-        $(this.collapseDiv).addClass("active");
-        $(this.collapseDiv).children().first().removeClass("fa-minus");
-        $(this.collapseDiv).children().first().addClass("fa-plus");
-    }
-    render() {
-        let _this = this;
-
-        this.div = document.createElement("div");
-        this.div.classList.add("ocb-gv-tracklist");
-
-        this.windowSizeDiv = document.createElement("div");
-        this.windowSizeDiv.classList.add("ocb-gv-tracklist-windowsize");
-
-        if ("title" in this && this.title !== "") {
-
-            let titleDiv = document.createElement("div");
-            titleDiv.classList.add("ocb-gv-panel-title", "unselectable");
-
-            titleDiv.appendChild(this.windowSizeDiv);
-
-            if (this.collapsible == true) {
-                this.collapseDiv = document.createElement("div");
-                this.collapseDiv.classList.add("ocb-gv-panel-collapse-control");
-
-                let collapseSpan = document.createElement("span");
-                collapseSpan.classList.add("fa", "fa-minus");
-
-                this.collapseDiv.appendChild(collapseSpan);
-
-                $(titleDiv).dblclick(function () {
-                    if (_this.collapsed) {
-                        _this.showContent();
-                    } else {
-                        _this.hideContent();
-                    }
-                });
-                $(this.collapseDiv).click(function () {
-                    if (_this.collapsed) {
-                        _this.showContent();
-                    } else {
-                        _this.hideContent();
-                    }
-                });
-                titleDiv.appendChild(this.collapseDiv);
-            }
-
-            let titleTextDiv = document.createElement("div");
-            titleTextDiv.classList.add("ocb-gv-panel-text");
-            titleTextDiv.textContent = this.title;
-            titleDiv.appendChild(titleTextDiv);
-
-
-            this.div.appendChild(titleDiv);
-        }
-
-        let tlHeaderDiv = $("<div id=\"tl-header\" class=\"unselectable\"></div>")[0];
-
-        let panelDiv = $("<div id=\"tl-panel\"></div>")[0];
-        $(panelDiv).css({
-            position: "relative",
-            width: "100%"
-        });
-
-
-        this.tlTracksDiv = $("<div id=\"tl-tracks\"></div>")[0];
-        $(this.tlTracksDiv).css({
-            position: "relative",
-            "z-index": 3
-        });
-
-
-        $(this.div).append(tlHeaderDiv);
-        $(this.div).append(panelDiv);
-
-        $(panelDiv).append(this.tlTracksDiv);
-
-
-        // Main SVG and its events
-
-        // Position div
-        this.positionDiv = document.createElement("div");
-        this.positionDiv.classList.add("ocb-gv-tracklist-position");
-
-        this.positionLeftDiv = document.createElement("div");
-        this.positionLeftDiv.classList.add("ocb-gv-tracklist-position-left");
-        this.positionNucleotidDiv = document.createElement("div");
-        this.positionNucleotidDiv.classList.add("ocb-gv-tracklist-position-mid-nt");
-        this.positionMidPosDiv = document.createElement("div");
-        this.positionMidPosDiv.classList.add("ocb-gv-tracklist-position-mid-pos");
-        this.positionMidDiv = document.createElement("div");
-        this.positionMidDiv.classList.add("ocb-gv-tracklist-position-mid");
-        this.positionRightDiv = document.createElement("div");
-        this.positionRightDiv.classList.add("ocb-gv-tracklist-position-right");
-
-        this.positionDiv.appendChild(this.positionLeftDiv);
-        this.positionDiv.appendChild(this.positionNucleotidDiv);
-        this.positionMidDiv.appendChild(this.positionNucleotidDiv);
-        this.positionMidDiv.appendChild(this.positionMidPosDiv);
-        this.positionDiv.appendChild(this.positionMidDiv);
-        this.positionDiv.appendChild(this.positionRightDiv);
-        tlHeaderDiv.appendChild(this.positionDiv);
-
-
-        let mid = this.width / 2;
-        this._setTextPosition();
-
-        this.centerLine = $(`<div id="${this.id}centerLine"></div>`)[0];
-        $(panelDiv).append(this.centerLine);
-        $(this.centerLine).css({
-            "z-index": 2,
-            "position": "absolute",
-            "left": mid - 1,
-            "top": 0,
-            "width": Math.floor(this.pixelBase), // this.pixelBase + 1,
-            //            'height': '100%',
-            "height": "calc(100% - 8px)",
-            "opacity": 0.5,
-            "border": "1px solid orangered",
-            "background-color": "orange"
-        });
-
-
-        this.mouseLine = $(`<div id="${this.id}mouseLine"></div>`)[0];
-        $(panelDiv).append(this.mouseLine);
-        $(this.mouseLine).css({
-            "z-index": 1,
-            "position": "absolute",
-            "left": -20.5,
-            "top": 0,
-            "width": Math.floor(this.pixelBase), // this.pixelBase + 2,
-            "height": "calc(100% - 8px)",
-            "border": "1px solid gray",
-            "opacity": 0.7,
-            "visibility": "hidden",
-            "background-color": "gainsboro"
-        });
-
-        // allow selection in trackSvgLayoutOverview
-
-
-        let selBox = $(`<div id="${this.id}selBox"></div>`)[0];
-        $(panelDiv).append(selBox);
-        $(selBox).css({
-            "z-index": 0,
-            "position": "absolute",
-            "left": 0,
-            "top": 0,
-            "height": "100%",
-            "border": "2px solid deepskyblue",
-            "opacity": 0.5,
-            "visibility": "hidden",
-            "background-color": "honeydew"
-        });
-
-        if (this.showRegionOverviewBox) {
-            let regionOverviewBoxLeft = $(`<div id="${this.id}regionOverviewBoxLeft"></div>`)[0];
-            let regionOverviewBoxRight = $(`<div id="${this.id}regionOverviewBoxRight"></div>`)[0];
-            $(panelDiv).append(regionOverviewBoxLeft);
-            $(panelDiv).append(regionOverviewBoxRight);
-            let regionOverviewBoxWidth = this.region.length() * this.pixelBase;
-            let regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
-            $(regionOverviewBoxLeft).css({
-                "z-index": 0,
-                "position": "absolute",
-                "left": 1,
-                "top": 0,
-                "width": regionOverviewDarkBoxWidth,
-                "height": "calc(100% - 8px)",
-                //                'border': '1px solid gray',
-                "opacity": 0.5,
-                //            'visibility': 'hidden',
-                "background-color": "lightgray"
-            });
-            $(regionOverviewBoxRight).css({
-                "z-index": 0,
-                "position": "absolute",
-                "left": (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
-                "top": 0,
-                "width": regionOverviewDarkBoxWidth,
-                "height": "calc(100% - 8px)",
-                "opacity": 0.5,
-                "background-color": "lightgray"
-            });
-            this.regionOverviewBoxLeft = regionOverviewBoxLeft;
-            this.regionOverviewBoxRight = regionOverviewBoxRight;
-        }
-
-
-        $(this.div).mousemove(function (event) {
-            let centerPosition = _this.region.center();
-            let mid = _this.width / 2;
-            let mouseLineOffset = _this.pixelBase / 2;
-            let offsetX = (event.clientX - _this.tlTracksDiv.getBoundingClientRect().left);
-
-            let cX = offsetX - mouseLineOffset;
-            let rcX = (cX / _this.pixelBase) | 0;
-            let pos = (rcX * _this.pixelBase) + (mid % _this.pixelBase) - 1;
-            $(_this.mouseLine).css({
-                "left": pos
-            });
-            //
-            let posOffset = (mid / _this.pixelBase) | 0;
-            _this.mousePosition = centerPosition + rcX - posOffset;
-            _this.trigger("mousePosition:change", {
-                mousePos: _this.mousePosition,
-                chromosome: _this.region.chromosome,
-                base: _this.getMousePosition(_this.mousePosition)
-            });
-        });
-
-        $(this.tlTracksDiv).dblclick(function (event) {
-            if (!_this.regionChanging) {
-                _this.regionChanging = true;
-                /**/
-                /**/
-                /**/
-                let halfLength = _this.region.length() / 2;
-                let mouseRegion = new Region({
-                    chromosome: _this.region.chromosome,
-                    start: _this.mousePosition - halfLength,
-                    end: _this.mousePosition + halfLength
-                });
-                _this.trigger("region:change", {
-                    region: mouseRegion,
-                    sender: _this
-                });
-                /**/
-                /**/
-                /**/
-                setTimeout(function () {
-                    _this.regionChanging = false;
-                }, 700);
-            }
-        });
-
-        let downX, moveX;
-        $(this.tlTracksDiv).mousedown(function (event) {
-            $("html").addClass("unselectable");
-            //                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
-            $(_this.mouseLine).css({
-                "visibility": "hidden"
-            });
-
-            let mouseState = event.which;
-            if (event.ctrlKey) {
-                mouseState = `ctrlKey${event.which}`;
-            }
-            switch (mouseState) {
-                case 1: // Left mouse button pressed
-                    $(this).css({
-                        "cursor": "move"
-                    });
-                    downX = event.clientX;
-                    let lastX = 0;
-                    $(this).mousemove(function(event) {
-                        let newX = (downX - event.clientX) / _this.pixelBase | 0; // truncate always towards zero
-                        if (newX != lastX) {
-                            let disp = lastX - newX;
-                            let centerPosition = _this.region.center();
-                            let p = centerPosition - disp;
-                            if (p > 0) { // avoid 0 and negative positions
-                                _this.region.start -= disp;
-                                _this.region.end -= disp;
-                                _this._setTextPosition();
-                                // _this.onMove.notify(disp);
-                                _this.trigger("region:move", {
-                                    region: _this.region,
-                                    disp: disp,
-                                    sender: _this
-                                });
-                                _this.trigger("trackRegion:move", {
-                                    region: _this.region,
-                                    disp: disp,
-                                    sender: _this
-                                });
-                                lastX = newX;
-                                // _this.setNucleotidPosition(p);
-                            }
-                        }
-                    });
-
-                    break;
-                case 2: // Middle mouse button pressed
-                case "ctrlKey1": // ctrlKey and left mouse button
-                    $(selBox).css({
-                        "visibility": "visible"
-                    });
-                    $(selBox).css({
-                        "width": 0
-                    });
-                    downX = (event.pageX - $(_this.tlTracksDiv).offset().left);
-                    $(selBox).css({
-                        "left": downX
-                    });
-                    $(this).mousemove(function (event) {
-                        moveX = (event.pageX - $(_this.tlTracksDiv).offset().left);
-                        if (moveX < downX) {
-                            $(selBox).css({
-                                "left": moveX
-                            });
-                        }
-                        $(selBox).css({
-                            "width": Math.abs(moveX - downX)
-                        });
-                    });
-
-
-                    break;
-                case 3: // Right mouse button pressed
-                    break;
-                default: // other button?
-            }
-
-
-        });
-
-        $(this.tlTracksDiv).mouseup(function (event) {
-            $("html").removeClass("unselectable");
-            $(this).css({
-                "cursor": "default"
-            });
-            $(_this.mouseLine).css({
-                "visibility": "visible"
-            });
-            $(this).off("mousemove");
-
-            let mouseState = event.which;
-            if (event.ctrlKey) {
-                mouseState = `ctrlKey${event.which}`;
-            }
-            switch (mouseState) {
-                case 1: // Left mouse button pressed
-
-                    break;
-                case 2: // Middle mouse button pressed
-                case "ctrlKey1": // ctrlKey and left mouse button
-                    $(selBox).css({
-                        "visibility": "hidden"
-                    });
-                    $(this).off("mousemove");
-                    if (downX != null && moveX != null) {
-                        let ss = downX / _this.pixelBase;
-                        let ee = moveX / _this.pixelBase;
-                        ss += _this.visualRegion.start;
-                        ee += _this.visualRegion.start;
-                        _this.region.start = parseInt(Math.min(ss, ee));
-                        _this.region.end = parseInt(Math.max(ss, ee));
-                        _this.trigger("region:change", {
-                            region: _this.region,
-                            sender: _this
-                        });
-                        moveX = null;
-                    } else if (downX != null && moveX == null) {
-                        let mouseRegion = new Region({
-                            chromosome: _this.region.chromosome,
-                            start: _this.mousePosition,
-                            end: _this.mousePosition
-                        });
-                        _this.trigger("region:change", {
-                            region: mouseRegion,
-                            sender: _this
-                        });
-                    }
-                    break;
-                case 3: // Right mouse button pressed
-                    break;
-                default: // other button?
-            }
-
-        });
-
-        $(this.tlTracksDiv).mouseleave(function (event) {
-            $(this).css({
-                "cursor": "default"
-            });
-            $(_this.mouseLine).css({
-                "visibility": "hidden"
-            });
-            $(this).off("mousemove");
-            $("body").off("keydown.genomeViewer");
-
-            $(selBox).css({
-                "visibility": "hidden"
-            });
-            downX = null;
-            moveX = null;
-        });
-
-        var enableKeys = function () {
-            // keys
-            $("body").bind("keydown.genomeViewer", function (e) {
-                let disp = 0;
-                switch (e.keyCode) {
-                    case 37: // left arrow
-                        if (e.ctrlKey) {
-                            disp = Math.round(100 / _this.pixelBase);
-                        } else {
-                            disp = Math.round(10 / _this.pixelBase);
-                        }
-                        break;
-                    case 39: // right arrow
-                        if (e.ctrlKey) {
-                            disp = Math.round(-100 / _this.pixelBase);
-                        } else {
-                            disp = Math.round(-10 / _this.pixelBase);
-                        }
-                        break;
-                }
-                if (disp != 0) {
-                    _this.region.start -= disp;
-                    _this.region.end -= disp;
-                    _this._setTextPosition();
-                    // _this.onMove.notify(disp);
-                    _this.trigger("region:move", {
-                        region: _this.region,
-                        disp: disp,
-                        sender: _this
-                    });
-                    _this.trigger("trackRegion:move", {
-                        region: _this.region,
-                        disp: disp,
-                        sender: _this
-                    });
-                }
-            });
-        };
-        $(this.tlTracksDiv).mouseenter(function (e) {
-            //            $('.qtip').qtip('enable'); // To enable them again ;)
-            $(_this.mouseLine).css({
-                "visibility": "visible"
-            });
-            $("body").off("keydown.genomeViewer");
-            enableKeys();
-        });
-        this.tlHeaderDiv = tlHeaderDiv;
-        this.panelDiv = panelDiv;
-        this.setVisible(!this.hidden);
-        this.rendered = true;
     }
 
-    setHeight(height) {
-        //        this.height=Math.max(height,60);
-        //        $(this.tlTracksDiv).css('height',height);
-        //        //this.grid.setAttribute("height",height);
-        //        //this.grid2.setAttribute("height",height);
-        //        $(this.centerLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
-        //        $(this.mouseLine).css("height",parseInt(height));//25 es el margen donde esta el texto de la posicion
+    setHeight() {
     }
 
     setWidth(width) {
-        console.log(`trackListPanel setWidth ------> ${width}`);
+        // console.log(`trackListPanel setWidth ------> ${width}`);
         this.width = width - 18;
     }
 
@@ -560,131 +458,112 @@ export default class TrackListPanel { // parent is a DOM div element
         this.trigger("trackFeature:highlight", event);
     }
 
-
     moveRegion(event) {
         this.region.load(event.region);
         this.visualRegion.load(event.region);
-        this._setTextPosition();
+        this.#setTextPosition();
         this.trigger("trackRegion:move", event);
     }
 
     setSpecies(species) {
         this.species = species;
-        //        this.trigger('trackSpecies:change', {species: species, sender: this});
-
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            track.setSpecies(this.species);
-
-        }
+        this.tracks.forEach(track => track.setSpecies(this.species));
     }
 
-    setRegion(region) { // item.chromosome, item.position, item.species
+    setRegion(region) {
         console.log(`trackListPanel setRegion region ------> ${region}`);
         console.log(`trackListPanel setRegion width ------> ${this.width}`);
 
-        let mid = this.width / 2;
+        const center = this.width / 2;
         this.region.load(region);
         this.visualRegion.load(region);
-        this._setPixelBase();
-        // get pixelbase by Region
+        this.#setPixelBase();
 
+        this.centerLine.style.left = center - 1;
+        this.centerLine.style.width = this.pixelBase;
+        this.mouseLine.style.width = this.pixelBase;
 
-        $(this.centerLine).css({
-            "left": mid - 1,
-            "width": this.pixelBase
-        });
-        $(this.mouseLine).css({
-            "width": this.pixelBase
-        });
+        this.#setTextPosition();
 
-        this._setTextPosition();
+        if (this.config.showRegionOverviewBox) {
+            const regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            const regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
 
-        if (this.showRegionOverviewBox) {
-            let regionOverviewBoxWidth = this.region.length() * this.pixelBase;
-            let regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
-            $(this.regionOverviewBoxLeft).css({
-                "width": regionOverviewDarkBoxWidth
-            });
-            $(this.regionOverviewBoxRight).css({
-                "left": (regionOverviewDarkBoxWidth + regionOverviewBoxWidth),
-                "width": regionOverviewDarkBoxWidth
-            });
+            this.regionOverviewBoxLeft.style.width = regionOverviewDarkBoxWidth;
+            this.regionOverviewBoxRight.style.left = regionOverviewDarkBoxWidth + regionOverviewBoxWidth;
+            this.regionOverviewBoxRight.style.width = regionOverviewDarkBoxWidth;
         }
 
-
+        // Trigger events
         this.trigger("window:size", {
-            windowSize: this.windowSize
+            windowSize: this.windowSize,
         });
-
 
         this.trigger("trackRegion:change", {
             region: this.visualRegion,
-            sender: this
+            sender: this,
         });
 
         this.positionNucleotidDiv.textContent = ""; // remove base char, will be drawn later if needed
 
         this.status = "rendering";
-
     }
 
     draw() {
-        this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector(`#${this.target}`);
-        if (!this.targetDiv) {
-            console.log("target not found");
-            return;
-        }
-        this.targetDiv.appendChild(this.div);
+        // this.targetDiv.appendChild(this.div);
 
         this.trigger("track:draw", {
-            sender: this
+            sender: this,
         });
     }
-    _checkAllTrackStatus(status) {
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            if (track.status != status) return false;
-        }
-        return true;
+
+    #checkAllTrackStatus(status) {
+        return this.tracks.every(track => track.status === status);
     }
+
     checkTracksReady() {
-        return this._checkAllTrackStatus("ready");
+        return this.#checkAllTrackStatus("ready");
     }
+
     addTrack(track) {
-        if (_.isArray(track)) {
-            for (let i in track) {
-                this._addTrack(track[i]);
-            }
-        } else {
-            this._addTrack(track);
-        }
+        // TODO: this should be removed, this method only accepts one track
+        (Array.isArray(track) ? track : [track]).forEach(t => this.#registerTrack(t));
+        // this.#registerTrack(track);
     }
-    _addTrack(track) {
+
+    addTracks(tracks) {
+        tracks.forEach(track => this.#registerTrack(track));
+    }
+
+    #registerTrack(track) {
         if (!this.rendered) {
-            console.log(`${this.id} is not rendered yet`);
+            console.log(`${this.prefix} is not rendered yet`);
             return;
         }
-        let _this = this;
 
-        if (track == null) {
+        if (!track) {
             return false;
         }
+
         // Check if already exists
         if (this.containsTrack(track)) {
             return false;
         }
 
-        let length = this.tracks.push(track);
-        let insertPosition = length - 1;
+        const length = this.tracks.push(track);
+        const insertPosition = length - 1;
         this.tracksIndex[track.id] = insertPosition;
 
-        if (typeof track.dataAdapter.host === "undefined") {
-            track.dataAdapter.host = this.cellBaseHost;
+        if (!track.dataAdapter.host) {
+            // eslint-disable-next-line no-param-reassign
+            track.dataAdapter.host = this.config.cellBaseHost;
         }
-        if (typeof track.dataAdapter.version === "undefined") {
-            track.dataAdapter.version = this.cellBaseVersion;
+
+        if (!track.dataAdapter.version) {
+            // eslint-disable-next-line no-param-reassign
+            track.dataAdapter.version = this.config.cellBaseVersion;
         }
+
         track.set("pixelBase", this.pixelBase);
         track.set("region", this.visualRegion);
         track.set("width", this.width);
@@ -698,137 +577,124 @@ export default class TrackListPanel { // parent is a DOM div element
             track.render(this.tlTracksDiv);
         }
 
-        // Once tack has been initialize we can call draw() function
-        track.draw();
-
-
-        // trackEvents
-        track.set("track:draw", function (event) {
-            track.draw();
-        });
-
-
-        track.set("trackRegion:change", function (event) {
-            console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
-            console.log(`trackListPanel trackRegion:change width ------> ${_this.width}`);
-            track.setWidth(_this.width);
-            track.set("pixelBase", _this.pixelBase);
+        // Track region change listener
+        this.on("trackRegion:change", event => {
+            // console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
+            // console.log(`trackListPanel trackRegion:change width ------> ${this.width}`);
+            track.setWidth(this.width);
+            track.set("pixelBase", this.pixelBase);
             track.set("region", event.region);
             track.draw();
         });
 
-
-        track.set("trackRegion:move", function (event) {
+        // Track region move
+        this.on("trackRegion:move", event => {
             track.set("region", event.region);
-            track.set("pixelBase", _this.pixelBase);
+            track.set("pixelBase", this.pixelBase);
             track.move(event.disp);
         });
 
+        // TODO: review this event
+        //
+        // track.set("trackFeature:highlight", event => {
+        //     const attrName = event.attrName || "feature_id";
+        //     if (event.attrValue) {
+        //         const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
 
-        track.set("trackFeature:highlight", function (event) {
+        //         attrItems.forEach(key => {
+        //             const queryStr = `${attrName}~=${event.attrValue[key]}`;
+        //             const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
 
+        //             Array.from(groups).forEach(item => {
+        //                 let animation = $(this).find("animate");
+        //                 if (animation.length == 0) {
+        //                     animation = SVG.addChild(this, "animate", {
+        //                         "attributeName": "opacity",
+        //                         "attributeType": "XML",
+        //                         // "begin": "indefinite",
+        //                         "from": "0.0",
+        //                         "to": "1",
+        //                         "begin": "0s",
+        //                         "dur": "0.5s",
+        //                         "repeatCount": "5"
+        //                     });
+        //                 } else {
+        //                     animation = animation[0];
+        //                 }
+        //                 let y = $(group).find("rect").attr("y");
+        //                 $(track.svgdiv).scrollTop(y);
+        //                 animation.beginElement();
+        //             });
+        //         });
+        //     }
+        // });
 
-            let attrName = event.attrName || "feature_id";
-            if ("attrValue" in event) {
-                event.attrValue = ($.isArray(event.attrValue)) ? event.attrValue : [event.attrValue];
-                for (let key in event.attrValue) {
-                    let queryStr = `${attrName}~=${event.attrValue[key]}`;
-                    let group = $(track.svgdiv).find(`g[${queryStr}]`);
-                    $(group).each(function() {
-                        let animation = $(this).find("animate");
-                        if (animation.length == 0) {
-                            animation = SVG.addChild(this, "animate", {
-                                "attributeName": "opacity",
-                                "attributeType": "XML",
-                                "begin": "indefinite",
-                                "from": "0.0",
-                                "to": "1",
-                                "begin": "0s",
-                                "dur": "0.5s",
-                                "repeatCount": "5"
-                            });
-                        } else {
-                            animation = animation[0];
-                        }
-                        let y = $(group).find("rect").attr("y");
-                        $(track.svgdiv).scrollTop(y);
-                        animation.beginElement();
-                    });
-                }
-            }
-        });
+        track.on("track:close", event => this.removeTrack(event.sender));
+        track.on("track:up", event => this.#reallocateAbove(event.sender));
+        track.on("track:down", event => this.#reallocateUnder(event.sender));
 
-        track.on("track:close", function (event) {
-            _this.removeTrack(event.sender);
-        });
-        track.on("track:up", function (event) {
-            _this._reallocateAbove(event.sender);
-        });
-        track.on("track:down", function (event) {
-            _this._reallocateUnder(event.sender);
-        });
+        // Draw track
+        this.on("track:draw", () => track.draw());
 
-        this.on("track:draw", track.get("track:draw"));
-        //        this.on('trackSpecies:change', track.get('trackSpecies:change'));
-        this.on("trackRegion:change", track.get("trackRegion:change"));
-        this.on("trackRegion:move", track.get("trackRegion:move"));
-        this.on("trackFeature:highlight", track.get("trackFeature:highlight"));
+        // this.on('trackSpecies:change', track.get('trackSpecies:change'));
+        // this.on("trackRegion:change", track.get("trackRegion:change"));
+        // this.on("trackRegion:move", track.get("trackRegion:move"));
+        // this.on("trackFeature:highlight", track.get("trackFeature:highlight"));
 
     }
+
     toggleAutoHeight(bool) {
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            track.toggleAutoHeight(bool);
-        }
+        this.tracks.forEach(track => track.toggleAutoHeight(bool));
     }
+
     updateHeight() {
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            track.updateHeight(true);
-        }
+        this.tracks.forEach(track => track.updateHeight(true));
     }
 
     containsTrack(track) {
-        if (typeof this.tracksIndex[track.id] !== "undefined") {
-            return true;
-        } else {
-            return false;
-        }
+        return typeof this.tracksIndex[track.id] !== "undefined";
     }
+
     getTrackIndex(track) {
         return this.tracksIndex[track.id];
     }
-    _updateTracksIndex() {
-        // update index with correct index after splice
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            this.tracksIndex[track.id] = i;
-        }
-    }
-    refreshTracksDom() {
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            $(track.div).detach();
-            $(this.tlTracksDiv).append(track.div);
-        }
-        this.trigger("tracks:refresh", {
-            sender: this
+
+    // update index with correct index after splice
+    #updateTracksIndex() {
+        this.tracks.forEach((track, index) => {
+            this.tracksIndex[track.id] = index;
         });
     }
+
+    refreshTracksDom() {
+        this.tracks.forEach(track => {
+            // TODO: do not use jquery
+            $(track.div).detach();
+            $(this.tlTracksDiv).append(track.div);
+        });
+
+        // Trigger tracks refresh event
+        this.trigger("tracks:refresh", {
+            sender: this,
+        });
+    }
+
     removeTrack(track) {
         if (!this.containsTrack(track)) {
             return false;
         }
+
         // first hide the track
         this.hideTrack(track);
         track.remove();
 
-        let index = this.getTrackIndex(track);
+        const index = this.getTrackIndex(track);
         // remove track from list and hash data
         this.tracks.splice(index, 1)[0];
         delete this.tracksIndex[track.id];
-        this._updateTracksIndex();
+        this.#updateTracksIndex();
 
+        // eslint-disable-next-line no-param-reassign
         track.rendered = false;
 
         // delete listeners
@@ -839,7 +705,7 @@ export default class TrackListPanel { // parent is a DOM div element
 
 
         this.off("track:draw", track.get("track:draw"));
-        //        this.off('trackSpecies:change', track.get('trackSpecies:change'));
+        // this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off("trackRegion:change", track.get("trackRegion:change"));
         this.off("trackRegion:move", track.get("trackRegion:move"));
         // this.off('trackWidth:change', track.set('trackWidth:change'));
@@ -864,46 +730,46 @@ export default class TrackListPanel { // parent is a DOM div element
 
 
     // This routine is called when track order is modified
-    _reallocateAbove(track) {
+    #reallocateAbove(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
 
-        let i = this.getTrackIndex(track);
-        console.log(`${i} wants to move up`);
-        if (i > 0) {
-            let aboveTrack = this.tracks[i - 1];
-            let underTrack = this.tracks[i];
+        const index = this.getTrackIndex(track);
+        // console.log(`${index} wants to move up`);
+        if (index > 0) {
+            const aboveTrack = this.tracks[index - 1];
+            const underTrack = this.tracks[index];
 
-            this.tracks[i] = aboveTrack;
-            this.tracks[i - 1] = underTrack;
-            this.tracksIndex[aboveTrack.id] = i;
-            this.tracksIndex[underTrack.id] = i - 1;
+            this.tracks[index] = aboveTrack;
+            this.tracks[index - 1] = underTrack;
+            this.tracksIndex[aboveTrack.id] = index;
+            this.tracksIndex[underTrack.id] = index - 1;
             this.refreshTracksDom();
-        } else {
-            console.log("is at top");
+            // } else {
+            //     console.log("is at top");
         }
     }
 
     // This routine is called when track order is modified
-    _reallocateUnder(track) {
+    #reallocateUnder(track) {
         if (!this.containsTrack((track))) {
             return false;
         }
 
-        let i = this.getTrackIndex(track);
-        console.log(`${i} wants to move down`);
-        if (i + 1 < this.tracks.length) {
-            let aboveTrack = this.tracks[i];
-            let underTrack = this.tracks[i + 1];
+        const index = this.getTrackIndex(track);
+        // console.log(`${i} wants to move down`);
+        if (index + 1 < this.tracks.length) {
+            const aboveTrack = this.tracks[index];
+            const underTrack = this.tracks[index + 1];
 
-            this.tracks[i] = underTrack;
-            this.tracks[i + 1] = aboveTrack;
-            this.tracksIndex[underTrack.id] = i;
-            this.tracksIndex[aboveTrack.id] = i + 1;
+            this.tracks[index] = underTrack;
+            this.tracks[index + 1] = aboveTrack;
+            this.tracksIndex[underTrack.id] = index;
+            this.tracksIndex[aboveTrack.id] = index + 1;
             this.refreshTracksDom();
-        } else {
-            console.log("is at bottom");
+            // } else {
+            // console.log("is at bottom");
         }
     }
 
@@ -912,7 +778,7 @@ export default class TrackListPanel { // parent is a DOM div element
             return false;
         }
 
-        let oldIndex = this.getTrackIndex(track);
+        const oldIndex = this.getTrackIndex(track);
 
         // remove track from old index
         this.tracks.splice(oldIndex, 1)[0];
@@ -925,15 +791,14 @@ export default class TrackListPanel { // parent is a DOM div element
         // update track div positions
         this.refreshTracksDom();
     }
+
     swapTracks(t1, t2) {
-        if (!this.containsTrack((t1))) {
+        if (!this.containsTrack(t1) || !this.containsTrack(t2)) {
             return false;
         }
-        if (!this.containsTrack((t2))) {
-            return false;
-        }
-        let oldIndex1 = this.getTrackIndex(t1);
-        let oldIndex2 = this.getTrackIndex(t2);
+
+        const oldIndex1 = this.getTrackIndex(t1);
+        const oldIndex2 = this.getTrackIndex(t2);
 
         this.tracks[oldIndex1] = t2;
         this.tracks[oldIndex2] = t1;
@@ -947,10 +812,9 @@ export default class TrackListPanel { // parent is a DOM div element
             return false;
         }
 
-        const y = $(track.div).position().top;
-        $(this.tlTracksDiv).scrollTop(y);
+        // const y = $(track.div).position().top;
+        // $(this.tlTracksDiv).scrollTop(y);
     }
-
 
     hideTrack(track) {
         if (!this.containsTrack((track))) {
@@ -967,86 +831,89 @@ export default class TrackListPanel { // parent is a DOM div element
         track.show();
         this.refreshTracksDom();
     }
-    _setPixelBase() {
+
+    #setPixelBase() {
         this.pixelBase = this.width / this.region.length();
-        this.pixelBase = this.pixelBase / this.zoomMultiplier;
+        this.pixelBase = this.pixelBase / this.config.zoomMultiplier;
         this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
     }
 
-    _setTextPosition() {
-        let centerPosition = this.region.center();
-        let baseLength = parseInt(this.width / this.pixelBase); // for zoom 100
-        let aux = Math.ceil((baseLength / 2) - 1);
+    #setTextPosition() {
+        const centerPosition = this.region.center();
+        const baseLength = parseInt(this.width / this.pixelBase); // for zoom 100
+        const aux = Math.ceil((baseLength / 2) - 1);
+
         this.visualRegion.start = Math.floor(centerPosition - aux);
         this.visualRegion.end = Math.floor(centerPosition + aux);
 
-        this.positionMidPosDiv.textContent = Utils.formatNumber(centerPosition);
-        this.positionLeftDiv.textContent = Utils.formatNumber(this.visualRegion.start);
-        this.positionRightDiv.textContent = Utils.formatNumber(this.visualRegion.end);
-
-
-        this.windowSize = `Window size: ${Utils.formatNumber(this.visualRegion.length())} nts`;
-        this.windowSizeDiv.innerHTML = this.windowSize;
+        this.positionMidPosDiv.textContent = centerPosition;
+        this.positionLeftDiv.textContent = this.visualRegion.start;
+        this.positionRightDiv.textContent = this.visualRegion.end;
+        this.windowSize = `Window size: ${this.visualRegion.length()} nts`;
+        this.windowSizeDiv.textContent = this.windowSize;
     }
 
     getTrackById(trackId) {
-        if (typeof this.tracksIndex[trackId] !== "undefined") {
-            let i = this.tracksIndex[trackId];
-            return this.tracks[i];
+        if (this.tracksIndex[trackId]) {
+            const index = this.tracksIndex[trackId];
+            return this.tracks[index];
         }
+
+        return null;
     }
+
     getSequenceTrack() {
-        // if multiple, returns the first found
-        for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            if (track.renderer instanceof SequenceRenderer) {
-                return track;
-            }
-        }
-        return;
+        return this.tracks.find(track => track?.renderer instanceof SequenceRenderer);
     }
 
     getMousePosition(position) {
-        let base = "";
-        if (position > 0) {
-            base = this.getSequenceNucleotid(position);
-        }
-        return base;
+        return position > 0 ? this.getSequenceNucleotid(position) : "";
     }
 
     getSequenceNucleotid(position) {
-        let seqTrack = this.getSequenceTrack();
+        const seqTrack = this.getSequenceTrack();
         if (seqTrack) {
-            let el = seqTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
-            if (el) {
-                return el.textContent;
-            }
+            const element = seqTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
+            return element?.textContent || "";
         }
         return "";
     }
 
     setNucleotidPosition(position) {
-        let base = this.getSequenceNucleotid(position);
+        const base = this.getSequenceNucleotid(position);
         this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
         this.positionNucleotidDiv.textContent = base;
     }
 
-    setCellBaseHost(host) {
-        this.cellBaseHost = host;
-        for (let i = 0; i < this.tracks.length; i++) {
-            const track = this.tracks[i];
-            if (track.dataAdapter instanceof CellBaseAdapter) {
-                track.dataAdapter.setHost(this.cellBaseHost);
-            }
-        }
-    }
+    // setCellBaseHost(host) {
+    //     this.cellBaseHost = host;
+    //     for (let i = 0; i < this.tracks.length; i++) {
+    //         const track = this.tracks[i];
+    //         if (track.dataAdapter instanceof CellBaseAdapter) {
+    //             track.dataAdapter.setHost(this.cellBaseHost);
+    //         }
+    //     }
+    // }
+
     deleteTracksCache() {
-        for (let i = 0; i < this.tracks.length; i++) {
-            const track = this.tracks[i];
-            if (track.dataAdapter.deleteCache != null) {
+        this.tracks.forEach(track => {
+            if (track.dataAdapter.deleteCache) {
                 track.dataAdapter.deleteCache();
             }
-        }
+        });
+    }
+
+    getDefaultConfig() {
+        return {
+            width: 0,
+            height: 0,
+            region: null,
+            collapsed: false,
+            collapsible: false,
+            hidden: false,
+            showRegionOverviewBox: false,
+            zoomMultiplier: 1,
+        };
     }
 
 }
