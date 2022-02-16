@@ -2,7 +2,7 @@ import Region from "../../core/bioinfo/region.js";
 import UtilsNew from "../../core/utilsNew.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
 
-export default class TrackListPanel { // parent is a DOM div element
+export default class TrackListPanel {
 
     constructor(target, config) {
         // eslint-disable-next-line no-undef
