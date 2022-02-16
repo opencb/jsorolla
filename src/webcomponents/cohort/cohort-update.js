@@ -50,17 +50,23 @@ export default class CohortUpdate extends LitElement {
     }
 
     _init() {
-        console.log("init variable");
         this.cohort = {};
+        this.updateParams = {};
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this.updateParams = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this.updateParams = {};
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     update(changedProperties) {
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+
         if (changedProperties.has("cohort")) {
             this.cohortObserver();
         }
@@ -212,25 +218,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Cohort Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
-                            display: {
-                                placeholder: "Select a cohort type..."
-                            }
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a cohort description...",
-                            }
-                        },
-                        {
-                            title: "Samples",
+                            title: "Sample IDs",
                             field: "samples",
                             type: "custom",
                             display: {
@@ -245,6 +233,24 @@ export default class CohortUpdate extends LitElement {
                                 }
                             }
                         },
+                        {
+                            title: "Cohort Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a cohort description...",
+                            }
+                        },
+                        // {
+                        //     title: "Cohort Type",
+                        //     field: "type",
+                        //     type: "select",
+                        //     allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
+                        //     display: {
+                        //         placeholder: "Select a cohort type..."
+                        //     }
+                        // },
                         // {
                         //     title: "Creation Date",
                         //     field: "creationDate",
@@ -267,6 +273,7 @@ export default class CohortUpdate extends LitElement {
                         //             )
                         //     }
                         // },
+                        // Add Validation for status name and description
                         {
                             title: "Status name",
                             field: "status.name",

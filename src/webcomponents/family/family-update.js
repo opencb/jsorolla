@@ -51,14 +51,15 @@ export default class FamilyUpdate extends LitElement {
         this.family = {};
         this.updateParams = {};
         this.phenotype = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
+
+    // connectedCallback() {
+    //     super.connectedCallback();
+
+    //     this.updateParams = {};
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("family")) {
@@ -67,6 +68,10 @@ export default class FamilyUpdate extends LitElement {
 
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
 
         super.update(changedProperties);
@@ -132,7 +137,6 @@ export default class FamilyUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             annotationSetsAction: "SET",
             updateRoles: false,
-            // incVersion: false
         };
 
         this.opencgaSession.opencgaClient.families().update(this.family.id, this.updateParams, params)
@@ -201,7 +205,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
+                            title: "Family Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -215,6 +219,7 @@ export default class FamilyUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
+                                helpMessage: "Individual Ids",
                                 render: members => {
                                     const individualIds = members.map(member => member.id).join(",");
                                     return html`

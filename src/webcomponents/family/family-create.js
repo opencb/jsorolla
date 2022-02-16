@@ -49,12 +49,13 @@ export default class FamilyCreate extends LitElement {
     _init() {
         this.family = {};
         this.members = "";
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     onFieldChange(e, field) {
         e.stopPropagation();
@@ -130,12 +131,8 @@ export default class FamilyCreate extends LitElement {
                 buttonOkText: "Save",
                 style: "margin: 10px",
                 titleWidth: 3,
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                // help: {
-                //     mode: "block",
-                // }
             },
             sections: [
                 {
@@ -160,7 +157,7 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
+                            title: "Family Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -169,11 +166,12 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Individual ID",
-                            field: "individualId",
+                            title: "Members",
+                            field: "members",
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
+                                helpMessage: "Individual Ids",
                                 render: () => html`
                                     <individual-id-autocomplete
                                         .value="${this.members}"
@@ -182,28 +180,28 @@ export default class FamilyCreate extends LitElement {
                                     </individual-id-autocomplete>`
                             }
                         },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
+                        // {
+                        //     title: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        // {
+                        //     title: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
                         {
                             title: "Expected Size",
                             field: "expectedSize",

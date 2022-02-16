@@ -53,7 +53,6 @@ export default class CohortCreate extends LitElement {
     _init() {
         this.cohort = {};
         this.sampleId = "";
-
         this._config = this.getDefaultConfig();
     }
 
