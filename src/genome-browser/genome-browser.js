@@ -2,12 +2,12 @@ import {CellBaseClient} from "../core/clients/cellbase/cellbase-client.js";
 import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 import UtilsNew from "../core/utilsNew.js";
-import TrackListPanel from "./tracks/tracklist-panel.js";
+import TrackListPanel from "./panels/tracklist-panel.js";
 import FeatureTrack from "./tracks/feature-track.js";
-import NavigationBar from "./navigation-bar.js";
-import KaryotypePanel from "./karyotype-panel.js";
-import ChromosomePanel from "./chromosome-panel.js";
-import StatusBar from "./status-bar.js";
+import NavigationBar from "./panels/navigation-bar.js";
+import KaryotypePanel from "./panels/karyotype-panel.js";
+import ChromosomePanel from "./panels/chromosome-panel.js";
+import StatusBar from "./panels/status-bar.js";
 import FeatureRenderer from "./renderers/feature-renderer.js";
 import GenomeBrowserConstants from "./genome-browser-constants.js";
 
