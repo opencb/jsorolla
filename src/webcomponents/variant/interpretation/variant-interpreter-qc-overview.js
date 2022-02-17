@@ -23,6 +23,7 @@ import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-signature.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
+import "../../sample/sample-variant-stats-view.js";
 import "../../file/qc/file-qc-ascat-metrics.js";
 import "../../alignment/qc/samtools-stats-view.js";
 import "../../alignment/qc/samtools-flagstats-view.js";
@@ -142,10 +143,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "Summary",
                                 title: "Summary"
                             },
-                            // {
-                            //     id: "VariantStats",
-                            //     title: "Variant Stats"
-                            // },
+                            {
+                                id: "VariantStats",
+                                title: "Variant Stats"
+                            },
                             {
                                 id: "InferredSex",
                                 title: "Sex Inference"
@@ -187,6 +188,10 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "Summary",
                                 title: "Summary"
+                            },
+                            {
+                                id: "VariantStats",
+                                title: "Variant Stats"
                             },
                             {
                                 id: "AscatMetrics",
@@ -266,6 +271,14 @@ class VariantInterpreterQcOverview extends LitElement {
                                 .opencgaSession=${this.opencgaSession}
                                 .clinicalAnalysis=${this.clinicalAnalysis}>
                             </variant-interpreter-qc-summary>
+                        </div>
+
+                        <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Sample Variant Stats</h3>
+                            <sample-variant-stats-view
+                                .sampleId="${this.clinicalAnalysis?.proband?.samples?.[0]?.id}"
+                                .opencgaSession="${this.opencgaSession}">
+                            </sample-variant-stats-view>
                         </div>
 
                         <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
