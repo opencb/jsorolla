@@ -18,10 +18,10 @@ import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
 
 
 export default class SampleCreate extends LitElement {
@@ -134,23 +134,15 @@ export default class SampleCreate extends LitElement {
             .samples()
             .create(this.sample, {study: this.opencgaSession.study.fqn})
             .then(res => {
-                // dispatchEvent(this.sample)
                 this.sample = {};
                 this.requestUpdate();
-                // this.dispatchSessionUpdateRequest();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Sample",
                     message: "Sample created correctly"
                 });
-                // FormUtils.showAlert(
-                //     "New Sample",
-                //     "Sample save correctly",
-                //     "success"
-                // );
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // console.error(err);
             });
     }
 
@@ -167,10 +159,10 @@ export default class SampleCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            type: "form",
             display: {
                 style: "margin: 10px",
                 titleWidth: 3,
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
             },
@@ -186,14 +178,6 @@ export default class SampleCreate extends LitElement {
                             placeholder: "Add a short ID...",
                             helpMessage: "short sample id...",
                         },
-                    },
-                    {
-                        title: "Name",
-                        field: "name",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add a sample name..."
-                        }
                     },
                     {
                         title: "Description",
@@ -242,6 +226,10 @@ export default class SampleCreate extends LitElement {
                         title: "Status Description",
                         field: "status.description",
                         type: "input-text",
+                        validation: {
+                            validate: () => this.sample?.status?.description ? !!this.sample?.status?.name : true,
+                            message: "The status name must be filled",
+                        },
                         display: {
                             rows: 3,
                             placeholder: "Add a status description..."
@@ -252,12 +240,41 @@ export default class SampleCreate extends LitElement {
             {
                 title: "Processing Info",
                 elements: [
+                    // {
+                    //     title: "Product",
+                    //     field: "processing.product",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add a product..."
+                    //     }
+                    // },
+                    // {
+                    //     title: "",
+                    //     type: "notification",
+                    //     text: "Empty, create a new product",
+                    //     display: {
+                    //         visible: sample => !(sample?.products && sample?.products.length > 0),
+                    //         notificationType: "info",
+                    //     }
+                    // },
                     {
                         title: "Product",
                         field: "processing.product",
-                        type: "input-text",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a product..."
+                            // layout: "vertical",
+                            // defaultLayout: "vertical",
+                            // style: "padding-left: 0px",
+                            render: product => html`
+                                <ontology-term-annotation-create
+                                    .ontology=${product}
+                                    .displayConfig="${{
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c",
+                                        }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}
+                                ></ontology-term-annotation-create>`
                         }
                     },
                     {
@@ -293,7 +310,6 @@ export default class SampleCreate extends LitElement {
                         }
                     },
                     {
-                        // id: "processing_date",
                         title: "Date",
                         field: "processing.date",
                         type: "input-date",
@@ -309,17 +325,36 @@ export default class SampleCreate extends LitElement {
             {
                 title: "Collection Info",
                 elements: [
+                    // {
+                    //     title: "Tissue",
+                    //     field: "collection.tissue",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add a tissue..."
+                    //     }
+                    // },
                     {
-                        title: "Tissue",
-                        field: "collection.tissue",
-                        type: "input-text",
+                        title: "From",
+                        field: "collection.from",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a tissue..."
+                            // layout: "vertical",
+                            // defaultLayout: "vertical",
+                            // width: 12,
+                            // style: "padding-left: 0px",
+                            render: from => html`
+                                <ontology-term-annotation-create
+                                    .ontology=${from}
+                                    .displayConfig="${{
+                                        style: "border-left: 2px solid #0c2f4c",
+                                        }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "collection.from")}
+                                ></ontology-term-annotation-create>`
                         }
                     },
                     {
-                        title: "Organ",
-                        field: "collection.organ",
+                        title: "Type",
+                        field: "collection.type",
                         type: "input-text",
                         display: {
                             placeholder: "Add an organ..."

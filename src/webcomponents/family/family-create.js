@@ -63,6 +63,13 @@ export default class FamilyCreate extends LitElement {
         switch (param) {
             case "members":
                 this.members = e.detail.value;
+                // let members = [];
+                // if (e.detail.value) {
+                //     members = e.detail.value.split(",").map(member => {
+                //         return {id: member};
+                //     });
+                // }
+                // this.family = {...this.family, members: e.detail.value};
                 break;
             case "annotationSets":
                 this.family = {...this.family, annotationSets: e.detail.value};
@@ -82,31 +89,27 @@ export default class FamilyCreate extends LitElement {
 
     onClear(e) {
         this.family = {};
+        this.members = "";
+        this._config = {...this.getDefaultConfig()};
         this.requestUpdate();
     }
 
     // https://ws.opencb.org/opencga-prod/webservices/#!/Families/createFamilyPOST
     onSubmit(e) {
+        console.log("Family Saved", this.family);
         this.opencgaSession.opencgaClient
             .families()
             .create(this.family, {study: this.opencgaSession.study.fqn, members: this.members})
             .then(res => {
                 // TODO: Add a condition to confirm if the information has been saved to the server.
-                this.family = {};
-                this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Family",
                     message: "family created correctly"
                 });
-                // FormUtils.showAlert(
-                //     "New Family",
-                //     "Family save correctly",
-                //     "success"
-                // );
+                this.onClear();
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // console.error(err);
             });
     }
 
@@ -123,7 +126,7 @@ export default class FamilyCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             type: "form",
             display: {
                 buttonsVisible: true,
@@ -172,12 +175,16 @@ export default class FamilyCreate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
-                                render: () => html`
+                                render: () => {
+                                    const members = this.members + "";
+                                    return html`
                                     <individual-id-autocomplete
-                                        .value="${this.members}"
+                                        .value="${members}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .config=${{multiple: true}}
                                         @filterChange="${e => this.onFieldChange(e, "members")}">
-                                    </individual-id-autocomplete>`
+                                    </individual-id-autocomplete>`;
+                                }
                             }
                         },
                         // {
@@ -222,6 +229,10 @@ export default class FamilyCreate extends LitElement {
                             title: "Status Description",
                             field: "status.description",
                             type: "input-text",
+                            validation: {
+                                validate: () => this.family?.status?.description ? !!this.family?.status?.name : true,
+                                message: "The status name must be filled",
+                            },
                             display: {
                                 rows: 3,
                                 placeholder: "Add a status description..."
@@ -252,7 +263,7 @@ export default class FamilyCreate extends LitElement {
                 //     ]
                 // }
             ]
-        });
+        };
     }
 
 }

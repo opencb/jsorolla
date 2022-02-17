@@ -51,6 +51,13 @@ export default class IndividualIdAutocomplete extends LitElement {
         this.dispatchEvent(event);
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("value")) {
+            console.log(this.value);
+        }
+        super.update(changedProperties);
+    }
+
     getDefaultConfig() {
         return {
             multiple: false,

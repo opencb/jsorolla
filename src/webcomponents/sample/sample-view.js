@@ -86,7 +86,7 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    console.log("Loaded Data");
+                    console.log("sample:", this.sample);
                     this.isLoading = false;
                 })
                 .catch(reason => {

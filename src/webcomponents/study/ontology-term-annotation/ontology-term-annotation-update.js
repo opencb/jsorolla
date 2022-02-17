@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 
-export default class PhenotypeCreate extends LitElement {
+export default class OntologyTermAnnotationUpdate extends LitElement {
 
     constructor() {
         super();
@@ -30,14 +31,17 @@ export default class PhenotypeCreate extends LitElement {
 
     static get properties() {
         return {
-            phenotype: {
+            ontology: {
                 type: Object
+            },
+            ontologyId: {
+                type: String
             }
         };
     }
 
     _init() {
-        this.phenotype = {};
+        this.ontology = {};
     }
 
     connectedCallback() {
@@ -46,42 +50,57 @@ export default class PhenotypeCreate extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    onFieldChange(e) {
-        e.stopPropagation();
-        const field = e.detail.param;
-        if (e.detail.value) {
-            // No need to switch(field) since all of them are processed in the same way
-            this.phenotype = {
-                ...this.phenotype,
-                [field]: e.detail.value
-            };
-        } else {
-            delete this.phenotype[field];
+    update(changedProperties) {
+        if (changedProperties.has("ontology")) {
+            this.ontologyObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    ontologyObserver() {
+        if (this.phenotype) {
+            this._phenotype = JSON.parse(JSON.stringify(this.phenotype));
         }
     }
 
-    // Submit to upper component.
-    onSendPhenotype(e) {
-        // Send the phenotype to the upper component
+    onFieldChange(e) {
         e.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "addItem", this.phenotype);
-        this.phenotype = {};
+        // No need to switch(field) since all of them are processed in the same way
+        this.updateParams = FormUtils.updateScalar(
+            this._ontology,
+            this.ontology,
+            this.updateParams,
+            e.detail.param,
+            e.detail.value);
+
+        this.ontology = {...this.ontology, ...this.updateParams};
+
+        this.requestUpdate();
     }
 
-    onClearForm(e) {
+    onSendOntology(e) {
+        // Send the phenotype to the upper component
         e.stopPropagation();
-        this.phenotype = {};
+        this.updateParams = {};
+        LitUtils.dispatchCustomEvent(this, "addItem", this.ontology);
+    }
+
+    onClear(e) {
+        e.stopPropagation();
+        this.ontology = JSON.parse(JSON.stringify(this._ontology));
+        this.updateParams = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {
         return html`
             <data-form
-                .data=${this.phenotype}
+                .data=${this.ontology}
                 .config="${this._config}"
+                .updateParams=${this.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClearForm}"
-                @submit="${e => this.onSendPhenotype(e)}">
+                @clear="${this.onClear}"
+                @submit="${e => this.onSendOntology(e)}">
             </data-form>
     `;
     }
@@ -91,7 +110,7 @@ export default class PhenotypeCreate extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                // classes: "pull-right"
+                classes: "pull-right"
             },
             display: {
                 labelWidth: 3,
@@ -107,7 +126,8 @@ export default class PhenotypeCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add short id...",
+                                placeholder: "add short id",
+                                disabled: true,
                             }
                         },
                         {
@@ -115,7 +135,16 @@ export default class PhenotypeCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a name..."
+                                placeholder: "add a name"
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a description..."
                             }
                         },
                         {
@@ -123,26 +152,9 @@ export default class PhenotypeCreate extends LitElement {
                             field: "source",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a source..."
+                                placeholder: "add a source"
                             }
                         },
-                        {
-                            name: "Age of on set",
-                            field: "ageOfOnset",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add an age of on set..."
-                            }
-                        },
-                        {
-                            name: "Status",
-                            field: "status",
-                            type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
-                            display: {
-                                placeholder: "Select a status..."
-                            }
-                        }
                     ]
                 }
             ]
@@ -151,4 +163,4 @@ export default class PhenotypeCreate extends LitElement {
 
 }
 
-customElements.define("phenotype-create", PhenotypeCreate);
+customElements.define("ontology-term-annotation-update", OntologyTermAnnotationUpdate);

@@ -22,6 +22,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
 
 
 export default class IndividualCreate extends LitElement {
@@ -48,35 +49,38 @@ export default class IndividualCreate extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "phenotypes":
-                this.individual = {...this.individual, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.individual = {...this.individual, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.individual = {...this.individual, annotationSets: e.detail.value};
-                break;
-            default:
-                this.individual = {
-                    ...FormUtils.createObject(
-                        this.individual,
-                        param,
-                        e.detail.value,
-                    )};
-                break;
+        if (param) {
+            switch (param) {
+                case "phenotypes":
+                    this.individual = {...this.individual, phenotypes: e.detail.value};
+                    break;
+                case "disorders":
+                    this.individual = {...this.individual, disorders: e.detail.value};
+                    break;
+                case "annotationsets":
+                    this.individual = {...this.individual, annotationSets: e.detail.value};
+                    break;
+                default:
+                    this.individual = {
+                        ...FormUtils.createObject(
+                            this.individual,
+                            param,
+                            e.detail.value,
+                        )};
+                    break;
+            }
         }
-        this._config = {...this.getDefaultConfig(), ...this.config};
+
         this.requestUpdate();
     }
 
@@ -89,20 +93,20 @@ export default class IndividualCreate extends LitElement {
 
     onSubmit(e) {
         e.stopPropagation();
-        this.opencgaSession.opencgaClient.individuals()
-            .create(this.individual, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this.individual = {};
-                this.requestUpdate();
-                // FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Individual",
-                    message: "New Individual created correctly"
-                });
-            })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-            });
+        console.log("saved", this.individual);
+        // this.opencgaSession.opencgaClient.individuals()
+        //     .create(this.individual, {study: this.opencgaSession.study.fqn})
+        //     .then(res => {
+        //         this.individual = {};
+        //         this.requestUpdate();
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //             title: "New Individual",
+        //             message: "New Individual created correctly"
+        //         });
+        //     })
+        //     .catch(err => {
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+        //     });
     }
 
     render() {
@@ -226,12 +230,32 @@ export default class IndividualCreate extends LitElement {
                                     )
                             }
                         },
+                        // {
+                        //     title: "Ethnicity",
+                        //     field: "ethnicity",
+                        //     type: "input-text",
+                        //     display: {
+                        //         placeholder: "Add an Ethnicity..."
+                        //     }
+                        // },
                         {
                             title: "Ethnicity",
                             field: "ethnicity",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "Add an Ethnicity..."
+                                // layout: "vertical",
+                                // defaultLayout: "vertical",
+                                // style: "padding-left: 0px",
+                                render: ethnicity => html`
+                                    <ontology-term-annotation-create
+                                        .ontology=${ethnicity}
+                                        .displayConfig="${{
+                                                buttonsVisible: false,
+                                                width: 12,
+                                                style: "border-left: 2px solid #0c2f4c",
+                                            }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "ethnicity")}
+                                    ></ontology-term-annotation-create>`
                             }
                         },
                         {
@@ -329,6 +353,10 @@ export default class IndividualCreate extends LitElement {
                             title: "populaton description",
                             field: "population.description",
                             type: "input-text",
+                            validation: {
+                                validate: () => this.individual?.population?.description ? !!this.individual?.population?.name : true,
+                                message: "The population name must be filled",
+                            },
                             display: {
                                 rows: 3,
                                 placeholder: "Add a description about the population..."
@@ -368,6 +396,15 @@ export default class IndividualCreate extends LitElement {
                 {
                     title: "Disorder",
                     elements: [
+                        {
+                            title: "",
+                            type: "notification",
+                            text: "Empty, create a new disorder",
+                            display: {
+                                visible: individual => !(individual?.diosrders && individual?.disorders.length > 0),
+                                notificationType: "info",
+                            }
+                        },
                         {
                             field: "disorders",
                             type: "custom",

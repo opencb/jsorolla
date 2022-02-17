@@ -52,14 +52,8 @@ export default class CohortCreate extends LitElement {
 
     _init() {
         this.cohort = {};
-        this.sampleId = "";
         this._config = this.getDefaultConfig();
     }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
@@ -95,8 +89,8 @@ export default class CohortCreate extends LitElement {
                 };
                 break;
         }
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.requestUpdate();
+        // We need this for validation
+        this.requestUpdate();
     }
 
     onSubmit(e) {
@@ -142,12 +136,8 @@ export default class CohortCreate extends LitElement {
                 buttonOkText: "Save",
                 style: "margin: 10px",
                 titleWidth: 3,
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                // help: {
-                //     mode: "block" // icon
-                // }
             },
             sections: [
                 {
@@ -163,28 +153,28 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         // TODO we need first to support ID copy into the autocomplete elements.
-                        // {
-                        //     title: "Sample IDs",
-                        //     field: "samples",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: () => html `
-                        //         <sample-id-autocomplete
-                        //             .value=${this.sampleId}
-                        //             .opencgaSession=${this.opencgaSession}
-                        //             @filterChange="${e => this.onFieldChange(e, "samples")}">
-                        //         </sample-id-autocomplete>`
-                        //     }
-                        // },
                         {
                             title: "Sample IDs",
                             field: "samples",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                rows: 3,
-                                placeholder: "Add sample IDs...",
+                                render: samples => html `
+                                <sample-id-autocomplete
+                                    .value=${samples?.map(sample => sample.id).join(",")}
+                                    .opencgaSession=${this.opencgaSession}
+                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                </sample-id-autocomplete>`
                             }
                         },
+                        // {
+                        //     title: "Sample IDs",
+                        //     field: "samples",
+                        //     type: "input-text",
+                        //     display: {
+                        //         rows: 3,
+                        //         placeholder: "Add sample IDs...",
+                        //     }
+                        // },
                         {
                             title: "Cohort Description",
                             field: "description",
@@ -228,6 +218,10 @@ export default class CohortCreate extends LitElement {
                             title: "Status Description",
                             field: "status.description",
                             type: "input-text",
+                            validation: {
+                                validate: () => this.cohort?.status?.description ? !!this.cohort?.status?.name : true,
+                                message: "The status name must be filled",
+                            },
                             display: {
                                 rows: 3,
                                 placeholder: "Add a status description..."

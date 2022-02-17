@@ -16,8 +16,13 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import Types from "../../commons/types.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 
-export default class PhenotypeCreate extends LitElement {
+// the following attribute are OntologyTermAnnotation:
+// Sample -> SampleProcessing -> product
+// Individual -> Ethnicity
+export default class OntologyTermAnnotationCreate extends LitElement {
 
     constructor() {
         super();
@@ -30,75 +35,81 @@ export default class PhenotypeCreate extends LitElement {
 
     static get properties() {
         return {
-            phenotype: {
+            ontology: {
+                type: Object
+            },
+            displayConfig: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this.phenotype = {};
+        this.ontology = {};
+        this.displayConfigDefault = {
+            width: 10,
+            buttonsAlign: "right",
+            buttonClearText: "Clear",
+            buttonOkText: "Create Ontology Term",
+            titleVisible: false,
+            titleWidth: 4,
+            defaultLayout: "horizontal",
+            style: "border-left: 2px solid #0c2f4c",
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        // It must be in connectCallback for the display.disabled option in the input text to work.
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    onFieldChange(e) {
-        e.stopPropagation();
-        const field = e.detail.param;
-        if (e.detail.value) {
-            // No need to switch(field) since all of them are processed in the same way
-            this.phenotype = {
-                ...this.phenotype,
-                [field]: e.detail.value
-            };
-        } else {
-            delete this.phenotype[field];
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
+    }
+
+    onFieldChange(e, field) {
+        e.stopPropagation();
+        const param = field || e.detail.param;
+        if (e.detail.value) {
+            this.ontology = {
+                ...FormUtils.createObject(
+                    this.ontology,
+                    param,
+                    e.detail.value
+                )};
+        }
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
     }
 
     // Submit to upper component.
-    onSendPhenotype(e) {
-        // Send the phenotype to the upper component
+    onSendOntology(e) {
+        // Send the ontology to the upper component
         e.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "addItem", this.phenotype);
-        this.phenotype = {};
+        LitUtils.dispatchCustomEvent(this, "addItem", this.ontology);
+        this.ontology = {};
     }
 
     onClearForm(e) {
         e.stopPropagation();
-        this.phenotype = {};
+        this.ontology = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {
         return html`
             <data-form
-                .data=${this.phenotype}
+                .data=${this.ontology}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClearForm}"
-                @submit="${e => this.onSendPhenotype(e)}">
+                @submit="${e => this.onSendOntology(e)}">
             </data-form>
     `;
     }
 
     getDefaultConfig() {
-        return {
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                // classes: "pull-right"
-            },
-            display: {
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                defaultValue: ""
-            },
+        return Types.dataFormConfig({
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     elements: [
@@ -119,6 +130,15 @@ export default class PhenotypeCreate extends LitElement {
                             }
                         },
                         {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a description..."
+                            }
+                        },
+                        {
                             name: "Source",
                             field: "source",
                             type: "input-text",
@@ -126,29 +146,12 @@ export default class PhenotypeCreate extends LitElement {
                                 placeholder: "Add a source..."
                             }
                         },
-                        {
-                            name: "Age of on set",
-                            field: "ageOfOnset",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add an age of on set..."
-                            }
-                        },
-                        {
-                            name: "Status",
-                            field: "status",
-                            type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
-                            display: {
-                                placeholder: "Select a status..."
-                            }
-                        }
                     ]
                 }
             ]
-        };
+        });
     }
 
 }
 
-customElements.define("phenotype-create", PhenotypeCreate);
+customElements.define("ontology-term-annotation-create", OntologyTermAnnotationCreate);
