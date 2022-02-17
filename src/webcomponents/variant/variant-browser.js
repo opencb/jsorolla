@@ -366,7 +366,7 @@ export default class VariantBrowser extends LitElement {
                         "ct": "Consequence Types",
                         "biotype": "Biotype",
                         "alternate_frequency": "Population Frequency",
-                        "protein_substitution": "Protein Substitution"
+                        "proteinSubstitution": "Protein Substitution"
                     },
                     complexFields: [],
                     hiddenFields: []

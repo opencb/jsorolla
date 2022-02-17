@@ -28,6 +28,7 @@ import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
@@ -747,36 +748,72 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => `
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
-                                    </a>
-                                </li>
-                                <li role="separator" class="divider"></li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left reviewButton" data-variant-id="${row.id} data-action="edit">
-                                        <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="remove">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Remove
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>`,
+                    formatter: (value, row) => {
+                        let copiesHtml = "";
+                        if (this._config.copies) {
+                            for (const copy of this._config.copies) {
+                                copiesHtml = `
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
+                                            <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                                        </a>
+                                    </li>
+                                `;
+                            }
+                        }
+
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">Actions
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit"
+                                                ${!this.checkedVariants?.has(row.id) ? "disabled" : ""}>
+                                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Genome Browser</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Fetch Variant</li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
+                                            <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        </a>
+                                    </li>
+                                    ${copiesHtml ? `
+                                        <li role="separator" class="divider"></li>
+                                        <li class="dropdown-header">Custom Copy</li>
+                                        ${copiesHtml}
+                                    ` : ""}
+                                </ul>
+                            </div>`;
+                    },
                     align: "center",
                     events: {
-                        "click a": this.onActionClick.bind(this)
+                        "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
-                    visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
-                }
+                    // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
+                },
             ],
             [
                 ...vcfDataColumns,
@@ -855,7 +892,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
                             ` : ""
-                            }
+                        }
                         `;
                     },
                     align: "center",
@@ -1010,9 +1047,29 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onActionClick(e, value, row) {
-        const {action} = e.target.dataset;
-        if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "edit":
+                if (this.checkedVariants) {
+                    // Generate a clone of the variant review to prevent changing original values
+                    this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
+                    this.requestUpdate();
+
+                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                }
+                break;
+            case "copy-json":
+                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                break;
+            case "download":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            default:
+                const copy = this._config.copies.find(copy => copy.id === action);
+                if (copy) {
+                    navigator.clipboard.writeText(copy.execute(row));
+                }
+                break;
         }
     }
 
@@ -1257,7 +1314,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1280,7 +1337,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1304,7 +1361,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1339,7 +1396,8 @@ export default class VariantInterpreterGrid extends LitElement {
             detailView: true,
             showReview: true,
             showSelectCheckbox: false,
-            showActions: false,
+            showActions: true,
+            showType: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
