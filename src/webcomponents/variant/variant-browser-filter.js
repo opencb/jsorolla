@@ -453,8 +453,8 @@ export default class VariantBrowserFilter extends LitElement {
                 case "proteinSubstitutionScore":
                     content = html`
                         <protein-substitution-score-filter
-                            .protein_substitution="${this.preparedQuery.protein_substitution}"
-                            @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}">
+                            .proteinSubstitution="${this.preparedQuery.proteinSubstitution}"
+                            @filterChange="${e => this.onFilterChange("proteinSubstitution", e.detail.value)}">
                         </protein-substitution-score-filter>`;
                     break;
                 case "cadd":

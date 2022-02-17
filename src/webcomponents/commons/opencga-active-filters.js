@@ -602,7 +602,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 "annot-ct": "Consequence Type",
                 "alternate_frequency": "Population ALT Frequency",
                 "annot-functional-score": "CADD",
-                "protein_substitution": "Protein Substitution",
+                "proteinSubstitution": "Protein Substitution",
                 "annot-go": "GO",
                 "annot-hpo": "HPO"
             },
