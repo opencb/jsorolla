@@ -289,7 +289,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     ]
                 },
                 {
-                    title: "Variant highlight",
+                    title: "Variant Highlight",
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
