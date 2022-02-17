@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -329,7 +330,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     async onGridConfigSave(e) {
-        const newGridConfig = e.detail.value;
+        const newGridConfig = {...e.detail.value};
 
         // Remove highlights and copies configuration from new config
         delete newGridConfig.highlights;
@@ -337,18 +338,12 @@ export default class VariantBrowser extends LitElement {
 
         // Update user configuration
         try {
-            const response = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                variantBrowser: {
-                    ...this.opencgaSession.user.configs.IVA.variantBrowser,
-                    grid: newGridConfig,
-                },
-            });
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
+            this.settingsObserver();
+
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",
             });
-            this.opencgaSession.user.configs.IVA = response.responses[0].results[0];
-            this.settingsObserver();
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
@@ -371,7 +366,7 @@ export default class VariantBrowser extends LitElement {
                         "ct": "Consequence Types",
                         "biotype": "Biotype",
                         "alternate_frequency": "Population Frequency",
-                        "protein_substitution": "Protein Substitution"
+                        "proteinSubstitution": "Protein Substitution"
                     },
                     complexFields: [],
                     hiddenFields: []

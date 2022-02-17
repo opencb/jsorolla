@@ -20,6 +20,7 @@ import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../loading-spinner.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 export default class IndividualView extends LitElement {
 
@@ -224,13 +225,18 @@ export default class IndividualView extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
+                                contentLayout: "horizontal",
+                                separator: ", ",
                                 render: disorder => {
                                     let id = disorder.id;
                                     if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                        id = `<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                     }
-                                    return html`${disorder.name} (${id})`;
+                                    if (disorder.name) {
+                                        return `${disorder.name} (${id})`;
+                                    } else {
+                                        return `${id}`;
+                                    }
                                 },
                                 defaultValue: "N/A"
                             }

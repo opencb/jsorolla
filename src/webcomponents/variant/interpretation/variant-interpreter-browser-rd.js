@@ -231,9 +231,11 @@ class VariantInterpreterBrowserRd extends LitElement {
         return html`
             <variant-interpreter-browser-template
                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
+                .toolId="${"variantInterpreterRD"}"
                 .config="${this._config}">
             </variant-interpreter-browser-template>
         `;
@@ -621,8 +623,14 @@ class VariantInterpreterBrowserRd extends LitElement {
                                         .active="${active}">
                                     </variant-beacon-network>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            render: (variant, active) => html`
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                            `,
                         }
-
                     ]
                 }
             },

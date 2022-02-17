@@ -81,7 +81,7 @@ export default class VariantBrowserGrid extends LitElement {
         // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(changedProperties) {
+    firstUpdated() {
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
@@ -98,15 +98,9 @@ export default class VariantBrowserGrid extends LitElement {
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-            // Config for the grid toolbar
-            this.toolbarConfig = {
-                ...this._config.toolbar,
-                resource: "VARIANT",
-                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
-            };
+            this.configObserver();
+            this.requestUpdate();
+            this.renderVariants();
         }
     }
 
@@ -129,6 +123,19 @@ export default class VariantBrowserGrid extends LitElement {
         this.samples = _samples;
 
         this.requestUpdate();
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            ...this._config.toolbar,
+            resource: "VARIANT",
+            columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
+            // gridColumns: this._getDefaultColumns() // original column structure
+        };
     }
 
     onColumnChange(e) {
@@ -464,6 +471,7 @@ export default class VariantBrowserGrid extends LitElement {
             sampleColumns = [];
             for (let i = 0; i < this.samples.length; i++) {
                 sampleColumns.push({
+                    id: this.samples[i].id,
                     title: this.samples[i].id,
                     field: "samples",
                     rowspan: 1,
@@ -481,6 +489,7 @@ export default class VariantBrowserGrid extends LitElement {
             cohortColumns = [];
             for (const study of this.cohorts) {
                 cohortColumns.push({
+                    id: study.id,
                     title: study.id,
                     field: study.id,
                     meta: {
@@ -517,6 +526,7 @@ export default class VariantBrowserGrid extends LitElement {
                 }
 
                 populationFrequencyColumns.push({
+                    id: this.populationFrequencies.studies[j].id,
                     title: this.populationFrequencies.studies[j].title,
                     field: this.populationFrequencies.studies[j].id,
                     meta: {
@@ -674,6 +684,7 @@ export default class VariantBrowserGrid extends LitElement {
             ],
             [
                 {
+                    id: "SIFT",
                     title: "SIFT",
                     field: "sift",
                     colspan: 1,
@@ -682,6 +693,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "polyphen",
                     title: "Polyphen",
                     field: "polyphen",
                     colspan: 1,
@@ -690,6 +702,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "revel",
                     title: "Revel",
                     field: "revel",
                     colspan: 1,
@@ -698,6 +711,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "cadd",
                     title: "CADD",
                     field: "cadd",
                     colspan: 1,
@@ -707,6 +721,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "phylop",
                     title: "PhyloP",
                     field: "phylop",
                     colspan: 1,
@@ -716,6 +731,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "phastCons",
                     title: "PhastCons",
                     field: "phastCons",
                     colspan: 1,
@@ -725,6 +741,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "gerp",
                     title: "GERP",
                     field: "gerp",
                     colspan: 1,
@@ -738,6 +755,7 @@ export default class VariantBrowserGrid extends LitElement {
                 ...cohortColumns,
                 ...populationFrequencyColumns,
                 {
+                    id: "clinvar",
                     title: "ClinVar",
                     field: "clinvar",
                     colspan: 1,
@@ -746,6 +764,7 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "cosmic",
                     title: "Cosmic",
                     field: "cosmic",
                     colspan: 1,
@@ -791,6 +810,10 @@ export default class VariantBrowserGrid extends LitElement {
             });
     }
 
+    onChangeExportField(e) {
+        this.exportFields = e.detail.value;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -833,12 +856,11 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onGridConfigChange(e) {
-        console.log(e.detail.value);
         this.__config = e.detail.value;
     }
 
     onGridConfigSave() {
-        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config);
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
     getRightToolbar() {
@@ -854,18 +876,18 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config?.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .rightToolbar="${this.getRightToolbar()}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : null
-            }
+            ${this._config?.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .rightToolbar="${this.getRightToolbar()}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}"
+                    @changeExportField="${this.onChangeExportField}">
+                </opencb-grid-toolbar>
+            ` : null}
 
             <div>
                 <table id="${this.gridId}"></table>
@@ -890,7 +912,7 @@ export default class VariantBrowserGrid extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
                         </div>
                     </div>
                 </div>

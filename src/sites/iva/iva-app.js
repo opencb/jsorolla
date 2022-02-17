@@ -133,7 +133,7 @@ class IvaApp extends LitElement {
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
-        _config.cellbase = cellbase;
+        _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
         _config.tools = tools;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
@@ -320,15 +320,6 @@ class IvaApp extends LitElement {
             // serverVersion: this.config.opencga.serverVersion
         });
 
-        // this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
-        this.cellbaseClient = new CellBaseClient({
-            host: this.config.cellbase.host,
-            version: this.config.cellbase.version,
-            species: "hsapiens"
-        });
-
-        console.log("cellbaseClient iva-app", this.cellbaseClient);
-
         this.reactomeClient = new ReactomeClient();
 
         if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
@@ -405,6 +396,7 @@ class IvaApp extends LitElement {
                 // this forces the observer to be executed.
                 this.opencgaSession = {..._response};
                 this.opencgaSession.mode = this.config.mode;
+                this.updateCellBaseClient();
                 // this.config.menu = [...application.menu];
                 this.config = {...this.config};
             })
@@ -438,6 +430,7 @@ class IvaApp extends LitElement {
 
                 // This triggers the event and call to opencgaSessionObserver
                 this.opencgaSession = opencgaSession;
+                this.updateCellBaseClient();
             } else {
                 // When no 'projects' is defined we fetch all public projects
                 if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous.user)) {
@@ -454,6 +447,7 @@ class IvaApp extends LitElement {
 
                             // This triggers the event and call to opencgaSessionObserver
                             this.opencgaSession = opencgaSession;
+                            this.updateCellBaseClient();
                         })
                         .catch(function (response) {
                             console.log("An error when getting projects");
@@ -780,11 +774,33 @@ class IvaApp extends LitElement {
             // Update the lastStudy in config iff has changed
             this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
 
-            // Refresh the session
+            // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
+            this.updateCellBaseClient();
         } else {
             // TODO Convert this into a user notification
             console.error("Study not found!");
+        }
+    }
+
+    updateCellBaseClient() {
+        this.cellbaseClient = null; // Reset cellbase client
+
+        if (this.opencgaSession?.project && this.opencgaSession?.project?.internal?.cellbase?.url) {
+            this.cellbaseClient = new CellBaseClient({
+                host: this.opencgaSession.project.internal.cellbase.url.replace(/\/$/, ""),
+                version: this.opencgaSession.project.internal.cellbase.version,
+                species: this.opencgaSession.project.organism.scientificName,
+            });
+            // console.log("cellbaseClient iva-app", this.cellbaseClient);
+        } else {
+            // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
+            // But this should be removed in future releases
+            this.cellbaseClient = new CellBaseClient({
+                host: this.config.cellbase.host,
+                version: this.config.cellbase.version,
+                species: "hsapiens",
+            });
         }
     }
 

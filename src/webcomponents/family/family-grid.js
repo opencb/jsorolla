@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
-import "./opencga-family-filter.js";
 import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-export default class OpencgaFamilyGrid extends LitElement {
+export default class FamilyGrid extends LitElement {
 
     constructor() {
         super();
@@ -57,7 +56,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarFamilyGrid" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "FamilyBrowserGrid";
         this.catalogUiUtils = new CatalogWebUtils();
         this.active = true;
@@ -253,10 +252,11 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     detailFormatter(value, row) {
-        let result = `<div class='row' style="padding: 5px 10px 20px 10px">
-                                <div class='col-md-12'>
-                                    <h5 style="font-weight: bold">Members</h5>
-                `;
+        let result = `
+            <div class='row' style="padding: 5px 10px 20px 10px">
+                <div class='col-md-12'>
+                    <h5 style="font-weight: bold">Members</h5>
+        `;
 
         if (UtilsNew.isNotEmptyArray(row.members)) {
             let tableCheckboxHeader = "";
@@ -265,23 +265,25 @@ export default class OpencgaFamilyGrid extends LitElement {
                 tableCheckboxHeader = "<th>Select</th>";
             }
 
-            result += `<div style="width: 90%;padding-left: 20px">
-                                <table class="table table-hover table-no-bordered">
-                                    <thead>
-                                        <tr class="table-header">
-                                            ${tableCheckboxHeader}
-                                            <th>ID</th>
-                                            <th>Sex</th>
-                                            <th>Father</th>
-                                            <th>Mother</th>
-                                            <th>Affectation Status</th>
-                                            <th>Life Status</th>
-                                            <th>Year of Birth</th>
-                                            <th>Creation Date</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
+            result += `
+                <div style="width: 90%;padding-left: 20px">
+                    <table class="table table-hover table-no-bordered">
+                        <thead>
+                            <tr class="table-header">
+                                ${tableCheckboxHeader}
+                                <th>ID</th>
+                                <th>Sex</th>
+                                <th>Father</th>
+                                <th>Mother</th>
+                                <th>Affectation Status</th>
+                                <th>Life Status</th>
+                                <th>Year of Birth</th>
+                                <th>Creation Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
 
             for (const member of row.members) {
                 let tableCheckboxRow = "";
@@ -296,7 +298,11 @@ export default class OpencgaFamilyGrid extends LitElement {
                         }
                     }
 
-                    tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
+                    tableCheckboxRow = `
+                        <td>
+                            <input id='${this.gridContext.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}>
+                        </td>
+                    `;
                 }
 
                 const father = (UtilsNew.isNotEmpty(member.father.id)) ? member.father.id : "-";
@@ -306,18 +312,20 @@ export default class OpencgaFamilyGrid extends LitElement {
                 const dateOfBirth = UtilsNew.isNotEmpty(member.dateOfBirth) ? moment(member.dateOfBirth, "YYYYMMDD").format("YYYY") : "-";
                 const creationDate = moment(member.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
 
-                result += `<tr class="detail-view-row">
-                                        ${tableCheckboxRow}
-                                        <td>${member.id}</td>
-                                        <td>${member.sex}</td>
-                                        <td>${father}</td>
-                                        <td>${mother}</td>
-                                        <td>${affectation}</td>
-                                        <td>${lifeStatus}</td>
-                                        <td>${dateOfBirth}</td>
-                                        <td>${creationDate}</td>
-                                        <td>${member?.status?.name || "-"}</td>
-                                   </tr>`;
+                result += `
+                    <tr class="detail-view-row">
+                        ${tableCheckboxRow}
+                        <td>${member.id}</td>
+                        <td>${member.sex?.id || member.sex || "Not specified"}</td>
+                        <td>${father}</td>
+                        <td>${mother}</td>
+                        <td>${affectation}</td>
+                        <td>${lifeStatus}</td>
+                        <td>${dateOfBirth}</td>
+                        <td>${creationDate}</td>
+                        <td>${member?.status?.name || "-"}</td>
+                    </tr>
+                `;
             }
             result += "</tbody></table></diV>";
         } else {
@@ -331,7 +339,11 @@ export default class OpencgaFamilyGrid extends LitElement {
     membersFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(value)) {
             const members = value.map(member => `<p>${member.id} (${member.sex})</p>`).join("");
-            return `<a tooltip-title="Members" tooltip-text="${members}"> ${value.length} members found </a>`;
+            return `
+                <a tooltip-title="Members" tooltip-text="${members}"> 
+                    ${value.length} members found
+                </a>
+            `;
         } else {
             return "No members found";
         }
@@ -453,6 +465,24 @@ export default class OpencgaFamilyGrid extends LitElement {
             });
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}FamilyBrowserGrid"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -477,25 +507,6 @@ export default class OpencgaFamilyGrid extends LitElement {
         };
     }
 
-    render() {
-        return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : nothing
-            }
-            <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}FamilyBrowserGrid"></table>
-            </div>
-        `;
-    }
-
 }
 
-customElements.define("opencga-family-grid", OpencgaFamilyGrid);
+customElements.define("family-grid", FamilyGrid);

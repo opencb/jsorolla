@@ -89,18 +89,35 @@ export default class VariantGridFormatter {
                 <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
                     UCSC Genome Browser
                 </a>
-            </div>`;
+            </div>
+        `;
 
         const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
+        // Add highlight icons
+        let iconHighlights = [];
+        if (config.highlights && config.activeHighlights) {
+            iconHighlights = config.activeHighlights.map(id => {
+                const highlight = config.highlights.find(item => item.id === id);
+                if (highlight.condition(row, index) && highlight.style?.icon) {
+                    const description = highlight.description || highlight.name || "";
+                    const icon = highlight.style.icon;
+                    const color = highlight.style.iconColor || "";
+
+                    return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
+                }
+            });
+        }
+
         return `
-            <div style="margin: 5px 0px">
+            <div style="margin:5px 0px;white-space:nowrap;">
                 <a tooltip-title='Links' tooltip-text='${tooltipText}'>
                     ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
                 </a>
+                ${iconHighlights.join("")}
             </div>
             ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
-            `;
+        `;
     }
 
     static snpFormatter(value, row, index, assembly) {

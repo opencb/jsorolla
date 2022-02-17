@@ -87,8 +87,34 @@ export default class OpencgaExport extends LitElement {
 
                 new ClipboardJS(".clipboard-button");
             }
+            if (this.config.gridColumns) {
+                this.buildExportFieldList();
+            }
             this.requestUpdate();
         }
+    }
+
+    /*
+     * Build this.exportFields, which is a 1 or 2 dimensional array to keep track of the fields to include/exclude in TSV files.
+     */
+    buildExportFieldList() {
+        let subIndx = 0; // offset in second row
+        const [firstRow, secondRow] = this.config.gridColumns;
+        this.exportFields = [];
+
+        firstRow.forEach((c, i) => {
+            if (c.rowspan !== 2 || !c.rowspan) {
+                // add sub Level
+                const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
+                subIndx += c.colspan ? c.colspan : 0;
+                this.exportFields.push({id: c.id, export: true, nested: subFields.map(s => ({id: s.id, export: true}))});
+            } else {
+                if (c.rowspan !== 2 || !c.rowspan) {
+                    subIndx += c.colspan ? c.colspan : 0;
+                }
+                this.exportFields.push({id: c.id, export: true});
+            }
+        });
     }
 
     getDefaultConfig() {
@@ -251,6 +277,36 @@ const client = new OpenCGAClient({
         this.requestUpdate();
     }
 
+    toggleExportField(e) {
+        this.exportFieldsVisible = !this.exportFieldsVisible;
+        this.requestUpdate();
+    }
+
+    /**
+     * Update exportFields array which keeps track of the fields to include/exclude in TSV files.
+     * @param {Object} e Event
+     * @param {Number} index Index of the field to update
+     * @param {Number} parentIndex Index of the parent of the field to update
+     * @returns {undefined}
+     */
+    changeExportField(e, index, parentIndex) {
+        const {checked} = e.currentTarget;
+        if (parentIndex) {
+            this.exportFields[parentIndex].nested[index].export = checked;
+        } else {
+            this.exportFields[index].export = checked;
+            // select all nested when you click on a parent, and the other way around
+            if (this.exportFields[index].nested) {
+                this.exportFields[index].nested = this.exportFields[index].nested.map(li => ({...li, export: checked}));
+            }
+        }
+        this.exportFields = [...this.exportFields];
+        this.dispatchEvent(new CustomEvent("changeExportField", {
+            detail: this.exportFields
+        }));
+        this.requestUpdate();
+    }
+
     onDownloadClick() {
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
@@ -298,6 +354,28 @@ const client = new OpenCGAClient({
                                     <span class="export-buttons-text">JSON</span>
                                 </button>
                             </div>
+                        </div>
+                        <div>
+                            ${this.format === "tab" && this.exportFields?.length ? html`
+                                <span data-toggle="collapse" data-target="#exportFields" @click="${this.toggleExportField}">
+                                    <i class="${this.exportFieldsVisible ? "fa fa-minus" : "fa fa-plus"}"></i>
+                                    Customise export fields
+                                </span>
+                                <div id="exportFields" class="collapse">
+                                    <ul>
+                                        ${this.exportFields.map((li, i) => html`
+                                        <li>
+                                            <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
+                                            ${li.nested ? html`
+                                                <ul>
+                                                    ${li.nested.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                </ul>
+                                            ` : ""}
+                                        </li>
+                                        `)}
+                                    </ul>
+                                </div>
+                            ` : ""}
                         </div>
                     </form>
 

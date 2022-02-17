@@ -12,6 +12,7 @@ export default class NotificationManager {
 
         // Initialize notifications parent
         this.parent = document.createElement("div");
+        this.parent.classList.add("notification-manager");
         Object.assign(this.parent.style, {
             "left": "50%",
             "maxWidth": this.config.display?.width || "600px",
@@ -52,7 +53,7 @@ export default class NotificationManager {
                     ${options.buttons && options.buttons?.length > 0 ? `
                         <div align="right" style="margin-top:12px;">
                             ${options.buttons.map((button, index) => `
-                                <button data-index="${index}" class="${buttonClass}">            
+                                <button data-index="${index}" class="${buttonClass}">
                                     ${button.text || ""}
                                 </button>
                             `).join("")}

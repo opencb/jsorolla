@@ -16,8 +16,10 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import "../gene/gene-grid.js";
 import "../commons/opencga-browser.js";
 import "./disease-panel-summary.js";
+import {construction} from "../commons/under-construction.js";
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -113,6 +115,8 @@ export default class DiseasePanelBrowser extends LitElement {
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
+                                field: "disorders.id",
+                                resource: "DISEASE_PANEL"
                             },
                             {
                                 id: "feature",
@@ -128,13 +132,21 @@ export default class DiseasePanelBrowser extends LitElement {
                                 id: "categories",
                                 name: "Categories",
                                 placeholder: "Cancer programme...",
-                                description: ""
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
+                                field: "categories",
+                                resource: "DISEASE_PANEL"
                             },
                             {
                                 id: "tags",
                                 name: "Tags",
                                 description: "",
                                 placeholder: "cancer...",
+                                multiple: true,
+                                freeTag: true,
+                                field: "tags",
+                                resource: "DISEASE_PANEL"
                             },
                             {
                                 id: "date",
@@ -168,6 +180,27 @@ export default class DiseasePanelBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}">
                                     </disease-panel-summary>`;
                             }
+                        },
+                        {
+                            id: "disease-panel-genes",
+                            name: "Genes",
+                            render: (diseasePanel, active, opencgaSession) => {
+                                return html`
+                                    <gene-grid
+                                        .genePanels="${diseasePanel.genes}"
+                                        .opencgaSession=${opencgaSession}>
+                                    </gene-grid>`;
+                            }
+                        },
+                        {
+                            id: "disease-panel-regions",
+                            name: "Regions",
+                            render: (diseasePanel, active, opencgaSession) => construction
+                        },
+                        {
+                            id: "disease-panel-variants",
+                            name: "Variants",
+                            render: (diseasePanel, active, opencgaSession) => construction
                         },
                         {
                             id: "json-view",
