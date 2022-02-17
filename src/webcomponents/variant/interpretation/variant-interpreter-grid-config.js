@@ -78,9 +78,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
                 break;
+            case "activeHighlights":
+                this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
+                break;
         }
 
-        LitUtils.dispatchCustomEvent(this, "configChange", this.config, null, null, {bubbles: true, composed: true});
+        LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
     render() {
@@ -98,6 +101,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
+            type: "pills",
             validation: {
                 validate: data => {
                     return data.geneSet?.ensembl || data.geneSet?.refseq;
@@ -267,7 +271,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     description: "Select how genotypes are displayed",
                     display: {
                         titleHeader: "h4",
-                        titleStyle: "margin: 25px 5px 5px 5px",
+                        titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.genotype?.type
@@ -283,7 +287,34 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         }
                     ]
-                }
+                },
+                {
+                    title: "Variant highlight",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                    },
+                    elements: [
+                        {
+                            title: "Configure the highlight to apply to displayed variant rows",
+                            field: "activeHighlights",
+                            type: "select",
+                            multiple: true,
+                            allowedValues: this.config?.highlights || [],
+                            display: {
+                                visible: () => (this.config?.highlights || []).length > 0,
+                            },
+                        },
+                        {
+                            type: "notification",
+                            text: "No highlight conditions defined.",
+                            display: {
+                                notificationType: "warning",
+                                visible: () => (this.config?.highlights || []).length === 0,
+                            },
+                        },
+                    ],
+                },
             ]
         };
     }

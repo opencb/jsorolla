@@ -19,40 +19,27 @@ import UtilsNew from "../../utilsNew.js";
 export default class OpencgaCatalogUtils {
 
     static getUsers(study) {
-        const _users = study?.groups
+        const users = study?.groups
             .find(group => group.id === "@members")
             .userIds.filter(user => user !== "*");
-        return UtilsNew.sort(_users);
+        return UtilsNew.sort(users);
     }
 
     static getUserIds(study, groups = ["@members"]) {
-        if (!Array.isArray(groups)) {
-            groups = [groups];
-        }
-
+        const groupsList = !Array.isArray(groups) ? [groups] : groups;
         return study?.groups
-            .filter(g => groups.includes(g))
+            .filter(g => groupsList.includes(g))
             .map(g => g.userIds)
             .filter(user => user !== "*");
     }
 
     static getProjectOwner(project) {
-        if (!project) {
-            return null;
-        }
-        return project.fqn.split('@')[0];
+        return project ? project.fqn.split("@")[0] : null;
     }
 
-    /**
-     * Return an unique list of owners
-     * @param projects
-     * @returns {string|any[]}
-     */
+    // Return an unique list of owners
     static getProjectOwners(projects) {
-        if (!projects) {
-            return null;
-        }
-        return [...new Set(projects?.map(project => project.fqn.split('@')[0]))];
+        return projects ? [...new Set(projects.map(project => project.fqn.split("@")[0]))] : null;
     }
 
     _checkParam(param, defaultValue) {
@@ -62,58 +49,37 @@ export default class OpencgaCatalogUtils {
     }
 
     static checkUserAccountView(user, loggedUser) {
-        if (loggedUser === "opencga") {
-            return true;
-        } else {
-            if (loggedUser === user) {
-                return true;
-            }
-        }
-        return false;
+        return loggedUser === "opencga" || loggedUser === user;
     }
 
     static checkProjectPermissions(project, user) {
-        if (user === "opencga") {
-            return true;
-        } else {
-            let owner = this.getProjectOwner(project);
-            if (owner === user) {
-                return true;
-            }
-        }
-        return false;
+        return user === "opencga" || OpencgaCatalogUtils.getProjectOwner(project) === user;
     }
 
-    /**
-     * Check if the user has the right the permissions in the study.
-     * @param study
-     * @param user
-     * @param permissions
-     * @returns {boolean}
-     */
+    // Check if the user has the right the permissions in the study.
     static checkPermissions(study, user, permissions) {
         if (!study || !user || !permissions) {
             console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
             return false;
         }
         // Check if user is the Study owner
-        let _studyOwner = study.fqn.split("@")[0];
-        if (user === _studyOwner) {
+        const studyOwner = study.fqn.split("@")[0];
+        if (user === studyOwner) {
             return true;
         } else {
             // Check if user is a Study admin, belongs to @admins group
-            let admins = study.groups.find(group => group.id === "@admins");
+            const admins = study.groups.find(group => group.id === "@admins");
             if (admins.userIds.includes(user)) {
                 return true;
             } else {
                 // Check if user is in acl
-                let aclUserIds = study.groups
+                const aclUserIds = study.groups
                     .filter(group => group.userIds.includes(user))
                     .map(group => group.id);
                 aclUserIds.push(user);
-                for (let aclId of aclUserIds) {
+                for (const aclId of aclUserIds) {
                     if (Array.isArray(permissions)) {
-                        for (let permission of permissions) {
+                        for (const permission of permissions) {
                             if (study?.acl?.[aclId]?.includes(permission)) {
                                 return true;
                             }
@@ -129,24 +95,19 @@ export default class OpencgaCatalogUtils {
         return false;
     }
 
-    /**
-     * Check if the user has the right the permissions in the study.
-     * @param study
-     * @param user
-     * @returns {boolean}
-     */
-        static isAdmin(study, userLogged) {
+    // Check if the user has the right the permissions in the study.
+    static isAdmin(study, userLogged) {
         if (!study || !userLogged) {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
         }
         // Check if user is the Study owner
-        let _studyOwner = study.fqn.split("@")[0];
-        if (userLogged === _studyOwner) {
+        const studyOwner = study.fqn.split("@")[0];
+        if (userLogged === studyOwner) {
             return true;
         } else {
             // Check if user is a Study admin, belongs to @admins group
-            let admins = study.groups.find(group => group.id === "@admins");
+            const admins = study.groups.find(group => group.id === "@admins");
             if (admins.userIds.includes(userLogged)) {
                 return true;
             }
@@ -154,5 +115,21 @@ export default class OpencgaCatalogUtils {
         return false;
     }
 
+    // Update grid configuration of the specified browser
+    static updateGridConfig(opencgaSession, browserName, newGridConfig) {
+        const newConfig = {
+            ...opencgaSession.user.configs?.IVA,
+            [browserName]: {
+                ...opencgaSession.user.configs?.IVA[browserName],
+                grid: newGridConfig,
+            },
+        };
+        return opencgaSession.opencgaClient.updateUserConfigs(newConfig)
+            .then(response => {
+                // Update user configuration in opencgaSession object
+                // eslint-disable-next-line no-param-reassign
+                opencgaSession.user.configs.IVA = response.responses[0].results[0];
+            });
+    }
 
 }

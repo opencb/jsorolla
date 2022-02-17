@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import "../commons/view/detail-tabs.js";
 import "./disease-panel-summary.js";
+import {construction} from "../commons/under-construction.js";
 
 export default class DiseasePanelDetail extends LitElement {
 
@@ -106,6 +107,27 @@ export default class DiseasePanelDetail extends LitElement {
                                 .opencgaSession="${opencgaSession}">
                             </disease-panel-summary>`;
                     }
+                },
+                {
+                    id: "disease-panel-genes",
+                    name: "Genes",
+                    render: (diseasePanel, active, opencgaSession) => {
+                        return html`
+                            <gene-grid
+                                .genePanels="${diseasePanel.genes}"
+                                .opencgaSession=${opencgaSession}>
+                            </gene-grid>`;
+                    }
+                },
+                {
+                    id: "disease-panel-regions",
+                    name: "Regions",
+                    render: (diseasePanel, active, opencgaSession) => construction
+                },
+                {
+                    id: "disease-panel-variants",
+                    name: "Variants",
+                    render: (diseasePanel, active, opencgaSession) => construction
                 },
                 {
                     id: "json-view",

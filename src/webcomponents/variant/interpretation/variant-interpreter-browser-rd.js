@@ -94,6 +94,9 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        // Configuration is using the clinicalAnalysis
+        this._config = this.getDefaultConfig();
+
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample
         const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
 
@@ -228,9 +231,11 @@ class VariantInterpreterBrowserRd extends LitElement {
         return html`
             <variant-interpreter-browser-template
                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
+                .toolId="${"variantInterpreterRD"}"
                 .config="${this._config}">
             </variant-interpreter-browser-template>
         `;

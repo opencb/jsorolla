@@ -19,8 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
 import "./sample-variant-stats-view.js";
-import "./sample-files-view.js";
-import "../alignment/samtools-flagstats-view.js";
+import "../alignment/qc/samtools-flagstats-view.js";
 
 export default class SampleDetail extends LitElement {
 

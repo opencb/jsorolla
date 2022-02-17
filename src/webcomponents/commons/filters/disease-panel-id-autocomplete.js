@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 
 
-export default class FamilyIdAutocomplete extends LitElement {
+export default class DiseasePanelIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -76,7 +76,7 @@ export default class FamilyIdAutocomplete extends LitElement {
                     include: "id",
                     ...id
                 };
-                this.opencgaSession.opencgaClient.families().search(filters)
+                this.opencgaSession.opencgaClient.panels().search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -96,4 +96,5 @@ export default class FamilyIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("family-id-autocomplete", FamilyIdAutocomplete);
+customElements.define("disease-panel-id-autocomplete", DiseasePanelIdAutocomplete);
+

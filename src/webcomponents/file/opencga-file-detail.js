@@ -15,15 +15,14 @@
  */
 
 import {LitElement, html} from "lit";
-
-import "./file-preview.js";
 import "./file-view.js";
-import UtilsNew from "../../core/utilsNew.js";
+import "./file-preview.js";
 
 export default class OpencgaFileDetail extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -33,13 +32,13 @@ export default class OpencgaFileDetail extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            file: {
                 type: Object
             },
             fileId: {
                 type: String
             },
-            file: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -49,51 +48,46 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this.file = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.file = null;
-        }
-
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     fileIdObserver() {
-        if (this.opencgaSession) {
-            if (this.fileId) {
-                this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.file = restResponse.getResult(0);
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                        this.file = null;
-                    });
-            } else {
-                this.file = null;
-            }
+        if (this.opencgaSession && this.fileId) {
+            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this.file = restResponse.responses[0].results[0];
+                })
+                .catch(restResponse => {
+                    this.file = null;
+                    console.error(restResponse);
+                });
         }
     }
 
     render() {
-        return this.opencgaSession && this.file ? html`
+        if (!this.file) {
+            return html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> File not found.</div>`;
+        }
+
+        return html`
             <detail-tabs
                 .data="${this.file}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
-        ` : null;
+        `;
     }
 
     getDefaultConfig() {
@@ -108,6 +102,7 @@ export default class OpencgaFileDetail extends LitElement {
                     render: (file, active, opencgaSession) => html`
                         <file-view
                             .opencgaSession="${opencgaSession}"
+                            .preview="${true}"
                             .file="${file}">
                         </file-view>
                     `,

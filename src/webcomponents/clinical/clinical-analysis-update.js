@@ -451,7 +451,7 @@ class ClinicalAnalysisUpdate extends LitElement {
 
                                     const interpretations = [clinicalAnalysis.interpretation, ...clinicalAnalysis.secondaryInterpretations];
                                     for (const interpretation of interpretations) {
-                                        if (clinicalAnalysis.panels?.length !== interpretation.panels?.length) {
+                                        if (clinicalAnalysis.panels?.length !== interpretation?.panels?.length) {
                                             return true;
                                         }
                                         for (const interpretationPanel of interpretation.panels) {

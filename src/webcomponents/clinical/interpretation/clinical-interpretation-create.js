@@ -65,6 +65,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             titleWidth: 4,
             defaultLayout: "horizontal"
         };
+        this.config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -205,7 +206,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             title: "Case Id",
                             field: "id",
                             type: "input-text",
-                            defaultValue: this.clinicalAnalysis.id,
+                            defaultValue: this.clinicalAnalysis?.id,
                             display: {
                                 disabled: true,
                                 helpMessage: "The interpretation Id is generated automatically",
@@ -251,6 +252,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
+                                            .showSelectedPanels="${false}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>

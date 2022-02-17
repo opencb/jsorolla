@@ -22,7 +22,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 import "./clinical-analysis-grid.js";
-import "./opencga-clinical-analysis-view.js";
+import "./clinical-analysis-view.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/family-id-autocomplete.js";
@@ -380,11 +380,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (clinicalAnalysis, active, opencgaSession) => html`
-                                <opencga-clinical-analysis-view
+                                <clinical-analysis-view
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysisId="${clinicalAnalysis.id}"
                                     .settings="${OPENCGA_CLINICAL_ANALYSIS_VIEW_SETTINGS}">
-                                </opencga-clinical-analysis-view>
+                                </clinical-analysis-view>
                             `,
                         },
                         {

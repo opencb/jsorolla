@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import "./opencga-export.js";
+import LitUtils from "./utils/lit-utils";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -74,8 +75,13 @@ export default class OpencbGridToolbar extends LitElement {
         }));
     }
 
+    onChangeExportField(e) {
+        // simply forwarding from opencga-export to grid components
+        LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
+    }
+
     onExport(e) {
-        // simply forwarding from opencga-export to file-grid
+        // simply forwarding from opencga-export to grid components
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
                 ...e.detail
@@ -237,7 +243,7 @@ export default class OpencbGridToolbar extends LitElement {
                             <h4 class="modal-title">Export</h4>
                         </div>
                         <div class="modal-body">
-                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}" @export="${this.onExport}"></opencga-export>
+                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}" @export="${this.onExport}" @changeExportField="${this.onChangeExportField}"></opencga-export>
                         </div>
                     </div>
                 </div>

@@ -101,10 +101,6 @@ class VariantInterpreterReport extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            console.log(this.opencgaSession);
-            console.log(this.clinicalAnalysis);
-            console.log(this.clinicalAnalysis.proband.samples[0].qualityControl);
-
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
             const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
@@ -383,6 +379,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "ascatMetrics",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {
@@ -411,6 +408,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "sequenceMetrics",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -423,6 +421,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "tumourStats",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -435,6 +434,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "normalStats",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -447,6 +447,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "processingInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -459,6 +460,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "somaticCallingInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 transform: somaticCallingInfo => somaticCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
@@ -475,6 +477,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "customFilteringInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -487,6 +490,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "germlineCallingInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 transform: germlineCallingInfo => germlineCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
@@ -826,11 +830,16 @@ class VariantInterpreterReport extends LitElement {
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
                                             <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"></signature-view>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-6">
                                             <h4>SBS signature contributions</h4>
-                                            <span style="font-weight: bold">Pending</span>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"
+                                                .plots="${["fitting"]}">
+                                            </signature-view>
                                         </div>
                                     </div>
                                 `,
@@ -868,12 +877,19 @@ class VariantInterpreterReport extends LitElement {
                                 render: clinicalAnalysis => html`
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
-                                            <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}" .mode="${"SV"}"></signature-view>
+                                            <h4>Rearrangement Profile</h4>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
+                                                .mode="${"SV"}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-6">
-                                            <h4>SBS signature contributions</h4>
-                                            <span style="font-weight: bold">Pending</span>
+                                            <h4>Rearrangement signature contributions</h4>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
+                                                .plots="${["fitting"]}"
+                                                .mode="${"SV"}">
+                                            </signature-view>
                                         </div>
                                     </div>
                                 `,

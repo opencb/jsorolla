@@ -36,10 +36,10 @@ context("4. Variant Browser", () => {
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 1);
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 13); // we are hiding only the columns with rowspan=2
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 13);
 
     });
 
@@ -60,17 +60,14 @@ context("4. Variant Browser", () => {
         cy.get("input[data-cy='modal-filter-description']").type(randomString(3));
         cy.get("button[data-cy='modal-filter-save-button']").click(); // confirm save
 
-        cy.get(".swal2-actions").contains(/Yes|OK/).click(); // dismiss notification (either new filter or overwrite a saved one)
-        cy.get("button[data-cy='filter-button']").click();
+        cy.contains(".notification-manager .alert", "Filter has been saved", {timeout: TIMEOUT}).should("be.visible");
         cy.get("ul.saved-filter-wrapper").contains(name);
         cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
         cy.get(".swal2-title").contains("Are you sure?");
         cy.get(".swal2-confirm").click(); // confirm deletion action
 
-        // cy.get(".swal2-content", {timeout: TIMEOUT}).contains("Filter has been deleted.");
-        // this selector doesn't work without .should("be.visible") assertion because it refers to the previous #swal2-content which has been detatched from DOM before
-        cy.contains(".swal2-content", "Filter has been deleted", {timeout: TIMEOUT}).should("be.visible");
-        cy.get(".swal2-confirm").click({force: true}); // dismiss confirmation modal
+        cy.contains(".notification-manager .alert", "Filter has been deleted", {timeout: TIMEOUT}).should("be.visible");
+        // cy.get(".swal2-confirm").click({force: true}); // dismiss confirmation modal
         cy.get("opencga-active-filters button[data-filter-name='ct']").click();
     });
 
