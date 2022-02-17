@@ -82,12 +82,12 @@ export default class UserPasswordReset extends LitElement {
                             </div>
                         </div>
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Reset password</strong>
+                            <strong>Reset Password</strong>
                         </button>
                     </div>
                 </div>
                 <div align="center">
-                    <a @click="${() => this.redirect("#login")}" style="cursor:pointer;">Cancel</a>
+                    <a @click="${() => this.redirect("#login")}" style="cursor:pointer;">Go back to Login</a>
                 </div>
             </div>
         `;

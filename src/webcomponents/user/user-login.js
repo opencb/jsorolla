@@ -149,12 +149,12 @@ export default class UserLogin extends LitElement {
                             </div>
                         </div>
                         <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Sign in</strong>
+                            <strong>Sign In</strong>
                         </button>
                     </div>
                 </div>
                 <div align="center">
-                    <a @click="${() => this.redirect("#reset-password")}" style="cursor:pointer;">Forgot password?</a>
+                    <a @click="${() => this.redirect("#reset-password")}" style="cursor:pointer;">Forgot your password?</a>
                 </div>
             </div>
         `;
