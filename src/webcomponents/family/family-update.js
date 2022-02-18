@@ -54,13 +54,6 @@ export default class FamilyUpdate extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-
-    //     this.updateParams = {};
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("family")) {
             this.familyObserver();
@@ -98,8 +91,18 @@ export default class FamilyUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "members.id":
+                this.updateParams = FormUtils.updateObjectArray(
+                    this._family,
+                    this.family,
+                    this.updateParams,
+                    param,
+                    e.detail.value
+                );
+                break;
             case "id":
             case "name":
             case "description":
@@ -138,7 +141,7 @@ export default class FamilyUpdate extends LitElement {
             annotationSetsAction: "SET",
             updateRoles: false,
         };
-
+        console.log("Family update", this.updateParams);
         this.opencgaSession.opencgaClient.families().update(this.family.id, this.updateParams, params)
             .then(res => {
                 this._family = JSON.parse(JSON.stringify(this.family));
@@ -147,12 +150,9 @@ export default class FamilyUpdate extends LitElement {
                     title: "Update Family",
                     message: "family updated correctly"
                 });
-                // FormUtils.showAlert("Update Family", "Family updated correctly", "success");
             })
             .catch(err => {
-                // console.error(err);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // FormUtils.showAlert("Update Family", "Family not updated correctly", "error");
             });
     }
 
@@ -221,13 +221,14 @@ export default class FamilyUpdate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
                                 render: members => {
-                                    const individualIds = members.map(member => member.id).join(",");
+                                    const membersIds = Array.isArray(members) ?
+                                        members?.map(member => member.id).join(",") : members;
                                     return html`
                                         <individual-id-autocomplete
-                                            .value="${individualIds}"
+                                            .value="${membersIds}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config="${{multiple: true}}"
-                                            @filterChange="${e => this.onSync(e, "members")}">
+                                            @filterChange="${e => this.onFieldChange(e, "members.id")}">
                                         </individual-id-autocomplete>`;
                                 }
                             },

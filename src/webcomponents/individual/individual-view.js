@@ -81,6 +81,7 @@ export default class IndividualView extends LitElement {
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                     this.isLoading = false;
+                    console.log("individual: ", this.individual);
                 })
                 .catch(function (reason) {
                     this.individual = {};
@@ -176,7 +177,7 @@ export default class IndividualView extends LitElement {
                     },
                     elements: [
                         {
-                            title: "Sample ID",
+                            title: "Individual ID",
                             type: "custom",
                             display: {
                                 render: data => html`
@@ -219,6 +220,10 @@ export default class IndividualView extends LitElement {
                                     }
                                 },
                             }
+                        },
+                        {
+                            title: "Ethnicity",
+                            field: "ethnicity.id",
                         },
                         {
                             title: "Disorders",

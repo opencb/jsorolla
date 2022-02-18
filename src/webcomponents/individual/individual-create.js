@@ -52,11 +52,6 @@ export default class IndividualCreate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         if (param) {
@@ -80,7 +75,6 @@ export default class IndividualCreate extends LitElement {
                     break;
             }
         }
-
         this.requestUpdate();
     }
 
@@ -94,19 +88,19 @@ export default class IndividualCreate extends LitElement {
     onSubmit(e) {
         e.stopPropagation();
         console.log("saved", this.individual);
-        // this.opencgaSession.opencgaClient.individuals()
-        //     .create(this.individual, {study: this.opencgaSession.study.fqn})
-        //     .then(res => {
-        //         this.individual = {};
-        //         this.requestUpdate();
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-        //             title: "New Individual",
-        //             message: "New Individual created correctly"
-        //         });
-        //     })
-        //     .catch(err => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-        //     });
+        this.opencgaSession.opencgaClient.individuals()
+            .create(this.individual, {study: this.opencgaSession.study.fqn})
+            .then(res => {
+                this.individual = {};
+                this.requestUpdate();
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New Individual",
+                    message: "New Individual created correctly"
+                });
+            })
+            .catch(err => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            });
     }
 
     render() {
@@ -180,7 +174,7 @@ export default class IndividualCreate extends LitElement {
                                             this.onFieldChange({
                                             detail: {
                                                 param: "father",
-                                                value: e.detail.value
+                                                value: {id: e.detail.value}
                                             }
                                         })}">
                                     </individual-id-autocomplete>`
@@ -204,19 +198,10 @@ export default class IndividualCreate extends LitElement {
                                             this.onFieldChange({
                                             detail: {
                                                 param: "mother",
-                                                value: e.detail.value
+                                                value: {id: e.detail.value}
                                             }
                                         })}">
                                     </individual-id-autocomplete>`
-                            }
-                        },
-                        {
-                            title: "Sex",
-                            field: "sex",
-                            type: "select",
-                            allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
-                            display: {
-                                placeholder: "Select the sex..."
                             }
                         },
                         {
@@ -230,6 +215,33 @@ export default class IndividualCreate extends LitElement {
                                     )
                             }
                         },
+                        // {
+                        //     title: "Sex",
+                        //     field: "sex",
+                        //     type: "select",
+                        //     allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
+                        //     display: {
+                        //         placeholder: "Select the sex..."
+                        //     }
+                        // },
+                        {
+                            title: "Sex",
+                            field: "sex",
+                            type: "custom",
+                            display: {
+                                render: sex => html`
+                                    <ontology-term-annotation-create
+                                        .ontology=${sex}
+                                        .displayConfig="${{
+                                                buttonsVisible: false,
+                                                width: 12,
+                                                style: "border-left: 2px solid #0c2f4c",
+                                            }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "sex")}
+                                    ></ontology-term-annotation-create>`
+                            }
+                        },
+
                         // {
                         //     title: "Ethnicity",
                         //     field: "ethnicity",
@@ -259,13 +271,6 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Parental Consanguinity",
-                            field: "parentalConsanguinity",
-                            type: "checkbox",
-                            checked: false,
-                            display: {}
-                        },
-                        {
                             title: "Karyotypic Sex",
                             field: "karyotypicSex",
                             type: "select",
@@ -282,7 +287,13 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 placeholder: "Select the life status..."
                             }
-                        }
+                        },
+                        {
+                            title: "Parental Consanguinity",
+                            field: "parentalConsanguinity",
+                            type: "checkbox",
+                            checked: false
+                        },
                     ]
                 },
                 {

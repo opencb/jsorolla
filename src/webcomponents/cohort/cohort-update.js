@@ -99,8 +99,18 @@ export default class CohortUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "samples.id":
+                this.updateParams = FormUtils.updateObjectArray(
+                    this._cohort,
+                    this.cohort,
+                    this.updateParams,
+                    param,
+                    e.detail.value
+                );
+                break;
             case "id":
             case "name":
             case "description":
@@ -159,7 +169,7 @@ export default class CohortUpdate extends LitElement {
             samplesAction: "SET",
             annotationSetsAction: "SET",
         };
-
+        // console.log("id", this.cohort.id, "update", this.updateParams);
         this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
             .then(res => {
                 this._cohort = JSON.parse(JSON.stringify(this.cohort));
@@ -223,12 +233,14 @@ export default class CohortUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: samples => {
-                                    const sampleIds = samples?.map(sample => sample.id).join(",");
+                                    const sampleIds = Array.isArray(samples) ?
+                                        samples?.map(sample => sample.id).join(",") :
+                                        samples;
                                     return html `
                                     <sample-id-autocomplete
                                         .value=${sampleIds}
                                         .opencgaSession=${this.opencgaSession}
-                                        @filterChange="${e => this.onSync(e, "samples")}">
+                                        @filterChange="${e => this.onFieldChange(e, "samples.id")}">
                                     </sample-id-autocomplete>`;
                                 }
                             }
@@ -286,6 +298,10 @@ export default class CohortUpdate extends LitElement {
                             title: "Status Description",
                             field: "status.description",
                             type: "input-text",
+                            validation: {
+                                validate: () => this.cohort?.status?.description ? !!this.cohort?.status?.name : true,
+                                message: "The status name must be filled",
+                            },
                             display: {
                                 rows: 3,
                                 placeholder: "Add a status description..."

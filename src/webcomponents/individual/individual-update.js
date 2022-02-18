@@ -17,9 +17,11 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../individual/disorder/disorder-list-update.js";
 import "../commons/tool-header.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class IndividualUpdate extends LitElement {
@@ -53,13 +55,7 @@ export default class IndividualUpdate extends LitElement {
     _init() {
         this.individual = {};
         this.updateParams = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this.updateParams = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        // console.log("individual:", this.individual);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -69,6 +65,11 @@ export default class IndividualUpdate extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+
         super.update(changedProperties);
     }
 
@@ -100,13 +101,18 @@ export default class IndividualUpdate extends LitElement {
             case "name":
             case "father":
             case "mother":
-            case "sex":
-            case "ethnicity":
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-            // case "dateOfBirth":
-                this.updateParams = FormUtils.updateScalar(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+            case "sex":
+            case "ethnicity":
+            // case "dateOfBirth": Problems
+                this.updateParams = FormUtils.updateScalar(
+                    this._individual,
+                    this.individual,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
                 break;
             case "phenotypes":
                 this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
@@ -129,11 +135,14 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
-                this.updateParams = FormUtils.updateObjectWithProps(this._individual, this.individual, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateObjectWithProps(
+                    this._individual,
+                    this.individual,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
                 break;
         }
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("updated: ", this.updateParams, "non-update ", this.individual);
         this.requestUpdate();
     }
 
@@ -149,7 +158,7 @@ export default class IndividualUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET"
         };
-
+        console.log("individualId", this.individual.id, "updateParams:", this.updateParams, "param:", params);
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
             .then(() => {
@@ -162,7 +171,6 @@ export default class IndividualUpdate extends LitElement {
                 });
             })
             .catch(response => {
-                // console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
@@ -182,16 +190,12 @@ export default class IndividualUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // title: "Edit",
-            // icon: "fas fa-edit",
             type: "form",
             display: {
                 buttonsVisible: true,
                 buttonClearText: "Cancel",
                 buttonOkText: "Save",
                 titleWidth: 3,
-                with: "8",
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
             },
             sections: [
@@ -219,43 +223,112 @@ export default class IndividualUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Father id",
-                            field: "father.id",
-                            defaultValue: "-",
-                            type: "input-text",
-                            display: {}
-                        },
-                        {
-                            title: "Mother id",
-                            field: "mother.id",
-                            defaultValue: "-",
-                            type: "input-text",
+                            title: "Father ID",
+                            field: "father",
+                            type: "custom",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: father => html`
+                                    <individual-id-autocomplete
+                                        .value="${father?.id}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            // This is the default value, but it is safe to leave it
+                                            multiple: false,
+                                        }}
+                                        @filterChange="${e =>
+                                            this.onFieldChange({
+                                            detail: {
+                                                param: "father",
+                                                value: {id: e.detail.value}
+                                            }
+                                        })}">
+                                    </individual-id-autocomplete>`
                             }
                         },
                         {
-                            title: "Sex",
-                            field: "sex",
-                            type: "select",
-                            allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
-                            display: {}
+                            title: "Mother ID",
+                            field: "mother",
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: mother => html`
+                                    <individual-id-autocomplete
+                                        .value="${mother?.id}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            // This is the default value, but it is safe to leave it
+                                            multiple: false,
+                                        }}
+                                        @filterChange="${e =>
+                                            this.onFieldChange({
+                                            detail: {
+                                                param: "mother",
+                                                value: {id: e.detail.value}
+                                            }
+                                        })}">
+                                    </individual-id-autocomplete>`
+                            }
                         },
                         {
                             title: "Birth",
                             field: "dateOfBirth",
-                            type: "input-date",
+                            type: "custom",
                             display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss")
-                                        .format("yyyy/MM/dd")
+                                render: date => date ? html`${UtilsNew.dateFormatter(date)}` : "-"
+                            }
+                            // display: {
+                            //     render: date =>
+                            //         moment(date, "YYYYMMDDHHmmss")
+                            //             .format("yyyy/MM/dd")
+                            // }
+                        },
+                        // {
+                        //     title: "Sex",
+                        //     field: "sex",
+                        //     type: "select",
+                        //     allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
+                        //     display: {}
+                        // },
+                        {
+                            title: "Sex",
+                            field: "sex",
+                            type: "custom",
+                            display: {
+                                render: sex => html`
+                                    <ontology-term-annotation-update
+                                        .ontology=${sex}
+                                        .displayConfig="${{
+                                                buttonsVisible: false,
+                                                width: 12,
+                                                style: "border-left: 2px solid #0c2f4c",
+                                            }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "sex")}
+                                    ></ontology-term-annotation-update>`
                             }
                         },
+                        // {
+                        //     title: "Ethnicity",
+                        //     field: "ethnicity",
+                        //     type: "input-text",
+                        //     display: {}
+                        // },
                         {
                             title: "Ethnicity",
                             field: "ethnicity",
-                            type: "input-text",
-                            display: {}
+                            type: "custom",
+                            display: {
+                                render: ethnicity => html`
+                                    <ontology-term-annotation-update
+                                        .ontology=${ethnicity}
+                                        .displayConfig="${{
+                                                buttonsVisible: false,
+                                                width: 12,
+                                                style: "border-left: 2px solid #0c2f4c",
+                                            }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "ethnicity")}
+                                    ></ontology-term-annotation-update>`
+                            }
                         },
                         {
                             title: "Parental Consanguinity",

@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import Types from "../../commons/types.js";
 
 export default class OntologyTermAnnotationUpdate extends LitElement {
 
@@ -36,23 +37,36 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             },
             ontologyId: {
                 type: String
+            },
+            displayConfig: {
+                type: Object
             }
         };
     }
 
     _init() {
         this.ontology = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        // It must be in connectCallback for the display.disabled option in the input text to work.
-        this._config = {...this.getDefaultConfig()};
+        this.displayConfigDefault = {
+            width: 10,
+            buttonsAlign: "right",
+            buttonClearText: "Clear",
+            buttonOkText: "Create Ontology Term",
+            titleVisible: false,
+            titleWidth: 4,
+            defaultLayout: "horizontal",
+            style: "border-left: 2px solid #0c2f4c",
+        };
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("ontology")) {
             this.ontologyObserver();
+        }
+
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -74,8 +88,8 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             e.detail.value);
 
         this.ontology = {...this.ontology, ...this.updateParams};
-
-        this.requestUpdate();
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
+        // this.requestUpdate();
     }
 
     onSendOntology(e) {
@@ -106,18 +120,8 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                classes: "pull-right"
-            },
-            display: {
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                defaultValue: ""
-            },
+        return Types.dataFormConfig({
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     elements: [
@@ -158,7 +162,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                     ]
                 }
             ]
-        };
+        });
     }
 
 }

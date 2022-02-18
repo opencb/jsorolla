@@ -304,12 +304,29 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Processing Info",
                 elements: [
+                    // {
+                    //     title: "Product",
+                    //     field: "processing.product",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add a product..."
+                    //     }
+                    // },
                     {
                         title: "Product",
                         field: "processing.product",
-                        type: "input-text",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a product..."
+                            render: product => html`
+                                <ontology-term-annotation-update
+                                    .ontology=${product}
+                                    .displayConfig="${{
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c",
+                                        }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}
+                                ></ontology-term-annotation-update>`
                         }
                     },
                     {
@@ -357,12 +374,29 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Collection Info",
                 elements: [
+                    // {
+                    //     title: "Tissue",
+                    //     field: "collection.tissue",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add a tissue..."
+                    //     }
+                    // },
                     {
-                        title: "Tissue",
-                        field: "collection.tissue",
-                        type: "input-text",
+                        title: "From",
+                        field: "collection.from",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a tissue..."
+                            render: from => html`
+                                <ontology-term-annotation-update
+                                    .ontology=${from}
+                                    .displayConfig="${{
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c",
+                                        }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "from")}
+                                ></ontology-term-annotation-update>`
                         }
                     },
                     {
