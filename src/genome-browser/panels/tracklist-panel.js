@@ -1,6 +1,7 @@
 import Region from "../../core/bioinfo/region.js";
 import UtilsNew from "../../core/utilsNew.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
+import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 export default class TrackListPanel {
 
@@ -881,7 +882,7 @@ export default class TrackListPanel {
 
     setNucleotidPosition(position) {
         const base = this.getSequenceNucleotid(position);
-        this.positionNucleotidDiv.style.color = SEQUENCE_COLORS[base];
+        this.positionNucleotidDiv.style.color = GenomeBrowserConstants.SEQUENCE_COLORS[base];
         this.positionNucleotidDiv.textContent = base;
     }
 

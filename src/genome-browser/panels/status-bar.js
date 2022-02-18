@@ -1,5 +1,6 @@
 import UtilsNew from "../../core/utilsNew.js";
 import Region from "../../core/bioinfo/region.js";
+import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 export default class StatusBar {
 
@@ -54,8 +55,7 @@ export default class StatusBar {
     }
 
     setMousePosition(event) {
-        // TODO: move SEQUENCE_COLORS to global constants module
-        this.mousePositionBase.style.color = SEQUENCE_COLORS[event.base];
+        this.mousePositionBase.style.color = GenomeBrowserConstants.SEQUENCE_COLORS[event.base];
         this.mousePositionBase.textContent = event.base;
         this.mousePositionRegion.textContent = `${this.region.chromosome}:${event.mousePos}`;
     }
