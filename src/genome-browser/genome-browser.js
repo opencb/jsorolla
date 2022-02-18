@@ -29,7 +29,7 @@ export default class GenomeBrowser {
 
     // Initialize GenomeBrowser
     async #init() {
-        this.id = UtilsNew.randomString(8);
+        this.prefix = UtilsNew.randomString(8);
         this.version = "Powered by <a target=\"_blank\" href=\"http://www.opencb.org/\">OpenCB</a>";
         this.width = this.config.width || 1;
         this.height = this.config.height || 1;
@@ -75,35 +75,35 @@ export default class GenomeBrowser {
     #initDom() {
         // Generate GB template
         const template = UtilsNew.renderHTML(`
-            <div id="${this.id}" class="ocb-gv ocb-box-vertical">
-                <div id="${this.id}Navigation" class="ocb-gv-navigation"></div>
+            <div id="${this.prefix}" class="ocb-gv ocb-box-vertical">
+                <div id="${this.prefix}Navigation" class="ocb-gv-navigation"></div>
                 <div class="ocb-gv-center">
-                    <div id="${this.id}LeftSide" class="ocb-gv-left-side"></div>
-                    <div id="${this.id}RightSide" class="ocb-gv-right-side"></div>
-                    <div id="${this.id}Karyotype" class="ocb-gv-karyotype"></div>
-                    <div id="${this.id}Chromosome" class="ocb-gv-chromosome"></div>
+                    <div id="${this.prefix}LeftSide" class="ocb-gv-left-side"></div>
+                    <div id="${this.prefix}RightSide" class="ocb-gv-right-side"></div>
+                    <div id="${this.prefix}Karyotype" class="ocb-gv-karyotype"></div>
+                    <div id="${this.prefix}Chromosome" class="ocb-gv-chromosome"></div>
                     <div class="ocb-gv-tracklist-target">
-                        <div id="${this.id}Region" class="ocb-gv-overview"></div>
-                        <div id="${this.id}Tracks" class="ocb-gv-detailed"></div>
+                        <div id="${this.prefix}Region" class="ocb-gv-overview"></div>
+                        <div id="${this.prefix}Tracks" class="ocb-gv-detailed"></div>
                     </div>
                 </div>
-                <div id="${this.id}Status" class="ocb-gv-status"></div>
+                <div id="${this.prefix}Status" class="ocb-gv-status"></div>
             </div>
         `);
 
-        this.div = template.querySelector(`div#${this.id}`);
-        this.navigationbarDiv = this.div.querySelector(`div#${this.id}Navigation`);
-        this.statusbarDiv = this.div.querySelector(`div#${this.id}Status`);
+        this.div = template.querySelector(`div#${this.prefix}`);
+        this.navigationbarDiv = this.div.querySelector(`div#${this.prefix}Navigation`);
+        this.statusbarDiv = this.div.querySelector(`div#${this.prefix}Status`);
 
         // TODO: check if we really need the left and right sidebar components
-        this.leftSidebarDiv = this.div.querySelector(`div#${this.id}LeftSide`);
-        this.rightSidebarDiv = this.div.querySelector(`div#${this.id}RightSide`);
+        this.leftSidebarDiv = this.div.querySelector(`div#${this.prefix}LeftSide`);
+        this.rightSidebarDiv = this.div.querySelector(`div#${this.prefix}RightSide`);
 
-        this.karyotypeDiv = this.div.querySelector(`div#${this.id}Karyotype`);
-        this.chromosomeDiv = this.div.querySelector(`div#${this.id}Chromosome`);
+        this.karyotypeDiv = this.div.querySelector(`div#${this.prefix}Karyotype`);
+        this.chromosomeDiv = this.div.querySelector(`div#${this.prefix}Chromosome`);
 
-        this.regionDiv = this.div.querySelector(`div#${this.id}Region`);
-        this.tracksDiv = this.div.querySelector(`div#${this.id}Tracks`);
+        this.regionDiv = this.div.querySelector(`div#${this.prefix}Region`);
+        this.tracksDiv = this.div.querySelector(`div#${this.prefix}Tracks`);
 
         // Append to target element
         this.target.appendChild(this.div);
@@ -117,21 +117,21 @@ export default class GenomeBrowser {
 
         // Create karyotype Panel
         if (this.config.drawKaryotypePanel) {
-            this.karyotypePanel = this._drawKaryotypePanel(this.karyotypeDiv);
+            this.karyotypePanel = this.#createKaryotypePanel(this.karyotypeDiv);
         }
 
         // Create Chromosome panel
         if (this.config.drawChromosomePanel) {
-            this.chromosomePanel = this._drawChromosomePanel(this.chromosomeDiv);
+            this.chromosomePanel = this.#createChromosomePanel(this.chromosomeDiv);
         }
 
         // Create overview track list panel
         if (this.config.drawOverviewTrackListPanel) {
-            this.overviewTrackListPanel = this._createOverviewTrackListPanel(this.regionDiv);
+            this.overviewTrackListPanel = this.#createOverviewTrackListPanel(this.regionDiv);
         }
 
         // General track list panel is always visible
-        this.trackListPanel = this._createTrackListPanel(this.tracksDiv);
+        this.trackListPanel = this.#createTrackListPanel(this.tracksDiv);
 
         // Create status bar
         if (this.config.drawStatusBar) {
@@ -297,7 +297,7 @@ export default class GenomeBrowser {
         return navigationBar;
     }
 
-    _drawKaryotypePanel(target) {
+    #createKaryotypePanel(target) {
         const karyotypePanel = new KaryotypePanel(target, {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
@@ -326,7 +326,7 @@ export default class GenomeBrowser {
         return karyotypePanel;
     }
 
-    _drawChromosomePanel(target) {
+    #createChromosomePanel(target) {
         const chromosomePanel = new ChromosomePanel(target, {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
@@ -355,7 +355,7 @@ export default class GenomeBrowser {
         return chromosomePanel;
     }
 
-    _createOverviewTrackListPanel(target) {
+    #createOverviewTrackListPanel(target) {
         const trackListPanel = new TrackListPanel(target, {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
@@ -392,7 +392,7 @@ export default class GenomeBrowser {
         return trackListPanel;
     }
 
-    _createTrackListPanel(target) {
+    #createTrackListPanel(target) {
         const trackListPanel = new TrackListPanel(target, {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
