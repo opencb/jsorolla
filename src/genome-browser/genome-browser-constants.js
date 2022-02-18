@@ -20,4 +20,13 @@ export default class GenomeBrowserConstants {
         acen: "blue",
     };
 
+    // Sequence colors
+    static SEQUENCE_COLORS = {
+        A: "#009900",
+        C: "#0000FF",
+        G: "#857A00",
+        T: "#aa0000",
+        N: "#555555",
+    };
+
 }
