@@ -63,6 +63,14 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         ];
         this.logicalOperator = ","; // OR=, AND=;
         this.logicalSwitchDisabled = true;
+
+        this.defaultComparators = [
+            {id: "<", name: "<"},
+            {id: "<=", name: "&#8804;"},
+            {id: "=", name: "="},
+            {id: ">", name: ">"},
+            {id: ">=", name: "&#8805;"},
+        ];
     }
 
     update(changedProperties) {
@@ -80,7 +88,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                     this.logicalOperator = match.groups.op;
                     pss = [match.groups.polyphen, match.groups.sift];
                 } else {
-                    pss = this.proteinSubstitution;
+                    pss = [this.proteinSubstitution];
                 }
 
                 this.logicalSwitchDisabled = pss.length <= 1;
@@ -156,21 +164,25 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 <span style="padding-top: 10px;padding-left: 0px;">SIFT</span>
                 <div class="row">
                     <div class="col-md-4 control-label score-select">
-                        <select-field-filter .data="${this.siftKeys}" .value=${this.state["sift"].type} @filterChange="${e => this.filterChange("sift", {type: e.detail.value})}"></select-field-filter>
+                        <select-field-filter
+                                forceSelection="true"
+                                .data="${this.siftKeys}"
+                                .value=${this.state["sift"].type}
+                                @filterChange="${e => this.filterChange("sift", {type: e.detail.value})}"></select-field-filter>
                     </div>
                     <div class="col-md-3 score-comparator">
-                        <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
-                                class="form-control input-sm ${this._prefix}FilterSelect"
-                                @change="${e => this.filterChange("sift", {comparator: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}">
-                            <option .selected="${this.state["sift"].comparator === "="}" value="=">=</option>
-                            <option .selected="${this.state["sift"].comparator === "<"}" value="<">&lt;</option>
-                            <option .selected="${this.state["sift"].comparator === "<="}" value="<=">&le;</option>
-                            <option .selected="${this.state["sift"].comparator === ">"}" value=">">&gt;</option>
-                            <option .selected="${this.state["sift"].comparator === ">="}" value=">=">&ge;</option>
-                        </select>
+                        <select-field-filter
+                                forceSelection="true"
+                                .data="${this.defaultComparators}"
+                                .value="${this.state["sift"].comparator}"
+                                @filterChange="${e => this.filterChange("sift", {comparator: e.detail.value})}" .disabled="${this.state["sift"].type !== "score"}">
+                        </select-field-filter>
                     </div>
                     <div class="col-md-5 score-value">
-                        <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("sift", {value: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}" .value="${this.state["sift"].value ?? ""}">
+                        <input type="text" class="form-control input-sm FilterTextInput"
+                               .disabled="${this.state["sift"].type !== "score"}"
+                               .value="${this.state["sift"].value ?? ""}"
+                               @input="${e => this.filterChange("sift", {value: e.target.value})}">
                     </div>
                 </div>
             </div>
@@ -179,21 +191,26 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
                 <div class="row">
                     <div class="col-md-4 control-label score-select">
-                        <select-field-filter .data="${this.polyphenKeys}" .value=${this.state["polyphen"].type} @filterChange="${e => this.filterChange("polyphen", {type: e.detail.value})}"></select-field-filter>
+                        <select-field-filter
+                                forceSelection="true"
+                                .data="${this.polyphenKeys}"
+                                .value=${this.state["polyphen"].type}
+                                @filterChange="${e => this.filterChange("polyphen", {type: e.detail.value})}">
+                        </select-field-filter>
                     </div>
                     <div class="col-md-3 score-comparator">
-                        <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
-                                class="form-control input-sm ${this._prefix}FilterSelect"
-                                @change="${e => this.filterChange("polyphen", {comparator: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
-                            <option .selected="${this.state["polyphen"].comparator === "="}" value="=">=</option>
-                            <option .selected="${this.state["polyphen"].comparator === "<"}" value="<">&lt;</option>
-                            <option .selected="${this.state["polyphen"].comparator === "<="}" value="<=">&le;</option>
-                            <option .selected="${this.state["polyphen"].comparator === ">"}" value=">">&gt;</option>
-                            <option .selected="${this.state["polyphen"].comparator === ">="}" value=">=">&ge;</option>
-                        </select>
+                        <select-field-filter
+                                forceSelection="true"
+                                .data="${this.defaultComparators}"
+                                .value="${this.state["polyphen"].comparator}"
+                                @filterChange="${e => this.filterChange("polyphen", {comparator: e.detail.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
+                        </select-field-filter>
                     </div>
                     <div class="col-md-5 score-value">
-                        <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("polyphen", {value: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}" .value="${this.state["polyphen"].value ?? ""}">
+                        <input type="text" class="form-control input-sm FilterTextInput"
+                               .disabled="${this.state["polyphen"].type !== "score"}"
+                               .value="${this.state["polyphen"].value ?? ""}"
+                               @input="${e => this.filterChange("polyphen", {value: e.target.value})}">
                     </div>
                 </div>
             </div>
