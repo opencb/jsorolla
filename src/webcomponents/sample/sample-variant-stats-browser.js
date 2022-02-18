@@ -103,6 +103,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         // } else {
         //     console.error("no path for variant stats defined");
         // }
+        this._variantStatsPath = "variant";
         if (this.sample?.qualityControl?.["variant"]?.variantStats.length > 0) {
             this._variantStats = this.sample.qualityControl?.["variant"]?.variantStats[0];
             this.selectVariantStats("ALL", this._variantStats);
@@ -200,7 +201,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
             description: this.save.description || "",
             stats: this.sampleQcVariantStats.stats
         };
-
+        delete variantStats.stats.consequenceTypeCount["other"];
+        delete variantStats.stats.biotypeCount["other"];
+        delete variantStats.stats.biotypeCount["other_non_pseudo_gene"];
 
         if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
             this.sample.qualityControl[this._variantStatsPath] = {

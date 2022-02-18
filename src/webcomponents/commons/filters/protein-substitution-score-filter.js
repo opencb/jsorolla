@@ -16,8 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
-
 
 export default class ProteinSubstitutionScoreFilter extends LitElement {
 
@@ -37,14 +35,18 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            protein_substitution: {
+            proteinSubstitution: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "pssf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
+
+        this.POLYPHEN_FIRST_REGEX = /(?<polyphen>polyphen([a-zA-z0-9,. =<>]+))(?<op>[,;])(?<sift>sift([a-zA-z0-9,. =<>]+))/;
+        this.SIFT_FIRST_REGEX = /(?<sift>sift([a-zA-z0-9,. =<>]+))(?<op>[,;])(?<polyphen>polyphen([a-zA-z0-9,. =<>]+))/;
+
         this.state = this.defaultState();
         this.polyphenKeys = [
             {id: "score", name: "Score"},
@@ -52,7 +54,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             {id: "unknown", name: "Unknown"},
             {id: "possibly damaging", name: "Possibly damaging"},
             {id: "probably damaging", name: "Probably damaging"},
-            {id: "possibly damaging,probably damaging", name: "Possibly & Probably damaging"}
+            // {id: "possibly damaging,probably damaging", name: "Possibly & Probably damaging"}
         ];
         this.siftKeys = [
             {id: "score", name: "Score"},
@@ -64,11 +66,23 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("protein_substitution")) {
+        if (changedProperties.has("proteinSubstitution")) {
             this.state = this.defaultState();
-            if (this.protein_substitution) {
-                this.logicalOperator = this.protein_substitution.split(",") > this.protein_substitution.split(";") ? "," : ";";
-                const pss = this.protein_substitution.split(this.logicalOperator);
+            if (this.proteinSubstitution) {
+                let pss;
+                if (this.proteinSubstitution.includes("polyphen") && this.proteinSubstitution.includes("sift")) {
+                    let match;
+                    if (this.proteinSubstitution.startsWith("polyphen")) {
+                        match = this.proteinSubstitution.match(this.POLYPHEN_FIRST_REGEX);
+                    } else {
+                        match = this.proteinSubstitution.match(this.SIFT_FIRST_REGEX);
+                    }
+                    this.logicalOperator = match.groups.op;
+                    pss = [match.groups.polyphen, match.groups.sift];
+                } else {
+                    pss = this.proteinSubstitution;
+                }
+
                 this.logicalSwitchDisabled = pss.length <= 1;
                 if (pss.length > 0) {
                     pss.forEach(ps => {
@@ -126,81 +140,81 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
 
     render() {
         return html`
-                <style>
-                    .score-select {
-                        padding-right: 5px;
-                    }
-                    .score-comparator {
-                        padding-left: 5px;
-                        padding-right: 5px;
-                    }
-                    .score-value {
-                        padding-left: 5px;
-                    }
-                </style>
-                <div class="form-group sift">
-                    <span style="padding-top: 10px;padding-left: 0px;">SIFT</span>
-                    <div class="row">
-                        <div class="col-md-4 control-label score-select">
-                            <select-field-filter .data="${this.siftKeys}" .value=${this.state["sift"].type} @filterChange="${e => this.filterChange("sift", {type: e.detail.value})}"></select-field-filter>
-                        </div>
-                        <div class="col-md-3 score-comparator">
-                            <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
-                                    class="form-control input-sm ${this._prefix}FilterSelect"
-                                    @change="${e => this.filterChange("sift", {comparator: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}">
-                                <option .selected="${this.state["sift"].comparator === "="}" value="=">=</option>
-                                <option .selected="${this.state["sift"].comparator === "<"}" value="<">&lt;</option>
-                                <option .selected="${this.state["sift"].comparator === "<="}" value="<=">&le;</option>
-                                <option .selected="${this.state["sift"].comparator === ">"}" value=">">&gt;</option>
-                                <option .selected="${this.state["sift"].comparator === ">="}" value=">=">&ge;</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5 score-value">
-                            <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("sift", {value: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}" .value="${this.state["sift"].value ?? ""}">
-                        </div>
+            <style>
+                .score-select {
+                    padding-right: 5px;
+                }
+                .score-comparator {
+                    padding-left: 5px;
+                    padding-right: 5px;
+                }
+                .score-value {
+                    padding-left: 5px;
+                }
+            </style>
+            <div class="form-group sift">
+                <span style="padding-top: 10px;padding-left: 0px;">SIFT</span>
+                <div class="row">
+                    <div class="col-md-4 control-label score-select">
+                        <select-field-filter .data="${this.siftKeys}" .value=${this.state["sift"].type} @filterChange="${e => this.filterChange("sift", {type: e.detail.value})}"></select-field-filter>
+                    </div>
+                    <div class="col-md-3 score-comparator">
+                        <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
+                                class="form-control input-sm ${this._prefix}FilterSelect"
+                                @change="${e => this.filterChange("sift", {comparator: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}">
+                            <option .selected="${this.state["sift"].comparator === "="}" value="=">=</option>
+                            <option .selected="${this.state["sift"].comparator === "<"}" value="<">&lt;</option>
+                            <option .selected="${this.state["sift"].comparator === "<="}" value="<=">&le;</option>
+                            <option .selected="${this.state["sift"].comparator === ">"}" value=">">&gt;</option>
+                            <option .selected="${this.state["sift"].comparator === ">="}" value=">=">&ge;</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5 score-value">
+                        <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("sift", {value: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}" .value="${this.state["sift"].value ?? ""}">
                     </div>
                 </div>
-
-                <div class="form-group polyphen">
-                    <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
-                    <div class="row">
-                        <div class="col-md-4 control-label score-select">
-                            <select-field-filter .data="${this.polyphenKeys}" .value=${this.state["polyphen"].type} @filterChange="${e => this.filterChange("polyphen", {type: e.detail.value})}"></select-field-filter>
-                        </div>
-                        <div class="col-md-3 score-comparator">
-                            <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
-                                    class="form-control input-sm ${this._prefix}FilterSelect"
-                                    @change="${e => this.filterChange("polyphen", {comparator: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
-                                <option .selected="${this.state["polyphen"].comparator === "="}" value="=">=</option>
-                                <option .selected="${this.state["polyphen"].comparator === "<"}" value="<">&lt;</option>
-                                <option .selected="${this.state["polyphen"].comparator === "<="}" value="<=">&le;</option>
-                                <option .selected="${this.state["polyphen"].comparator === ">"}" value=">">&gt;</option>
-                                <option .selected="${this.state["polyphen"].comparator === ">="}" value=">=">&ge;</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5 score-value">
-                            <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("polyphen", {value: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}" .value="${this.state["polyphen"].value ?? ""}">
-                        </div>
-                    </div>
-                </div>
-
-                <fieldset class="switch-toggle-wrapper">
-                    <label style="font-weight: normal;">Logical Operator</label>
-                    <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value=","
-                                   class="radio-or ${this._prefix}FilterRadio" checked .disabled="${this.logicalSwitchDisabled}"
-                                   @change="${this.onLogicalOperatorChange}"/>
-                            <label for="${this._prefix}pssOrRadio"
-                                   class="rating-label rating-label-or">OR</label>
-                        <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value=";"
-                                   class="radio-and ${this._prefix}FilterRadio" .disabled="${this.logicalSwitchDisabled}" @change="${this.onLogicalOperatorChange}"/>
-                            <label for="${this._prefix}pssAndRadio"
-                                   class="rating-label rating-label-and">AND</label>
-                        <a class="btn btn-primary ripple btn-small"></a>
-                    </div>
-                </fieldset>
             </div>
-            `;
+
+            <div class="form-group polyphen">
+                <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
+                <div class="row">
+                    <div class="col-md-4 control-label score-select">
+                        <select-field-filter .data="${this.polyphenKeys}" .value=${this.state["polyphen"].type} @filterChange="${e => this.filterChange("polyphen", {type: e.detail.value})}"></select-field-filter>
+                    </div>
+                    <div class="col-md-3 score-comparator">
+                        <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
+                                class="form-control input-sm ${this._prefix}FilterSelect"
+                                @change="${e => this.filterChange("polyphen", {comparator: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
+                            <option .selected="${this.state["polyphen"].comparator === "="}" value="=">=</option>
+                            <option .selected="${this.state["polyphen"].comparator === "<"}" value="<">&lt;</option>
+                            <option .selected="${this.state["polyphen"].comparator === "<="}" value="<=">&le;</option>
+                            <option .selected="${this.state["polyphen"].comparator === ">"}" value=">">&gt;</option>
+                            <option .selected="${this.state["polyphen"].comparator === ">="}" value=">=">&ge;</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5 score-value">
+                        <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("polyphen", {value: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}" .value="${this.state["polyphen"].value ?? ""}">
+                    </div>
+                </div>
+            </div>
+
+            <fieldset class="switch-toggle-wrapper">
+                <label style="font-weight: normal;">Logical Operator</label>
+                <div class="switch-toggle text-white alert alert-light">
+                    <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value=","
+                           class="radio-or ${this._prefix}FilterRadio" checked .disabled="${this.logicalSwitchDisabled}"
+                           @change="${this.onLogicalOperatorChange}"/>
+                    <label for="${this._prefix}pssOrRadio"
+                           class="rating-label rating-label-or">OR</label>
+                    <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value=";"
+                           class="radio-and ${this._prefix}FilterRadio" .disabled="${this.logicalSwitchDisabled}" @change="${this.onLogicalOperatorChange}"/>
+                    <label for="${this._prefix}pssAndRadio"
+                           class="rating-label rating-label-and">AND</label>
+                    <a class="btn btn-primary ripple btn-small"></a>
+                </div>
+            </fieldset>
+            </div>
+        `;
     }
 
 }

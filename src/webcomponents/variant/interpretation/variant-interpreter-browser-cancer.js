@@ -300,7 +300,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
-                                visible: () => this.files?.length > 0,
+                                // visible: () => this.files?.length > 0,
+                                visible: () => !!this.query.fileData,
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
@@ -602,6 +603,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                         .active="${active}">
                                     </variant-beacon-network>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            render: (variant, active) => html`
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                            `,
                         }
                     ]
                 }

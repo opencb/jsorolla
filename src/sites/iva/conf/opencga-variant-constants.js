@@ -812,8 +812,9 @@ const tooltips = {
     biotype: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     type: "Only considers variants of the selected type",
     consequenceTypeSelect: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
-    go: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
-    hpo: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    go: "The Gene Ontology (GO) knowledgebase is the world's largest source of information on the functions of genes." +
+        "This knowledge is both human-readable and machine-readable, and is a foundation for computational analysis of large-scale molecular biology and genetics experiments in biomedical research.",
+    hpo: "The Human Phenotype Ontology (HPO) provides a standardized vocabulary of phenotypic abnormalities encountered in human disease.",
     clinvar: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     fullTextSearch: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     cadd: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +

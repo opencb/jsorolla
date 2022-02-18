@@ -487,6 +487,13 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                         .active="${active}">
                                     </variant-beacon-network>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            render: (variant, active) => html`
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                            `,
                         }
                     ]
                 }
