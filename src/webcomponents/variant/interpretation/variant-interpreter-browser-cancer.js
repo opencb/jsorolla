@@ -300,7 +300,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
-                                visible: () => this.files?.length > 0,
+                                // visible: () => this.files?.length > 0,
+                                visible: () => !!this.query.fileData,
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession

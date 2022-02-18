@@ -382,14 +382,19 @@ export default class VariantBrowserFilter extends LitElement {
                         </variant-file-filter>`;
                     break;
                 case "file-quality":
-                    let depth;
+                    let depth, vaf;
                     if (this.preparedQuery?.sampleData) {
                         const sampleDataFilters = this.preparedQuery.sampleData.split(";");
-                        depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
+                        depth = sampleDataFilters.find(filter => filter.startsWith("DP"))?.split(">=")[1];
+                        vaf = sampleDataFilters.find(filter => filter.startsWith("EXT_VAF"))?.split(">=")[1];
                     }
                     content = html`
                         <file-quality-filter
-                            .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
+                            .filter="${this.preparedQuery.filter}"
+                            .depth="${depth}"
+                            .vaf="${vaf}"
+                            .qual="${this.preparedQuery.qual}"
+                            .opencgaSession="${this.opencgaSession}"
                             @filterChange="${e => this.onFilterChange({
                                 filter: "filter",
                                 sampleData: "sampleData",
