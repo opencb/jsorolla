@@ -566,12 +566,13 @@ export default class TrackListPanel {
             track.dataAdapter.version = this.config.cellBaseVersion;
         }
 
-        track.set("pixelBase", this.pixelBase);
-        track.set("region", this.visualRegion);
-        track.set("width", this.width);
+        track.setPixelBase(this.pixelBase);
+        track.setRegion(this.visualRegion);
+        track.setWidth(this.width);
         track.setSpecies(this.species);
 
-        track.set("trackListPanel", this);
+        // track.set("trackListPanel", this);
+        // console.log(track);
 
         // Track must be initialized after we have created
         // de DIV element in order to create the elements in the DOM
@@ -584,15 +585,15 @@ export default class TrackListPanel {
             // console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
             // console.log(`trackListPanel trackRegion:change width ------> ${this.width}`);
             track.setWidth(this.width);
-            track.set("pixelBase", this.pixelBase);
-            track.set("region", event.region);
+            track.setPixelBase(this.pixelBase);
+            track.setRegion(event.region);
             track.draw();
         });
 
         // Track region move
         this.on("trackRegion:move", event => {
-            track.set("region", event.region);
-            track.set("pixelBase", this.pixelBase);
+            track.setRegion(event.region);
+            track.setPixelBase(this.pixelBase);
             track.move(event.disp);
         });
 
@@ -641,7 +642,6 @@ export default class TrackListPanel {
         // this.on("trackRegion:change", track.get("trackRegion:change"));
         // this.on("trackRegion:move", track.get("trackRegion:move"));
         // this.on("trackFeature:highlight", track.get("trackFeature:highlight"));
-
     }
 
     toggleAutoHeight(bool) {
