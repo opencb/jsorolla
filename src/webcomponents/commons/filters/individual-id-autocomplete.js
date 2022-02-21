@@ -88,8 +88,6 @@ export default class IndividualIdAutocomplete extends LitElement {
 
     render() {
         return html`
-
-            ${JSON.stringify(this._config)}
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
