@@ -203,7 +203,7 @@ export default class IndividualUpdate extends LitElement {
                     title: "Individual General Information",
                     elements: [
                         {
-                            title: "Individual id",
+                            title: "Individual ID",
                             field: "id",
                             type: "input-text",
                             display: {
@@ -362,7 +362,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {}
                         },
                         {
-                            title: "Portal code",
+                            title: "Portal Code",
                             field: "location.postalCode",
                             type: "input-text",
                             display: {}
@@ -391,7 +391,7 @@ export default class IndividualUpdate extends LitElement {
                     title: "Population Info",
                     elements: [
                         {
-                            title: "Population name",
+                            title: "Population Name",
                             field: "population.name",
                             type: "input-text",
                             display: {}

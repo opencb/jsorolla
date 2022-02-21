@@ -218,7 +218,7 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Status name",
+                            title: "Status Name",
                             field: "status.name",
                             type: "input-text",
                             display: {

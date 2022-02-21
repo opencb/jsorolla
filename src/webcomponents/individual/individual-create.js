@@ -23,6 +23,8 @@ import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 
 
 export default class IndividualCreate extends LitElement {
@@ -137,7 +139,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Individual General Information",
                     elements: [
                         {
-                            title: "Individual id",
+                            title: "Individual ID",
                             field: "id",
                             type: "input-text",
                             required: true,
@@ -157,7 +159,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Father id",
+                            title: "Father ID",
                             field: "father",
                             type: "custom",
                             display: {
@@ -181,7 +183,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Mother Id",
+                            title: "Mother ID",
                             field: "mother",
                             type: "custom",
                             display: {

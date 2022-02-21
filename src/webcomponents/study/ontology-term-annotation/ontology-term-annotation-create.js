@@ -38,6 +38,9 @@ export default class OntologyTermAnnotationCreate extends LitElement {
             ontology: {
                 type: Object
             },
+            mode: {
+                type: String,
+            },
             displayConfig: {
                 type: Object
             }
@@ -47,14 +50,12 @@ export default class OntologyTermAnnotationCreate extends LitElement {
     _init() {
         this.ontology = {};
         this.displayConfigDefault = {
-            width: 10,
             buttonsAlign: "right",
             buttonClearText: "Clear",
             buttonOkText: "Create Ontology Term",
             titleVisible: false,
             titleWidth: 4,
             defaultLayout: "horizontal",
-            style: "border-left: 2px solid #0c2f4c",
         };
         this._config = this.getDefaultConfig();
     }

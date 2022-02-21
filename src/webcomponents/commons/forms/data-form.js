@@ -1083,6 +1083,31 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _createCustomListElement(element) {
+        if (typeof element.display?.render !== "function") {
+            return "All 'custom' elements must implement a 'display.render' function.";
+        }
+
+        // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
+        let data = this.data;
+        if (element.field) {
+            data = this.getValue(element.field);
+        }
+
+        // Call to render function if defined
+        // It covers the case the result of this.getValue is actually undefined
+
+        const result = element.display.render(data);
+        if (result) {
+            // const width = this._getWidth(element);
+            // const style = element.display.style ? element.display.style : "";
+            // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
+            return this._createElementTemplate(element, data, result);
+        } else {
+            return this._getErrorMessage(element);
+        }
+    }
+
     _createDownloadElement(element) {
         return html`
             <download-button

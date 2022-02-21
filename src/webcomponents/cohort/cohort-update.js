@@ -287,7 +287,7 @@ export default class CohortUpdate extends LitElement {
                         // },
                         // Add Validation for status name and description
                         {
-                            title: "Status name",
+                            title: "Status Name",
                             field: "status.name",
                             type: "input-text",
                             display: {

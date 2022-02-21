@@ -22,6 +22,8 @@ import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 
 
 export default class SampleCreate extends LitElement {
@@ -81,8 +83,7 @@ export default class SampleCreate extends LitElement {
             case "processing.labSambpleId":
             case "processing.quantity":
             case "processing.date":
-            case "collection.tissue":
-            case "collection.organ":
+            case "collection.type":
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
@@ -93,6 +94,9 @@ export default class SampleCreate extends LitElement {
                         e.detail.value
                     )
                 };
+                break;
+            case "collection.from":
+                this.sample = {...this.sample, from: e.detail.value};
                 break;
             case "phenotypes":
                 this.sample = {...this.sample, phenotypes: e.detail.value};
@@ -269,9 +273,10 @@ export default class SampleCreate extends LitElement {
                                 <ontology-term-annotation-create
                                     .ontology=${product}
                                     .displayConfig="${{
+                                            defaultLayout: "vertical",
                                             buttonsVisible: false,
                                             width: 12,
-                                            style: "border-left: 2px solid #0c2f4c",
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
                                     @fieldChange=${e => this.onFieldChange(e, "processing.product")}
                                 ></ontology-term-annotation-create>`
@@ -338,18 +343,16 @@ export default class SampleCreate extends LitElement {
                         field: "collection.from",
                         type: "custom",
                         display: {
-                            // layout: "vertical",
-                            // defaultLayout: "vertical",
-                            // width: 12,
-                            // style: "padding-left: 0px",
                             render: from => html`
-                                <ontology-term-annotation-create
-                                    .ontology=${from}
+                                <ontology-term-annotation-list-update
+                                    .ontologies="${from}"
                                     .displayConfig="${{
-                                        style: "border-left: 2px solid #0c2f4c",
+                                        defaultLayout: "vertical",
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        buttonOkText: "Add"
                                         }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "collection.from")}
-                                ></ontology-term-annotation-create>`
+                                    @changeOntologies="${e => this.onFieldChange(e, "collection.from")}">
+                                </ontology-term-annotation-list-update>`
                         }
                     },
                     {
