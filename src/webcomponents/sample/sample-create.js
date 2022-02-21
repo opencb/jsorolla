@@ -212,6 +212,7 @@ export default class SampleCreate extends LitElement {
                             placeholder: "e.g. Homo sapiens, ...",
                             render: () => html`
                                 <individual-id-autocomplete
+                                    .config="${{multiple: false}}"
                                     .value="${this.sample?.individualId}"
                                     .opencgaSession="${this.opencgaSession}"
                                     @filterChange="${e =>

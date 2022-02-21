@@ -53,7 +53,6 @@ export default class IndividualIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            multiple: false,
             limit: 10,
             placeholder: "Start typing...",
             fields: item => ({
@@ -79,6 +78,8 @@ export default class IndividualIdAutocomplete extends LitElement {
 
     render() {
         return html`
+
+            ${JSON.stringify(this._config)}
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
