@@ -270,10 +270,10 @@ context("4. Variant Browser", () => {
 
     it("4.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
-        cy.get("protein-substitution-score-filter .sift .score-comparator .select-field-filter").click();
-        cy.get("protein-substitution-score-filter .sift .score-comparator .dropdown-menu").contains("Tolerated").click();
-        cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
-        cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains("Possibly damaging").click();
+        cy.get("protein-substitution-score-filter .sift .score-select .dropdown .btn").click();
+        cy.get("protein-substitution-score-filter .sift .score-select .dropdown a").contains("Tolerated").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-select .dropdown .btn").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-select .dropdown a").contains("Possibly damaging").click();
 
         cy.get("protein-substitution-score-filter .rating-label-and").click();
         cy.get("div.search-button-wrapper button").click();
@@ -342,7 +342,7 @@ context("4. Variant Browser", () => {
         checkResultsOrNot("variant-cohort-stats-grid");
 
         cy.get("variant-browser-detail [data-id='samples']").click();
-        checkResults("opencga-variant-samples");
+        checkResults("variant-samples");
 
         cy.get("variant-browser-detail [data-id='beacon']").click();
         cy.get("variant-beacon-network", {timeout: TIMEOUT}).find(".beacon-square").its("length").should("eq", 15);
