@@ -143,9 +143,11 @@ class VariantInterpreterReport extends LitElement {
                     "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
                     "with an interpretation of this report.",
                 ].join(" "),
-                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
-                    return item.status.toUpperCase() === "REPORTED";
-                }),
+                // TODO decide what to do here
+                // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
+                //     return item.status.toUpperCase() === "REPORTED";
+                // }),
+                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
@@ -582,7 +584,10 @@ class VariantInterpreterReport extends LitElement {
                                             </file-preview>
                                         </div>
                                         <div class="col-md-5">
-                                            <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                            <signature-view
+                                                .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV") || qcPlots.signatures?.[0]}"
+                                                .active="${this.active}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
                                             <p>
