@@ -36,10 +36,10 @@ context("4. Variant Browser", () => {
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 1);
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 13); // we are hiding only the columns with rowspan=2
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 13);
 
     });
 
@@ -60,17 +60,15 @@ context("4. Variant Browser", () => {
         cy.get("input[data-cy='modal-filter-description']").type(randomString(3));
         cy.get("button[data-cy='modal-filter-save-button']").click(); // confirm save
 
-        cy.get(".swal2-actions").contains(/Yes|OK/).click(); // dismiss notification (either new filter or overwrite a saved one)
-        cy.get("button[data-cy='filter-button']").click();
+        cy.contains(".notification-manager .alert", "Filter has been saved", {timeout: TIMEOUT}).should("be.visible");
+        cy.get(".active-filter-label").click();
         cy.get("ul.saved-filter-wrapper").contains(name);
         cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
         cy.get(".swal2-title").contains("Are you sure?");
         cy.get(".swal2-confirm").click(); // confirm deletion action
 
-        // cy.get(".swal2-content", {timeout: TIMEOUT}).contains("Filter has been deleted.");
-        // this selector doesn't work without .should("be.visible") assertion because it refers to the previous #swal2-content which has been detatched from DOM before
-        cy.contains(".swal2-content", "Filter has been deleted", {timeout: TIMEOUT}).should("be.visible");
-        cy.get(".swal2-confirm").click({force: true}); // dismiss confirmation modal
+        cy.contains(".notification-manager .alert", "Filter has been deleted", {timeout: TIMEOUT}).should("be.visible");
+        // cy.get(".swal2-confirm").click({force: true}); // dismiss confirmation modal
         cy.get("opencga-active-filters button[data-filter-name='ct']").click();
     });
 
@@ -237,9 +235,9 @@ context("4. Variant Browser", () => {
         cy.get("[data-cy-section-title=Phenotype]").click();
 
         // GO
-        selectToken("go-accessions-filter", "guanyl", true); // guanyl-nucleotide exchange factor activity
-        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0005085");
-        removeToken("go-accessions-filter", "GO:0005085");
+        selectToken("go-accessions-filter", "dopamine", true); // "dopamine secretion" exchange factor activity
+        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
+        removeToken("go-accessions-filter", "GO:0014046");
 
         // HPO
         cy.get("[data-cy-section-id=Phenotype]")
@@ -256,22 +254,31 @@ context("4. Variant Browser", () => {
     it("4.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
         cy.get("variant-browser-filter a[data-cy-section-title='Deleteriousness']").click();
-        cy.get("protein-substitution-score-filter .sift input[type='text']").type("0.1");
-        cy.get("protein-substitution-score-filter .polyphen input[type='text']").type("0.1");
+        cy.get("protein-substitution-score-filter .sift .score-comparator .select-field-filter").click();
+        cy.get("protein-substitution-score-filter .sift .score-comparator .dropdown-menu").contains("<").click();
+        cy.get("protein-substitution-score-filter .sift .score-value input[type='text']").type("0.1");
+
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains("≤").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-value input[type='text']").type("0.1");
+
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='protein_substitution']").click();
+        cy.get("opencga-active-filters button[data-filter-name='proteinSubstitution']").click();
         checkResults("variant-browser-grid");
     });
 
     it("4.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
-        cy.get("protein-substitution-score-filter .sift input[type='text']").type("0.1");
-        cy.get("protein-substitution-score-filter .polyphen input[type='text']").type("0.1");
+        cy.get("protein-substitution-score-filter .sift .score-comparator .select-field-filter").click();
+        cy.get("protein-substitution-score-filter .sift .score-comparator .dropdown-menu").contains("Tolerated").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains("Possibly damaging").click();
+
         cy.get("protein-substitution-score-filter .rating-label-and").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='protein_substitution']").click();
+        cy.get("opencga-active-filters button[data-filter-name='proteinSubstitution']").click();
         checkResults("variant-browser-grid");
     });
 

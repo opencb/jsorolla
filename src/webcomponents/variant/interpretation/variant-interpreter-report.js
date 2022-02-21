@@ -143,9 +143,11 @@ class VariantInterpreterReport extends LitElement {
                     "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
                     "with an interpretation of this report.",
                 ].join(" "),
-                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
-                    return item.status.toUpperCase() === "REPORTED";
-                }),
+                // TODO decide what to do here
+                // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
+                //     return item.status.toUpperCase() === "REPORTED";
+                // }),
+                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
@@ -204,8 +206,7 @@ class VariantInterpreterReport extends LitElement {
                             {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
                         this._data.ascatPlots = ascatMetrics?.files
-                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
-                            .map(id => files.find(f => f.id === id)) || [];
+                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id));
                     }
 
                     this._data.qcPlots = {};
@@ -530,19 +531,19 @@ class VariantInterpreterReport extends LitElement {
                                         <div class="col-md-5">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[0]}"
+                                                .fileId="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[2]}"
+                                                .fileId="${images[2]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[1]}"
+                                                .fileId="${images[1]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
@@ -582,7 +583,10 @@ class VariantInterpreterReport extends LitElement {
                                             </file-preview>
                                         </div>
                                         <div class="col-md-5">
-                                            <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                            <signature-view
+                                                .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV") || qcPlots.signatures?.[0]}"
+                                                .active="${this.active}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
                                             <p>

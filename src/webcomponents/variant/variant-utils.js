@@ -272,9 +272,9 @@ export default class VariantUtils {
                             genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
                         });
                     }
-                    if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
-                        if (UtilsNew.isNotUndefinedOrNull(study.samplesData[indexSample])) {
-                            const currentGenotype = study.samplesData[indexSample][0];
+                    if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data) && UtilsNew.isNotEmptyArray(study.samples?.[indexSample]?.data)) {
+                        if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data)) {
+                            const currentGenotype = study.samples?.[indexSample]?.data[0];
                             let reference = currentGenotype.split("/")[0];
                             let alternate = currentGenotype.split("/")[1];
                             let tooltipText = reference + " / " + alternate;
@@ -321,18 +321,18 @@ export default class VariantUtils {
                                     referenceValueColText = "-";
                                     //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
                                 }
-                                tooltipText += "<br>" + referenceValue + " / " + alternateValue;
+                                tooltipText += "<br>" + referenceValue + "/" + alternateValue;
                             } else {
                                 referenceValueColText = reference;
                                 alternateValueColText = alternate;
-                                tooltipText += "<br>" + reference + " / " + alternate;
+                                tooltipText += "<br>" + reference + "/" + alternate;
                             }
 
                             const referenceIndex = parseInt(reference);
                             const alternateIndex = parseInt(alternate);
                             referenceValueColText = referenceValueColText;
                             alternateValueColText = alternateValueColText;
-                            colText = referenceValueColText + " / " + alternateValueColText;
+                            colText = referenceValueColText + "/" + alternateValueColText;
                             variantString.push(colText);
 
                             // res = "<span class='sampleGenotype' data-text='" + tooltipText + "'> " + colText + " </span>";
@@ -345,8 +345,8 @@ export default class VariantUtils {
             if (UtilsNew.isNotUndefinedOrNull(samples)) {
                 samples.forEach((sample, indexSample) => {
                     json.studies.forEach(study => {
-                        if (study.samplesData.length > 0) {
-                            const currentGenotype = study.samplesData[indexSample];
+                        if (study.samples?.[indexSample]?.data.length > 0) {
+                            const currentGenotype = study.samples?.[indexSample]?.data;
                             if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
                                 variantString.push(currentGenotype[0]);
                                 return;

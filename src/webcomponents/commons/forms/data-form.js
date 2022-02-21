@@ -238,6 +238,10 @@ export default class DataForm extends LitElement {
         return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
     }
 
+    _getVisibleSections() {
+        return this.config.sections.filter(section => this._getBooleanValue(section?.display?.visible, true));
+    }
+
     _isUpdated(element) {
         if (!UtilsNew.isEmpty(this.updateParams)) {
             const [field, prop] = element.field.split(".");
@@ -301,7 +305,7 @@ export default class DataForm extends LitElement {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this.config.sections.map((section, index) => html`
+                    ${this._getVisibleSections().map((section, index) => html`
                         <div style="display:${this.activeSection === index ? "block": "none"}">
                             ${this._createSection(section)}
                         </div>
@@ -1319,7 +1323,7 @@ export default class DataForm extends LitElement {
         if (type === "tabs") {
             return html`
                 <ul class="nav nav-tabs">
-                    ${this.config.sections.map((section, index) => {
+                    ${this._getVisibleSections().map((section, index) => {
                         const active = index === this.activeSection;
                         return html`
                             <li role="presentation" class="${active ? "active" : ""}">
@@ -1342,7 +1346,7 @@ export default class DataForm extends LitElement {
                 <div class="row">
                     <div class="col-md-3">
                         <ul class="nav nav-pills nav-stacked">
-                            ${this.config.sections.map((section, index) => {
+                            ${this._getVisibleSections().map((section, index) => {
                                 const active = index === this.activeSection;
                                 return html`
                                     <li role="presentation" class="${active ? "active" : ""}">
