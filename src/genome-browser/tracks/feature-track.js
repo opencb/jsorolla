@@ -10,7 +10,10 @@ export default class FeatureTrack {
         Object.assign(this, Backbone.Events);
 
         this.prefix = UtilsNew.randomString(8);
-        this.config = {...this.getDefaultConfig(), ...config};
+        this.config = {
+            ...this.getDefaultConfig(),
+            ...config,
+        };
 
         this.#init();
     }
@@ -24,21 +27,18 @@ export default class FeatureTrack {
 
         this.status = "";
 
-        this.histogramRendererName = "HistogramRenderer";
-        this.visibleRegionSize;
         this.fontClass = "ocb-font-roboto ocb-font-size-14";
-        this.externalLink = "";
-        this.autoRender = false;
 
         // TODO: review if we need this
-        if (this.renderer != null) {
-            this.renderer.track = this;
-        }
+        // if (this.renderer != null) {
+        //     this.renderer.track = this;
+        // }
 
-        this.pixelBase;
         this.svgCanvasWidth = 500000;
-        this.pixelPosition = this.svgCanvasWidth / 2;
         this.svgCanvasOffset;
+
+        this.pixelBase = 0;
+        this.pixelPosition = this.svgCanvasWidth / 2;
 
         this.histogram;
         this.histogramLogarithm;
@@ -57,9 +57,11 @@ export default class FeatureTrack {
         // this.defaultRenderer = this.renderer;
         // this.renderer = this.renderer;
 
-        this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
-        this.dataType = "features";
+        // TODO: enable back histogram renderer
+        // this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
+        this.histogramRendererName = "HistogramRenderer";
 
+        this.dataType = "features";
         this.featureType = "Feature"; // This only have the old class feature track
         // this.resource = this.dataAdapter.resource;// This only have the old class feature track
         // this.species = this.dataAdapter.species;// This only have the old class feature track
@@ -214,7 +216,7 @@ export default class FeatureTrack {
         target.appendChild(this.div);
 
         this.updateHeight();
-        this.renderer.init();
+        // this.renderer.init();
     }
 
     get(attr) {
@@ -388,12 +390,16 @@ export default class FeatureTrack {
     }
 
     setWidth(width) {
-        this.#setWidth(width);
+        this.width = width;
         this.main.setAttribute("width", this.width);
     }
 
-    #setWidth(width) {
-        this.width = width;
+    setRegion(newRegion) {
+        this.region = newRegion;
+    }
+
+    setPixelBase(newPixelBase) {
+        this.pixelBase = newPixelBase;
     }
 
     #drawHistogramLegend() {
@@ -455,9 +461,6 @@ export default class FeatureTrack {
     }
 
     getDataHandler(event) {
-        console.time("Total FeatureTrack -> getDataHandler " + event.sender.category);
-
-        console.time("Chunks() FeatureTrack -> getDataHandler " + event.sender.category);
         let renderer, features;
         if (event.dataType !== "histogram") {
             renderer = this.renderer;
@@ -466,9 +469,7 @@ export default class FeatureTrack {
             renderer = this.histogramRenderer;
             features = event.items;
         }
-        console.timeEnd("Chunks() FeatureTrack -> getDataHandler " + event.sender.category);
 
-        console.time("render() FeatureTrack -> getDataHandler " + event.sender.category);
         renderer.render(features, {
             cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -484,13 +485,12 @@ export default class FeatureTrack {
             species: this.species,
             featureType: this.featureType
         });
-        console.timeEnd("render() FeatureTrack -> getDataHandler " + event.sender.category);
 
         this.updateHeight();
-        console.timeEnd("Total FeatureTrack -> getDataHandler " + event.sender.category);
     }
 
-    draw(customAdapter, customRenderer) {
+    // draw(customAdapter, customRenderer) {
+    draw(customAdapter) {
         const adapter = customAdapter || this.dataAdapter;
 
         this.clean();
@@ -503,10 +503,11 @@ export default class FeatureTrack {
             this.dataType = "histogram";
         }
 
-        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
+        if (typeof this.config.visibleRegionSize === "undefined" || this.region.length() < this.config.visibleRegionSize) {
             this.setLoading(true);
 
-            const region = new Region({chromosome: this.region.chromosome,
+            const region = new Region({
+                chromosome: this.region.chromosome,
                 start: this.region.start - this.svgCanvasOffset * 2,
                 end: this.region.end + this.svgCanvasOffset * 2
             });
@@ -519,8 +520,11 @@ export default class FeatureTrack {
                 interval: this.interval,
             };
 
-            console.time("SuperTotal FeatureTrack -> getDataHandler");
-            adapter.getData({dataType: this.dataType, region: region, params: params})
+            adapter.getData({
+                dataType: this.dataType,
+                region: region,
+                params: params,
+            })
                 .then(response => {
                     this.getDataHandler(response);
                     this.setLoading(false);
@@ -528,7 +532,6 @@ export default class FeatureTrack {
                 .catch(reason => {
                     console.log("Feature Track draw error: " + reason);
                 });
-            console.timeEnd("SuperTotal FeatureTrack -> getDataHandler");
         }
 
         this.updateHeight();
@@ -584,8 +587,7 @@ export default class FeatureTrack {
         const virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
         const virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
 
-        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
-
+        if (typeof this.config.visibleRegionSize === "undefined" || this.region.length() < this.config.visibleRegionSize) {
             if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
                 this.dataAdapter.getData({
                     dataType: this.dataType,
@@ -639,11 +641,13 @@ export default class FeatureTrack {
     // Placeholder getDefaultConfig
     getDefaultConfig() {
         return {
+            title: "",
             resizable: true,
             closable: false,
             showSettings: false,
             minHistogramRegionSize: 300000000,
             maxLabelRegionSize: 300000000,
+            visibleRegionSize: 200,
         };
     }
 
