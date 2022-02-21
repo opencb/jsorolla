@@ -28,6 +28,7 @@ export default class GeneTrack extends FeatureTrack {
         Object.assign(this, this.getDefaultConfig(), args);
 
         // init dataAdapter and renderer
+        this.renderer = new GeneRenderer(args.renderer);
         this.histogramRenderer = new HistogramRenderer(args);
         this._init();
 
