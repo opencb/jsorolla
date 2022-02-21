@@ -206,8 +206,7 @@ class VariantInterpreterReport extends LitElement {
                             {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
                         this._data.ascatPlots = ascatMetrics?.files
-                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
-                            .map(id => files.find(f => f.id === id)) || [];
+                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id));
                     }
 
                     this._data.qcPlots = {};
@@ -532,19 +531,19 @@ class VariantInterpreterReport extends LitElement {
                                         <div class="col-md-5">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[0]}"
+                                                .fileId="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[2]}"
+                                                .fileId="${images[2]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[1]}"
+                                                .fileId="${images[1]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
