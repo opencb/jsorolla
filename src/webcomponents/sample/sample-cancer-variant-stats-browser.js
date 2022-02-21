@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./sample-cancer-variant-stats-plots.js";
 import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
@@ -297,13 +298,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     }
 
     onSave(e) {
-        const variantStats = {
-            id: this.save.id,
-            query: this.executedQuery || {},
-            description: this.save.description || "",
-            stats: this.sampleVariantStats
-        };
-
+        // Check object is defined
         if (!this.sample?.qualityControl?.variant) {
             this.sample.qualityControl.variant = {
                 variantStats: [],
@@ -312,44 +307,47 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             };
         }
 
-        if (this.sample.qualityControl.variant.variantStats) {
-            this.sample.qualityControl.variant.variantStats.push(variantStats);
-        } else {
-            this.sample.qualityControl.variant.variantStats = [variantStats];
-        }
-
+        // Prepare SNV Signature to be saved
         if (this.sample.qualityControl.variant.signatures) {
-            this.sample.qualityControl.variant.signatures.push({id: this.save.id, ...this.signature});
+            // Check ID is unique before saving
+            const index = this.sample.qualityControl.variant.signatures.findIndex(signature => signature.id === this.save.id);
+            if (index === -1) {
+                this.sample.qualityControl.variant.signatures.push({id: this.save.id, ...this.signature});
+            } else {
+                console.warn("Signature ID already exists", this.sample.qualityControl.variant.signatures);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                    title: "Warning",
+                    message: "Signature ID already exists"
+                });
+            }
         } else {
             this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
         }
 
-        this.circosPlot;
-        const aaaa = this.circosPlot.split(", ")[1];
-        debugger
-        // if (this.sample.qualityControl.variant.files) {
-        //     this.sample.qualityControl.variant.files.push({id: this.save.id, file: this.circosPlot});
-        // } else {
-        //     this.sample.qualityControl.variant.files = [{id: this.save.id, file: this.circosPlot}];
-        // }
+        // Save Circos and SNV Signature
+        const genomePlotBase64 = this.circosPlot.split(", ")[1];
         this.opencgaSession.opencgaClient.files().create(
-            {content: aaaa, path: "/circos/" + this.save.id + ".png", type: "FILE", format: "IMAGE"},
+            {content: genomePlotBase64, path: "/circos/" + this.save.id + ".png", type: "FILE", format: "IMAGE"},
             {study: this.opencgaSession.study.fqn, parents: true}
         )
             .then(restResponse => {
+                // Check genomePlot object exists
+                if (!this.sample.qualityControl.variant.genomePlot) {
+                    this.sample.qualityControl.variant["genomePlot"] = {};
+                }
                 this.sample.qualityControl.variant.genomePlot.file = restResponse.responses[0].results[0].id;
 
                 this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
                         console.log(restResponse);
-                        Swal.fire({
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: "Success",
-                            icon: "success",
-                            html: "Variant Stats saved successfully"
+                            message: "Variant Stats saved successfully"
                         });
                     })
                     .catch(restResponse => {
                         console.error(restResponse);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, restResponse);
                     })
                     .finally(() => {
                         this.requestUpdate();
@@ -357,26 +355,11 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             })
             .catch(restResponse => {
                 console.error(restResponse);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, restResponse);
             })
             .finally(() => {
                 this.requestUpdate();
             });
-
-        // this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
-        //     .then(restResponse => {
-        //         console.log(restResponse);
-        //         Swal.fire({
-        //             title: "Success",
-        //             icon: "success",
-        //             html: "Variant Stats saved successfully"
-        //         });
-        //     })
-        //     .catch(restResponse => {
-        //         console.error(restResponse);
-        //     })
-        //     .finally(() => {
-        //         this.requestUpdate();
-        //     });
     }
 
     getSettingsConfig() {

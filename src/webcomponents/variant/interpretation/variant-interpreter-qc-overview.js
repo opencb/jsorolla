@@ -101,7 +101,14 @@ class VariantInterpreterQcOverview extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        if (this.opencgaSession && this.clinicalAnalysis?.proband?.samples) {
+        if (this.opencgaSession && this.clinicalAnalysis?.proband?.samples?.length > 0) {
+            // Fetch sample of interest, in cancer this is the somatic one
+            if (this.clinicalAnalysis.type?.toUpperCase() !== "CANCER") {
+                this.sample = this.clinicalAnalysis.proband.samples[0];
+            } else {
+                this.sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+            }
+
             const bamFileIds = [];
             for (const sample of this.clinicalAnalysis.proband.samples) {
                 const bamFile = sample.fileIds.find(fileId => fileId.endsWith(".bam"));
@@ -109,7 +116,7 @@ class VariantInterpreterQcOverview extends LitElement {
                     bamFileIds.push(bamFile);
                 }
             }
-            if (bamFileIds.length) {
+            if (bamFileIds.length > 0) {
                 this.opencgaSession.opencgaClient.files().info(bamFileIds.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
                         this.bamFiles = response.responses[0].results;
@@ -276,7 +283,7 @@ class VariantInterpreterQcOverview extends LitElement {
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Sample Variant Stats</h3>
                             <sample-variant-stats-view
-                                .sampleId="${this.clinicalAnalysis?.proband?.samples?.[0]?.id}"
+                                .sampleId="${this.sample?.id}"
                                 .opencgaSession="${this.opencgaSession}">
                             </sample-variant-stats-view>
                         </div>
@@ -344,7 +351,7 @@ class VariantInterpreterQcOverview extends LitElement {
                         <div id="${this._prefix}AscatMetrics" role="tabpanel" class="tab-pane content-tab">
                             <file-qc-ascat-metrics
                                 .opencgaSession=${this.opencgaSession}
-                                .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}">
+                                .sampleId="${this.sample?.id}">
                             </file-qc-ascat-metrics>
                         </div>
 
