@@ -19,6 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
@@ -50,6 +51,7 @@ export default class SampleCreate extends LitElement {
 
     _init() {
         this.sample = {};
+        this.collection = {from: []};
         this.annotationSet = {};
     }
 
@@ -95,9 +97,9 @@ export default class SampleCreate extends LitElement {
                     )
                 };
                 break;
-            case "collection.from":
-                this.sample = {...this.sample, from: e.detail.value};
-                break;
+            // case "collection.from":
+            //     this.sample = {...this.sample, from: e.detail.value};
+            //     break;
             case "phenotypes":
                 this.sample = {...this.sample, phenotypes: e.detail.value};
                 break;
@@ -148,6 +150,15 @@ export default class SampleCreate extends LitElement {
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
             });
+    }
+
+    onAddItem(e) {
+        console.log("Adding a collection..", e.detail.value);
+        this.collection = {...this.collection, from: [...this.collection.from, e.detail.value]};
+        this.sample = {...this.sample, collection: this.collection};
+        console.log("Added a collection..", this.sample?.collection);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     render() {
@@ -339,20 +350,51 @@ export default class SampleCreate extends LitElement {
                     //     }
                     // },
                     {
+                        title: "",
+                        field: "collection.from",
+                        type: "custom-list",
+                        collapsed: true,
+                        display: {
+                            visible: from => UtilsNew.isNotEmpty(from),
+                            render: from => {
+                                return html`
+                                <ontology-term-annotation-update
+                                    .ontology="${from}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Save"
+                                        }}">
+                                </ontology-term-annotation-update>`;
+                            },
+                        }
+                    },
+                    {
                         title: "From",
                         field: "collection.from",
                         type: "custom",
                         display: {
+                            // renderUpdate: from => {
+                            //     return html`
+                            //     <ontology-term-annotation-update
+                            //         .ontology="${from}"
+                            //         .displayConfig="${{
+                            //                 defaultLayout: "vertical",
+                            //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                            //                 buttonOkText: "Add"
+                            //             }}">
+                            //     </ontology-term-annotation-update>`;
+                            // },
                             render: from => html`
-                                <ontology-term-annotation-list-update
-                                    .ontologies="${from}"
+                                <ontology-term-annotation-create
                                     .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        buttonOkText: "Add"
+                                            defaultLayout: "vertical",
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Add"
                                         }}"
-                                    @changeOntologies="${e => this.onFieldChange(e, "collection.from")}">
-                                </ontology-term-annotation-list-update>`
+                                    @changeOntologies="${e => this.onFieldChange(e, "collection.from")}"
+                                    @addItem="${e => this.onAddItem(e)}">
+                                </ontology-term-annotation-create>`
                         }
                     },
                     {
@@ -360,7 +402,7 @@ export default class SampleCreate extends LitElement {
                         field: "collection.type",
                         type: "input-text",
                         display: {
-                            placeholder: "Add an organ..."
+                            placeholder: "Add an type..."
                         }
                     },
                     {

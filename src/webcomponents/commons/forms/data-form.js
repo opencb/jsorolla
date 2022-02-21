@@ -467,6 +467,9 @@ export default class DataForm extends LitElement {
                 case "custom":
                     content = this._createCustomElement(element);
                     break;
+                case "custom-list":
+                    content = this._createCustomListElement(element);
+                    break;
                 case "download":
                     content = this._createDownloadElement(element);
                     break;
@@ -542,12 +545,14 @@ export default class DataForm extends LitElement {
         const isValid = this._isValid(element, value);
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
+        const collapsed = this._getBooleanValue(element?.collapsed, false);
+
 
         // Help message
         const helpMessage = this._getHelpMessage(element);
         const helpMode = this._getHelpMode(element);
 
-        return html`
+        const results = html`
             <div class="${hasErrorMessages ? "has-error" : ""}">
                 ${content}
                 ${helpMessage && helpMode !== "block" ? html`
@@ -565,6 +570,28 @@ export default class DataForm extends LitElement {
                 ` : null}
             </div>
         `;
+        if (collapsed) {
+            return html`
+                <div >
+                    <div>
+                        ${value?.id}
+                    </div>
+                    <a class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${this._prefix}Collapse" aria-expanded="false"
+                    aria-controls="#${this._prefix}Collapse">
+                        Edit
+                    </a>
+                    <button class="btn btn-danger" type="button">
+                        Remove
+                    </button>
+                    <div class="collapse" id="${this._prefix}Collapse">
+                        <div>${results}</div>
+                    </div>
+                </div>
+                `;
+        } else {
+            return results;
+        }
+
     }
 
     _createTextElement(element) {
@@ -1088,9 +1115,10 @@ export default class DataForm extends LitElement {
     }
 
     _createCustomListElement(element) {
-        if (typeof element.display?.render !== "function") {
-            return "All 'custom' elements must implement a 'display.render' function.";
-        }
+        // if (typeof element.display?.render !== "function") {
+        //     return "All 'custom' elements must implement a 'display.render' function.";
+        // }
+
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
         let data = this.data;
@@ -1100,16 +1128,47 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
+        // let result;
+        // if (Array.isArray(data)) {
+        //     result = [];
+        //     data.forEach(d => {
+        //         result.push(element.display.renderUpdate(d));
+        //     });
+        //     result.push(element.display.renderCreate({}));
+        // } else {
+        //     result = element.display.renderCreate(data);
+        // }
+        if (Array.isArray(data)) {
+            const contents = [];
 
-        const result = element.display.render(data);
-        if (result) {
-            // const width = this._getWidth(element);
-            // const style = element.display.style ? element.display.style : "";
-            // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return this._createElementTemplate(element, data, result);
+            data.forEach(d => {
+                const result = element.display.render(d);
+                contents.push(this._createElementTemplate(element, d, result));
+            });
+
+            // const result = element.display.renderCreate(data);
+            // contents.push(this._createElementTemplate(element, data, result));
+
+            return html`${contents.map(content => html`${content}`)}`;
+
         } else {
-            return this._getErrorMessage(element);
+            const result = element.display.render(data);
+            if (result) {
+                return this._createElementTemplate(element, data, result);
+            } else {
+                return this._getErrorMessage(element);
+            }
         }
+
+        // if (result) {
+        //     // const width = this._getWidth(element);
+        //     // const style = element.display.style ? element.display.style : "";
+        //     // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
+
+        //     return this._createElementTemplate(element, data, result);
+        // } else {
+        //     return this._getErrorMessage(element);
+        // }
     }
 
     _createDownloadElement(element) {
