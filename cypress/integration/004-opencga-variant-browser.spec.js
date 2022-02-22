@@ -244,9 +244,9 @@ context("4. Variant Browser", () => {
             .then($div => {
                 // HPO filter is visible
                 if (Cypress.$(".subsection-content[data-cy='hpo']", $div).length) {
-                    selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant teratoma
-                    cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0012226");
-                    removeToken("hpo-accessions-filter", "HP:0012226");
+                    selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant thecoma
+                    cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0030983");
+                    removeToken("hpo-accessions-filter", "HP:0030983");
                 }
             });
     });
