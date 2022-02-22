@@ -125,7 +125,8 @@ for more help, try ```npm run e2e-report-win -h```.
 The HTML report will be generated in `./report`. The filename will have the structure `<OPENCGA_STUDY_FQN>__<TIME>_<DATE>.html`
 
 # Supporters
-JetBrains is supporting this open source project with:
+JetBrains is supporting this open source project with
 
-[![Intellij IDEA](https://www.jetbrains.com/idea/docs/logo_intellij_idea.png)]
-(http://www.jetbrains.com/idea/)
+<a href="https://www.jetbrains.com/"><img style="width:200px" src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.png" alt="IntelliJ IDEA logo"/></a>
+
+
