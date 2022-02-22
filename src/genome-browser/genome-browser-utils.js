@@ -73,11 +73,14 @@ export default class GenomeBrowserUtils {
         const otherFeatureKeys = Object.keys(feature).filter(key => {
             return !(key === "start" || key === "end" || key === "id" || key === "name" || key === "length");
         });
-        const otherFeatureData = otherFeatureKeys.map(key => `
-            <div class="">
-                ${key}: <strong>${feature[key]}</strong>
-            </div>
-        `);
+        const otherFeatureData = otherFeatureKeys.map(key => {
+            const value = key === "studies" ? feature[key].map(s => s.studyId).join(", ") : feature[key];
+            return `
+                <div class="">
+                    ${key}: <strong>${value}</strong>
+                </div>
+            `;
+        });
         return `
             <div class="">
                 start-end: <strong>${feature.start}-${feature.end} (${strand})</strong>
