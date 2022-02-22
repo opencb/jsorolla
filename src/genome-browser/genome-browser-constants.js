@@ -5,6 +5,10 @@ export default class GenomeBrowserConstants {
     static CELLBASE_HOST = "https://ws.zettagenomics.com/cellbase";
     static CELLBASE_VERSION = "v5";
 
+    // OpenCGA Constants
+    static OPENCGA_HOST = "https://ws.opencb.org/opencga-test";
+    static OPENCGA_VERSION = "v2";
+
     // Cytobands
     static CYTOBANDS_COLORS = {
         gneg: "white",
