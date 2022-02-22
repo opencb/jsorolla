@@ -161,12 +161,36 @@ export default class SampleCreate extends LitElement {
         this.requestUpdate();
     }
 
+
+    onUpdateItem(e) {
+        const updatedItem = e.detail.value;
+        const indexItem = this.collection?.from.findIndex(item => item.id === updatedItem.id);
+        this.collection.from[indexItem] = updatedItem;
+        this.sample = {...this.sample, collection: this.collection};
+        console.log("Updated a collection..", this.sample);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        $(`#${updatedItem.id}Collapse`).collapse("hide");
+        this.requestUpdate();
+    }
+
+    onRemoveItem(e) {
+        e.stopPropagation();
+        const updatedItem = e.detail.value;
+        const indexItem = this.collection?.from.findIndex(item => item.id === updatedItem.id);
+        this.collection.from = UtilsNew.removeArrayByIndex(this.collection.from, indexItem);
+        this.sample = {...this.sample, collection: this.collection};
+        console.log("Removed a collection..", this.sample);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <data-form
                 .data=${this.sample}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @removeItem="${e => this.onRemoveItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
@@ -350,12 +374,13 @@ export default class SampleCreate extends LitElement {
                     //     }
                     // },
                     {
-                        title: "",
+                        title: "From (It will be stored)",
                         field: "collection.from",
                         type: "custom-list",
                         collapsed: true,
                         display: {
-                            visible: from => UtilsNew.isNotEmpty(from),
+                            defaultLayout: "vertical",
+                            visible: data => !UtilsNew.isEmpty(data?.collection?.from),
                             render: from => {
                                 return html`
                                 <ontology-term-annotation-update
@@ -364,7 +389,8 @@ export default class SampleCreate extends LitElement {
                                             defaultLayout: "vertical",
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Save"
-                                        }}">
+                                        }}"
+                                    @updateItem="${e => this.onUpdateItem(e)}">
                                 </ontology-term-annotation-update>`;
                             },
                         }

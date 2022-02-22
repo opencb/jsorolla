@@ -545,7 +545,38 @@ export default class DataForm extends LitElement {
         const isValid = this._isValid(element, value);
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
+
+
+        // Help message
+        const helpMessage = this._getHelpMessage(element);
+        const helpMode = this._getHelpMode(element);
+
+        return html`
+            <div class="${hasErrorMessages ? "has-error" : ""}">
+                ${content}
+                ${helpMessage && helpMode !== "block" ? html`
+                    <div class="help-block" style="margin:8px">${helpMessage}</div>
+                ` : null}
+                ${hasErrorMessages ? html`
+                    <div class="help-block" style="display:flex;margin-top:8px;">
+                        <div style="margin-right:8px">
+                            <i class="${this._getErrorIcon(element)}"></i>
+                        </div>
+                        <div style="font-weight:bold;">
+                            ${isRequiredEmpty ? "This field is required." : element.validation?.message || ""}
+                        </div>
+                    </div>
+                ` : null}
+            </div>
+        `;
+    }
+
+    _createCustomElementTemplate(element, value, content) {
+        const isValid = this._isValid(element, value);
+        const isRequiredEmpty = this._isRequiredEmpty(element, value);
+        const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
         const collapsed = this._getBooleanValue(element?.collapsed, false);
+        const prefix = UtilsNew.randomString(8);
 
 
         // Help message
@@ -572,20 +603,20 @@ export default class DataForm extends LitElement {
         `;
         if (collapsed) {
             return html`
-                <div >
-                    <div>
-                        ${value?.id}
+                <div class="row" style="padding-top:6px;padding-left:16px">
+                    ${value?.id}
+                    <div class="pull-right">
+                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${value?.id}Collapse" aria-expanded="false"
+                        aria-controls="${value?.id}Collapse">
+                            Edit
+                        </button>
+                        <button class="btn btn-danger" type="button" @click="${e => this.onCustomEvent(e, "removeItem", value)}">
+                            Remove
+                        </button>
                     </div>
-                    <a class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${this._prefix}Collapse" aria-expanded="false"
-                    aria-controls="#${this._prefix}Collapse">
-                        Edit
-                    </a>
-                    <button class="btn btn-danger" type="button">
-                        Remove
-                    </button>
-                    <div class="collapse" id="${this._prefix}Collapse">
-                        <div>${results}</div>
-                    </div>
+                </div>
+                <div class="collapse" id="${value?.id}Collapse">
+                    <div>${results}</div>
                 </div>
                 `;
         } else {
@@ -1115,9 +1146,9 @@ export default class DataForm extends LitElement {
     }
 
     _createCustomListElement(element) {
-        // if (typeof element.display?.render !== "function") {
-        //     return "All 'custom' elements must implement a 'display.render' function.";
-        // }
+        if (typeof element.display?.render !== "function") {
+            return "All 'custom' elements must implement a 'display.render' function.";
+        }
 
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
@@ -1128,6 +1159,7 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
+        // Approach #1
         // let result;
         // if (Array.isArray(data)) {
         //     result = [];
@@ -1138,37 +1170,25 @@ export default class DataForm extends LitElement {
         // } else {
         //     result = element.display.renderCreate(data);
         // }
+
+        // Approach #2
         if (Array.isArray(data)) {
             const contents = [];
-
             data.forEach(d => {
                 const result = element.display.render(d);
-                contents.push(this._createElementTemplate(element, d, result));
+                contents.push(this._createCustomElementTemplate(element, d, result));
             });
-
             // const result = element.display.renderCreate(data);
             // contents.push(this._createElementTemplate(element, data, result));
-
             return html`${contents.map(content => html`${content}`)}`;
-
         } else {
             const result = element.display.render(data);
             if (result) {
-                return this._createElementTemplate(element, data, result);
+                return this._createCustomElementTemplate(element, data, result);
             } else {
                 return this._getErrorMessage(element);
             }
         }
-
-        // if (result) {
-        //     // const width = this._getWidth(element);
-        //     // const style = element.display.style ? element.display.style : "";
-        //     // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-
-        //     return this._createElementTemplate(element, data, result);
-        // } else {
-        //     return this._getErrorMessage(element);
-        // }
     }
 
     _createDownloadElement(element) {

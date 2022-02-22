@@ -96,7 +96,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         // Send the phenotype to the upper component
         e.stopPropagation();
         this.updateParams = {};
-        LitUtils.dispatchCustomEvent(this, "addItem", this.ontology);
+        LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
     }
 
     onClear(e) {

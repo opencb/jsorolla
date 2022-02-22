@@ -48,7 +48,6 @@ export default class OntologyTermAnnotationCreate extends LitElement {
     }
 
     _init() {
-        debugger;
         // this.ontology = {};
         this.displayConfigDefault = {
             buttonsAlign: "right",
