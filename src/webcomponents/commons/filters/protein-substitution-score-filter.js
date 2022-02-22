@@ -179,10 +179,10 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         </select-field-filter>
                     </div>
                     <div class="col-md-5 score-value">
-                        <input type="text" class="form-control input-sm FilterTextInput"
+                        <input type="number" min="0" class="form-control input-sm FilterTextInput"
                                .disabled="${this.state["sift"].type !== "score"}"
                                .value="${this.state["sift"].value ?? ""}"
-                               @input="${e => this.filterChange("sift", {value: e.target.value})}">
+                               @input="${e => this.filterChange("sift", {value: e.target.value})}" />
                     </div>
                 </div>
             </div>
@@ -207,10 +207,10 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         </select-field-filter>
                     </div>
                     <div class="col-md-5 score-value">
-                        <input type="text" class="form-control input-sm FilterTextInput"
+                        <input type="number" min="0" class="form-control input-sm FilterTextInput"
                                .disabled="${this.state["polyphen"].type !== "score"}"
                                .value="${this.state["polyphen"].value ?? ""}"
-                               @input="${e => this.filterChange("polyphen", {value: e.target.value})}">
+                               @input="${e => this.filterChange("polyphen", {value: e.target.value})}" />
                     </div>
                 </div>
             </div>
