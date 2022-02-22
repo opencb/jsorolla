@@ -554,17 +554,17 @@ export default class TrackListPanel {
 
         const length = this.tracks.push(track);
         const insertPosition = length - 1;
-        this.tracksIndex[track.id] = insertPosition;
+        this.tracksIndex[track.prefix] = insertPosition;
 
-        if (!track.dataAdapter.host) {
-            // eslint-disable-next-line no-param-reassign
-            track.dataAdapter.host = this.config.cellBaseHost;
-        }
+        // if (!track.dataAdapter.host) {
+        //     // eslint-disable-next-line no-param-reassign
+        //     track.dataAdapter.host = this.config.cellBaseHost;
+        // }
 
-        if (!track.dataAdapter.version) {
-            // eslint-disable-next-line no-param-reassign
-            track.dataAdapter.version = this.config.cellBaseVersion;
-        }
+        // if (!track.dataAdapter.version) {
+        //     // eslint-disable-next-line no-param-reassign
+        //     track.dataAdapter.version = this.config.cellBaseVersion;
+        // }
 
         track.setPixelBase(this.pixelBase);
         track.setRegion(this.visualRegion);
@@ -597,39 +597,40 @@ export default class TrackListPanel {
             track.move(event.disp);
         });
 
-        // Track region highlight
-        this.on("trackFeature:highlight", event => {
-            // const attrName = event.attrName || "feature_id";
-            // if (event.attrValue) {
-            //     const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
+        // TODO: review this
+        // // Track region highlight
+        // this.on("trackFeature:highlight", event => {
+        //     const attrName = event.attrName || "feature_id";
+        //     if (event.attrValue) {
+        //         const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
 
-            //     attrItems.forEach(key => {
-            //         const queryStr = `${attrName}~=${event.attrValue[key]}`;
-            //         const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
+        //         attrItems.forEach(key => {
+        //             const queryStr = `${attrName}~=${event.attrValue[key]}`;
+        //             const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
 
-            //         Array.from(groups).forEach(item => {
-            //             let animation = $(this).find("animate");
-            //             if (animation.length == 0) {
-            //                 animation = SVG.addChild(this, "animate", {
-            //                     "attributeName": "opacity",
-            //                     "attributeType": "XML",
-            //                     // "begin": "indefinite",
-            //                     "from": "0.0",
-            //                     "to": "1",
-            //                     "begin": "0s",
-            //                     "dur": "0.5s",
-            //                     "repeatCount": "5"
-            //                 });
-            //             } else {
-            //                 animation = animation[0];
-            //             }
-            //             let y = $(group).find("rect").attr("y");
-            //             $(track.svgdiv).scrollTop(y);
-            //             animation.beginElement();
-            //         });
-            //     });
-            // }
-        });
+        //             Array.from(groups).forEach(item => {
+        //                 let animation = $(this).find("animate");
+        //                 if (animation.length == 0) {
+        //                     animation = SVG.addChild(this, "animate", {
+        //                         "attributeName": "opacity",
+        //                         "attributeType": "XML",
+        //                         // "begin": "indefinite",
+        //                         "from": "0.0",
+        //                         "to": "1",
+        //                         "begin": "0s",
+        //                         "dur": "0.5s",
+        //                         "repeatCount": "5"
+        //                     });
+        //                 } else {
+        //                     animation = animation[0];
+        //                 }
+        //                 let y = $(group).find("rect").attr("y");
+        //                 $(track.svgdiv).scrollTop(y);
+        //                 animation.beginElement();
+        //             });
+        //         });
+        //     }
+        // });
 
         track.on("track:close", event => this.removeTrack(event.sender));
         track.on("track:up", event => this.#reallocateAbove(event.sender));
@@ -653,11 +654,11 @@ export default class TrackListPanel {
     }
 
     containsTrack(track) {
-        return typeof this.tracksIndex[track.id] !== "undefined";
+        return typeof this.tracksIndex[track.prefix] !== "undefined";
     }
 
     getTrackIndex(track) {
-        return this.tracksIndex[track.id];
+        return this.tracksIndex[track.prefix];
     }
 
     // update index with correct index after splice
