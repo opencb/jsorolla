@@ -1,5 +1,4 @@
-import {SVG} from "../../core/svg.js";
-
+// import {SVG} from "../../core/svg.js";
 
 export default class Renderer {
 
@@ -14,13 +13,6 @@ export default class Renderer {
 
         this.fontClass = "ocb-font-roboto ocb-font-size-11";
         this.toolTipfontClass = "ocb-tooltip-font";
-    }
-
-    // Returns svg feature x value from feature genomic position
-    // TODO: move to utils?
-    getFeatureX(start, args) {
-        const middle = args.width / 2;
-        return args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
     }
 
     // Placeholder getDefaultConfig
