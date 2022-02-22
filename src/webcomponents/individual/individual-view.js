@@ -157,9 +157,7 @@ export default class IndividualView extends LitElement {
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
+                                            multiple: false
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </individual-id-autocomplete>

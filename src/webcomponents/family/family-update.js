@@ -221,7 +221,6 @@ export default class FamilyUpdate extends LitElement {
                                         <individual-id-autocomplete
                                             .value="${individualIds}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: true}}"
                                             @filterChange="${e => this.onSync(e, "members")}">
                                         </individual-id-autocomplete>`;
                                 }

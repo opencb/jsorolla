@@ -541,10 +541,14 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" .config=${{
-                                        addButton: false,
-                                        multiple: false
-                                    }} @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`;
+                                    return html`<individual-id-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}
+                                        @filterChange="${e => this.onCancerChange(e)}">
+                                    </individual-id-autocomplete>`;
                                 }
                             }
                         },
