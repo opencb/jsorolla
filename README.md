@@ -28,7 +28,7 @@ The main developers and maintainers are:
 JSorolla is an open-source and collaborative project. We appreciate any help and feedback from users, you can contribute in many different ways such as simple bug reporting and feature request. Depending on your skills you are more than welcome to develop client tools, new features or even fixing bugs.
 
 
-# How to build 
+# How to build
 JSorolla is developed in JavaScript 6 (es6) and makes a heavy usage of all the new features. It uses [npm](https://www.npmjs.com/) as building tool.
 
 Stable releases are merged and tagged at **_master_** branch, you are encourage to use latest stable release for production. Current active development is carried out at **_develop_** branch, only building is guaranteed to work and bugs are expected, use this branch for development or for testing new functionalities.
@@ -100,9 +100,29 @@ npm run dist
 when completed, all compiled files will be located under the `dist` folder.
 
 
-### Testing
-You can copy build content to a web server such as Apache HTTP Server and open your favourite internet browser to open JSorolla demos. 
+# Test
+We use [Cypress.io](https://www.cypress.io/) as testing framework.
 
+Having the project running through the command `npm run serve`, you can run the interactive E2E test suite by running the command
+```
+npm run e2e
+```
+
+## Run tests and generate a report
+To run test in headless version (no browser) and generate a report, run
+```
+npm run e2e-report
+```
+for more help, try ```npm run e2e-report -h```.
+
+For Windows environment, just add the suffix `-win`
+```
+npm run e2e-win
+npm run e2e-report-win
+```
+for more help, try ```npm run e2e-report-win -h```.
+
+The HTML report will be generated in `./report`. The filename will have the structure `<OPENCGA_STUDY_FQN>__<TIME>_<DATE>.html`
 
 # Supporters
 JetBrains is supporting this open source project with:
