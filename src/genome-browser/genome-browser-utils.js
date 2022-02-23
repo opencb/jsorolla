@@ -52,34 +52,35 @@ export default class GenomeBrowserUtils {
         return parseFloat(getComputedStyle(svgLabel, null).width.replace("px", "")) || 0;
     }
 
+    static titleFormatter(str) {
+        return str ? str.charAt(0).toUpperCase() + str.slice(1).replace(/_/gi, "") : "";
+    }
+
     //
-    // Variant utils
+    // Feature utils
     //
 
-    // Variant label formatter
-    static variantLabelFormatter(feature) {
+    // Common label formatter
+    static featureLabelFormatter(feature) {
         return [feature.id, feature.name].filter(f => !!f).join(" - ");
     }
 
-    // Variant tooltip title formatter
-    static variantTooltipTitleFormatter(feature) {
+    // Feature position formatter
+    static featurePositionFormatter(feature) {
+        return `${feature.chromosome}:${feature.start}-${feature.end}`;
+    }
+
+    // Feature tooltip title formatter
+    static featureTooltipTitleFormatter(feature) {
         return [feature.featureType, feature.id, feature.name].filter(f => !!f).join(" - ");
     }
 
-    // Variant tooltip text formatter
-    static variantTooltipTextFormatter(feature) {
+    // Feature tooltip text formatter
+    static featureTooltipTextFormatter(feature) {
         const strand = feature.strand || "NA";
         const length = (feature.end - feature.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
         const otherFeatureKeys = Object.keys(feature).filter(key => {
             return !(key === "start" || key === "end" || key === "id" || key === "name" || key === "length");
-        });
-        const otherFeatureData = otherFeatureKeys.map(key => {
-            const value = key === "studies" ? feature[key].map(s => s.studyId).join(", ") : feature[key];
-            return `
-                <div class="">
-                    ${key}: <strong>${value}</strong>
-                </div>
-            `;
         });
         return `
             <div class="">
@@ -88,8 +89,35 @@ export default class GenomeBrowserUtils {
             <div class="">
                 length: <strong style="color:#005fdb">${length}</strong>
             </div>
-            ${otherFeatureData.join("")}
+            ${otherFeatureKeys.map(key => {
+                // Check for studies key --> join studies IDs
+                const value = key === "studies" ? feature[key].map(s => s.studyId).join(", ") : feature[key];
+                return `
+                    <div class="">
+                        ${key}: <strong>${value}</strong>
+                    </div>
+                `;
+            }).join("")}
         `;
+    }
+
+    //
+    // Variant utils
+    //
+
+    // Variant label formatter
+    static variantLabelFormatter(feature) {
+        return GenomeBrowserUtils.featureLabelFormatter(feature);
+    }
+
+    // Variant tooltip title formatter
+    static variantTooltipTitleFormatter(feature) {
+        return GenomeBrowserUtils.featureTooltipTitleFormatter(feature);
+    }
+
+    // Variant tooltip text formatter
+    static variantTooltipTextFormatter(feature) {
+        return GenomeBrowserUtils.featureTooltipTextFormatter(feature);
     }
 
 }
