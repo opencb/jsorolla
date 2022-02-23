@@ -8,11 +8,10 @@ export default class Renderer {
 
         this.config = {
             ...this.getDefaultConfig(),
+            fontClass: "ocb-font-roboto ocb-font-size-11",
+            toolTipfontClass: "ocb-tooltip-font",
             ...config,
         };
-
-        this.fontClass = "ocb-font-roboto ocb-font-size-11";
-        this.toolTipfontClass = "ocb-tooltip-font";
     }
 
     // Placeholder getDefaultConfig
