@@ -1,14 +1,11 @@
 <!DOCTYPE HTML>
 <html>
-
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Genome Browser demo</title>
+    <title>Genome Browser OpenCGA demo</title>
 
     <script type="text/javascript" src="../genome-browser.config.js"></script>
-
-
-    <!-- links for use to src -->
+    <!-- links for use to build -->
     <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
     <link rel="stylesheet" href="../../../styles/css/global.css">
@@ -16,12 +13,15 @@
     <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
     <link rel="stylesheet" href="../../../styles/css/magic-check.css">
 
+
     <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
     <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/cookies-js/dist/cookies.js"></script>
     <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
+
 
     <style type="text/css">
         html {
@@ -30,18 +30,15 @@
             position: relative;
             overflow-x: hidden;
         }
-
         body {
             margin: 0px;
         }
-
         #application {
             box-sizing: border-box;
             margin: 0 auto;
             width: 1500px;
             border: 1px solid lightgray;
         }
-
         #title {
             margin: 20px auto;
             width: 1500px;
@@ -52,20 +49,24 @@
 </head>
 
 <body class="ocb">
-    <div id="title">Genome Browser</div>
+    <div id="title">Genome Browser + OpenCGA Demo</div>
     <div id="application"></div>
 
     <script type="module">
         import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
+        import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
         import Region from "../../core/bioinfo/region.js";
-        import Utils from "../../core/utils.js";
         import GenomeBrowser from "../genome-browser.js";
         import GenomeBrowserConstants from "../genome-browser-constants.js";
         import GenomeBrowserUtils from "../genome-browser-utils.js";
-        import GeneTrack from "../tracks/gene-track.js";
-        import SnpTrack from "../tracks/snp-track.js";
+        // import GeneTrack from "../tracks/gene-track.js";
+        // import SnpTrack from "../tracks/snp-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
-        import GeneOverviewTrack from "../tracks/gene-overview-track.js";
+        // import GeneOverviewTrack from "../tracks/gene-overview-track.js";
+        import OpenCGAVariantTrack from "../tracks/opencga-variant-track.js"
+        
+        // This is the parent element where GenomeBrowser will be rendered
+        const parent = document.getElementById("application");
 
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
@@ -83,12 +84,35 @@
 
         const cellBaseClient = new CellBaseClient(cellBaseConfig);
 
-        // GenomeBrowser, Region and Species:
-        // let genomeBrowser;
-        const region = new Region({ chromosome: "13", start: 32996311, end: 32996450 }); // initial region
-        const parent = document.getElementById("application");
+        // OpenCGA client config
+        const opencgaClientConfig = {
+            host: params.get("OPENCGA_HOST") || GenomeBrowserConstants.OPENCGA_HOST,
+            version: params.get("OPENCGA_VERSION") || GenomeBrowserConstants.OPENCGA_VERSION,
+            // serverVersion: "1.4"
+        };
+        const opencgaClient = new OpenCGAClient(opencgaClientConfig);
+
+        // Login into OpenCGA
+        const openCGALogin = () => {
+            const user = "demouser";
+            const password = "demouser";
+            return opencgaClient.login(user, password)
+                .then(() => {
+                    console.log(`User '${user}' successfully logged in in opencga.`);
+                    //opencgaClient = new OpenCGAClient(opencgaClientConfig);
+                })
+                .catch(error => {
+                    console.log(`Error logging in '${user}'`, e);
+                });
+        };
+
 
         const run = availableSpecies => {
+            const region = new Region({
+                chromosome: "13",
+                start: 32996311,
+                end: 32996450,
+            });
             const species = availableSpecies.vertebrates[0];
             const genomeBrowser = new GenomeBrowser(parent, {
                 cellBaseClient: cellBaseClient,
@@ -121,6 +145,32 @@
                     new SequenceTrack({
                         cellBaseClient: cellBaseClient,
                     }),
+                    // OpenCGA Variant track
+                    new OpenCGAVariantTrack({
+                        title: "Variant",
+                        closable: false,
+                        minHistogramRegionSize: 20000000,
+                        maxLabelRegionSize: 10000000,
+                        visibleRegionSize: 100000000,
+                        height: 300,
+                        opencgaClient: opencgaClient,
+                        opencgaStudies: "demo@family:platinum",
+                        // opencgaSamples: ["HG00096", "HG00097", "HG00099"],
+                    }),
+                    // OpenCGA Variant track with samples
+                    // new OpenCGAVariantTrack({
+                    //     title: "Variant (Samples)",
+                    //     closable: false,
+                    //     minHistogramRegionSize: 20000000,
+                    //     maxLabelRegionSize: 10000000,
+                    //     minTranscriptRegionSize: 200000,
+                    //     visibleRegionSize: 100000000,
+                    //     height: 300,
+                    //     opencgaClient: opencgaClient,
+                    //     opencgaStudies: "demo@family:platinum",
+                    //     opencgaSamples: ["NA12877"],
+                    // }),
+  
                 ];
 
                 /** *************************************************************************/
@@ -149,13 +199,17 @@
             });
         }
 
-        GenomeBrowserUtils.getSpeciesFromCellBase(cellBaseClient)
-            .then(availableSpecies => {
-                run(availableSpecies)
-            });
+        const promisesList = [
+            openCGALogin(),
+            GenomeBrowserUtils.getSpeciesFromCellBase(cellBaseClient),
+        ];
+
+        Promise.all(promisesList).then(values => {
+            // values[0] -> response from openCGALogin
+            // values[1] -> response from getSpeciesFromCellBase
+            return run(values[1]);
+        });
 
     </script>
-
 </body>
-
 </html>
