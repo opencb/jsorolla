@@ -13,7 +13,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.dataAdapter = this.config.dataAdapter || this.#initDataAdapter();
 
         // Initialize Rendererers
-        // this.histogramRenderer = new HistogramRenderer(args);
+        this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
         this.renderer = new VariantRenderer({
             ...this.config.renderer,
             // sampleNames: this.config.opencgaSamples,
@@ -40,7 +40,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             }
 
             dataAdapter = new OpencgaAdapter(this.config.opencgaClient, "analysis/variant", "", "query", params, {
-                chunkSize: 10000,
+                chunkSize: 100000,
             });
         } else {
             console.error("No opencga object provided");
@@ -51,7 +51,8 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
 
     getDataHandler(event) {
         // Not histogram data type
-        if (event.dataType !== "histogram" || UtilsNew.isNotUndefinedOrNull(this.renderer.config.sampleNames)) {
+        // if (event.dataType !== "histogram" || UtilsNew.isNotUndefinedOrNull(this.renderer.config.sampleNames)) {
+        if (event.dataType !== "histogram") {
             const features = this.getFeaturesToRenderByChunk(event);
             this.renderer.render(features, {
                 cacheItems: event.items,
@@ -100,6 +101,8 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             opencgaStudies: "",
             opencgaSamples: [],
             opencgaFiles: [],
+            // minHistogramRegionSize: 300000000, // Default track value
+            minHistogramRegionSize: 200000,
             renderer: {}, // Renderer configuration
             histogramRenderer: {}, // Histogram renderer configuration
         };
