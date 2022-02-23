@@ -133,6 +133,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {
             ...this._config.toolbar,
             resource: "VARIANT",
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
