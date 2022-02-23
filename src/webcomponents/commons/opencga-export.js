@@ -213,6 +213,8 @@ print(${this.resourceMap[this.config.resource]}.get_responses())`;
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
         const str = `
 import {OpenCGAClient} from "./opencga-client.js";
+const username = "${this.opencgaSession.user.id}";
+const password = ""; // your password here
 const client = new OpenCGAClient({
     host: "${this.opencgaSession.server.host}",
     version: "v2",
@@ -220,12 +222,12 @@ const client = new OpenCGAClient({
 });
 (async () => {
     try {
-        await client.login(user, password)
+        await client.login(username, password)
         const session = await client.createSession();
         const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.method}(${JSON.stringify(q)});
         console.log(restResponse.getResults());
     } catch (e) {
-        console.error(e)
+        console.error(e);
     }
 })();`;
         return this.lineSplitter(str);
