@@ -404,7 +404,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
                         if (row.id === element.dataset.variantId) {
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !this.checkedVariants.has(row.id);
+                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked;
                             element.addEventListener("change", e => this.onEvidenceCheck(e));
                         }
                     });
@@ -422,7 +422,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                             // Prevent editing evidences of not selected variants
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !isEvidenceSelected;
+                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked;
                             element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                         }
                     });
@@ -481,7 +481,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
                     if (row.id === element.dataset.variantId) {
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !this.checkedVariants.has(row.id);
+                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked;
                         element.addEventListener("change", e => this.onEvidenceCheck(e));
                     }
                 });
@@ -499,7 +499,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         // Prevent editing evidences of not selected variants
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !isEvidenceSelected;
+                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked;
                         element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                     }
                 });
@@ -769,7 +769,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit"
-                                                ${!this.checkedVariants?.has(row.id) ? "disabled" : ""}>
+                                                ${!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : ""}>
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
@@ -869,7 +869,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                        return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
+                        const disabled = this.clinicalAnalysis.locked ? "disabled" : "";
+                        return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>`;
                     },
                     align: "center",
                     events: {
@@ -883,7 +884,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const disabled = !this.checkedVariants?.has(row.id) ? "disabled" : "";
+                        const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
                         return `
                             <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
                                 <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
@@ -924,7 +925,7 @@ export default class VariantInterpreterGrid extends LitElement {
             if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                 for (const member of this.clinicalAnalysis.family.members) {
                     if (member.samples && member.samples.length > 0) {
-                        // Proband must tbe the first column
+                        // Proband must be the first column
                         if (member.id === this.clinicalAnalysis.proband.id) {
                             samples.unshift(member.samples[0]);
                         } else {
@@ -1172,7 +1173,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
             }
         });
-
 
         this.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
