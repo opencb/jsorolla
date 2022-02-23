@@ -462,7 +462,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}url" class="content-tab active">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-url">
+                                <div class="code language-url" contentEditable="true">
                                     ${this.generateCode("url")}
                                 </div>
                             </div>
@@ -470,7 +470,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}curl" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-curl">
+                                <div class="code language-curl" contentEditable="true">
                                     ${this.generateCode("curl")}
                                 </div>
                             </div>
@@ -478,7 +478,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}wget" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-wget">
+                                <div class="code language-wget" contentEditable="true">
                                     ${this.generateCode("wget")}
                                 </div>
                             </div>
@@ -511,7 +511,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}cli" class="content-tab active">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-cli">
+                                <div class="code language-cli" contentEditable="true">
                                     ${this.generateCode("cli")}
                                 </div>
                             </div>
@@ -519,7 +519,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}python" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-python">
+                                <div class="code language-python" contentEditable="true">
                                     ${this.generateCode("python")}
                                 </div>
                             </div>
@@ -527,7 +527,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}r" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-r">
+                                <div class="code language-r" contentEditable="true">
                                     ${this.generateCode("r")}
                                 </div>
                             </div>
@@ -535,7 +535,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}js" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-javascript">
+                                <div class="code language-javascript" contentEditable="true">
                                     ${this.generateCode("js")}
                                 </div>
                             </div>
