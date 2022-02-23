@@ -184,6 +184,24 @@ export default class SampleCreate extends LitElement {
         this.requestUpdate();
     }
 
+    onAddOrUpdateItem(e) {
+        switch (e.detail.param) {
+            case "collection.from":
+                this.collection = {...this.collection, from: e.detail.value};
+                this.sample = {...this.sample, collection: this.collection};
+                break;
+            case "phenotype":
+                console.log("for phenotypes array");
+                break;
+            case "annotationSets":
+                console.log("for annotationSets array");
+                break;
+        }
+
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <data-form
@@ -191,6 +209,7 @@ export default class SampleCreate extends LitElement {
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @removeItem="${e => this.onRemoveItem(e)}"
+                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
@@ -373,15 +392,35 @@ export default class SampleCreate extends LitElement {
                     //         placeholder: "Add a tissue..."
                     //     }
                     // },
+                    // {
+                    //     title: "From (It will be stored)",
+                    //     field: "collection.from",
+                    //     type: "custom-list",
+                    //     collapsed: true,
+                    //     display: {
+                    //         defaultLayout: "vertical",
+                    //         visible: data => !UtilsNew.isEmpty(data?.collection?.from),
+                    //         render: from => {
+                    //             return html`
+                    //             <ontology-term-annotation-update
+                    //                 .ontology="${from}"
+                    //                 .displayConfig="${{
+                    //                         defaultLayout: "vertical",
+                    //                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                    //                         buttonOkText: "Save"
+                    //                     }}"
+                    //                 @updateItem="${e => this.onUpdateItem(e)}">
+                    //             </ontology-term-annotation-update>`;
+                    //         },
+                    //     }
+                    // },
                     {
-                        title: "From (It will be stored)",
+                        title: "From",
                         field: "collection.from",
                         type: "custom-list",
                         collapsed: true,
                         display: {
-                            defaultLayout: "vertical",
-                            visible: data => !UtilsNew.isEmpty(data?.collection?.from),
-                            render: from => {
+                            renderUpdate: (from, callback) => {
                                 return html`
                                 <ontology-term-annotation-update
                                     .ontology="${from}"
@@ -390,36 +429,17 @@ export default class SampleCreate extends LitElement {
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Save"
                                         }}"
-                                    @updateItem="${e => this.onUpdateItem(e)}">
+                                    @updateItem="${callback}">
                                 </ontology-term-annotation-update>`;
                             },
-                        }
-                    },
-                    {
-                        title: "From",
-                        field: "collection.from",
-                        type: "custom",
-                        display: {
-                            // renderUpdate: from => {
-                            //     return html`
-                            //     <ontology-term-annotation-update
-                            //         .ontology="${from}"
-                            //         .displayConfig="${{
-                            //                 defaultLayout: "vertical",
-                            //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                            //                 buttonOkText: "Add"
-                            //             }}">
-                            //     </ontology-term-annotation-update>`;
-                            // },
-                            render: from => html`
+                            renderCreate: (from, callback) => html`
                                 <ontology-term-annotation-create
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Add"
                                         }}"
-                                    @changeOntologies="${e => this.onFieldChange(e, "collection.from")}"
-                                    @addItem="${e => this.onAddItem(e)}">
+                                    @addItem="${callback}">
                                 </ontology-term-annotation-create>`
                         }
                     },

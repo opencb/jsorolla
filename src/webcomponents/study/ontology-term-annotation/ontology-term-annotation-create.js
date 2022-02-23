@@ -84,10 +84,19 @@ export default class OntologyTermAnnotationCreate extends LitElement {
 
     // Submit to upper component.
     onSendOntology(e) {
-        // Send the ontology to the upper component
+        // Avoid others onSubmit...ex. sample-create::onSubmit
         e.stopPropagation();
+        // Send the ontology to the upper component
+        console.log("onSendOntology...", this);
         LitUtils.dispatchCustomEvent(this, "addItem", this.ontology);
         this.ontology = {};
+    }
+
+    onSendItem(e) {
+        // Send the ontologies to the upper component
+        // e.stopPropagation();
+        console.log("Ontologies Array....", this);
+        // LitUtils.dispatchCustomEvent(this, "addOrUpdate", e.detail.value);
     }
 
     onClearForm(e) {
@@ -103,6 +112,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClearForm}"
+                @addOrUpdateItem="${e => this.onSendItem(e)}"
                 @submit="${e => this.onSendOntology(e)}">
             </data-form>
     `;
@@ -118,6 +128,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                             name: "Id",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Add short id...",
                             }
