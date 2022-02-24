@@ -152,39 +152,8 @@ export default class SampleCreate extends LitElement {
             });
     }
 
-    onAddItem(e) {
-        console.log("Adding a collection..", e.detail.value);
-        this.collection = {...this.collection, from: [...this.collection.from, e.detail.value]};
-        this.sample = {...this.sample, collection: this.collection};
-        console.log("Added a collection..", this.sample?.collection);
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
-    }
-
-
-    onUpdateItem(e) {
-        const updatedItem = e.detail.value;
-        const indexItem = this.collection?.from.findIndex(item => item.id === updatedItem.id);
-        this.collection.from[indexItem] = updatedItem;
-        this.sample = {...this.sample, collection: this.collection};
-        console.log("Updated a collection..", this.sample);
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        $(`#${updatedItem.id}Collapse`).collapse("hide");
-        this.requestUpdate();
-    }
-
-    onRemoveItem(e) {
-        e.stopPropagation();
-        const updatedItem = e.detail.value;
-        const indexItem = this.collection?.from.findIndex(item => item.id === updatedItem.id);
-        this.collection.from = UtilsNew.removeArrayByIndex(this.collection.from, indexItem);
-        this.sample = {...this.sample, collection: this.collection};
-        console.log("Removed a collection..", this.sample);
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
-    }
-
     onAddOrUpdateItem(e) {
+        console.log("Change received on the array", this);
         switch (e.detail.param) {
             case "collection.from":
                 this.collection = {...this.collection, from: e.detail.value};
@@ -208,7 +177,6 @@ export default class SampleCreate extends LitElement {
                 .data=${this.sample}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @removeItem="${e => this.onRemoveItem(e)}"
                 @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">

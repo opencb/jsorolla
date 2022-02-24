@@ -1145,10 +1145,9 @@ export default class DataForm extends LitElement {
     }
 
     _createCustomListElement(element) {
-        // if (typeof element.display?.render !== "function") {
-        //     return "All 'custom' elements must implement a 'display.render' function.";
-        // }
-
+        if (typeof element.display?.renderCreate !== "function" && typeof element.display?.renderUpdate !== "function") {
+            return "All 'custom-list' elements must implement a 'display.renderCreate' && 'display.renderUpdate' function.";
+        }
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
         let data = this.data;
@@ -1158,26 +1157,25 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
-
         // Approach #1
         let contents;
 
+        // Collapse only for renderUpdate
         const collapsed = this._getBooleanValue(element?.collapsed, false);
 
-        // Functions for different actions
+        // Functions for different actions in the custom list
         const onChange = {
             create: e => this._onChangeArray(e, element.field, "CREATE", data),
             update: e => this._onChangeArray(e, element.field, "UPDATE", data),
-            remove: e => this._onChangeArray(e, element.field, "REMOVE", data)
+            remove: item => this._onChangeArray(item, element.field, "REMOVE", data)
         };
 
         const renderCreate = element.display.renderCreate({}, onChange.create);
         const renderUpdate = item => element.display.renderUpdate(item, onChange.update);
 
         if (data && Array.isArray(data)) {
-            // For update, it will pass remove function to the remove button as callback with the specific item to remove.
+            // For the update, it will pass the remove function to the remove button as a callback with the specific item to be deleted.
             contents = data.map(item => this._createCustomElementTemplate(element, item, collapsed, renderUpdate(item), e => onChange.remove(item)));
-
             contents = [...contents, this._createCustomElementTemplate(element, {}, false, renderCreate)];
             return contents.map(content => html`${content}`);
         } else {
@@ -1187,28 +1185,10 @@ export default class DataForm extends LitElement {
                 this._getErrorMessage(element);
             }
         }
-
-        // Approach #2
-        // if (Array.isArray(data)) {
-        //     const contents = [];
-        //     data.forEach(d => {
-        //         const result = element.display.render(d);
-        //         contents.push(this._createCustomElementTemplate(element, d, result));
-        //     });
-        //     // const result = element.display.renderCreate(data);
-        //     // contents.push(this._createElementTemplate(element, data, result));
-        //     return html`${contents.map(content => html`${content}`)}`;
-        // } else {
-        //     const result = element.display.render(data);
-        //     if (result) {
-        //         return this._createCustomElementTemplate(element, data, result);
-        //     } else {
-        //         return this._getErrorMessage(element);
-        //     }
-        // }
     }
 
     _onChangeArray(e, field, action, data) {
+        console.log("onChangeArray action:", action, this);
         let results = {};
         let _data = data ? data:[];
         switch (action) {
@@ -1230,16 +1210,6 @@ export default class DataForm extends LitElement {
                 break;
         }
         LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
-        // if (actions === "CREATE") {
-        //     results = {param: field, value: [..._data, e.detail.value]};
-        // } else {
-        //     const updatedItem = e.detail.value;
-        //     const indexItem = _data.findIndex(item => item.id === updatedItem.id);
-        //     _data[indexItem] = updatedItem;
-        //     results = {param: field, value: _data};
-        //     $(`#${updatedItem.id}Collapse`).collapse("hide");
-        // }
-        // LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
     }
 
     _createDownloadElement(element) {
