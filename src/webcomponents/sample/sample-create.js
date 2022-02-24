@@ -386,15 +386,15 @@ export default class SampleCreate extends LitElement {
                         title: "From",
                         field: "collection.from",
                         type: "custom-list",
-                        collapsed: true,
                         display: {
+                            collapsedUpdate: true,
                             renderUpdate: (from, callback) => {
                                 return html`
                                 <ontology-term-annotation-update
                                     .ontology="${from}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Save"
                                         }}"
                                     @updateItem="${callback}">
@@ -404,7 +404,7 @@ export default class SampleCreate extends LitElement {
                                 <ontology-term-annotation-create
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Add"
                                         }}"
                                     @addItem="${callback}">

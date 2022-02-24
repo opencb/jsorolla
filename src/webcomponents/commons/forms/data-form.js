@@ -583,7 +583,7 @@ export default class DataForm extends LitElement {
         const helpMode = this._getHelpMode(element);
 
         const results = html`
-            <div class="${hasErrorMessages ? "has-error" : ""}">
+            <div class="${hasErrorMessages ? "has-error" : ""}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:16px;">
                 ${content}
                 ${helpMessage && helpMode !== "block" ? html`
                     <div class="help-block" style="margin:8px">${helpMessage}</div>
@@ -1161,7 +1161,7 @@ export default class DataForm extends LitElement {
         let contents;
 
         // Collapse only for renderUpdate
-        const collapsed = this._getBooleanValue(element?.collapsed, false);
+        const collapsedUpdate = this._getBooleanValue(element?.display?.collapsedUpdate, false);
 
         // Functions for different actions in the custom list
         const onChange = {
@@ -1175,7 +1175,7 @@ export default class DataForm extends LitElement {
 
         if (data && Array.isArray(data)) {
             // For the update, it will pass the remove function to the remove button as a callback with the specific item to be deleted.
-            contents = data.map(item => this._createCustomElementTemplate(element, item, collapsed, renderUpdate(item), e => onChange.remove(item)));
+            contents = data.map(item => this._createCustomElementTemplate(element, item, collapsedUpdate, renderUpdate(item), e => onChange.remove(item)));
             contents = [...contents, this._createCustomElementTemplate(element, {}, false, renderCreate)];
             return contents.map(content => html`${content}`);
         } else {
