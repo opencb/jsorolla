@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/checkbox-field-filter.js";
 
@@ -48,14 +47,7 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -70,9 +62,17 @@ export default class VariantTypeFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
     }
 
+    onToggleAll() {
+        this.setAll = !this.setAll;
+        this.type = this.setAll ?
+            this._config.types?.map(t => t?.id ?? t).join(",") :
+            null;
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.type);
+    }
+
     getDefaultConfig() {
         return {
-            types: VARIANT_TYPES,
+            types: VARIANT_TYPES, // it can be either an array of strings or array of objects {id, name}
             layout: "vertical"
         };
     }
@@ -85,7 +85,13 @@ export default class VariantTypeFilter extends LitElement {
                     margin-right: 10px;
                 }
             </style>
-            <div id="${this._prefix}Type" class="${classMap({inline: this._config.layout === "horizontal"})}">
+
+            <div style="margin-bottom: 10px">
+                <button type="button" class="btn btn-xs btn-default" @click=${this.onToggleAll}>
+                    ${this.setAll ? "Deselect" : "Select"} all
+                </button>
+            </div>
+            <div class="${classMap({inline: this._config.layout === "horizontal"})}">
                 <checkbox-field-filter
                     .value="${this.type}"
                     .data="${this._config.types}"

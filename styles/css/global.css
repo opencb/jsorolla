@@ -2859,7 +2859,7 @@ opencga-export .btn-group-tab {
     margin: 32px 0;
     display: block;
     hyphens: none;
-    padding: 24px 0;
+    padding: 35px 0 20px 0;
     overflow: auto;
     tab-size: 2;
     direction: ltr;

@@ -43,10 +43,11 @@ export default class FamilyIdAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("property")) {
             this.propertyObserver();
         }
+        super.update(changedProperties);
     }
 
     onFilterChange(key, value) {

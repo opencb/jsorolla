@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -103,6 +103,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         // } else {
         //     console.error("no path for variant stats defined");
         // }
+        this._variantStatsPath = "variant";
         if (this.sample?.qualityControl?.["variant"]?.variantStats.length > 0) {
             this._variantStats = this.sample.qualityControl?.["variant"]?.variantStats[0];
             this.selectVariantStats("ALL", this._variantStats);
@@ -114,7 +115,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sample = response.getResult(0);
-                    this.sampleObserver();
+                    // this.sampleObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
@@ -127,7 +128,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
-        // this.requestUpdate();
     }
 
     onVariantFilterChange(e) {
@@ -146,7 +146,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.executedQuery = {...this.query};
 
         this.renderVariantStats();
-        // this.requestUpdate();
     }
 
     onActiveFilterClear(e) {
@@ -155,7 +154,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.executedQuery = {...this.query};
 
         this.renderVariantStats();
-        // this.requestUpdate();
     }
 
     async renderVariantStats() {
@@ -200,7 +198,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
             description: this.save.description || "",
             stats: this.sampleQcVariantStats.stats
         };
-
+        delete variantStats.stats.consequenceTypeCount["other"];
+        delete variantStats.stats.biotypeCount["other"];
+        delete variantStats.stats.biotypeCount["other_non_pseudo_gene"];
 
         if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
             this.sample.qualityControl[this._variantStatsPath] = {
@@ -218,11 +218,15 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 console.log(restResponse);
-                Swal.fire({
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Success",
-                    icon: "success",
-                    html: "Variant Stats saved successfully"
+                    message: "Variant Stats saved successfully"
                 });
+                // Swal.fire({
+                //     title: "Success",
+                //     icon: "success",
+                //     html: "Variant Stats saved successfully"
+                // });
             })
             .catch(restResponse => {
                 console.error(restResponse);

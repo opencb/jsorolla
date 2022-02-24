@@ -65,25 +65,28 @@ export default class ClinicalInterpretationCreate extends LitElement {
             titleWidth: 4,
             defaultLayout: "horizontal"
         };
+        this.config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = this.getDefaultConfig();
+        this.config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.initClinicalInterpretation();
+            this.config = this.getDefaultConfig();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
             this.initClinicalInterpretation();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -178,7 +181,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
         return html`
             <data-form
                 .data="${this.interpretation}"
-                .config="${this._config}"
+                .config="${this.config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -203,7 +206,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             title: "Case Id",
                             field: "id",
                             type: "input-text",
-                            defaultValue: this.clinicalAnalysis.id,
+                            defaultValue: this.clinicalAnalysis?.id,
                             display: {
                                 disabled: true,
                                 helpMessage: "The interpretation Id is generated automatically",
@@ -249,6 +252,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                             .diseasePanels="${panelList}"
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
+                                            .showSelectedPanels="${false}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>

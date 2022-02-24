@@ -118,16 +118,18 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         if (changedProperties.has("filters")) {
+            this.refreshFilters();
+
+            // Nacho (6/2/2021): probably observers should not dispatch new events
             // If there is any active filter we set the first one in the initialisation
-            if (this.filters) {
-                this.refreshFilters();
-                const activeFilter = this.filters.find(f => f.active);
-                if (activeFilter) {
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: activeFilter.query,
-                    }));
-                }
-            }
+            // if (this.filters) {
+            //     const activeFilter = this.filters.find(f => f.active);
+            //     if (activeFilter) {
+            //         this.dispatchEvent(new CustomEvent("activeFilterChange", {
+            //             detail: activeFilter.query,
+            //         }));
+            //     }
+            // }
         }
     }
 
@@ -281,6 +283,16 @@ export default class OpencgaActiveFilters extends LitElement {
         return !!this?.opencgaSession?.token;
     }
 
+    async fetchServerFilters() {
+        try {
+            const response = await this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id);
+            this.opencgaSession.user.filters = response.getResults();
+            this.refreshFilters();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     refreshFilters() {
         // Merge passed filters with user saved filters
         if (this.opencgaSession?.user?.filters?.length > 0) {
@@ -356,22 +368,21 @@ export default class OpencgaActiveFilters extends LitElement {
                         if (result.value) {
                             this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                                 .then(response => {
-                                    if (restResponse?.getEvents?.("ERROR")?.length) {
+                                    if (response?.getEvents?.("ERROR")?.length) {
                                         return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                                     }
 
-                                    for (const i in this._filters) {
+                                    /* for (const i in this._filters) {
                                         if (this._filters[i].id === filterName) {
                                             this._filters[i] = response.response[0].result[0];
                                         }
-                                    }
+                                    } */
 
                                     // Display success message
                                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                                         message: "Filter has been saved",
                                     });
-                                    this.requestUpdate();
-                                    this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                                    this.fetchServerFilters();
                                     $("#" + this._prefix + "filterName").val("");
                                     $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(response => {
@@ -393,7 +404,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         action: "ADD"
                     })
                         .then(response => {
-                            if (restResponse.getEvents?.("ERROR")?.length) {
+                            if (response.getEvents?.("ERROR")?.length) {
                                 return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                             }
 
@@ -405,8 +416,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                                 message: "Filter has been saved",
                             });
-                            this.requestUpdate();
-                            this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                            this.fetchServerFilters();
                         }).catch(response => {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
@@ -483,7 +493,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: "Filter has been deleted",
                         });
-                        this.refreshFilters();
+                        this.fetchServerFilters();
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
@@ -592,7 +602,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 "annot-ct": "Consequence Type",
                 "alternate_frequency": "Population ALT Frequency",
                 "annot-functional-score": "CADD",
-                "protein_substitution": "Protein Substitution",
+                "proteinSubstitution": "Protein Substitution",
                 "annot-go": "GO",
                 "annot-hpo": "HPO"
             },

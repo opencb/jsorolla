@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
@@ -53,48 +52,23 @@ class VariantInterpreterBrowser extends LitElement {
             settings: {
                 type: Object
             }
-            // query: {
-            //     type: Object
-            // },
-            // config: {
-            //     type: Object
-            // }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.showRearrangementBrowser = true;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
         super.update(changedProperties);
-    }
-
-    settingsObserver() {
-        if (this.clinicalAnalysis) {
-            const type = this.clinicalAnalysis.type.toUpperCase();
-            if (["SINGLE", "FAMILY", "CANCER"].includes(type)) {
-                this._browserSettings = this.settings.browsers[type];
-            } else {
-                console.error("Unexpected Case Type");
-            }
-        }
-        this.requestUpdate();
     }
 
     clinicalAnalysisObserver() {
@@ -119,7 +93,6 @@ class VariantInterpreterBrowser extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -127,11 +100,11 @@ class VariantInterpreterBrowser extends LitElement {
         }
     }
 
-    onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            clinicalAnalysis: e.detail.clinicalAnalysis,
-        }, null);
-    }
+    // onClinicalAnalysisUpdate(e) {
+    //     LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+    //         clinicalAnalysis: e.detail.clinicalAnalysis,
+    //     }, null);
+    // }
 
     render() {
         // Check if project exists
@@ -148,13 +121,15 @@ class VariantInterpreterBrowser extends LitElement {
             return html`
                 <div class="guard-page">
                     <h3>No Case found</h3>
-                </div>`;
+                </div>
+            `;
         }
 
         if (!this.clinicalAnalysis.proband?.samples?.length) {
             return html`
                 <div class="alert alert-warning" role="alert">
-                    <i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband
+                    <i class="fas fa-3x fa-exclamation-circle align-middle"></i>
+                    No sample available for Proband
                 </div>
             `;
         }
@@ -183,22 +158,22 @@ class VariantInterpreterBrowser extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-12">
-                                <tool-header title="Variant Browser - ${this._sample?.id}" class="bg-white"></tool-header>
+                                <tool-header
+                                    title="Variant Browser - ${this._sample?.id}"
+                                    class="bg-white"></tool-header>
                                 <variant-interpreter-browser-rd
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .query="${this.query}"
                                     .cellbaseClient="${this.cellbaseClient}"
-                                    .settings="${this._browserSettings}"
+                                    .settings="${this.settings.browsers["RD"]}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                     @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
                             </div>
                         `;
-                    },
+                    }
                 });
             } else if (type === "CANCER") {
-
                 // Add somatic variant browser
                 items.push({
                     id: "cancer-somatic-variant-browser",
@@ -207,65 +182,66 @@ class VariantInterpreterBrowser extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-12">
-                                <tool-header title="Somatic Variant Browser - ${this._somaticSample?.id}" class="bg-white"></tool-header>
+                                <tool-header
+                                    title="Somatic Variant Browser - ${this._somaticSample?.id}"
+                                    class="bg-white"></tool-header>
                                 <variant-interpreter-browser-cancer
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .query="${this.query}"
                                     .cellbaseClient="${this.cellbaseClient}"
-                                    .settings="${this._browserSettings}"
+                                    .settings="${this.settings.browsers["CANCER_SNV"]}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
                             </div>
                         `;
-                    },
+                    }
                 });
 
                 // Add CNV Variant browser
-                // TODO: check for adding this browser
-                items.push({
-                    id: "somatic-cnv-variant-browser",
-                    name: "Somatic CNV Variant Browser",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-12">
-                                <tool-header
-                                    title="Somatic CNV Variant Browser - ${this._somaticSample?.id}"
-                                    class="bg-white">
-                                </tool-header>
-                                <variant-interpreter-browser-cnv
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .query="${this.query}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .settings="${this._browserSettings}"
-                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                </variant-interpreter-browser-cnv>
-                            </div>
-                        `;
-                    },
-                });
+                if (this.settings.browsers["CANCER_CNV"]) {
+                    items.push({
+                        id: "somatic-cnv-variant-browser",
+                        name: "Somatic CNV Variant Browser",
+                        active: false,
+                        render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <div class="col-md-12">
+                            <tool-header
+                                title="Somatic CNV Variant Browser - ${this._somaticSample?.id}"
+                                class="bg-white">
+                            </tool-header>
+                            <variant-interpreter-browser-cnv
+                                .opencgaSession="${opencgaSession}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .query="${this.query}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .settings="${this.settings.browsers["CANCER_CNV"]}"
+                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                            </variant-interpreter-browser-cnv>
+                        </div>
+                    `,
+                    });
+                }
 
                 // Check for adding rearrangements variant browser
-                if (this.showRearrangementBrowser) {
+                if (this.settings.browsers["REARRANGEMENT"]) {
                     items.push({
                         id: "cancer-somatic-rearrangement-variant-browser",
                         name: "Somatic Rearrangement Variant Browser",
-                        render: (clinicalAnalysis, active, opencgaSession) => {
-                            return html`
-                                <div class="col-md-12">
-                                    <tool-header title="Somatic Rearrangement Variant Browser - ${this._somaticSample?.id}" class="bg-white"></tool-header>
-                                    <variant-interpreter-browser-rearrangement
-                                        .opencgaSession="${opencgaSession}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .query="${this.query}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                    </variant-interpreter-browser-rearrangement>
-                                </div>
-                            `;
-                        },
+                        render: (clinicalAnalysis, active, opencgaSession) => html`
+                            <div class="col-md-12">
+                                <tool-header
+                                    title="Somatic Rearrangement Variant Browser - ${this._somaticSample?.id}"
+                                    class="bg-white">
+                                </tool-header>
+                                <variant-interpreter-browser-rearrangement
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .settings="${this.settings.browsers["REARRANGEMENT"]}"
+                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                </variant-interpreter-browser-rearrangement>
+                            </div>
+                        `,
                     });
                 }
 
@@ -277,11 +253,13 @@ class VariantInterpreterBrowser extends LitElement {
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
                                 <div class="col-md-12">
-                                    <tool-header title="Germline Variant Browser - ${this._germlineSample?.id}" class="bg-white"></tool-header>
+                                    <tool-header
+                                        title="Germline Variant Browser - ${this._germlineSample?.id}"
+                                        class="bg-white">
+                                    </tool-header>
                                     <variant-interpreter-browser-rd
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .query="${this.query}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${this._config}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"

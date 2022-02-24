@@ -44,6 +44,9 @@ export default class FileQualityFilter extends LitElement {
             qual: {
                 type: String
             },
+            vaf: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -64,6 +67,7 @@ export default class FileQualityFilter extends LitElement {
             {id: "50", name: "50x"}
         ];
         this.depthChecked = false;
+        this.vaf = null;
     }
 
     connectedCallback() {
@@ -96,13 +100,34 @@ export default class FileQualityFilter extends LitElement {
             this.requestUpdate();
         }
 
+        if (changedProperties.has("vaf")) {
+            if (!this.vaf) {
+                this.extVafChecked = false;
+            }
+            this.vafObserver();
+            this.requestUpdate();
+        }
+
+        if (changedProperties.has("opencgaSession")) {
+            this.vafObserver();
+            this.requestUpdate();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
     }
 
-    //NOTE filterChange is called both on checkbox and text field
+    vafObserver() {
+        if (this.opencgaSession?.study?.internal?.configuration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields?.length > 0) {
+            this.vaf = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
+                .filter(field => field.key === "EXT_VAF")[0];
+            // this.extVafValues = this.vaf?.thresholds?.map(value => `${value}`);
+        }
+    }
+
+    // NOTE filterChange is called both on checkbox and text field
     filterChange(e) {
         e.stopPropagation();
         if (this.querySelector("#" + this._prefix + "FilePassCheckbox")) {
@@ -121,7 +146,14 @@ export default class FileQualityFilter extends LitElement {
                 delete this.values.sampleData;
             }
         }
-
+        if (this.querySelector("#" + this._prefix + "ExtVafCheckbox")) {
+            this.extVafChecked = this.querySelector("#" + this._prefix + "ExtVafCheckbox").checked;
+            if (this.extVafChecked && this.extVaf) {
+                this.values.sampleData = "EXT_VAF>=" + this.extVaf;
+            } else {
+                delete this.values.sampleData;
+            }
+        }
         // let qualChecked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked;
         // let qualValue = this.querySelector("#" + this._prefix + "FileQualInput").value;
         // if (qualChecked && qualValue > 0) {
@@ -158,6 +190,17 @@ export default class FileQualityFilter extends LitElement {
         this.requestUpdate();
     }
 
+    extVafChange(e) {
+        this.extVaf = e.detail.value;
+        this.filterChange(e);
+    }
+
+    onChangeExtVafCheckbox(e) {
+        this.extVafChecked = e.target.checked;
+        this.filterChange(e);
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return {
             showDepth: true,
@@ -167,45 +210,69 @@ export default class FileQualityFilter extends LitElement {
 
     render() {
         return html`
-
             <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
                 <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
-                        @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px" data-cy="filter-pass">
+                       @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px" data-cy="filter-pass">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
 
             ${this._config.showDepth ? html`
                 <form class="form-horizontal subsection-content">
-                <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
-                    <div class="col-md-8">
-                        <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
-                                @change="${this.onChangeDepthCheckbox}" .checked="${this.depthChecked}" style="margin-right: 5px" data-cy="filter-depth">
-                        <span>Select min. <span style="font-weight: bold;">DEPTH</span></span>
-                    </div>
-                    <div class="col-md-4">
-                        <select-field-filter .data="${this.depths}" .value="${this.depth}" @filterChange="${this.fileDepthChange}" .disabled="${!this.depthChecked}" data-cy="filter-pass-value"></select-field-filter>
-                    </div>
-                </div>
-            </form>
-            ` : null}
-
-
-            ${this._config.showQuality
-                ? html`
-                    <form class="form-horizontal subsection-content">
-                        <div class="form-group row">
-                            <div class="col-md-8">
-                                <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"
-                                        @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}" data-cy="filter-qual">
-                                <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
-                            </div>
-                            <div class="col-md-4">
-                                <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}" @input="${this.filterChange}" data-cy="filter-qual-value">
-                            </div>
+                    <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
+                        <div class="col-md-7" style="padding-right: 5px">
+                            <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
+                                   @change="${this.onChangeDepthCheckbox}" .checked="${this.depthChecked}" style="margin-right: 5px" data-cy="filter-depth">
+                            <span>Select <span style="font-weight: bold;">DEPTH =></span></span>
                         </div>
-                    </form>`
-                : null
-        }
+                        <div class="col-md-5" style="padding-left: 5px">
+                            <select-field-filter
+                                .value="${this.depth}"
+                                .data="${this.depths}"
+                                .disabled="${!this.depthChecked}"
+                                @filterChange="${this.fileDepthChange}"
+                                data-cy="filter-pass-value">
+                            </select-field-filter>
+                        </div>
+                    </div>
+                </form>` : null
+            }
+
+            ${this.vaf ? html`
+                <form class="form-horizontal subsection-content">
+                    <div id="${this._prefix}ExtVafCheckboxDiv" class="subsection-content form-group">
+                        <div class="col-md-7" style="padding-right: 5px">
+                            <input id="${this._prefix}ExtVafCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
+                                   @change="${this.onChangeExtVafCheckbox}" .checked="${this.extVafChecked}" style="margin-right: 5px" data-cy="filter-extvaf">
+                            <span>Select <span style="font-weight: bold;">VAF =></span></span>
+                        </div>
+                        <div class="col-md-5" style="padding-left: 5px">
+                            <select-field-filter
+                                .value="${this.vaf.thresholds?.[0]}"
+                                .data="${this.vaf.thresholds}"
+                                .disabled="${!this.extVafChecked}"
+                                @filterChange="${this.extVafChange}"
+                                data-cy="filter-pass-value">
+                            </select-field-filter>
+                        </div>
+                    </div>
+                </form>` : null
+            }
+
+            ${this._config.showQuality ? html`
+                <form class="form-horizontal subsection-content">
+                    <div class="form-group row">
+                        <div class="col-md-8">
+                            <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"
+                                   @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}" data-cy="filter-qual">
+                            <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
+                        </div>
+                        <div class="col-md-4">
+                            <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}"
+                                   @input="${this.filterChange}" data-cy="filter-qual-value">
+                        </div>
+                    </div>
+                </form>` : null
+            }
         `;
     }
 

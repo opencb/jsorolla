@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils.js";
-import "./opencga-clinical-analysis-view.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class ClinicalAnalysisDetail extends LitElement {
@@ -48,7 +47,7 @@ export default class ClinicalAnalysisDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
@@ -83,18 +82,26 @@ export default class ClinicalAnalysisDetail extends LitElement {
         }
     }
 
+    render() {
+        if (!this.opencgaSession || !this.clinicalAnalysis) {
+            return null;
+        }
+
+        return html`
+            <detail-tabs
+                .opencgaSession="${this.opencgaSession}"
+                .data="${this.clinicalAnalysis}"
+                .config="${this._config}">
+            </detail-tabs>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             // details config in clinical-analysis-browser
         };
     }
 
-    render() {
-        return this.opencgaSession && this.clinicalAnalysis ?
-            html`
-                <detail-tabs .data="${this.clinicalAnalysis}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
-            "";
-    }
 }
 
 customElements.define("clinical-analysis-detail", ClinicalAnalysisDetail);
