@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "./clinical-analysis-view.js";
 
 
 export default class OpencgaClinicalAnalysisBrowser extends LitElement {
@@ -47,7 +48,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "cab" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.errorState = false;
     }
 
@@ -62,6 +63,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -79,6 +81,21 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
         // this.requestUpdate();
+    }
+
+    render() {
+        if (!this._config) {
+            return null;
+        }
+
+        return html`
+            <opencga-browser
+                resource="CLINICAL_ANALYSIS"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
@@ -178,19 +195,20 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             id: "clinical-analysis-view",
                             name: "Overview",
                             active: true,
-                            render: (clinicalAnalysis, active, opencgaSession) => {
-                                return html`
-                                    <opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
-                            }
+                            render: (clinicalAnalysis, active, opencgaSession) => html`
+                                <clinical-analysis-view
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}">
+                                </clinical-analysis-view>
+                            `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (clinicalAnalysis, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer .data="${clinicalAnalysis}"></json-viewer>`;
-                            }
+                            render: (clinicalAnalysis, active, opencgaSession) => html`
+                                <json-viewer .data="${clinicalAnalysis}"></json-viewer>
+                            `,
                         }
                     ]
                 }
@@ -206,15 +224,6 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 multiSelection: true
             }
         };
-    }
-
-    render() {
-        return this._config ? html`
-            <opencga-browser resource="CLINICAL_ANALYSIS"
-                             .opencgaSession="${this.opencgaSession}"
-                             .query="${this.query}"
-                             .config="${this._config}">
-            </opencga-browser>` : null;
     }
 
 }

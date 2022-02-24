@@ -28,14 +28,14 @@ context("7 - Sample Browser", () => {
         cy.get("a[data-id=sample]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Sample Browser");
 
-        checkResults("opencga-sample-grid");
-        getResult("opencga-sample-grid").then($text => {
+        checkResults("sample-grid");
+        getResult("sample-grid").then($text => {
             selectToken("sample-id-autocomplete", $text);
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
         cy.get("div.search-button-wrapper button").click();
-        checkResults("opencga-sample-grid");
+        checkResults("sample-grid");
 
         cy.get("#somatic + .subsection-content label").contains("True").click({force: true}); // setting filter Somatic = true
 
@@ -43,15 +43,15 @@ context("7 - Sample Browser", () => {
         cy.get("opencga-active-filters button[data-filter-name='somatic']").click();
         cy.get(".lhs button[data-filter-name]").should("have.length", 0);
 
-        checkResults("opencga-sample-grid");
-        changePage("opencga-sample-grid", 2);
-        checkResults("opencga-sample-grid");
-        changePage("opencga-sample-grid", 1);
-        checkResults("opencga-sample-grid");
+        checkResults("sample-grid");
+        changePage("sample-grid", 2);
+        checkResults("sample-grid");
+        changePage("sample-grid", 1);
+        checkResults("sample-grid");
 
-        dateFilterCheck("opencga-sample-grid");
+        dateFilterCheck("sample-grid");
 
-        annotationFilterCheck("opencga-sample-grid");
+        annotationFilterCheck("sample-grid");
 
     });
     it("7.2 - aggregated query", () => {

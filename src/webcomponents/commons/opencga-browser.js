@@ -37,7 +37,7 @@ import "../individual/individual-grid.js";
 import "../individual/individual-browser-filter.js";
 import "../individual/individual-detail.js";
 // Family
-import "../family/opencga-family-grid.js";
+import "../family/family-grid.js";
 import "../family/opencga-family-filter.js";
 import "../family/opencga-family-detail.js";
 // Cohort
@@ -404,14 +404,14 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-family-grid
+                        <family-grid
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.executedQuery}"
                             .config="${this.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${this.eventNotifyName}"
                             @selectrow="${e => this.onClickRow(e, "family")}">
-                        </opencga-family-grid>
+                        </family-grid>
                         <opencga-family-detail
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config.filter.detail}"

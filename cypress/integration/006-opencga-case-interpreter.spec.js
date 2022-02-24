@@ -19,7 +19,7 @@ import {TIMEOUT} from "../plugins/constants.js";
 
 const getCaseType = grid => {
     checkResults(grid);
-    return cy.get("opencga-clinical-analysis-grid table tr[data-index=0] td:nth-child(1)  p[data-cy='case-type']", {timeout: 60000}).then(type => console.log("TYPE", type)).invoke("text");
+    return cy.get("clinical-analysis-grid table tr[data-index=0] td:nth-child(1)  p[data-cy='case-type']", {timeout: 60000}).then(type => console.log("TYPE", type)).invoke("text");
 };
 
 
@@ -35,10 +35,10 @@ context("6 - Case Interpreter", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
 
-        checkResults("opencga-clinical-analysis-grid");
+        checkResults("clinical-analysis-grid");
 
         // reading from the first row the case Id, the proband Id, and the Family Id and use them as filters
-        cy.get("opencga-clinical-analysis-grid table", {timeout: TIMEOUT})
+        cy.get("clinical-analysis-grid table", {timeout: TIMEOUT})
             .find("tr[data-index=0]", {timeout: TIMEOUT})
             .then($tr => {
                 const $caseId = Cypress.$("td:nth-child(1) a[data-cy='case-id']", $tr);

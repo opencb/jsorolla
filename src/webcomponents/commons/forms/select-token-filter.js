@@ -101,6 +101,7 @@ export default class SelectTokenFilter extends LitElement {
             templateSelection: item => {
                 return item.id ?? item.text;
             },
+            ...this._config.select2Config
         })
             .on("select2:select", e => {
                 this.filterChange(e);

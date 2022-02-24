@@ -69,7 +69,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -80,6 +80,7 @@ export default class ClinicalInterpretationManager extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
+        super.update(changedProperties);
     }
 
     clinicalAnalysisIdObserver() {
@@ -87,7 +88,6 @@ export default class ClinicalInterpretationManager extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    // this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -95,7 +95,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
     }
 
-    async clinicalAnalysisObserver() {
+    clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
@@ -110,19 +110,19 @@ export default class ClinicalInterpretationManager extends LitElement {
                 study: this.opencgaSession.study.fqn,
                 version: "all",
             };
-            await this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.clinicalAnalysis.interpretation.id, params)
+            this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.clinicalAnalysis.interpretation.id, params)
                 .then(response => {
                     this.interpretationVersions = response.responses[0].results.reverse();
+
+                    // We always refresh UI when clinicalAnalysisObserver is called
+                    // await this.updateComplete;
+                    this.requestUpdate();
+                    this.renderHistoryTable();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
-
-        // We always refresh UI when clinicalAnalysisObserver is called
-        // await this.updateComplete;
-        await this.requestUpdate();
-        this.renderHistoryTable();
     }
 
     renderInterpretation(interpretation, primary) {

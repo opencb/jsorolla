@@ -28,40 +28,40 @@ context("9 - Family Browser", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser");
 
-        checkResultsOrNot("opencga-family-grid");
+        checkResultsOrNot("family-grid");
 
-        hasResults("opencga-family-grid").then($bool => {
+        hasResults("family-grid").then($bool => {
             if ($bool) {
                 // run other tests in case there are results
-                getResult("opencga-family-grid", 1).then($text => {
+                getResult("family-grid", 1).then($text => {
                     selectToken("family-id-autocomplete", $text);
                     cy.get(".lhs button[data-filter-name]").should("have.length", 1);
                     cy.get("div.search-button-wrapper button").click();
                 });
-                checkResults("opencga-family-grid");
+                checkResults("family-grid");
                 cy.get("opencga-active-filters button[data-filter-name='id']").click();
 
-                checkResults("opencga-family-grid");
-                getResult("opencga-family-grid", 3, 0, "html").then($html => {
+                checkResults("family-grid");
+                getResult("family-grid", 3, 0, "html").then($html => {
                     cy.wrap($html).get("span[data-cy]").then($text => {
                         cy.get(".subsection-content[data-cy=disorders] input").type($text.first().text() + "{enter}");
                         cy.get("div.search-button-wrapper button").click();
-                        checkResults("opencga-family-grid");
+                        checkResults("family-grid");
                         cy.get("opencga-active-filters button[data-filter-name='disorders']").click();
                     });
                 });
-                checkResults("opencga-family-grid");
-                changePage("opencga-family-grid", 2);
-                checkResults("opencga-family-grid");
-                changePage("opencga-family-grid", 1);
-                checkResults("opencga-family-grid");
+                checkResults("family-grid");
+                changePage("family-grid", 2);
+                checkResults("family-grid");
+                changePage("family-grid", 1);
+                checkResults("family-grid");
 
                 // sort id ASC
-                cy.get("opencga-family-grid table .th-inner.sortable").contains("Family").click();
-                checkResults("opencga-family-grid");
-                getResult("opencga-family-grid", 1, 0).then($f1 => {
-                    getResult("opencga-family-grid", 1, 1).then($f2 => {
-                        getResult("opencga-family-grid", 1, 2).then($f3 => {
+                cy.get("family-grid table .th-inner.sortable").contains("Family").click();
+                checkResults("family-grid");
+                getResult("family-grid", 1, 0).then($f1 => {
+                    getResult("family-grid", 1, 1).then($f2 => {
+                        getResult("family-grid", 1, 2).then($f3 => {
                             const sorted = [$f1, $f2, $f3];
                             sorted.sort();
                             expect(JSON.stringify([$f1, $f2, $f3]), "Families are sorted").to.be.equal(JSON.stringify(sorted));
@@ -71,8 +71,8 @@ context("9 - Family Browser", () => {
                     });
                 });
 
-                dateFilterCheck("opencga-family-grid");
-                annotationFilterCheck("opencga-family-grid");
+                dateFilterCheck("family-grid");
+                annotationFilterCheck("family-grid");
             }
         });
     });
@@ -81,9 +81,9 @@ context("9 - Family Browser", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser");
 
-        checkResultsOrNot("opencga-family-grid");
+        checkResultsOrNot("family-grid");
 
-        hasResults("opencga-family-grid").then($bool => {
+        hasResults("family-grid").then($bool => {
             if ($bool) {
                 // in case there are actually results, run the aggregated tests
                 cy.get("a[href='#facet_tab']").click({force: true});

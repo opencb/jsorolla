@@ -38,6 +38,12 @@ export default class CohortCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            mode: {
+                type: String
+            },
+            display: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -47,25 +53,35 @@ export default class CohortCreate extends LitElement {
     _init() {
         this.cohort = {};
         this.sampleId = "";
+
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
+
         switch (param) {
             case "samples":
-                // let samples = [];
-                // if (e.detail.value) {
-                //     samples = e.detail.value.split(",").map(sample => {
-                //         return {id: sample};
-                //     });
-                // }
-                this.cohort = {...this.cohort, samples: e.detail.value};
+                let samples = [];
+                if (e.detail.value) {
+                    samples = e.detail.value.split(",").map(sample => {
+                        return {id: sample};
+                    });
+                }
+                this.cohort = {...this.cohort, samples: samples};
                 break;
             case "annotationSets":
                 this.cohort = {...this.cohort, annotationSets: e.detail.value};
@@ -80,30 +96,23 @@ export default class CohortCreate extends LitElement {
                 };
                 break;
         }
-        this.requestUpdate();
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate();
     }
 
     onSubmit(e) {
         e.stopPropagation();
         console.log("Cohort Saved", this.cohort);
         this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this.cohort = {};
-                // LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
+            .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Cohort",
                     message: "cohort created correctly"
                 });
-                // FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
+                this.onClear();
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // console.error(err);
-                // FormUtils.showAlert(
-                //     "New Cohort",
-                //     `Could not save cohort ${err}`,
-                //     "error"
-                // );
             });
     }
 
@@ -154,17 +163,31 @@ export default class CohortCreate extends LitElement {
                                 helpMessage: "short Sample id",
                             }
                         },
+                        // TODO we need first to support ID copy into the autocomplete elements.
+                        // {
+                        //     title: "Sample IDs",
+                        //     field: "samples",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: () => html `
+                        //         <sample-id-autocomplete
+                        //             .value=${this.sampleId}
+                        //             .opencgaSession=${this.opencgaSession}
+                        //             @filterChange="${e => this.onFieldChange(e, "samples")}">
+                        //         </sample-id-autocomplete>`
+                        //     }
+                        // },
                         {
-                            title: "Cohort Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
+                            title: "Sample IDs",
+                            field: "samples",
+                            type: "input-text",
                             display: {
-                                placeholder: "Select a cohort type..."
+                                rows: 3,
+                                placeholder: "Add sample IDs...",
                             }
                         },
                         {
-                            title: "Description",
+                            title: "Cohort Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -172,41 +195,28 @@ export default class CohortCreate extends LitElement {
                                 placeholder: "Add a cohort description...",
                             }
                         },
-                        {
-                            title: "Samples",
-                            field: "samples",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                <sample-id-autocomplete
-                                    .value=${this.sampleId}
-                                    .opencgaSession=${this.opencgaSession}
-                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
-                                </sample-id-autocomplete>`
-                            }
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
+                        // {
+                        //     title: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        // {
+                        //     title: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
                         {
                             title: "Status name",
                             field: "status.name",

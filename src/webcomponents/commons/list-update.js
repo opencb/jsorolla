@@ -49,6 +49,7 @@ export default class ListUpdate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.config};
+
     }
 
     _init() {
@@ -59,9 +60,10 @@ export default class ListUpdate extends LitElement {
 
     onFieldChange(e, index) {
         e.stopPropagation();
-        // Array
         const {param, value} = e.detail;
         if (index >= 0) {
+        // Array
+        // To edit the element config
             if (value) {
                 this.data.items[index] = {
                     ...this.data.items[index],
@@ -70,8 +72,9 @@ export default class ListUpdate extends LitElement {
             } else {
                 delete this.data.items[index][param];
             }
-            console.log("edited array item", this.data.items[index]);
+
         } else {
+            // Add new config
             if (value) {
                 this.item = {
                     ...this.item,
@@ -85,6 +88,10 @@ export default class ListUpdate extends LitElement {
                 const itemData = {...e.detail, node: this.node, item: this.item};
                 LitUtils.dispatchCustomEvent(this, "fieldChange", itemData);
             }
+        }
+        if (this.node?.parent === "fileIndexConfiguration") {
+            this._config = {...this.config};
+            this.requestUpdate();
         }
     }
 
@@ -149,14 +156,13 @@ export default class ListUpdate extends LitElement {
         return {index: i, node, items: this.data.items};
     }
 
-    render() {
-        // TODO: Add a condition to know it's a key with values array
-        if (this.node?.child === "valuesMapping") {
-            const valuesMapping = this.data.items;
-            return html`
-                ${valuesMapping ?
-                    Object.keys(valuesMapping)?.map((key, i) => {
-                    const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
+    // TODO: Refactor ValuesMapping Variant Configs.
+    renderValuesMapping() {
+        const valuesMapping = this.data.items;
+        return html `
+            ${valuesMapping?
+                Object.keys(valuesMapping).map((key, i) => {
+                const itemData = {key: key, values: valuesMapping[key], node: this.node, index: i};
                     return html`
                         <div class="list-group-item">
                             <div class="row">
@@ -173,24 +179,25 @@ export default class ListUpdate extends LitElement {
                                             @submit=${e => this.onSendItem(e, key, this.node)}
                                             .config="${this._config.edit}">
                                         </data-form>
-                                        <button type="button" class="btn btn-danger" @click=${e => this.onRemoveItem(e, key, this.node)}>Delete</button>
+                                        <button type="button" class="btn btn-sm btn-danger" @click=${e => this.onRemoveItem(e, key, this.node)}>Delete</button>
                                 </div>
                             </div>
-                        </div> `;
-                    }) : nothing}
+                        </div>`;
+                    }): nothing}
                 <data-form
                     @fieldChange=${ e => this.onFieldChange(e)}
                     @filterChange=${e => this.onAddValues(e)}
                     @submit=${e => this.onSendItem(e, -1, this.node)}
                     .config="${this._config.new}">
-                </data-form>`;
-        }
+                </data-form>
+                `;
+    }
 
-        // applies when the data is an array
-        if (this.data.items.constructor === Array) {
-            const title = this._config?.item?.title || "id";
-            const subtitle = this._config?.item?.subtitle || "description";
-            return html`
+    renderListItems() {
+        // debugger
+        const title = this._config?.item?.title || "id";
+        const subtitle = this._config?.item?.subtitle || "description";
+        return html `
             ${this.data.items?.map((item, i) => {
                 const itemData = {...item, node: this.node, index: i};
                 return html`
@@ -202,7 +209,7 @@ export default class ListUpdate extends LitElement {
                                     <p class="text-muted">${item[subtitle]}</p>
                                 </div>
                             </div>
-                            <div class="col-md-4" style="text-align:right">
+                            <div class="col-md-4">
                                     <data-form
                                         .data="${itemData}"
                                         @fieldChange=${ e => this.onFieldChange(e, i)}
@@ -214,27 +221,54 @@ export default class ListUpdate extends LitElement {
                         </div>
                     </div>
                 `;
-            })}
+                })
+            }
             <data-form
+                .data="${this.item}"
                 @fieldChange=${ e => this.onFieldChange(e)}
                 @submit=${e => this.onSendItem(e, -1, this.node)}
                 .config="${this._config.new}">
-            </data-form>`;
+            </data-form>
+            `;
+    }
+
+    renderDataForm() {
+
+        if (UtilsNew.isEmpty(this.data.items)) {
+            return html`${nothing}`;
         }
 
-        if (this.data.items.constructor === Object) {
-            // debugger;
-            // Annotation index config. (Configs without modal)
-            return html `
-                <data-form
-                    .data=${this.data.items}
-                    @filterChange=${e => this.onAddValues(e)}
-                    @fieldChange=${ e => this.onFieldChange(e)}
-                    .config=${this._config.edit}>
-                </data-form>
-            `;
+        // This renderDataForm is just for 'open form'
+        if (this._config?.edit?.type === "modal") {
+            return html `${nothing}`;
         }
+
+        return html`
+            <data-form
+                .data=${this.data.items}
+                @filterChange=${e => this.onAddValues(e)}
+                @fieldChange=${e => this.onFieldChange(e)}
+                .config=${this._config.edit}>
+            </data-form> `;
     }
+
+
+    render() {
+        // TODO: Add a condition to know it's a key with values array
+        return html`
+            ${this.node?.child === "valuesMapping" ?
+                html`${this.renderValuesMapping()}`: nothing
+            }
+
+            ${Array.isArray(this.data.items) ?
+                html`${this.renderListItems()}`:nothing
+            }
+
+            ${this.data?.items && UtilsNew.isObject(this.data.items) ?
+                html`${this.renderDataForm()}`:nothing
+            }`;
+    }
+
 
 }
 

@@ -38,6 +38,9 @@ export default class SignatureView extends LitElement {
             mode: {
                 type: String // view | plot
             },
+            plots: {
+                type: Array,
+            },
             config: {
                 type: Object
             }
@@ -46,7 +49,7 @@ export default class SignatureView extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        this.plots = ["counts"];
         this.mode = "SBS";
     }
 
@@ -57,18 +60,16 @@ export default class SignatureView extends LitElement {
     }
 
     updated(changedProperties) {
-        //loading spinner is shown in case this.signature is undefined or null
-        // debugger
-        // if ((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
-        //     this.signatureObserver();
-        // }
+        if (changedProperties.has("signature") && this.plots.includes("counts")) {
+            this.signatureCountsObserver();
+        }
 
-        if (changedProperties.has("signature")) {
-            this.signatureObserver();
+        if (changedProperties.has("signature") && this.plots.includes("fitting")) {
+            this.signatureFittingObserver();
         }
     }
 
-    signatureObserver() {
+    signatureCountsObserver() {
         if (!this.signature || this.signature?.errorState) {
             return;
         }
@@ -78,7 +79,7 @@ export default class SignatureView extends LitElement {
         const data = counts.map(point => point?.total);
 
         const substitutionClass = string => {
-            const [,pair,letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
+            const [, pair, letter] = string.match(/[ACTG]\[(([ACTG])>[ACTG])\][ACTG]+/);
             return {pair, letter};
         };
 
@@ -149,7 +150,7 @@ export default class SignatureView extends LitElement {
             },
         };
 
-        for (const count of counts) {
+        counts.forEach(count => {
             if (count) {
                 if (this.mode === "SBS") {
                     const {pair} = substitutionClass(count.context);
@@ -159,13 +160,13 @@ export default class SignatureView extends LitElement {
                     dataset[pair].data.push(count.total);
                 }
             }
-        }
+        });
 
         const addRects = function (chart) {
             $(".rect", this).remove();
             $(".rect-label", this).remove();
             let lastStart = 0;
-            for (const k in dataset) {
+            Object.keys(dataset).forEach(k => {
                 // console.log("chart.categories", chart.xAxis)
                 // console.log("k", dataset[k].data.length)
                 const xAxis = chart.xAxis[0];
@@ -190,10 +191,10 @@ export default class SignatureView extends LitElement {
                     .add();
 
                 lastStart += dataset[k].data.length;
-            }
+            });
         };
 
-        $(`#${this._prefix}SignaturePlot`).highcharts({
+        $(`#${this._prefix}SignatureCountsPlot`).highcharts({
             title: "title",
             chart: {
                 height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
@@ -216,12 +217,12 @@ export default class SignatureView extends LitElement {
             },
             tooltip: {
                 formatter: function () {
-                    if (this.x.includes('[')) {
+                    if (this.x.includes("[")) {
                         const {pair, letter} = substitutionClass(this.x);
-                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>: ${this.y}</strong>`;
+                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
                     } else {
                         const {pair, letter} = rearragementClass(this.x);
-                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>: ${this.y}</strong>`;
+                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
                     }
                     // const {pair, letter} = substitutionClass(this.x);
                     // return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>:${this.y}</strong>`;
@@ -234,10 +235,10 @@ export default class SignatureView extends LitElement {
                     formatter: data => {
                         if (this.mode === "SBS") {
                             const {pair, letter} = substitutionClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         } else {
                             const {pair, letter} = rearragementClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
+                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         }
                         // const {pair, letter} = substitutionClass(this.value);
                         // return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
@@ -252,11 +253,38 @@ export default class SignatureView extends LitElement {
         });
     }
 
-    getDefaultConfig() {
-        return {
-            // width: null, width is always 100% of the visible container
-            height: 240,
-        };
+    signatureFittingObserver() {
+        if (!this.signature?.fitting) {
+            return;
+        }
+
+        const scores = this.signature.fitting.scores;
+
+        $(`#${this._prefix}SignatureFittingPlot`).highcharts({
+            chart: {
+                height: this._config.height,
+                type: "bar",
+            },
+            title: null,
+            credits: {
+                enabled: false
+            },
+            legend: {
+                enabled: false
+            },
+            xAxis: {
+                categories: scores.map(score => score.signatureId),
+            },
+            yAxis: {
+                min: 0,
+                title: null,
+            },
+            series: [{
+                data: scores.map(score => score.value),
+                name: "Value",
+            }]
+        });
+
     }
 
     render() {
@@ -266,15 +294,31 @@ export default class SignatureView extends LitElement {
 
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature ? html`
-                    <div style="margin: 10px">
-                        <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
-                    </div>
-                    <div id="${this._prefix}SignaturePlot"></div>` : html`
+                ${this.signature && this.plots ? html`
+
+                    ${this.plots.includes("counts") ? html `
+                        <div style="margin: 10px">
+                            <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
+                        </div>
+                        <div id="${this._prefix}SignatureCountsPlot"></div>
+                    ` : null}
+
+                    ${this.plots.includes("fitting") ? html`
+                        <div id="${this._prefix}SignatureFittingPlot"></div>
+                    ` : null}
+
+                ` : html`
                     <loading-spinner></loading-spinner>`
                 }
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            // width: null, width is always 100% of the visible container
+            height: 320,
+        };
     }
 
 }
