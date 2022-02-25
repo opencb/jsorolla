@@ -238,9 +238,9 @@ export default class DiseasePanelGrid extends LitElement {
                 rowspan: 2,
                 colspan: 1,
                 formatter: (value, row) => {
-                    if (row?.source?.project === "PanelApp") {
+                    if (row?.source && row?.source?.project === "PanelApp") {
                         return String.raw`
-                            <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
+                            <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
                                 ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
                     }
@@ -272,17 +272,20 @@ export default class DiseasePanelGrid extends LitElement {
                 rowspan: 2,
                 colspan: 1,
                 formatter: (value, row) => {
-                    const {id, author, project, version} = row.source;
-                    let projectAndVersion = "";
-                    if (project?.toUpperCase() === "PANELAPP") {
-                        projectAndVersion = `
+                    if (row?.source) {
+                        const {id, author, project, version} = row.source;
+                        let projectAndVersion = "";
+                        if (project?.toUpperCase() === "PANELAPP") {
+                            projectAndVersion = `
                             <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
                                 ${project} ${version} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
-                    } else {
-                        projectAndVersion = `${project || ""} ${version}`;
+                        } else {
+                            projectAndVersion = `${project || ""} ${version}`;
+                        }
+                        return `${author ? `${author} -` : ""} ${projectAndVersion}`;
                     }
-                    return `${author ? `${author} -` : ""} ${projectAndVersion}`;
+                    return "-";
                 },
                 align: "center",
             },
