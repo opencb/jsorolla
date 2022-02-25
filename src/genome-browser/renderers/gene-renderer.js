@@ -43,7 +43,8 @@ export default class GeneRenderer extends Renderer {
 
             let maxWidth = Math.max(width, 2);
             let textHeight = 0;
-            if (options.maxLabelRegionSize > options.regionSize) {
+            console.log(options.maxLabelRegionSize, options.regionSize);
+            if (options.labelMaxRegionSize > options.regionSize) {
                 textHeight = 9;
                 maxWidth = Math.max(width, svgLabelWidth);
             }
@@ -107,7 +108,7 @@ export default class GeneRenderer extends Renderer {
                     });
 
                     // Render gene label
-                    if (options.maxLabelRegionSize > options.regionSize) {
+                    if (options.labelMaxRegionSize > options.regionSize) {
                         const geneLabelElement = SVG.addChild(geneGroup, "text", {
                             "i": index,
                             "x": x,
