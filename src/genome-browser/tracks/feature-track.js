@@ -481,7 +481,7 @@ export default class FeatureTrack {
             pixelBase: this.pixelBase,
             position: this.region.center(),
             regionSize: this.region.length(),
-            maxLabelRegionSize: this.config.maxLabelRegionSize,
+            labelMaxRegionSize: this.config.labelMaxRegionSize,
             width: this.width,
             pixelPosition: this.pixelPosition,
             resource: this.resource,
@@ -654,7 +654,7 @@ export default class FeatureTrack {
             showSettings: false,
             histogramMinRegionSize: 300000000,
             histogramInterval: 100000,
-            maxLabelRegionSize: 300000000,
+            labelMaxRegionSize: 300000000,
             visibleRegionSize: 200,
         };
     }
