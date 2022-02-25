@@ -1,6 +1,6 @@
 import Region from "../../core/bioinfo/region.js";
 import UtilsNew from "../../core/utilsNew.js";
-import HistogramRenderer from "../renderers/histogram-renderer.js";
+// import HistogramRenderer from "../renderers/histogram-renderer.js";
 import {SVG} from "../../core/svg.js";
 
 export default class FeatureTrack {
@@ -40,11 +40,6 @@ export default class FeatureTrack {
         this.pixelBase = 0;
         this.pixelPosition = this.svgCanvasWidth / 2;
 
-        this.histogram;
-        this.histogramLogarithm;
-        this.histogramMax;
-        this.interval;
-
         this.svgCanvasLeftLimit;
         this.svgCanvasRightLimit;
 
@@ -57,14 +52,11 @@ export default class FeatureTrack {
         // this.defaultRenderer = this.renderer;
         // this.renderer = this.renderer;
 
-        // TODO: enable back histogram renderer
         // this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
-        this.histogramRendererName = "HistogramRenderer";
+        // this.histogramRendererName = "HistogramRenderer";
 
         this.dataType = "features";
         this.featureType = "Feature"; // This only have the old class feature track
-        // this.resource = this.dataAdapter.resource;// This only have the old class feature track
-        // this.species = this.dataAdapter.species;// This only have the old class feature track
 
         this.#initDom();
         this.#initEvents();
@@ -219,6 +211,13 @@ export default class FeatureTrack {
         // this.renderer.init();
     }
 
+    // TODO: review this method
+    render(target) {
+        this.initializeDom(target);
+
+        this.#setCanvasConfig();
+    }
+
     get(attr) {
         return this[attr];
     }
@@ -288,7 +287,7 @@ export default class FeatureTrack {
 
     setSpecies(species) {
         this.species = species;
-        this.dataAdapter.setSpecies(this.species);
+        // this.dataAdapter.setSpecies(this.species);
     }
 
     enableAutoHeight() {
@@ -326,7 +325,8 @@ export default class FeatureTrack {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = Math.ceil(10 / this.pixelBase); // server interval limit 512
+            // this.interval = Math.ceil(10 / this.pixelBase); // server interval limit 512
+            this.interval = 100000;
             this.titleHistogram.style.display = "inline-block";
         } else {
             this.histogram = undefined;
@@ -352,8 +352,8 @@ export default class FeatureTrack {
 
     updateHeight() {
         if (this.histogram) {
-            this.content.style.height = `${this.histogramRenderer.histogramHeight + 5}px`;
-            this.main.setAttribute("height", this.histogramRenderer.histogramHeight);
+            this.content.style.height = `${this.histogramRenderer.config.histogramHeight + 5}px`;
+            this.main.setAttribute("height", this.histogramRenderer.config.histogramHeight);
             return;
         }
 
@@ -403,8 +403,8 @@ export default class FeatureTrack {
     }
 
     #drawHistogramLegend() {
-        const histogramHeight = this.histogramRenderer.histogramHeight;
-        const multiplier = this.histogramRenderer.multiplier;
+        const histogramHeight = this.histogramRenderer.config.histogramHeight;
+        const multiplier = this.histogramRenderer.config.multiplier;
 
         this.histogramGroup = SVG.addChild(this.svgGroup, "g", {
             "class": "histogramGroup",
@@ -448,30 +448,31 @@ export default class FeatureTrack {
         text.textContent = "1000-";
     }
 
-    render(target) {
-        this.initializeDom(target);
-
-        this.#setCanvasConfig();
-    }
-
     #setCanvasConfig() {
         this.svgCanvasOffset = (this.width * 3 / 2) / this.pixelBase;
         this.svgCanvasLeftLimit = this.region.start - this.svgCanvasOffset * 2;
         this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
     }
 
-    getDataHandler(event) {
-        let renderer, features;
-        if (event.dataType !== "histogram") {
-            renderer = this.renderer;
-            features = this.getFeaturesToRenderByChunk(event);
-        } else {
-            renderer = this.histogramRenderer;
-            features = event.items;
-        }
+    // Generic get data method (to be implemented in each track)
+    getData(options) {
+        return this.dataAdapter.getData(options);
+    }
 
-        renderer.render(features, {
-            cacheItems: event.items,
+    getDataHandler(data) {
+        // let renderer, features;
+        // if (event.dataType !== "histogram") {
+        //     renderer = this.renderer;
+        //     features = this.getFeaturesToRenderByChunk(event);
+        // } else {
+        //     renderer = this.histogramRenderer;
+        //     features = event.items;
+        // }
+
+        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
+
+        renderer.render(data, {
+            // cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,
             renderedArea: this.renderedArea,
@@ -489,49 +490,66 @@ export default class FeatureTrack {
         this.updateHeight();
     }
 
+    getDataType() {
+        if (this.config.histogramMinRegionSize && this.region.length() > this.config.histogramMinRegionSize) {
+            this.titleHistogram.style.display = "inline-block";
+            return "histogram";
+        }
+
+        // Not histogram data --> return features
+        this.titleHistogram.style.display = "none";
+        return "features";
+    }
+
     // draw(customAdapter, customRenderer) {
-    draw(customAdapter) {
-        const adapter = customAdapter || this.dataAdapter;
+    draw() {
+        // const adapter = customAdapter || this.dataAdapter;
 
         this.clean();
         this.#setCanvasConfig();
 
-        this.updateHistogramParams();
-
-        this.dataType = "features";
-        if (this.histogram) {
-            this.dataType = "histogram";
-        }
+        // this.updateHistogramParams();
+        // Get data type
+        this.dataType = this.getDataType();
 
         if (typeof this.config.visibleRegionSize === "undefined" || this.region.length() < this.config.visibleRegionSize) {
             this.setLoading(true);
 
-            const region = new Region({
-                chromosome: this.region.chromosome,
-                start: this.region.start - this.svgCanvasOffset * 2,
-                end: this.region.end + this.svgCanvasOffset * 2
-            });
-
-            const params = {
-                ...(adapter.params || {}),
-                histogram: this.histogram,
-                histogramLogarithm: this.histogramLogarithm,
-                histogramMax: this.histogramMax,
-                interval: this.interval,
+            // Get data options
+            const options = {
+                dataType: this.dataType,
+                region: new Region({
+                    chromosome: this.region.chromosome,
+                    start: Math.max(this.region.start - this.svgCanvasOffset * 2, 0),
+                    end: this.region.end + this.svgCanvasOffset * 2,
+                }),
             };
 
-            adapter.getData({
-                dataType: this.dataType,
-                region: region,
-                params: params,
-            })
-                .then(response => {
-                    this.getDataHandler(response);
-                    this.setLoading(false);
-                })
-                .catch(reason => {
-                    console.log("Feature Track draw error: " + reason);
-                });
+            // const params = {
+            //     ...(adapter.params || {}),
+            //     histogram: this.histogram,
+            //     histogramLogarithm: this.histogramLogarithm,
+            //     histogramMax: this.histogramMax,
+            //     interval: this.interval,
+            // };
+
+            // adapter.getData({
+            //     dataType: this.dataType,
+            //     region: region,
+            //     params: params,
+            // })
+            //     .then(response => {
+            //         this.getDataHandler(response);
+            //         this.setLoading(false);
+            //     })
+            //     .catch(reason => {
+            //         console.log("Feature Track draw error: " + reason);
+            //     });
+
+            this.getData(options).then(response => {
+                this.getDataHandler(response.responses[0].results);
+                this.setLoading();
+            });
         }
 
         this.updateHeight();
@@ -574,7 +592,7 @@ export default class FeatureTrack {
     }
 
     move(disp) {
-        this.dataType = this.histogram ? "histogram" : "features";
+        // this.dataType = this.histogram ? "histogram" : "features";
         this.region.center();
 
         const pixelDisplacement = disp * this.pixelBase;
@@ -589,46 +607,32 @@ export default class FeatureTrack {
 
         if (typeof this.config.visibleRegionSize === "undefined" || this.region.length() < this.config.visibleRegionSize) {
             if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
-                this.dataAdapter.getData({
+                const options = {
                     dataType: this.dataType,
                     region: new Region({
                         chromosome: this.region.chromosome,
-                        start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset),
+                        start: Math.max(parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset), 0),
                         end: this.svgCanvasLeftLimit,
                     }),
-                    params: {
-                        histogram: this.histogram,
-                        histogramLogarithm: this.histogramLogarithm,
-                        histogramMax: this.histogramMax,
-                        interval: this.interval,
-                    },
-                })
-                    .then(response => this.getDataHandler(response))
-                    .catch(reason => {
-                        console.log("Feature Track move error: " + reason);
-                    });
+                };
+                this.getData(options).then(response => {
+                    return this.getDataHandler(response.responses[0].results);
+                });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
 
             if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
-                this.dataAdapter.getData({
+                const options = {
                     dataType: this.dataType,
                     region: new Region({
                         chromosome: this.region.chromosome,
-                        start: this.svgCanvasRightLimit,
-                        end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset)
+                        start: Math.max(this.svgCanvasRightLimit, 0),
+                        end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset),
                     }),
-                    params: {
-                        histogram: this.histogram,
-                        histogramLogarithm: this.histogramLogarithm,
-                        histogramMax: this.histogramMax,
-                        interval: this.interval,
-                    },
-                })
-                    .then(response => this.getDataHandler(response))
-                    .catch(reason => {
-                        console.log("Feature Track move error: " + reason);
-                    });
+                };
+                this.getData(options).then(response => {
+                    return this.getDataHandler(response.responses[0].results);
+                });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
         }
@@ -645,7 +649,8 @@ export default class FeatureTrack {
             resizable: true,
             closable: false,
             showSettings: false,
-            minHistogramRegionSize: 300000000,
+            histogramMinRegionSize: 300000000,
+            histogramInterval: 100000,
             maxLabelRegionSize: 300000000,
             visibleRegionSize: 200,
         };
