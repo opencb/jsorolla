@@ -46,6 +46,7 @@ export default class FeatureTrack {
         this.invalidZoomText;
 
         this.renderedArea = {}; // used for renders to store binary trees
+        this.renderedFeatures = new Set(); // used to prevent rendering features twice
         this.chunksDisplayed = {}; // used to avoid painting multiple times features contained in more than 1 chunk
 
         // save default render reference;
@@ -476,6 +477,7 @@ export default class FeatureTrack {
             svgCanvasFeatures: this.svgCanvasFeatures,
             featureTypes: this.featureTypes,
             renderedArea: this.renderedArea,
+            renderedFeatures: this.renderedFeatures,
             pixelBase: this.pixelBase,
             position: this.region.center(),
             regionSize: this.region.length(),
@@ -511,6 +513,7 @@ export default class FeatureTrack {
         // this.updateHistogramParams();
         // Get data type
         this.dataType = this.getDataType();
+        this.renderedFeatures.clear(); // Reset rendered features list
 
         if (typeof this.config.visibleRegionSize === "undefined" || this.region.length() < this.config.visibleRegionSize) {
             this.setLoading(true);
