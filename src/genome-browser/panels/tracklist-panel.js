@@ -569,7 +569,7 @@ export default class TrackListPanel {
         track.setPixelBase(this.pixelBase);
         track.setRegion(this.visualRegion);
         track.setWidth(this.width);
-        track.setSpecies(this.species);
+        // track.setSpecies(this.species);
 
         // track.set("trackListPanel", this);
         // console.log(track);
