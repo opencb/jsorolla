@@ -3,61 +3,60 @@ import {SVG} from "../../core/svg.js";
 
 export default class HistogramRenderer extends Renderer {
 
-    #getFeatureValue(feature) {
-        return feature.absolute > 0 ? Math.max(0.2, Math.log(feature.absolute)) : 0;
-    }
-
-    render(features, options) {
-        // Sort features by start position
-        features.sort((a, b) => a.value.start - b.value.start);
-
+    render(chunks, options) {
         const middle = options.width / 2;
 
-        // Update the scale values
-        const histogramHeight = options.height ? options.height * 0.95 : this.config.histogramHeight;
-        const maxValue = options.histogramMaxFreqValue || this.config.maxValue;
-        const multiplier = histogramHeight / maxValue;
+        (chunks || []).forEach(chunk => {
+            const items = chunk.buckets || [];
 
-        const points = [];
+            // Update the scale values
+            const histogramHeight = options.height ? options.height * 0.95 : this.config.histogramHeight;
+            const maxValue = options.histogramMaxFreqValue || this.config.maxValue;
+            const multiplier = histogramHeight / maxValue;
 
-        // Draw starting point
-        if (features.length > 0) {
-            const firstFeature = features[0].value;
-            const width = (firstFeature.end - firstFeature.start + 1) * options.pixelBase;
-            const x = options.pixelPosition + middle - ((options.position - parseInt(firstFeature.start)) * options.pixelBase);
-            const height = this.#getFeatureValue(firstFeature) * multiplier;
+            const points = [];
 
-            points.push(`${(x - (width / 2)).toFixed(1)},${histogramHeight.toFixed(1)}`);
-            points.push(`${(x - (width / 2)).toFixed(1)},${(histogramHeight - height).toFixed(1)}`);
-        }
+            // Draw starting point
+            if (items.length > 0) {
+                const firstItem = items[0];
+                // const width = parseInt(firstItem.value) * options.pixelBase;
+                const x = options.pixelPosition + middle - ((options.position - parseInt(firstItem.value)) * options.pixelBase);
+                // const height = firstItem.count * multiplier;
 
-        features.forEach(feature => {
-            const width = (feature.end - feature.start + 1) * options.pixelBase;
-            const x = options.pixelPosition + middle - ((options.position - feature.start) * options.pixelBase);
-            const height = this.#getFeatureValue(feature) * multiplier;
+                points.push(`${x.toFixed(1)},0`);
+                // points.push(`${x.toFixed(1)},${histogramHeight.toFixed(1)}`);
+                // points.push(`${(x - (width / 2)).toFixed(1)},${(histogramHeight - height).toFixed(1)}`);
+            }
 
-            points.push(`${(x + (width / 2)).toFixed(1)},${(histogramHeight - height).toFixed(1)}`);
-        });
+            items.forEach(item => {
+                // const width = (feature.end - feature.start + 1) * options.pixelBase;
+                const x = options.pixelPosition + middle - ((options.position - parseInt(item.value)) * options.pixelBase);
+                const height = item.count * multiplier;
 
-        // Draw ending point of histogram
-        if (features.length > 0) {
-            const lastFeature = features[features.length - 1].value;
-            const width = (lastFeature.end - lastFeature.start + 1) * options.pixelBase;
-            const x = options.pixelPosition + middle - ((options.position - parseInt(lastFeature.start)) * options.pixelBase);
-            const height = this.#getFeatureValue(lastFeature) * multiplier;
-
-            points.push(`${(x + width).toFixed(1)},${(histogramHeight - height).toFixed(1)}`);
-            points.push(`${(x + width).toFixed(1)},${histogramHeight.toFixed(1)}`);
-        }
-
-        // Draw histogram points
-        if (points.length > 0) {
-            SVG.addChild(options.svgCanvasFeatures, "polyline", {
-                points: points.join(" "),
-                fill: this.config.histogramColor,
-                cursor: "pointer",
+                points.push(`${x.toFixed(1)},${(histogramHeight - height).toFixed(1)}`);
             });
-        }
+
+            // Draw ending point of histogram
+            if (items.length > 0) {
+                const lastItem = items[items.length - 1];
+                // const width = (lastFeature.end - lastFeature.start + 1) * options.pixelBase;
+                const x = options.pixelPosition + middle - ((options.position - parseInt(lastItem.value)) * options.pixelBase);
+                // const height = lastItem.count * multiplier;
+
+                // points.push(`${(x + width).toFixed(1)},${(histogramHeight - height).toFixed(1)}`);
+                // points.push(`${x.toFixed(1)},${histogramHeight.toFixed(1)}`);
+                points.push(`${x.toFixed(1)},0`);
+            }
+
+            // Draw histogram points
+            if (points.length > 0) {
+                SVG.addChild(options.svgCanvasFeatures, "polyline", {
+                    points: points.join(" "),
+                    fill: this.config.histogramColor,
+                    // cursor: "pointer",
+                });
+            }
+        });
     }
 
     // Get histogram default config
