@@ -1,6 +1,6 @@
 import FeatureTrack from "./feature-track.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
-import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
+// import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
 // import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 
 export default class SequenceTrack extends FeatureTrack {
@@ -18,8 +18,12 @@ export default class SequenceTrack extends FeatureTrack {
         //     };
         //     this.cellbaseClient = new CellBaseClient(cellBaseConfig);
         // }
-        this.cellBaseClient = this.config.cellBaseClient;
-        this.dataAdapter = new CellBaseAdapter(this.cellBaseClient, "genomic", "region", "sequence", {}, {chunkSize: 100});
+        // this.dataAdapter = new CellBaseAdapter(this.cellBaseClient, "genomic", "region", "sequence", {}, {chunkSize: 100});
+    }
+
+    getData(options) {
+        const region = options.region.toString();
+        return this.config.cellBaseClient.get("genomic", "region", region, "sequence", {});
     }
 
     // Get default config for sequence track
