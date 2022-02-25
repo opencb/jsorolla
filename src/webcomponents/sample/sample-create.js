@@ -166,8 +166,6 @@ export default class SampleCreate extends LitElement {
                 console.log("for annotationSets array");
                 break;
         }
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
@@ -387,6 +385,7 @@ export default class SampleCreate extends LitElement {
                         field: "collection.from",
                         type: "custom-list",
                         display: {
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                             collapsedUpdate: true,
                             renderUpdate: (from, callback) => {
                                 return html`

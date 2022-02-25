@@ -19,6 +19,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
+import NotificationUtils from "../utils/notification-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
@@ -571,7 +572,7 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    _createCustomElementTemplate(element, value, collapsed, content, callback) {
+    _createCustomElementTemplate(element, value, collapsedUpdate, content, callback) {
         const isValid = this._isValid(element, value);
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
@@ -583,7 +584,7 @@ export default class DataForm extends LitElement {
         const helpMode = this._getHelpMode(element);
 
         const results = html`
-            <div class="${hasErrorMessages ? "has-error" : ""}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:16px;">
+            <div class="${hasErrorMessages ? "has-error" : ""}" style="${element?.display?.style}">
                 ${content}
                 ${helpMessage && helpMode !== "block" ? html`
                     <div class="help-block" style="margin:8px">${helpMessage}</div>
@@ -600,7 +601,7 @@ export default class DataForm extends LitElement {
                 ` : null}
             </div>
         `;
-        if (collapsed) {
+        if (collapsedUpdate) {
             return html`
                 <div class="row" style="padding-top:6px;padding-left:16px">
                     ${value?.id}
@@ -1191,16 +1192,19 @@ export default class DataForm extends LitElement {
         console.log("onChangeArray action:", action, this);
         let results = {};
         let _data = data ? data:[];
+        const item = e?.detail?.value;
+        let isRepeat = false;
         switch (action) {
             case "CREATE":
-                results = {param: field, value: [..._data, e.detail.value]};
+                _data.some(d => d?.id === item?.id) ?
+                    isRepeat = true :
+                    results = {param: field, value: [..._data, item]};
                 break;
             case "UPDATE":
-                const updatedItem = e.detail.value;
-                const indexItem = _data.findIndex(item => item.id === updatedItem.id);
-                _data[indexItem] = updatedItem;
+                const indexItem = _data.findIndex(item => item.id === item.id);
+                _data[indexItem] = item;
                 results = {param: field, value: _data};
-                $(`#${updatedItem.id}Collapse`).collapse("hide");
+                $(`#${item.id}Collapse`).collapse("hide");
                 break;
             case "REMOVE":
                 // This 'e' is the item to remove from array
@@ -1209,7 +1213,15 @@ export default class DataForm extends LitElement {
                 results = {param: field, value: _data};
                 break;
         }
-        LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
+        if (isRepeat) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                title: "Duplicated data",
+                message: "You have already added a data with the same id."
+            });
+        } else {
+            LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
+        }
+
     }
 
     _createDownloadElement(element) {
