@@ -164,8 +164,8 @@ export default class GenomeBrowserUtils {
             <div>ID: <span class="ssel">${gene.id || ""}</span></div>
             <div>Biotype: <span class="emph" style="color:${color};">${gene.biotype}</span></div>
             ${GenomeBrowserUtils.featureInfoFormatter(gene)}
-            <div>Source: <span class="ssel">${gene.source || ""}</span></div>
-            <div>Description: <span class="emph">${gene.description || ""}</span></div>
+            <div>Source: <span class="ssel">${gene.source || "-"}</span></div>
+            <div>Description: <span class="emph">${gene.description || "-"}</span></div>
         `;
     }
 
@@ -204,7 +204,7 @@ export default class GenomeBrowserUtils {
             <div style="padding-left:12px">
                 <div>ID: <span class="ssel">${transcript.id}</span></div>
                 <div>Biotype: <span class="emph" style="color:${color};">${transcript.biotype}</span></div>
-                </div>Description: <span class="emph">${transcript.description}</span></div>
+                <div>Description: <span class="emph">${transcript.description || "-"}</span></div>
                 ${transcriptInfo}
             </div>
             <div>Exon:</div>
