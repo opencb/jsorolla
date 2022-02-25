@@ -696,6 +696,7 @@ class ApiApp extends LitElement {
                 @logout=${e => this.logout()}
                 @changeTool=${e => this.changeTool(e.detail.value)}
                 @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
+                @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
                 @route="${this.route}">
             </custom-navbar>
             <!-- End of navigation bar -->
