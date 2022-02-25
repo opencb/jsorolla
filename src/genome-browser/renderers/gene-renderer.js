@@ -7,23 +7,19 @@ import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 export default class GeneRenderer extends Renderer {
 
-    setFeatureConfig(configObject) {
-        Object.assign(this, configObject);
-    }
-
     // Get value from config
-    getValueFromConfig(key, arg) {
-        return typeof this.config[key] === "function" ? this.config[key](arg) : this.config[key];
+    getValueFromConfig(key, args) {
+        return typeof this.config[key] === "function" ? this.config[key].apply(null, args) : this.config[key];
     }
 
     render(features, options) {
-        features.forEach((feature, index) => {
+        (features || []).forEach((feature, index) => {
 
-            const geneColor = this.getValueFromConfig("geneColor", feature);
-            const geneLabel = this.getValueFromConfig("geneLabel", feature);
-            const geneHeight = this.getValueFromConfig("geneHeight", feature);
-            const geneTooltipTitle = this.getValueFromConfig("geneTooltipTitle", feature);
-            const geneTooltipText = this.getValueFromConfig("geneTooltipText", feature);
+            const geneColor = this.getValueFromConfig("geneColor", [feature]);
+            const geneLabel = this.getValueFromConfig("geneLabel", [feature]);
+            const geneHeight = this.getValueFromConfig("geneHeight", [feature]);
+            const geneTooltipTitle = this.getValueFromConfig("geneTooltipTitle", [feature]);
+            const geneTooltipText = this.getValueFromConfig("geneTooltipText", [feature]);
 
             // get feature genomic information
             const start = feature.start;
@@ -157,11 +153,11 @@ export default class GeneRenderer extends Renderer {
                             const transcriptX = GenomeBrowserUtils.getFeatureX(transcript.start, options);
                             const transcriptWidth = (transcript.end - transcript.start + 1) * options.pixelBase;
 
-                            const transcriptColor = this.getValueFromConfig("transcriptColor", transcript);
-                            const transcriptLabel = this.getValueFromConfig("transcriptLabel", transcript);
-                            const transcriptHeight = this.getValueFromConfig("transcriptHeight", transcript);
-                            const transcriptTooltipTitle = this.getValueFromConfig("transcriptTooltipTitle", transcript);
-                            const transcriptTooltipText = this.getValueFromConfig("transcriptTooltipText", transcript);
+                            const transcriptColor = this.getValueFromConfig("transcriptColor", [transcript]);
+                            const transcriptLabel = this.getValueFromConfig("transcriptLabel", [transcript]);
+                            const transcriptHeight = this.getValueFromConfig("transcriptHeight", [transcript]);
+                            const transcriptTooltipTitle = this.getValueFromConfig("transcriptTooltipTitle", [transcript]);
+                            const transcriptTooltipText = this.getValueFromConfig("transcriptTooltipText", [transcript]);
 
                             // the length of the end of the gene is subtracted to the beginning of the transcript and is added the text of the transcript
                             const transcriptLabelWidth = transcriptLabel.length * 6.4;
@@ -230,11 +226,11 @@ export default class GeneRenderer extends Renderer {
                                 const exonX = options.pixelPosition + middle - ((options.position - exonStart) * options.pixelBase);
                                 const exonWidth = (exonEnd - exonStart + 1) * options.pixelBase;
 
-                                const exonColor = this.getValueFromConfig("exonColor", exon);
-                                // const exonLabel = this.getValueFromConfig("exonLabel", exon);
-                                const exonHeight = this.getValueFromConfig("exonHeight", exon);
-                                const exonTooltipTitle = this.getValueFromConfig("exonTooltipTitle", exon);
-                                const exonTooltipText = this.getValueFromConfig("exonTooltipText", exon);
+                                const exonColor = this.getValueFromConfig("exonColor", [exon, transcript]);
+                                // const exonLabel = this.getValueFromConfig("exonLabel", [exon, transcript]);
+                                const exonHeight = this.getValueFromConfig("exonHeight", [exon, transcript]);
+                                const exonTooltipTitle = this.getValueFromConfig("exonTooltipTitle", [exon, transcript]);
+                                const exonTooltipText = this.getValueFromConfig("exonTooltipText", [exon, transcript]);
 
                                 const exonGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
                                     "class": "ocb-coding",
@@ -369,7 +365,7 @@ export default class GeneRenderer extends Renderer {
         });
     }
 
-    getDefaultConfigGene() {
+    getDefaultConfig() {
         return {
             // Global configuration
             infoWidgetId: "id",
