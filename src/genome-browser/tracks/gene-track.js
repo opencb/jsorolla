@@ -1,208 +1,63 @@
-import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
+// import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
+// import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
 import FeatureTrack from "./feature-track.js";
-import Region from "../../core/bioinfo/region.js";
-import HistogramRenderer from "../renderers/histogram-renderer.js";
 import GeneRenderer from "../renderers/gene-renderer.js";
-
-/* ***************************************************/
-/* Create a Gene track for genome-browser            */
-/* @author Asunción Gallego                          */
-/* @param cellbaseClient       required              */
-/*                    or                             */
-/* @param  cellbase: {                               */
-/*                    "host": CELLBASE_HOST,         */
-/*                    "version": CELLBASE_VERSION,   */
-/*                    "species": "hsapiens"          */
-/*                }                                  */
-/* ***************************************************/
+// import HistogramRenderer from "../renderers/histogram-renderer.js";
 
 export default class GeneTrack extends FeatureTrack {
 
-    constructor(args) {
-        super(args);
+    constructor(config) {
+        super(config);
 
-        this.DEFAULT_EXCLUDE = "transcripts.tfbs,transcripts.xrefs,transcripts.cDnaSequence,transcripts.exons.sequence,annotation";
+        // Initialize renderers for gene track
+        this.renderer = new GeneRenderer(this.config.renderer);
+        // this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
+    }
 
-        // set user args
-        Object.assign(this, this.getDefaultConfig(), args);
+    // #initDataAdapter() {
+    //     // set CellBase adapter as default
+    //     if (typeof this.dataAdapter === "undefined") {
+    //         if (typeof this.cellbaseClient !== "undefined" && this.cellbaseClient !== null) {
+    //             this.dataAdapter = new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene", {},
+    //                 {chunkSize: 100000});
+    //         } else if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
+    //             const cellBaseConfig = {
+    //                 host: this.cellbase.host,
+    //                 version: this.cellbase.version,
+    //                 species: this.cellbase.species,
+    //                 cache: {active: false}
+    //             };
+    //             this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
+    //                 {chunkSize: 100000});
+    //         }
+    //     }
+    // }
 
-        // init dataAdapter and renderer
-        this.renderer = new GeneRenderer(args.renderer);
-        this.histogramRenderer = new HistogramRenderer(args);
-        this._init();
+    getExcludedFields(region) {
+        if (region.length() < this.config.transcriptMaxRegionSize) {
+            return "transcripts.tfbs,transcripts.xrefs,transcripts.cDnaSequence,transcripts.exons.sequence,annotation";
+        } else {
+            return "transcripts,annotation";
+        }
+    }
 
-        // These variables must be fixed in this GeneTrack
-        this.dataType = "features";
-        this.resource = this.dataAdapter.resource;
-        this.species = this.dataAdapter.species;
+    getData(options) {
+        return this.config.cellBaseClient.get("genomic", "region", options.region.toString(), "gene", {
+            exclude: this.getExcludedFields(options.region),
+            limit: 1000, // TO REVIEW
+        });
     }
 
     getDefaultConfig() {
         return {
             title: "Gene",
-            minHistogramRegionSize: 20000000,
-            maxLabelRegionSize: 10000000,
-            minTranscriptRegionSize: 200000,
-            height: 120
+            height: 100,
+            histogramMinRegionSize: 20000000,
+            labelMaxRegionSize: 10000000,
+            transcriptMaxRegionSize: 200000,
+            renderer: {},
+            histogramRenderer: {},
         };
-    }
-    _init() {
-        // set CellBase adapter as default
-        if (typeof this.dataAdapter === "undefined") {
-            if (typeof this.cellbaseClient !== "undefined" && this.cellbaseClient !== null) {
-                this.dataAdapter = new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene", {},
-                    {chunkSize: 100000});
-            } else if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
-                const cellBaseConfig = {
-                    host: this.cellbase.host,
-                    version: this.cellbase.version,
-                    species: this.cellbase.species,
-                    cache: {active: false}
-                };
-                this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
-                    {chunkSize: 100000});
-            }
-        }
-
-        // set a default geneRenderer
-        if (typeof this.renderer === "undefined") {
-            this.renderer = new GeneRenderer({handlers: {
-                'feature:click': function (e) {
-                    console.log(e);
-                    console.log("He pinchado un gen");
-                }
-            }});
-        }
-    }
-
-    getDataHandler(event) {
-        if (typeof event !== "undefined") {
-
-            let renderer;
-            let features;
-            if (event.dataType !== "histogram") {
-                renderer = this.renderer;
-                features = this.getFeaturesToRenderByChunk(event);
-            } else {
-                renderer = this.histogramRenderer;
-                features = event.items;
-            }
-
-            renderer.render(features, {
-                cacheItems: event.items,
-                svgCanvasFeatures: this.svgCanvasFeatures,
-                renderedArea: this.renderedArea,
-                pixelBase: this.pixelBase,
-                position: this.region.center(),
-                regionSize: this.region.length(),
-                maxLabelRegionSize: this.maxLabelRegionSize,
-                width: this.width,
-                pixelPosition: this.pixelPosition
-
-            });
-
-            this.updateHeight();
-        }
-    }
-
-    draw() {
-        if (this.region.length() < this.minTranscriptRegionSize) {
-            this.exclude = this.DEFAULT_EXCLUDE;
-        } else {
-            this.exclude = "transcripts,annotation";
-        }
-
-        super.draw(this.dataAdapter, this.renderer);
-    }
-
-    move(disp) {
-        let _this = this;
-
-        this.dataType = "features";
-
-        //if (!_.isUndefined(this.exclude)) {
-        //    this.dataType = "features" + this.exclude;
-        //}
-
-        if (this.histogram) {
-            this.dataType = "histogram";
-        }
-
-        //    trackSvg.position = _this.region.center();
-        _this.region.center();
-        let pixelDisplacement = disp * _this.pixelBase;
-        this.pixelPosition -= pixelDisplacement;
-
-        //parseFloat important
-        let move = parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
-        this.svgCanvasFeatures.setAttribute("x", move);
-
-        let virtualStart = parseInt(this.region.start - this.svgCanvasOffset);
-        let virtualEnd = parseInt(this.region.end + this.svgCanvasOffset);
-        // check if track is visible in this zoom
-
-        if (typeof this.visibleRegionSize === "undefined" || this.region.length() < this.visibleRegionSize) {
-
-            if (disp > 0 && virtualStart < this.svgCanvasLeftLimit) {
-                //          left
-                this.dataAdapter.getData({
-                    dataType: this.dataType,
-                    region: new Region({
-                        chromosome: _this.region.chromosome,
-                        start: parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset),
-                        end: this.svgCanvasLeftLimit
-                    }),
-                    params: {
-                        histogram: this.histogram,
-                        histogramLogarithm: this.histogramLogarithm,
-                        histogramMax: this.histogramMax,
-                        interval: this.interval,
-                        exclude: this.exclude
-                    },
-                    //done: function (event) {
-                    //    _this.getDataHandler(event);
-                    //}
-                }).then(function (response) {
-                    _this.getDataHandler(response);
-                }).catch(function (reason) {
-                    console.log(`Gene Track move error: ${reason}`);
-                });
-                this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
-            }
-
-            if (disp < 0 && virtualEnd > this.svgCanvasRightLimit) {
-                //          right
-                this.dataAdapter.getData({
-                    dataType: this.dataType,
-                    region: new Region({
-                        chromosome: _this.region.chromosome,
-                        start: this.svgCanvasRightLimit,
-                        end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset)
-                    }),
-                    params: {
-                        histogram: this.histogram,
-                        histogramLogarithm: this.histogramLogarithm,
-                        histogramMax: this.histogramMax,
-                        interval: this.interval,
-                        exclude: this.exclude
-                    }
-                    //},
-                    //done: function (event) {
-                    //    _this.getDataHandler(event);
-                    //}
-                }).then(function (response) {
-                    _this.getDataHandler(response);
-                }).catch(function (reason) {
-                    console.log(`Gene Track move error: ${reason}`);
-                });
-                this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
-            }
-        }
-
-        if (this.autoHeight === true) {
-            this.updateHeight();
-        }
     }
 
 }
