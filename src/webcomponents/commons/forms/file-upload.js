@@ -118,7 +118,7 @@ export default class FileUpload extends LitElement {
                     <div class="form-group">
                         <div class="dropzone-wrapper" @change="${this.readFile}" @drop="${this.readFile}" @dragover="${this.onDragOver}" @dragleave="${this.onDragLeave}">
                             <div class="dropzone-desc">
-                                <i class="glyphicon glyphicon-download-alt"></i>
+                                <i class="fas fa-upload"></i>
                                 <div>Choose an text file or drag it here.</div>
                             </div>
                             <input type="file" class="dropzone" />
