@@ -91,18 +91,19 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
-        if (changedProperties.has("settings")) {
+
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.config};
-        }
+
         super.update(changedProperties);
     }
 
@@ -364,7 +365,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                 .query="${this.preparedQuery}"
                                 .executedQuery="${this.executedQuery}"
-                                .filters="${this._config.filter.activeFilters.filters}"
+                                .filters="${this._config.filter.examples}"
                                 .alias="${this._config.activeFilterAlias}"
                                 .genotypeSamples="${this.genotypeSamples}"
                                 .modeInheritance="${this.modeInheritance}"
