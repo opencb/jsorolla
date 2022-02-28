@@ -537,7 +537,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                         },
                         evidences: {
                             showSelectCheckbox: true
-                        }
+                        },
+                        somatic: false,
+                        variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
                     }
                 },
                 detail: {
