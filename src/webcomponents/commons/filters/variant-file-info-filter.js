@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../utils/lit-utils.js";
 import "../forms/data-form.js";
 
 /*
@@ -336,14 +337,7 @@ export default class VariantFileInfoFilter extends LitElement {
             })
             .join(",");
 
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: fileData
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", fileData);
     }
 
     getDefaultConfig() {

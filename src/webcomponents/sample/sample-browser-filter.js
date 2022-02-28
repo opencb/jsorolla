@@ -20,7 +20,7 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/date-filter.js";
 import "../commons/opencga-facet-view.js";
 import "../commons/forms/text-field-filter.js";
-import "../commons/filters/file-quality-filter.js";
+import "../commons/filters/variant-file-format-filter.js";
 import "../commons/filters/somatic-filter.js";
 import "../commons/forms/section-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
