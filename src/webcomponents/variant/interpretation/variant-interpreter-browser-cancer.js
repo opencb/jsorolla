@@ -134,9 +134,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 // Somatic callers with the right Variant Type and with defined INFO filters
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => vc.somatic)
-                    .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
-                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"))
+                    // .filter(vc => vc.id.toUpperCase() !== "ASCAT")
+                    // .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
+                    //     vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"))
+                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL"))
                     .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
                 // Files matching the selected Variant Callers
@@ -507,11 +508,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             horizontalAlign: "center",
                             verticalAlign: "bottom"
                         },
-
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: true,
+                        variantTypes: ["SNV", "INDEL"],
                     }
                 },
                 detail: {
