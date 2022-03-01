@@ -43,7 +43,6 @@ export default class GeneRenderer extends Renderer {
 
             let maxWidth = Math.max(width, 2);
             let textHeight = 0;
-            console.log(options.maxLabelRegionSize, options.regionSize);
             if (options.labelMaxRegionSize > options.regionSize) {
                 textHeight = 9;
                 maxWidth = Math.max(width, svgLabelWidth);
