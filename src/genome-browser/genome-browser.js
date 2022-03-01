@@ -3,12 +3,12 @@ import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 import UtilsNew from "../core/utilsNew.js";
 import TrackListPanel from "./panels/tracklist-panel.js";
-import FeatureTrack from "./tracks/feature-track.js";
+// import FeatureTrack from "./tracks/feature-track.js";
 import NavigationBar from "./panels/navigation-bar.js";
 import KaryotypePanel from "./panels/karyotype-panel.js";
 import ChromosomePanel from "./panels/chromosome-panel.js";
 import StatusBar from "./panels/status-bar.js";
-import FeatureRenderer from "./renderers/feature-renderer.js";
+// import FeatureRenderer from "./renderers/feature-renderer.js";
 import GenomeBrowserConstants from "./genome-browser-constants.js";
 
 
@@ -817,8 +817,16 @@ export default class GenomeBrowser {
         this.overviewTrackListPanel.addTrack(track);
     }
 
+    addOverviewTracks(tracks) {
+        this.overviewTrackListPanel.addTracks(tracks);
+    }
+
     addTrack(track) {
         this.trackListPanel.addTrack(track);
+    }
+
+    addTracks(tracks) {
+        this.trackListPanel.addTracks(tracks);
     }
 
     getTrackById(trackId) {
