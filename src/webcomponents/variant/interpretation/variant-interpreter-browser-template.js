@@ -365,7 +365,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                 .query="${this.preparedQuery}"
                                 .executedQuery="${this.executedQuery}"
-                                .filters="${this._config.filter.examples}"
+                                .filters="${this._config.filter.activeFilters.filters}"
                                 .alias="${this._config.activeFilterAlias}"
                                 .genotypeSamples="${this.genotypeSamples}"
                                 .modeInheritance="${this.modeInheritance}"
