@@ -482,8 +482,8 @@ export default class TrackListPanel {
     }
 
     setRegion(region) {
-        console.log(`trackListPanel setRegion region ------> ${region}`);
-        console.log(`trackListPanel setRegion width ------> ${this.width}`);
+        // console.log(`trackListPanel setRegion region ------> ${region}`);
+        // console.log(`trackListPanel setRegion width ------> ${this.width}`);
 
         const center = this.width / 2;
         this.region.load(region);
@@ -491,8 +491,8 @@ export default class TrackListPanel {
         this.#setPixelBase();
 
         this.centerLine.style.left = center - 1;
-        this.centerLine.style.width = this.pixelBase;
-        this.mouseLine.style.width = this.pixelBase;
+        this.centerLine.style.width = `${this.pixelBase}px`;
+        this.mouseLine.style.width = `${this.pixelBase}px`;
 
         this.#setTextPosition();
 
@@ -500,9 +500,9 @@ export default class TrackListPanel {
             const regionOverviewBoxWidth = this.region.length() * this.pixelBase;
             const regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
 
-            this.regionOverviewBoxLeft.style.width = regionOverviewDarkBoxWidth;
-            this.regionOverviewBoxRight.style.left = regionOverviewDarkBoxWidth + regionOverviewBoxWidth;
-            this.regionOverviewBoxRight.style.width = regionOverviewDarkBoxWidth;
+            this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
+            this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
+            this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
         }
 
         // Trigger events
