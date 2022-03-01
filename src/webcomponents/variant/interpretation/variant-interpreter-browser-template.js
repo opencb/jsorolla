@@ -91,18 +91,19 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
-        if (changedProperties.has("settings")) {
+
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.config};
-        }
+
         super.update(changedProperties);
     }
 

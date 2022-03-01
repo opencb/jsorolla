@@ -176,8 +176,8 @@ export class RestClient {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
             }
             // request.timeout = options.timeout || 0;
-            if (method === "POST" && options !== undefined && Object.prototype.hasOwnProperty.hasOwnProperty.call(options, "data")) {
-                if (Object.prototype.hasOwnProperty.hasOwnProperty.call(options, "post-method") && options["post-method"] === "form") {
+            if (method === "POST" && options !== undefined && Object.prototype.hasOwnProperty.call(options, "data")) {
+                if (Object.prototype.hasOwnProperty.call(options, "post-method") && options["post-method"] === "form") {
                     const myForm = new FormData();
                     const keys = Object.keys(options.data);
                     keys.forEach(key => {

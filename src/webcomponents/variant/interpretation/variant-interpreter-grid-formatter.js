@@ -334,6 +334,7 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
+                const disabled = config.locked ? "disabled" : "";
                 // Evidence selected checkbox
                 const checboxHtml = `
                     <input
@@ -341,7 +342,8 @@ export default class VariantInterpreterGridFormatter {
                         ${re?.review?.select ? "checked" : ""}
                         class="${variantGrid._prefix}EvidenceReviewCheckbox"
                         data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}"
+                        ${disabled}>
                 `;
 
                 // Evidence edit button
@@ -349,7 +351,8 @@ export default class VariantInterpreterGridFormatter {
                     <button
                         class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
                         data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}"
+                        ${disabled}>
                         <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
                     </button>
                 `;
@@ -470,7 +473,7 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static vafGenotypeRenderer(vaf, depth, file, config) {
-        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
+        return `<span>${vaf.toFixed(3)} / ${depth}</span>`;
     }
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {

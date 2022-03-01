@@ -374,7 +374,7 @@ export default class DataForm extends LitElement {
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
         return html`
-            <div class="row" style="margin-bottom:16px;">
+            <div class="row" style="margin-bottom: 12px;">
                 <div class="${sectionWidth}">
                     ${section.title ? html`
                         <div style="margin-bottom:8px;">
@@ -1481,7 +1481,7 @@ export default class DataForm extends LitElement {
         return html`
             <!-- Header -->
             ${this.config.title && titleVisible ? html`
-                <div style="display:flex;margin-bottom:16px;">
+                <div style="display: flex; margin-bottom: 12px;">
                     <div>
                         <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
                     </div>
