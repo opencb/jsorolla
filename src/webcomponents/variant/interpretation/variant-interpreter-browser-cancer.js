@@ -216,6 +216,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 }
             );
 
+            // Add 'file' filter if 'fileData' exists
+            if (this.files) {
+                const fileNames = this.files.map(f => f.name).join(",");
+                for (const filter of _activeFilterFilters) {
+                    if (filter.query?.fileData && !filter.query?.file) {
+                        filter.query.file = fileNames;
+                    }
+                }
+            }
+
             // Set active filters
             this._config.filter.activeFilters.filters = _activeFilterFilters;
             const activeFilter = this._config.filter.activeFilters.filters.find(filter => filter.active);
