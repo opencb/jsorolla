@@ -1,9 +1,9 @@
-import Renderer from "./renderer.js";
+import FeatureRenderer from "./feature-renderer.js";
 import {SVG} from "../../core/svg.js";
 import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
 import GenomeBrowserUtils from "../genome-browser-utils.js";
 
-export default class VariantRenderer extends Renderer {
+export default class VariantRenderer extends FeatureRenderer {
 
     constructor(config) {
         super(config);
@@ -70,7 +70,8 @@ export default class VariantRenderer extends Renderer {
         if (this.config.sampleNames && this.config.sampleNames.length > 0) {
             this.#renderExtendedGenotypes(features, options);
         } else {
-            this.#renderCompactVariants(features, options);
+            // this.#renderCompactVariants(features, options);
+            super.render(features, options);
         }
     }
 
@@ -217,155 +218,6 @@ export default class VariantRenderer extends Renderer {
             //     lastSampleIndex = sampleIndex;
             // });
         });
-    }
-
-    #renderCompactVariants(features, options) {
-        const group = SVG.create("g");
-        (features || []).forEach(feature => {
-            // TODO: review this
-            // if ("featureType" in feature) {
-            //     Object.assign(this, FEATURE_TYPES[feature.featureType]);
-            // }
-            // if ("featureClass" in feature) {
-            //     Object.assign(this, FEATURE_TYPES[feature.featureClass]);
-            // }
-
-            // TODO: review this
-            // // Temporal fix for clinical
-            // if (args.featureType === "clinical") {
-            //     if ("clinvarSet" in feature) {
-            //         Object.assign(this, FEATURE_TYPES.Clinvar);
-            //     } else if ("mutationID" in feature) {
-            //         Object.assign(this, FEATURE_TYPES.Cosmic);
-            //     } else {
-            //         Object.assign(this, FEATURE_TYPES.GWAS);
-            //     }
-            // }
-
-            // get feature render configuration
-            const color = typeof this.config.color === "function" ? this.config.color(feature) : this.config.color;
-            const strokeColor = typeof this.config.strokeColor === "function" ? this.config.strokeColor(feature) : this.config.strokeColor;
-            const label = typeof this.config.label === "function" ? this.config.label(feature) : this.config.label;
-            const height = typeof this.config.height === "function" ? this.config.height(feature) : this.config.height;
-            const tooltipTitle = typeof this.config.tooltipTitle === "function" ? this.config.tooltipTitle(feature) : this.config.tooltipTitle;
-            const tooltipText = typeof this.config.tooltipText === "function" ? this.config.tooltipText(feature) : this.config.tooltipText;
-            const infoWidgetId = typeof this.config.infoWidgetId === "function" ? this.config.infoWidgetId(feature) : this.config.infoWidgetId;
-
-            // get feature genomic information
-            const start = feature.start;
-            const end = feature.end;
-            const length = Math.max(Math.abs((end - start) + 1), 1);
-
-            // transform to pixel position
-            const width = Math.max(length * options.pixelBase, 1);
-
-            const svgLabelWidth = label.length * 6.4;
-
-            // calculate x to draw svg rect
-            const x = GenomeBrowserUtils.getFeatureX(start, options);
-
-            let maxWidth = Math.max(width, 2);
-            let textHeight = 0;
-            if (options.maxLabelRegionSize > options.regionSize) {
-                textHeight = 9;
-                maxWidth = Math.max(width, svgLabelWidth);
-            }
-
-            let rowY = 0;
-            let textY = textHeight + height;
-            const rowHeight = textHeight + height + 2;
-            let foundArea = false;
-
-            while (!foundArea) {
-                if (!options.renderedArea[rowY]) {
-                    // eslint-disable-next-line no-param-reassign
-                    options.renderedArea[rowY] = new FeatureBinarySearchTree();
-                }
-
-                foundArea = options.renderedArea[rowY].add({
-                    start: x,
-                    end: x + maxWidth - 1,
-                });
-
-                if (foundArea) {
-                    const featureGroup = SVG.addChild(group, "g", {
-                        feature_id: feature.id,
-                    });
-                    SVG.addChild(featureGroup, "rect", {
-                        "x": x,
-                        "y": rowY,
-                        "width": width,
-                        "height": height,
-                        "stroke": strokeColor,
-                        "stroke-width": 1,
-                        "stroke-opacity": 0.7,
-                        "fill": color,
-                        "cursor": "pointer",
-                    });
-
-                    if (options.maxLabelRegionSize > options.regionSize) {
-                        const text = SVG.addChild(featureGroup, "text", {
-                            // i,
-                            "x": x,
-                            "y": textY,
-                            "font-weight": 400,
-                            "opacity": null,
-                            "fill": "black",
-                            "cursor": "pointer",
-                            "class": this.fontClass || "",
-                        });
-                        text.textContent = label;
-                    }
-
-                    if (tooltipText && tooltipTitle) {
-                        $(featureGroup).qtip({
-                            content: {
-                                text: tooltipText,
-                                title: tooltipTitle,
-                            },
-                            position: {
-                                viewport: $(window),
-                                target: "mouse",
-                                adjust: {x: 25, y: 15},
-                            },
-                            style: {
-                                width: true,
-                                classes: `${this.toolTipfontClass} ui-tooltip ui-tooltip-shadow`,
-                            },
-                            show: {
-                                delay: 300,
-                            },
-                            hide: {
-                                delay: 300,
-                            },
-                        });
-                    }
-
-                    featureGroup.addEventListener("mouseover", event => {
-                        this.trigger("feature:mouseover", {
-                            query: feature[infoWidgetId],
-                            feature: feature,
-                            featureType: feature.featureType,
-                            mouseoverEvent: event,
-                        });
-                    });
-
-                    featureGroup.addEventListener("click", event => {
-                        this.trigger("feature:click", {
-                            query: feature[infoWidgetId],
-                            feature: feature,
-                            featureType: feature.featureType,
-                            clickEvent: event,
-                        });
-                    });
-                    // break;
-                }
-                rowY += rowHeight;
-                textY += rowHeight;
-            }
-        });
-        // Append SVG group element
-        options.svgCanvasFeatures.appendChild(group);
     }
 
     getDefaultConfig() {
