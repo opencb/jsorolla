@@ -148,7 +148,7 @@ export default class TrackListPanel {
             this.regionOverviewBoxLeft.style.position = "absolute";
             this.regionOverviewBoxLeft.style.left = "1px";
             this.regionOverviewBoxLeft.style.top = "0px";
-            this.regionOverviewBoxLeft.style.width = `${regionOverviewBoxWidth}px`;
+            this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
             this.regionOverviewBoxLeft.style.height = "calc(100% - 8px)";
             this.regionOverviewBoxLeft.style.opacity = 0.5;
             this.regionOverviewBoxLeft.style.backgroundColor = "lightgray";
