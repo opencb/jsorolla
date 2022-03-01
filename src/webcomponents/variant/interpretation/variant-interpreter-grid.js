@@ -590,6 +590,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // Multiple file callers are supported.
         let vcfDataColumns = [];
         const vcfDataColumnNames = [];
+        const variantTypes = new Set(this._config.variantTypes || []);
         const fileCallers = this.clinicalAnalysis.files
             .filter(file => file.format === "VCF" && file.software?.name)
             .map(file => file.software.name.toUpperCase());
@@ -597,9 +598,8 @@ export default class VariantInterpreterGrid extends LitElement {
         if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
             // FIXME remove specific code for ASCAT!
             const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
-                .filter(vc => vc.somatic === (this.clinicalAnalysis?.type?.toUpperCase() === "CANCER"))
-                .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") || vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                .filter(vc => vc.somatic === this._config.somatic)
+                .filter(vc => vc.types.some(type => variantTypes.has(type)));
 
             if (variantCallers?.length > 0) {
                 for (const variantCaller of variantCallers) {
@@ -611,7 +611,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         if (variantCaller.columns?.length > 0) {
                             for (const column of variantCaller.columns) {
                                 vcfDataColumns.push({
-                                    title: column,
+                                    title: column.replace("EXT_", ""),
                                     field: {
                                         key: column,
                                         sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
@@ -1442,7 +1442,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
             evidences: {
                 showSelectCheckbox: true
-            }
+            },
+
+            somatic: false,
+            variantTypes: [],
         };
     }
 

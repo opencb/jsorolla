@@ -417,7 +417,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: true,
+                        variantTypes: ["COPY_NUMBER", "CNV"],
                     }
                 },
                 detail: {

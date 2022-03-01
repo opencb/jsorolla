@@ -473,7 +473,7 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static vafGenotypeRenderer(vaf, depth, file, config) {
-        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
+        return `<span>${vaf.toFixed(3)} / ${depth}</span>`;
     }
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
