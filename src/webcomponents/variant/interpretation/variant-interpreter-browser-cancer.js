@@ -98,7 +98,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
         let _activeFilterFilters;
         if (this.settings?.menu?.examples?.length > 0) {
             // Load custom filters if configured
-            _activeFilterFilters = this.settings.menu.examples;
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
         } else {
             // Load default filters if not custom defined
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];

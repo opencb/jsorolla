@@ -97,8 +97,16 @@ class VariantInterpreterBrowserRd extends LitElement {
         // Configuration is using the clinicalAnalysis
         this._config = this.getDefaultConfig();
 
-        // Init the active filters with every new Case opened. Then we add the default filters for the given sample
-        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
+        let _activeFilterFilters;
+        if (this.settings?.menu?.examples?.length > 0) {
+            // Load custom filters if configured
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
+        } else {
+            // Load default filters if not custom defined
+            _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        }
 
         this.sample = this.clinicalAnalysis.proband?.samples?.find(sample => !sample.somatic);
         if (this.sample) {
@@ -226,6 +234,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                     query: this.query
                 }
             );
+
+            // Add 'file' filter if 'fileData' exists
+            if (this.files) {
+                const fileNames = this.files.map(f => f.name).join(",");
+                for (const filter of _activeFilterFilters) {
+                    if (filter.query?.fileData && !filter.query?.file) {
+                        filter.query.file = fileNames;
+                    }
+                }
+            }
 
             // Set active filters
             this._config.filter.activeFilters.filters = _activeFilterFilters;
