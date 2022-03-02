@@ -210,6 +210,26 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
+    onAddOrUpdateItem(e) {
+        console.log("Change received on the array", this);
+        switch (e.detail.param) {
+            case "collection.from":
+                this.collection = {...this.collection, from: e.detail.value};
+                this.sample = {...this.sample, collection: this.collection};
+                this.updateParams = {...this.updateParams, collection: this.collection};
+                break;
+            case "phenotypes":
+                this.sample = {...this.sample, phenotypes: e.detail.value};
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "annotationSets":
+                console.log("for annotationSets array");
+                break;
+        }
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
@@ -218,6 +238,7 @@ export default class SampleUpdate extends LitElement {
                 .config="${this._config}"
                 .updateParams=${this.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
@@ -382,21 +403,53 @@ export default class SampleUpdate extends LitElement {
                     //         placeholder: "Add a tissue..."
                     //     }
                     // },
+                    // {
+                    //     title: "From",
+                    //     field: "collection.from",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: from => html`
+                    //             <ontology-term-annotation-update
+                    //                 .ontology=${from}
+                    //                 .displayConfig="${{
+                    //                         buttonsVisible: false,
+                    //                         width: 12,
+                    //                         style: "border-left: 2px solid #0c2f4c",
+                    //                     }}"
+                    //                 @fieldChange=${e => this.onFieldChange(e, "from")}
+                    //             ></ontology-term-annotation-update>`
+                    //     }
+                    // },
                     {
                         title: "From",
                         field: "collection.from",
-                        type: "custom",
+                        type: "custom-list",
                         display: {
-                            render: from => html`
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            collapsedUpdate: true,
+                            renderUpdate: (from, callback) => {
+                                return html`
                                 <ontology-term-annotation-update
-                                    .ontology=${from}
+                                    .ontology="${from}"
                                     .displayConfig="${{
-                                            buttonsVisible: false,
-                                            width: 12,
-                                            style: "border-left: 2px solid #0c2f4c",
+                                            defaultLayout: "vertical",
+                                            style: "margin-bottom:0px",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
                                         }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "from")}
-                                ></ontology-term-annotation-update>`
+                                    @updateItem="${callback}">
+                                </ontology-term-annotation-update>`;
+                            },
+                            renderCreate: (from, callback) => html`
+                                <ontology-term-annotation-create
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                    @addItem="${callback}">
+                                </ontology-term-annotation-create>`
                         }
                     },
                     {
@@ -436,31 +489,65 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Phenotypes",
                 elements: [
+                    // {
+                    //     title: "",
+                    //     type: "notification",
+                    //     text: "Empty, create a new phenotype",
+                    //     display: {
+                    //         visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
+                    //         notificationType: "info",
+                    //     }
+                    // },
                     {
-                        title: "",
-                        type: "notification",
-                        text: "Empty, create a new phenotype",
+                        title: "Phenotype",
+                        field: "phenotypes",
+                        type: "custom-list",
                         display: {
-                            visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
-                            notificationType: "info",
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            collapsedUpdate: true,
+                            renderUpdate: (pheno, callback) => {
+                                return html`
+                                <ontology-term-annotation-update
+                                    .ontology="${pheno}"
+                                    .entity="${"phenotype"}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                    @updateItem="${callback}">
+                                </ontology-term-annotation-update>`;
+                            },
+                            renderCreate: (pheno, callback) => html`
+                                <ontology-term-annotation-create
+                                    .entity="${"phenotype"}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                    @addItem="${callback}">
+                                </ontology-term-annotation-create>`
                         }
                     },
-                    {
-                        field: "phenotype",
-                        type: "custom",
-                        display: {
-                            layout: "vertical",
-                            defaultLayout: "vertical",
-                            width: 12,
-                            style: "padding-left: 0px",
-                            render: () => html`
-                                <phenotype-list-update
-                                    .phenotypes="${this.sample?.phenotypes}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
-                                </phenotype-list-update>`
-                        }
-                    },
+                    // {
+                    //     field: "phenotype",
+                    //     type: "custom",
+                    //     display: {
+                    //         layout: "vertical",
+                    //         defaultLayout: "vertical",
+                    //         width: 12,
+                    //         style: "padding-left: 0px",
+                    //         render: () => html`
+                    //             <phenotype-list-update
+                    //                 .phenotypes="${this.sample?.phenotypes}"
+                    //                 .opencgaSession="${this.opencgaSession}"
+                    //                 @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
+                    //             </phenotype-list-update>`
+                    //     }
+                    // },
                 ]
             },
             // {

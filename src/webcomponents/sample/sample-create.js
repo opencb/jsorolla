@@ -19,7 +19,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utilsNew.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
@@ -97,9 +96,6 @@ export default class SampleCreate extends LitElement {
                     )
                 };
                 break;
-            // case "collection.from":
-            //     this.sample = {...this.sample, from: e.detail.value};
-            //     break;
             case "phenotypes":
                 this.sample = {...this.sample, phenotypes: e.detail.value};
                 break;
@@ -159,8 +155,8 @@ export default class SampleCreate extends LitElement {
                 this.collection = {...this.collection, from: e.detail.value};
                 this.sample = {...this.sample, collection: this.collection};
                 break;
-            case "phenotype":
-                console.log("for phenotypes array");
+            case "phenotypes":
+                this.sample = {...this.sample, phenotypes: e.detail.value};
                 break;
             case "annotationSets":
                 console.log("for annotationSets array");
@@ -189,6 +185,7 @@ export default class SampleCreate extends LitElement {
                 titleWidth: 3,
                 defaultLayout: "horizontal",
                 defaultValue: "",
+                buttonClearText: "Cancel"
             },
             sections: [{
                 title: "Sample General Information",
@@ -385,7 +382,7 @@ export default class SampleCreate extends LitElement {
                         field: "collection.from",
                         type: "custom-list",
                         display: {
-                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             collapsedUpdate: true,
                             renderUpdate: (from, callback) => {
                                 return html`
@@ -393,8 +390,9 @@ export default class SampleCreate extends LitElement {
                                     .ontology="${from}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
-                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                            buttonOkText: "Save"
+                                            style: "margin-bottom:0px",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
                                         }}"
                                     @updateItem="${callback}">
                                 </ontology-term-annotation-update>`;
@@ -404,7 +402,8 @@ export default class SampleCreate extends LitElement {
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                            buttonOkText: "Add"
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
                                         }}"
                                     @addItem="${callback}">
                                 </ontology-term-annotation-create>`
@@ -449,30 +448,63 @@ export default class SampleCreate extends LitElement {
             {
                 title: "Phenotypes",
                 elements: [
+                    // {
+                    //     title: "",
+                    //     type: "notification",
+                    //     text: "Empty, create a new phenotype",
+                    //     display: {
+                    //         visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
+                    //         notificationType: "info",
+                    //     }
+                    // },
                     {
-                        title: "",
-                        type: "notification",
-                        text: "Empty, create a new phenotype",
+                        title: "Phenotype",
+                        field: "phenotypes",
+                        type: "custom-list",
                         display: {
-                            visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
-                            notificationType: "info",
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            collapsedUpdate: true,
+                            renderUpdate: (pheno, callback) => {
+                                return html`
+                                <ontology-term-annotation-update
+                                    .ontology="${pheno}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                    @updateItem="${callback}">
+                                </ontology-term-annotation-update>`;
+                            },
+                            renderCreate: (pheno, callback) => html`
+                                <ontology-term-annotation-create
+                                    .entity="${"phenotype"}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                    @addItem="${callback}">
+                                </ontology-term-annotation-create>`
                         }
                     },
-                    {
-                        field: "phenotype",
-                        type: "custom",
-                        display: {
-                            layout: "vertical",
-                            defaultLayout: "vertical",
-                            width: 12,
-                            style: "padding-left: 0px",
-                            render: sample => html`
-                                <phenotype-list-update
-                                    .phenotypes="${sample?.phenotypes}"
-                                    @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
-                                </phenotype-list-update>`
-                        }
-                    },
+                    // {
+                    //     field: "phenotype",
+                    //     type: "custom",
+                    //     display: {
+                    //         layout: "vertical",
+                    //         defaultLayout: "vertical",
+                    //         width: 12,
+                    //         style: "padding-left: 0px",
+                    //         render: sample => html`
+                    //             <phenotype-list-update
+                    //                 .phenotypes="${sample?.phenotypes}"
+                    //                 @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
+                    //             </phenotype-list-update>`
+                    //     }
+                    // },
                 ]
             },
             // {

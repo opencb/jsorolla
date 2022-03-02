@@ -54,7 +54,6 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             titleVisible: false,
             titleWidth: 4,
             defaultLayout: "horizontal",
-            // style: "border-left: 2px solid #0c2f4c",
         };
         this._config = this.getDefaultConfig();
     }
@@ -119,6 +118,32 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     `;
     }
 
+    _configOntology(entity) {
+        switch (entity) {
+            case "phenotype":
+                return [
+                    {
+                        name: "Age of on set",
+                        field: "ageOfOnset",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add an age of on set..."
+                        }
+                    },
+                    {
+                        name: "Status",
+                        field: "status",
+                        type: "select",
+                        allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                        display: {
+                            placeholder: "Select a status..."
+                        }
+                    }];
+            default:
+                return [];
+        }
+    }
+
     getDefaultConfig() {
         return Types.dataFormConfig({
             display: this.displayConfig || this.displayConfigDefault,
@@ -159,6 +184,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                                 placeholder: "add a source"
                             }
                         },
+                        ...this._configOntology(this.entity)
                     ]
                 }
             ]

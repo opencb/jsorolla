@@ -577,7 +577,7 @@ export default class DataForm extends LitElement {
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
         // const collapsed = this._getBooleanValue(element?.collapsed, false);
-        const prefix = UtilsNew.randomString(8);
+        const prefix = `${value?.id}${UtilsNew.randomString(8)}`;
 
         // Help message
         const helpMessage = this._getHelpMessage(element);
@@ -606,16 +606,18 @@ export default class DataForm extends LitElement {
                 <div class="row" style="padding-top:6px;padding-left:16px">
                     ${value?.id}
                     <div class="pull-right">
-                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${value?.id}Collapse" aria-expanded="false"
-                        aria-controls="${value?.id}Collapse">
+                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${prefix}Collapse" aria-expanded="false"
+                        aria-controls="${prefix}Collapse">
+                        <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
                             Edit
                         </button>
                         <button class="btn btn-danger" type="button" @click="${callback}">
+                        <i aria-hidden="true" class="fas fa-trash-alt"></i>
                             Remove
                         </button>
                     </div>
                 </div>
-                <div class="collapse" id="${value?.id}Collapse">
+                <div class="collapse" id="${prefix}Collapse">
                     <div>${results}</div>
                 </div>
                 `;
@@ -1327,14 +1329,17 @@ export default class DataForm extends LitElement {
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
         const buttonClearText = this.config.display?.buttonClearText ?? this.config.buttons?.clearText ?? this.config.buttons?.cancelText ?? "Clear";
         const buttonOkText = this.config.display?.buttonOkText ?? this.config.buttons?.okText ?? "OK";
+        const buttonClearVisible = !!this.config.display?.buttonClearText;
 
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
-                    <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onClear}">
-                        ${buttonClearText}
-                    </button>
+                    ${buttonClearVisible? html`
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onClear}">
+                            ${buttonClearText}
+                        </button>
+                        `: null}
                     <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onSubmit}">
                         ${buttonOkText}
                     </button>

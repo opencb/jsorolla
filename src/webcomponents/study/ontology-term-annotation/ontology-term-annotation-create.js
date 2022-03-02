@@ -38,6 +38,9 @@ export default class OntologyTermAnnotationCreate extends LitElement {
             ontology: {
                 type: Object
             },
+            entity: {
+                type: String,
+            },
             mode: {
                 type: String,
             },
@@ -71,14 +74,13 @@ export default class OntologyTermAnnotationCreate extends LitElement {
     onFieldChange(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
-        if (e.detail.value) {
-            this.ontology = {
-                ...FormUtils.createObject(
-                    this.ontology,
-                    param,
-                    e.detail.value
-                )};
-        }
+        this.ontology = {
+            ...FormUtils.createObject(
+                this.ontology,
+                param,
+                e.detail.value
+            )};
+        // console.log("test: ", this.ontology);
         LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
     }
 
@@ -107,6 +109,32 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                 @submit="${e => this.onSendOntology(e)}">
             </data-form>
     `;
+    }
+
+    _configOntology(entity) {
+        switch (entity) {
+            case "phenotype":
+                return [
+                    {
+                        name: "Age of on set",
+                        field: "ageOfOnset",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Add an age of on set..."
+                        }
+                    },
+                    {
+                        name: "Status",
+                        field: "status",
+                        type: "select",
+                        allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                        display: {
+                            placeholder: "Select a status..."
+                        }
+                    }];
+            default:
+                return [];
+        }
     }
 
     getDefaultConfig() {
@@ -149,6 +177,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                                 placeholder: "Add a source..."
                             }
                         },
+                        ...this._configOntology(this.entity)
                     ]
                 }
             ]
