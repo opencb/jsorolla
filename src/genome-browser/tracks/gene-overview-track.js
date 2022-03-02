@@ -32,7 +32,8 @@ export default class GeneOverviewTrack extends FeatureTrack {
     getDefaultConfig() {
         return {
             title: "Gene overview",
-            height: 80,
+            height: 100,
+            resizable: true,
             histogramMinRegionSize: 20000000000,
             labelMaxRegionSize: 10000000,
             renderer: {},

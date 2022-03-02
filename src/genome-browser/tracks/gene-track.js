@@ -52,6 +52,7 @@ export default class GeneTrack extends FeatureTrack {
         return {
             title: "Gene",
             height: 100,
+            resizable: true,
             histogramMinRegionSize: 20000000,
             labelMaxRegionSize: 10000000,
             transcriptMaxRegionSize: 200000,

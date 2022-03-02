@@ -70,6 +70,9 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
     getDefaultConfig() {
         return {
             title: "",
+            height: 200,
+            maxHeight: 300,
+            resizable: true,
             dataAdapter: null,
             opencgaClient: null,
             opencgaStudies: "",

@@ -123,11 +123,18 @@ export default class FeatureTrack {
         this.content.style.position = "relative";
         this.content.style.boxSizing = "border-box";
         this.content.style.zIndex = 3;
-        this.content.height = this.config.height;
-        this.content.overflowY = this.config.resizable ? "auto" : "hidden";
-        this.content.overflowX = "hidden";
+        // this.content.style.height = `${this.height}px`;
+        this.content.style.overflowX = "hidden";
+        if (this.config.resizable) {
+            this.content.style.maxHeight = `${this.height}px`;
+            this.content.style.overflowY = "auto";
+        }
 
+        // Resize bar
         this.resize = this.div.querySelector(`div#${this.prefix}Resize`);
+        if (!this.config.resizable) {
+            this.resize.style.display = "none";
+        }
 
         if (this.config.showSettings) {
             this.titleSettings.style.display = "inline-block";
@@ -176,11 +183,11 @@ export default class FeatureTrack {
                 const despY = (event.clientY - downY);
                 const actualHeight = this.content.offsetHeight;
                 const newHeight = actualHeight + despY;
-                if (newHeight > 0) {
-                    this.height = newHeight;
-                    this.content.style.height = this.height;
-                }
                 downY = event.clientY;
+
+                if (newHeight > 0) {
+                    this.content.style.maxHeight = `${newHeight}px`;
+                }
             };
 
             this.resize.addEventListener("mousedown", event => {
@@ -369,7 +376,7 @@ export default class FeatureTrack {
         renderedHeight = Math.max(renderedHeight, this.height);
         this.main.setAttribute("height", renderedHeight);
 
-        if (this.resizable) {
+        if (this.config.resizable) {
             if (!this.autoHeight) {
                 this.content.style.height = `${this.height + 10}px`;
             } else {
@@ -384,7 +391,7 @@ export default class FeatureTrack {
                     }
                 });
                 const visibleHeight = Math.max(parseInt(lastContains) + 30, this.height);
-                this.contentDiv.style.height = `${visibleHeight + 10}px`;
+                this.content.style.height = `${visibleHeight + 10}px`;
                 this.main.setAttribute("height", visibleHeight);
             }
         }
@@ -649,6 +656,7 @@ export default class FeatureTrack {
     getDefaultConfig() {
         return {
             title: "",
+            height: 100,
             resizable: true,
             closable: false,
             showSettings: false,
