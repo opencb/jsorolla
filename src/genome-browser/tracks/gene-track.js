@@ -35,7 +35,7 @@ export default class GeneTrack extends FeatureTrack {
 
     getExcludedFields(region) {
         if (region.length() < this.config.transcriptMaxRegionSize) {
-            return "transcripts.tfbs,transcripts.xrefs,transcripts.cDnaSequence,transcripts.exons.sequence,annotation";
+            return "transcripts.tfbs,transcripts.xrefs,transcripts.cdnaSequence,transcripts.exons.sequence,transcripts.annotation,annotation";
         } else {
             return "transcripts,annotation";
         }
@@ -44,7 +44,7 @@ export default class GeneTrack extends FeatureTrack {
     getData(options) {
         return this.config.cellBaseClient.get("genomic", "region", options.region.toString(), "gene", {
             exclude: this.getExcludedFields(options.region),
-            limit: 1000, // TO REVIEW
+            limit: 2000,
         });
     }
 

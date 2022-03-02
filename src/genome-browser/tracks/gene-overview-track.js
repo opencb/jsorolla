@@ -24,8 +24,8 @@ export default class GeneOverviewTrack extends FeatureTrack {
     // Get data for gene overview track
     getData(options) {
         return this.config.cellBaseClient.get("genomic", "region", options.region.toString(), "gene", {
-            exclude: "transcripts,chunkIds",
-            limit: 1000, // TO REVIEW
+            exclude: "transcripts,annotation",
+            limit: 5000,
         });
     }
 

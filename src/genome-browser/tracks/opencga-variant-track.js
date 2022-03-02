@@ -58,11 +58,14 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             });
         } else {
             // Fetch variants
-            return this.config.opencgaClient.variants().query({
-                studies: this.config.opencgaStudies,
-                region: options.region.toString(),
-                exclude: "studies,annotation",
-            });
+            return this.config.opencgaClient.variants().query(
+                {
+                    studies: this.config.opencgaStudies,
+                    limit: 5000,
+                    region: options.region.toString(),
+                    include: "id,chromosome,start,end,strand,type,annotation.displayConsequenceType",
+                }
+            );
         }
     }
 
