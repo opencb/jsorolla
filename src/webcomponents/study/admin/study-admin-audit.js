@@ -131,6 +131,8 @@ export default class StudyAdminAudit extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 // Table properties
                 pagination: this._config.pagination,

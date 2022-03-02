@@ -107,6 +107,8 @@ export default class FamilyGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 silentSort: false,
                 // Table properties
@@ -223,6 +225,8 @@ export default class FamilyGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.families,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
 
             // Set table properties, these are read from config property
             uniqueId: "id",
@@ -340,7 +344,7 @@ export default class FamilyGrid extends LitElement {
         if (UtilsNew.isNotEmptyArray(value)) {
             const members = value.map(member => `<p>${member.id} (${member.sex})</p>`).join("");
             return `
-                <a tooltip-title="Members" tooltip-text="${members}"> 
+                <a tooltip-title="Members" tooltip-text="${members}">
                     ${value.length} members found
                 </a>
             `;

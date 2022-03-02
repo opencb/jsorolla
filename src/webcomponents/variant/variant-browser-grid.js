@@ -162,18 +162,8 @@ export default class VariantBrowserGrid extends LitElement {
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
-                iconsPrefix: "fas",
-                icons: {
-                    paginationSwitchDown: "fa-caret-square-down",
-                    paginationSwitchUp: "fa-caret-square-up",
-                    refresh: "fa-sync",
-                    toggleOff: "fa-toggle-off",
-                    toggleOn: "fa-toggle-on",
-                    columns: "fa-th-list",
-                    fullscreen: "fa-arrows-alt",
-                    detailOpen: "fa-plus",
-                    detailClose: "fa-minus"
-                },
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: this._config.pagination,
