@@ -413,32 +413,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: false,
-                                // TODO read this from the Study.internal.configuration in OpenCGA 2.1
-                                populationFrequencies: {
-                                    studies: [
-                                        {
-                                            id: "1kG_phase3",
-                                            title: "1000 Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "All populations [ALL]"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: "GNOMAD_GENOMES",
-                                            title: "gnomAD Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "gnomAD [ALL]"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
+                                params: {
+                                    showSetAll: false,
+                                    populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
+                                        ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
+                                },
                             }
                         ]
                     },
