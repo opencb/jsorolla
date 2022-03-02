@@ -121,6 +121,8 @@ export default class SampleGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 // Table properties
                 pagination: this._config.pagination,
@@ -234,6 +236,8 @@ export default class SampleGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.samples,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
 
             // Set table properties, these are read from config property
             uniqueId: "id",

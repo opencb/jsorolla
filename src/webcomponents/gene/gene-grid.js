@@ -116,7 +116,8 @@ export default class GeneGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
-
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // Table properties
                 uniqueId: "id",
                 pagination: this._config.pagination,
@@ -200,6 +201,8 @@ export default class GeneGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.genePanels,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,

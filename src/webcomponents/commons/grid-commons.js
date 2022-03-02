@@ -19,6 +19,19 @@ import UtilsNew from "../../core/utilsNew.js";
 
 export default class GridCommons {
 
+    static GRID_ICONS_PREFIX = "fas";
+    static GRID_ICONS = {
+        paginationSwitchDown: "fa-caret-square-down",
+        paginationSwitchUp: "fa-caret-square-up",
+        refresh: "fa-sync",
+        toggleOff: "fa-toggle-off",
+        toggleOn: "fa-toggle-on",
+        columns: "fa-th-list",
+        fullscreen: "fa-arrows-alt",
+        detailOpen: "fa-plus",
+        detailClose: "fa-minus"
+    }
+
     constructor(gridId, context, config) {
         this.gridId = gridId;
         this.context = context;

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utilsNew.js";
+import GridCommons from "../../../commons/grid-commons.js";
 import "./../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
@@ -80,6 +81,8 @@ export default class KnockoutVariantIndividual extends LitElement {
             data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             pagination: true,
             paginationVAlign: "both",

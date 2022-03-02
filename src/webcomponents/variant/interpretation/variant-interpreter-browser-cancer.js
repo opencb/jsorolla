@@ -98,7 +98,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
         let _activeFilterFilters;
         if (this.settings?.menu?.examples?.length > 0) {
             // Load custom filters if configured
-            _activeFilterFilters = this.settings.menu.examples;
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
         } else {
             // Load default filters if not custom defined
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
@@ -413,32 +414,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: false,
-                                // TODO read this from the Study.internal.configuration in OpenCGA 2.1
-                                populationFrequencies: {
-                                    studies: [
-                                        {
-                                            id: "1kG_phase3",
-                                            title: "1000 Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "All populations [ALL]"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: "GNOMAD_GENOMES",
-                                            title: "gnomAD Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "gnomAD [ALL]"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
+                                params: {
+                                    showSetAll: false,
+                                    populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
+                                        ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
+                                },
                             }
                         ]
                     },

@@ -121,7 +121,8 @@ export default class JobGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // NOTE native Bootstrap table autorefresh doesn't clear interval correctly
                 // showRefresh: true,
                 // autoRefresh: true,
