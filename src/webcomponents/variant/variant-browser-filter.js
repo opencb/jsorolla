@@ -443,9 +443,10 @@ export default class VariantBrowserFilter extends LitElement {
                 case "populationFrequency":
                     content = html`
                         <population-frequency-filter
-                            .populationFrequencies="${subsection.populationFrequencies || POPULATION_FREQUENCIES}"
-                            .allowedFrequencies="${subsection.allowedFrequencies}"
-                            ?showSetAll="${subsection.showSetAll}"
+                            .populationFrequencies="${subsection.params.populationFrequencies}"
+                            .allowedFrequencies="${subsection.params.allowedFrequencies}"
+                            .populationFrequencyIndexConfiguration="${subsection.params.populationFrequencyIndexConfiguration}"
+                            ?showSetAll="${subsection.params.showSetAll}"
                             .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
                             @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;
