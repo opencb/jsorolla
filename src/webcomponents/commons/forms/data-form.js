@@ -577,7 +577,9 @@ export default class DataForm extends LitElement {
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
         // const collapsed = this._getBooleanValue(element?.collapsed, false);
-        const prefix = `${value?.id}${UtilsNew.randomString(8)}`;
+        // field + id + prefix + collapsed
+        // ${UtilsNew.randomString(8)}
+        const collapseForm = `${element?.field.replaceAll(".", "")}${value?.id}Collapse`;
 
         // Help message
         const helpMessage = this._getHelpMessage(element);
@@ -606,8 +608,8 @@ export default class DataForm extends LitElement {
                 <div class="row" style="padding-top:6px;padding-left:16px">
                     ${value?.id}
                     <div class="pull-right">
-                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${prefix}Collapse" aria-expanded="false"
-                        aria-controls="${prefix}Collapse">
+                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${collapseForm}" aria-expanded="false"
+                        aria-controls="${collapseForm}">
                         <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
                             Edit
                         </button>
@@ -617,7 +619,7 @@ export default class DataForm extends LitElement {
                         </button>
                     </div>
                 </div>
-                <div class="collapse" id="${prefix}Collapse">
+                <div class="collapse" id="${collapseForm}">
                     <div>${results}</div>
                 </div>
                 `;
@@ -1194,6 +1196,7 @@ export default class DataForm extends LitElement {
         console.log("onChangeArray action:", action, this);
         let results = {};
         let _data = data ? data:[];
+        debugger;
         const item = e?.detail?.value;
         let isRepeat = false;
         switch (action) {
@@ -1206,7 +1209,7 @@ export default class DataForm extends LitElement {
                 const indexItem = _data.findIndex(item => item.id === item.id);
                 _data[indexItem] = item;
                 results = {param: field, value: _data};
-                $(`#${item.id}Collapse`).collapse("hide");
+                $(`#${field.replaceAll(",", "")}${item?.id}Collapse`).collapse("hide");
                 break;
             case "REMOVE":
                 // This 'e' is the item to remove from array
