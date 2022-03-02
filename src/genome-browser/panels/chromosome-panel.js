@@ -77,7 +77,6 @@ export default class ChromosomePanel {
         };
 
         this.titleDiv.addEventListener("click", handleToggle);
-        this.collapseDiv.addEventListener("click", handleToggle);
 
         // Prevent browser context menu
         this.svg.addEventListener("contextmenu", event => {
