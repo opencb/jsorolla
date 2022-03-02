@@ -59,10 +59,10 @@
         import GenomeBrowser from "../genome-browser.js";
         import GenomeBrowserConstants from "../genome-browser-constants.js";
         import GenomeBrowserUtils from "../genome-browser-utils.js";
-        // import GeneTrack from "../tracks/gene-track.js";
+        import GeneTrack from "../tracks/gene-track.js";
         // import SnpTrack from "../tracks/snp-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
-        // import GeneOverviewTrack from "../tracks/gene-overview-track.js";
+        import GeneOverviewTrack from "../tracks/gene-overview-track.js";
         import OpenCGAVariantTrack from "../tracks/opencga-variant-track.js"
         
         // This is the parent element where GenomeBrowser will be rendered
@@ -109,11 +109,12 @@
 
         const run = availableSpecies => {
             const region = new Region({
-                chromosome: "13",
-                start: 32996311,
-                end: 32996450,
+                chromosome: "17",
+                start: 43096757,
+                end: 43112003,
             });
             const species = availableSpecies.vertebrates[0];
+
             const genomeBrowser = new GenomeBrowser(parent, {
                 cellBaseClient: cellBaseClient,
                 cellBaseHost: cellBaseConfig.host,
@@ -140,19 +141,32 @@
 
             // When GB is ready add tracks and draw
             genomeBrowser.on("ready", () => {
-                const tracks = [
+                // Overview tracks
+                genomeBrowser.addOverviewTracks([
+                    new GeneOverviewTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                ]);
+
+                // Detail tracks
+                genomeBrowser.addTracks([
                     // Sequence Track
                     new SequenceTrack({
                         cellBaseClient: cellBaseClient,
                     }),
+                    // Gene track
+                    new GeneTrack({
+                        title: "Gene",
+                        cellBaseClient: cellBaseClient,
+                    }),
                     // OpenCGA Variant track
                     new OpenCGAVariantTrack({
-                        title: "Variant",
+                        title: "Variant (OpenCGA)",
                         closable: false,
-                        minHistogramRegionSize: 20000000,
-                        maxLabelRegionSize: 10000000,
+                        histogramMinRegionSize: 200000,
+                        labelMaxRegionSize: 10000000,
                         visibleRegionSize: 100000000,
-                        height: 300,
+                        height: 100,
                         opencgaClient: opencgaClient,
                         opencgaStudies: "demo@family:platinum",
                         // opencgaSamples: ["HG00096", "HG00097", "HG00099"],
@@ -170,31 +184,9 @@
                     //     opencgaStudies: "demo@family:platinum",
                     //     opencgaSamples: ["NA12877"],
                     // }),
-  
-                ];
+                ]);
 
-                /** *************************************************************************/
-                /** *** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
-                /** *************************************************************************/
-
-                // const geneOverviewTrack = new GeneOverviewTrack({ cellbaseClient:cellBaseClient });
-                // genomeBrowser.addOverviewTrack(geneOverviewTrack);
-
-                /** ************************************************************************/
-                /** *** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
-                /** ************************************************************************/
-
-                // const gene = new GeneTrack({cellbaseClient: cellBaseClient});
-                // tracks.push(gene);
-
-                /** *************************************************************************/
-                /** ***   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
-                /** *************************************************************************/
-
-                // const snp = new SnpTrack({cellbaseClient: cellBaseClient});
-                // tracks.push(snp);
-
-                genomeBrowser.addTrack(tracks);
+                // genomeBrowser.addTrack(tracks);
                 genomeBrowser.draw();
             });
         }
