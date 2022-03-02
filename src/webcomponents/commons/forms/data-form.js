@@ -609,12 +609,12 @@ export default class DataForm extends LitElement {
                     ${value?.id}
                     <div class="pull-right">
                         <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${collapseForm}" aria-expanded="false"
-                        aria-controls="${collapseForm}">
-                        <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
+                                aria-controls="${collapseForm}">
+                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
                             Edit
                         </button>
                         <button class="btn btn-danger" type="button" @click="${callback}">
-                        <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
                             Remove
                         </button>
                     </div>
@@ -622,7 +622,7 @@ export default class DataForm extends LitElement {
                 <div class="collapse" id="${collapseForm}">
                     <div>${results}</div>
                 </div>
-                `;
+            `;
         } else {
             return results;
         }
@@ -1332,20 +1332,27 @@ export default class DataForm extends LitElement {
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
         const buttonClearText = this.config.display?.buttonClearText ?? this.config.buttons?.clearText ?? this.config.buttons?.cancelText ?? "Clear";
         const buttonOkText = this.config.display?.buttonOkText ?? this.config.buttons?.okText ?? "OK";
-        const buttonClearVisible = !!this.config.display?.buttonClearText;
+        const buttonClearVisible = this.config.display?.buttonClearText !== "";
+        const buttonOkVisible = this.config.display?.buttonOkText !== "";
 
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
                     ${buttonClearVisible? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onClear}">
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                                @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
-                        `: null}
-                    <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onSubmit}">
-                        ${buttonOkText}
-                    </button>
+                    `: null
+                    }
+                    ${buttonOkVisible? html`
+                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                                @click="${this.onSubmit}">
+                            ${buttonOkText}
+                        </button>
+                    `: null
+                    }
                 </div>
             </div>
         `;
@@ -1417,7 +1424,7 @@ export default class DataForm extends LitElement {
                 </button>
 
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                    aria-hidden="true">
+                     aria-hidden="true">
                     <div class="modal-dialog" style="width: ${modalWidth}">
                         <div class="modal-content">
                             <div class="modal-header">

@@ -464,30 +464,28 @@ export default class SampleCreate extends LitElement {
                         display: {
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             collapsedUpdate: true,
-                            renderUpdate: (pheno, callback) => {
-                                return html`
+                            renderUpdate: (pheno, callback) => html`
                                 <ontology-term-annotation-update
                                     .ontology="${pheno}"
                                     .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
+                                        defaultLayout: "vertical",
+                                        buttonOkText: "Save",
+                                        buttonClearText: "",
+                                    }}"
                                     @updateItem="${callback}">
-                                </ontology-term-annotation-update>`;
-                            },
+                                </ontology-term-annotation-update>
+                            `,
                             renderCreate: (pheno, callback) => html`
                                 <ontology-term-annotation-create
                                     .entity="${"phenotype"}"
                                     .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
+                                        defaultLayout: "vertical",
+                                        buttonOkText: "Add",
+                                        buttonClearText: "",
+                                    }}"
                                     @addItem="${callback}">
-                                </ontology-term-annotation-create>`
+                                </ontology-term-annotation-create>
+                            `
                         }
                     },
                     // {

@@ -51,7 +51,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
     }
 
     _init() {
-        // this.ontology = {};
+        this.mode = "";
         this.displayConfigDefault = {
             buttonsAlign: "right",
             buttonClearText: "Clear",
@@ -80,7 +80,6 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                 param,
                 e.detail.value
             )};
-        // console.log("test: ", this.ontology);
         LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
     }
 
@@ -90,7 +89,6 @@ export default class OntologyTermAnnotationCreate extends LitElement {
         e.stopPropagation();
         // Send the ontology to the upper component
         LitUtils.dispatchCustomEvent(this, "addItem", this.ontology);
-
     }
 
     onClearForm(e) {
@@ -108,19 +106,19 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                 @clear="${this.onClearForm}"
                 @submit="${e => this.onSendOntology(e)}">
             </data-form>
-    `;
+        `;
     }
 
-    _configOntology(entity) {
-        switch (entity) {
-            case "phenotype":
+    #configOntology(entity) {
+        switch (entity?.toUpperCase()) {
+            case "PHENOTYPE":
                 return [
                     {
-                        name: "Age of on set",
+                        name: "Age of onset",
                         field: "ageOfOnset",
                         type: "input-text",
                         display: {
-                            placeholder: "Add an age of on set..."
+                            placeholder: "Add an age of onset..."
                         }
                     },
                     {
@@ -131,7 +129,11 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                         display: {
                             placeholder: "Select a status..."
                         }
-                    }];
+                    }
+                ];
+            case "DISORDER":
+                // Nacho (02/03/2022): At the moment IVA DOES NOT SUPPORT creating list inside other lists.
+                return [];
             default:
                 return [];
         }
@@ -139,12 +141,13 @@ export default class OntologyTermAnnotationCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            type: this.mode,
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     elements: [
                         {
-                            name: "Id",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             required: true,
@@ -177,7 +180,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                                 placeholder: "Add a source..."
                             }
                         },
-                        ...this._configOntology(this.entity)
+                        ...this.#configOntology(this.entity)
                     ]
                 }
             ]
