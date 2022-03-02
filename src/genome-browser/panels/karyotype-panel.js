@@ -20,13 +20,12 @@ export default class KaryotypePanel {
     }
 
     #init() {
-        this.id = UtilsNew.randomString(8);
+        this.prefix = UtilsNew.randomString(8);
         this.width = this.config.width;
         this.height = this.config.height;
 
         this.pixelBase = 0;
         this.collapsed = false;
-        // this.collapsible = true;
         this.hidden = false;
 
         // set own region object
@@ -36,11 +35,9 @@ export default class KaryotypePanel {
         this.lastSpecies = this.config.species;
 
         this.chromosomeList = [];
-        this.data2;
 
         this.regionChanging = false;
         this.rendered = false;
-        // this.colors = GenomeBrowserConstants.CYTOBANDS_COLORS;
 
         this.#initDom();
         this.#initEvents();
@@ -50,44 +47,48 @@ export default class KaryotypePanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.id}" class="unselectable">
-                <div id="${this.id}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.id}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" class="unselectable">
+                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
+                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.id}Collapse" class="ocb-gv-panel-collapse-control">
-                        <span id="${this.id}CollapseIcon" class="fa fa-minus"></span>
+                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                        <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
+                <div id="${this.prefix}Content" style="display:block;"></div>
             </div>
         `);
 
-        this.div = template.querySelector(`div#${this.id}`);
-        this.titleDiv = this.div.querySelector(`div#${this.id}Title`);
-        this.titleText = this.div.querySelector(`div#${this.id}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.id}Collapse`);
-        this.collapseIcon = this.div.querySelector(`span#${this.id}CollapseIcon`);
+        this.div = template.querySelector(`div#${this.prefix}`);
+        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
+        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
+        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
+
+        // Main content
+        this.content = this.div.querySelector(`div#${this.prefix}Content`);
 
         // Initialize SVG element
-        this.svg = SVG.init(this.div, {
+        this.svg = SVG.init(this.content, {
             "width": this.width,
             "height": this.height,
         });
+
+        // Mark group element
         this.markGroup = SVG.addChild(this.svg, "g", {
             cursor: "pointer",
         });
+
         this.positionBox = null;
 
         this.target.append(this.div);
     }
 
     #initEvents() {
-        const handleToggle = () => {
-            this.collapsed ? this.showContent() : this.hideContent();
-        };
-
-        this.titleDiv.addEventListener("click", handleToggle);
-        this.collapseDiv.addEventListener("click", handleToggle);
+        this.titleDiv.addEventListener("click", () => {
+            this.toggleContent();
+        });
     }
 
     show() {
@@ -105,7 +106,7 @@ export default class KaryotypePanel {
     }
 
     showContent() {
-        this.svg.style.display = "inline";
+        this.content.style.display = "inline";
         this.collapseDiv.classList.remove("active");
         this.collapseIcon.classList.remove("fa-plus");
         this.collapseIcon.classList.add("fa-minus");
@@ -113,11 +114,15 @@ export default class KaryotypePanel {
     }
 
     hideContent() {
-        this.svg.style.display = "none";
+        this.content.style.display = "none";
         this.collapseDiv.classList.add("active");
         this.collapseIcon.classList.remove("fa-minus");
         this.collapseIcon.classList.add("fa-plus");
         this.collapsed = true;
+    }
+
+    toggleContent() {
+        this.collapsed ? this.showContent() : this.hideContent();
     }
 
     setTitle(title) {
@@ -209,7 +214,7 @@ export default class KaryotypePanel {
                 const offsetY = (event.pageY - $(this.svg).offset().top);
                 const clickPosition = parseInt((offsetY - this.chrOffsetY[chromosome.name]) / this.pixelBase);
 
-                this._triggerRegionChange({
+                this.#triggerRegionChange({
                     region: new Region({
                         chromosome: chromosome.name,
                         start: clickPosition,
@@ -283,7 +288,7 @@ export default class KaryotypePanel {
             "stroke-width": 2,
             "opacity": 0.5
         });
-        this._recalculatePositionBox(this.region);
+        this.#recalculatePositionBox(this.region);
 
         this.rendered = true;
         this.trigger("after:render", {
@@ -291,7 +296,7 @@ export default class KaryotypePanel {
         });
     }
 
-    _triggerRegionChange(event) {
+    #triggerRegionChange(event) {
         if (!this.regionChanging) {
             this.regionChanging = true;
             this.trigger("region:change", event);
@@ -304,9 +309,10 @@ export default class KaryotypePanel {
         }
     }
 
-    _recalculatePositionBox(region) {
+    #recalculatePositionBox(region) {
         const centerPosition = region.center();
         const pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[region.chromosome];
+
         this.positionBox.setAttribute("x1", this.chrOffsetX[region.chromosome] - 10);
         this.positionBox.setAttribute("x2", this.chrOffsetX[region.chromosome] + 23);
         this.positionBox.setAttribute("y1", pointerPosition);
@@ -314,7 +320,7 @@ export default class KaryotypePanel {
     }
 
     updateRegionControls() {
-        this._recalculatePositionBox(this.region);
+        this.#recalculatePositionBox(this.region);
     }
 
     setRegion(region) {
@@ -364,10 +370,6 @@ export default class KaryotypePanel {
 
     unmark() {
         $(this.markGroup).empty();
-    }
-
-    setCellBaseHost(host) {
-        this.cellBaseHost = host;
     }
 
     // Get default configuration for karyotype panel
