@@ -103,4 +103,35 @@ export default class GenomeBrowserConstants {
         "*": {text: " * ", color: "#DDDDDD"}
     };
 
+    // SNP Biotype colors configuration
+    static SNP_BIOTYPE_COLORS = {
+        "2KB_upstream_variant": "#a2b5cd",
+        "5KB_upstream_variant": "#a2b5cd",
+        "500B_downstream_variant": "#a2b5cd",
+        "5KB_downstream_variant": "#a2b5cd",
+        "3_prime_UTR_variant": "#7ac5cd",
+        "5_prime_UTR_variant": "#7ac5cd",
+        "coding_sequence_variant": "#458b00",
+        "complex_change_in_transcript": "#00fa9a",
+        "frameshift_variant": "#ff69b4",
+        "incomplete_terminal_codon_variant": "#ff00ff",
+        "inframe_codon_gain": "#ffd700",
+        "inframe_codon_loss": "#ffd700",
+        "initiator_codon_change": "#ffd700",
+        "non_synonymous_codon": "#ffd700",
+        "missense_variant": "#ffd700",
+        "intergenic_variant": "#636363",
+        "intron_variant": "#02599c",
+        "mature_miRNA_variant": "#458b00",
+        "nc_transcript_variant": "#32cd32",
+        "splice_acceptor_variant": "#ff7f50",
+        "splice_donor_variant": "#ff7f50",
+        "splice_region_variant": "#ff7f50",
+        "stop_gained": "#ff0000",
+        "stop_lost": "#ff0000",
+        "stop_retained_variant": "#76ee00",
+        "synonymous_codon": "#76ee00",
+        "other": "#000000"
+    };
+
 }
