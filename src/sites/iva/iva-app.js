@@ -303,32 +303,44 @@ class IvaApp extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        // Initialise clients and create the session
-        // this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
-        // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
-        const sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
-        const userId = Cookies.get(this.config.opencga.cookie.prefix + "_userId");
-        this.opencgaClient = new OpenCGAClient({
-            host: this.config.opencga.host,
-            version: this.config.opencga.version,
-            token: sid,
-            userId: userId,
-            cookies: {active: true, prefix: this.config.opencga.cookie.prefix},
-            // TODO remove this soon!
-            // serverVersion: this.config.opencga.serverVersion
+        // Import server configuration from conf/server.json file (if exists)
+        // See issue https://github.com/opencb/jsorolla/issues/425
+        UtilsNew.importJSONFile("conf/server.json").then(serverConf => {
+
+            // Initialize opencga configuration
+            const opencgaHost = serverConf?.host || this.config.opencga.host;
+            const opencgaVersion = serverConf?.version || this.config.opencga.version;
+            const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            // console.log(opencgaHost, opencgaVersion);
+
+            // Initialise clients and create the session
+            // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
+            const sid = Cookies.get(opencgaPrefix + "_sid");
+            const userId = Cookies.get(opencgaPrefix + "_userId");
+
+            this.opencgaClient = new OpenCGAClient({
+                host: opencgaHost,
+                version: opencgaVersion,
+                token: sid,
+                userId: userId,
+                cookies: {
+                    active: true,
+                    prefix: opencgaPrefix,
+                },
+            });
+
+            this.reactomeClient = new ReactomeClient();
+
+            if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
+                // this.opencgaClient._config.token = sid;
+                this._createOpenCGASession();
+                // This must happen after creating the OpencgaClient
+                this.checkSessionActive();
+                this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
+            } else {
+                this._createOpencgaSessionFromConfig();
+            }
         });
-
-        this.reactomeClient = new ReactomeClient();
-
-        if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
-            // this.opencgaClient._config.token = sid;
-            this._createOpenCGASession();
-            // This must happen after creating the OpencgaClient
-            this.checkSessionActive();
-            this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
-        } else {
-            this._createOpencgaSessionFromConfig();
-        }
     }
 
     updated(changedProperties) {
