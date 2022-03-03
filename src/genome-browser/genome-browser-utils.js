@@ -99,6 +99,10 @@ export default class GenomeBrowserUtils {
             if (key === "start" || key === "end" || key === "id" || key === "name" || key === "length") {
                 return "";
             }
+            // Check for object value or empty studies array--> ignore this value
+            if (typeof feature[key] === "object" && (key !== "studies" || !feature[key].length)) {
+                return "";
+            }
             // Check for studies key --> join studies IDs
             const value = key === "studies" ? feature[key].map(s => s.studyId || "-").join(", ") : feature[key];
             return `
@@ -116,6 +120,13 @@ export default class GenomeBrowserUtils {
     //
     // Variant utils
     //
+
+    static variantColorFormatter(feature) {
+        if (feature?.annotation?.displayConsequenceType) {
+            return GenomeBrowserConstants.SNP_BIOTYPE_COLORS[feature.annotation.displayConsequenceType] || "#8BC34A";
+        }
+        return "#8BC34A";
+    }
 
     // Variant label formatter
     static variantLabelFormatter(feature) {
