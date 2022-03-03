@@ -63,7 +63,7 @@
         import GenomeBrowserConstants from "../genome-browser-constants.js";
         import GenomeBrowserUtils from "../genome-browser-utils.js";
         import GeneTrack from "../tracks/gene-track.js";
-        import SnpTrack from "../tracks/snp-track.js";
+        import CellBaseVariantTrack from "../tracks/cellbase-variant-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
 
@@ -116,12 +116,28 @@
 
             // When GB is ready add tracks and draw
             genomeBrowser.on("ready", () => {
-                const tracks = [
+                // Overview tracks
+                genomeBrowser.addOverviewTracks([
+                    new GeneOverviewTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                ]);
+
+                // Detail tracks
+                genomeBrowser.addTracks([
                     // Sequence Track
                     new SequenceTrack({
                         cellBaseClient: cellBaseClient,
                     }),
-                ];
+                    // Gene track
+                    new GeneTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                    // CellBase Variant track
+                    new CellBaseVariantTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                ]);
 
                 /** *************************************************************************/
                 /** *** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
@@ -144,7 +160,6 @@
                 // const snp = new SnpTrack({cellbaseClient: cellBaseClient});
                 // tracks.push(snp);
 
-                genomeBrowser.addTrack(tracks);
                 genomeBrowser.draw();
             });
         }
