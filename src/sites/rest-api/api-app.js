@@ -176,7 +176,7 @@ class ApiApp extends LitElement {
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
-            console.log(opencgaHost, opencgaVersion);
+            // console.log(opencgaHost, opencgaVersion);
 
             // Initialise clients and create the session
             const sid = Cookies.get(opencgaPrefix + "_sid");
