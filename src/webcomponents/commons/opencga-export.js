@@ -102,6 +102,10 @@ export default class OpencgaExport extends LitElement {
      * Build this.exportFields, which is a 1 or 2 dimensional array to keep track of the fields to include/exclude in TSV files.
      */
     buildExportFieldList() {
+
+        // avoid rebuilding of exportFields. That would make lose the current state.
+        if (this.exportFields) return;
+
         let subIndx = 0; // offset in second row
         const [firstRow, secondRow] = this.config.gridColumns;
         this.exportFields = [];
@@ -279,6 +283,7 @@ const client = new OpenCGAClient({
 
     changeFormat(e) {
         e.preventDefault();
+        this.exportFieldsVisible = false;
         this.format = e.currentTarget.dataset.format;
         this.requestUpdate();
     }
@@ -307,16 +312,17 @@ const client = new OpenCGAClient({
             }
         }
         this.exportFields = [...this.exportFields];
-        this.dispatchEvent(new CustomEvent("changeExportField", {
+        /* this.dispatchEvent(new CustomEvent("changeExportField", {
             detail: this.exportFields
-        }));
+        })); */
         this.requestUpdate();
     }
 
     onDownloadClick() {
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
-                option: this.format
+                option: this.format,
+                exportFields: this.exportFields
             }
         }));
     }
@@ -332,6 +338,7 @@ const client = new OpenCGAClient({
                 </ul>
             </div>
 
+            <!--<pre>${JSON.stringify(this.exportFields)}</pre>-->
             <div class="tab-content">
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <form class="form-horizontal">
@@ -363,8 +370,7 @@ const client = new OpenCGAClient({
                         </div>
                         <div>
                             ${this.format === "tab" && this.exportFields?.length ? html`
-                                <span data-toggle="collapse" data-target="#exportFields" @click="${this.toggleExportField}">
-                                    <i class="${this.exportFieldsVisible ? "fa fa-minus" : "fa fa-plus"}"></i>
+                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#exportFields">
                                     Customise export fields
                                 </span>
                                 <div id="exportFields" class="collapse">
