@@ -226,7 +226,6 @@ export default class SampleUpdate extends LitElement {
                 console.log("for annotationSets array");
                 break;
         }
-        // this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
@@ -248,12 +247,11 @@ export default class SampleUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Sample Update",
+            // title: "Sample Update",
             icon: "fas fa-edit",
             type: "form",
             display: {
                 style: "margin: 10px",
-                defaultValue: "",
                 defaultLayout: "horizontal",
                 labelAlign: "right",
                 labelWidth: 3,
@@ -325,14 +323,6 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Processing Info",
                 elements: [
-                    // {
-                    //     title: "Product",
-                    //     field: "processing.product",
-                    //     type: "input-text",
-                    //     display: {
-                    //         placeholder: "Add a product..."
-                    //     }
-                    // },
                     {
                         title: "Product",
                         field: "processing.product",
@@ -395,31 +385,6 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Collection Info",
                 elements: [
-                    // {
-                    //     title: "Tissue",
-                    //     field: "collection.tissue",
-                    //     type: "input-text",
-                    //     display: {
-                    //         placeholder: "Add a tissue..."
-                    //     }
-                    // },
-                    // {
-                    //     title: "From",
-                    //     field: "collection.from",
-                    //     type: "custom",
-                    //     display: {
-                    //         render: from => html`
-                    //             <ontology-term-annotation-update
-                    //                 .ontology=${from}
-                    //                 .displayConfig="${{
-                    //                         buttonsVisible: false,
-                    //                         width: 12,
-                    //                         style: "border-left: 2px solid #0c2f4c",
-                    //                     }}"
-                    //                 @fieldChange=${e => this.onFieldChange(e, "from")}
-                    //             ></ontology-term-annotation-update>`
-                    //     }
-                    // },
                     {
                         title: "From",
                         field: "collection.from",
@@ -427,8 +392,7 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             collapsedUpdate: true,
-                            renderUpdate: (from, callback) => {
-                                return html`
+                            renderUpdate: (from, callback) => html`
                                 <ontology-term-annotation-update
                                     .ontology="${from}"
                                     .displayConfig="${{
@@ -438,13 +402,13 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @updateItem="${callback}">
-                                </ontology-term-annotation-update>`;
-                            },
+                                </ontology-term-annotation-update>
+                            `,
                             renderCreate: (from, callback) => html`
+                                <label>Create new item</label>
                                 <ontology-term-annotation-create
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
-                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Add",
                                             buttonClearText: "",
                                         }}"
@@ -489,15 +453,6 @@ export default class SampleUpdate extends LitElement {
             {
                 title: "Phenotypes",
                 elements: [
-                    // {
-                    //     title: "",
-                    //     type: "notification",
-                    //     text: "Empty, create a new phenotype",
-                    //     display: {
-                    //         visible: sample => !(sample?.phenotypes && sample?.phenotypes.length > 0),
-                    //         notificationType: "info",
-                    //     }
-                    // },
                     {
                         title: "Phenotype",
                         field: "phenotypes",
@@ -512,7 +467,6 @@ export default class SampleUpdate extends LitElement {
                                     .entity="${"phenotype"}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
-                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Save",
                                             buttonClearText: "",
                                         }}"
@@ -520,11 +474,11 @@ export default class SampleUpdate extends LitElement {
                                 </ontology-term-annotation-update>`;
                             },
                             renderCreate: (pheno, callback) => html`
+                                <label>Create new item</label>
                                 <ontology-term-annotation-create
                                     .entity="${"phenotype"}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
-                                            // style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                             buttonOkText: "Add",
                                             buttonClearText: "",
                                         }}"
@@ -532,22 +486,6 @@ export default class SampleUpdate extends LitElement {
                                 </ontology-term-annotation-create>`
                         }
                     },
-                    // {
-                    //     field: "phenotype",
-                    //     type: "custom",
-                    //     display: {
-                    //         layout: "vertical",
-                    //         defaultLayout: "vertical",
-                    //         width: 12,
-                    //         style: "padding-left: 0px",
-                    //         render: () => html`
-                    //             <phenotype-list-update
-                    //                 .phenotypes="${this.sample?.phenotypes}"
-                    //                 .opencgaSession="${this.opencgaSession}"
-                    //                 @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
-                    //             </phenotype-list-update>`
-                    //     }
-                    // },
                 ]
             },
             // {
