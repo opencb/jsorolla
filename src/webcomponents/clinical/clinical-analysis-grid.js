@@ -112,6 +112,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         exclude: "files,interpretation.primaryFindings,secondaryInterpretations",
+                        sort: "creationDate",
                         ...this.query
                     };
                     try {
