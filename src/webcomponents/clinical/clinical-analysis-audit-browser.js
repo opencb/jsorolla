@@ -207,6 +207,8 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             data: this._audit,
             columns: this._getTableColumns(),
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,

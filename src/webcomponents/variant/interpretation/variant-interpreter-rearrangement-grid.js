@@ -215,6 +215,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
 
                 // Set table properties, these are read from config property
                 uniqueId: "id",
@@ -294,6 +296,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             data: variants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
 
             // Set table properties, these are read from config property
             uniqueId: "id",
