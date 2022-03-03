@@ -341,9 +341,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                             },
                             {
-                                id: "file-quality",
-                                title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters"
+                                id: "variant-file-sample-filter",
+                                title: "Variant Caller Sample Filters",
+                                tooltip: "VCF file sample filters"
                             },
                             {
                                 id: "variant-file-info-filter",
