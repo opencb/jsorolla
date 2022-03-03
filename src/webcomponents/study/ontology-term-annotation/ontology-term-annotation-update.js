@@ -45,9 +45,8 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     _init() {
-        this.ontology = {};
+        // this.ontology = {};
         this.displayConfigDefault = {
-            width: 12,
             buttonsAlign: "right",
             buttonClearText: "Clear",
             buttonOkText: "Create Ontology Term",
@@ -71,8 +70,8 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     ontologyObserver() {
-        if (this.phenotype) {
-            this._phenotype = JSON.parse(JSON.stringify(this.phenotype));
+        if (this.ontology) {
+            this._ontology = JSON.parse(JSON.stringify(this.ontology));
         }
     }
 
@@ -88,11 +87,10 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
 
         this.ontology = {...this.ontology, ...this.updateParams};
         LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
-        // this.requestUpdate();
     }
 
     onSendOntology(e) {
-        // Send the phenotype to the upper component
+        // Send the ontology to the upper component
         e.stopPropagation();
         this.updateParams = {};
         LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
@@ -151,7 +149,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                 {
                     elements: [
                         {
-                            name: "Id",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             display: {

@@ -176,17 +176,17 @@ export default class SampleUpdate extends LitElement {
             });
     }
 
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.updateParams = {...this.updateParams, phenotypes: e.detai.value};
-                break;
-            case "annotationsets":
-                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-                break;
-        }
-    }
+    // onSync(e, type) {
+    //     e.stopPropagation();
+    //     switch (type) {
+    //         case "phenotypes":
+    //             this.updateParams = {...this.updateParams, phenotypes: e.detai.value};
+    //             break;
+    //         case "annotationsets":
+    //             this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
+    //             break;
+    //     }
+    // }
 
     // display a button to back sample browser.
     onShowBtnSampleBrowser() {
@@ -261,7 +261,7 @@ export default class SampleUpdate extends LitElement {
                 elements: [
                     {
                         title: "Sample ID",
-                        field: "id",
+                        field: "ID",
                         type: "input-text",
                         display: {
                             placeholder: "Add a short ID...",

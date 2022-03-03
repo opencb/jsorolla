@@ -579,7 +579,9 @@ export default class DataForm extends LitElement {
         // const collapsed = this._getBooleanValue(element?.collapsed, false);
         // field + id + prefix + collapsed
         // ${UtilsNew.randomString(8)}
-        const collapseForm = `${element?.field.replaceAll(".", "")}${value?.id}Collapse`;
+        const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
+        const collapseTarget = `${element?.field}${value?.id}Collapse`;
+        const collapseForm = collapseTarget.replace(regex, "");
 
         // Help message
         const helpMessage = this._getHelpMessage(element);
@@ -1179,6 +1181,7 @@ export default class DataForm extends LitElement {
         const renderUpdate = item => element.display.renderUpdate(item, onChange.update);
 
         if (data && Array.isArray(data)) {
+
             // For the update, it will pass the remove function to the remove button as a callback with the specific item to be deleted.
             contents = data.map(item => this._createCustomElementTemplate(element, item, collapsedUpdate, renderUpdate(item), e => onChange.remove(item)));
             contents = [...contents, this._createCustomElementTemplate(element, {}, false, renderCreate)];
@@ -1196,7 +1199,6 @@ export default class DataForm extends LitElement {
         console.log("onChangeArray action:", action, this);
         let results = {};
         let _data = data ? data:[];
-        debugger;
         const item = e?.detail?.value;
         let isRepeat = false;
         switch (action) {
@@ -1209,7 +1211,9 @@ export default class DataForm extends LitElement {
                 const indexItem = _data.findIndex(item => item.id === item.id);
                 _data[indexItem] = item;
                 results = {param: field, value: _data};
-                $(`#${field.replaceAll(",", "")}${item?.id}Collapse`).collapse("hide");
+                const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
+                const collapseTarget =`${field}${item?.id}Collapse`;
+                $(`#${collapseTarget.replace(regex, "")}`).collapse("hide");
                 break;
             case "REMOVE":
                 // This 'e' is the item to remove from array
