@@ -223,7 +223,7 @@ export default class VariantRenderer extends FeatureRenderer {
     getDefaultConfig() {
         return {
             infoWidgetId: "id",
-            color: "#8BC34A",
+            color: GenomeBrowserUtils.variantColorFormatter,
             strokeColor: "#555",
             height: 10,
             histogramColor: "#58f3f0",
