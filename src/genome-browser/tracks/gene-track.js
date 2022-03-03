@@ -14,25 +14,6 @@ export default class GeneTrack extends FeatureTrack {
         // this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
     }
 
-    // #initDataAdapter() {
-    //     // set CellBase adapter as default
-    //     if (typeof this.dataAdapter === "undefined") {
-    //         if (typeof this.cellbaseClient !== "undefined" && this.cellbaseClient !== null) {
-    //             this.dataAdapter = new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene", {},
-    //                 {chunkSize: 100000});
-    //         } else if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
-    //             const cellBaseConfig = {
-    //                 host: this.cellbase.host,
-    //                 version: this.cellbase.version,
-    //                 species: this.cellbase.species,
-    //                 cache: {active: false}
-    //             };
-    //             this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
-    //                 {chunkSize: 100000});
-    //         }
-    //     }
-    // }
-
     getExcludedFields(region) {
         if (region.length() < this.config.transcriptMaxRegionSize) {
             return "transcripts.tfbs,transcripts.xrefs,transcripts.cdnaSequence,transcripts.exons.sequence,transcripts.annotation,annotation";
