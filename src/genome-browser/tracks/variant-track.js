@@ -4,7 +4,7 @@ import FeatureRenderer from "../renderers/feature-renderer.js";
 import GenomeBrowserUtils from "../genome-browser-utils.js";
 
 
-export default class CellBaseVariantTrack extends FeatureTrack {
+export default class VariantTrack extends FeatureTrack {
 
     constructor(config) {
         super(config);

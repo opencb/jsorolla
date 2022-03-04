@@ -63,7 +63,7 @@
         import GenomeBrowserConstants from "../genome-browser-constants.js";
         import GenomeBrowserUtils from "../genome-browser-utils.js";
         import GeneTrack from "../tracks/gene-track.js";
-        import CellBaseVariantTrack from "../tracks/cellbase-variant-track.js";
+        import VariantTrack from "../tracks/variant-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
 
@@ -134,7 +134,7 @@
                         cellBaseClient: cellBaseClient,
                     }),
                     // CellBase Variant track
-                    new CellBaseVariantTrack({
+                    new VariantTrack({
                         cellBaseClient: cellBaseClient,
                     }),
                 ]);
