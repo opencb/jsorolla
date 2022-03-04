@@ -77,8 +77,8 @@ const getCopyTargets = site => {
         // {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
         // {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
         {src: "./styles/fonts", dest: `${buildPath}/${site}/`},
-        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/${site}/vendors/`},
-        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/${site}/vendors/`},
+        // {src: "./node_modules/bootstrap/dist/fonts/*.woff2", dest: `${buildPath}/${site}/vendors/fonts`},
+        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2", dest: `${buildPath}/${site}/vendors/webfonts`},
     ];
     if (env.npm_config_custom_site) {
         targets.push({

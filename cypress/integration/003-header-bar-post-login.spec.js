@@ -37,13 +37,13 @@ context("3 - Header bar (post-login): Checks each menu item in header-bar resolv
     it("3.2 - checks Case Portal menu item", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
-        checkResults("opencga-clinical-analysis-grid");
+        checkResults("clinical-analysis-grid");
     });
 
     it("3.3 - checks Sample Browser menu item", () => {
         cy.get("a[data-id=sample]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Sample Browser");
-        checkResults("opencga-sample-grid");
+        checkResults("sample-grid");
     });
 
     it("3.4 - checks Individual Browser menu item", () => {
@@ -56,7 +56,7 @@ context("3 - Header bar (post-login): Checks each menu item in header-bar resolv
     it("3.5 - checks Family Browser menu item", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser"); // should assertion comes from Chai and it follows its logic
-        checkResultsOrNot("opencga-family-grid");
+        checkResultsOrNot("family-grid");
     });
 
     it("3.6 - checks study selector menu items", () => {

@@ -60,6 +60,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             mode: {
                 type: String
             },
+            gridConfig: {
+                type: Object,
+            },
             config: {
                 type: Object
             }
@@ -81,6 +84,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // this.interactive = true;
         this.filterClass = "col-md-2";
         this.gridClass = "col-md-10";
+        this.gridConfig = {};
 
         this._collapsed = true;
 
@@ -100,8 +104,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("mode") || changedProperties.has("config")) {
-            this.propertyObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("gridConfig")) {
+            this.configObserver();
         }
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
             // this.clinicalAnalysisObserver();
@@ -109,12 +113,21 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         super.update(changedProperties);
     }
 
-    propertyObserver(opencgaSession, mode, config) {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
-        if (UtilsNew.isNotUndefinedOrNull(mode)) {
-            this.isCreate = mode.toLowerCase() === "create";
-        }
+        // Merge grid configuration
+        this._config.result.grid = {
+            ...this._config.result.grid,
+            ...this.gridConfig,
+        };
+
+        // if (UtilsNew.isNotUndefinedOrNull(mode)) {
+        //     this.isCreate = mode.toLowerCase() === "create";
+        // }
     }
 
     // clinicalAnalysisObserver() {
@@ -325,6 +338,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     getDefaultConfig() {
+        const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+        const exportFilename = `variant_interpreter_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_primaryFindings_${date}`;
         return {
             title: "RD Case Interpreter",
             showTitle: false,
@@ -334,7 +349,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     showExport: true,
-                    exportFilename: `variant_interpreter_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_primaryFindings_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}`,
+                    exportFilename: exportFilename,
                     detailView: true,
                     showReview: true,
                     showActions: false,

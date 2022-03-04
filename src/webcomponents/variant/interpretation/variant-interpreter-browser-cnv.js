@@ -87,8 +87,16 @@ class VariantInterpreterBrowserCNV extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // Init the active filters with every new Case opened. Then we add the default filters for the given sample
-        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
+        let _activeFilterFilters;
+        if (this.settings?.menu?.examples?.length > 0) {
+            // Load custom filters if configured
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
+        } else {
+            // Load default filters if not custom defined
+            _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        }
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
@@ -123,10 +131,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
 
             // 5. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                // FIXME remove specific code for ASCAT!
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => vc.somatic)
-                    .filter(vc => vc.id.toUpperCase() !== "ASCAT")
                     .filter(vc => vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
 
                 this.files = this.clinicalAnalysis.files
@@ -207,6 +213,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
         return html`
             <variant-interpreter-browser-template
                 .clinicalAnalysis="${this.clinicalAnalysis}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
@@ -283,10 +290,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 }
                             },
                             // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filters",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     visible: UtilsNew.isEmpty(this.callerToFile)
+                            //     id: "variant-file-sample-filter",
+                            //     title: "Variant Caller Sample Filter",
+                            //     tooltip: "VCF file sample filters"
                             // },
                             {
                                 id: "variant-file-info-filter",
@@ -352,59 +358,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 },
                                 tooltip: tooltips.diseasePanels
                             },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
-                            }
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        filters: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
-                                tooltip: tooltips.populationFrequencies,
-                                showSetAll: false,
-                                // TODO read this from the Study.internal.configuration in OpenCGA 2.1
-                                populationFrequencies: {
-                                    studies: [
-                                        {
-                                            id: "1kG_phase3",
-                                            title: "1000 Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "All populations [ALL]"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: "GNOMAD_GENOMES",
-                                            title: "gnomAD Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "gnomAD [ALL]"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
+                        ],
                     },
                     {
                         title: "Phenotype",
@@ -454,6 +408,10 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
 
+                        hideType: true,
+                        hidePopulationFrequencies: true,
+                        hideClinicalInfo: true,
+
                         genotype: {
                             type: "VAF"
                         },
@@ -466,7 +424,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: true,
+                        variantTypes: ["COPY_NUMBER", "CNV"],
                     }
                 },
                 detail: {
@@ -485,39 +445,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                         .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                         .assembly=${this.opencgaSession.project.organism.assembly}>
                                     </cellbase-variant-annotation-summary>`;
-                            }
-                        },
-                        {
-                            id: "annotationConsType",
-                            name: "Consequence Type",
-                            render: (variant, active) => {
-                                return html`
-                                    <variant-consequence-type-view
-                                        .consequenceTypes="${variant.annotation.consequenceTypes}"
-                                        .active="${active}">
-                                    </variant-consequence-type-view>`;
-                            }
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            name: "Population Frequencies",
-                            render: (variant, active) => {
-                                return html`
-                                    <cellbase-population-frequency-grid
-                                        .populationFrequencies="${variant.annotation.populationFrequencies}"
-                                        .active="${active}">
-                                    </cellbase-population-frequency-grid>`;
-                            }
-                        },
-                        {
-                            id: "annotationClinical",
-                            name: "Clinical",
-                            render: variant => {
-                                return html`
-                                    <variant-annotation-clinical-view
-                                        .traitAssociation="${variant.annotation.traitAssociation}"
-                                        .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
-                                    </variant-annotation-clinical-view>`;
                             }
                         },
                         {
@@ -567,6 +494,13 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                         .active="${active}">
                                     </variant-beacon-network>`;
                             }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            render: (variant, active) => html`
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                            `,
                         }
                     ]
                 }

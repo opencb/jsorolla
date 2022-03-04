@@ -366,7 +366,7 @@ export default class VariantBrowser extends LitElement {
                         "ct": "Consequence Types",
                         "biotype": "Biotype",
                         "alternate_frequency": "Population Frequency",
-                        "protein_substitution": "Protein Substitution"
+                        "proteinSubstitution": "Protein Substitution"
                     },
                     complexFields: [],
                     hiddenFields: []
@@ -444,8 +444,10 @@ export default class VariantBrowser extends LitElement {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
-                                populationFrequencies: this.populationFrequencies || POPULATION_FREQUENCIES,
-                                showSetAll: true
+                                params: {
+                                    populationFrequencies: this.populationFrequencies || POPULATION_FREQUENCIES,
+                                    showSetAll: true
+                                }
                             }
                         ]
                     },

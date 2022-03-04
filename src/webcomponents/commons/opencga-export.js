@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
-import LitUtils from "./utils/lit-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaExport extends LitElement {
@@ -67,6 +66,8 @@ export default class OpencgaExport extends LitElement {
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
+
+        this.tabs = ["download", "export", "link", "script"]; // default tabs to show
     }
 
     connectedCallback() {
@@ -87,8 +88,37 @@ export default class OpencgaExport extends LitElement {
 
                 new ClipboardJS(".clipboard-button");
             }
+            if (this.config.gridColumns) {
+                this.buildExportFieldList();
+            }
+            if (this.config.exportTabs) {
+                this.tabs = this.config.exportTabs;
+            }
             this.requestUpdate();
         }
+    }
+
+    /*
+     * Build this.exportFields, which is a 1 or 2 dimensional array to keep track of the fields to include/exclude in TSV files.
+     */
+    buildExportFieldList() {
+        let subIndx = 0; // offset in second row
+        const [firstRow, secondRow] = this.config.gridColumns;
+        this.exportFields = [];
+
+        firstRow.forEach((c, i) => {
+            if (c.rowspan !== 2 || !c.rowspan) {
+                // add sub Level
+                const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
+                subIndx += c.colspan ? c.colspan : 0;
+                this.exportFields.push({id: c.id, export: true, nested: subFields.map(s => ({id: s.id, export: true}))});
+            } else {
+                if (c.rowspan !== 2 || !c.rowspan) {
+                    subIndx += c.colspan ? c.colspan : 0;
+                }
+                this.exportFields.push({id: c.id, export: true});
+            }
+        });
     }
 
     getDefaultConfig() {
@@ -251,6 +281,36 @@ const client = new OpenCGAClient({
         this.requestUpdate();
     }
 
+    toggleExportField(e) {
+        this.exportFieldsVisible = !this.exportFieldsVisible;
+        this.requestUpdate();
+    }
+
+    /**
+     * Update exportFields array which keeps track of the fields to include/exclude in TSV files.
+     * @param {Object} e Event
+     * @param {Number} index Index of the field to update
+     * @param {Number} parentIndex Index of the parent of the field to update
+     * @returns {undefined}
+     */
+    changeExportField(e, index, parentIndex) {
+        const {checked} = e.currentTarget;
+        if (parentIndex) {
+            this.exportFields[parentIndex].nested[index].export = checked;
+        } else {
+            this.exportFields[index].export = checked;
+            // select all nested when you click on a parent, and the other way around
+            if (this.exportFields[index].nested) {
+                this.exportFields[index].nested = this.exportFields[index].nested.map(li => ({...li, export: checked}));
+            }
+        }
+        this.exportFields = [...this.exportFields];
+        this.dispatchEvent(new CustomEvent("changeExportField", {
+            detail: this.exportFields
+        }));
+        this.requestUpdate();
+    }
+
     onDownloadClick() {
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
@@ -263,15 +323,15 @@ const client = new OpenCGAClient({
         return html`
             <div>
                 <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>
-                    <li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>
-                    <li><a data-toggle="tab" href="#link">Link</a></li>
-                    <li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>
+                    ${~this.tabs.indexOf("download") ? html`<li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>` : nothing}
+                    ${~this.tabs.indexOf("export") ? html`<li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>` : nothing}
+                    ${~this.tabs.indexOf("link") ? html`<li><a data-toggle="tab" href="#link">Link</a></li>` : nothing}
+                    ${~this.tabs.indexOf("code") ? html`<li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>` : nothing}
                 </ul>
             </div>
 
             <div class="tab-content">
-                <div id="${this._prefix}download" class="tab-pane active">
+                <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <form class="form-horizontal">
                         <div class="form-group" style="margin-top: 10px">
                             <div class="col-md-12">
@@ -299,6 +359,28 @@ const client = new OpenCGAClient({
                                 </button>
                             </div>
                         </div>
+                        <div>
+                            ${this.format === "tab" && this.exportFields?.length ? html`
+                                <span data-toggle="collapse" data-target="#exportFields" @click="${this.toggleExportField}">
+                                    <i class="${this.exportFieldsVisible ? "fa fa-minus" : "fa fa-plus"}"></i>
+                                    Customise export fields
+                                </span>
+                                <div id="exportFields" class="collapse">
+                                    <ul>
+                                        ${this.exportFields.map((li, i) => html`
+                                        <li>
+                                            <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
+                                            ${li.nested ? html`
+                                                <ul>
+                                                    ${li.nested.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                </ul>
+                                            ` : ""}
+                                        </li>
+                                        `)}
+                                    </ul>
+                                </div>
+                            ` : ""}
+                        </div>
                     </form>
 
                     <div class="modal-footer" style="padding-top: 25px">
@@ -310,7 +392,7 @@ const client = new OpenCGAClient({
                     </div>
                 </div>
 
-                <div id="${this._prefix}export" class="tab-pane">
+                <div id="${this._prefix}export" class="tab-pane ${classMap({active: this.tabs[0] === "export"})}">
                     <form class="form-horizontal">
                         <div class="form-group" style="margin-top: 10px">
                             <div class="col-md-12">
@@ -363,7 +445,7 @@ const client = new OpenCGAClient({
                     </div>
                 </div>
 
-                <div id="link" class="tab-pane">
+                <div id="link" class="tab-pane ${classMap({active: this.tabs[0] === "link"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="url">URL
@@ -409,7 +491,7 @@ const client = new OpenCGAClient({
                 </div>
 
 
-                <div id="code" class="tab-pane">
+                <div id="code" class="tab-pane ${classMap({active: this.tabs[0] === "code"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="cli">CLI

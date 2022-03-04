@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../alignment/alignment-stats-view.js";
 import "../../commons/forms/data-form.js";
 
 class VariantInterpreterQcAlignment extends LitElement {

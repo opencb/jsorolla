@@ -19,6 +19,8 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
+import "../commons/filters/sample-id-autocomplete.js";
+
 export default class CohortUpdate extends LitElement {
 
     constructor() {
@@ -160,12 +162,9 @@ export default class CohortUpdate extends LitElement {
                     title: "Update Cohort",
                     message: "cohort updated correctly"
                 });
-                // FormUtils.showAlert("Update Cohort", "Cohort updated correctly.", "success");
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // console.error(err);
-                // FormUtils.showAlert("Update Chohoty", "Cohort not updated correctly", "error");
             });
     }
 
@@ -193,12 +192,8 @@ export default class CohortUpdate extends LitElement {
                 buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                // help: {
-                //     mode: "block"
-                // }
             },
             sections: [
                 {
@@ -239,39 +234,39 @@ export default class CohortUpdate extends LitElement {
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: cohort => {
-                                    const sampleIds = cohort?.samples?.map(sample => sample.id).join(",");
+                                render: samples => {
+                                    const sampleIds = samples?.map(sample => sample.id).join(",");
                                     return html `
                                     <sample-id-autocomplete
-                                        .value=${this.sampleIds}
+                                        .value=${sampleIds}
                                         .opencgaSession=${this.opencgaSession}
                                         @filterChange="${e => this.onSync(e, "samples")}">
                                     </sample-id-autocomplete>`;
                                 }
                             }
                         },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
+                        // {
+                        //     title: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        // {
+                        //     title: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
                         {
                             title: "Status name",
                             field: "status.name",

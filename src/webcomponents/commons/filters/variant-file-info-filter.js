@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../utils/lit-utils.js";
 import "../forms/data-form.js";
 
 /*
@@ -51,6 +52,7 @@ export default class VariantFileInfoFilter extends LitElement {
     }
 
     _init() {
+        this.fileDataQuery = {};
         this.callerParamTypeToDataForm = {
             "NUMERIC": "input-number",
             "CATEGORICAL": "select",
@@ -102,7 +104,7 @@ export default class VariantFileInfoFilter extends LitElement {
             // Add PASS automatically to all files
             infoFieldToBasicInfo["PASS"].push({
                 fileName: file.name,
-                callerId: file.software?.name,
+                callerId: this.fileNameToCallerId[file.name],
                 description: "PASS variant"
             });
 
@@ -123,9 +125,11 @@ export default class VariantFileInfoFilter extends LitElement {
         });
 
         // Check if variantCallers have been configured
-        const variantCallers = [];
         const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
-        if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
+        const variantCallersWithInfoField = studyInternalConfiguration?.clinical?.interpretation?.variantCallers
+            ?.filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
+        const variantCallers = [];
+        if (variantCallersWithInfoField?.length > 0) {
             const indexedFields = {};
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
@@ -136,7 +140,7 @@ export default class VariantFileInfoFilter extends LitElement {
             }
 
             // Add caller INDEXED-FILE filters from study configuration
-            for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
+            for (const caller of variantCallersWithInfoField) {
                 if (this.callerIdToFile?.[caller.id]) {
                     const _dataFilters = [];
                     for (const dataFilter of caller.dataFilters) {
@@ -191,7 +195,6 @@ export default class VariantFileInfoFilter extends LitElement {
             //         "nullable": true
             //     }
             // ]
-
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 const callerToDataFilters = {};
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
@@ -295,7 +298,11 @@ export default class VariantFileInfoFilter extends LitElement {
     }
 
     filterChange(e) {
-        const [caller, field] = e.detail.param.split(".");
+        // const [caller, field] = e.detail.param.split(".");
+        const splits = e.detail.param.split(".");
+        // Caller name can be a file name and contain dots, we join all parts but last one.
+        const caller = splits.slice(0, -1).join(".");
+        const field = splits.slice(-1);
         const value = e.detail.value;
 
         // Check if this is the first filter of this caller
@@ -330,14 +337,7 @@ export default class VariantFileInfoFilter extends LitElement {
             })
             .join(",");
 
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: fileData
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", fileData);
     }
 
     getDefaultConfig() {
@@ -347,9 +347,18 @@ export default class VariantFileInfoFilter extends LitElement {
                 title: caller.id,
                 display: {
                     titleHeader: "h4",
-                    titleStyle: "margin: 20px 20px 0px 20px"
+                    titleStyle: "margin: 5px 0"
                 },
                 elements: [
+                    {
+                        name: "",
+                        type: "text",
+                        text: caller.fileId || "",
+                        display: {
+                            textClassName: "help-block small",
+                            textStyle: "margin: 5px 0; overflow-wrap: break-word; font-style: italic",
+                        }
+                    },
                     ...caller.dataFilters.map(field => ({
                         name: field.name || field.id,
                         field: caller.id + "." + field.id,

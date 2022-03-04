@@ -92,6 +92,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 // Table properties
                 pagination: this._config.pagination,
@@ -110,6 +112,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         exclude: "files,interpretation.primaryFindings,secondaryInterpretations",
+                        sort: "creationDate",
                         ...this.query
                     };
                     try {

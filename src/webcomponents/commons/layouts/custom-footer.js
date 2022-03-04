@@ -47,15 +47,25 @@ export default class CustomFooter extends LitElement {
                     </p>
                     <p class="footer-item">
                         OpenCGA
-                        ${this.host?.opencga ? html`<sup>${this.host?.opencga}</sup>` : html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`}
+                        ${this.host?.opencga ? html`
+                            <sup>${this.host?.opencga}</sup>
+                        ` : html`
+                            <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        `}
                     </p>
-
-                    <p class="footer-item">
-                        CellBase
-                        ${this.host?.cellbase ? html`<sup>${this.host?.cellbase}</sup>` : html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`}
-                    </p>
+                    ${this.host?.cellbase ? html`
+                        <p class="footer-item">
+                            CellBase
+                            ${this.host?.cellbase ? html`
+                                <sup>${this.host?.cellbase}</sup>
+                            ` : html`
+                                <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                            `}
+                        </p>
+                    ` : null}
                 </div>
-            </div>`;
+            </div>
+        `;
     }
 
 }
