@@ -225,7 +225,8 @@ export default class IndividualUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: true,
+                                helpMessage: this.individual.creationDate? "Created on " + UtilsNew.dateFormatter(this.individual.creationDate):"No creation date",
+                                // disabled: true,
                                 help: {
                                     text: "short individual id for..."
                                 },

@@ -168,11 +168,7 @@ export default class SampleView extends LitElement {
                                     <sample-id-autocomplete
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}"
+                                        .config=${{multiple: false}}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </sample-id-autocomplete>
                                 `,

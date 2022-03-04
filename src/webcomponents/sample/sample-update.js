@@ -266,7 +266,8 @@ export default class SampleUpdate extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: "Add a short ID...",
-                            helpMessage: "Created on " + UtilsNew.dateFormatter(this.sample.creationDate),
+                            // helpMessage: "Created on " + UtilsNew.dateFormatter(this.sample.creationDate),
+                            helpMessage: this.sample.creationDate? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate):"No creation date",
                             disabled: true,
                         }
                     },

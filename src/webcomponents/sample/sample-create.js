@@ -223,6 +223,7 @@ export default class SampleCreate extends LitElement {
                                 <individual-id-autocomplete
                                     .value="${this.sample?.individualId}"
                                     .opencgaSession="${this.opencgaSession}"
+                                    .config=${{multiple: false}}
                                     @filterChange="${e =>
                                         this.onFieldChange({
                                         detail: {

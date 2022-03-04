@@ -344,7 +344,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Population Info",
                     elements: [
                         {
-                            title: "Population name",
+                            title: "Population Name",
                             field: "population.name",
                             type: "input-text",
                             display: {
@@ -352,7 +352,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Subpopulation",
+                            title: "Sub-population",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {
@@ -360,7 +360,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "populaton description",
+                            title: "Population Description",
                             field: "population.description",
                             type: "input-text",
                             validation: {

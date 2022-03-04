@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class FamilyUpdate extends LitElement {
 
@@ -191,8 +192,9 @@ export default class FamilyUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: true,
-                                helpMessage: "short family id ",
+                                // disabled: true,
+                                // helpMessage: "Created on " + UtilsNew.dateFormatter(this.family.creationDate),
+                                helpMessage: this.family.creationDate? "Created on " + UtilsNew.dateFormatter(this.family.creationDate):"No creation date",
                                 validation: {}
                             },
                         },

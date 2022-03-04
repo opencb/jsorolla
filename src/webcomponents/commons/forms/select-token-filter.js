@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import {classMap} from "lit/directives/class-map.js";
 import "../forms/file-upload.js";
 
 /**

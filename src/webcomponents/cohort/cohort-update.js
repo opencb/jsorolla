@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../commons/filters/sample-id-autocomplete.js";
 
@@ -222,7 +223,8 @@ export default class CohortUpdate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                helpMessage: "short cohort Id",
+                                // helpMessage: "Created on " + UtilsNew.dateFormatter(this.family.creationDate),
+                                helpMessage: this.cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this.cohort.creationDate):"No creation date",
                                 validation: {
                                 }
                             }
