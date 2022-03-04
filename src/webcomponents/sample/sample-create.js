@@ -25,7 +25,7 @@ import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
-
+import "../study/status/status-create.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -78,8 +78,6 @@ export default class SampleCreate extends LitElement {
             case "description":
             case "somatic":
             case "individualId":
-            case "status.name":
-            case "status.description":
             case "processing.product":
             case "processing.preparationMethod":
             case "processing.extractionMethod":
@@ -98,8 +96,18 @@ export default class SampleCreate extends LitElement {
                     )
                 };
                 break;
-            case "phenotypes":
-                // this.sample = {...this.sample, phenotypes: e.detail.value};
+            case "status":
+                if (!UtilsNew.isEmpty(e.detail.value)) {
+                    this.sample = {
+                        ...FormUtils.createObject(
+                            this.sample,
+                            param,
+                            e.detail.value
+                        )
+                    };
+                } else {
+                    delete this.sample[param];
+                }
                 break;
             case "annotationSets":
                 // Rodiel (03/03/2022): At the moment IVA DOES NOT SUPPORT
@@ -107,6 +115,7 @@ export default class SampleCreate extends LitElement {
                 this.sample = {...this.sample, annotationSets: e.detail.value};
                 break;
         }
+        console.log("Sample: ", this.sample);
         this.requestUpdate();
     }
 
@@ -157,10 +166,19 @@ export default class SampleCreate extends LitElement {
         switch (e.detail.param) {
             case "collection.from":
                 this.collection = {...this.collection, from: e.detail.value};
-                this.sample = {...this.sample, collection: this.collection};
+                // this.sample = {...this.sample, collection: this.collection};
+                if (!UtilsNew.isEmpty(this.collection?.from)) {
+                    this.sample = {...this.sample, collection: this.collection};
+                } else {
+                    delete this.sample["collection"]["from"];
+                }
                 break;
             case "phenotypes":
-                this.sample = {...this.sample, phenotypes: e.detail.value};
+                if (!UtilsNew.isEmpty(e.detail.value)) {
+                    this.sample = {...this.sample, phenotypes: e.detail.value};
+                } else {
+                    delete this.sample["phenotypes"];
+                }
                 break;
             case "annotationSets":
                 console.log("for annotationSets array");
@@ -241,26 +259,43 @@ export default class SampleCreate extends LitElement {
                         checked: false
                     },
                     {
-                        title: "Status name",
-                        field: "status.name",
-                        type: "input-text",
+                        title: "Status",
+                        field: "status",
+                        type: "custom",
                         display: {
-                            placeholder: "Add status name..."
+                            render: status => html`
+                                <status-create
+                                    .displayConfig="${{
+                                        defaultLayout: "vertical",
+                                        buttonsVisible: false,
+                                        width: 12,
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                    }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                </status-create>`
                         }
                     },
-                    {
-                        title: "Status Description",
-                        field: "status.description",
-                        type: "input-text",
-                        validation: {
-                            validate: () => this.sample?.status?.description ? !!this.sample?.status?.name : true,
-                            message: "The status name must be filled",
-                        },
-                        display: {
-                            rows: 3,
-                            placeholder: "Add a status description..."
-                        }
-                    }
+                    // {
+                    //     title: "Status name",
+                    //     field: "status.name",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add status name..."
+                    //     }
+                    // },
+                    // {
+                    //     title: "Status Description",
+                    //     field: "status.description",
+                    //     type: "input-text",
+                    //     validation: {
+                    //         validate: () => this.sample?.status?.description ? !!this.sample?.status?.name : true,
+                    //         message: "The status name must be filled",
+                    //     },
+                    //     display: {
+                    //         rows: 3,
+                    //         placeholder: "Add a status description..."
+                    //     }
+                    // }
                 ]
             },
             {

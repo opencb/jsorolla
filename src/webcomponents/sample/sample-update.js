@@ -295,22 +295,40 @@ export default class SampleUpdate extends LitElement {
                         }
                     },
                     {
-                        title: "Status name",
-                        field: "status.name",
-                        type: "input-text",
+                        title: "Status",
+                        field: "status",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a status name..."
+                            render: status => html`
+                                <status-update
+                                    .status=${status}
+                                    .displayConfig="${{
+                                        defaultLayout: "vertical",
+                                        buttonsVisible: false,
+                                        width: 12,
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                    }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                </status-update>`
                         }
                     },
-                    {
-                        title: "Status Description",
-                        field: "status.description",
-                        type: "input-text",
-                        display: {
-                            rows: 3,
-                            placeholder: "Add a description for the status..."
-                        }
-                    },
+                    // {
+                    //     title: "Status name",
+                    //     field: "status.name",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add a status name..."
+                    //     }
+                    // },
+                    // {
+                    //     title: "Status Description",
+                    //     field: "status.description",
+                    //     type: "input-text",
+                    //     display: {
+                    //         rows: 3,
+                    //         placeholder: "Add a description for the status..."
+                    //     }
+                    // },
                     // {
                     //     title: "Creation Date",
                     //     field: "creationDate",

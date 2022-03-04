@@ -401,7 +401,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {}
                         },
                         {
-                            title: "populaton description",
+                            title: "Populaton Description",
                             field: "population.description",
                             type: "input-text",
                             display: {
