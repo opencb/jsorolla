@@ -237,9 +237,9 @@ export default class SampleCreate extends LitElement {
                         type: "custom",
                         display: {
                             placeholder: "e.g. Homo sapiens, ...",
-                            render: () => html`
+                            render: individualId => html`
                                 <individual-id-autocomplete
-                                    .value="${this.sample?.individualId}"
+                                    .value="${individualId}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config=${{multiple: false}}
                                     @filterChange="${e =>
@@ -263,7 +263,7 @@ export default class SampleCreate extends LitElement {
                         field: "status",
                         type: "custom",
                         display: {
-                            render: status => html`
+                            render: () => html`
                                 <status-create
                                     .displayConfig="${{
                                         defaultLayout: "vertical",

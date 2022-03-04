@@ -271,13 +271,35 @@ export default class SampleUpdate extends LitElement {
                             disabled: true,
                         }
                     },
+                    // {
+                    //     title: "Individual ID",
+                    //     field: "individualId",
+                    //     type: "input-text",
+                    //     display: {
+                    //         placeholder: "Add a short ID...",
+                    //         helpMessage: "Search individual to select"
+                    //     }
+                    // },
                     {
                         title: "Individual ID",
                         field: "individualId",
-                        type: "input-text",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a short ID...",
-                            helpMessage: "Search individual to select"
+                            placeholder: "e.g. Homo sapiens, ...",
+                            render: individualId => html`
+                                <individual-id-autocomplete
+                                    .value="${individualId}"
+                                    .updateParams=${this.updateParams}
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config=${{multiple: false}}
+                                    @filterChange="${e =>
+                                        this.onFieldChange({
+                                            detail: {
+                                                param: "individualId",
+                                                value: e.detail.value
+                                            }
+                                        })}">
+                                </individual-id-autocomplete>`
                         }
                     },
                     {

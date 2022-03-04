@@ -39,6 +39,9 @@ export default class SelectTokenFilter extends LitElement {
             value: {
                 type: String
             },
+            classes: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -61,6 +64,7 @@ export default class SelectTokenFilter extends LitElement {
             tags: this._config.freeTag === true,
             multiple: this._config.multiple ?? true,
             width: "style",
+            allowClear: true,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             ajax: {
@@ -222,7 +226,7 @@ export default class SelectTokenFilter extends LitElement {
 
         return html`
             <div>
-                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                <select class="form-control updated"  id="${this._prefix}" @change="${this.filterChange}"></select>
             </div>
         `;
     }

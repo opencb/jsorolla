@@ -42,6 +42,13 @@ export default class IndividualIdAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("value")) {
+            console.log(this.value);
+        }
+        super.update(changedProperties);
+    }
+
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -49,13 +56,6 @@ export default class IndividualIdAutocomplete extends LitElement {
             }
         });
         this.dispatchEvent(event);
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("value")) {
-            console.log(this.value);
-        }
-        super.update(changedProperties);
     }
 
     getDefaultConfig() {
