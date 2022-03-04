@@ -3,8 +3,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
         sections: [
             {
                 title: "Sample",
-                // TODO file-quality: showDepth: false
-                filters: ["sample-genotype", "sample", "file-quality", "variant-file-info-filter", "cohort"]
+                filters: ["sample-genotype", "sample", "variant-file-sample-filter", "variant-file-info-filter", "cohort"]
             },
             {
                 title: "Genomic",

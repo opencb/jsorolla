@@ -290,10 +290,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 }
                             },
                             // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filters",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     visible: UtilsNew.isEmpty(this.callerToFile)
+                            //     id: "variant-file-sample-filter",
+                            //     title: "Variant Caller Sample Filter",
+                            //     tooltip: "VCF file sample filters"
                             // },
                             {
                                 id: "variant-file-info-filter",
