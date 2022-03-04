@@ -221,7 +221,7 @@ export default class IndividualUpdate extends LitElement {
                     elements: [
                         {
                             title: "Individual ID",
-                            field: "ID",
+                            field: "id",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
@@ -290,9 +290,9 @@ export default class IndividualUpdate extends LitElement {
                         {
                             title: "Birth",
                             field: "dateOfBirth",
-                            type: "custom",
+                            type: "input-date",
                             display: {
-                                render: date => date ? html`${UtilsNew.dateFormatter(date)}` : "-"
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         },
                         {

@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import Types from "../../commons/types.js";
@@ -71,7 +72,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
 
     ontologyObserver() {
         if (this.ontology) {
-            this._ontology = JSON.parse(JSON.stringify(this.ontology));
+            this._ontology = UtilsNew.objectClone(this.ontology);
         }
     }
 
@@ -154,7 +155,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "add short id",
-                                disabled: true,
+                                // disabled: true,
                             }
                         },
                         {

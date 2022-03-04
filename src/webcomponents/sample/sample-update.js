@@ -22,6 +22,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
+
 export default class SampleUpdate extends LitElement {
 
     constructor() {
@@ -261,12 +262,12 @@ export default class SampleUpdate extends LitElement {
                 elements: [
                     {
                         title: "Sample ID",
-                        field: "ID",
+                        field: "id",
                         type: "input-text",
                         display: {
                             placeholder: "Add a short ID...",
+                            helpMessage: "Created on " + UtilsNew.dateFormatter(this.sample.creationDate),
                             disabled: true,
-                            helpMessage: "Add short sample id",
                         }
                     },
                     {
@@ -275,9 +276,13 @@ export default class SampleUpdate extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: "Add a short ID...",
-                            disabled: true,
                             helpMessage: "Search individual to select"
                         }
+                    },
+                    {
+                        title: "Somatic",
+                        field: "somatic",
+                        type: "checkbox"
                     },
                     {
                         title: "Description",
@@ -287,11 +292,6 @@ export default class SampleUpdate extends LitElement {
                             placeholder: "Add a description...",
                             rows: 3,
                         }
-                    },
-                    {
-                        title: "Somatic",
-                        field: "somatic",
-                        type: "checkbox"
                     },
                     {
                         title: "Status name",
@@ -310,14 +310,14 @@ export default class SampleUpdate extends LitElement {
                             placeholder: "Add a description for the status..."
                         }
                     },
-                    {
-                        title: "Creation Date",
-                        field: "creationDate",
-                        type: "custom",
-                        display: {
-                            render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
-                        }
-                    },
+                    // {
+                    //     title: "Creation Date",
+                    //     field: "creationDate",
+                    //     type: "input-date",
+                    //     display: {
+                    //         render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                    //     }
+                    // },
                 ]
             },
             {
