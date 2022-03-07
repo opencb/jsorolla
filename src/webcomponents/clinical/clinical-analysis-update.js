@@ -257,12 +257,16 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: clinicalAnalysis => html`
-                                    <span style="font-weight: bold; padding-right: 40px">
+                                    <label>
                                         ${clinicalAnalysis.id}
-                                    </span>
-                                    <span>
+                                    </label>
+                                    <span style="padding-left: 50px">
                                         <i class="far fa-calendar-alt"></i>
-                                        ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}
+                                        <label>Creation Date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.creationDate)}
+                                    </span>
+                                    <span style="margin: 0 20px">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <label>Due date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.dueDate)}
                                     </span>
                                 `,
                             }
