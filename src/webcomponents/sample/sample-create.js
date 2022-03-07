@@ -156,7 +156,7 @@ export default class SampleCreate extends LitElement {
         switch (e.detail.param) {
             case "collection.from":
                 this.collection = {...this.collection, from: e.detail.value};
-                if (!UtilsNew.isEmpty(this.collection?.from)) {
+                if (UtilsNew.isNotEmpty(this.collection?.from)) {
                     this.sample = {...this.sample, collection: this.collection};
                 } else {
                     this.sample = {...this.sample, collection: []};
@@ -164,7 +164,7 @@ export default class SampleCreate extends LitElement {
                 }
                 break;
             case "phenotypes":
-                if (!UtilsNew.isEmpty(e.detail.value)) {
+                if (UtilsNew.isNotEmpty(e.detail.value)) {
                     this.sample = {...this.sample, phenotypes: e.detail.value};
                 } else {
                     this.sample = {...this.sample, phenotypes: []};

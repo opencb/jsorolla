@@ -19,6 +19,7 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utilsNew.js";
+import "../study/status/status-update.js";
 
 export default class FamilyUpdate extends LitElement {
 
@@ -108,22 +109,13 @@ export default class FamilyUpdate extends LitElement {
             case "name":
             case "description":
             case "expectedSize":
+            case "status":
                 this.updateParams = FormUtils.updateScalar(
                     this._family,
                     this.family,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
-                break;
-            case "status.name":
-            case "status.description":
-                this.updateParams = FormUtils.updateObjectWithProps(
-                    this._family,
-                    this.family,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
                 break;
         }
         this.requestUpdate();
@@ -192,8 +184,6 @@ export default class FamilyUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                // disabled: true,
-                                // helpMessage: "Created on " + UtilsNew.dateFormatter(this.family.creationDate),
                                 helpMessage: this.family.creationDate? "Created on " + UtilsNew.dateFormatter(this.family.creationDate):"No creation date",
                                 validation: {}
                             },
@@ -280,20 +270,21 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Status Name",
-                            field: "status.name",
-                            type: "input-text",
+                            title: "Status",
+                            field: "status",
+                            type: "custom",
                             display: {
-                                placeholder: "Add status name..."
-                            }
-                        },
-                        {
-                            title: "Status Description",
-                            field: "status.description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a status description..."
+                                render: status => html`
+                                    <status-update
+                                        .status=${status}
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    </status-update>`
                             }
                         },
                     ]

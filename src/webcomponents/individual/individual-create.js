@@ -61,25 +61,6 @@ export default class IndividualCreate extends LitElement {
                     param,
                     e.detail.value,
                 )};
-        // switch (param) {
-        //     case "phenotypes":
-        //         this.individual = {...this.individual, phenotypes: e.detail.value};
-        //         break;
-        //     case "disorders":
-        //         this.individual = {...this.individual, disorders: e.detail.value};
-        //         break;
-        //     case "annotationsets":
-        //         this.individual = {...this.individual, annotationSets: e.detail.value};
-        //         break;
-        //     default:
-        //         this.individual = {
-        //             ...FormUtils.createObject(
-        //                 this.individual,
-        //                 param,
-        //                 e.detail.value,
-        //             )};
-        //         break;
-        // }
         }
         this.requestUpdate();
     }
@@ -110,16 +91,23 @@ export default class IndividualCreate extends LitElement {
     }
 
     onAddOrUpdateItem(e) {
-        switch (e.detail.param) {
-            case "disorders":
-                this.individual = {...this.individual, disorders: e.detail.value};
-                break;
-            case "phenotypes":
-                this.individual = {...this.individual, phenotypes: e.detail.value};
-                break;
-            case "annotationSets":
-                console.log("for annotationSets array");
-                break;
+        const param = e.detail.param;
+        const value = e.detail.value;
+        if (UtilsNew.isNotEmpty(value)) {
+            switch (param) {
+                case "disorders":
+                    this.individual = {...this.individual, disorders: value};
+                    break;
+                case "phenotypes":
+                    this.individual = {...this.individual, phenotypes: value};
+                    break;
+            }
+        } else {
+            this.individual = {
+                ...this.individual,
+                [param]: []
+            };
+            delete this.individual[param];
         }
         this.requestUpdate();
     }

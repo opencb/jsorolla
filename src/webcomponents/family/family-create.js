@@ -139,6 +139,7 @@ export default class FamilyCreate extends LitElement {
             },
             sections: [
                 {
+                    title: "Family General Information",
                     elements: [
                         {
                             title: "Family ID",
@@ -218,26 +219,43 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Status Name",
-                            field: "status.name",
-                            type: "input-text",
+                            title: "Status",
+                            field: "status",
+                            type: "custom",
                             display: {
-                                placeholder: "Add status name..."
+                                render: () => html`
+                                    <status-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    </status-create>`
                             }
                         },
-                        {
-                            title: "Status Description",
-                            field: "status.description",
-                            type: "input-text",
-                            validation: {
-                                validate: () => this.family?.status?.description ? !!this.family?.status?.name : true,
-                                message: "The status name must be filled",
-                            },
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a status description..."
-                            }
-                        },
+                        // {
+                        //     title: "Status Name",
+                        //     field: "status.name",
+                        //     type: "input-text",
+                        //     display: {
+                        //         placeholder: "Add status name..."
+                        //     }
+                        // },
+                        // {
+                        //     title: "Status Description",
+                        //     field: "status.description",
+                        //     type: "input-text",
+                        //     validation: {
+                        //         validate: () => this.family?.status?.description ? !!this.family?.status?.name : true,
+                        //         message: "The status name must be filled",
+                        //     },
+                        //     display: {
+                        //         rows: 3,
+                        //         placeholder: "Add a status description..."
+                        //     }
+                        // },
                     ]
                 },
                 // {

@@ -20,11 +20,10 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
-import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
-import "../study/status/status-update";
+import "../study/status/status-update.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -59,14 +58,15 @@ export default class SampleUpdate extends LitElement {
         this.phenotype = {};
         this.annotationSets = {};
         this.updateParams = {};
+        this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        // it's not working well init or update,
-        // it's working well here.. connectedCallback
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //      it's not working well init or update,
+    //      it's working well here.. connectedCallback
+    //      this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("sample")) {
@@ -144,8 +144,6 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
-        console.log("Sample: ", this.sample);
-        console.log("Updated Sample: ", this.updateParams);
         this.requestUpdate();
     }
 
@@ -182,18 +180,6 @@ export default class SampleUpdate extends LitElement {
                 // FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
     }
-
-    // onSync(e, type) {
-    //     e.stopPropagation();
-    //     switch (type) {
-    //         case "phenotypes":
-    //             this.updateParams = {...this.updateParams, phenotypes: e.detai.value};
-    //             break;
-    //         case "annotationsets":
-    //             this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-    //             break;
-    //     }
-    // }
 
     // display a button to back sample browser.
     onShowBtnSampleBrowser() {
@@ -272,7 +258,6 @@ export default class SampleUpdate extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: "Add a short ID...",
-                            // helpMessage: "Created on " + UtilsNew.dateFormatter(this.sample.creationDate),
                             helpMessage: this.sample.creationDate? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate):"No creation date",
                             disabled: true,
                         }
@@ -340,23 +325,6 @@ export default class SampleUpdate extends LitElement {
                                 </status-update>`
                         }
                     },
-                    // {
-                    //     title: "Status name",
-                    //     field: "status.name",
-                    //     type: "input-text",
-                    //     display: {
-                    //         placeholder: "Add a status name..."
-                    //     }
-                    // },
-                    // {
-                    //     title: "Status Description",
-                    //     field: "status.description",
-                    //     type: "input-text",
-                    //     display: {
-                    //         rows: 3,
-                    //         placeholder: "Add a description for the status..."
-                    //     }
-                    // },
                     // {
                     //     title: "Creation Date",
                     //     field: "creationDate",

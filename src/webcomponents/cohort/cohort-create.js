@@ -20,6 +20,7 @@ import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
+import "../study/status/status-create.js";
 
 
 export default class CohortCreate extends LitElement {
@@ -141,6 +142,7 @@ export default class CohortCreate extends LitElement {
             },
             sections: [
                 {
+                    title: "Cohort General Information",
                     elements: [
                         {
                             title: "Cohort ID",
@@ -166,15 +168,6 @@ export default class CohortCreate extends LitElement {
                                 </sample-id-autocomplete>`
                             }
                         },
-                        // {
-                        //     title: "Sample IDs",
-                        //     field: "samples",
-                        //     type: "input-text",
-                        //     display: {
-                        //         rows: 3,
-                        //         placeholder: "Add sample IDs...",
-                        //     }
-                        // },
                         {
                             title: "Cohort Description",
                             field: "description",
@@ -182,6 +175,23 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Add a cohort description...",
+                            }
+                        },
+                        {
+                            title: "Status",
+                            field: "status",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <status-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    </status-create>`
                             }
                         },
                         // {
@@ -206,27 +216,27 @@ export default class CohortCreate extends LitElement {
                         //             )
                         //     }
                         // },
-                        {
-                            title: "Status Name",
-                            field: "status.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add status name..."
-                            }
-                        },
-                        {
-                            title: "Status Description",
-                            field: "status.description",
-                            type: "input-text",
-                            validation: {
-                                validate: () => this.cohort?.status?.description ? !!this.cohort?.status?.name : true,
-                                message: "The status name must be filled",
-                            },
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a status description..."
-                            }
-                        }
+                        // {
+                        //     title: "Status Name",
+                        //     field: "status.name",
+                        //     type: "input-text",
+                        //     display: {
+                        //         placeholder: "Add status name..."
+                        //     }
+                        // },
+                        // {
+                        //     title: "Status Description",
+                        //     field: "status.description",
+                        //     type: "input-text",
+                        //     validation: {
+                        //         validate: () => this.cohort?.status?.description ? !!this.cohort?.status?.name : true,
+                        //         message: "The status name must be filled",
+                        //     },
+                        //     display: {
+                        //         rows: 3,
+                        //         placeholder: "Add a status description..."
+                        //     }
+                        // }
                     ]
                 },
                 // {
