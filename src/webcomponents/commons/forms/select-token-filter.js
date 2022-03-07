@@ -130,9 +130,18 @@ export default class SelectTokenFilter extends LitElement {
         if (_changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        if (_changedProperties.has("classes")) {
+            if (this.classes) {
+                this.select.data("select2").$selection.addClass(this.classes);
+            } else {
+                this.select.data("select2").$selection.removeClass("");
+            }
+        }
+
         if (_changedProperties.has("value")) {
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
-            this.select.empty();
+            // this.select.empty();
             const regExpSeparators = new RegExp("[" + this._config.separator.join("") + "]");
             this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(regExpSeparators) : "");
         }
@@ -226,7 +235,7 @@ export default class SelectTokenFilter extends LitElement {
 
         return html`
             <div>
-                <select class="form-control updated"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
             </div>
         `;
     }

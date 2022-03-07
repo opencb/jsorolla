@@ -250,6 +250,7 @@ export default class IndividualUpdate extends LitElement {
                                     <individual-id-autocomplete
                                         .value="${father?.id}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
                                         .config=${{
                                             // This is the default value, but it is safe to leave it
                                             multiple: false,
