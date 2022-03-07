@@ -78,7 +78,8 @@ export default class SampleCreate extends LitElement {
             case "description":
             case "somatic":
             case "individualId":
-            case "processing.product":
+            case "status": // this is object
+            case "processing.product": // this is object
             case "processing.preparationMethod":
             case "processing.extractionMethod":
             case "processing.labSambpleId":
@@ -88,6 +89,8 @@ export default class SampleCreate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
+            // case "collection.from": // this is list object
+            // case "phenotypes": // this is object
                 this.sample = {
                     ...FormUtils.createObject(
                         this.sample,
@@ -95,19 +98,6 @@ export default class SampleCreate extends LitElement {
                         e.detail.value
                     )
                 };
-                break;
-            case "status":
-                if (!UtilsNew.isEmpty(e.detail.value)) {
-                    this.sample = {
-                        ...FormUtils.createObject(
-                            this.sample,
-                            param,
-                            e.detail.value
-                        )
-                    };
-                } else {
-                    delete this.sample[param];
-                }
                 break;
             case "annotationSets":
                 // Rodiel (03/03/2022): At the moment IVA DOES NOT SUPPORT
@@ -166,10 +156,10 @@ export default class SampleCreate extends LitElement {
         switch (e.detail.param) {
             case "collection.from":
                 this.collection = {...this.collection, from: e.detail.value};
-                // this.sample = {...this.sample, collection: this.collection};
                 if (!UtilsNew.isEmpty(this.collection?.from)) {
                     this.sample = {...this.sample, collection: this.collection};
                 } else {
+                    this.sample = {...this.sample, collection: []};
                     delete this.sample["collection"]["from"];
                 }
                 break;
@@ -177,6 +167,7 @@ export default class SampleCreate extends LitElement {
                 if (!UtilsNew.isEmpty(e.detail.value)) {
                     this.sample = {...this.sample, phenotypes: e.detail.value};
                 } else {
+                    this.sample = {...this.sample, phenotypes: []};
                     delete this.sample["phenotypes"];
                 }
                 break;
@@ -275,27 +266,6 @@ export default class SampleCreate extends LitElement {
                                 </status-create>`
                         }
                     },
-                    // {
-                    //     title: "Status name",
-                    //     field: "status.name",
-                    //     type: "input-text",
-                    //     display: {
-                    //         placeholder: "Add status name..."
-                    //     }
-                    // },
-                    // {
-                    //     title: "Status Description",
-                    //     field: "status.description",
-                    //     type: "input-text",
-                    //     validation: {
-                    //         validate: () => this.sample?.status?.description ? !!this.sample?.status?.name : true,
-                    //         message: "The status name must be filled",
-                    //     },
-                    //     display: {
-                    //         rows: 3,
-                    //         placeholder: "Add a status description..."
-                    //     }
-                    // }
                 ]
             },
             {
@@ -447,7 +417,7 @@ export default class SampleCreate extends LitElement {
                             collapsedUpdate: true,
                             renderUpdate: (pheno, callback) => html`
                                 <ontology-term-annotation-update
-                                    ontology=${pheno}
+                                    .ontology=${pheno}
                                     .entity="${"phenotype"}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",

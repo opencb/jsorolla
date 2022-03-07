@@ -22,6 +22,9 @@ import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
+import "../study/status/status-update";
 
 export default class SampleUpdate extends LitElement {
 
@@ -55,13 +58,13 @@ export default class SampleUpdate extends LitElement {
         this.sample = {};
         this.phenotype = {};
         this.annotationSets = {};
+        this.updateParams = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
         // it's not working well init or update,
         // it's working well here.. connectedCallback
-        this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -106,21 +109,22 @@ export default class SampleUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        e.stopPropagation();
+        const param = field || e.detail.param;
+        switch (param) {
             case "id":
             case "description":
             case "individualId":
             case "somatic":
+            case "status":
                 this.updateParams = FormUtils.updateScalar(
                     this._sample,
                     this.sample,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value);
                 break;
-            case "status.name":
-            case "status.description":
             case "processing.product":
             case "processing.preparationMethod":
             case "processing.extractionMethod":
@@ -136,10 +140,12 @@ export default class SampleUpdate extends LitElement {
                     this._sample,
                     this.sample,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value);
                 break;
         }
+        console.log("Sample: ", this.sample);
+        console.log("Updated Sample: ", this.updateParams);
         this.requestUpdate();
     }
 
@@ -289,7 +295,7 @@ export default class SampleUpdate extends LitElement {
                             render: individualId => html`
                                 <individual-id-autocomplete
                                     .value="${individualId}"
-                                    .updateParams=${this.updateParams}
+                                    .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config=${{multiple: false}}
                                     @filterChange="${e =>
