@@ -133,7 +133,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "VARIANT",
-                columns: this._createDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
+                showExport: true,
+                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
+                // gridColumns: this._getDefaultColumns() // original column structure
             };
             this.requestUpdate();
             this.renderVariants();
@@ -212,7 +214,7 @@ export default class VariantInterpreterGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._createDefaultColumns(),
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 // Set table properties, these are read from config property
@@ -439,7 +441,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             data: this.clinicalVariants,
-            columns: this._createDefaultColumns(),
+            columns: this._getDefaultColumns(),
             sidePagination: "local",
 
             // Set table properties, these are read from config property
@@ -585,7 +587,7 @@ export default class VariantInterpreterGrid extends LitElement {
         return "-";
     }
 
-    _createDefaultColumns() {
+    _getDefaultColumns() {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         let vcfDataColumns = [];
