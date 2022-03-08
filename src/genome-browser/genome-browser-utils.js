@@ -62,6 +62,28 @@ export default class GenomeBrowserUtils {
         return str ? str.charAt(0).toUpperCase() + str.slice(1).replace(/_/gi, "") : "";
     }
 
+    // Variant genotype color formatter
+    static genotypeColorFormatter(value) {
+        switch (value) {
+            case "0|0":
+            case "0/0":
+                return GenomeBrowserConstants.GENOTYPES_COLORS["reference"];
+            case "0|1":
+            case "0/1":
+            case "1|0":
+            case "1/0":
+                return GenomeBrowserConstants.GENOTYPES_COLORS["heterozygous"];
+            case "1|1":
+            case "1/1":
+                return GenomeBrowserConstants.GENOTYPES_COLORS["homozygous"];
+            // case ".|.":
+            // case "./.":
+            //     return GenomeBrowserConstants.GENOTYPES_COLORS["reference"];
+        }
+        // Not found --> return transparent color
+        return "transparent";
+    }
+
     //
     // Feature utils
     //
