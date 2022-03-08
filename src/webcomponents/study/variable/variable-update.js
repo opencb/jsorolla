@@ -162,19 +162,32 @@ export default class VariableUpdate extends LitElement {
                             name: "Allowed Values",
                             field: "allowedValues",
                             type: "custom",
-                            disabled: true,
                             display: {
-                                visible: variable => variable?.type === "CATEGORICAL",
-                                layout: "horizontal",
-                                defaultLayout: "horizontal",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <select-field-token
-                                        .values="${this.variable?.allowedValues}">
-                                    </select-field-token>`
+                                // disabled: variable => variable?.type !== "CATEGORICAL",
+                                render: allowedValues => html`
+                                    <select-token-filter-static
+                                        .values="${allowedValues}"
+                                        .disabled="${this.variable?.type !== "CATEGORICAL"}"></select-token-filter-static>
+                                    </select-token-filter-static>`
                             }
                         },
+                        // {
+                        //     name: "Allowed Values",
+                        //     field: "allowedValues",
+                        //     type: "custom",
+                        //     disabled: true,
+                        //     display: {
+                        //         visible: variable => variable?.type === "CATEGORICAL",
+                        //         layout: "horizontal",
+                        //         defaultLayout: "horizontal",
+                        //         width: 12,
+                        //         style: "padding-left: 0px",
+                        //         render: () => html`
+                        //             <select-field-token
+                        //                 .values="${this.variable?.allowedValues}">
+                        //             </select-field-token>`
+                        //     }
+                        // },
                         // {
                         //     name: "Allowed Keys",
                         //     field: "allowedKeys",

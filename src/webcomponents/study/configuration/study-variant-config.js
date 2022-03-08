@@ -301,13 +301,11 @@ export default class StudyVariantConfig extends LitElement {
                                 field: "values",
                                 type: "custom",
                                 display: {
-                                    render: data => {
-                                        return html `
-                                            <select-token-filter-static
-                                                .data=${data}
-                                                .value="${data?.join(",")}">
-                                            </select-token-filter-static>`;
-                                    }
+                                    render: data => html `
+                                        <select-token-filter-static
+                                            .data=${data}
+                                            .value="${data?.join(",")}">
+                                        </select-token-filter-static>`
                                 }
                             }
                         ]

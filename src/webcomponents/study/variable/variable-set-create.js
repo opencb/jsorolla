@@ -19,6 +19,7 @@ import "./variable-list-update.js";
 import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import Types from "../../commons/types.js";
 import "../variable/variable-create.js";
 import "../variable/variable-update.js";
 
@@ -366,37 +367,27 @@ export default class VariableSetCreate extends LitElement {
 
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             type: "form",
-            buttons: {
-                show: true,
-                top: true,
-                cancelText: "Clear",
-                okText: "Save"
-            },
             display: {
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: "",
-                help: {
-                    mode: "block",
-                }
+                buttonClearText: "Clear",
             },
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            name: "Id",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             required: "required",
                             display: {
                                 placeholder: "Add a short ID...",
                                 help: {
-
                                     icon: "fas fa-info-circle",
                                     text: "short variableSet id"
                                 },
@@ -510,7 +501,7 @@ export default class VariableSetCreate extends LitElement {
                 //     ]
                 // }
             ]
-        };
+        });
     }
 
 }

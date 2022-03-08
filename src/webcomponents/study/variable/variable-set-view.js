@@ -103,9 +103,7 @@ export default class VariableSetView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
-                buttons: {
-                    show: false
-                },
+                buttonsVisible: false,
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,

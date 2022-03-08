@@ -61,13 +61,6 @@ export default class SampleUpdate extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //      it's not working well init or update,
-    //      it's working well here.. connectedCallback
-    //      this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("sample")) {
             this.sampleObserver();
@@ -240,7 +233,6 @@ export default class SampleUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // title: "Sample Update",
             icon: "fas fa-edit",
             type: "form",
             display: {
@@ -262,15 +254,6 @@ export default class SampleUpdate extends LitElement {
                             disabled: true,
                         }
                     },
-                    // {
-                    //     title: "Individual ID",
-                    //     field: "individualId",
-                    //     type: "input-text",
-                    //     display: {
-                    //         placeholder: "Add a short ID...",
-                    //         helpMessage: "Search individual to select"
-                    //     }
-                    // },
                     {
                         title: "Individual ID",
                         field: "individualId",
@@ -475,8 +458,7 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             collapsedUpdate: true,
-                            renderUpdate: (pheno, callback) => {
-                                return html`
+                            renderUpdate: (pheno, callback) => html`
                                 <ontology-term-annotation-update
                                     .ontology="${pheno}"
                                     .entity="${"phenotype"}"
@@ -486,8 +468,7 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @updateItem="${callback}">
-                                </ontology-term-annotation-update>`;
-                            },
+                                </ontology-term-annotation-update>`,
                             renderCreate: (pheno, callback) => html`
                                 <label>Create new item</label>
                                 <ontology-term-annotation-create

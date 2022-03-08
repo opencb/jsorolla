@@ -56,11 +56,6 @@ export default class SampleCreate extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     refreshForm() {
         // When using data-form we need to update config object and render again
         this._config = {...this.getDefaultConfig(), ...this.config};
@@ -192,7 +187,6 @@ export default class SampleCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // title: "Sample Create",
             type: "form",
             display: {
                 style: "margin: 10px",

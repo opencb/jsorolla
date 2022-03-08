@@ -156,6 +156,14 @@ export default class VariableCreate extends LitElement {
                             type: "checkbox",
                         },
                         {
+                            name: "Multi Value",
+                            field: "multivalue",
+                            type: "checkbox",
+                            display: {
+                                // disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
+                            }
+                        },
+                        {
                             name: "Type",
                             field: "type",
                             type: "select",
@@ -169,16 +177,14 @@ export default class VariableCreate extends LitElement {
                             field: "allowedValues",
                             type: "custom",
                             display: {
-                                disabled: variable => variable?.type !== "CATEGORICAL",
-                                // layout: "horizontal",
-                                // defaultLayout: "horizontal",
-                                // width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <select-field-token
-                                        .values="${this.variable?.allowedValues}"
+                                // disabled: variable => variable?.type !== "CATEGORICAL",
+
+                                render: allowedValues => html`
+                                    <select-token-filter-static
+                                        .values="${allowedValues}"
+                                        .disabled="${this.variable?.type !== "CATEGORICAL"}"
                                         @addToken=${e => this.#onAddValues(e)}>
-                                    </select-field-token>`
+                                    </select-token-filter-static>`
                             }
                         },
                         // {
@@ -203,14 +209,7 @@ export default class VariableCreate extends LitElement {
                                 // disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
                             }
                         },
-                        {
-                            name: "Multi Value",
-                            field: "multivalue",
-                            type: "checkbox",
-                            display: {
-                                // disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
-                            }
-                        },
+
                         {
                             name: "Depends On",
                             field: "dependsOn",
