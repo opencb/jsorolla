@@ -160,30 +160,32 @@
                         cellBaseClient: cellBaseClient,
                     }),
                     // OpenCGA Variant track
-                    new OpenCGAVariantTrack({
-                        title: "Variant (OpenCGA)",
-                        closable: false,
-                        histogramMinRegionSize: 200000,
-                        labelMaxRegionSize: 10000000,
-                        visibleRegionSize: 100000000,
-                        height: 100,
-                        opencgaClient: opencgaClient,
-                        opencgaStudies: "demo@family:platinum",
-                        // opencgaSamples: ["HG00096", "HG00097", "HG00099"],
-                    }),
-                    // OpenCGA Variant track with samples
                     // new OpenCGAVariantTrack({
-                    //     title: "Variant (Samples)",
+                    //     title: "Variant (OpenCGA)",
                     //     closable: false,
-                    //     minHistogramRegionSize: 20000000,
-                    //     maxLabelRegionSize: 10000000,
-                    //     minTranscriptRegionSize: 200000,
+                    //     histogramMinRegionSize: 200000,
+                    //     labelMaxRegionSize: 10000000,
                     //     visibleRegionSize: 100000000,
-                    //     height: 300,
+                    //     height: 100,
                     //     opencgaClient: opencgaClient,
-                    //     opencgaStudies: "demo@family:platinum",
-                    //     opencgaSamples: ["NA12877"],
+                    //     opencgaStudy: "demo@family:platinum",
+                    //     // opencgaSamples: ["HG00096", "HG00097", "HG00099"],
                     // }),
+                    // OpenCGA Variant track with query
+                    new OpenCGAVariantTrack({
+                        title: "Variant (Samples)",
+                        closable: false,
+                        minHistogramRegionSize: 20000000,
+                        maxLabelRegionSize: 10000000,
+                        minTranscriptRegionSize: 200000,
+                        visibleRegionSize: 100000000,
+                        height: 80,
+                        opencgaClient: opencgaClient,
+                        opencgaStudy: "demo@family:platinum",
+                        query: {
+                            sample: "NA12877:0/1,1/1,1/2",
+                        },
+                    }),
                 ]);
 
                 // genomeBrowser.addTrack(tracks);
