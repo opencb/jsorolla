@@ -56,8 +56,8 @@ export default class GenomeBrowser {
         this.region = this.#parseRegion(this.config.region);
         this.defaultRegion = new Region(this.region);
 
-        this.zoom = this._calculateZoomByRegion(this.region);
-        this._updateSpecies(this.config.species);
+        this.zoom = this.#calculateZoomByRegion(this.region);
+        this.#updateSpecies(this.config.species);
 
         this.fullscreen = false;
         this.resizing = false;
@@ -226,7 +226,7 @@ export default class GenomeBrowser {
         }
 
         // Helper method to center in the specified feature region
-        const goToFeature = feature => this._regionChangeHandler({
+        const goToFeature = feature => this.#regionChangeHandler({
             region: new Region(feature),
         });
 
@@ -250,10 +250,10 @@ export default class GenomeBrowser {
         });
 
         // Register event listeners
-        navigationBar.on("region:change", event => this._regionChangeHandler(event));
-        navigationBar.on("region:move", event => this._regionMoveHandler(event));
-        navigationBar.on("zoom:change", event => this._zoomChangeHandler(event));
-        navigationBar.on("species:change", event => this._speciesChangeHandler(event));
+        navigationBar.on("region:change", event => this.#regionChangeHandler(event));
+        navigationBar.on("region:move", event => this.#regionMoveHandler(event));
+        navigationBar.on("zoom:change", event => this.#zoomChangeHandler(event));
+        navigationBar.on("species:change", event => this.#speciesChangeHandler(event));
         navigationBar.on("karyotype-button:change", event => {
             event.selected ? this.karyotypePanel.show() : this.karyotypePanel.hide();
         });
@@ -275,7 +275,7 @@ export default class GenomeBrowser {
             this.fullscreen = !this.fullscreen; // Change fullscreen
         });
         navigationBar.on("restoreDefaultRegion:click", event => {
-            this._regionChangeHandler({...event, region: this.defaultRegion});
+            this.#regionChangeHandler({...event, region: this.defaultRegion});
         });
         navigationBar.on("autoHeight-button:change", event => this.toggleAutoHeight(event.selected));
         navigationBar.on("quickSearch:select", event => {
@@ -314,7 +314,7 @@ export default class GenomeBrowser {
         });
 
         // Register event listeners
-        karyotypePanel.on("region:change", event => this._regionChangeHandler(event));
+        karyotypePanel.on("region:change", event => this.#regionChangeHandler(event));
 
         // Listen to GB events
         this.on("region:change region:move", event => karyotypePanel.setRegion(event.region));
@@ -343,7 +343,7 @@ export default class GenomeBrowser {
         });
 
         // Register chromosome panel event listeners
-        chromosomePanel.on("region:change", event => this._regionChangeHandler(event));
+        chromosomePanel.on("region:change", event => this.#regionChangeHandler(event));
 
         // Listen to GB events
         this.on("region:change region:move", event => chromosomePanel.setRegion(event.region));
@@ -370,8 +370,8 @@ export default class GenomeBrowser {
         });
 
         // Register overview track list event listeners
-        trackListPanel.on("region:change", event => this._regionChangeHandler(event));
-        trackListPanel.on("region:move", event => this._regionMoveHandler(event));
+        trackListPanel.on("region:change", event => this.#regionChangeHandler(event));
+        trackListPanel.on("region:move", event => this.#regionMoveHandler(event));
 
         // Listen to GB events
         this.on("region:change", event => {
@@ -405,8 +405,8 @@ export default class GenomeBrowser {
         });
 
         // Register event listeners
-        trackListPanel.on("region:change", event => this._regionChangeHandler(event));
-        trackListPanel.on("region:move", event => this._regionMoveHandler(event));
+        trackListPanel.on("region:change", event => this.#regionChangeHandler(event));
+        trackListPanel.on("region:move", event => this.#regionMoveHandler(event));
 
         // Listen to GB events
         this.on("region:change", event => {
@@ -449,7 +449,7 @@ export default class GenomeBrowser {
     //
     // Private helpers
     //
-    _checkAndSetNewChromosomeRegion(region) {
+    #checkAndSetNewChromosomeRegion(region) {
         if (this.chromosomes && this.chromosomes[region.chromosome]) {
             const chr = this.chromosomes[region.chromosome];
             if (region.chromosome !== this.region.chromosome) {
@@ -479,7 +479,7 @@ export default class GenomeBrowser {
         return region;
     }
 
-    _calculateRegionByZoom(zoom) {
+    #calculateRegionByZoom(zoom) {
         const minNtPixels = 10; // 10 is the minimum pixels per nt
         const chr = this.chromosomes[this.region.chromosome];
         const minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
@@ -494,7 +494,7 @@ export default class GenomeBrowser {
         };
     }
 
-    _calculateZoomByRegion(region) {
+    #calculateZoomByRegion(region) {
         const minNtPixels = 10; // 10 is the minimum pixels per nt
         const minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
 
@@ -509,7 +509,7 @@ export default class GenomeBrowser {
         return 100 - Math.round(zoom);
     }
 
-    _checkChangingRegion() {
+    #checkChangingRegion() {
         if (this.overviewTrackListPanel && !this.overviewTrackListPanel.checkTracksReady()) {
             return false;
         }
@@ -523,12 +523,12 @@ export default class GenomeBrowser {
     // EVENT METHODS
     //
 
-    _regionChangeHandler(event) {
-        if (this._checkChangingRegion()) {
+    #regionChangeHandler(event) {
+        if (this.#checkChangingRegion()) {
 
-            this._checkAndSetNewChromosomeRegion(event.region);
+            this.#checkAndSetNewChromosomeRegion(event.region);
             const region = this.#parseRegion(event.region);
-            this.zoom = this._calculateZoomByRegion(region);
+            this.zoom = this.#calculateZoomByRegion(region);
 
             // Relaunch
             this.trigger("region:change", {
@@ -548,19 +548,19 @@ export default class GenomeBrowser {
         }
     }
 
-    _regionMoveHandler(event) {
+    #regionMoveHandler(event) {
         this.trigger("region:move", event);
     }
 
-    _zoomChangeHandler(event) {
+    #zoomChangeHandler(event) {
         this.zoom = Math.min(100, Math.max(0, event.zoom));
-        this.region.load(this._calculateRegionByZoom(event.zoom));
+        this.region.load(this.#calculateRegionByZoom(event.zoom));
         this.setRegion(this.region);
     }
 
-    _speciesChangeHandler(event) {
+    #speciesChangeHandler(event) {
         this.trigger("species:change", event);
-        this._updateSpecies(event.species);
+        this.#updateSpecies(event.species);
 
         const args = {
             category: "feature",
@@ -585,7 +585,7 @@ export default class GenomeBrowser {
     }
 
     // TODO: register event listeners in panels instead of doing this
-    _updateSpecies(species) {
+    #updateSpecies(species) {
         this.species = species;
         // this.chromosomes = this.getChromosomes();
         this.species.chromosomes = this.chromosomes;
@@ -607,7 +607,7 @@ export default class GenomeBrowser {
         }
     }
 
-    _getSpeciesByTaxonomy(taxonomyCode) {
+    #getSpeciesByTaxonomy(taxonomyCode) {
         // find species object
         // let speciesObject = null;
         if (taxonomyCode) {
@@ -632,9 +632,9 @@ export default class GenomeBrowser {
     //
 
     setSpeciesByTaxonomy(taxonomyCode) {
-        const species = this._getSpeciesByTaxonomy(taxonomyCode);
+        const species = this.#getSpeciesByTaxonomy(taxonomyCode);
         if (species !== null) {
-            this._speciesChangeHandler({species: species});
+            this.#speciesChangeHandler({species: species});
         } else {
             console.log("Species taxonomy not found on availableSpecies.");
         }
@@ -642,10 +642,10 @@ export default class GenomeBrowser {
 
     setRegion(region, taxonomy) {
         if (taxonomy) {
-            const species = this._getSpeciesByTaxonomy(taxonomy);
-            this._updateSpecies(species);
+            const species = this.#getSpeciesByTaxonomy(taxonomy);
+            this.#updateSpecies(species);
         }
-        return this._regionChangeHandler({region: new Region(region)});
+        return this.#regionChangeHandler({region: new Region(region)});
     }
 
     moveRegion(disp) {
@@ -681,33 +681,18 @@ export default class GenomeBrowser {
             this.navigationBar.setWidth(width);
         }
 
-        this._regionChangeHandler({region: newRegion});
+        this.#regionChangeHandler({region: newRegion});
     }
 
     setZoom(zoom) {
         this.zoom = Math.min(100, Math.max(0, zoom));
-        this.region.load(this._calculateRegionByZoom(zoom));
+        this.region.load(this.#calculateRegionByZoom(zoom));
         this.setRegion(this.region);
     }
 
     increaseZoom(increment) {
         this.setZoom(this.zoom + increment);
     }
-
-    // We need this method?
-    // setCellBaseHost(host) {
-    //     if (host !== this.cellBaseHost) {
-    //         this.cellBaseHost = host;
-    //         this.navigationBar.setCellBaseHost(this.cellBaseHost);
-    //         this.chromosomePanel.setCellBaseHost(this.cellBaseHost);
-    //         this.karyotypePanel.setCellBaseHost(this.cellBaseHost);
-    //         this.trackListPanel.setCellBaseHost(this.cellBaseHost);
-    //         this.overviewTrackListPanel.setCellBaseHost(this.cellBaseHost);
-
-    //         this._updateSpecies(this.species);
-    //         this.setRegion(new Region(this.region));
-    //     }
-    // }
 
     getSVGCanvasWidth() {
         return this.width - this.config.trackPanelScrollWidth - this.sidePanelWidth;
