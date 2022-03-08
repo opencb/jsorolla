@@ -57,7 +57,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.sampleNamesDiv.style.backgroundColor = "rgba(255,255,255,0.8)";
         this.sampleNamesDiv.style.paddingLeft = "16px";
         this.sampleNamesDiv.style.paddingRight = "8px";
-        this.sampleNamesDiv.style.paddingTop = `${nameHeight}px`;
+        // this.sampleNamesDiv.style.paddingTop = `${nameHeight}px`;
 
         // Append samples names
         this.content.appendChild(this.sampleNamesDiv);
