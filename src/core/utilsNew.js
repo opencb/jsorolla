@@ -816,7 +816,7 @@ export default class UtilsNew {
     // NOTE: in case that the file does not exist, a `null` value will be returned instead of rejecting the promise
     static importFile(url) {
         return window.fetch(url)
-            .then(response => response.text())
+            .then(response => response.ok && response.text() || null)
             .catch(() => null);
     }
 
