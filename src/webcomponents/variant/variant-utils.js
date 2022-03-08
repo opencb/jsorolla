@@ -25,8 +25,8 @@ export default class VariantUtils {
         const variantString = [];
         let populationMap = {};
 
-        let headerString = [];
-        let header = {};
+        const headerString = [];
+        const header = {};
 
         const sampleIds = samples?.forEach(sample => sample.id);
 
@@ -41,7 +41,7 @@ export default class VariantUtils {
                 if (study.studyId.includes("@")) {
                     const studyId = study.studyId.split(":")[1];
                     studyIds.push(studyId);
-                    cohortAlleleStatsColumns.push(`cohort.${studyId}.alleleCount`, `cohort.${studyId}.altAlleleFreq`);
+                    cohortAlleleStatsColumns.push(`cohorts.${studyId}.alleleCount`, `cohorts.${studyId}.altAlleleFreq`);
                     // alleleCount, altAlleleFreq
 
                     // cohort ALL is always the first element in study.stats
@@ -59,7 +59,7 @@ export default class VariantUtils {
         const popIds = studiesPopFrequencies?.flatMap(study => study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
         const popStudyIds = studiesPopFrequencies?.map(study => "popfreq." + study.id);
 
-        // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field)
+        /* // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field)
         headerString = [
             "id",
             "SNP ID",
@@ -83,10 +83,11 @@ export default class VariantUtils {
             ...popIds,
             "clinicalInfo.clinvar",
             "clinicalInfo.cosmic",
-        ];
+        ];*/
         let flatFieldList = [];
 
-        // fieldList is expected to be always defined in VB and SVB, it would be not defined only in case of use of the old Download button and instead of the Export component.
+        // fieldList is expected to be always defined in VB and SVB.
+        // It would be not defined only in case of use of the old Download button and instead of the Export component.
         if (!fieldList) {
             // default list
             flatFieldList = [
@@ -106,7 +107,7 @@ export default class VariantUtils {
                 // AC / AF (cohorts IDs are comma joined)
                 // fieldList in the form    cohorts.RD38, cohorts.CG38
                 // TSV in the form          cohort.RD38.alleleCount,cohort.RD38.altAlleleFreq
-                ...studyIds.map(studyId => `cohort.${studyId}`),
+                ...studyIds.map(studyId => `cohorts.${studyId}`),
                 // fieldList in the form    popfreq.1kG_phase3, popfreq.GNOMAD_GENOMES
                 // TSV in the form          popfreq.1kG_phase3_SAS,popfreq.GNOMAD_GENOMES_ALL,popfreq.GNOMAD_GENOMES_AFR
                 ...popStudyIds,
@@ -116,33 +117,32 @@ export default class VariantUtils {
 
 
         } else {
-            flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.nested?.filter(f => f.export).map(x => f.id + "." + x.id) ?? f.id);
-            // TODO ESlint parse error. Cannot read property 'range' of null https://github.com/babel/babel-eslint/issues/681
-            // flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.nested?.filter(f => f.export).map(x => `${f.id}.${x.id}`) ?? f.id);
-            headerString = [];
-
-            flatFieldList.forEach(f => {
-                if ("id" === f) {
-                    headerString.push("id");
-                    headerString.push("SNP ID");
-                } else if (f.startsWith("cohort.")) {
-                    studyIds.forEach(id => {
-                        if (f === "cohort." + id) {
-                            headerString.push("cohort." + id);
-                        }
-                    });
-                } else if (f.startsWith("popfreq.")) {
-                    studiesPopFrequencies.forEach(study => {
-                        if (f === "popfreq." + study.id) {
-                            headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
-                        }
-                    });
-                } else {
-                    headerString.push(f);
-                }
-
-            });
+            flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.children?.filter(f => f.export).map(x => f.id + "." + x.id) ?? f.id);
+            // ESlint parse error. Cannot read property 'range' of null https://github.com/babel/babel-eslint/issues/681
+            // flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.children?.filter(f => f.export).map(x => `${f.id}.${x.id}`) ?? f.id);
         }
+
+        flatFieldList.forEach(f => {
+            if ("id" === f) {
+                headerString.push("id");
+                headerString.push("SNP ID");
+            } else if (f.startsWith("cohorts.")) {
+                studyIds.forEach(id => {
+                    if (f === "cohorts." + id) {
+                        headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`);
+                    }
+                });
+            } else if (f.startsWith("popfreq.")) {
+                studiesPopFrequencies.forEach(study => {
+                    if (f === "popfreq." + study.id) {
+                        headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
+                    }
+                });
+            } else {
+                headerString.push(f);
+            }
+
+        });
 
         rows.push(headerString.join("\t"));
 
@@ -162,7 +162,7 @@ export default class VariantUtils {
             // cohorts
             // popfreqs
             let clinvar = new Set();
-            let cosmic = new Set();
+            let cosmic = new Map();
             populationMap = {};
 
             const description = {sift: "-", polyphen: "-"};
@@ -275,17 +275,20 @@ export default class VariantUtils {
                         }
                     }
                 }
-                // pfArray = Object.keys(populationMap).map(key => populationMap[key]);
 
                 // Clinvar, cosmic
                 if (v.annotation?.traitAssociation?.length) {
                     v.annotation.traitAssociation.forEach(clinicalData => {
-
                         if (clinicalData.source.name === "clinvar") {
                             clinvar.add(`${clinicalData.id} (${clinicalData.variantClassification.clinicalSignificance})`);
                         }
                         if (clinicalData.source.name === "cosmic") {
-                            cosmic.add("-"); // TODO cosmic data is missing?
+                            if (clinicalData?.somaticInformation?.primaryHistology) {
+                                if (!cosmic.has(clinicalData.id)) {
+                                    cosmic.set(clinicalData.id, new Set());
+                                }
+                                cosmic.get(clinicalData.id).add(clinicalData.somaticInformation.primaryHistology);
+                            }
                         }
                     });
                 }
@@ -294,8 +297,7 @@ export default class VariantUtils {
                 sift = typeof description.sift !== "undefined" ? description.sift : "-";
                 polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
                 clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "-";
-                cosmic = cosmic.size > 0 ? [...cosmic].join(",") : "-";
-
+                cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "-";
             }
 
             // ID
@@ -480,8 +482,6 @@ export default class VariantUtils {
 
                             const referenceIndex = parseInt(reference);
                             const alternateIndex = parseInt(alternate);
-                            referenceValueColText = referenceValueColText;
-                            alternateValueColText = alternateValueColText;
                             colText = referenceValueColText + "/" + alternateValueColText;
                             res.push(colText);
 
