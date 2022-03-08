@@ -115,7 +115,7 @@ export default class OpencgaExport extends LitElement {
                 // add sub Level
                 const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
                 subIndx += c.colspan ? c.colspan : 0;
-                this.exportFields.push({id: c.id, export: true, nested: subFields.map(s => ({id: s.id, export: true}))});
+                this.exportFields.push({id: c.id, export: true, children: subFields.map(s => ({id: s.id, export: true}))});
             } else {
                 if (c.rowspan !== 2 || !c.rowspan) {
                     subIndx += c.colspan ? c.colspan : 0;
@@ -303,12 +303,12 @@ const client = new OpenCGAClient({
     changeExportField(e, index, parentIndex) {
         const {checked} = e.currentTarget;
         if (parentIndex) {
-            this.exportFields[parentIndex].nested[index].export = checked;
+            this.exportFields[parentIndex].children[index].export = checked;
         } else {
             this.exportFields[index].export = checked;
-            // select all nested when you click on a parent, and the other way around
-            if (this.exportFields[index].nested) {
-                this.exportFields[index].nested = this.exportFields[index].nested.map(li => ({...li, export: checked}));
+            // select all children when you click on a parent, and the other way around
+            if (this.exportFields[index].children) {
+                this.exportFields[index].children = this.exportFields[index].children.map(li => ({...li, export: checked}));
             }
         }
         this.exportFields = [...this.exportFields];
@@ -338,7 +338,6 @@ const client = new OpenCGAClient({
                 </ul>
             </div>
 
-            <!--<pre>${JSON.stringify(this.exportFields)}</pre>-->
             <div class="tab-content">
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <form class="form-horizontal">
@@ -378,9 +377,9 @@ const client = new OpenCGAClient({
                                         ${this.exportFields.map((li, i) => html`
                                         <li>
                                             <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
-                                            ${li.nested ? html`
+                                            ${li.children ? html`
                                                 <ul>
-                                                    ${li.nested.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                    ${li.children.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
                                                 </ul>
                                             ` : ""}
                                         </li>

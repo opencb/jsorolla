@@ -75,6 +75,7 @@ export default class OpencbGridToolbar extends LitElement {
         }));
     }
 
+    // not used as changes to exportFields is not propagated outside opencga-export anymore (exportFields is now sent on click on download button via `export` event)
     onChangeExportField(e) {
         // simply forwarding from opencga-export to grid components
         LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
