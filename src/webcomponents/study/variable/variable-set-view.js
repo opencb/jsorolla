@@ -124,6 +124,7 @@ export default class VariableSetView extends LitElement {
                                 render: () => html `
                                     <variableset-id-autocomplete
                                         .value="${this.variableSet?.id}"
+                                        .config=${{multiple: false}}
                                         .opencgaSession="${this.opencgaSession}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </variableset-id-autocomplete>`
