@@ -134,4 +134,11 @@ export default class GenomeBrowserConstants {
         "other": "#000000"
     };
 
+    // Genotypes colors
+    static GENOTYPES_COLORS = {
+        "heterozygous": "darkblue",
+        "homozygous": "cyan",
+        "reference": "gray",
+    };
+
 }
