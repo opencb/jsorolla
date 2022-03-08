@@ -47,7 +47,7 @@ export default class FeatureTrack {
 
         this.renderedArea = {}; // used for renders to store binary trees
         this.renderedFeatures = new Set(); // used to prevent rendering features twice
-        this.chunksDisplayed = {}; // used to avoid painting multiple times features contained in more than 1 chunk
+        // this.chunksDisplayed = {}; // used to avoid painting multiple times features contained in more than 1 chunk
 
         // save default render reference;
         // this.defaultRenderer = this.renderer;
@@ -354,8 +354,9 @@ export default class FeatureTrack {
 
     #clean() {
         // Must be called on child clean method
-        this.chunksDisplayed = {};
+        // this.chunksDisplayed = {};
         this.renderedArea = {};
+        this.renderedFeatures.clear();
     }
 
     updateHeight() {
@@ -468,15 +469,6 @@ export default class FeatureTrack {
     }
 
     getDataHandler(data) {
-        // let renderer, features;
-        // if (event.dataType !== "histogram") {
-        //     renderer = this.renderer;
-        //     features = this.getFeaturesToRenderByChunk(event);
-        // } else {
-        //     renderer = this.histogramRenderer;
-        //     features = event.items;
-        // }
-
         const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
 
         renderer.render(data, {
@@ -520,7 +512,7 @@ export default class FeatureTrack {
         // this.updateHistogramParams();
         // Get data type
         this.dataType = this.getDataType();
-        this.renderedFeatures.clear(); // Reset rendered features list
+        // this.renderedFeatures.clear(); // Reset rendered features list
 
         if (typeof this.config.visibleRegionSize === "undefined" || this.region.length() < this.config.visibleRegionSize) {
             this.setLoading(true);
@@ -535,70 +527,14 @@ export default class FeatureTrack {
                 }),
             };
 
-            // const params = {
-            //     ...(adapter.params || {}),
-            //     histogram: this.histogram,
-            //     histogramLogarithm: this.histogramLogarithm,
-            //     histogramMax: this.histogramMax,
-            //     interval: this.interval,
-            // };
-
-            // adapter.getData({
-            //     dataType: this.dataType,
-            //     region: region,
-            //     params: params,
-            // })
-            //     .then(response => {
-            //         this.getDataHandler(response);
-            //         this.setLoading(false);
-            //     })
-            //     .catch(reason => {
-            //         console.log("Feature Track draw error: " + reason);
-            //     });
-
+            // Import and draw data
             this.getData(options).then(response => {
                 this.getDataHandler(response.responses[0].results);
-                this.setLoading();
+                this.setLoading(false);
             });
         }
 
         this.updateHeight();
-    }
-
-    getFeaturesToRenderByChunk(response, filters) {
-        // Returns an array avoiding already drawn features in this.chunksDisplayed
-        const getChunkId = pos => Math.floor(pos / response.chunkSize);
-        const getChunkKey = (chromosome, chunkId) => {
-            return `${chromosome}:${chunkId}_${response.dataType}_${response.chunkSize}`;
-        };
-
-        let displayed, featureFirstChunk, featureLastChunk;
-        const features = [];
-
-        response.items.forEach(chunk => {
-            // check if any chunk is already displayed and skip it
-            if (this.chunksDisplayed[chunk.chunkKey] !== true) {
-                chunk.value.forEach(feature => {
-                    // check if any feature has been already displayed by another chunk
-                    let displayed = false;
-                    const featureFirstChunk = getChunkId(feature.start);
-                    const featureLastChunk = getChunkId(feature.end);
-                    for (let chunkId = featureFirstChunk; chunkId <= featureLastChunk; chunkId++) {
-                        const chunkKey = getChunkKey(feature.chromosome, chunkId);
-                        if (this.chunksDisplayed[chunkKey] === true) {
-                            displayed = true;
-                            break;
-                        }
-                    }
-                    if (!displayed) {
-                        features.push(feature);
-                    }
-                });
-                this.chunksDisplayed[chunk.chunkKey] = true;
-            }
-        });
-
-        return features;
     }
 
     move(disp) {
