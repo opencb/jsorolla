@@ -20,7 +20,7 @@ const internalCss = /(global|magic-check|style|toggle-switch)/gi;
 
 // Get target sites to build
 // const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
-const sites = ["iva", "rest-api"];
+const sites = ["iva", "api"];
 
 const revision = () => {
     try {
