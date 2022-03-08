@@ -51,11 +51,7 @@ export default class VariableSetCreate extends LitElement {
             unique: true
         };
         this.variable = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     refreshForm() {
@@ -91,10 +87,11 @@ export default class VariableSetCreate extends LitElement {
                     )
                 };
                 break;
-            case "variables":
-                this.variableSet = {...this.variableSet, variables: e.detail.value};
-                break;
+            // case "variables":
+            //     this.variableSet = {...this.variableSet, variables: e.detail.value};
+            //     break;
         }
+        console.log("variableSet: ", this.variableSet);
     }
 
     // Option2 : Event for valiations ... this dispatch when user out the input field.
@@ -455,10 +452,10 @@ export default class VariableSetCreate extends LitElement {
                             type: "custom-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsed: true,
+                                collapsedUpdate: true,
                                 renderUpdate: (variable, callback) => html `
                                     <variable-update
-                                        .variables="${variable}"
+                                        .variable="${variable}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonOkText: "Save",
