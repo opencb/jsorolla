@@ -53,7 +53,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        //super.firstUpdated(_changedProperties);
+        // super.firstUpdated(_changedProperties);
         this.renderVariantTraitTable();
     }
 
@@ -85,7 +85,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         this.numberVTA = 0;
                         this.numberGTA = 0;
 
-                        //TODO review
+                        // TODO review
                         if (this.variantAnnotation.geneTraitAssociation != null) {
 
                             this.geneTraitAssociation = this.variantAnnotation.geneTraitAssociation;
@@ -96,7 +96,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
                             this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
                             this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
                         }
-                        //this.requestUpdate();
+                        // this.requestUpdate();
 
                     });
             } else {
@@ -172,9 +172,27 @@ export default class VariantAnnotationClinicalView extends LitElement {
     }
 
     clinicalSignificanceFormatter(value, row, index) {
+        // clinvar - ClinicalSignificance_in_source_file
+        // cosmic - FATHMM_PREDICTION
         let result = "-";
         if (value && value.clinicalSignificance) {
             result = value.clinicalSignificance;
+        } else {
+            const name = row?.source?.name;
+            let data;
+            switch (name) {
+                case "cosmic":
+                    data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
+                    result = UtilsNew.isNotEmptyArray(data) ? data[0].value : "-";
+                    break;
+                case "clinvar":
+                    data = row?.additionalProperties?.filter(item => item.id === "ClinicalSignificance_in_source_file");
+                    result = UtilsNew.isNotEmptyArray(data) ? data[0].value : "-";
+                    break;
+                default:
+                    result = "-";
+                    break;
+            }
         }
         return result;
     }
