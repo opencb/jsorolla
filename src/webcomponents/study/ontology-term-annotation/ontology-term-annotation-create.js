@@ -116,7 +116,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                     {
                         name: "Age of onset",
                         field: "ageOfOnset",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add an age of onset..."
                         }

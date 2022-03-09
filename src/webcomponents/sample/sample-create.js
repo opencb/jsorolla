@@ -100,7 +100,6 @@ export default class SampleCreate extends LitElement {
                 this.sample = {...this.sample, annotationSets: e.detail.value};
                 break;
         }
-        console.log("Sample: ", this.sample);
         this.requestUpdate();
     }
 
@@ -129,7 +128,6 @@ export default class SampleCreate extends LitElement {
 
     onSubmit(e) {
         e.stopPropagation();
-        console.log("onSubmit", this.sample);
         this.opencgaSession.opencgaClient
             .samples()
             .create(this.sample, {study: this.opencgaSession.study.fqn})
@@ -147,7 +145,6 @@ export default class SampleCreate extends LitElement {
     }
 
     onAddOrUpdateItem(e) {
-        console.log("Change received on the array", this);
         switch (e.detail.param) {
             case "collection.from":
                 this.collection = {...this.collection, from: e.detail.value};
@@ -167,7 +164,7 @@ export default class SampleCreate extends LitElement {
                 }
                 break;
             case "annotationSets":
-                console.log("for annotationSets array");
+                // Comming Soon
                 break;
         }
         this.requestUpdate();
@@ -248,8 +245,9 @@ export default class SampleCreate extends LitElement {
                         field: "status",
                         type: "custom",
                         display: {
-                            render: () => html`
+                            render: status => html`
                                 <status-create
+                                    .status=${status}
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
@@ -310,7 +308,7 @@ export default class SampleCreate extends LitElement {
                     {
                         title: "Quantity",
                         field: "processing.quantity",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add a quantity..."
                         }
@@ -374,7 +372,7 @@ export default class SampleCreate extends LitElement {
                     {
                         title: "Quantity",
                         field: "collection.quantity",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add a quantity..."
                         }

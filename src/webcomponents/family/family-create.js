@@ -203,7 +203,7 @@ export default class FamilyCreate extends LitElement {
                         {
                             title: "Expected Size",
                             field: "expectedSize",
-                            type: "input-text",
+                            type: "input-num",
                             display: {
                                 placeholder: "Add a expected size...",
                             }

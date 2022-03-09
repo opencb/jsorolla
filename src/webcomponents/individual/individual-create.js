@@ -66,7 +66,6 @@ export default class IndividualCreate extends LitElement {
     }
 
     onClear(e) {
-        console.log("onClear individual form", this);
         this.individual = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
