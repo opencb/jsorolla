@@ -371,7 +371,7 @@ export default class VariableSetCreate extends LitElement {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                buttonClearText: "Clear",
+                buttonOkText: "Create"
             },
             sections: [
                 {

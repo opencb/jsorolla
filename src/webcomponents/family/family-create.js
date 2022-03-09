@@ -58,6 +58,7 @@ export default class FamilyCreate extends LitElement {
     // }
 
     onFieldChange(e, field) {
+        debugger;
         e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
@@ -130,8 +131,7 @@ export default class FamilyCreate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
-                buttonOkText: "Save",
+                buttonOkText: "Create",
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
@@ -161,7 +161,7 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Family Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -176,8 +176,8 @@ export default class FamilyCreate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
-                                render: () => {
-                                    const members = this.members + "";
+                                render: members => {
+                                    // const members = this.members + "";
                                     return html`
                                     <individual-id-autocomplete
                                         .value="${members}"

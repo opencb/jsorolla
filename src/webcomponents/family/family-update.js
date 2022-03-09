@@ -167,8 +167,7 @@ export default class FamilyUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save",
-                buttonClearText: "Cancel",
+                buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
@@ -197,7 +196,7 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Family Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {

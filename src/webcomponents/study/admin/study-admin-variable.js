@@ -127,7 +127,7 @@ export default class StudyAdminVariable extends LitElement {
                                     <div style="float: right">
                                         ${UtilsNew.isNotEmpty(this.variableSet) ? html `
                                             <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
-                                                <i class="fas fa-eraser icon-hover"></i> Clear
+                                            <i class="fas fa-arrow-left icon-hover"></i>  Back
                                             </button>`: nothing}
                                     </div>
                                     <variable-set-view

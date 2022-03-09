@@ -197,7 +197,6 @@ export default class CohortUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
                 buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,

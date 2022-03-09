@@ -240,6 +240,7 @@ export default class SampleUpdate extends LitElement {
                 defaultLayout: "horizontal",
                 labelAlign: "right",
                 labelWidth: 3,
+                buttonOkText: "Update"
             },
             sections: [{
                 title: "Sample General Information",

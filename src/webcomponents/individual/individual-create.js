@@ -131,8 +131,7 @@ export default class IndividualCreate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save",
-                buttonClearText: "Cancel",
+                buttonOkText: "Create",
                 titleWidth: 3,
                 with: "8",
                 defaultValue: "",
@@ -215,7 +214,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Birth",
+                            title: "Date of Birth",
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {

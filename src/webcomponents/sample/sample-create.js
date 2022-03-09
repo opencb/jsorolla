@@ -192,7 +192,7 @@ export default class SampleCreate extends LitElement {
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
-                buttonClearText: "Cancel"
+                buttonOkText: "Create"
             },
             sections: [{
                 title: "Sample General Information",
