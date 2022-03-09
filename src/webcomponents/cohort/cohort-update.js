@@ -240,7 +240,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Cohort Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {

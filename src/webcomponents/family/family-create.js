@@ -58,7 +58,6 @@ export default class FamilyCreate extends LitElement {
     // }
 
     onFieldChange(e, field) {
-        debugger;
         e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
@@ -161,15 +160,6 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a Family description...",
-                            }
-                        },
-                        {
                             title: "Members",
                             field: "members",
                             type: "custom",
@@ -216,6 +206,15 @@ export default class FamilyCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a expected size...",
+                            }
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a Family description...",
                             }
                         },
                         {

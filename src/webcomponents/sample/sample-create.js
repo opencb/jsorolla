@@ -208,15 +208,6 @@ export default class SampleCreate extends LitElement {
                         },
                     },
                     {
-                        title: "Description",
-                        field: "description",
-                        type: "input-text",
-                        display: {
-                            rows: 3,
-                            placeholder: "Add a description..."
-                        }
-                    },
-                    {
                         title: "Individual ID",
                         field: "individualId",
                         type: "custom",
@@ -242,6 +233,15 @@ export default class SampleCreate extends LitElement {
                         field: "somatic",
                         type: "checkbox",
                         checked: false
+                    },
+                    {
+                        title: "Description",
+                        field: "description",
+                        type: "input-text",
+                        display: {
+                            rows: 3,
+                            placeholder: "Add a description..."
+                        }
                     },
                     {
                         title: "Status",

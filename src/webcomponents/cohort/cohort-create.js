@@ -168,7 +168,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Cohort Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
