@@ -197,7 +197,6 @@ export default class CohortUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
                 buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,
@@ -241,7 +240,7 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Cohort Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {

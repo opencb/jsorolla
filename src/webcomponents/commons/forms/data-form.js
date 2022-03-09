@@ -425,6 +425,9 @@ export default class DataForm extends LitElement {
                 case "input-text":
                     content = this._createInputElement(element, "text");
                     break;
+                case "input-num":
+                    content = this._createInputElement(element, "number");
+                    break;
                 case "input-password":
                     content = this._createInputElement(element, "password");
                     break;
@@ -1196,7 +1199,6 @@ export default class DataForm extends LitElement {
     }
 
     _onChangeArray(e, field, action, data) {
-        console.log("onChangeArray action:", action, this);
         let results = {};
         let _data = data ? data:[];
         const item = e?.detail?.value;

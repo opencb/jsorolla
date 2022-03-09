@@ -130,8 +130,7 @@ export default class FamilyCreate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
-                buttonOkText: "Save",
+                buttonOkText: "Create",
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
@@ -161,23 +160,14 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Family Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a Family description...",
-                            }
-                        },
-                        {
                             title: "Members",
                             field: "members",
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
-                                render: () => {
-                                    const members = this.members + "";
+                                render: members => {
+                                    // const members = this.members + "";
                                     return html`
                                     <individual-id-autocomplete
                                         .value="${members}"
@@ -213,9 +203,18 @@ export default class FamilyCreate extends LitElement {
                         {
                             title: "Expected Size",
                             field: "expectedSize",
-                            type: "input-text",
+                            type: "input-num",
                             display: {
                                 placeholder: "Add a expected size...",
+                            }
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a Family description...",
                             }
                         },
                         {

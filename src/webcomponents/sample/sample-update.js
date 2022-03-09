@@ -197,7 +197,6 @@ export default class SampleUpdate extends LitElement {
     }
 
     onAddOrUpdateItem(e) {
-        console.log("Change received on the array", this);
         switch (e.detail.param) {
             case "collection.from":
                 this.collection = {...this.collection, from: e.detail.value};
@@ -209,7 +208,6 @@ export default class SampleUpdate extends LitElement {
                 this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
                 break;
             case "annotationSets":
-                console.log("for annotationSets array");
                 break;
         }
         this.requestUpdate();
@@ -240,6 +238,7 @@ export default class SampleUpdate extends LitElement {
                 defaultLayout: "horizontal",
                 labelAlign: "right",
                 labelWidth: 3,
+                buttonOkText: "Update"
             },
             sections: [{
                 title: "Sample General Information",
@@ -365,7 +364,7 @@ export default class SampleUpdate extends LitElement {
                     {
                         title: "Quantity",
                         field: "processing.quantity",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add a quantity..."
                         }
@@ -425,7 +424,7 @@ export default class SampleUpdate extends LitElement {
                     {
                         title: "Quantity",
                         field: "collection.quantity",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add a quantity..."
                         }

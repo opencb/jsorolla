@@ -204,12 +204,28 @@ export default class VariableCreate extends LitElement {
                         {
                             name: "Default Value",
                             field: "defaultValue",
-                            type: "input-text",
+                            type: "checkbox",
                             display: {
-                                // disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
+                                visible: variable => variable?.type === "BOOLEAN",
                             }
                         },
-
+                        {
+                            name: "Default Value",
+                            field: "defaultValue",
+                            type: "input-text",
+                            display: {
+                                visible: variable => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
+                                disabled: variable => !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL")
+                            }
+                        },
+                        {
+                            name: "Default Value",
+                            field: "defaultValue",
+                            type: "input-num",
+                            display: {
+                                visible: variable => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
+                            }
+                        },
                         {
                             name: "Depends On",
                             field: "dependsOn",

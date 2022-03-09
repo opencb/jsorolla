@@ -167,8 +167,7 @@ export default class FamilyUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save",
-                buttonClearText: "Cancel",
+                buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
@@ -194,15 +193,6 @@ export default class FamilyUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a family name...",
-                            }
-                        },
-                        {
-                            title: "Family Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a Family description...",
                             }
                         },
                         {
@@ -264,9 +254,18 @@ export default class FamilyUpdate extends LitElement {
                         {
                             title: "Expected Size",
                             field: "expectedSize",
-                            type: "input-text",
+                            type: "input-num",
                             display: {
                                 placeholder: "Add a expected size...",
+                            }
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a Family description...",
                             }
                         },
                         {

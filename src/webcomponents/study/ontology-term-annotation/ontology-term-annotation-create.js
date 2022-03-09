@@ -116,7 +116,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                     {
                         name: "Age of onset",
                         field: "ageOfOnset",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add an age of onset..."
                         }
@@ -164,6 +164,15 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                             }
                         },
                         {
+                            name: "Source",
+                            field: "source",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a source..."
+                            }
+                        },
+                        ...this.#configOntology(this.entity),
+                        {
                             name: "Description",
                             field: "description",
                             type: "input-text",
@@ -172,15 +181,6 @@ export default class OntologyTermAnnotationCreate extends LitElement {
                                 placeholder: "Add a description..."
                             }
                         },
-                        {
-                            name: "Source",
-                            field: "source",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a source..."
-                            }
-                        },
-                        ...this.#configOntology(this.entity)
                     ]
                 }
             ]

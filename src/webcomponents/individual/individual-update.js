@@ -210,8 +210,7 @@ export default class IndividualUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
-                buttonOkText: "Save",
+                buttonOkText: "Update",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
             },
@@ -290,7 +289,7 @@ export default class IndividualUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Birth",
+                            title: "Date of Birth",
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {

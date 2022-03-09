@@ -133,8 +133,7 @@ export default class CohortCreate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
-                buttonOkText: "Save",
+                buttonOkText: "Create",
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
@@ -169,7 +168,7 @@ export default class CohortCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Cohort Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {

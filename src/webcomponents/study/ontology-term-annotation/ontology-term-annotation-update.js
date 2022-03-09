@@ -122,9 +122,9 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             case "phenotype":
                 return [
                     {
-                        name: "Age of on set",
+                        name: "Age of onset",
                         field: "ageOfOnset",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add an age of on set..."
                         }
@@ -167,15 +167,6 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                             }
                         },
                         {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a description..."
-                            }
-                        },
-                        {
                             name: "Source",
                             field: "source",
                             type: "input-text",
@@ -183,7 +174,16 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                                 placeholder: "add a source"
                             }
                         },
-                        ...this._configOntology(this.entity)
+                        ...this._configOntology(this.entity),
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a description..."
+                            }
+                        }
                     ]
                 }
             ]

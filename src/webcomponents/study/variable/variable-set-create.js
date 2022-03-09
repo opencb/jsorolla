@@ -91,7 +91,6 @@ export default class VariableSetCreate extends LitElement {
             //     this.variableSet = {...this.variableSet, variables: e.detail.value};
             //     break;
         }
-        console.log("variableSet: ", this.variableSet);
     }
 
     // Option2 : Event for valiations ... this dispatch when user out the input field.
@@ -117,7 +116,6 @@ export default class VariableSetCreate extends LitElement {
 
 
     onClear(e) {
-        console.log("Clear Form");
         Swal.fire({
             title: "Are you sure to clear?",
             text: "You won't be able to revert this!",
@@ -371,7 +369,7 @@ export default class VariableSetCreate extends LitElement {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                buttonClearText: "Clear",
+                buttonOkText: "Create"
             },
             sections: [
                 {
