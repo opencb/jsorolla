@@ -20,8 +20,6 @@
 
 import {LitElement, html} from "lit";
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
-import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
 
@@ -69,22 +67,12 @@ class ApiApp extends LitElement {
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
-        _config.cellbase = cellbase;
-        _config.tools = tools;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
 
         // We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
         _config.enabledComponents.home = true;
 
-        // Enable tools reading the configuration
-        for (const tool in _config.tools) {
-            if (UtilsNew.isNotUndefinedOrNull(_config.tools[tool].active)) {
-                _config.enabledComponents[tool] = _config.tools[tool].active;
-            }
-        }
-
-        // console.log("this.config.enabledComponents",_config.enabledComponents)
         const components = [
             "home",
             "login",
@@ -111,7 +99,6 @@ class ApiApp extends LitElement {
         // We need to listen to hash fragment changes to update the display and breadcrumb
         const _this = this;
         window.onhashchange = function (e) {
-            // e.preventDefault();
             _this.hashFragmentListener(_this);
         };
 
@@ -144,8 +131,6 @@ class ApiApp extends LitElement {
         // Notify a response
         this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.showResponse(e.detail));
 
-        // TODO remove browserSearchQuery
-        // this.browserSearchQuery = {};
         // keeps track of the executedQueries transitioning from browser tool to facet tool
         this.queries = [];
         // keeps track of status and version of the hosts (opencga and cellbase)
@@ -163,7 +148,6 @@ class ApiApp extends LitElement {
             this.host = {...this.host, [e.detail.host]: e.detail.value};
             this.requestUpdate();
         }, false);
-
     }
 
     connectedCallback() {
@@ -192,18 +176,7 @@ class ApiApp extends LitElement {
                 },
             });
 
-            this.cellbaseClient = new CellBaseClient({
-                host: this.config.cellbase.host,
-                version: this.config.cellbase.version,
-                species: "hsapiens"
-            });
-
-            console.log("cellbaseClient iva-app", this.cellbaseClient);
-
-            this.reactomeClient = new ReactomeClient();
-
             if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
-                // this.opencgaClient._config.token = sid;
                 this._createOpenCGASession();
                 // This must happen after creating the OpencgaClient
                 this.checkSessionActive();
@@ -283,9 +256,9 @@ class ApiApp extends LitElement {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-                this.signingIn = false;
-                this.requestUpdate();
-            });
+            this.signingIn = false;
+            this.requestUpdate();
+        });
     }
 
     // TODO turn this into a Promise
@@ -396,7 +369,6 @@ class ApiApp extends LitElement {
     }
 
     checkSessionActive() {
-        const _message = "";
         // We check if refresh token has updated session id cookie
         // let sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
 
@@ -723,16 +695,16 @@ class ApiApp extends LitElement {
             <!-- This is where main IVA application is rendered -->
             <div class="container-fluid">
                 ${this.config.enabledComponents.home ? html`
-                        <div class="content" id="home">
-                            <custom-welcome
-                                .app="${this.app}"
-                                .config="${this.config}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .version="${this.config.version}"
-                                @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
-                            </custom-welcome>
-                        </div>
-                    ` : null}
+                    <div class="content" id="home">
+                        <custom-welcome
+                            .app="${this.app}"
+                            .config="${this.config}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .version="${this.config.version}"
+                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                        </custom-welcome>
+                    </div>
+                ` : null}
                 <!-- Render custom page content if enabled -->
                 ${this.config.enabledComponents.customPage ? this.renderCustomPage() : null}
 
@@ -784,4 +756,3 @@ class ApiApp extends LitElement {
 }
 
 customElements.define("api-app", ApiApp);
-
