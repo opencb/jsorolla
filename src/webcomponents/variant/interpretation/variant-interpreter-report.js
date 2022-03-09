@@ -646,7 +646,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: false,
+                                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
@@ -715,7 +719,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["SNV", "INDEL"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -770,7 +778,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["COPY_NUMBER", "CNV"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
