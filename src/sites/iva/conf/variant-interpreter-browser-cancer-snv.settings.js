@@ -49,7 +49,7 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
         highlights: [
             {
                 id: "Low depth variant",
-                name: "Low depth variant",
+                name: "Low depth variant (DP<5)",
                 description: "Highlight variants with a DP<5",
                 condition: variant => {
                     const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === "DP");

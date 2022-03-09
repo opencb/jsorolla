@@ -46,7 +46,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
         highlights: [
             {
                 id: "Low depth variant",
-                name: "Low depth variant",
+                name: "Low depth variant (DP<20)",
                 description: "Highlight variants with a DP<20",
                 condition: variant => {
                     const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === "DP");
@@ -58,7 +58,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
                 },
                 style: {
                     // Row style
-                    // rowBackgroundColor: "#FEF9E7",
+                    rowBackgroundColor: "#ededed",
                     rowOpacity: 0.5,
                 },
             }
