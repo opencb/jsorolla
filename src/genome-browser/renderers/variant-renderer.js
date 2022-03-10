@@ -184,9 +184,9 @@ export default class VariantRenderer extends FeatureRenderer {
 
                 SVG.addChild(group, "rect", {
                     "x": x,
-                    "y": index * this.config.sampleNamesHeight,
+                    "y": index * this.config.sampleHeight,
                     "width": width,
-                    "height": this.config.sampleNamesHeight - 2,
+                    "height": this.config.sampleHeight - 2,
                     // "stroke": "#000000",
                     // "stroke-width": 1,
                     // "stroke-opacity": 0.7,
@@ -213,7 +213,7 @@ export default class VariantRenderer extends FeatureRenderer {
             // sampleTrackY: 15,
             // sampleTrackFontSize: 12,
             sampleNames: [],
-            sampleNamesHeight: 20,
+            sampleHeight: 20,
         };
     }
 
