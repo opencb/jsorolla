@@ -10,7 +10,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
     constructor(config) {
         super(config);
 
-        this.sampleNames = [];
+        this.sampleNames = null;
 
         // Initialize Rendererers
         this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
@@ -35,18 +35,17 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             // Initialize variant renderer
             this.renderer = new VariantRenderer({
                 sampleNames: this.sampleNames,
-                sampleNamesHeight: this.config.sampleNamesHeight,
+                sampleHeight: this.config.sampleHeight,
                 ...this.config.renderer,
             });
         }
     }
 
     #initSamplesDOM() {
-        const nameHeight = this.config.sampleNamesHeight;
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
                 ${this.sampleNames.map(name => `
-                    <div style="font-size:0.75rem;height:${nameHeight}px;">
+                    <div style="font-size:0.75rem;height:${this.config.sampleHeight}px;">
                         <span style="font-weight:bold;vertical-align:middle;">${name}</span>
                     </div>
                 `)}
@@ -54,7 +53,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         `);
 
         this.sampleNamesDiv = template.querySelector(`div#${this.prefix}SampleNames`);
-        this.sampleNamesDiv.style.backgroundColor = "rgba(255,255,255,0.8)";
+        this.sampleNamesDiv.style.backgroundColor = this.config.sampleBackground;
         this.sampleNamesDiv.style.paddingLeft = "16px";
         this.sampleNamesDiv.style.paddingRight = "8px";
         // this.sampleNamesDiv.style.paddingTop = `${nameHeight}px`;
@@ -64,7 +63,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
     }
 
     getData(options) {
-        if (options.dataType === "histogram") {
+        if (options.dataType === "histogram" && !this.sampleNames) {
             // Fetch aggregation stats for the current region
             return this.config.opencgaClient.variants().aggregationStats({
                 study: this.config.opencgaStudy,
@@ -101,7 +100,8 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             labelMaxRegionSize: 10000000,
             renderer: {}, // Renderer configuration
             histogramRenderer: {}, // Histogram renderer configuration
-            sampleNamesHeight: 20,
+            sampleHeight: 20,
+            sampleBackground: "rgba(255,255,255,0.8)",
         };
     }
 
