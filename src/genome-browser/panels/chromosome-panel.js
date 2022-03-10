@@ -19,7 +19,7 @@ export default class ChromosomePanel {
     }
 
     #init() {
-        this.id = UtilsNew.randomString(8);
+        this.prefix = UtilsNew.randomString(8);
         this.pixelBase = 0;
         this.species = this.config.species;
         this.width = this.config.width;
@@ -42,23 +42,23 @@ export default class ChromosomePanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.id}" class="unselectable">
-                <div id="${this.id}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.id}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" class="unselectable">
+                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
+                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.id}Collapse" class="ocb-gv-panel-collapse-control">
-                        <span id="${this.id}CollapseIcon" class="fa fa-minus"></span>
+                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                        <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
             </div>
         `);
 
-        this.div = template.querySelector(`div#${this.id}`);
-        this.titleDiv = this.div.querySelector(`div#${this.id}Title`);
-        this.titleText = this.div.querySelector(`div#${this.id}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.id}Collapse`);
-        this.collapseIcon = this.div.querySelector(`span#${this.id}CollapseIcon`);
+        this.div = template.querySelector(`div#${this.prefix}`);
+        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
+        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
+        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
         // Initialize SVG element
         this.svg = SVG.init(this.div, {
@@ -89,7 +89,7 @@ export default class ChromosomePanel {
             moveX = event.clientX - (this.div.getBoundingClientRect().left - window.scrollX);
             const increment = moveX - downX;
             let newWidth = 0;
-            this._recalculateResizeControls();
+            this.#recalculateResizeControls();
 
             switch (this.status) {
                 case "resizePositionBoxLeft":
@@ -132,7 +132,7 @@ export default class ChromosomePanel {
             //     this.status = "setRegion";
             // }
 
-            // this._hideResizeControls();
+            // this.#hideResizeControls();
             this.svg.addEventListener("mousemove", handleMouseMove);
         });
 
@@ -149,7 +149,7 @@ export default class ChromosomePanel {
                             const w = parseInt(this.positionBox.getAttribute("width"));
                             const x = parseInt(this.positionBox.getAttribute("x"));
 
-                            this._triggerRegionChange({
+                            this.#triggerRegionChange({
                                 region: new Region({
                                     chromosome: this.region.chromosome,
                                     start: (x - this.config.offset) / this.pixelBase,
@@ -163,7 +163,7 @@ export default class ChromosomePanel {
                         if (downX > this.config.offset && downX < (this.width - this.config.offset)) {
                             const w = parseInt(this.positionBox.getAttribute("width"));
 
-                            this._triggerRegionChange({
+                            this.#triggerRegionChange({
                                 region: new Region({
                                     chromosome: this.region.chromosome,
                                     start: (downX - (w / 2) - this.config.offset) / this.pixelBase,
@@ -179,7 +179,7 @@ export default class ChromosomePanel {
 
                         this.selBox.setAttribute("width", 0);
                         this.selBox.setAttribute("height", 0);
-                        this._triggerRegionChange({
+                        this.#triggerRegionChange({
                             region: new Region({
                                 chromosome: this.region.chromosome,
                                 start: Math.min(start, end),
@@ -199,13 +199,13 @@ export default class ChromosomePanel {
 
         this.svg.addEventListener("mouseenter", () => {
             if (this.rendered) {
-                this._recalculateResizeControls();
-                this._showResizeControls();
+                this.#recalculateResizeControls();
+                this.#showResizeControls();
             }
         });
 
         this.svg.addEventListener("mouseleave", () => {
-            this._hideResizeControls();
+            this.#hideResizeControls();
             this.svg.removeEventListener("mousemove", handleMouseMove);
             if (lastX != null) {
                 this.positionBox.setAttribute("x", lastX);
@@ -452,11 +452,11 @@ export default class ChromosomePanel {
         // $(this.positionBox).off('mouseleave');
 
         // positionGroup.addEventListener("mouseenter", () => {
-        //     this._recalculateResizeControls();
-        //     this._showResizeControls();
+        //     this.#recalculateResizeControls();
+        //     this.#showResizeControls();
         // });
         // positionGroup.addEventListener("mouseleave", () => {
-        //     this._hideResizeControls();
+        //     this.#hideResizeControls();
         // });
 
         // Remove event listeners
@@ -469,11 +469,11 @@ export default class ChromosomePanel {
         this.rendered = true;
     }
 
-    _triggerRegionChange(event) {
+    #triggerRegionChange(event) {
         if (!this.regionChanging) {
             this.regionChanging = true;
 
-            this._limitRegionToChromosome(event.region);
+            this.#limitRegionToChromosome(event.region);
             this.trigger("region:change", event);
 
             setTimeout(() => {
@@ -484,7 +484,7 @@ export default class ChromosomePanel {
         }
     }
 
-    _recalculatePositionBox(region) {
+    #recalculatePositionBox(region) {
         const genomicLength = region.length();
         const pixelWidth = genomicLength * this.pixelBase;
         const x = (region.start * this.pixelBase) + this.config.offset;
@@ -492,7 +492,7 @@ export default class ChromosomePanel {
         this.positionBox.setAttribute("width", pixelWidth);
     }
 
-    _recalculateSelectionBox(region) {
+    #recalculateSelectionBox(region) {
         const genomicLength = region.length();
         const pixelWidth = genomicLength * this.pixelBase;
         const x = (region.start * this.pixelBase) + this.config.offset;
@@ -500,7 +500,7 @@ export default class ChromosomePanel {
         this.selBox.setAttribute("width", pixelWidth);
     }
 
-    _recalculateResizeControls() {
+    #recalculateResizeControls() {
         const postionBoxX = parseInt(this.positionBox.getAttribute("x"));
         const postionBoxWidth = parseInt(this.positionBox.getAttribute("width"));
         this.resizeLeft.setAttribute("x", postionBoxX - 5);
@@ -509,21 +509,21 @@ export default class ChromosomePanel {
         // this.resizeRight.style.cursor = "ew-resize";
     }
 
-    _hideResizeControls() {
+    #hideResizeControls() {
         // this.resizeLeft.style.visibility = "hidden";
         // this.resizeRight.style.visibility = "hidden";
         this.resizeLeft.style.fill = "transparent";
         this.resizeRight.style.fill = "transparent";
     }
 
-    _showResizeControls() {
+    #showResizeControls() {
         // this.resizeLeft.style.visibility = "visible";
         // this.resizeRight.style.visibility = "visible";
         this.resizeLeft.style.fill = "orangered";
         this.resizeRight.style.fill = "orangered";
     }
 
-    _limitRegionToChromosome(region) {
+    #limitRegionToChromosome(region) {
         // eslint-disable-next-line no-param-reassign
         region.start = (region.start < 1) ? 1 : region.start;
         // eslint-disable-next-line no-param-reassign
@@ -533,8 +533,8 @@ export default class ChromosomePanel {
     updateRegionControls() {
         this.selBox.setAttribute("width", 0);
         this.selBox.setAttribute("height", 0);
-        this._recalculatePositionBox(this.region);
-        this._recalculateResizeControls();
+        this.#recalculatePositionBox(this.region);
+        this.#recalculateResizeControls();
     }
 
     setRegion(region) {
