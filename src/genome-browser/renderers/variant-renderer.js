@@ -1,8 +1,8 @@
-import FeatureRenderer from "./feature-renderer.js";
+import Renderer from "./renderer.js";
 import GenomeBrowserUtils from "../genome-browser-utils.js";
 import {SVG} from "../../core/svg.js";
 
-export default class VariantRenderer extends FeatureRenderer {
+export default class VariantRenderer extends Renderer {
 
     render(features, options) {
         (features || []).forEach(feature => {
