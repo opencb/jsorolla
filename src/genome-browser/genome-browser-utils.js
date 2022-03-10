@@ -80,8 +80,8 @@ export default class GenomeBrowserUtils {
             // case "./.":
             //     return GenomeBrowserConstants.GENOTYPES_COLORS["reference"];
         }
-        // Not found --> return transparent color
-        return "transparent";
+        // Other genotype
+        return GenomeBrowserConstants.GENOTYPES_COLORS["others"];
     }
 
     //
