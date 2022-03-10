@@ -25,7 +25,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
 
         // Check if samples has been provided in the query object
         if (this.config?.query?.sample) {
-            this.sampleNames = this.config.query.sample.split(";")
+            this.sampleNames = this.config.query.sample.split(",")
                 .map(item => item.split(":")[0])
                 .filter(name => !!name);
 
@@ -48,7 +48,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                     <div style="font-size:0.75rem;height:${this.config.sampleHeight}px;">
                         <span style="font-weight:bold;vertical-align:middle;">${name}</span>
                     </div>
-                `)}
+                `).join("")}
             </div>
         `);
 
@@ -56,7 +56,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.sampleNamesDiv.style.backgroundColor = this.config.sampleBackground;
         this.sampleNamesDiv.style.paddingLeft = "16px";
         this.sampleNamesDiv.style.paddingRight = "8px";
-        // this.sampleNamesDiv.style.paddingTop = `${nameHeight}px`;
+        this.sampleNamesDiv.style.paddingTop = `${this.config.sampleHeight}px`;
 
         // Append samples names
         this.content.appendChild(this.sampleNamesDiv);
