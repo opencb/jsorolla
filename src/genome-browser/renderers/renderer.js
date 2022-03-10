@@ -14,6 +14,11 @@ export default class Renderer {
         };
     }
 
+    // Get value from config
+    getValueFromConfig(key, args) {
+        return typeof this.config[key] === "function" ? this.config[key].apply(null, args) : this.config[key];
+    }
+
     // Placeholder getDefaultConfig
     getDefaultConfig() {
         return {};

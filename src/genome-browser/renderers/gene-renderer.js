@@ -7,11 +7,6 @@ import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 export default class GeneRenderer extends Renderer {
 
-    // Get value from config
-    getValueFromConfig(key, args) {
-        return typeof this.config[key] === "function" ? this.config[key].apply(null, args) : this.config[key];
-    }
-
     render(features, options) {
         (features || []).forEach((feature, index) => {
 
