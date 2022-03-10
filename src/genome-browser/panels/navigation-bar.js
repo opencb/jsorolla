@@ -18,7 +18,7 @@ export default class NavigationBar {
     }
 
     #init() {
-        this.id = UtilsNew.randomString(8);
+        this.prefix = UtilsNew.randomString(8);
         this.region = new Region(this.config.region);
         this.zoom = this.config.zoom || 50;
 
@@ -34,49 +34,49 @@ export default class NavigationBar {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.id}" class="ocb-gv-navigation-bar unselectable">
-                <div id="${this.id}LeftSideButton" title="Restore previous region" style="margin-right:5px;" class="ocb-ctrl">
+            <div id="${this.prefix}" class="ocb-gv-navigation-bar unselectable">
+                <div id="${this.prefix}LeftSideButton" title="Restore previous region" style="margin-right:5px;" class="ocb-ctrl">
                     <i class="fa fa-bars"></i>
                 </div>
-                <div id="${this.id}RestoreDefaultRegionButton" class="ocb-ctrl">
+                <div id="${this.prefix}RestoreDefaultRegionButton" class="ocb-ctrl">
                     <i class="fa fa-redo"></i>
                 </div>
                 <div title="Region history" class="ocb-dropdown" style="margin-left: 5px">
-                    <div id="${this.id}RegionHistoryButton" class="ocb-ctrl" tabindex="-1">
+                    <div id="${this.prefix}RegionHistoryButton" class="ocb-ctrl" tabindex="-1">
                         <i class="fa fa-history"></i>
                         <i class="fa fa-caret-down"></i>
                     </div>
-                    <ul id="${this.id}RegionHistoryMenu"></ul>
+                    <ul id="${this.prefix}RegionHistoryMenu"></ul>
                 </div>
                 <div title="Species menu" class="ocb-dropdown" style="margin-left: 5px">
-                    <div id="${this.id}SpeciesButton" class="ocb-ctrl" tabindex="-1">
-                        <span id="${this.id}SpeciesText"></span>
+                    <div id="${this.prefix}SpeciesButton" class="ocb-ctrl" tabindex="-1">
+                        <span id="${this.prefix}SpeciesText"></span>
                         <i class="fa fa-caret-down"></i>
                     </div>
-                    <ul id="${this.id}SpeciesMenu"></ul>
+                    <ul id="${this.prefix}SpeciesMenu"></ul>
                 </div>
                 <div title="Chromosomes menu" class="ocb-dropdown" style="margin-left: 5px">
-                    <div id="${this.id}ChromosomesButton" class="ocb-ctrl" tabindex="-1">
-                        <span id="${this.id}ChromosomesText"></span>
+                    <div id="${this.prefix}ChromosomesButton" class="ocb-ctrl" tabindex="-1">
+                        <span id="${this.prefix}ChromosomesText"></span>
                         <i class="fa fa-caret-down"></i>
                     </div>
-                    <ul id="${this.id}ChromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>
+                    <ul id="${this.prefix}ChromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>
                 </div>
                 <div style="margin-left:5px;float:left;">
-                    <label title="Toggle karyotype panel" class="ocb-ctrl" id="${this.id}KaryotypeButtonLabel">
-                        <input id="${this.id}KaryotypeButton" type="checkbox" />
+                    <label title="Toggle karyotype panel" class="ocb-ctrl" id="${this.prefix}KaryotypeButtonLabel">
+                        <input id="${this.prefix}KaryotypeButton" type="checkbox" />
                         <span style="border-right:none">
                             <span class="ocb-icon ocb-icon-karyotype"></span>
                         </span>
                     </label>
-                    <label title="Toggle chromosome panel" class="ocb-ctrl" id="${this.id}ChromosomeButtonLabel">
-                        <input id="${this.id}ChromosomeButton" type="checkbox" />
+                    <label title="Toggle chromosome panel" class="ocb-ctrl" id="${this.prefix}ChromosomeButtonLabel">
+                        <input id="${this.prefix}ChromosomeButton" type="checkbox" />
                         <span style="border-right:none">
                             <span class="ocb-icon ocb-icon-chromosome"></span>
                         </span>
                     </label>
-                    <label title="Toggle overview panel" class="ocb-ctrl" id="${this.id}RegionButtonLabel">
-                        <input id="${this.id}RegionButton" type="checkbox" />
+                    <label title="Toggle overview panel" class="ocb-ctrl" id="${this.prefix}RegionButtonLabel">
+                        <input id="${this.prefix}RegionButton" type="checkbox" />
                         <span>
                             <span class="ocb-icon ocb-icon-region"></span>
                         </span>
@@ -84,119 +84,119 @@ export default class NavigationBar {
                 </div>
 
                 <!-- Zoom control -->
-                <div id="${this.id}ZoomControl" style="float:left;">
-                    <div title="Minimum window size" id="${this.id}ZoomMinButton" class="ocb-ctrl" style="">Min</div>
-                    <div title="Decrease window size" id="${this.id}ZoomOutButton" class="ocb-ctrl">
+                <div id="${this.prefix}ZoomControl" style="float:left;">
+                    <div title="Minimum window size" id="${this.prefix}ZoomMinButton" class="ocb-ctrl" style="">Min</div>
+                    <div title="Decrease window size" id="${this.prefix}ZoomOutButton" class="ocb-ctrl">
                         <span class="fa fa-minus"></span>
                     </div>
-                    <div id="${this.id}ProgressBarCont" class="ocb-zoom-bar">
-                        <div id="${this.id}ProgressBarBack" class="back"></div>
-                        <div id="${this.id}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
-                        <div id="${this.id}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
+                    <div id="${this.prefix}ProgressBarCont" class="ocb-zoom-bar">
+                        <div id="${this.prefix}ProgressBarBack" class="back"></div>
+                        <div id="${this.prefix}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
+                        <div id="${this.prefix}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
                     </div>
-                    <div title="Increase window size" id="${this.id}ZoomInButton" class="ocb-ctrl" style="border-right:none;">
+                    <div title="Increase window size" id="${this.prefix}ZoomInButton" class="ocb-ctrl" style="border-right:none;">
                         <span class="fa fa-plus"></span>
                     </div>
-                    <div title="Maximum window size" id="${this.id}ZoomMaxButton" class="ocb-ctrl">Max</div>
+                    <div title="Maximum window size" id="${this.prefix}ZoomMaxButton" class="ocb-ctrl">Max</div>
                 </div>
 
-                <div title="Window size (Nucleotides)" id="${this.id}WindowSizeControl" style="float:left;margin-left:5px;">
-                    <input id="${this.id}WindowSizeField" class="ocb-ctrl" type="text" style="width:70px;" />
+                <div title="Window size (Nucleotides)" id="${this.prefix}WindowSizeControl" style="float:left;margin-left:5px;">
+                    <input id="${this.prefix}WindowSizeField" class="ocb-ctrl" type="text" style="width:70px;" />
                 </div>
 
-                <div title="Position" id="${this.id}PositionControl" style="float:left;margin-left:5px">
-                    <input id="${this.id}RegionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width:170px;">
-                    <div id="${this.id}GoButton" class="ocb-ctrl" style="border-left: none;">Go!</div>
+                <div title="Position" id="${this.prefix}PositionControl" style="float:left;margin-left:5px">
+                    <input id="${this.prefix}RegionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width:170px;">
+                    <div id="${this.prefix}GoButton" class="ocb-ctrl" style="border-left: none;">Go!</div>
                 </div>
 
-                <div id="${this.id}MoveControl" style="float:left;font-size:18px;">
-                    <div id="${this.id}MoveFurtherLeftButton" class="ocb-ctrl" style="border-right:none;margin-left:5px;">
+                <div id="${this.prefix}MoveControl" style="float:left;font-size:18px;">
+                    <div id="${this.prefix}MoveFurtherLeftButton" class="ocb-ctrl" style="border-right:none;margin-left:5px;">
                         <i class="fa fa-angle-double-left"></i>
                     </div>
-                    <div id="${this.id}MoveLeftButton" class="ocb-ctrl" style="border-right:none;">
+                    <div id="${this.prefix}MoveLeftButton" class="ocb-ctrl" style="border-right:none;">
                         <i class="fa fa-angle-left"></i>
                     </div>
-                    <div id="${this.id}MoveRightButton" class="ocb-ctrl" style="border-right:none;">
+                    <div id="${this.prefix}MoveRightButton" class="ocb-ctrl" style="border-right:none;">
                         <i class="fa fa-angle-right"></i>
                     </div>
-                    <div id="${this.id}MoveFurtherRightButton" class="ocb-ctrl">
+                    <div id="${this.prefix}MoveFurtherRightButton" class="ocb-ctrl">
                         <i class="fa fa-angle-double-right"></i>
                     </div>
                 </div>
 
                 <label class="ocb-ctrl">
-                    <input type="checkbox" id="${this.id}AutoheightButton" />
+                    <input type="checkbox" id="${this.prefix}AutoheightButton" />
                     <span style="margin-left:5px;font-size:18px;">
                         <i class="fa fa-compress"></i>
                     </span>
                 </label>
 
-                <div id="${this.id}SearchControl" style="float:left;">
+                <div id="${this.prefix}SearchControl" style="float:left;">
                     <input
                         type="text"
-                        id="${this.id}SearchField"
-                        list="${this.id}SearchDataList"
+                        id="${this.prefix}SearchField"
+                        list="${this.prefix}SearchDataList"
                         class="ocb-ctrl"
                         placeholder="gene"
                         style="width:90px;margin-left:5px;"
                     />
-                    <datalist id="${this.id}SearchDataList"></datalist>
-                    <div id="${this.id}SearchButton" class="ocb-ctrl" style="border-left:none;">
+                    <datalist id="${this.prefix}SearchDataList"></datalist>
+                    <div id="${this.prefix}SearchButton" class="ocb-ctrl" style="border-left:none;">
                         <i class="fa fa-search"></i>
                     </div>
                 </div>
 
-                <div style="float:right;margin-right:10px;" id="${this.id}MenuButton" class="ocb-ctrl">
+                <div style="float:right;margin-right:10px;" id="${this.prefix}MenuButton" class="ocb-ctrl">
                     <i class="fa fa-navicon"></i> Configure
                 </div>
             </div>
         `);
 
-        this.div = template.querySelector(`div#${this.id}`);
+        this.div = template.querySelector(`div#${this.prefix}`);
 
         // Initialize elements
-        this.elements.karyotypeButton = this.div.querySelector(`input#${this.id}KaryotypeButton`);
-        this.elements.chromosomeButton = this.div.querySelector(`input#${this.id}ChromosomeButton`);
-        this.elements.regionButton = this.div.querySelector(`input#${this.id}RegionButton`);
+        this.elements.karyotypeButton = this.div.querySelector(`input#${this.prefix}KaryotypeButton`);
+        this.elements.chromosomeButton = this.div.querySelector(`input#${this.prefix}ChromosomeButton`);
+        this.elements.regionButton = this.div.querySelector(`input#${this.prefix}RegionButton`);
 
-        this.elements.leftSideButton = this.div.querySelector(`div#${this.id}LeftSideButton`);
-        this.elements.restoreDefaultRegionButton = this.div.querySelector(`div#${this.id}RestoreDefaultRegionButton`);
-        this.elements.menuButton = this.div.querySelector(`div#${this.id}MenuButton`);
+        this.elements.leftSideButton = this.div.querySelector(`div#${this.prefix}LeftSideButton`);
+        this.elements.restoreDefaultRegionButton = this.div.querySelector(`div#${this.prefix}RestoreDefaultRegionButton`);
+        this.elements.menuButton = this.div.querySelector(`div#${this.prefix}MenuButton`);
 
-        this.elements.chromosomesText = this.div.querySelector(`span#${this.id}ChromosomesText`);
-        this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.id}ChromosomesMenu`);
+        this.elements.chromosomesText = this.div.querySelector(`span#${this.prefix}ChromosomesText`);
+        this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.prefix}ChromosomesMenu`);
 
-        this.elements.zoomOutButton = this.div.querySelector(`div#${this.id}ZoomOutButton`);
-        this.elements.zoomInButton = this.div.querySelector(`div#${this.id}ZoomInButton`);
-        this.elements.zoomMaxButton = this.div.querySelector(`div#${this.id}ZoomMaxButton`);
-        this.elements.zoomMinButton = this.div.querySelector(`div#${this.id}ZoomMinButton`);
+        this.elements.zoomOutButton = this.div.querySelector(`div#${this.prefix}ZoomOutButton`);
+        this.elements.zoomInButton = this.div.querySelector(`div#${this.prefix}ZoomInButton`);
+        this.elements.zoomMaxButton = this.div.querySelector(`div#${this.prefix}ZoomMaxButton`);
+        this.elements.zoomMinButton = this.div.querySelector(`div#${this.prefix}ZoomMinButton`);
 
-        this.elements.progressBarCont = this.div.querySelector(`div#${this.id}ProgressBarCont`);
-        this.elements.progressBarBall = this.div.querySelector(`div#${this.id}ProgressBarBall`);
-        this.elements.progressBar = this.div.querySelector(`div#${this.id}ProgressBar`);
+        this.elements.progressBarCont = this.div.querySelector(`div#${this.prefix}ProgressBarCont`);
+        this.elements.progressBarBall = this.div.querySelector(`div#${this.prefix}ProgressBarBall`);
+        this.elements.progressBar = this.div.querySelector(`div#${this.prefix}ProgressBar`);
 
-        this.elements.regionField = this.div.querySelector(`input#${this.id}RegionField`);
-        this.elements.goButton = this.div.querySelector(`div#${this.id}GoButton`);
+        this.elements.regionField = this.div.querySelector(`input#${this.prefix}RegionField`);
+        this.elements.goButton = this.div.querySelector(`div#${this.prefix}GoButton`);
 
-        this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.id}RegionHistoryMenu`);
-        this.elements.regionHistoryButton = this.div.querySelector(`div#${this.id}RegionHistoryButton`);
+        this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.prefix}RegionHistoryMenu`);
+        this.elements.regionHistoryButton = this.div.querySelector(`div#${this.prefix}RegionHistoryButton`);
 
-        this.elements.moveFurtherLeftButton = this.div.querySelector(`div#${this.id}MoveFurtherLeftButton`);
-        this.elements.moveFurtherRightButton = this.div.querySelector(`div#${this.id}MoveFurtherRightButton`);
-        this.elements.moveLeftButton = this.div.querySelector(`div#${this.id}MoveLeftButton`);
-        this.elements.moveRightButton = this.div.querySelector(`div#${this.id}MoveRightButton`);
+        this.elements.moveFurtherLeftButton = this.div.querySelector(`div#${this.prefix}MoveFurtherLeftButton`);
+        this.elements.moveFurtherRightButton = this.div.querySelector(`div#${this.prefix}MoveFurtherRightButton`);
+        this.elements.moveLeftButton = this.div.querySelector(`div#${this.prefix}MoveLeftButton`);
+        this.elements.moveRightButton = this.div.querySelector(`div#${this.prefix}MoveRightButton`);
 
-        this.elements.autoheightButton = this.div.querySelector(`input#${this.id}AutoheightButton`);
+        this.elements.autoheightButton = this.div.querySelector(`input#${this.prefix}AutoheightButton`);
 
-        this.elements.searchField = this.div.querySelector(`input#${this.id}SearchField`);
-        this.elements.searchButton = this.div.querySelector(`div#${this.id}SearchButton`);
-        this.elements.searchDataList = this.div.querySelector(`datalist#${this.id}SearchDataList`);
+        this.elements.searchField = this.div.querySelector(`input#${this.prefix}SearchField`);
+        this.elements.searchButton = this.div.querySelector(`div#${this.prefix}SearchButton`);
+        this.elements.searchDataList = this.div.querySelector(`datalist#${this.prefix}SearchDataList`);
 
-        this.elements.speciesButton = this.div.querySelector(`div#${this.id}SpeciesButton`);
-        this.elements.speciesMenu = this.div.querySelector(`ul#${this.id}SpeciesMenu`);
-        this.elements.speciesText = this.div.querySelector(`span#${this.id}SpeciesText`);
+        this.elements.speciesButton = this.div.querySelector(`div#${this.prefix}SpeciesButton`);
+        this.elements.speciesMenu = this.div.querySelector(`ul#${this.prefix}SpeciesMenu`);
+        this.elements.speciesText = this.div.querySelector(`span#${this.prefix}SpeciesText`);
 
-        this.elements.windowSizeField = this.div.querySelector(`input#${this.id}WindowSizeField`);
+        this.elements.windowSizeField = this.div.querySelector(`input#${this.prefix}WindowSizeField`);
 
         // let els = this.div.querySelectorAll('[id]');
         // for (let i = 0; i < els.length; i++) {
@@ -205,7 +205,6 @@ export default class NavigationBar {
         //         this.els[elid] = els[i];
         //     }
         // }
-
 
         // Hide components using config.componentsConfig field
         // for (let key in this.componentsConfig) {
@@ -244,9 +243,9 @@ export default class NavigationBar {
             });
         });
 
-        this._addRegionHistoryMenuItem(this.region);
-        this._setChromosomeMenu();
-        this._setSpeciesMenu();
+        this.#addRegionHistoryMenuItem(this.region);
+        this.#setChromosomeMenu();
+        this.#setSpeciesMenu();
 
         this.elements.chromosomesText.textContent = this.region.chromosome;
         this.elements.speciesText.textContent = this.config.species?.scientificName || "-";
@@ -271,10 +270,10 @@ export default class NavigationBar {
         });
 
         // Zooming events
-        this.elements.zoomOutButton.addEventListener("click", () => this._handleZoomOutButton());
-        this.elements.zoomInButton.addEventListener("click", () => this._handleZoomInButton());
-        this.elements.zoomMaxButton.addEventListener("click", () => this._handleZoomSlider(100));
-        this.elements.zoomMinButton.addEventListener("click", () => this._handleZoomSlider(0));
+        this.elements.zoomOutButton.addEventListener("click", () => this.#handleZoomOutButton());
+        this.elements.zoomInButton.addEventListener("click", () => this.#handleZoomInButton());
+        this.elements.zoomMaxButton.addEventListener("click", () => this.#handleZoomSlider(100));
+        this.elements.zoomMinButton.addEventListener("click", () => this.#handleZoomSlider(0));
 
         const zoomBarMove = event => {
             const width = window.getComputedStyle(this.elements.progressBarCont).width;
@@ -289,7 +288,7 @@ export default class NavigationBar {
             const width = window.getComputedStyle(this.elements.progressBarCont).width;
             const left = this.elements.progressBarCont.getBoundingClientRect().left;
             const zoom = 100 / parseInt(width) * (event.clientX - left);
-            this._handleZoomSlider(zoom);
+            this.#handleZoomSlider(zoom);
 
             this.elements.progressBarCont.removeEventListener("mousemove", zoomBarMove);
         });
@@ -304,8 +303,8 @@ export default class NavigationBar {
         this.elements.regionField.value = this.region.toString();
         this.elements.regionField.addEventListener("keyup", event => {
             const value = event.target.value;
-            if (value && this._checkRegion(value) && event.which === 13) {
-                this._triggerRegionChange({
+            if (value && this.#checkRegion(value) && event.which === 13) {
+                this.#triggerRegionChange({
                     region: new Region(value),
                     sender: event.target,
                 });
@@ -313,19 +312,19 @@ export default class NavigationBar {
         });
         this.elements.goButton.addEventListener("click", event => {
             const value = this.elements.regionField.value;
-            if (this._checkRegion(value)) {
-                this._triggerRegionChange({
+            if (this.#checkRegion(value)) {
+                this.#triggerRegionChange({
                     region: new Region(value),
                     sender: event.target,
                 });
             }
         });
 
-        this.elements.moveFurtherLeftButton.addEventListener("click", () => this._handleMoveRegion(10));
-        this.elements.moveFurtherRightButton.addEventListener("click", () => this._handleMoveRegion(-10));
+        this.elements.moveFurtherLeftButton.addEventListener("click", () => this.#handleMoveRegion(10));
+        this.elements.moveFurtherRightButton.addEventListener("click", () => this.#handleMoveRegion(-10));
 
-        this.elements.moveLeftButton.addEventListener("click", () => this._handleMoveRegion(1));
-        this.elements.moveRightButton.addEventListener("click", () => this._handleMoveRegion(-1));
+        this.elements.moveLeftButton.addEventListener("click", () => this.#handleMoveRegion(1));
+        this.elements.moveRightButton.addEventListener("click", () => this.#handleMoveRegion(-1));
 
         this.elements.autoheightButton.addEventListener("click", event => {
             this.trigger("autoHeight-button:change", {
@@ -339,7 +338,7 @@ export default class NavigationBar {
             event.target.classList.remove("error");
             const query = event.target.value || "";
             if (query.length > 2 && lastQuery !== query && event.which !== 13) {
-                this._setQuickSearchMenu(query);
+                this.#setQuickSearchMenu(query);
                 lastQuery = query;
             }
             if (event.which === 13) {
@@ -375,7 +374,7 @@ export default class NavigationBar {
                 if (event.which === 13) {
                     const regionSize = parseInt(value);
                     const haflRegionSize = Math.floor(regionSize / 2);
-                    this._triggerRegionChange({
+                    this.#triggerRegionChange({
                         region: new Region({
                             chromosome: this.region.chromosome,
                             start: this.region.center() - haflRegionSize,
@@ -394,11 +393,11 @@ export default class NavigationBar {
         // Nothing to do
     }
 
-    _addRegionHistoryMenuItem(region) {
+    #addRegionHistoryMenuItem(region) {
         const menuEntry = document.createElement("li");
         menuEntry.textContent = region.toString();
         menuEntry.addEventListener("click", event => {
-            this._triggerRegionChange({
+            this.#triggerRegionChange({
                 region: new Region(event.target.textContent),
                 sender: this,
             });
@@ -407,7 +406,7 @@ export default class NavigationBar {
         this.elements.regionHistoryMenu.appendChild(menuEntry);
     }
 
-    _setQuickSearchMenu(query) {
+    #setQuickSearchMenu(query) {
         if (typeof this.config.quickSearchResultFn === "function") {
             while (this.elements.searchDataList.firstChild) {
                 this.elements.searchDataList.removeChild(this.elements.searchDataList.firstChild);
@@ -427,7 +426,7 @@ export default class NavigationBar {
         }
     }
 
-    _setChromosomeMenu() {
+    #setChromosomeMenu() {
 
         while (this.elements.chromosomesMenu.firstChild) {
             this.elements.chromosomesMenu.removeChild(this.elements.chromosomesMenu.firstChild);
@@ -438,7 +437,7 @@ export default class NavigationBar {
             const menuEntry = document.createElement("li");
             menuEntry.textContent = name;
             menuEntry.addEventListener("click", event => {
-                return this._triggerRegionChange({
+                return this.#triggerRegionChange({
                     region: new Region({
                         chromosome: event.target.textContent,
                         start: this.region.start,
@@ -453,7 +452,7 @@ export default class NavigationBar {
         });
     }
 
-    _setSpeciesMenu() {
+    #setSpeciesMenu() {
         const createSpeciesEntry = (species, parent) => {
             const menuEntry = document.createElement("li");
             menuEntry.textContent = `${species.scientificName} (${species.assembly.name})`;
@@ -489,7 +488,7 @@ export default class NavigationBar {
         });
     }
 
-    _checkRegion(value) {
+    #checkRegion(value) {
         const region = new Region(value);
         if (!region.parse(value) || region.start < 0 || region.end < 0 || this.currentChromosomesList.indexOf(region.chromosome) === -1) {
             this.elements.regionField.classList.add("error");
@@ -500,7 +499,7 @@ export default class NavigationBar {
         }
     }
 
-    _handleZoomSlider(value) {
+    #handleZoomSlider(value) {
         if (!this.zoomChanging) {
             this.zoomChanging = true;
             this.zoom = 5 * (Math.round(value / 5));
@@ -517,15 +516,15 @@ export default class NavigationBar {
         }
     }
 
-    _handleZoomOutButton() {
-        this._handleZoomSlider(Math.max(0, this.zoom - 5));
+    #handleZoomOutButton() {
+        this.#handleZoomSlider(Math.max(0, this.zoom - 5));
     }
 
-    _handleZoomInButton() {
-        this._handleZoomSlider(Math.min(100, this.zoom + 5));
+    #handleZoomInButton() {
+        this.#handleZoomSlider(Math.min(100, this.zoom + 5));
     }
 
-    _handleMoveRegion(positions) {
+    #handleMoveRegion(positions) {
         // const pixelBase = (this.width - this.svgCanvasWidthOffset) / this.region.length();
         const pixelBase = (this.config.width - this.config.svgCanvasWidthOffset) / this.region.length();
         const disp = Math.round((positions * 10) / pixelBase);
@@ -555,7 +554,7 @@ export default class NavigationBar {
             this.zoom = 5 * (Math.round(zoom / 5));
         }
         this.updateRegionControls();
-        this._addRegionHistoryMenuItem(region);
+        this.#addRegionHistoryMenuItem(region);
     }
 
     moveRegion(region) {
@@ -567,14 +566,14 @@ export default class NavigationBar {
     setSpecies(species) {
         this.species = species;
         this.elements.speciesText.textContent = this.species.scientificName;
-        this._setChromosomeMenu();
+        this.#setChromosomeMenu();
     }
 
     setWidth(width) {
         this.width = width;
     }
 
-    _triggerRegionChange(event) {
+    #triggerRegionChange(event) {
         if (!this.regionChanging) {
             this.regionChanging = true;
             this.trigger("region:change", event);
