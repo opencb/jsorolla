@@ -1,5 +1,6 @@
 import UtilsNew from "../core/utilsNew.js";
 import {SVG} from "../core/svg.js";
+import VariantInterpreterGridFormatter from "../webcomponents/variant/interpretation/variant-interpreter-grid-formatter.js";
 import GenomeBrowserConstants from "./genome-browser-constants.js";
 
 export default class GenomeBrowserUtils {
@@ -163,6 +164,21 @@ export default class GenomeBrowserUtils {
     // Variant tooltip text formatter
     static variantTooltipTextFormatter(feature) {
         return GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+    }
+
+    // Sample genotype tooltip title formatter
+    static sampleGenotypeTooltipTitleFormatter(feature, sample) {
+        return "";
+    }
+
+    // Sample genotype tooltip text formatter
+    static sampleGenotypeTooltipTextFormatter(feature, sample) {
+        let file = null;
+        if (typeof sample.fileIndex === "number") {
+            file = feature.studies[0].files[sample.fileIndex];
+        }
+
+        return VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(feature, sample, file);
     }
 
     //
