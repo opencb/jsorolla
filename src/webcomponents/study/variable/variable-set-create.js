@@ -18,6 +18,10 @@ import {LitElement, html} from "lit";
 import "./variable-list-update.js";
 import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import Types from "../../commons/types.js";
+import "../variable/variable-create.js";
+import "../variable/variable-update.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -47,11 +51,7 @@ export default class VariableSetCreate extends LitElement {
             unique: true
         };
         this.variable = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     refreshForm() {
@@ -87,9 +87,9 @@ export default class VariableSetCreate extends LitElement {
                     )
                 };
                 break;
-            case "variables":
-                this.variableSet = {...this.variableSet, variables: e.detail.value};
-                break;
+            // case "variables":
+            //     this.variableSet = {...this.variableSet, variables: e.detail.value};
+            //     break;
         }
     }
 
@@ -116,7 +116,6 @@ export default class VariableSetCreate extends LitElement {
 
 
     onClear(e) {
-        console.log("Clear Form");
         Swal.fire({
             title: "Are you sure to clear?",
             text: "You won't be able to revert this!",
@@ -334,12 +333,28 @@ export default class VariableSetCreate extends LitElement {
         ];
     }
 
+    onAddOrUpdateItem(e) {
+        const param = e.detail.param;
+        const value = e.detail.value;
+        if (UtilsNew.isNotEmpty(value)) {
+            this.variableSet = {...this.variableSet, variables: value};
+        } else {
+            this.variableSet = {
+                ...this.variableSet,
+                [param]: []
+            };
+            delete this.variableSet[param];
+        }
+        this.requestUpdate();
+    }
+
     render() {
         return html `
             <data-form
                 .data=${this.variableSet}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
@@ -347,41 +362,27 @@ export default class VariableSetCreate extends LitElement {
 
 
     getDefaultConfig() {
-        return {
-            // title: "Edit",
-            // icon: "fas fa-edit",
+        return Types.dataFormConfig({
             type: "form",
-            buttons: {
-                show: true,
-                top: true,
-                classes: "pull-right",
-                cancelText: "Clear",
-                okText: "Save"
-            },
             display: {
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: "",
-                help: {
-                    mode: "block",
-                    // icon: "fa fa-lock",
-                }
+                buttonOkText: "Create"
             },
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            name: "Id",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             required: "required",
                             display: {
                                 placeholder: "Add a short ID...",
                                 help: {
-
                                     icon: "fas fa-info-circle",
                                     text: "short variableSet id"
                                 },
@@ -444,24 +445,58 @@ export default class VariableSetCreate extends LitElement {
                     title: "Variables",
                     elements: [
                         {
+                            title: "Variables",
                             field: "variables",
-                            type: "custom",
+                            type: "custom-list",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-list-update
-                                        .variables="${this.variableSet?.variables}"
-                                        @changeVariables="${e => this.onFieldChange(e, "variables")}">
-                                    </variable-list-update>`
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                renderUpdate: (variable, callback) => html `
+                                    <variable-update
+                                        .variable="${variable}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                        @updateItem="${callback}">
+                                    </variable-update>
+                                `,
+                                renderCreate: (variable, callback) => html`
+                                    <variable-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                        @addItem="${callback}">
+                                    </variable-create>`
                             }
                         },
                     ]
-                }
+                },
+                // {
+                //     title: "Variables",
+                //     elements: [
+                //         {
+                //             field: "variables",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: () => html`
+                //                     <variable-list-update
+                //                         .variables="${this.variableSet?.variables}"
+                //                         @changeVariables="${e => this.onFieldChange(e, "variables")}">
+                //                     </variable-list-update>`
+                //             }
+                //         },
+                //     ]
+                // }
             ]
-        };
+        });
     }
 
 }

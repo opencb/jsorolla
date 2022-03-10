@@ -1,5 +1,6 @@
 export default class Types {
 
+    // Structure following: https://github.com/opencb/jsorolla/issues/268
     /**
     * Buttons type definitions
     * @typedef {Object} Button
@@ -107,8 +108,8 @@ export default class Types {
     * @property {string} titleWidth -
     * @property {string} titleClassName -
     * @property {string} titleStyle - add a style for the display
-    * @property {string} textClassName -
-    * @property {string} textStyle -
+    // * @property {string} textClassName -
+    // * @property {string} textStyle -
     * @property {string} descriptionClassName -
     * @property {string} descriptionStyle -
     * @property {string} className -
@@ -196,17 +197,18 @@ export default class Types {
      * @property {string} description - A description for the data-form
      * @property {string} icon - A icon for the data-form
      * @property {string} type - Define the type to the data-form
-     * @property {Button} buttons - Custom Config for the button to data-form
+    //  * @property {Button} buttons - Custom Config for the button to data-form
      * @property {DisplayForm} display - Custom Config for the display to data-form
      * @property {Section[]} sections - Define sections to teh config
      * @property {Validation} validation - Define validation to the data-form
      */
 
-    /**
+    /** **********************
      * Represent a config to Data-Form
      * @param {FormConfig} config - Define the config you want to use for the data-form
      * @returns {FormConfig} return config
-     */
+     *  **********************
+    */
     static dataFormConfig(config) {
         return {...config};
     }

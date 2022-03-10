@@ -764,6 +764,9 @@ export default class VariantInterpreterGrid extends LitElement {
                             }
                         }
 
+                        const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
+                        const reviewDisabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+
                         return `
                             <div class="dropdown">
                                 <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">Actions
@@ -771,8 +774,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit"
-                                                ${!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : ""}>
+                                        <a id="${reviewId}" href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
@@ -1158,6 +1160,12 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Set 'Edit' button as enabled/disabled
         document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
+        const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
+        if (e.currentTarget.checked) {
+            reviewActionButton.removeAttribute("disabled");
+        } else {
+            reviewActionButton.setAttribute("disabled", "true");
+        }
 
         // Enable or disable evidences select
         Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
@@ -1214,6 +1222,12 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Clear selected variant to review
         this.variantReview = null;
+        this.requestUpdate();
+    }
+
+    onVariantReviewCancel() {
+        this.variantReview = null;
+        this.requestUpdate();
     }
 
     onEvidenceCheck(e) {
@@ -1334,7 +1348,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" @click="${() => this.onVariantReviewCancel()}">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
                         </div>
                     </div>
