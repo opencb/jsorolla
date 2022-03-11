@@ -19,10 +19,11 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/text-field-filter.js";
-import "./ontology-term-annotation-create.js";
-import "./ontology-term-annotation-update.js";
+import "./phenotype-manager.js";
+import "../phenotype/phenotype-create.js";
+import "../phenotype/phenotype-update.js";
 
-export default class OntologyTermAnnotationListUpdate extends LitElement {
+export default class PhenotypeListUpdate extends LitElement {
 
     constructor() {
         super();
@@ -35,71 +36,67 @@ export default class OntologyTermAnnotationListUpdate extends LitElement {
 
     static get properties() {
         return {
-            ontologies: {
+            phenotypes: {
                 type: Array
-            },
-            displayConfig: {
-                type: Object
-            },
-            config: {
-                type: Object
             }
         };
     }
 
     connectedCallback() {
         super.connectedCallback();
-        if (UtilsNew.isUndefined(this.ontologies)) {
-            this.ontologies = [];
+        if (UtilsNew.isUndefined(this.phenotypes)) {
+            this.phenotypes = [];
         }
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.ontology = {};
+        this.phenotype = {};
         this._manager = {
             action: "",
-            ontology: ""
+            phenotype: ""
         };
     }
 
-    onShowOntologyManager(e, manager) {
+    onShowPhenotypeManager(e, manager) {
         this._manager = manager;
         if (manager.action === "ADD") {
-            this.ontology = {};
+            this.phenotype = {};
+
         } else {
-            this.ontology = this.ontologies[manager.indexItem];
+            this.phenotype = this.phenotypes[manager.indexItem];
 
         }
         this.requestUpdate();
-        // $("#ontologyManagerModal"+ this._prefix).modal("show");
+        $("#phenotypeManagerModal"+ this._prefix).modal("show");
     }
 
-    onActionOntology(e) {
+    onActionPhenotype(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
-            this.addOntology(e.detail.value);
+            this.addPhenotype(e.detail.value);
         } else {
-            this.editOntology(e.detail.value);
+            this.editPhenotype(e.detail.value);
         }
-        // $("#ontologyManagerModal" + this._prefix).modal("hide");
+        $("#phenotypeManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
     }
 
-    addOntology(e) {
-        this.ontologies = [...this.ontologies, e.detail.value];
-        LitUtils.dispatchCustomEvent(this, "changeOntologies", this.ontologies);
+    addPhenotype(phenotype) {
+        this.phenotypes = [...this.phenotypes, phenotype];
+        LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
     }
 
-    editOntology(ontology) {
-        const indexPheno = this.ontologies.findIndex(ontology => ontology.id === this.ontology.id);
-        this.ontologies[indexPheno] = ontology;
-        this.ontology = {};
-        LitUtils.dispatchCustomEvent(this, "changeOntologies", this.ontologies);
+    editPhenotype(phenotype) {
+        const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
+        this.phenotypes[indexPheno] = phenotype;
+        this.phenotype = {};
+        LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
         this.requestUpdate();
     }
 
-    onRemoveOntology(e, i) {
+    onRemovePhenotype(e, i) {
+        // TODO: send a warning that all disorders will be removed if the user removes the phenotype that the disorder uses as evidence.
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -112,11 +109,11 @@ export default class OntologyTermAnnotationListUpdate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                this.ontologies = UtilsNew.removeArrayByIndex(this.ontologies, i);
-                LitUtils.dispatchCustomEvent(this, "changeOntologies", this.ontologies);
+                this.phenotypes = UtilsNew.removeArrayByIndex(this.phenotypes, i);
+                LitUtils.dispatchCustomEvent(this, "changePhenotypes", this.phenotypes);
                 Swal.fire(
                     "Deleted!",
-                    "The item has been deleted.",
+                    "The phenotype has been deleted.",
                     "success"
                 );
             }
@@ -125,24 +122,30 @@ export default class OntologyTermAnnotationListUpdate extends LitElement {
 
     onCloseForm(e) {
         e.stopPropagation();
-        this.ontologies = {};
-        // $("#ontologyManagerModal"+ this._prefix).modal("hide");
+        this.phenotype = {};
+        $("#phenotypeManagerModal"+ this._prefix).modal("hide");
     }
 
-    renderOntologies(ontologies) {
+    renderPhenotypes(phenotypes) {
+        // if (UtilsNew.isEmptyArray(phenotypes)) {
+        //     return html `
+        //         <div class="alert alert-info">
+        //             <strong>Empty</strong>, create a new phenotype
+        //         </div>`;
+        // }
         return html`
-            ${ontologies?.map((ontology, i) => html`
+            ${phenotypes?.map((pheno, i) => html`
                 <li>
                     <div class="row">
                         <div class="col-md-8">
-                            <span style="margin-left:14px">${ontology.name} (${ontology.id})</span>
+                            <span style="margin-left:14px">${pheno.name} (${pheno.id})</span>
                         </div>
                         <div class="col-md-4">
                             <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                 <button type="button" class="btn btn-primary btn-xs"
-                                    @click="${e => this.onShowOntologyManager(e, {action: "EDIT", indexItem: i})}">Edit</button>
+                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", indexItem: i})}">Edit</button>
                                 <button type="button" class="btn btn-danger btn-xs"
-                                    @click="${e => this.onRemoveOntology(e, i)}">Delete</button>
+                                    @click="${e => this.onRemovePhenotype(e, i)}">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -170,47 +173,46 @@ export default class OntologyTermAnnotationListUpdate extends LitElement {
         <div class="col-md-12" style="padding: 10px 20px">
             <div class="container" style="width:100%">
                 <ul id="myUL">
-                    ${this.renderOntologies(this.ontologies)}
+                    ${this.renderPhenotypes(this.phenotypes)}
                 </ul>
-                <!-- <button type="button" class="btn btn-primary btn-sm"
-                    @click="${e => this.onShowOntologyManager(e, {action: "ADD"})}">
-                    Add ${this.config?.title || "information"}
-                </button> -->
+                <button type="button" class="btn btn-primary btn-sm"
+                    @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
+                    Add Phenotype
+                </button>
             </div>
-            <ontology-term-annotation-create
-                .displayConfig="${this.displayConfig}"
-                @closeForm=${e => this.onCloseForm(e)}
-                @addItem=${this.addOntology}>
-            </ontology-term-annotation-create>
         </div>
-
-
-        <!-- <div id=${"ontologyManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+        <div id=${"phenotypeManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">${this.config?.title} Information</h4>
+                        <h4 class="modal-title">Phenotype Information</h4>
                     </div>
                     <div class="modal-body">
                         ${this._manager.action === "ADD" ? html`
-                            <ontology-term-annotation-create
+                            <phenotype-create
                                 @closeForm=${e => this.onCloseForm(e)}
-                                @addItem=${this.onActionOntology}
-                            ></ontology-term-annotation-create>
+                                @addItem=${this.onActionPhenotype}
+                            ></phenotype-create>
                             ` : html `
-                            <ontology-term-annotation-update
-                                .phenotype=${this.ontology}
+                            <phenotype-update
+                                .phenotype=${this.phenotype}
                                 @closeForm=${e => this.onCloseForm(e)}
-                                @addItem=${this.onActionOntology}>
-                            </ontology-term-annotation-update>
+                                @addItem=${this.onActionPhenotype}>
+                            </phenotype-update>
                         `}
+                        <!-- <phenotype-manager
+                            .phenotype="\${this.phenotype}"
+                            .mode=\${this._manager.action}
+                            @closeForm="\${e => this.onCloseForm(e)}"
+                            @addItem="\${this.onActionPhenotype}">
+                        </phenotype-manager> -->
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>`;
     }
 
 }
 
-customElements.define("ontology-term-annotation-list-update", OntologyTermAnnotationListUpdate);
+customElements.define("phenotype-list-update", PhenotypeListUpdate);
