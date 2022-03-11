@@ -147,12 +147,12 @@ export default class DisorderListUpdate extends LitElement {
     }
 
     renderItems(disorders) {
-        if (UtilsNew.isEmptyArray(disorders)) {
-            return html `
-                <div class="alert alert-info">
-                    <strong>Empty</strong>, Create a new disorder
-                </div>`;
-        }
+        // if (UtilsNew.isEmptyArray(disorders)) {
+        //     return html `
+        //         <div class="alert alert-info">
+        //             <strong>Empty</strong>, Create a new disorder
+        //         </div>`;
+        // }
         return html`
             ${disorders?.map(item => html`
                     <li>
