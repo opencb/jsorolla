@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import "./variable-list-update.js";
 import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";

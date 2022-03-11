@@ -19,8 +19,6 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "../study/phenotype/phenotype-list-update.js";
-import "../individual/disorder/disorder-list-update.js";
 import "../commons/tool-header.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 

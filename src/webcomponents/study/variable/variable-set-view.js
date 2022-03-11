@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 import "../../loading-spinner.js";
-import "./variable-list-update.js";
+import "../deprecated/variable-list-update.js";
 
 export default class VariableSetView extends LitElement {
 
@@ -172,21 +172,15 @@ export default class VariableSetView extends LitElement {
                         {
                             name: "Variables",
                             field: "variables",
-                            type: "custom",
+                            type: "list",
                             defaultValue: "N/A",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-list-update
-                                        .variables=${this.variableSet?.variables}
-                                        .readOnly=${true}>
-                                    </variable-list-update>
-                                `
+                                contentLayout: "bullets",
+                                render: variable => {
+                                    return html`${variable?.name} (${variable?.type})`;
+                                },
                             }
-                        }
+                        },
                     ]
                 },
             ]

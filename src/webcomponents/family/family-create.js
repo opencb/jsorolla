@@ -234,27 +234,6 @@ export default class FamilyCreate extends LitElement {
                                     </status-create>`
                             }
                         },
-                        // {
-                        //     title: "Status Name",
-                        //     field: "status.name",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Add status name..."
-                        //     }
-                        // },
-                        // {
-                        //     title: "Status Description",
-                        //     field: "status.description",
-                        //     type: "input-text",
-                        //     validation: {
-                        //         validate: () => this.family?.status?.description ? !!this.family?.status?.name : true,
-                        //         message: "The status name must be filled",
-                        //     },
-                        //     display: {
-                        //         rows: 3,
-                        //         placeholder: "Add a status description..."
-                        //     }
-                        // },
                     ]
                 },
                 // {
