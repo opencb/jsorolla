@@ -1,4 +1,5 @@
 import UtilsNew from "../../core/utilsNew.js";
+import {SVG} from "../../core/svg.js";
 import FeatureTrack from "./feature-track.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";
 import VariantRenderer from "../renderers/variant-renderer.js";
@@ -36,6 +37,8 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             this.renderer = new VariantRenderer({
                 sampleNames: this.sampleNames,
                 sampleHeight: this.config.sampleHeight,
+                sampleHeaderHeight: this.config.sampleHeaderHeight,
+                sampleHeaderDividerHeight: this.config.sampleHeaderDividerHeight,
                 ...this.config.renderer,
             });
         }
@@ -50,16 +53,40 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                     </div>
                 `).join("")}
             </div>
+            <div id="${this.prefix}SampleHeaderDivider" style="position:absolute;width:100%;"></div>
         `);
 
+        // Sample names
         this.sampleNamesDiv = template.querySelector(`div#${this.prefix}SampleNames`);
-        this.sampleNamesDiv.style.backgroundColor = this.config.sampleBackground;
-        this.sampleNamesDiv.style.paddingLeft = "16px";
+        this.sampleNamesDiv.style.backgroundColor = "rgba(255,255,255,0.6)";
+        this.sampleNamesDiv.style.paddingLeft = "8px";
         this.sampleNamesDiv.style.paddingRight = "8px";
         this.sampleNamesDiv.style.paddingTop = `${this.config.sampleHeight}px`;
 
-        // Append samples names
+        // Sample header divider
+        this.sampleHeaderDividerDiv = template.querySelector(`div#${this.prefix}SampleHeaderDivider`);
+        this.sampleHeaderDividerDiv.style.height = `${this.config.sampleHeaderDividerHeight}px`;
+        this.sampleHeaderDividerDiv.style.backgroundColor = this.config.sampleHeaderDividerColor;
+        this.sampleHeaderDividerDiv.style.top = `${this.config.sampleHeaderHeight - this.config.sampleHeaderDividerHeight - 2}px`;
+
+        // Append elements
         this.content.appendChild(this.sampleNamesDiv);
+        this.content.appendChild(this.sampleHeaderDividerDiv);
+        // this.content.insertBefore(this.sampleBackgroundDiv, this.content.firstChild);
+        // this.content.appendChild(this.sampleBackgroundDiv);
+
+        // Append samples background
+        const bgGroup = SVG.addChild(this.content.firstChild, "g", {}, 0);
+        this.sampleNames.forEach((name, index) => {
+            SVG.addChild(bgGroup, "rect", {
+                x: "0px",
+                y: `${this.config.sampleHeaderHeight + (index * this.config.sampleHeight)}px`,
+                width: "100%",
+                height: `${this.config.sampleHeaderHeight}px`,
+                fill: index % 2 ? this.config.sampleBackgroundColorEven : this.config.sampleBackgroundColorOdd,
+                style: `opacity:${this.config.sampleBackgroundOpacity}`,
+            });
+        });
     }
 
     getData(options) {
@@ -101,7 +128,12 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             renderer: {}, // Renderer configuration
             histogramRenderer: {}, // Histogram renderer configuration
             sampleHeight: 20,
-            sampleBackground: "rgba(255,255,255,0.8)",
+            sampleBackgroundOpacity: 0.2,
+            sampleBackgroundColorOdd: "#ffffff",
+            sampleBackgroundColorEven: "#a4abb6",
+            sampleHeaderHeight: 20,
+            sampleHeaderDividerHeight: 2,
+            sampleHeaderDividerColor: "#d4d8dd",
         };
     }
 
