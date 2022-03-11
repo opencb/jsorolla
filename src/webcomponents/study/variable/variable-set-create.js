@@ -188,151 +188,6 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    sampleVariables() {
-        return [
-            {
-                "id": "typeCount",
-                "name": "typeCount",
-                "category": "",
-                "type": "MAP_INTEGER",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 7,
-                "dependsOn": "",
-                "description": "Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ...",
-                "attributes": {}
-            },
-            {
-                "id": "variantCount",
-                "name": "variantCount",
-                "category": "",
-                "type": "INTEGER",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 0,
-                "dependsOn": "",
-                "description": "Number of variants in the variant set",
-                "attributes": {}
-            },
-            {
-                "id": "hsMetricsReport",
-                "name": "Hs metrics report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 10,
-                "dependsOn": "",
-                "description": "Hs metrics report (from the picard/CollecHsMetrics command)",
-                "variables": [
-                    {
-                        "id": "onBaitVsSelected",
-                        "name": "On bait vs selected",
-                        "type": "DOUBLE",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 24,
-                        "description": "The percentage of on+near bait bases that are on as opposed to near"
-                    },
-                    {
-                        "id": "minTargetCoverage",
-                        "name": "Min target coverage",
-                        "type": "DOUBLE",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 23,
-                        "description": "The minimum coverage of targets"
-                    }
-                ]
-            },
-            {
-                "id": "fastQcReport",
-                "name": "FastQC report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 8,
-                "dependsOn": "",
-                "description": "FastQC report (from the FastQC tool)",
-                "variables": [],
-                "attributes": {}
-            },
-            {
-                "id": "mendelianErrorsReport",
-                "name": "Mendelian errors report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 7,
-                "dependsOn": "",
-                "description": "Mendelian errors report",
-                "variables": [
-                    {
-                        "id": "numErrors",
-                        "name": "Total number of errors",
-                        "type": "INTEGER",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 0,
-                        "description": "Total number of errors"
-                    },
-                    {
-                        "id": "chromAggregation",
-                        "name": "Aggregation per chromosome",
-                        "type": "OBJECT",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 2,
-                        "description": "Aggregation per chromosome",
-                        "variables": [
-                            {
-                                "id": "codeAggregation",
-                                "name": "Aggregation per error code",
-                                "type": "MAP_INTEGER",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 2,
-                                "description": "Aggregation per error code for that chromosome"
-                            },
-                            {
-                                "id": "numErrors",
-                                "name": "Total number of errors",
-                                "type": "STRING",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 1,
-                                "description": "Total number of errors"
-                            },
-                            {
-                                "id": "chromosome",
-                                "name": "chromosome",
-                                "type": "STRING",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 0,
-                                "description": "Chromosome"
-                            }
-                        ]
-                    },
-                ]
-            }
-        ];
-    }
-
     onAddOrUpdateItem(e) {
         const param = e.detail.param;
         const value = e.detail.value;
@@ -382,10 +237,8 @@ export default class VariableSetCreate extends LitElement {
                             required: "required",
                             display: {
                                 placeholder: "Add a short ID...",
-                                help: {
-                                    icon: "fas fa-info-circle",
-                                    text: "short variableSet id"
-                                },
+                                helpIcon: "fas fa-info-circle",
+                                // helpText: "short variableSet id",
                                 validation: {
                                     message: "Please enter more that 3 character",
                                     validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
@@ -399,11 +252,10 @@ export default class VariableSetCreate extends LitElement {
                             name: "Name",
                             field: "name",
                             type: "input-text",
-                            required: "required",
                             display: {
                                 placeholder: "Name ...",
                                 help: {
-                                    text: "short name variable"
+                                    // text: "short name variable"
                                 },
                             }
                         },
@@ -421,7 +273,6 @@ export default class VariableSetCreate extends LitElement {
                             name: "Unique",
                             field: "unique",
                             type: "checkbox",
-                            required: true
                         },
                         {
                             name: "Confidential",
@@ -433,7 +284,6 @@ export default class VariableSetCreate extends LitElement {
                             name: "Description",
                             field: "description",
                             type: "input-text",
-                            required: true,
                             display: {
                                 rows: 3,
                                 placeholder: "variable description..."
@@ -463,6 +313,7 @@ export default class VariableSetCreate extends LitElement {
                                     </variable-update>
                                 `,
                                 renderCreate: (variable, callback) => html`
+                                    <label>Create new item</label>
                                     <variable-create
                                         .displayConfig="${{
                                             defaultLayout: "vertical",

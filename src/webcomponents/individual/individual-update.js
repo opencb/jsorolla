@@ -305,8 +305,9 @@ export default class IndividualUpdate extends LitElement {
                                     <ontology-term-annotation-update
                                         .ontology=${sex}
                                         .displayConfig="${{
+                                                defaultLayout: "vertical",
                                                 buttonsVisible: false,
-                                                style: "border-left: 2px solid #0c2f4c",
+                                                style: "border-left: 2px solid #0c2f4c padding-left:12px",
                                             }}"
                                         @fieldChange=${e => this.onFieldChange(e, "sex")}
                                     ></ontology-term-annotation-update>`
@@ -321,8 +322,9 @@ export default class IndividualUpdate extends LitElement {
                                     <ontology-term-annotation-update
                                         .ontology=${ethnicity}
                                         .displayConfig="${{
+                                                defaultLayout: "vertical",
                                                 buttonsVisible: false,
-                                                style: "border-left: 2px solid #0c2f4c",
+                                                style: "border-left: 2px solid #0c2f4c padding-left:12px",
                                             }}"
                                         @fieldChange=${e => this.onFieldChange(e, "ethnicity")}
                                     ></ontology-term-annotation-update>`

@@ -52,7 +52,6 @@ export default class VariableCreate extends LitElement {
             buttonClearText: "Clear",
             buttonOkText: "Create Ontology Term",
             titleVisible: false,
-            // titleWidth: 4,
             defaultLayout: "horizontal",
         };
         this._config = this.getDefaultConfig();
@@ -133,6 +132,7 @@ export default class VariableCreate extends LitElement {
                             name: "ID",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Name ..."
                             }

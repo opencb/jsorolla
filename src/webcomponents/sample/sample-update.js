@@ -329,9 +329,9 @@ export default class SampleUpdate extends LitElement {
                                 <ontology-term-annotation-update
                                     .ontology=${product}
                                     .displayConfig="${{
+                                            defaultLayout: "vertical",
                                             buttonsVisible: false,
-                                            width: 12,
-                                            style: "border-left: 2px solid #0c2f4c",
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
                                     @fieldChange=${e => this.onFieldChange(e, "processing.product")}
                                 ></ontology-term-annotation-update>`

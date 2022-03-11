@@ -274,7 +274,6 @@ export default class SampleCreate extends LitElement {
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
-                                        width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
                                     @fieldChange=${e => this.onFieldChange(e, "processing.product")}>
