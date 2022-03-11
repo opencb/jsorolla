@@ -138,23 +138,23 @@ export default class CohortUpdate extends LitElement {
         this.cohortId = "";
     }
 
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "samples":
-                let samples = [];
-                if (e.detail.value) {
-                    samples = e.detail.value.split(",").map(sample => {
-                        return {id: sample};
-                    });
-                }
-                this.cohort = {...this.cohort, samples: e.detail.value};
-                break;
-            case "annotationSets":
-                this.cohort = {...this.cohort, annotationSets: e.detail.value};
-                break;
-        }
-    }
+    // onSync(e, type) {
+    //     e.stopPropagation();
+    //     switch (type) {
+    //         case "samples":
+    //             let samples = [];
+    //             if (e.detail.value) {
+    //                 samples = e.detail.value.split(",").map(sample => {
+    //                     return {id: sample};
+    //                 });
+    //             }
+    //             this.cohort = {...this.cohort, samples: e.detail.value};
+    //             break;
+    //         case "annotationSets":
+    //             this.cohort = {...this.cohort, annotationSets: e.detail.value};
+    //             break;
+    //     }
+    // }
 
     onSubmit(e) {
         const params = {
@@ -297,28 +297,6 @@ export default class CohortUpdate extends LitElement {
                         //             )
                         //     }
                         // },
-                        // Add Validation for status name and description
-                        // {
-                        //     title: "Status Name",
-                        //     field: "status.name",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Add status name..."
-                        //     }
-                        // },
-                        // {
-                        //     title: "Status Description",
-                        //     field: "status.description",
-                        //     type: "input-text",
-                        //     validation: {
-                        //         validate: () => this.cohort?.status?.description ? !!this.cohort?.status?.name : true,
-                        //         message: "The status name must be filled",
-                        //     },
-                        //     display: {
-                        //         rows: 3,
-                        //         placeholder: "Add a status description..."
-                        //     }
-                        // }
                     ]
                 },
                 // {

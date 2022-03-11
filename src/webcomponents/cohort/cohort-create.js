@@ -215,27 +215,6 @@ export default class CohortCreate extends LitElement {
                         //             )
                         //     }
                         // },
-                        // {
-                        //     title: "Status Name",
-                        //     field: "status.name",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Add status name..."
-                        //     }
-                        // },
-                        // {
-                        //     title: "Status Description",
-                        //     field: "status.description",
-                        //     type: "input-text",
-                        //     validation: {
-                        //         validate: () => this.cohort?.status?.description ? !!this.cohort?.status?.name : true,
-                        //         message: "The status name must be filled",
-                        //     },
-                        //     display: {
-                        //         rows: 3,
-                        //         placeholder: "Add a status description..."
-                        //     }
-                        // }
                     ]
                 },
                 // {

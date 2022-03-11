@@ -20,9 +20,7 @@ import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utilsNew.js";
-import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
-import "../study/ontology-term-annotation/ontology-term-annotation-list-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-create.js";
@@ -274,7 +272,6 @@ export default class SampleCreate extends LitElement {
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
-                                        width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
                                     @fieldChange=${e => this.onFieldChange(e, "processing.product")}>
