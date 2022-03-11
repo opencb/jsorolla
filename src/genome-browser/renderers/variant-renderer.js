@@ -26,8 +26,8 @@ export default class VariantRenderer extends Renderer {
             const variantElement = SVG.addChild(group, "rect", {
                 "x": x,
                 "y": 0,
-                "width": width,
-                "height": this.config.sampleHeight - 2,
+                "width": `${width}px`,
+                "height": `${this.config.sampleHeaderHeight - this.config.sampleHeaderDividerHeight - 4}px`,
                 // "stroke": "#000000",
                 // "stroke-width": 1,
                 // "stroke-opacity": 0.7,
