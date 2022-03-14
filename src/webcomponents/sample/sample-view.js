@@ -86,7 +86,7 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    console.log("Loaded Data");
+                    console.log("sample:", this.sample);
                     this.isLoading = false;
                 })
                 .catch(reason => {
@@ -168,11 +168,7 @@ export default class SampleView extends LitElement {
                                     <sample-id-autocomplete
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}"
+                                        .config=${{multiple: false}}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </sample-id-autocomplete>
                                 `,

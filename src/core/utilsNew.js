@@ -812,4 +812,17 @@ export default class UtilsNew {
             .replace(/'/g, "&#039;");
     }
 
+    // Import file from the specified URL
+    // NOTE: in case that the file does not exist, a `null` value will be returned instead of rejecting the promise
+    static importFile(url) {
+        return window.fetch(url)
+            .then(response => response.ok && response.text() || null)
+            .catch(() => null);
+    }
+
+    // Import a JSON file from the specified url
+    static importJSONFile(url) {
+        return UtilsNew.importFile(url).then(content => content && JSON.parse(content) || null);
+    }
+
 }

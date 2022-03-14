@@ -99,17 +99,18 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             display: {
                                 render: interpretation => html`
                                     <div class="row" style="padding-left: 5px">
-                                        <div class="col-md-7">
+                                        <div class="col-md-6">
                                             <span style="font-size: 1.2em">${interpretation.id}</span>
                                             <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-6">
                                             <span title="Analysed by">
-                                                <i class="fa fa-user-circle icon-padding"
-                                                   aria-hidden="true"></i>${interpretation?.analyst?.name ?? "-"}
+                                                <i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>
+                                                Assigned to <label>${interpretation?.analyst?.name ?? "-"}</label>
                                             </span>
                                             <span style="margin-left: 25px" title="Created on">
-                                                <i class="far fa-calendar-alt icon-padding"></i>${UtilsNew.dateFormatter(interpretation?.creationDate)}
+                                                <i class="far fa-calendar-alt"></i>
+                                                <label>Creation Date:</label> ${UtilsNew.dateFormatter(interpretation?.creationDate)}
                                             </span>
                                         </div>
                                     </div>

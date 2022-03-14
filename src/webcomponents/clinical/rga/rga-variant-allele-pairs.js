@@ -144,6 +144,8 @@ export default class RgaVariantAllelePairs extends LitElement {
             // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "_id",
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,

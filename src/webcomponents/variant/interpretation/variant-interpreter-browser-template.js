@@ -91,18 +91,19 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
-        if (changedProperties.has("settings")) {
+
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.config};
-        }
+
         super.update(changedProperties);
     }
 
@@ -132,6 +133,16 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 ...this._config.filter.result.grid,
                 ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
             };
+        }
+
+        // Add copy.execute functions
+        if (this._config.filter.result.grid?.copies?.length > 0) {
+            for (const copy of this._config.filter.result.grid?.copies) {
+                const originalCopy = this.settings.table.copies.find(c => c.id === copy.id);
+                if (originalCopy.execute) {
+                    copy.execute = originalCopy.execute;
+                }
+            }
         }
     }
 
@@ -204,6 +215,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onSaveVariants(e) {
         // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
         this.currentQueryBeforeSaveEvent = this.query;
+
+        // Save current query in the added variants
+        this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
 
         const comment = e.detail.comment;
         this.clinicalAnalysisManager.updateInterpretation(comment, () => {

@@ -94,8 +94,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // Init the active filters with every new Case opened. Then we add the default filters for the given sample
-        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
+        let _activeFilterFilters;
+        if (this.settings?.menu?.examples?.length > 0) {
+            // Load custom filters if configured
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
+        } else {
+            // Load default filters if not custom defined
+            _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        }
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
@@ -131,45 +139,55 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
             // 5. 'fileData' query param: fetch non SV files and set init query
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                // FIXME remove specific code for ASCAT!
+                // Somatic callers with the right Variant Type and with defined INFO filters
                 const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
                     .filter(vc => vc.somatic)
-                    .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
-                        // vc.types.includes("INSERTION") || vc.types.includes("DELETION") ||
-                        vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                    // .filter(vc => vc.id.toUpperCase() !== "ASCAT")
+                    // .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") ||
+                    //     vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"))
+                    .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL"))
+                    .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
+                // Files matching the selected Variant Callers
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF")
                     .filter(file =>
-                        nonSvSomaticVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) >= 0);
+                        nonSvSomaticVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
 
-                const fileDataFilters = [];
-                nonSvSomaticVariantCallers
-                    .forEach(vc => {
-                        const filters = vc.dataFilters
-                            .filter(filter => !filter.source || filter.source === "FILE")
-                            .filter(filter => !!filter.defaultValue)
-                            .map(filter => {
-                                // Notice that defaultValue includes the comparator, eg. =, >, ...
-                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
-                            });
+                if (this.files?.length > 0) {
+                    const fileDataFilters = [];
+                    nonSvSomaticVariantCallers
+                        .forEach(vc => {
+                            const filtersWithDefaultValues = vc.dataFilters
+                                .filter(filter => !filter.source || filter.source === "FILE")
+                                .filter(filter => !!filter.defaultValue)
+                                .map(filter => {
+                                    // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                    return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                                });
 
-                        // Only add this file to the filter if we have at least one default value
-                        if (filters.length > 0) {
-                            // We need to find the file for that caller
-                            const fileId = this.files.find(file => file.software.name === vc.id)?.name;
-                            if (fileId) {
-                                fileDataFilters.push(fileId + ":" + filters.join(";"));
+                            // Only add this file to the filter if we have at least one default value
+                            if (filtersWithDefaultValues.length > 0) {
+                                // We need to find the file for that caller
+                                const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                                if (fileId) {
+                                    fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
+                                }
                             }
-                        }
-                    });
+                        });
 
-                // Update query with default 'fileData' parameters
-                this.query.fileData = fileDataFilters.join(",");
+                    // Update query with default 'fileData' parameters
+                    this.query.fileData = fileDataFilters.join(",");
+                } else {
+                    this.files = this.clinicalAnalysis.files
+                        .filter(file => file.format.toUpperCase() === "VCF");
+                }
+            } else {
+                this.files = this.clinicalAnalysis.files
+                    .filter(file => file.format.toUpperCase() === "VCF");
             }
 
-            // getDefaultConfig() uses this.files
+            // Create _config again since getDefaultConfig() uses this.files
             this._config = this.getDefaultConfig();
 
 
@@ -198,6 +216,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     query: this.query
                 }
             );
+
+            // Add 'file' filter if 'fileData' exists
+            if (this.files) {
+                const fileNames = this.files.map(f => f.name).join(",");
+                for (const filter of _activeFilterFilters) {
+                    if (filter.query?.fileData && !filter.query?.file) {
+                        filter.query.file = fileNames;
+                    }
+                }
+            }
 
             // Set active filters
             this._config.filter.activeFilters.filters = _activeFilterFilters;
@@ -293,15 +321,15 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 }
                             },
                             {
-                                id: "file-quality",
-                                title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters"
+                                id: "variant-file-sample-filter",
+                                title: "Variant Caller Sample Filter",
+                                tooltip: "VCF file sample filters"
                             },
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
-                                // visible: () => this.files?.length > 0,
-                                visible: () => !!this.query.fileData,
+                                visible: () => this.files?.length > 0,
+                                // visible: () => !!this.query.fileData,
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
@@ -386,32 +414,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: false,
-                                // TODO read this from the Study.internal.configuration in OpenCGA 2.1
-                                populationFrequencies: {
-                                    studies: [
-                                        {
-                                            id: "1kG_phase3",
-                                            title: "1000 Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "All populations [ALL]"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: "GNOMAD_GENOMES",
-                                            title: "gnomAD Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "gnomAD [ALL]"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
+                                params: {
+                                    showSetAll: false,
+                                    populationFrequencyIndexConfiguration: this.opencgaSession?.study?.internal?.configuration
+                                        ?.variantEngine?.sampleIndex?.annotationIndexConfiguration?.populationFrequency,
+                                },
                             }
                         ]
                     },
@@ -498,11 +506,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             horizontalAlign: "center",
                             verticalAlign: "bottom"
                         },
-
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: true,
+                        variantTypes: ["SNV", "INDEL"],
                     }
                 },
                 detail: {

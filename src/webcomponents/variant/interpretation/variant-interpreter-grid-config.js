@@ -300,7 +300,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             field: "activeHighlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.highlights || [],
+                            allowedValues: this.config?.highlights?.map(highlight => highlight.id) || [],
                             display: {
                                 visible: () => (this.config?.highlights || []).length > 0,
                             },

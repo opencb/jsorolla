@@ -215,6 +215,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 silentSort: false,
@@ -365,7 +367,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
@@ -441,7 +443,8 @@ export default class VariantInterpreterGrid extends LitElement {
             data: this.clinicalVariants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
-
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -462,7 +465,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 // We detail view is active we expand the row automatically.
                 // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                 if (this._config.detailView) {
-                    if (element[0].innerHTML.includes("icon-plus")) {
+                    if (element[0].innerHTML.includes("fa-plus")) {
                         $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                     } else {
                         $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
@@ -590,6 +593,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // Multiple file callers are supported.
         let vcfDataColumns = [];
         const vcfDataColumnNames = [];
+        const variantTypes = new Set(this._config.variantTypes || []);
         const fileCallers = this.clinicalAnalysis.files
             .filter(file => file.format === "VCF" && file.software?.name)
             .map(file => file.software.name.toUpperCase());
@@ -597,9 +601,8 @@ export default class VariantInterpreterGrid extends LitElement {
         if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
             // FIXME remove specific code for ASCAT!
             const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
-                .filter(vc => vc.somatic === (this.clinicalAnalysis?.type?.toUpperCase() === "CANCER"))
-                .filter(vc => vc.id.toUpperCase() !== "ASCAT")
-                .filter(vc => vc.types.includes("SNV") || vc.types.includes("INDEL") || vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
+                .filter(vc => vc.somatic === this._config.somatic)
+                .filter(vc => vc.types.some(type => variantTypes.has(type)));
 
             if (variantCallers?.length > 0) {
                 for (const variantCaller of variantCallers) {
@@ -611,7 +614,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         if (variantCaller.columns?.length > 0) {
                             for (const column of variantCaller.columns) {
                                 vcfDataColumns.push({
-                                    title: column,
+                                    title: column.replace("EXT_", ""),
                                     field: {
                                         key: column,
                                         sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
@@ -761,6 +764,9 @@ export default class VariantInterpreterGrid extends LitElement {
                             }
                         }
 
+                        const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
+                        const reviewDisabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+
                         return `
                             <div class="dropdown">
                                 <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">Actions
@@ -768,8 +774,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit"
-                                                ${!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : ""}>
+                                        <a id="${reviewId}" href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
@@ -1155,6 +1160,12 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Set 'Edit' button as enabled/disabled
         document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
+        const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
+        if (e.currentTarget.checked) {
+            reviewActionButton.removeAttribute("disabled");
+        } else {
+            reviewActionButton.setAttribute("disabled", "true");
+        }
 
         // Enable or disable evidences select
         Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
@@ -1211,6 +1222,12 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Clear selected variant to review
         this.variantReview = null;
+        this.requestUpdate();
+    }
+
+    onVariantReviewCancel() {
+        this.variantReview = null;
+        this.requestUpdate();
     }
 
     onEvidenceCheck(e) {
@@ -1331,7 +1348,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" @click="${() => this.onVariantReviewCancel()}">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
                         </div>
                     </div>
@@ -1442,7 +1459,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
             evidences: {
                 showSelectCheckbox: true
-            }
+            },
+
+            somatic: false,
+            variantTypes: [],
         };
     }
 

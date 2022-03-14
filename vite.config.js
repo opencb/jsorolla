@@ -3,7 +3,7 @@ import path from "path";
 import {defineConfig} from "vite";
 
 const env = process.env || {};
-const sites = ["iva", "rest-api"];
+const sites = ["iva", "api"];
 
 const getCustomSitePath = (name, folder) => {
     if (env.npm_config_custom_site) {
@@ -38,9 +38,12 @@ export default defineConfig({
     mode: env.NODE_ENV || "development",
     root: "./",
     server: {
-        open: "/src/sites/iva/index.html",
+        open: env.NODE_ENV !== "production"? "/src/sites/iva/index.html": "/iva/index.html",
         port: 3000,
         watch: ["src", "styles", "custom-sites"]
+    },
+    build: {
+        outDir: "build"
     },
     plugins: [
         {
