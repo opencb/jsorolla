@@ -110,7 +110,7 @@ export default class OpencgaExport extends LitElement {
         const [firstRow, secondRow] = this.config.gridColumns;
         this.exportFields = [];
 
-        firstRow.forEach((c, i) => {
+        firstRow.filter(f => f?.visible !== false).forEach((c, i) => {
             if (c.rowspan !== 2 || !c.rowspan) {
                 // add sub Level
                 const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
