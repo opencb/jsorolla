@@ -76,8 +76,8 @@ export default class OpencgaExport extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("query") || changedProperties.has("config")) {
             // this._config = {...this.getDefaultConfig(), ...this.config};
@@ -110,17 +110,23 @@ export default class OpencgaExport extends LitElement {
         const [firstRow, secondRow] = this.config.gridColumns;
         this.exportFields = [];
 
+        /* Building the exportFields array. Each element has the form:
+            - id
+            - children // nested list elements
+            - export // flag to keeps the state during TSV export (false won't be included as column)
+            - excludeFromExport // flat to totally exclude grid columns from the list in this component and in the TSV (Action, checkboxes)
+         */
         firstRow.filter(f => f?.visible !== false).forEach((c, i) => {
             if (c.rowspan !== 2 || !c.rowspan) {
                 // add sub Level
                 const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
                 subIndx += c.colspan ? c.colspan : 0;
-                this.exportFields.push({id: c.id, export: true, children: subFields.map(s => ({id: s.id, export: true}))});
+                this.exportFields.push({id: c.id, export: true, children: subFields.map(s => ({id: s.id, export: true, excludeFromExport: s.excludeFromExport}))});
             } else {
                 if (c.rowspan !== 2 || !c.rowspan) {
                     subIndx += c.colspan ? c.colspan : 0;
                 }
-                this.exportFields.push({id: c.id, export: true});
+                this.exportFields.push({id: c.id, export: true, excludeFromExport: c.excludeFromExport});
             }
         });
     }
@@ -374,12 +380,16 @@ const client = new OpenCGAClient({
                                 </span>
                                 <div id="exportFields" class="collapse">
                                     <ul>
-                                        ${this.exportFields.map((li, i) => html`
+                                        ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                         <li>
                                             <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
                                             ${li.children ? html`
                                                 <ul>
-                                                    ${li.children.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                    ${li.children
+                                                        .filter(li => !li.excludeFromExport)
+                                                        .map((s, y) => html`
+                                                            <li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>
+                                                        `)}
                                                 </ul>
                                             ` : ""}
                                         </li>
