@@ -85,10 +85,8 @@ export default class RestEndpoint extends LitElement {
     }
 
     endpointObserver() {
-        debugger;
         this.result = "";
         if (this.endpoint?.parameters?.length > 0) {
-            // this.data = {};
             const queryElements = [];
             const pathElements = [];
             const bodyElements = [];
@@ -99,21 +97,21 @@ export default class RestEndpoint extends LitElement {
                         this.data.body = {};
                     }
 
-                    for (const dataParameter of parameter.data) {
-                        // this.data.body[dataParameter.name] = dataParameter.defaultValue || "";
-                        this.data.body[dataParameter.name] = dataParameter.type?.toLowerCase() in this.parameterTypeToHtml? dataParameter.defaultValue || "" : {};
-                        // if (dataParameter.type?.toUpperCase() !== "OBJECT" && dataParameter.type?.toUpperCase() !== "MAP") {
-                        if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
-                            bodyElements.push(
-                                {
-                                    name: dataParameter.name,
-                                    field: "body." + dataParameter.name,
-                                    type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
-                                    allowedValues: dataParameter.allowedValues?.split(","),
-                                    defaultValue: dataParameter.defaultValue,
-                                    required: !!dataParameter.required
-                                }
-                            );
+                    if ("data" in parameter) {
+                        for (const dataParameter of parameter.data) {
+                            this.data.body[dataParameter.name] = dataParameter.type?.toLowerCase() in this.parameterTypeToHtml? dataParameter.defaultValue || "" : {};
+                            if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
+                                bodyElements.push(
+                                    {
+                                        name: dataParameter.name,
+                                        field: "body." + dataParameter.name,
+                                        type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                        allowedValues: dataParameter.allowedValues?.split(","),
+                                        defaultValue: dataParameter.defaultValue,
+                                        required: !!dataParameter.required
+                                    }
+                                );
+                            }
                         }
                     }
                 } else {
