@@ -680,10 +680,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         _.analyst?.assignee ?? "-",
                         _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
                     ].join("\t"))];
-                UtilsNew.downloadData([dataString.join("\n")], "cases_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+
+                UtilsNew.downloadData([dataString.join("\n")], result[0].id + ".tsv", "text/plain");
             } else {
                 const json = JSON.stringify(result, null, "\t");
-                UtilsNew.downloadData(json, "cases_" + this.opencgaSession.study.id + ".json", "application/json");
+                UtilsNew.downloadData(json, result[0].id + ".json", "application/json");
             }
         } else {
             console.error("Error in result format");
