@@ -258,14 +258,19 @@ export default class VariantGridFormatter {
                 resultHtml = allGenes.join(",");
             } else {
                 resultHtml = `
-                    ${allGenes.slice(0, maxDisplayedGenes).join(",")}
-                    <div data-role="show-genes" data-variant-index="${index}" style="margin-top:8px;">
-                        <a style="cursor:pointer;font-size:13px;font-weight:bold;">
-                            ... show more genes (${(allGenes.length - maxDisplayedGenes)})
-                        </a>
-                    </div>
-                    <div data-role="hidden-genes" data-variant-index="${index}" style="display:none">
-                        ${allGenes.slice(maxDisplayedGenes).join(",")}
+                    <div data-role="genes-list" data-variant-index="${index}">
+                        ${allGenes.slice(0, maxDisplayedGenes).join(",")}
+                        <span data-role="genes-list-extra" style="display:none">
+                            ,${allGenes.slice(maxDisplayedGenes).join(",")}
+                        </span>
+                        <div style="margin-top:8px;">
+                            <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                                ... show more genes (${(allGenes.length - maxDisplayedGenes)})
+                            </a>
+                            <a data-role="genes-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                                show less genes
+                            </a>
+                        </div>
                     </div>
                 `;
             }
