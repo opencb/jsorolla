@@ -1038,8 +1038,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     const color = sample?.somatic ? "darkred" : "black";
 
                     _columns[1].splice(i, 0, {
-                        title: `<span>${sample.id}</span><br>
-                                <span style="color: ${color};font-style: italic">${sample?.somatic ? "somatic" : "germline"}</span>`,
+                        title: `
+                            <div style="word-break:break-all;max-width:192px;white-space:break-spaces;">${sample.id}</div>
+                            <div style="color:${color};font-style:italic;">${sample?.somatic ? "somatic" : "germline"}</div>
+                        `,
                         field: {
                             sampleId: sample.id,
                             quality: this._config.quality,

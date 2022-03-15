@@ -750,9 +750,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     }
 
                     _columns[1].splice(i, 0, {
-                        title: `<span style="color: ${color}">${samples[i].id}</span>
-                                <br>
-                                <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
+                        title: `
+                            <div style="color:${color};word-break:break-all;max-width:192px;white-space:break-spaces;">${samples[i].id}</div>
+                            <div style="color:${color};font-style:italic;">${sampleInfo[samples[i].id].role}, ${affected}</div>
+                        `,
                         field: {
                             memberIdx: i,
                             memberName: samples[i].id,
