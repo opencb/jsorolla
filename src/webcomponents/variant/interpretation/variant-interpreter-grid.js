@@ -135,7 +135,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 resource: "VARIANT",
                 showExport: true,
                 columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-                // gridColumns: this._getDefaultColumns() // original column structure
+                gridColumns: this._getDefaultColumns() // original column structure
             };
             this.requestUpdate();
             this.renderVariants();
@@ -613,6 +613,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         if (variantCaller.columns?.length > 0) {
                             for (const column of variantCaller.columns) {
                                 vcfDataColumns.push({
+                                    id: column.replace("EXT_", ""),
                                     title: column.replace("EXT_", ""),
                                     field: {
                                         key: column,
@@ -813,12 +814,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     events: {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
+                    excludeFromExport: true // this is used in opencga-export
                     // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
                 },
             ],
             [
                 ...vcfDataColumns,
                 {
+                    id: "cohort",
                     title: "Cohorts",
                     field: "cohort",
                     colspan: 1,
@@ -827,6 +830,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                 },
                 {
+                    id: "populationFrequencies",
                     title: "Population Frequencies",
                     field: "populationFrequencies",
                     colspan: 1,
@@ -835,6 +839,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: !this._config.hidePopulationFrequencies,
                 },
                 {
+                    id: "clinvar",
                     title: "ClinVar",
                     field: "clinvar",
                     colspan: 1,
@@ -844,6 +849,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: !this._config.hideClinicalInfo,
                 },
                 {
+                    id: "cosmic",
                     title: "Cosmic",
                     field: "cosmic",
                     colspan: 1,
@@ -854,6 +860,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 // Interpretation Column
                 {
+                    id: "prediction",
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
@@ -866,6 +873,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                 },
                 {
+                    id: "Select",
                     title: "Select",
                     rowspan: 1,
                     colspan: 1,
@@ -878,7 +886,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     events: {
                         "click input": e => this.onVariantCheck(e)
                     },
-                    visible: this._config.showSelectCheckbox
+                    visible: this._config.showSelectCheckbox,
+                    excludeFromExport: true // this is used in opencga-export
                 },
                 {
                     id: "review",
@@ -901,7 +910,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     events: {
                         "click button": e => this.onVariantReview(e)
                     },
-                    visible: this.review
+                    visible: this.review,
+                    excludeFromExport: true // this is used in opencga-export
                 },
             ]
         ];
@@ -978,6 +988,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
 
                     _columns[1].splice(i, 0, {
+                        id: samples[i].id,
                         title: `<span style="color: ${color}">${samples[i].id}</span>
                                 <br>
                                 <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
@@ -1026,6 +1037,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const color = sample?.somatic ? "darkred" : "black";
 
                     _columns[1].splice(i, 0, {
+                        id: sample.id,
                         title: `<span>${sample.id}</span><br>
                                 <span style="color: ${color};font-style: italic">${sample?.somatic ? "somatic" : "germline"}</span>`,
                         field: {
@@ -1113,7 +1125,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const samples = this.query.sample.split(";").map(sample => ({
                         id: sample.split(":")[0],
                     }));
-                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype);
+                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
                     UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
