@@ -656,6 +656,16 @@ export default class VariantInterpreterGrid extends LitElement {
                     // sortable: true
                 },
                 {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    halign: "center",
+                    visible: !this._config.hideType,
+                },
+                {
                     id: "gene",
                     title: "Gene",
                     field: "gene",
@@ -665,14 +675,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    id: "type",
-                    title: "Type",
-                    field: "type",
+                    id: "hgvs",
+                    title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
                     halign: "center",
-                    visible: !this._config.hideType,
+                    visible: !!this._config.showHgvs,
                 },
                 {
                     id: "consequenceType",
@@ -957,7 +966,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
 
             if (samples.length > 0) {
-                _columns[0].splice(4, 0, {
+                _columns[0].splice(5, 0, {
                     id: "zygosity",
                     title: "Sample Genotypes",
                     field: "zygosity",
@@ -1017,7 +1026,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
                 }
 
-                _columns[0].splice(5, 0, {
+                _columns[0].splice(6, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
@@ -1424,6 +1433,7 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
+            showHgvs: false,
 
             header: {
                 horizontalAlign: "center",

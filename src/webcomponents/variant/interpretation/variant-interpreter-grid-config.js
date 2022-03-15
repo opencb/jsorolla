@@ -50,6 +50,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     onFieldChange(e) {
         switch (e.detail.param) {
+            case "genotype.type":
+                this.config.genotype.type = e.detail.value;
+                break;
+            case "showHgvs":
+                this.config.showHgvs = e.detail.value;
+                break;
             case "geneSet.ensembl":
             case "geneSet.refseq":
             case "consequenceType.all":
@@ -74,9 +80,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     // we need to refresh the form to display disabled checkboxes
                     this.requestUpdate();
                 }
-                break;
-            case "genotype.type":
-                this.config.genotype.type = e.detail.value;
                 break;
             case "activeHighlights":
                 this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
@@ -116,6 +119,38 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 buttonsVisible: false
             },
             sections: [
+                {
+                    id: "gt",
+                    title: "General Settings",
+                    description: "Select some general options",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
+                        visible: () => !!this.config?.genotype?.type
+                    },
+                    elements: [
+                        {
+                            title: "Select how genotypes are displayed",
+                            field: "genotype.type",
+                            type: "select",
+                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
+                            display: {
+                                width: 6,
+                            }
+                        },
+                        {
+                            title: "Show HGVS column",
+                            field: "showHgvs",
+                            type: "checkbox",
+                            text: "Show HGVS",
+                            display: {
+                                width: 6,
+                            }
+                        }
+                    ]
+                },
                 {
                     title: "Transcript Filter",
                     // description: "Select which transcripts and consequence types are displayed in the variant grid",
@@ -261,29 +296,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             display: {
                                 containerStyle: "margin: 10px 5px",
                                 disabled: () => this.config?.consequenceType?.all
-                            }
-                        }
-                    ]
-                },
-                {
-                    id: "gt",
-                    title: "Sample Genotype",
-                    description: "Select how genotypes are displayed",
-                    display: {
-                        titleHeader: "h4",
-                        titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
-                        descriptionStyle: "margin: 0px 10px",
-                        visible: () => !!this.config?.genotype?.type
-                    },
-                    elements: [
-                        {
-                            title: "Select Render Mode",
-                            field: "genotype.type",
-                            type: "select",
-                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
-                            display: {
-                                width: 6,
                             }
                         }
                     ]

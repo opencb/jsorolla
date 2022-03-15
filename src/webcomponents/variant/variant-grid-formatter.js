@@ -303,6 +303,31 @@ export default class VariantGridFormatter {
         }
     }
 
+    static hgvsFormatter(variant, gridConfig) {
+        BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
+        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
+
+        if (showArrayIndexes?.length > 0 && variant.annotation.hgvs?.length > 0) {
+            const results = [];
+            for (const index of showArrayIndexes) {
+                const consequenceType = variant.annotation.consequenceTypes[index];
+                const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
+                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
+                    results.push(`
+                        <div style="margin: 5px 0">
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.transcriptId, variant.annotation.hgvs) || "-"}
+                        </div>
+                        <div style="margin: 5px 0">
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}
+                        </div>
+                    `);
+                }
+            }
+            return results.join("<hr style='margin: 5px'>");
+        }
+    }
+
     static vcfFormatter(value, row, field, type = "INFO") {
         if (type.toUpperCase() === "INFO") {
             return row.studies[0].files[0].data[field];
@@ -672,7 +697,7 @@ export default class VariantGridFormatter {
                                 <div style="margin: 5px 0px">
                                     ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
                                 </div>` : ""
-                            }
+                }
                         </span>
                     </div>`;
 
