@@ -527,13 +527,27 @@ export default class VariantInterpreterGrid extends LitElement {
             onLoadSuccess: () => {
                 // Add events for displaying genes list
                 const gridElement = document.querySelector(`#${this.gridId}`);
-                Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
-                    const index = el.dataset.variantIndex;
-                    el.addEventListener("click", () => {
-                        el.style.display = "none";
-                        gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`).style.display = "block";
+                if (gridElement) {
+                    Array.from(gridElement.querySelectorAll("div[data-role='genes-list']")).forEach(el => {
+                        const genesList = el.querySelector("span[data-role='genes-list-extra']");
+                        const genesShowLink = el.querySelector("a[data-role='genes-list-show']");
+                        const genesHideLink = el.querySelector("a[data-role='genes-list-hide']");
+
+                        // Click on show more genes link
+                        genesShowLink.addEventListener("click", () => {
+                            genesShowLink.style.display = "none";
+                            genesHideLink.style.display = "block";
+                            genesList.style.display = "inline-block";
+                        });
+
+                        // Click on show less genes link
+                        genesHideLink.addEventListener("click", () => {
+                            genesHideLink.style.display = "none";
+                            genesShowLink.style.display = "block";
+                            genesList.style.display = "none";
+                        });
                     });
-                });
+                }
             },
             rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
