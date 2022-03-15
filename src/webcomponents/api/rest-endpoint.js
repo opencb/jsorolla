@@ -20,6 +20,7 @@ import {RestClient} from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import Types from "../commons/types.js";
 import "../commons/json-viewer.js";
 
 
@@ -84,9 +85,8 @@ export default class RestEndpoint extends LitElement {
     }
 
     endpointObserver() {
-
+        this.result = "";
         if (this.endpoint?.parameters?.length > 0) {
-            // this.data = {};
             const queryElements = [];
             const pathElements = [];
             const bodyElements = [];
@@ -97,21 +97,21 @@ export default class RestEndpoint extends LitElement {
                         this.data.body = {};
                     }
 
-                    for (const dataParameter of parameter.data) {
-                        // this.data.body[dataParameter.name] = dataParameter.defaultValue || "";
-                        this.data.body[dataParameter.name] = dataParameter.type?.toLowerCase() in this.parameterTypeToHtml? dataParameter.defaultValue || "" : {};
-                        // if (dataParameter.type?.toUpperCase() !== "OBJECT" && dataParameter.type?.toUpperCase() !== "MAP") {
-                        if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
-                            bodyElements.push(
-                                {
-                                    name: dataParameter.name,
-                                    field: "body." + dataParameter.name,
-                                    type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
-                                    allowedValues: dataParameter.allowedValues?.split(","),
-                                    defaultValue: dataParameter.defaultValue,
-                                    required: !!dataParameter.required
-                                }
-                            );
+                    if ("data" in parameter) {
+                        for (const dataParameter of parameter.data) {
+                            this.data.body[dataParameter.name] = dataParameter.type?.toLowerCase() in this.parameterTypeToHtml? dataParameter.defaultValue || "" : {};
+                            if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
+                                bodyElements.push(
+                                    {
+                                        name: dataParameter.name,
+                                        field: "body." + dataParameter.name,
+                                        type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                        allowedValues: dataParameter.allowedValues?.split(","),
+                                        defaultValue: dataParameter.defaultValue,
+                                        required: !!dataParameter.required
+                                    }
+                                );
+                            }
                         }
                     }
                 } else {
@@ -199,8 +199,28 @@ export default class RestEndpoint extends LitElement {
 
 
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
-            this.requestUpdate();
+        } else {
+            this.form = Types.dataFormConfig({
+                type: "form",
+                display: {
+                    buttonClearText: "",
+                    buttonOkText: "Try it out!",
+                    labelWidth: "3",
+                    defaultLayout: "horizontal",
+                    buttonsVisible: this.isEndPointAdmin() ? this.isAdministrator() : true
+                },
+                sections: [{
+                    elements: [{
+                        type: "notification",
+                        text: "No parameters...",
+                        display: {
+                            notificationType: "info",
+                        },
+                    }]
+                }]
+            });
         }
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
