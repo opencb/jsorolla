@@ -97,10 +97,14 @@ export default class RestEndpoint extends LitElement {
                         this.data.body = {};
                     }
 
-                    if ("data" in parameter) {
+                    if (UtilsNew.hasProp(parameter, "data")) {
                         for (const dataParameter of parameter.data) {
-                            this.data.body[dataParameter.name] = dataParameter.type?.toLowerCase() in this.parameterTypeToHtml? dataParameter.defaultValue || "" : {};
-                            if (dataParameter.type?.toLowerCase() in this.parameterTypeToHtml) {
+                            const paramType = dataParameter.type?.toLowerCase();
+
+                            this.data.body[dataParameter.name] = UtilsNew.hasProp(this.parameterTypeToHtml, paramType) ?
+                                dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
+
+                            if (UtilsNew.hasProp(this.parameterTypeToHtml, paramType)) {
                                 bodyElements.push(
                                     {
                                         name: dataParameter.name,
@@ -133,9 +137,17 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
-            const fieldElements = this.isEndPointAdmin() ?
-                this.isAdministrator() ? [...pathElements, ...queryElements]:
-                    this.disabledElements([...pathElements, ...queryElements]) : [...pathElements, ...queryElements];
+            // const fieldElements =
+            //     this.isEndPointAdmin() ?
+            //         this.isAdministrator() ? [...pathElements, ...queryElements] : this.disabledElements([...pathElements, ...queryElements]) :
+            //         [...pathElements, ...queryElements];
+
+            const elements = [...pathElements, ...queryElements];
+            const fieldElements =
+                this.isNotEndPointAdmin() ? elements :
+                    this.isAdministrator() ? elements :
+                        this.disabledElements(elements);
+
 
             this.form = {
                 type: "form",
@@ -148,7 +160,7 @@ export default class RestEndpoint extends LitElement {
                     width: "12",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    buttonsVisible: this.isEndPointAdmin() ? this.isAdministrator() : true
+                    buttonsVisible: this.isNotEndPointAdmin() ? true : this.isAdministrator()
                 },
                 sections: []
             };
@@ -167,9 +179,14 @@ export default class RestEndpoint extends LitElement {
             }
 
             if (bodyElements.length > 0) {
-                const bodyElementsT = this.isEndPointAdmin() ?
-                    this.isAdministrator() ? bodyElements:
-                        this.disabledElements(bodyElements) : bodyElements;
+                // const bodyElementsT = this.isEndPointAdmin() ?
+                //     this.isAdministrator() ? bodyElements:
+                //         this.disabledElements(bodyElements) : bodyElements;
+
+                const bodyElementsT =
+                    this.isNotEndPointAdmin() ? bodyElements :
+                        this.isAdministrator() ? bodyElements:
+                            this.disabledElements(bodyElements);
 
                 this.form.sections.push({
                     title: "Body",
@@ -177,7 +194,7 @@ export default class RestEndpoint extends LitElement {
                         titleHeader: "h4",
                         style: "margin-left: 20px"
                     },
-                    elements: [...[],
+                    elements: [
                         {
                             type: "custom",
                             display: {
@@ -196,8 +213,6 @@ export default class RestEndpoint extends LitElement {
             if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
-
-
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
         } else {
             this.form = Types.dataFormConfig({
@@ -207,7 +222,7 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    buttonsVisible: this.isEndPointAdmin() ? this.isAdministrator() : true
+                    buttonsVisible: this.isNotEndPointAdmin() ? true: this.isAdministrator()
                 },
                 sections: [{
                     elements: [{
@@ -233,8 +248,8 @@ export default class RestEndpoint extends LitElement {
         return this.opencgaSession?.user?.account?.type === "ADMINISTRATOR" || this.opencgaSession?.user.id === "OPENCGA";
     }
 
-    isEndPointAdmin() {
-        return this.endpoint.path.includes("/admin/");
+    isNotEndPointAdmin() {
+        return !this.endpoint.path.includes("/admin/");
     }
 
     disabledElements(elements) {
