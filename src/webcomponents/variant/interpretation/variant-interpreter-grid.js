@@ -1080,7 +1080,10 @@ export default class VariantInterpreterGrid extends LitElement {
             default:
                 const copy = this._config.copies.find(copy => copy.id === action);
                 if (copy) {
-                    navigator.clipboard.writeText(copy.execute(row));
+                    BioinfoUtils.sort(row.annotation?.consequenceTypes, v => v.geneName);
+                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation?.consequenceTypes, this._config).indexes;
+
+                    navigator.clipboard.writeText(copy.execute(row, showArrayIndexes));
                 }
                 break;
         }
