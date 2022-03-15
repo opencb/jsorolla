@@ -384,10 +384,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     if (gridElement) {
                         Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
                             const index = el.dataset.variantIndex;
-                            const hiddenGelesEl = gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`);
+                            const hiddenGenesEl = gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`);
                             el.addEventListener("click", () => {
                                 el.style.display = "none";
-                                hiddenGelesEl.style.display = "block";
+                                hiddenGenesEl.style.display = "block";
                             });
                         });
                     }
