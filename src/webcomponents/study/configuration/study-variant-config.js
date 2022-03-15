@@ -475,7 +475,7 @@ export default class StudyVariantConfig extends LitElement {
             display: {
                 buttonOkText: "Update",
                 buttonClearText: "Cancel",
-                buttonsVisible: true,
+                buttonsVisible: false,
                 buttonsLayout: false,
                 buttonsWidth: 8,
                 style: "margin: 10px",
