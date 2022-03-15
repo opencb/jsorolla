@@ -97,6 +97,13 @@ export default class UtilsNew {
         return typeof arr !== "undefined" && arr !== null && arr.length > 0;
     }
 
+    static hasProp(obj, prop) {
+        if (UtilsNew.isEmpty(obj)) {
+            return false;
+        }
+        return prop in obj;
+    }
+
     static defaultString(str, str2) {
         return this.isNotEmpty(str) ? str : str2;
     }
