@@ -382,12 +382,23 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Add events for displaying genes list
                     const gridElement = document.querySelector(`#${this.gridId}`);
                     if (gridElement) {
-                        Array.from(gridElement.querySelectorAll("div[data-role='show-genes']")).forEach(el => {
-                            const index = el.dataset.variantIndex;
-                            const hiddenGenesEl = gridElement.querySelector(`div[data-role='hidden-genes'][data-variant-index='${index}']`);
-                            el.addEventListener("click", () => {
-                                el.style.display = "none";
-                                hiddenGenesEl.style.display = "block";
+                        Array.from(gridElement.querySelectorAll("div[data-role='genes-list']")).forEach(el => {
+                            const genesList = el.querySelector("span[data-role='genes-list-extra']");
+                            const genesShowLink = el.querySelector("a[data-role='genes-list-show']");
+                            const genesHideLink = el.querySelector("a[data-role='genes-list-hide']");
+
+                            // Click on show more genes link
+                            genesShowLink.addEventListener("click", () => {
+                                genesShowLink.style.display = "none";
+                                genesHideLink.style.display = "block";
+                                genesList.style.display = "inline-block";
+                            });
+
+                            // Click on show less genes link
+                            genesHideLink.addEventListener("click", () => {
+                                genesHideLink.style.display = "none";
+                                genesShowLink.style.display = "block";
+                                genesList.style.display = "none";
                             });
                         });
                     }
