@@ -20,6 +20,7 @@ import {RestClient} from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import Types from "../commons/types.js";
 import "../commons/json-viewer.js";
 
 
@@ -84,7 +85,8 @@ export default class RestEndpoint extends LitElement {
     }
 
     endpointObserver() {
-
+        debugger;
+        this.result = "";
         if (this.endpoint?.parameters?.length > 0) {
             // this.data = {};
             const queryElements = [];
@@ -199,8 +201,28 @@ export default class RestEndpoint extends LitElement {
 
 
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
-            this.requestUpdate();
+        } else {
+            this.form = Types.dataFormConfig({
+                type: "form",
+                display: {
+                    buttonClearText: "",
+                    buttonOkText: "Try it out!",
+                    labelWidth: "3",
+                    defaultLayout: "horizontal",
+                    buttonsVisible: this.isEndPointAdmin() ? this.isAdministrator() : true
+                },
+                sections: [{
+                    elements: [{
+                        type: "notification",
+                        text: "No parameters...",
+                        display: {
+                            notificationType: "info",
+                        },
+                    }]
+                }]
+            });
         }
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
