@@ -39,6 +39,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            somatic: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
@@ -55,6 +58,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
+        this.somatic = true;
         this.activeFilterFilters = [];
         this.savedVariants = [];
 
@@ -87,10 +91,18 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // Init the active filters with every new Case opened. Then we add the default filters for the given sample
-        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
+        let _activeFilterFilters;
+        if (this.settings?.menu?.examples?.length > 0) {
+            // Load custom filters if configured
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
+        } else {
+            // Load default filters if not custom defined
+            _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        }
 
-        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic === this.somatic);
         if (this.somaticSample) {
             // Init query object if needed
             if (!this.query) {

@@ -391,7 +391,7 @@ export default class StudyAdmin extends LitElement {
                         </div>
 
                         <div id="${this._prefix}Configuration" role="tabpanel" class="tab-pane content-tab">
-                            <h2><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration</h2>
+                            <h2><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration (Coming Soon)</h2>
                             <study-admin-configuration .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-configuration>
                         </div>
 

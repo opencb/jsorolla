@@ -20,7 +20,6 @@
     <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
     <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/cookies-js/dist/cookies.js"></script>
     <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
 
@@ -57,79 +56,48 @@
     <div id="application"></div>
 
     <script type="module">
-        import { CellBaseClient } from "../../core/clients/cellbase/cellbase-client.js";
+        import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
         import Region from "../../core/bioinfo/region.js";
         import Utils from "../../core/utils.js";
         import GenomeBrowser from "../genome-browser.js";
+        import GenomeBrowserConstants from "../genome-browser-constants.js";
+        import GenomeBrowserUtils from "../genome-browser-utils.js";
         import GeneTrack from "../tracks/gene-track.js";
-        import SnpTrack from "../tracks/snp-track.js";
+        import VariantTrack from "../tracks/variant-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
 
-        /** *************************************************************************/
-        /** *** Setting Defaults Params                                           ***/
-        /** *************************************************************************/
-
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
-
-        let AVAILABLE_SPECIES;
-
-        const queryParams = URI.parseQuery(window.location.search);
-        if (typeof queryParams.CELLBASE_HOST !== "undefined") {
-            CELLBASE_HOST = queryParams.CELLBASE_HOST;
-        }
-
-        if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
-            CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
-        }
-
-        console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION);
-
-        const cellBaseClientConfig = {
-            host: CELLBASE_HOST,
-            version: CELLBASE_VERSION,
-            cache: { active: false }
+        const params = new URLSearchParams(window.location.search);
+        const cellBaseConfig = {
+            host: params.get("CELLBASE_HOST") || GenomeBrowserConstants.CELLBASE_HOST,
+            version: params.get("CELLBASE_VERSION") || GenomeBrowserConstants.CELLBASE_VERSION,
+            cache: {
+                active: false,
+            },
         };
-        const cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+
+        console.log("CellBase Host: " + cellBaseConfig.host);
+        console.log("CellBase Version: " + cellBaseConfig.version);
+
+        const cellBaseClient = new CellBaseClient(cellBaseConfig);
 
         // GenomeBrowser, Region and Species:
         // let genomeBrowser;
         const region = new Region({ chromosome: "13", start: 32996311, end: 32996450 }); // initial region
+        const parent = document.getElementById("application");
 
-
-        function getSpecies(callback) {
-            cellbaseClient.getMeta("species").then(function (r) {
-                const taxonomies = r.response[0].result[0];
-                for (const taxonomy in taxonomies) {
-                    const newSpecies = [];
-                    for (let i = 0; i < taxonomies[taxonomy].length; i++) {
-                        const species = taxonomies[taxonomy][i];
-                        for (let j = 0; j < species.assemblies.length; j++) {
-                            const s = Utils.clone(species);
-                            s.assembly = species.assemblies[j];
-                            delete s.assemblies;
-                            newSpecies.push(s);
-                        }
-                    }
-                    taxonomies[taxonomy] = newSpecies;
-                }
-                callback(taxonomies);
-            });
-        }
-
-        function run() {
-            const species = AVAILABLE_SPECIES.vertebrates[0];
-            const genomeBrowser = new GenomeBrowser({
-                client: cellbaseClient,
-                cellBaseHost: CELLBASE_HOST,
-                cellBaseVersion: CELLBASE_VERSION,
-                target: "application",
-                width: document.querySelector("#application").getBoundingClientRect().width,
+        const run = availableSpecies => {
+            const species = availableSpecies.vertebrates[0];
+            const genomeBrowser = new GenomeBrowser(parent, {
+                cellBaseClient: cellBaseClient,
+                cellBaseHost: cellBaseConfig.host,
+                cellBaseVersion: cellBaseConfig.version,
+                width: parent.getBoundingClientRect().width,
                 region: region,
-                availableSpecies: AVAILABLE_SPECIES,
+                availableSpecies: availableSpecies,
                 species: species,
-                autoRender: true,
                 resizable: true,
                 karyotypePanelConfig: {
                     collapsed: false,
@@ -139,53 +107,67 @@
                     collapsed: false,
                     collapsible: true
                 },
-                handlers: {
-                    "region:change": function (e) {
-                        console.log(e);
-                    }
-                }
             });
 
-            const tracks = [];
+            // Register events listeners
+            genomeBrowser.on("region:change", event => {
+                console.log(event);
+            });
 
-            /** *************************************************************************/
-            /** *** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
-            /** *************************************************************************/
+            // When GB is ready add tracks and draw
+            genomeBrowser.on("ready", () => {
+                // Overview tracks
+                genomeBrowser.addOverviewTracks([
+                    new GeneOverviewTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                ]);
 
-            const geneOverviewTrack = new GeneOverviewTrack({ cellbaseClient:cellbaseClient });
-            genomeBrowser.addOverviewTrack(geneOverviewTrack);
+                // Detail tracks
+                genomeBrowser.addTracks([
+                    // Sequence Track
+                    new SequenceTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                    // Gene track
+                    new GeneTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                    // CellBase Variant track
+                    new VariantTrack({
+                        cellBaseClient: cellBaseClient,
+                    }),
+                ]);
 
-            /** *************************************************************************/
-            /** *** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
-            /** *************************************************************************/
+                /** *************************************************************************/
+                /** *** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
+                /** *************************************************************************/
 
-            const sequence = new SequenceTrack({ cellbaseClient: cellbaseClient });
-            tracks.push(sequence);
+                // const geneOverviewTrack = new GeneOverviewTrack({ cellbaseClient:cellBaseClient });
+                // genomeBrowser.addOverviewTrack(geneOverviewTrack);
 
-            /** ************************************************************************/
-            /** *** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
-            /** ************************************************************************/
+                /** ************************************************************************/
+                /** *** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
+                /** ************************************************************************/
 
-            const gene = new GeneTrack({cellbaseClient: cellbaseClient});
-            tracks.push(gene);
+                // const gene = new GeneTrack({cellbaseClient: cellBaseClient});
+                // tracks.push(gene);
 
-            /** *************************************************************************/
-            /** ***   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
-            /** *************************************************************************/
+                /** *************************************************************************/
+                /** ***   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
+                /** *************************************************************************/
 
-            const snp = new SnpTrack({cellbaseClient: cellbaseClient});
-            tracks.push(snp);
+                // const snp = new SnpTrack({cellbaseClient: cellBaseClient});
+                // tracks.push(snp);
 
-            genomeBrowser.addTrack(tracks);
-            genomeBrowser.draw();
+                genomeBrowser.draw();
+            });
         }
 
-        getSpecies(function (s) {
-            AVAILABLE_SPECIES = s;
-            run();
-        });
-
-
+        GenomeBrowserUtils.getSpeciesFromCellBase(cellBaseClient)
+            .then(availableSpecies => {
+                run(availableSpecies)
+            });
 
     </script>
 

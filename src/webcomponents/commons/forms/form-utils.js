@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class FormUtils {
 
@@ -143,7 +144,10 @@ export default class FormUtils {
     static createObject(object, params, value) {
         let data = {...object};
         const [field, prop] = params.split(".");
-        if (value) {
+
+        // Rodiel (07/03/22): For object type values it is necessary to check if it is empty.
+        // otherwise it would create an empty object instead of removing the empty object.
+        if (UtilsNew.isNotEmpty(value)) {
             if (prop) {
                 data[field] = {
                     ...data[field],

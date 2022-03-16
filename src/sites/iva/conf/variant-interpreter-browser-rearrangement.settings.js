@@ -10,7 +10,7 @@ const VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS = {
             // },
             {
                 title: "Genomic",
-                filters: ["region", "feature", "biotype", "variant-file-info-filter", "diseasePanels"]
+                filters: ["region", "feature", "biotype", "diseasePanels"]
             },
             // {
             //     title: "Clinical",
