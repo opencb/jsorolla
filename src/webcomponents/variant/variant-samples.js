@@ -128,6 +128,8 @@ export default class VariantSamples extends LitElement {
         this.table.bootstrapTable({
             pagination: true,
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             columns: this.getColumns(),
             formatShowingRows: this.gridCommons.formatShowingRows,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",

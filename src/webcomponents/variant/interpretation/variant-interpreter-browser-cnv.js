@@ -87,8 +87,16 @@ class VariantInterpreterBrowserCNV extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // Init the active filters with every new Case opened. Then we add the default filters for the given sample
-        const _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
+        let _activeFilterFilters;
+        if (this.settings?.menu?.examples?.length > 0) {
+            // Load custom filters if configured
+            // We need to clone to make sure we reset active fields
+            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
+        } else {
+            // Load default filters if not custom defined
+            _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        }
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
@@ -271,7 +279,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                             id: "NA", name: "NA"
                                         }
                                     ]
-                                }
+                                },
+                                tooltip: tooltips.sample,
                             },
                             {
                                 id: "variant-file",
@@ -279,13 +288,13 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 visible: () => this.files?.length > 0,
                                 params: {
                                     files: this.files
-                                }
+                                },
+                                tooltip: tooltips.vcfFile,
                             },
                             // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filters",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     visible: UtilsNew.isEmpty(this.callerToFile)
+                            //     id: "variant-file-sample-filter",
+                            //     title: "Variant Caller Sample Filter",
+                            //     tooltip: "VCF file sample filters"
                             // },
                             {
                                 id: "variant-file-info-filter",
@@ -294,7 +303,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
-                                }
+                                },
+                                tooltip: tooltips.variantCallerFile,
                             }
                         ]
                     },

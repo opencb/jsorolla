@@ -48,12 +48,32 @@ export default class PermissionBrowserGrid extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "PermissionBrowserGrid";
-        this.permissionString = ["VIEW_FILES", "VIEW_FILE_ANNOTATIONS", "WRITE_INDIVIDUALS", "VIEW_COHORTS", "VIEW_FAMILY_ANNOTATIONS",
-            "WRITE_FAMILIES", "VIEW_FILE_HEADER", "VIEW_FILE_CONTENT", "VIEW_INDIVIDUALS", "VIEW_AGGREGATED_VARIANTS",
-            "VIEW_COHORT_ANNOTATIONS", "WRITE_SAMPLES", "WRITE_CLINICAL_ANALYSIS", "DELETE_JOBS", "EXECUTE_JOBS", "DOWNLOAD_FILES",
-            "VIEW_INDIVIDUAL_ANNOTATIONS", "VIEW_PANELS", "VIEW_FAMILIES", "VIEW_JOBS", "WRITE_SAMPLE_ANNOTATIONS", "WRITE_JOBS",
-            "VIEW_SAMPLE_VARIANTS", "WRITE_FAMILY_ANNOTATIONS", "VIEW_SAMPLES", "WRITE_INDIVIDUAL_ANNOTATIONS", "VIEW_SAMPLE_ANNOTATIONS",
-            "VIEW_CLINICAL_ANALYSIS"];
+        this.permissionString = [
+            // FILES
+            "VIEW_FILES", "VIEW_FILE_HEADER", "VIEW_FILE_CONTENT", "WRITE_FILES", "DELETE_FILES", "DOWNLOAD_FILES", "UPLOAD_FILES",
+            "VIEW_FILE_ANNOTATIONS", "WRITE_FILE_ANNOTATIONS", "DELETE_FILE_ANNOTATIONS",
+            // JOBS
+            "EXECUTE_JOBS", "VIEW_JOBS", "WRITE_JOBS", "DELETE_JOBS",
+            // SAMPLES
+            "VIEW_SAMPLES", "WRITE_SAMPLES", "DELETE_SAMPLES",
+            "VIEW_SAMPLE_ANNOTATIONS", "WRITE_SAMPLE_ANNOTATIONS", "DELETE_SAMPLE_ANNOTATIONS",
+            "VIEW_AGGREGATED_VARIANTS", "VIEW_SAMPLE_VARIANTS",
+            // INDIVIDUALS
+            "VIEW_INDIVIDUALS", "WRITE_INDIVIDUALS", " DELETE_INDIVIDUALS",
+            "VIEW_INDIVIDUAL_ANNOTATIONS", "WRITE_INDIVIDUAL_ANNOTATIONS", "DELETE_INDIVIDUAL_ANNOTATIONS",
+            // FAMILIES
+            "VIEW_FAMILIES", "WRITE_FAMILIES", "DELETE_FAMILIES",
+            "VIEW_FAMILY_ANNOTATIONS", "WRITE_FAMILY_ANNOTATIONS", "DELETE_FAMILY_ANNOTATIONS",
+            // COHORTS
+            "VIEW_COHORTS", "WRITE_COHORTS", "DELETE_COHORTS",
+            "VIEW_COHORT_ANNOTATIONS", "WRITE_COHORT_ANNOTATIONS", "DELETE_COHORT_ANNOTATIONS",
+            // DISEASE PANELS
+            "VIEW_PANELS", "WRITE_PANELS", "DELETE_PANELS",
+            // CLINICAL ANALYSIS
+            "VIEW_CLINICAL_ANALYSIS", "WRITE_CLINICAL_ANALYSIS", "DELETE_CLINICAL_ANALYSIS",
+            // OTHERS
+            "CONFIDENTIAL_VARIABLE_SET_ACCESS"
+        ];
         this.permissions = this.permissionString.map(perm => {
             return {
                 id: perm
@@ -105,6 +125,8 @@ export default class PermissionBrowserGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.studyPermissions,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
 
             // Set table properties, these are read from config property
             uniqueId: "id",

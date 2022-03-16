@@ -20,7 +20,7 @@ const internalCss = /(global|magic-check|style|toggle-switch)/gi;
 
 // Get target sites to build
 // const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
-const sites = ["iva", "rest-api"];
+const sites = ["iva", "api"];
 
 const revision = () => {
     try {
@@ -77,7 +77,7 @@ const getCopyTargets = site => {
         // {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
         // {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
         {src: "./styles/fonts", dest: `${buildPath}/${site}/`},
-        {src: "./node_modules/bootstrap/dist/fonts/*.woff2", dest: `${buildPath}/${site}/vendors/fonts`},
+        // {src: "./node_modules/bootstrap/dist/fonts/*.woff2", dest: `${buildPath}/${site}/vendors/fonts`},
         {src: "./node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2", dest: `${buildPath}/${site}/vendors/webfonts`},
     ];
     if (env.npm_config_custom_site) {

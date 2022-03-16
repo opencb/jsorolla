@@ -352,9 +352,11 @@ const client = new OpenCGAClient({
                                 <div class="alert alert-warning" style="margin-bottom: 10px">
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <span>
-                                        <span style="font-weight: bold">Note: </span>This option will
+                                        <b>Note:</b> This option will <b>automatically download</b> the table, note that only first <b>1,000 records</b> are downloaded.
+                                        (If you need all records, please use 'Export Query')
+                                        <!-- <span style="font-weight: bold">Note: </span>This option will
                                         <span style="font-weight: bold">automatically download</span>
-                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded.
+                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded. -->
                                     </span>
                                 </div>
                             </div>
