@@ -114,10 +114,13 @@ export default class RestEndpoint extends LitElement {
                                         {
                                             name: dataParameter.name,
                                             field: "body." + dataParameter.name,
-                                            type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                            type: ["password", "newPassword"].includes(dataParameter.name) ?"input-password":this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
                                             allowedValues: dataParameter.allowedValues?.split(","),
                                             defaultValue: dataParameter.defaultValue,
-                                            required: !!dataParameter.required
+                                            required: !!dataParameter.required,
+                                            display: {
+                                                helpMessage: parameter.description
+                                            }
                                         }
                                     );
                                 }
@@ -130,7 +133,10 @@ export default class RestEndpoint extends LitElement {
                                             type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
                                             allowedValues: dataParameter.allowedValues?.split(","),
                                             defaultValue: dataParameter.defaultValue,
-                                            required: !!dataParameter.required
+                                            required: !!dataParameter.required,
+                                            display: {
+                                                helpMessage: dataParameter.description
+                                            }
                                         }
                                     );
                                 }
@@ -147,6 +153,7 @@ export default class RestEndpoint extends LitElement {
                         defaultValue: parameter.defaultValue,
                         required: !!parameter.required,
                         display: {
+                            helpMessage: parameter.description,
                             disabled: parameter.name === "study"
                         },
                     };
@@ -183,15 +190,12 @@ export default class RestEndpoint extends LitElement {
 
             this.form = {
                 type: "form",
-                buttons: {
-                    show: true,
-                    clearText: "Clear",
-                    okText: "Try it out!"
-                },
                 display: {
                     width: "12",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
+                    buttonClearText: "Clear",
+                    buttonOkText: "Try it out!",
                     buttonsVisible: this.isNotEndPointAdmin() ? true : this.isAdministrator()
                 },
                 sections: []
@@ -378,21 +382,20 @@ export default class RestEndpoint extends LitElement {
                 url += `&${parameter.name}=${this.data[parameter.name]}`;
             });
 
-        console.log("data:", this.data);
-        // this.isLoading = true;
-        // this.requestUpdate();
+        this.isLoading = true;
+        this.requestUpdate();
 
-        // this.restClient.call(url, {})
-        //     .then(response => {
-        //         this.result = response.responses[0];
-        //     })
-        //     .catch(response => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-        //     })
-        //     .finally(() => {
-        //         this.isLoading = false;
-        //         this.requestUpdate();
-        //     });
+        this.restClient.call(url, {})
+            .then(response => {
+                this.result = response.responses[0];
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
+                this.isLoading = false;
+                this.requestUpdate();
+            });
     }
 
     getJsonDataForm() {
