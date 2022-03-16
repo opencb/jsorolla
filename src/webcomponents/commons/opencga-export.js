@@ -54,6 +54,7 @@ export default class OpencgaExport extends LitElement {
 
         this.resourceMap = {
             "VARIANT": "variants",
+            "CLINICAL_VARIANT": "clinical",
             "FILE": "files",
             "SAMPLE": "samples",
             "INDIVIDUAL": "individuals",
@@ -155,6 +156,10 @@ export default class OpencgaExport extends LitElement {
         if (this.config.resource === "VARIANT") {
             this.method = "query";
             ws = "analysis/variant/query";
+        } else if (this.config.resource === "CLINICAL_VARIANT") {
+            this.method = "query_variant";
+            ws = "analysis/clinical/variant/query";
+
         } else {
             this.method = "search";
         }
@@ -181,6 +186,7 @@ export default class OpencgaExport extends LitElement {
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
         const clientsName = {
             "VARIANT": "variantClient",
+            "CLINICAL_VARIANT": "variantClient",
             "FILE": "fileClient",
             "SAMPLE": "sampleClient",
             "INDIVIDUAL": "individualClient",
@@ -192,7 +198,7 @@ export default class OpencgaExport extends LitElement {
         const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
+${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
         return this.lineSplitter(str);
     }
 
@@ -204,7 +210,7 @@ from pyopencga.opencga_client import OpencgaClient
 
 config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
 oc = OpencgaClient(config, token="${this.opencgaSession.token}")
-${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', limit=10, ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
+${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
 print(${this.resourceMap[this.config.resource]}.get_responses())`;
         return this.lineSplitter(str);
     }
@@ -224,7 +230,7 @@ const client = new OpenCGAClient({
     try {
         await client.login(username, password)
         const session = await client.createSession();
-        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.method}(${JSON.stringify(q)});
+        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.toCamelCase(this.method)}(${JSON.stringify(q)});
         console.log(restResponse.getResults());
     } catch (e) {
         console.error(e);
@@ -286,6 +292,20 @@ const client = new OpenCGAClient({
     toggleExportField(e) {
         this.exportFieldsVisible = !this.exportFieldsVisible;
         this.requestUpdate();
+    }
+
+    /**
+     * Convert a string in snake_case into camelCase
+     * @param {String} str input in snake_case
+     * @returns {String} output in camelCase
+     */
+    toCamelCase(str) {
+        return str.toLowerCase().replace(/([-_][a-z])/g, group =>
+            group
+                .toUpperCase()
+                .replace("-", "")
+                .replace("_", "")
+        );
     }
 
     /**
