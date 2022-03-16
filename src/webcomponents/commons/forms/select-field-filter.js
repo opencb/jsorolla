@@ -1,4 +1,4 @@
-77/**
+/**
  * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -100,6 +100,8 @@ export default class SelectFieldFilter extends LitElement {
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
         this.selectPicker.selectpicker({
+            iconBase: "fas",
+            tickIcon: "fa-check",
             val: "",
             multipleSeparator: this.separator
         });
@@ -112,7 +114,12 @@ export default class SelectFieldFilter extends LitElement {
             this.data = this.data ?? [];
             this.selectPicker.selectpicker("refresh");
         }
-        if (changedProperties.has("value")) {
+
+        if (changedProperties.has("disabled")) {
+            this.selectPicker.selectpicker("refresh");
+        }
+
+        if (changedProperties.has("value") || changedProperties.has("data") || changedProperties.has("disabled")) {
             let val = "";
             if (this.value) {
                 if (this.multiple) {
@@ -128,10 +135,6 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("val", val);
         }
 
-        if (changedProperties.has("disabled")) {
-            this.selectPicker.selectpicker("refresh");
-        }
-
         if (changedProperties.has("classes")) {
             if (this.classes) {
                 this.selectPicker.selectpicker("setStyle", this.classes, "add");
@@ -143,7 +146,7 @@ export default class SelectFieldFilter extends LitElement {
         }
     }
 
-    filterChange(e) {
+    filterChange() {
         const selection = this.selectPicker.selectpicker("val");
         let val = null;
         if (selection && selection.length) {

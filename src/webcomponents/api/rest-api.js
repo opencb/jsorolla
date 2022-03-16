@@ -65,12 +65,15 @@ export default class RestApi extends LitElement {
     }
 
     opencgaSessionObserver() {
+
         if (this.opencgaSession) {
             this.opencgaSession.opencgaClient.meta().api()
                 .then(responses => {
                     this.api = responses.responses[0].results[0];
                     if (this.api?.length > 0) {
-                        this.endpoint = this.api[0].endpoints.find(endpoint => endpoint.method === "GET");
+                        if (!this.endpoint) {
+                            this.endpoint = this.api[0].endpoints.find(endpoint => endpoint.method === "GET");
+                        }
                     }
                     this.requestUpdate();
                 })
@@ -87,7 +90,7 @@ export default class RestApi extends LitElement {
         return html`
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
-                    <div class="col-md-4">
+                    <div class="col-md-4 pre-scrollable-custom">
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
                             ${this.api?.map(category => {
                                 const categoryName = category.name.replaceAll(" ", "_");
@@ -115,11 +118,11 @@ export default class RestApi extends LitElement {
                                                 })
                                                 .map(endpoint => html`
                                                     <div class="panel-body" style="padding: 5px 15px">
-                                                        <button class="btn btn-link" role="link" @click="${e => this.onClick(e, endpoint)}">
+                                                        <button class="btn btn-link" role="link" style="display:flex;white-space:normal;" @click="${e => this.onClick(e, endpoint)}">
                                                             <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[endpoint.method]}">
                                                                 ${endpoint.method}
                                                             </span>
-                                                            <span style="font-weight: bold">
+                                                            <span style="font-weight:bold;word-break:break-word;text-align:left;">
                                                                 ${endpoint.path.replace("/{apiVersion}", "")}
                                                             </span>
                                                         </button>

@@ -61,6 +61,7 @@ context("4. Variant Browser", () => {
         cy.get("button[data-cy='modal-filter-save-button']").click(); // confirm save
 
         cy.contains(".notification-manager .alert", "Filter has been saved", {timeout: TIMEOUT}).should("be.visible");
+        cy.get(".active-filter-label").click();
         cy.get("ul.saved-filter-wrapper").contains(name);
         cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
         cy.get(".swal2-title").contains("Are you sure?");
@@ -234,9 +235,9 @@ context("4. Variant Browser", () => {
         cy.get("[data-cy-section-title=Phenotype]").click();
 
         // GO
-        selectToken("go-accessions-filter", "guanyl", true); // guanyl-nucleotide exchange factor activity
-        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0005085");
-        removeToken("go-accessions-filter", "GO:0005085");
+        selectToken("go-accessions-filter", "dopamine", true); // "dopamine secretion" exchange factor activity
+        cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
+        removeToken("go-accessions-filter", "GO:0014046");
 
         // HPO
         cy.get("[data-cy-section-id=Phenotype]")
@@ -253,22 +254,31 @@ context("4. Variant Browser", () => {
     it("4.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
         cy.get("variant-browser-filter a[data-cy-section-title='Deleteriousness']").click();
-        cy.get("protein-substitution-score-filter .sift input[type='text']").type("0.1");
-        cy.get("protein-substitution-score-filter .polyphen input[type='text']").type("0.1");
+        cy.get("protein-substitution-score-filter .sift .score-comparator .select-field-filter").click();
+        cy.get("protein-substitution-score-filter .sift .score-comparator .dropdown-menu").contains("<").click();
+        cy.get("protein-substitution-score-filter .sift .score-value input[type='text']").type("0.1");
+
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains("≤").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-value input[type='text']").type("0.1");
+
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='protein_substitution']").click();
+        cy.get("opencga-active-filters button[data-filter-name='proteinSubstitution']").click();
         checkResults("variant-browser-grid");
     });
 
     it("4.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
-        cy.get("protein-substitution-score-filter .sift input[type='text']").type("0.1");
-        cy.get("protein-substitution-score-filter .polyphen input[type='text']").type("0.1");
+        cy.get("protein-substitution-score-filter .sift .score-select .dropdown .btn").click();
+        cy.get("protein-substitution-score-filter .sift .score-select .dropdown a").contains("Tolerated").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-select .dropdown .btn").click();
+        cy.get("protein-substitution-score-filter .polyphen .score-select .dropdown a").contains("Possibly damaging").click();
+
         cy.get("protein-substitution-score-filter .rating-label-and").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='protein_substitution']").click();
+        cy.get("opencga-active-filters button[data-filter-name='proteinSubstitution']").click();
         checkResults("variant-browser-grid");
     });
 
@@ -332,7 +342,7 @@ context("4. Variant Browser", () => {
         checkResultsOrNot("variant-cohort-stats-grid");
 
         cy.get("variant-browser-detail [data-id='samples']").click();
-        checkResults("opencga-variant-samples");
+        checkResults("variant-samples");
 
         cy.get("variant-browser-detail [data-id='beacon']").click();
         cy.get("variant-beacon-network", {timeout: TIMEOUT}).find(".beacon-square").its("length").should("eq", 15);

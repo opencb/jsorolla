@@ -92,6 +92,7 @@ const SNP_BIOTYPE_COLORS = {
     "inframe_codon_loss": "#ffd700",
     "initiator_codon_change": "#ffd700",
     "non_synonymous_codon": "#ffd700",
+    "missense_variant": "#ffd700",
     "intergenic_variant": "#636363",
     "intron_variant": "#02599c",
     "mature_miRNA_variant": "#458b00",

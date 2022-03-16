@@ -3,8 +3,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
         sections: [
             {
                 title: "Sample",
-                // TODO file-quality: showDepth: false
-                filters: ["sample-genotype", "sample", "file-quality", "variant-file-info-filter", "cohort"]
+                filters: ["sample-genotype", "sample", "variant-file-sample-filter", "variant-file-info-filter", "cohort"]
             },
             {
                 title: "Genomic",
@@ -44,6 +43,26 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
+        highlights: [
+            {
+                id: "Low depth variant",
+                name: "Low depth variant (DP<20)",
+                description: "Highlight variants with a DP<20",
+                condition: variant => {
+                    const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === "DP");
+                    if (index > -1) {
+                        return Number(variant.studies[0].samples[0]?.data[index]) < 20;
+                    } else {
+                        return false;
+                    }
+                },
+                style: {
+                    // Row style
+                    rowBackgroundColor: "#ededed",
+                    rowOpacity: 0.5,
+                },
+            }
+        ]
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
         // columns: ["id", "gene", "type", "consequenceType", "zygosity", "evidences", "VCF_Data", "frequencies", "clinicalInfo", "interpretation", "review", "actions"]

@@ -133,6 +133,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {
             ...this._config.toolbar,
             resource: "VARIANT",
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
@@ -161,7 +162,8 @@ export default class VariantBrowserGrid extends LitElement {
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
-
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: this._config.pagination,
@@ -213,7 +215,7 @@ export default class VariantBrowserGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);

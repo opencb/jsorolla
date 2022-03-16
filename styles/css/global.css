@@ -2553,6 +2553,10 @@ interpretation-editor .status-wrapper .row > div:last-child {
     border-color: darkorange;
 }
 
+.selection-updated {
+    border-color: darkorange !important;
+}
+
 /****  select-field-filter-autocomplete (and disease-panel-filter for .selection-list) ****/
 .dropdown-item-extra {
     font-size: .8em;
@@ -2973,4 +2977,10 @@ go-accessions-filter .select2-selection {
 
 .ontology-node .leaf {
     padding-left: 10px;
+}
+
+/* Rest-Endpoint  */
+.pre-scrollable-custom {
+    max-height: 737px;
+    overflow-y: scroll;
 }

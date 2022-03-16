@@ -143,23 +143,32 @@ class VariantInterpreterReport extends LitElement {
                     "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
                     "with an interpretation of this report.",
                 ].join(" "),
-                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
-                    return item.status.toUpperCase() === "REPORTED";
-                }),
+                // TODO decide what to do here
+                // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
+                //     return item.status.toUpperCase() === "REPORTED";
+                // }),
+                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
+                hrdetect: null,
             };
 
-            const filesQuery = {
-                sampleIds: [somaticSample.id, germlineSample.id].join(","),
-                limit: 100,
-                study: this.opencgaSession.study.fqn,
-            };
+            const allPromises = [
+                this.opencgaSession.opencgaClient.files().search({
+                    sampleIds: [somaticSample.id, germlineSample.id].join(","),
+                    limit: 100,
+                    study: this.opencgaSession.study.fqn,
+                }),
+                this.opencgaSession.opencgaClient.samples().info(somaticSample.id, {
+                    include: "annotationSets",
+                    study: this.opencgaSession.study.fqn,
+                }),
+            ];
 
-            return this.opencgaSession.opencgaClient.files().search(filesQuery)
-                .then(response => {
-                    const files = response.responses[0].results;
+            return Promise.all(allPromises)
+                .then(values => {
+                    const files = values[0].responses[0].results;
 
                     // Get processing alignment info from one BAM file
                     const bamFile = files.find(f => f.format === "BAM");
@@ -204,8 +213,7 @@ class VariantInterpreterReport extends LitElement {
                             {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
                         this._data.ascatPlots = ascatMetrics?.files
-                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
-                            .map(id => files.find(f => f.id === id)) || [];
+                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id));
                     }
 
                     this._data.qcPlots = {};
@@ -215,6 +223,14 @@ class VariantInterpreterReport extends LitElement {
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
+                    }
+
+                    // Add HRDetect value (if provided)
+                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
+                        return item.id === "hrdetectStats";
+                    });
+                    if (hrdetectStats) {
+                        this._data.hrdetect = hrdetectStats.annotations.probability;
                     }
 
                     // End filling report data
@@ -530,19 +546,19 @@ class VariantInterpreterReport extends LitElement {
                                         <div class="col-md-5">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[0]}"
+                                                .fileId="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[2]}"
+                                                .fileId="${images[2]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[1]}"
+                                                .fileId="${images[1]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
@@ -582,7 +598,10 @@ class VariantInterpreterReport extends LitElement {
                                             </file-preview>
                                         </div>
                                         <div class="col-md-5">
-                                            <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                            <signature-view
+                                                .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV") || qcPlots.signatures?.[0]}"
+                                                .active="${this.active}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
                                             <p>
@@ -642,7 +661,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: false,
+                                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
@@ -711,7 +734,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["SNV", "INDEL"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -766,7 +793,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["COPY_NUMBER", "CNV"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -904,14 +935,8 @@ class VariantInterpreterReport extends LitElement {
                         },
                         {
                             title: "HRDetect",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => html`
-                                    <span>
-                                        0.998
-                                    </span>
-                                `,
-                            },
+                            field: "hrdetect",
+                            defaultValue: "Not provided",
                         },
                     ]
                 },

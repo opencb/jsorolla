@@ -19,6 +19,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
+import NotificationUtils from "../utils/notification-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
@@ -238,6 +239,10 @@ export default class DataForm extends LitElement {
         return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
     }
 
+    _getVisibleSections() {
+        return this.config.sections.filter(section => this._getBooleanValue(section?.display?.visible, true));
+    }
+
     _isUpdated(element) {
         if (!UtilsNew.isEmpty(this.updateParams)) {
             const [field, prop] = element.field.split(".");
@@ -301,7 +306,7 @@ export default class DataForm extends LitElement {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this.config.sections.map((section, index) => html`
+                    ${this._getVisibleSections().map((section, index) => html`
                         <div style="display:${this.activeSection === index ? "block": "none"}">
                             ${this._createSection(section)}
                         </div>
@@ -369,7 +374,7 @@ export default class DataForm extends LitElement {
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
         return html`
-            <div class="row" style="margin-bottom:16px;">
+            <div class="row" style="margin-bottom: 12px;">
                 <div class="${sectionWidth}">
                     ${section.title ? html`
                         <div style="margin-bottom:8px;">
@@ -420,6 +425,9 @@ export default class DataForm extends LitElement {
                 case "input-text":
                     content = this._createInputElement(element, "text");
                     break;
+                case "input-num":
+                    content = this._createInputElement(element, "number");
+                    break;
                 case "input-password":
                     content = this._createInputElement(element, "password");
                     break;
@@ -462,6 +470,9 @@ export default class DataForm extends LitElement {
                     break;
                 case "custom":
                     content = this._createCustomElement(element);
+                    break;
+                case "custom-list":
+                    content = this._createCustomListElement(element);
                     break;
                 case "download":
                     content = this._createDownloadElement(element);
@@ -539,6 +550,7 @@ export default class DataForm extends LitElement {
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
 
+
         // Help message
         const helpMessage = this._getHelpMessage(element);
         const helpMode = this._getHelpMode(element);
@@ -561,6 +573,65 @@ export default class DataForm extends LitElement {
                 ` : null}
             </div>
         `;
+    }
+
+    _createCustomElementTemplate(element, value, collapsedUpdate, content, callback) {
+        const isValid = this._isValid(element, value);
+        const isRequiredEmpty = this._isRequiredEmpty(element, value);
+        const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
+        // const collapsed = this._getBooleanValue(element?.collapsed, false);
+        // field + id + prefix + collapsed
+        // ${UtilsNew.randomString(8)}
+        const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
+        const collapseTarget = `${element?.field}${value?.id}Collapse`;
+        const collapseForm = collapseTarget.replace(regex, "");
+
+        // Help message
+        const helpMessage = this._getHelpMessage(element);
+        const helpMode = this._getHelpMode(element);
+
+        const results = html`
+            <div class="${hasErrorMessages ? "has-error" : ""}" style="${element?.display?.style}">
+                ${content}
+                ${helpMessage && helpMode !== "block" ? html`
+                    <div class="help-block" style="margin:8px">${helpMessage}</div>
+                ` : null}
+                ${hasErrorMessages ? html`
+                    <div class="help-block" style="display:flex;margin-top:8px;">
+                        <div style="margin-right:8px">
+                            <i class="${this._getErrorIcon(element)}"></i>
+                        </div>
+                        <div style="font-weight:bold;">
+                            ${isRequiredEmpty ? "This field is required." : element.validation?.message || ""}
+                        </div>
+                    </div>
+                ` : null}
+            </div>
+        `;
+        if (collapsedUpdate) {
+            return html`
+                <div class="row" style="padding-top:6px;padding-left:16px">
+                    ${value?.id}
+                    <div class="pull-right">
+                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${collapseForm}" aria-expanded="false"
+                                aria-controls="${collapseForm}">
+                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
+                            Edit
+                        </button>
+                        <button class="btn btn-danger" type="button" @click="${callback}">
+                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                            Remove
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse" id="${collapseForm}">
+                    <div>${results}</div>
+                </div>
+            `;
+        } else {
+            return results;
+        }
+
     }
 
     _createTextElement(element) {
@@ -695,6 +766,11 @@ export default class DataForm extends LitElement {
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
+                ${disabled && element.display?.helpMessage ? html`
+                    <div class="help-block small">
+                        ${element.display?.helpMessage}
+                    </div>` : null
+                }
             </div>
         `;
     }
@@ -1083,6 +1159,87 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _createCustomListElement(element) {
+        if (typeof element.display?.renderCreate !== "function" && typeof element.display?.renderUpdate !== "function") {
+            return "All 'custom-list' elements must implement a 'display.renderCreate' && 'display.renderUpdate' function.";
+        }
+
+        // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
+        let data = this.data;
+        if (element.field) {
+            data = this.getValue(element.field);
+        }
+
+        // Call to render function if defined
+        // It covers the case the result of this.getValue is actually undefined
+        // Approach #1
+        let contents;
+
+        // Collapse only for renderUpdate
+        const collapsedUpdate = this._getBooleanValue(element?.display?.collapsedUpdate, false);
+
+        // Functions for different actions in the custom list
+        const onChange = {
+            create: e => this._onChangeArray(e, element.field, "CREATE", data),
+            update: e => this._onChangeArray(e, element.field, "UPDATE", data),
+            remove: item => this._onChangeArray(item, element.field, "REMOVE", data)
+        };
+
+        const renderCreate = element.display.renderCreate({}, onChange.create);
+        const renderUpdate = item => element.display.renderUpdate(item, onChange.update);
+
+        if (data && Array.isArray(data)) {
+
+            // For the update, it will pass the remove function to the remove button as a callback with the specific item to be deleted.
+            contents = data.map(item => this._createCustomElementTemplate(element, item, collapsedUpdate, renderUpdate(item), e => onChange.remove(item)));
+            contents = [...contents, this._createCustomElementTemplate(element, {}, false, renderCreate)];
+            return contents.map(content => html`${content}`);
+        } else {
+            if (renderCreate) {
+                return this._createCustomElementTemplate(element, data, false, renderCreate);
+            } else {
+                this._getErrorMessage(element);
+            }
+        }
+    }
+
+    _onChangeArray(e, field, action, data) {
+        let results = {};
+        let _data = data ? data:[];
+        const item = e?.detail?.value;
+        let isRepeat = false;
+        switch (action) {
+            case "CREATE":
+                _data.some(d => d?.id === item?.id) ?
+                    isRepeat = true :
+                    results = {param: field, value: [..._data, item]};
+                break;
+            case "UPDATE":
+                const indexItem = _data.findIndex(item => item.id === item.id);
+                _data[indexItem] = item;
+                results = {param: field, value: _data};
+                const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
+                const collapseTarget =`${field}${item?.id}Collapse`;
+                $(`#${collapseTarget.replace(regex, "")}`).collapse("hide");
+                break;
+            case "REMOVE":
+                // This 'e' is the item to remove from array
+                const removedItem = e;
+                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(item => item.id === removedItem.id));
+                results = {param: field, value: _data};
+                break;
+        }
+        if (isRepeat) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                title: "Duplicated data",
+                message: "You have already added a data with the same id."
+            });
+        } else {
+            LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
+        }
+
+    }
+
     _createDownloadElement(element) {
         return html`
             <download-button
@@ -1186,17 +1343,27 @@ export default class DataForm extends LitElement {
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
         const buttonClearText = this.config.display?.buttonClearText ?? this.config.buttons?.clearText ?? this.config.buttons?.cancelText ?? "Clear";
         const buttonOkText = this.config.display?.buttonOkText ?? this.config.buttons?.okText ?? "OK";
+        const buttonClearVisible = this.config.display?.buttonClearText !== "";
+        const buttonOkVisible = this.config.display?.buttonOkText !== "";
 
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
-                    <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onClear}">
-                        ${buttonClearText}
-                    </button>
-                    <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" @click="${this.onSubmit}">
-                        ${buttonOkText}
-                    </button>
+                    ${buttonClearVisible? html`
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                                @click="${this.onClear}">
+                            ${buttonClearText}
+                        </button>
+                    `: null
+                    }
+                    ${buttonOkVisible? html`
+                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                                @click="${this.onSubmit}">
+                            ${buttonOkText}
+                        </button>
+                    `: null
+                    }
                 </div>
             </div>
         `;
@@ -1294,7 +1461,7 @@ export default class DataForm extends LitElement {
         if (type === "tabs") {
             return html`
                 <ul class="nav nav-tabs">
-                    ${this.config.sections.map((section, index) => {
+                    ${this._getVisibleSections().map((section, index) => {
                         const active = index === this.activeSection;
                         return html`
                             <li role="presentation" class="${active ? "active" : ""}">
@@ -1317,7 +1484,7 @@ export default class DataForm extends LitElement {
                 <div class="row">
                     <div class="col-md-3">
                         <ul class="nav nav-pills nav-stacked">
-                            ${this.config.sections.map((section, index) => {
+                            ${this._getVisibleSections().map((section, index) => {
                                 const active = index === this.activeSection;
                                 return html`
                                     <li role="presentation" class="${active ? "active" : ""}">
@@ -1340,7 +1507,7 @@ export default class DataForm extends LitElement {
         return html`
             <!-- Header -->
             ${this.config.title && titleVisible ? html`
-                <div style="display:flex;margin-bottom:16px;">
+                <div style="display: flex; margin-bottom: 12px;">
                     <div>
                         <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
                     </div>

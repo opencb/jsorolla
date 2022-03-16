@@ -139,16 +139,16 @@ export default class VariantInterpreterGridFormatter {
                 message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
                                 <span style="font-weight: bold; color: red">${newEvidences.length}</span> clinical evidences
                                 ${showArrayIndexes.length !== newEvidences.length ?
-                                    `, <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
-                                    ""
-                                }
+                    `, <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
+                    ""
+                }
                             </div>
                             <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${newEvidences.length}</span> of
                                 <span style="font-weight: bold; color: red">${newEvidences.length}</span> clinical evidences,
                                 ${showArrayIndexes.length !== newEvidences.length ?
-                                    `, <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
-                                    ""
-                                }
+                    `, <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
+                    ""
+                }
                            </div>
                             `;
             }
@@ -234,7 +234,7 @@ export default class VariantInterpreterGridFormatter {
                                     <div style="margin: 5px 0px">
                                         ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
                                     </div>` : ""
-                                }
+                    }
                             </span>
                         </div>`;
                 }
@@ -270,22 +270,22 @@ export default class VariantInterpreterGridFormatter {
                         panelHtml = `
                             <div style="margin: 5px 0">
                                 ${panel.source?.project?.toUpperCase() === "PANELAPP" ?
-                                    `<div>
+                            `<div>
                                         <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" title="Panel ID: ${panel.id}" target="_blank">
                                             ${panel.name} (${panel.source.project} v${panel.source.version})
                                         </a>
                                     </div>` :
-                                    `<div style="margin: 5px 0">${panel.id}</div>`
-                                }
+                            `<div style="margin: 5px 0">${panel.id}</div>`
+                        }
                             </div>
                             ${gene.modeOfInheritance ? `
                                 <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
                             ` : ""
-                            }
+                        }
                             ${gene.confidence ? `
                                 <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
                             ` : ""
-                            }
+                        }
                         `;
                     } else {
                         panelHtml = re.panelId;
@@ -305,7 +305,7 @@ export default class VariantInterpreterGridFormatter {
                                 ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
                             </div>
                         ` : ""
-                        }
+                    }
                         <div class="help-block">${re.classification.acmg?.join(", ")}</div>
                     `;
                 }
@@ -334,6 +334,7 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
+                const disabled = config.locked ? "disabled" : "";
                 // Evidence selected checkbox
                 const checboxHtml = `
                     <input
@@ -341,7 +342,8 @@ export default class VariantInterpreterGridFormatter {
                         ${re?.review?.select ? "checked" : ""}
                         class="${variantGrid._prefix}EvidenceReviewCheckbox"
                         data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}"
+                        ${disabled}>
                 `;
 
                 // Evidence edit button
@@ -349,7 +351,8 @@ export default class VariantInterpreterGridFormatter {
                     <button
                         class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
                         data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}"
+                        ${disabled}>
                         <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
                     </button>
                 `;
@@ -470,22 +473,23 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static vafGenotypeRenderer(vaf, depth, file, config) {
-        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
+        return `<span>${vaf.toFixed(3)} / ${depth}</span>`;
     }
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
         const widthPx = config?.width ? config.width : 80;
-        const refWidth = Math.max(widthPx * refFreq, 1);
+        const refWidth = widthPx * refFreq;
         const refColor = refFreq !== 0 ? "blue" : "black";
         const altWidth = widthPx - refWidth;
         const altColor = altFreq !== 0 ? "red" : "black";
-        const opacity = file?.data && file.data.FILTER === "PASS" ? 100 : 60;
-        return `<table style="width: ${widthPx}px">
-                    <tr>
-                        <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
-                        <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
-                    </tr>
-                </table>`;
+        const opacity = file?.data.FILTER === "PASS" ? 100 : 60;
+        return `
+            <table style="width: ${widthPx}px">
+                <tr>
+                    <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%; ${refWidth === 0 ? "display: none" : ""}">&nbsp;</td>
+                    <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%; ${altWidth === 0 ? "display: none" : ""}">&nbsp;</td>
+                </tr>
+            </table>`;
     }
 
     static alleleGenotypeRenderer(variant, sampleEntry, mode) {
@@ -669,6 +673,12 @@ export default class VariantInterpreterGridFormatter {
 
     static _getVariantAlleleFraction(variant, sampleEntry, file) {
         let vaf, depth;
+
+        const extVafIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "EXT_VAF");
+        if (extVafIndex !== -1) {
+            const dpIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "DP");
+            return {vaf: Number.parseFloat(sampleEntry.data[extVafIndex]), depth: Number.parseInt(sampleEntry.data[dpIndex])};
+        }
 
         // Try to guess the variant caller used.
         // Check if is Caveman by looking to specific sample FORMAT fields

@@ -145,6 +145,10 @@ export default class VariantInterpreterReview extends LitElement {
                                     </tool-header>
                                     <variant-interpreter-review-primary
                                         .active="${active}"
+                                        .gridConfig="${{
+                                            somatic: true,
+                                            variantTypes: ["SNV", "INDEL"],
+                                        }}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants}"
                                         .opencgaSession="${opencgaSession}">
@@ -177,6 +181,10 @@ export default class VariantInterpreterReview extends LitElement {
                                     .active="${active}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .clinicalVariants="${variants}"
+                                    .gridConfig="${{
+                                        somatic: true,
+                                        variantTypes: ["COPY_NUMBER", "CNV"],
+                                    }}"
                                     .opencgaSession="${opencgaSession}">
                                 </variant-interpreter-review-primary>
                             </div>
@@ -236,6 +244,10 @@ export default class VariantInterpreterReview extends LitElement {
                                         .active="${active}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants}"
+                                        .gridConfig="${{
+                                            somatic: false,
+                                            variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                        }}"
                                         .opencgaSession="${opencgaSession}">
                                     </variant-interpreter-review-primary>
                                 </div>
