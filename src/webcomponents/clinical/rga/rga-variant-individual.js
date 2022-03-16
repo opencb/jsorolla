@@ -108,6 +108,8 @@ export default class RgaVariantIndividual extends LitElement {
             // data: this.variant.individuals,
             columns: this._initTableColumns(),
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             pagination: true,
             paginationVAlign: "both",

@@ -18,6 +18,8 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
+import UtilsNew from "../../core/utilsNew.js";
+import "../study/status/status-update.js";
 
 export default class FamilyUpdate extends LitElement {
 
@@ -51,12 +53,6 @@ export default class FamilyUpdate extends LitElement {
         this.family = {};
         this.updateParams = {};
         this.phenotype = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.updateParams = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -67,6 +63,10 @@ export default class FamilyUpdate extends LitElement {
 
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
 
         super.update(changedProperties);
@@ -93,28 +93,29 @@ export default class FamilyUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "members.id":
+                this.updateParams = FormUtils.updateObjectArray(
+                    this._family,
+                    this.family,
+                    this.updateParams,
+                    param,
+                    e.detail.value
+                );
+                break;
             case "id":
             case "name":
             case "description":
             case "expectedSize":
+            case "status":
                 this.updateParams = FormUtils.updateScalar(
                     this._family,
                     this.family,
                     this.updateParams,
                     e.detail.param,
                     e.detail.value);
-                break;
-            case "status.name":
-            case "status.description":
-                this.updateParams = FormUtils.updateObjectWithProps(
-                    this._family,
-                    this.family,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
                 break;
         }
         this.requestUpdate();
@@ -132,9 +133,8 @@ export default class FamilyUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             annotationSetsAction: "SET",
             updateRoles: false,
-            // incVersion: false
         };
-
+        console.log("Family update", this.updateParams);
         this.opencgaSession.opencgaClient.families().update(this.family.id, this.updateParams, params)
             .then(res => {
                 this._family = JSON.parse(JSON.stringify(this.family));
@@ -143,12 +143,9 @@ export default class FamilyUpdate extends LitElement {
                     title: "Update Family",
                     message: "family updated correctly"
                 });
-                // FormUtils.showAlert("Update Family", "Family updated correctly", "success");
             })
             .catch(err => {
-                // console.error(err);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // FormUtils.showAlert("Update Family", "Family not updated correctly", "error");
             });
     }
 
@@ -170,8 +167,7 @@ export default class FamilyUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save",
-                buttonClearText: "Cancel",
+                buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
@@ -187,8 +183,7 @@ export default class FamilyUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: true,
-                                helpMessage: "short family id ",
+                                helpMessage: this.family.creationDate? "Created on " + UtilsNew.dateFormatter(this.family.creationDate):"No creation date",
                                 validation: {}
                             },
                         },
@@ -201,27 +196,21 @@ export default class FamilyUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a Family description...",
-                            }
-                        },
-                        {
                             title: "Members",
                             field: "members",
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
+                                helpMessage: "Individual Ids",
                                 render: members => {
-                                    const individualIds = members.map(member => member.id).join(",");
+                                    const membersIds = Array.isArray(members) ?
+                                        members?.map(member => member.id).join(",") : members;
                                     return html`
                                         <individual-id-autocomplete
-                                            .value="${individualIds}"
+                                            .value="${membersIds}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            @filterChange="${e => this.onSync(e, "members")}">
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => this.onFieldChange(e, "members.id")}">
                                         </individual-id-autocomplete>`;
                                 }
                             },
@@ -265,26 +254,36 @@ export default class FamilyUpdate extends LitElement {
                         {
                             title: "Expected Size",
                             field: "expectedSize",
-                            type: "input-text",
+                            type: "input-num",
                             display: {
                                 placeholder: "Add a expected size...",
                             }
                         },
                         {
-                            title: "Status name",
-                            field: "status.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add status name..."
-                            }
-                        },
-                        {
-                            title: "Status Description",
-                            field: "status.description",
+                            title: "Description",
+                            field: "description",
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add a status description..."
+                                placeholder: "Add a Family description...",
+                            }
+                        },
+                        {
+                            title: "Status",
+                            field: "status",
+                            type: "custom",
+                            display: {
+                                render: status => html`
+                                    <status-update
+                                        .status=${status}
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    </status-update>`
                             }
                         },
                     ]

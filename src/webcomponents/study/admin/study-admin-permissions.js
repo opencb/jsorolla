@@ -103,7 +103,7 @@ export default class StudyAdminPermissions extends LitElement {
         }
 
         return html`
-            <div style="margin: 20px">
+            <div style="margin: 25px 40px">
                 <detail-tabs
                         .data=${this.study}
                         .mode=${"pills"}

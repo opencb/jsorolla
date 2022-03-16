@@ -118,11 +118,11 @@ export default class RestApi extends LitElement {
                                                 })
                                                 .map(endpoint => html`
                                                     <div class="panel-body" style="padding: 5px 15px">
-                                                        <button class="btn btn-link" role="link" @click="${e => this.onClick(e, endpoint)}">
+                                                        <button class="btn btn-link" role="link" style="display:flex;white-space:normal;" @click="${e => this.onClick(e, endpoint)}">
                                                             <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[endpoint.method]}">
                                                                 ${endpoint.method}
                                                             </span>
-                                                            <span style="font-weight: bold">
+                                                            <span style="font-weight:bold;word-break:break-word;text-align:left;">
                                                                 ${endpoint.path.replace("/{apiVersion}", "")}
                                                             </span>
                                                         </button>

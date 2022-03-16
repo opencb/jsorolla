@@ -258,14 +258,19 @@ export default class VariantGridFormatter {
                 resultHtml = allGenes.join(",");
             } else {
                 resultHtml = `
-                    ${allGenes.slice(0, maxDisplayedGenes).join(",")}
-                    <div data-role="show-genes" data-variant-index="${index}" style="margin-top:8px;">
-                        <a style="cursor:pointer;font-size:13px;font-weight:bold;">
-                            ... show more genes (${(allGenes.length - maxDisplayedGenes)})
-                        </a>
-                    </div>
-                    <div data-role="hidden-genes" data-variant-index="${index}" style="display:none">
-                        ${allGenes.slice(maxDisplayedGenes).join(",")}
+                    <div data-role="genes-list" data-variant-index="${index}">
+                        ${allGenes.slice(0, maxDisplayedGenes).join(",")}
+                        <span data-role="genes-list-extra" style="display:none">
+                            ,${allGenes.slice(maxDisplayedGenes).join(",")}
+                        </span>
+                        <div style="margin-top:8px;">
+                            <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                                ... show more genes (${(allGenes.length - maxDisplayedGenes)})
+                            </a>
+                            <a data-role="genes-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                                show less genes
+                            </a>
+                        </div>
                     </div>
                 `;
             }
@@ -300,6 +305,31 @@ export default class VariantGridFormatter {
 
         } else {
             return "-";
+        }
+    }
+
+    static hgvsFormatter(variant, gridConfig) {
+        BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
+        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
+
+        if (showArrayIndexes?.length > 0 && variant.annotation.hgvs?.length > 0) {
+            const results = [];
+            for (const index of showArrayIndexes) {
+                const consequenceType = variant.annotation.consequenceTypes[index];
+                const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
+                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
+                    results.push(`
+                        <div style="margin: 5px 0">
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.transcriptId, variant.annotation.hgvs) || "-"}
+                        </div>
+                        <div style="margin: 5px 0">
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}
+                        </div>
+                    `);
+                }
+            }
+            return results.join("<hr style='margin: 5px'>");
         }
     }
 
@@ -571,7 +601,7 @@ export default class VariantGridFormatter {
                 link = BioinfoUtils.getProteinLink(split[0]);
             }
 
-            return `<a href=${link} target="_blank">${split[0]}</a>:${split[1]}`;
+            return `<a href=${link} target="_blank">${split[0]}</a>:<span style="font-weight:bold">${split[1]}</span>`;
         } else {
             if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
                 return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
@@ -672,7 +702,7 @@ export default class VariantGridFormatter {
                                 <div style="margin: 5px 0px">
                                     ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
                                 </div>` : ""
-                            }
+                }
                         </span>
                     </div>`;
 

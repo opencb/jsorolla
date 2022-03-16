@@ -97,6 +97,13 @@ export default class UtilsNew {
         return typeof arr !== "undefined" && arr !== null && arr.length > 0;
     }
 
+    static hasProp(obj, prop) {
+        if (UtilsNew.isEmpty(obj)) {
+            return false;
+        }
+        return prop in obj;
+    }
+
     static defaultString(str, str2) {
         return this.isNotEmpty(str) ? str : str2;
     }
@@ -386,6 +393,31 @@ export default class UtilsNew {
             return JSON.stringify(_a) === JSON.stringify(_b);
         } else {
             return false;
+        }
+    }
+
+
+    /**
+    * Sort the array by object key or prop
+    * @param {Array} arr Array
+    * @param {String} prop key or prop the object to sort
+    * @returns {Array} return the array sorted
+    */
+    static sortArrayObj(arr, prop) {
+        const _arr = arr;
+        if (UtilsNew.isNotEmpty(_arr)) {
+            _arr.sort((a, b) =>{
+                if (a[prop] < b[prop]) {
+                    return -1;
+                }
+
+                if (a[prop] > b[prop]) {
+                    return 1;
+                }
+
+                return 0;
+            });
+            return _arr;
         }
     }
 
@@ -810,6 +842,19 @@ export default class UtilsNew {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+    // Import file from the specified URL
+    // NOTE: in case that the file does not exist, a `null` value will be returned instead of rejecting the promise
+    static importFile(url) {
+        return window.fetch(url)
+            .then(response => response.ok && response.text() || null)
+            .catch(() => null);
+    }
+
+    // Import a JSON file from the specified url
+    static importJSONFile(url) {
+        return UtilsNew.importFile(url).then(content => content && JSON.parse(content) || null);
     }
 
 }
