@@ -133,6 +133,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {
             ...this._config.toolbar,
             resource: "VARIANT",
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
@@ -161,7 +162,18 @@ export default class VariantBrowserGrid extends LitElement {
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
-
+                iconsPrefix: "fas",
+                icons: {
+                    paginationSwitchDown: "fa-caret-square-down",
+                    paginationSwitchUp: "fa-caret-square-up",
+                    refresh: "fa-sync",
+                    toggleOff: "fa-toggle-off",
+                    toggleOn: "fa-toggle-on",
+                    columns: "fa-th-list",
+                    fullscreen: "fa-arrows-alt",
+                    detailOpen: "fa-plus",
+                    detailClose: "fa-minus"
+                },
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: this._config.pagination,
