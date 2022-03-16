@@ -2974,3 +2974,9 @@ go-accessions-filter .select2-selection {
 .ontology-node .leaf {
     padding-left: 10px;
 }
+
+/* Rest-Endpoint  */
+.pre-scrollable-custom {
+    max-height: 737px;
+    overflow-y: scroll;
+}

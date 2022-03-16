@@ -100,6 +100,8 @@ export default class SelectFieldFilter extends LitElement {
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
         this.selectPicker.selectpicker({
+            iconBase: "fas",
+            tickIcon: "fa-check",
             val: "",
             multipleSeparator: this.separator
         });
