@@ -396,6 +396,31 @@ export default class UtilsNew {
         }
     }
 
+
+    /**
+    * Sort the array by object key or prop
+    * @param {Array} arr Array
+    * @param {String} prop key or prop the object to sort
+    * @returns {Array} return the array sorted
+    */
+    static sortArrayObj(arr, prop) {
+        const _arr = arr;
+        if (UtilsNew.isNotEmpty(_arr)) {
+            _arr.sort((a, b) =>{
+                if (a[prop] < b[prop]) {
+                    return -1;
+                }
+
+                if (a[prop] > b[prop]) {
+                    return 1;
+                }
+
+                return 0;
+            });
+            return _arr;
+        }
+    }
+
     /**
      * This function return the object sorted by the keys provided.
      * @param {Object} unordered Unordered object
