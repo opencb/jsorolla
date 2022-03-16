@@ -65,7 +65,7 @@ export default class RestEndpoint extends LitElement {
             "enum": "select",
             "object": "input-text",
         };
-
+        this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
         // Type not support by the moment..
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
@@ -88,6 +88,7 @@ export default class RestEndpoint extends LitElement {
         this.result = "";
         if (this.endpoint?.parameters?.length > 0) {
             const queryElements = [];
+            const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
 
@@ -129,20 +130,30 @@ export default class RestEndpoint extends LitElement {
                         required: !!parameter.required
                     };
 
+
                     if (parameter.param === "path") {
                         pathElements.push(element);
                     } else {
-                        queryElements.push(element);
+                        if (this._queryFilter.includes(parameter.name)) {
+                            filterElements.push(element);
+                        } else {
+                            queryElements.push(element);
+                        }
                     }
                 }
             }
 
-            // const fieldElements =
-            //     this.isEndPointAdmin() ?
-            //         this.isAdministrator() ? [...pathElements, ...queryElements] : this.disabledElements([...pathElements, ...queryElements]) :
-            //         [...pathElements, ...queryElements];
-
-            const elements = [...pathElements, ...queryElements];
+            const pathElementSorted = this.sortArray(pathElements);
+            const queryElementSorted = this.sortArray(queryElements)
+                .sort((a, b) => {
+                    if (a.name === "study") {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                });
+            const filterElementSorted = this.sortArray(filterElements);
+            const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
             const fieldElements =
                 this.isNotEndPointAdmin() ? elements :
                     this.isAdministrator() ? elements :
@@ -179,10 +190,6 @@ export default class RestEndpoint extends LitElement {
             }
 
             if (bodyElements.length > 0) {
-                // const bodyElementsT = this.isEndPointAdmin() ?
-                //     this.isAdministrator() ? bodyElements:
-                //         this.disabledElements(bodyElements) : bodyElements;
-
                 const bodyElementsT =
                     this.isNotEndPointAdmin() ? bodyElements :
                         this.isAdministrator() ? bodyElements:
@@ -260,27 +267,32 @@ export default class RestEndpoint extends LitElement {
         });
     }
 
-    // Refactor
-    orderQuery(elements) {
-        // sample/Search
-        // study, ids, (required true)
-        // const newElements = [];
-        // const _queryFilter = ["include", "exclude", "skip", "version", "limit", "release"];
-        // const _elements = elements;
-        // const queryFiltered = _elements.filter(elm => _queryFilter.includes(elm.name));
+    sortArray(elements) {
+        const _elements = elements;
 
-        elements.sort((fieldA, fieldB) => {
-            const fa = fieldA.name.toLowerCase();
-            const fb = fieldB.name.toLowerCase();
-            if (fa < fb) {
-                return -1;
+        _elements.sort((a, b) => {
+            const _nameA = a.name.toLowerCase();
+            const _nameB = b.name.toLowerCase();
+
+            // If both have the same required value, sort in alphabetical order
+            if (a.required === b.required) {
+                if (_nameA < _nameB) {
+                    return -1;
+                }
+
+                if (_nameA > _nameB) {
+                    return 1;
+                }
             }
-            if (fa > fb) {
+
+            if (a.required) {
+                return -1;
+            } else {
                 return 1;
             }
-            return 0;
         });
-        return elements;
+
+        return _elements;
     }
 
 
