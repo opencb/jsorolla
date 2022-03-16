@@ -97,11 +97,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
         if (changedProperties.has("config")) {
             this._config = {...this.config};
+        }
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
         }
         super.update(changedProperties);
     }
