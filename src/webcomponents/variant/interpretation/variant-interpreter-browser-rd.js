@@ -331,7 +331,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             id: "1", name: "HEMI"
                                         }
                                     ]
-                                }
+                                },
+                                tooltip: tooltips.sample,
                             },
                             {
                                 id: "sample",
@@ -343,7 +344,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "variant-file-sample-filter",
                                 title: "Variant Caller Sample Filters",
-                                tooltip: "VCF file sample filters"
+                                // tooltip: "VCF file sample filters"
+                                tooltip: tooltips.variantCallerSample,
                             },
                             {
                                 id: "variant-file-info-filter",
@@ -352,7 +354,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession,
-                                }
+                                },
+                                tooltip: tooltips.variantCallerFile,
                             },
                             {
                                 id: "cohort",
