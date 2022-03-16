@@ -58,7 +58,7 @@ export default class RestEndpoint extends LitElement {
             "POST": "darkorange",
             "DELETE": "red"
         };
-        this.parameterTypeToHtml = {
+        this.paramsTypeToHtml = {
             "string": "input-text",
             "integer": "input-text",
             "boolean": "checkbox",
@@ -66,6 +66,7 @@ export default class RestEndpoint extends LitElement {
             "object": "input-text",
         };
         this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
+        this.passwordKeys = ["password", "newPassword"];
         // Type not support by the moment..
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
@@ -104,17 +105,17 @@ export default class RestEndpoint extends LitElement {
                             const paramType = dataParameter.type?.toLowerCase();
 
                             this.data.body[dataParameter.name] =
-                                UtilsNew.hasProp(this.parameterTypeToHtml, paramType) ?
+                                UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
                                     dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
 
-                            if (UtilsNew.hasProp(this.parameterTypeToHtml, paramType)) {
+                            if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType)) {
 
                                 if (!dataParameter.innerParam && !dataParameter.complex) {
                                     bodyElements.push(
                                         {
                                             name: dataParameter.name,
                                             field: "body." + dataParameter.name,
-                                            type: ["password", "newPassword"].includes(dataParameter.name) ?"input-password":this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                            type: this.passwordKeys.includes(dataParameter.name) ?"input-password":this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
                                             allowedValues: dataParameter.allowedValues?.split(","),
                                             defaultValue: dataParameter.defaultValue,
                                             required: !!dataParameter.required,
@@ -130,7 +131,7 @@ export default class RestEndpoint extends LitElement {
                                         {
                                             name: `${dataParameter.parentParamName}.${dataParameter.name}`,
                                             field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
-                                            type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                            type: this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
                                             allowedValues: dataParameter.allowedValues?.split(","),
                                             defaultValue: dataParameter.defaultValue,
                                             required: !!dataParameter.required,
@@ -148,7 +149,7 @@ export default class RestEndpoint extends LitElement {
                     const element = {
                         name: parameter.name,
                         field: parameter.name,
-                        type: this.parameterTypeToHtml[parameter.type],
+                        type: this.paramsTypeToHtml[parameter.type],
                         allowedValues: parameter.allowedValues?.split(",") || "",
                         defaultValue: parameter.defaultValue,
                         required: !!parameter.required,
@@ -171,8 +172,8 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
-            const pathElementSorted = this.sortArray(pathElements);
-            const queryElementSorted = this.sortArray(queryElements)
+            const pathElementSorted = this.#sortArray(pathElements);
+            const queryElementSorted = this.#sortArray(queryElements)
                 .sort((a, b) => {
                     if (a.name === "study") {
                         return -1;
@@ -180,7 +181,7 @@ export default class RestEndpoint extends LitElement {
                         return 1;
                     }
                 });
-            const filterElementSorted = this.sortArray(filterElements);
+            const filterElementSorted = this.#sortArray(filterElements);
             const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
             const fieldElements =
                 this.isNotEndPointAdmin() ? elements :
@@ -198,7 +199,7 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     buttonsVisible: this.isNotEndPointAdmin() ? true : this.isAdministrator()
                 },
-                sections: []
+                sections: this.#notificationSection(this.endpoint?.notes)
             };
 
             if (fieldElements.length > 0) {
@@ -292,7 +293,7 @@ export default class RestEndpoint extends LitElement {
         });
     }
 
-    sortArray(elements) {
+    #sortArray(elements) {
         const _elements = elements;
 
         _elements.sort((a, b) => {
@@ -318,6 +319,21 @@ export default class RestEndpoint extends LitElement {
         });
 
         return _elements;
+    }
+
+    #notificationSection(notes) {
+        if (notes) {
+            return [{
+                elements: [{
+                    type: "notification",
+                    text: notes,
+                    display: {
+                        notificationType: "info",
+                    },
+                }]
+            }];
+        }
+        return [];
     }
 
 
@@ -401,19 +417,15 @@ export default class RestEndpoint extends LitElement {
     getJsonDataForm() {
         return {
             type: "form",
-            buttons: {
-                show: true,
-                clearText: "Clear",
-                okText: "Try it out!"
-            },
             display: {
                 width: "12",
                 labelWidth: "3",
                 defaultLayout: "horizontal",
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!"
             },
             sections: [
                 {
-                    title: "Individual General Information",
                     elements: [
                         {
                             title: "Individual id",
