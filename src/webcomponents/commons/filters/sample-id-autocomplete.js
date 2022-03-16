@@ -52,6 +52,7 @@ export default class SampleIdAutocomplete extends LitElement {
         this.dispatchEvent(event);
     }
 
+
     getDefaultConfig() {
         return {
             placeholder: "HG01879, HG01880, HG01881...",

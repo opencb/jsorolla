@@ -116,7 +116,8 @@ export default class GeneGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
-
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // Table properties
                 uniqueId: "id",
                 pagination: this._config.pagination,
@@ -157,7 +158,7 @@ export default class GeneGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             this.table.bootstrapTable("collapseRow", element[0].dataset.index);
@@ -200,6 +201,8 @@ export default class GeneGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.genePanels,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,

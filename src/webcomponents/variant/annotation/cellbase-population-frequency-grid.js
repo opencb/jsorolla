@@ -168,6 +168,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             data: this.populationFrequencies,
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             pageSize: 5,
             showPaginationSwitch: true,
             search: true,

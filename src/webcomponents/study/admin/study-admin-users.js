@@ -134,6 +134,8 @@ export default class StudyAdminUsers extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.users,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
 
             // Set table properties, these are read from config property
             uniqueId: "id",
