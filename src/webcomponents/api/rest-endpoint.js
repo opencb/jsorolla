@@ -98,24 +98,42 @@ export default class RestEndpoint extends LitElement {
                         this.data.body = {};
                     }
 
+                    // Generate Body Form
                     if (UtilsNew.hasProp(parameter, "data")) {
                         for (const dataParameter of parameter.data) {
                             const paramType = dataParameter.type?.toLowerCase();
 
-                            this.data.body[dataParameter.name] = UtilsNew.hasProp(this.parameterTypeToHtml, paramType) ?
-                                dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
+                            this.data.body[dataParameter.name] =
+                                UtilsNew.hasProp(this.parameterTypeToHtml, paramType) ?
+                                    dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
 
                             if (UtilsNew.hasProp(this.parameterTypeToHtml, paramType)) {
-                                bodyElements.push(
-                                    {
-                                        name: dataParameter.name,
-                                        field: "body." + dataParameter.name,
-                                        type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
-                                        allowedValues: dataParameter.allowedValues?.split(","),
-                                        defaultValue: dataParameter.defaultValue,
-                                        required: !!dataParameter.required
-                                    }
-                                );
+
+                                if (!dataParameter.innerParam && !dataParameter.complex) {
+                                    bodyElements.push(
+                                        {
+                                            name: dataParameter.name,
+                                            field: "body." + dataParameter.name,
+                                            type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                            allowedValues: dataParameter.allowedValues?.split(","),
+                                            defaultValue: dataParameter.defaultValue,
+                                            required: !!dataParameter.required
+                                        }
+                                    );
+                                }
+
+                                if (dataParameter.complex === false && dataParameter.innerParam === true) {
+                                    bodyElements.push(
+                                        {
+                                            name: `${dataParameter.parentParamName}.${dataParameter.name}`,
+                                            field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
+                                            type: this.parameterTypeToHtml[dataParameter.type?.toLowerCase()],
+                                            allowedValues: dataParameter.allowedValues?.split(","),
+                                            defaultValue: dataParameter.defaultValue,
+                                            required: !!dataParameter.required
+                                        }
+                                    );
+                                }
                             }
                         }
                     }
@@ -301,8 +319,6 @@ export default class RestEndpoint extends LitElement {
 
     onFormFieldChange(e, field) {
         const param = field || e.detail.param;
-        // this.data = {...FormUtils.updateScalar(this._data, this.data, {}, param, e.detail.value)};
-
         if (param === "body") {
             this.dataJson = {...this.dataJson, body: e.detail.value};
             try {
@@ -316,7 +332,15 @@ export default class RestEndpoint extends LitElement {
                 return false;
             }
         } else {
-            this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
+            // if (param.split(".").length > 2) {
+            if ((param.match(/\./g)||[]).length > 1) {
+                // For param type Object
+                const paramBody = param.replace("body.", "");
+                this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
+            } else {
+                this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
+            }
+
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
         }
         this.requestUpdate();
@@ -354,20 +378,21 @@ export default class RestEndpoint extends LitElement {
                 url += `&${parameter.name}=${this.data[parameter.name]}`;
             });
 
-        this.isLoading = true;
-        this.requestUpdate();
+        console.log("data:", this.data);
+        // this.isLoading = true;
+        // this.requestUpdate();
 
-        this.restClient.call(url, {})
-            .then(response => {
-                this.result = response.responses[0];
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            })
-            .finally(() => {
-                this.isLoading = false;
-                this.requestUpdate();
-            });
+        // this.restClient.call(url, {})
+        //     .then(response => {
+        //         this.result = response.responses[0];
+        //     })
+        //     .catch(response => {
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //     })
+        //     .finally(() => {
+        //         this.isLoading = false;
+        //         this.requestUpdate();
+        //     });
     }
 
     getJsonDataForm() {
