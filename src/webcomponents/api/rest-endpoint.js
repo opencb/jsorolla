@@ -127,7 +127,10 @@ export default class RestEndpoint extends LitElement {
                         type: this.parameterTypeToHtml[parameter.type],
                         allowedValues: parameter.allowedValues?.split(",") || "",
                         defaultValue: parameter.defaultValue,
-                        required: !!parameter.required
+                        required: !!parameter.required,
+                        display: {
+                            disabled: parameter.name === "study"
+                        },
                     };
 
 
