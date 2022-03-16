@@ -348,7 +348,7 @@ export default class DiseasePanelGrid extends LitElement {
                 const results = response.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toUpperCase() === "tab") {
+                    if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "name", "stats.genes", "stats.regions", "stats.variants", "source.author", "source.project", "source.version"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "disease_panel_" + this.opencgaSession.study.id + ".txt", "text/plain");
