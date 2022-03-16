@@ -317,15 +317,17 @@ export default class VariantInterpreterGrid extends LitElement {
                                         const refseqManeSelectSet = new Set();
                                         const refseqManePlusClinicalSet = new Set();
                                         for (const gene of genes.responses) {
-                                            const transcripts = gene.results[0].transcripts
-                                                .filter(t => t.flags?.includes("MANE Select") || t.flags?.includes("MANE Plus Clinical"));
-                                            for (const transcript of transcripts) {
-                                                const xref = transcript.xrefs.find(x => x.dbName === "mane_select_refseq");
-                                                if (xref) {
-                                                    if (transcript.flags.includes("MANE Select")) {
-                                                        refseqManeSelectSet.add(xref.id);
-                                                    } else {
-                                                        refseqManePlusClinicalSet.add(xref.id);
+                                            if (gene.results?.length) {
+                                                const transcripts = gene.results[0].transcripts
+                                                    .filter(t => t.flags?.includes("MANE Select") || t.flags?.includes("MANE Plus Clinical"));
+                                                for (const transcript of transcripts) {
+                                                    const xref = transcript.xrefs.find(x => x.dbName === "mane_select_refseq");
+                                                    if (xref) {
+                                                        if (transcript.flags.includes("MANE Select")) {
+                                                            refseqManeSelectSet.add(xref.id);
+                                                        } else {
+                                                            refseqManePlusClinicalSet.add(xref.id);
+                                                        }
                                                     }
                                                 }
                                             }
