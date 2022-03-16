@@ -766,6 +766,11 @@ export default class DataForm extends LitElement {
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
+                ${disabled && element.display?.helpMessage ? html`
+                    <div class="help-block small">
+                        ${element.display?.helpMessage}
+                    </div>` : null
+                }
             </div>
         `;
     }

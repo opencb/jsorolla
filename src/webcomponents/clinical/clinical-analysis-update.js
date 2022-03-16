@@ -448,6 +448,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "panelLock",
                             type: "toggle-switch",
                             display: {
+                                helpMessage: "All existing interpretations must have the same panels to enable Panel Lock",
                                 disabled: clinicalAnalysis => {
                                     if (clinicalAnalysis?.locked) {
                                         return true;
