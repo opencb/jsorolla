@@ -24,6 +24,7 @@ import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-update.js";
+import "./external-source/external-source-update.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -111,6 +112,7 @@ export default class SampleUpdate extends LitElement {
             case "individualId":
             case "somatic":
             case "status":
+            case "source":
                 this.updateParams = FormUtils.updateScalar(
                     this._sample,
                     this.sample,
@@ -287,6 +289,24 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             placeholder: "Add a description...",
                             rows: 3,
+                        }
+                    },
+                    {
+                        title: "Source",
+                        field: "source",
+                        type: "custom",
+                        display: {
+                            render: source => html`
+                                <external-source-update
+                                    .source=${source}
+                                    .displayConfig="${{
+                                        defaultLayout: "vertical",
+                                        buttonsVisible: false,
+                                        width: 12,
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                    }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
+                                </external-source-update>`
                         }
                     },
                     {
