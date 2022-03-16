@@ -152,8 +152,8 @@ export default class RestEndpoint extends LitElement {
                         return 1;
                     }
                 });
-
-            const elements = [...pathElementSorted, ...queryElementSorted, ...filterElements];
+            const filterElementSorted = this.sortArray(filterElements);
+            const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
             const fieldElements =
                 this.isNotEndPointAdmin() ? elements :
                     this.isAdministrator() ? elements :
