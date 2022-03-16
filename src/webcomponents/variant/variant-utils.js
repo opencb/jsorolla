@@ -148,6 +148,8 @@ export default class VariantUtils {
             // popfreqs
             let clinvar = new Set();
             let cosmic = new Map();
+            let prediction = "-";
+
             populationMap = {};
 
             const description = {sift: "-", polyphen: "-"};
@@ -285,6 +287,14 @@ export default class VariantUtils {
                 cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "-";
             }
 
+            // prediction
+            if (v.evidences) {
+                v.evidences.forEach(e => {
+                    prediction = e.classification.clinicalSignificance + (e.classification.acmg.length ? ("(" + e.classification.acmg.join(",") + ")") : "");
+                });
+            }
+
+
             // ID
             if (flatFieldList.includes("id")) {
                 row.push(v.chromosome + ":" + v.start + " " + v.reference + "/" + v.alternate);
@@ -378,7 +388,7 @@ export default class VariantUtils {
             }
 
             if (flatFieldList.includes("interpretation.prediction")) {
-                row.push(cosmic);
+                row.push(prediction);
             }
 
 
