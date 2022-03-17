@@ -87,7 +87,7 @@ import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
-import "../../webcomponents/user/user-password-reset.js";
+// import "../../webcomponents/user/user-password-reset.js";
 
 import "../../webcomponents/api/rest-api.js";
 
@@ -156,7 +156,7 @@ class IvaApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
-            "reset-password",
+            // "reset-password",
             "settings",
             "account",
             "projects",
@@ -1137,15 +1137,6 @@ class IvaApp extends LitElement {
                             @login="${this.onLogin}"
                             @redirect="${this.route}">
                         </user-login>
-                    </div>
-                ` : null}
-
-                ${this.config.enabledComponents["reset-password"] ? html`
-                    <div class="content" id="reset-password">
-                        <user-password-reset
-                            .opencgaSession="${this.opencgaSession}"
-                            @redirect="${this.route}">
-                        </user-password-reset>
                     </div>
                 ` : null}
 
