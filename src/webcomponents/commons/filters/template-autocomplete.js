@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 export default class TemplateAutocomplete extends LitElement {
@@ -74,8 +75,17 @@ export default class TemplateAutocomplete extends LitElement {
                     default:
                         break;
                 }
-
             },
+            preprocessResults(results) {
+                // if results come with null, emtpy or undefined it'll removed.
+                const resultsCleaned = results.filter(r => r);
+                if (resultsCleaned.length) {
+                    if ("string" === typeof resultsCleaned[0]) {
+                        return resultsCleaned.map(s => ({id: s}));
+                    }
+                }
+                return resultsCleaned;
+            }
         };
     }
 
