@@ -26,7 +26,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
-import "../../webcomponents/user/opencga-login.js";
+import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/commons/tool-header.js";
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -256,9 +256,9 @@ class ApiApp extends LitElement {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
-        });
+                this.signingIn = false;
+                this.requestUpdate();
+            });
     }
 
     // TODO turn this into a Promise
@@ -728,13 +728,11 @@ class ApiApp extends LitElement {
 
                 ${this.config.enabledComponents.login ? html`
                     <div class="content" id="login">
-                        <opencga-login
+                        <user-login
                             .opencgaSession="${this.opencgaSession}"
-                            loginTitle="Sign in"
-                            .notifyEventMessage="${this.config.notifyEventMessage}"
                             @login="${this.onLogin}"
                             @route="${this.route}">
-                        </opencga-login>
+                        </user-login>
                     </div>
                 ` : null}
 
