@@ -348,12 +348,12 @@ export default class DiseasePanelGrid extends LitElement {
                 const results = response.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toUpperCase() === "tab") {
-                        const fields = ["id", "name", "stats.genes", "stats.regions", "stats.variants", "source.author", "source.project", "source.version"];
+                    if (e.detail.option.toUpperCase() === "TAB") {
+                        const fields = ["id", "name", "stats.numberOfGenes", "stats.numberOfRegions", "stats.numberOfVariants", "source.author", "source.project", "source.version"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "disease_panel_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, UtilsNew.generateFileNameDownload("disease_panel", this.opencgaSession, ".txt"), "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), UtilsNew.generateFileNameDownload("disease_panel", this.opencgaSession, ".json"), "application/json");
                     }
                 } else {
                     console.error("Error in result format");

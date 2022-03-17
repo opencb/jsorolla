@@ -279,7 +279,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                             id: "NA", name: "NA"
                                         }
                                     ]
-                                }
+                                },
+                                tooltip: tooltips.sample,
                             },
                             {
                                 id: "variant-file",
@@ -287,7 +288,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 visible: () => this.files?.length > 0,
                                 params: {
                                     files: this.files
-                                }
+                                },
+                                tooltip: tooltips.vcfFile,
                             },
                             // {
                             //     id: "variant-file-sample-filter",
@@ -301,7 +303,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
-                                }
+                                },
+                                tooltip: tooltips.variantCallerFile,
                             }
                         ]
                     },
