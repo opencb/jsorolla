@@ -662,12 +662,6 @@ class ApiApp extends LitElement {
                     text-align: justify;
                     width: 90%;
                 }
-
-                #login {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
             </style>
 
             <!-- Navbar -->
