@@ -164,8 +164,8 @@ export default class GridCommons {
             }
 
             if (table[0]) {
-                const selectedDataId = this.selectedRow?.[0].attributes["data-uniqueid"]["nodeValue"];
-                const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId): null;
+                const selectedDataId = this.selectedRow?.[0]?.attributes["data-uniqueid"]?.["nodeValue"];
+                const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId) : null;
                 if (selectedData) {
                     table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("success");
                 } else {

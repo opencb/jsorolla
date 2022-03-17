@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -15,12 +14,6 @@
  * limitations under the License.
  */
 
-
-const cellbase = {
-    host: "https://ws.opencb.org/cellbase-4.8.2",
-    version: "v4"
-};
-
 const hosts = [
     {
         id: "prod",
@@ -29,15 +22,7 @@ const hosts = [
     {
         id: "test",
         url: "https://ws.opencb.org/opencga-test"
-    },
-    {
-        id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga"
-    },
-    {
-        id: "eglh-uat",
-        url: "https://uat.eglh.app.zettagenomics.com/opencga"
-    },
+    }
 ];
 
 const opencga = {
@@ -46,62 +31,6 @@ const opencga = {
     cookie: {
         prefix: "iva-" + hosts[1].id
     }
-};
-
-const CATALOG_NAVBAR_MENU = {
-    id: "catalog",
-    name: "Catalog",
-    visibility: "public",
-    icon: "img/tools/icons/aggregation2.svg",
-    submenu: [
-        {
-            id: "projects",
-            name: "Projects",
-            visibility: "public"
-        },
-        {
-            separator: true
-        },
-        {
-            name: "Browsers",
-            category: true,
-            id: "cat-catalog",
-            visibility: "public"
-        },
-        {
-            id: "file",
-            name: "File Browser",
-            visibility: "public"
-        },
-        {
-            id: "sample",
-            name: "Sample Browser",
-            visibility: "public",
-            icon: "img/tools/icons/interpretation_portal.svg",
-            description: "Explore all samples in Catalog",
-            featured: true,
-        },
-        {
-            id: "individual",
-            name: "Individual Browser",
-            visibility: "public"
-        },
-        {
-            id: "family",
-            name: "Family Browser",
-            visibility: "public"
-        },
-        {
-            id: "cohort",
-            name: "Cohort Browser",
-            visibility: "public"
-        },
-        {
-            id: "clinicalAnalysis",
-            name: "Clinical Analysis Browser",
-            visibility: "public"
-        },
-    ]
 };
 
 const SUITE = {
@@ -163,7 +92,6 @@ const SUITE = {
         {
             id: "Api",
             name: "API",
-            // logo: "img/iva-white.svg",
             icon: "fas fa-cog",
             visibility: "public",
             welcomePage: {
@@ -173,22 +101,16 @@ const SUITE = {
                 },
                 title: "Documentation APIs",
                 subtitle: "Interative documentation api",
-                // logo: "./img/iva.svg",
                 content: `
                     <p class="text-center">
                         Welcome to the interative documentation api.<br>
                     </p>
                 `,
-                // links: [
-                //     {title: "Enter", url: "http://docs.opencb.org/display/iva"},
-                // ]
             },
             menu: [{
                 id: "rest-api",
-                name: "Opencga Api",
-                // fa_icon: "fa fa-list",
+                name: "OpenCGA REST API",
                 icon: "fas fa-book-open",
-                // icon: "img/tools/icons/variant_browser.svg",
                 visibility: "public",
                 featured: true,
                 description: `

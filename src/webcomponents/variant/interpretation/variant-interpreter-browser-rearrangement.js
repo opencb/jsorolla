@@ -39,6 +39,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            somatic: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
@@ -55,6 +58,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
+        this.somatic = true;
         this.activeFilterFilters = [];
         this.savedVariants = [];
 
@@ -98,7 +102,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
         }
 
-        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic === this.somatic);
         if (this.somaticSample) {
             // Init query object if needed
             if (!this.query) {

@@ -15,12 +15,14 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../utils/lit-utils.js";
 
 
 export default class VariableSetIdAutocomplete extends LitElement {
 
     constructor() {
         super();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,16 +36,23 @@ export default class VariableSetIdAutocomplete extends LitElement {
             },
             value: {
                 type: Object
+            },
+            config: {
+                type: Object
             }
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    #init() {
+        this._config = this.getDefaultConfig();
     }
 
-    firstUpdated() {
-        this.variableSetIdObserver();
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
     }
 
     variableSetIdObserver() {
@@ -65,27 +74,43 @@ export default class VariableSetIdAutocomplete extends LitElement {
         }
     }
 
-    onVariableSetSearchFieldChange(e) {
-        this.searchVariableSetId = e.target.value;
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: e.target.value
-            }
-        });
-        this.dispatchEvent(event);
+    onFilterChange(key, value) {
+        LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    }
+
+    getDefaultConfig() {
+        return {
+            placeholder: "Search by VariableSet ID...",
+            limit: 10,
+            fields: item => ({
+                "name": item.id,
+            }),
+            source: (params, success, failure) => {
+                const page = params?.data?.page || 1;
+                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: this._config.limit,
+                    count: true,
+                    skip: (page - 1) * this._config.limit,
+                    include: "id",
+                    ...id
+                };
+                this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, {id: ""})
+                    .then(response => success(response))
+                    .catch(error => failure(error));
+            },
+        };
     }
 
     render() {
         return html`
-            <div class="form-group">
-                <input type="text" .value="${this.searchVariableSetId || ""}" class="form-control" list="${this._prefix}VariableSets" placeholder="Search by VariableSet ID..."
-                    @change="${this.onVariableSetSearchFieldChange}">
-            </div>
-            <datalist id="${this._prefix}VariableSets">
-                ${this.variableSetIds?.map(variableSetId => html`
-                    <option value="${variableSetId}"></option>
-                `)}
-            </datalist>
+            <select-token-filter
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-token-filter>
         `;
     }
 

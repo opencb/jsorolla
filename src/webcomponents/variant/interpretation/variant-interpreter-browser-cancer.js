@@ -310,7 +310,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             id: "NA", name: "NA"
                                         }
                                     ]
-                                }
+                                },
+                                tooltip: tooltips.sample,
                             },
                             {
                                 id: "variant-file",
@@ -318,12 +319,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 visible: () => this.indexedFiles?.length > 1,
                                 params: {
                                     files: this.indexedFiles
-                                }
+                                },
+                                tooltip: tooltips.vcfFile,
                             },
                             {
                                 id: "variant-file-sample-filter",
                                 title: "Variant Caller Sample Filter",
-                                tooltip: "VCF file sample filters"
+                                // tooltip: "VCF file sample filters"
+                                tooltip: tooltips.variantCallerSample,
                             },
                             {
                                 id: "variant-file-info-filter",
@@ -333,7 +336,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
-                                }
+                                },
+                                tooltip: tooltips.variantCallerFile,
                             }
                         ]
                     },

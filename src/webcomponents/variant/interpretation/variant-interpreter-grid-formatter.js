@@ -478,17 +478,18 @@ export default class VariantInterpreterGridFormatter {
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
         const widthPx = config?.width ? config.width : 80;
-        const refWidth = Math.max(widthPx * refFreq, 1);
+        const refWidth = widthPx * refFreq;
         const refColor = refFreq !== 0 ? "blue" : "black";
         const altWidth = widthPx - refWidth;
         const altColor = altFreq !== 0 ? "red" : "black";
-        const opacity = file?.data && file.data.FILTER === "PASS" ? 100 : 60;
-        return `<table style="width: ${widthPx}px">
-                    <tr>
-                        <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
-                        <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
-                    </tr>
-                </table>`;
+        const opacity = file?.data.FILTER === "PASS" ? 100 : 60;
+        return `
+            <table style="width: ${widthPx}px">
+                <tr>
+                    <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%; ${refWidth === 0 ? "display: none" : ""}">&nbsp;</td>
+                    <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%; ${altWidth === 0 ? "display: none" : ""}">&nbsp;</td>
+                </tr>
+            </table>`;
     }
 
     static alleleGenotypeRenderer(variant, sampleEntry, mode) {
