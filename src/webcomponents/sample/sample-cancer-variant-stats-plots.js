@@ -165,8 +165,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             field: "EXT_REARR",
             sample: this.sampleId,
             fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
-            ...this.query
         };
+
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
                 this.aggregationStatsResults = response.responses[0].results;
@@ -212,7 +212,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                     <div class="row" style="padding: 10px">
                         <div class="col-md-12">
                             <div class="col-md-7">
-                                <h2>Circos</h2>
+                                <h2>Genome Plot</h2>
                                 <circos-view
                                     .opencgaSession="${this.opencgaSession}"
                                     .sampleId="${this.sampleId}"
@@ -230,7 +230,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                 </div>
                                 <div style="padding-top: 20px">
-                                    <h2>Deletions</h2>
+                                    <h2>Small Deletions and Insertions</h2>
                                     <div class="">
                                         <h3>${this.deletionAggregationStatsResults?.[0].count} deletions and insertions</h3>
                                         <simple-chart

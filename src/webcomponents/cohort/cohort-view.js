@@ -79,6 +79,7 @@ export default class CohortView extends LitElement {
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
                 .then(res => {
                     this.cohort = res.responses[0].results[0];
+                    console.log("this cohort:", this.cohort);
                     this.isLoading = false;
                 })
                 .catch(reason => {
@@ -157,11 +158,7 @@ export default class CohortView extends LitElement {
                                     <cohort-id-autocomplete
                                         .value="${this.cohort?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}"
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </cohort-id-autocomplete>
                                 `,

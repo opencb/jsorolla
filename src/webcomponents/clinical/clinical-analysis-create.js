@@ -84,7 +84,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.opencgaSession?.user?.id
             },
             // dueDate: moment().format("YYYYMMDDHHmmss"),
-            _users: this._users
+            _users: this._users,
+            comments: []
         };
     }
 
@@ -232,6 +233,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
     }
 
+    onCommentChange(e) {
+        this.commentsUpdate = e.detail;
+    }
+
     notifyClinicalAnalysisWrite() {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisCreate", null, {
             id: this.clinicalAnalysis.id,
@@ -263,10 +268,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
 
         // Fix comments field --> convert to array of messages
-        if (data.comments) {
-            data.comments = [
-                {message: data.comments},
-            ];
+        // if (data.comments) {
+        //     data.comments = [
+        //         {message: data.comments},
+        //     ];
+        // }
+        if (this.commentsUpdate) {
+            data.comments = this.commentsUpdate.value;
         }
 
         // Clear dueDate field if not provided a valid value
@@ -364,6 +372,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         .diseasePanels="${this.opencgaSession.study?.panels}"
                                         .panel="${panels?.map(p => p.id).join(",")}"
                                         .showExtendedFilters="${false}"
+                                        .showSelectedPanels="${false}"
                                         @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                     </disease-panel-filter>
                                 `,
@@ -528,8 +537,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: individual => html`
-                                                <div><span style="font-weight: bold">${individual.id}</span></div>
-                                                <div><span class="help-block">${individual.sex} (${individual.karyotypicSex})</span></div>
+                                                <div style="font-weight: bold">${individual.id}</div>
+                                                <div class="help-block">
+                                                    ${individual.sex?.id || individual.sex || "Not specified"} (${individual.karyotypicSex || "Not specified"})
+                                                </div>
                                             `,
                                         },
                                     },
@@ -689,15 +700,28 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "dueDate",
                             type: "input-date",
                         },
+                        // {
+                        //     title: "Comment",
+                        //     field: "comments",
+                        //     type: "input-text",
+                        //     defaultValue: "",
+                        //     display: {
+                        //         rows: 2,
+                        //         placeholder: "Initial comment...",
+                        //     },
+                        //
                         {
-                            title: "Comment",
+                            title: "Comments",
                             field: "comments",
-                            type: "input-text",
-                            defaultValue: "",
+                            type: "custom",
                             display: {
-                                rows: 2,
-                                placeholder: "Initial comment...",
-                            },
+                                render: comments => html`
+                                    <clinical-analysis-comment-editor
+                                        .comments="${comments}"
+                                        @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
+                                `,
+                            }
                         }
                     ]
                 }

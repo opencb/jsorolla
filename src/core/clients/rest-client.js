@@ -69,7 +69,7 @@ export class RestClient {
     call(url, options, k) {
         let method = "GET";
         let async = true;
-        const key = RestClient.hash(k || "RandomString");
+        // const key = RestClient.hash(k || "RandomString");
         let dataResponse = null;
 
         const eventFire = new CustomEvent("request", {
@@ -96,20 +96,23 @@ export class RestClient {
             // let key = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}`;
             const request = new XMLHttpRequest();
 
-            if (this.requests[key]) {
-                // pending prev request
-                this.requests[key] = {...this.requests[key], pending: true};
+            // Josemi 2022-01-28 NOTE: disabled requests registry until due to issues with images until we found a better solution
+            // Related issue: https://github.com/opencb/jsorolla/issues/380
+            // if (this.requests[key]) {
+            //     // pending prev request
+            //     this.requests[key] = {...this.requests[key], pending: true};
 
-            } else {
-                // pending false as there is no prev request
-                this.requests[key] = {pending: false, request, url, key};
-            }
+            // } else {
+            //     // pending false as there is no prev request
+            //     this.requests[key] = {pending: false, request, url, key};
+            // }
+
             request.onload = event => {
                 // console.log("on load EVENT", event);
                 // console.log("on load URL", url);
 
                 // request is fulfilled
-                delete this.requests[key];
+                // delete this.requests[key];
 
                 if (request.status === 200) {
 
@@ -173,8 +176,8 @@ export class RestClient {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
             }
             // request.timeout = options.timeout || 0;
-            if (method === "POST" && options !== undefined && Object.prototype.hasOwnProperty.hasOwnProperty.call(options, "data")) {
-                if (Object.prototype.hasOwnProperty.hasOwnProperty.call(options, "post-method") && options["post-method"] === "form") {
+            if (method === "POST" && options !== undefined && Object.prototype.hasOwnProperty.call(options, "data")) {
+                if (Object.prototype.hasOwnProperty.call(options, "post-method") && options["post-method"] === "form") {
                     const myForm = new FormData();
                     const keys = Object.keys(options.data);
                     keys.forEach(key => {
@@ -194,20 +197,20 @@ export class RestClient {
                 request.send();
             } else {
                 request.send();
-
             }
-            if (this.requests[key]) {
-                // console.log("FULL LIST", Object.entries(this.requests))
-                // console.log("this.requests[key]", this.requests[key]);
 
-                if (this.requests[key].pending) {
-                    console.warn("aborting request", this.requests[key].url);
-                    this.requests[key].request.abort();
-                    delete this.requests[key];
-                } else {
-                    // not aborting
-                }
-            }
+            // if (this.requests[key]) {
+            //     // console.log("FULL LIST", Object.entries(this.requests))
+            //     // console.log("this.requests[key]", this.requests[key]);
+
+            //     if (this.requests[key].pending) {
+            //         console.warn("aborting request", this.requests[key].url);
+            //         this.requests[key].request.abort();
+            //         delete this.requests[key];
+            //     } else {
+            //         // not aborting
+            //     }
+            // }
 
         });
     }

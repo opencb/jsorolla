@@ -202,11 +202,7 @@ export default class FamilyView extends LitElement {
                                     <family-id-autocomplete
                                         .value="${this.family?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}"
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </family-id-autocomplete>
                                 `,
@@ -307,7 +303,11 @@ export default class FamilyView extends LitElement {
                                     },
                                     {
                                         title: "Sex",
-                                        field: "sex"
+                                        field: "sex",
+                                        type: "custom",
+                                        display: {
+                                            render: sex => sex?.id || sex || "Not specified",
+                                        },
                                     },
                                     {
                                         title: "Father ID",

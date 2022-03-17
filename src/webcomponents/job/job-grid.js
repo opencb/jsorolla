@@ -121,7 +121,8 @@ export default class JobGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // NOTE native Bootstrap table autorefresh doesn't clear interval correctly
                 // showRefresh: true,
                 // autoRefresh: true,
@@ -172,7 +173,7 @@ export default class JobGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             this.table.bootstrapTable("collapseRow", element[0].dataset.index);
@@ -379,9 +380,9 @@ export default class JobGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "job_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");

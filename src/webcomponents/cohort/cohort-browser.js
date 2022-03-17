@@ -78,6 +78,16 @@ export default class CohortBrowser extends LitElement {
         }
     }
 
+    render() {
+        return this.opencgaSession && this._config ? html`
+                <opencga-browser
+                    resource="COHORT"
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.query}"
+                    .config="${this._config}">
+                </opencga-browser>` : "";
+    }
+
     getDefaultConfig() {
         return {
             title: "Cohort Browser",
@@ -178,12 +188,12 @@ export default class CohortBrowser extends LitElement {
                             name: "Samples",
                             render: (cohort, active, opencgaSession) => {
                                 return html`
-                                    <opencga-sample-grid
+                                    <sample-grid
                                         .opencgaSession="${opencgaSession}"
                                         .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
                                         .config="${{showSelectCheckbox: false}}"
                                         .active="${active}">
-                                    </opencga-sample-grid>
+                                    </sample-grid>
                                 `;
                             }
                         },
@@ -289,16 +299,6 @@ export default class CohortBrowser extends LitElement {
                 ]
             }
         };
-    }
-
-    render() {
-        return this.opencgaSession && this._config ? html`
-                <opencga-browser
-                    resource="COHORT"
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.query}"
-                    .config="${this._config}">
-                </opencga-browser>` : "";
     }
 
 }

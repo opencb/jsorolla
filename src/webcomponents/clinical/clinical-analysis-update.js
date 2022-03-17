@@ -257,12 +257,16 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: clinicalAnalysis => html`
-                                    <span style="font-weight: bold; padding-right: 40px">
+                                    <label>
                                         ${clinicalAnalysis.id}
-                                    </span>
-                                    <span>
+                                    </label>
+                                    <span style="padding-left: 50px">
                                         <i class="far fa-calendar-alt"></i>
-                                        ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}
+                                        <label>Creation Date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.creationDate)}
+                                    </span>
+                                    <span style="margin: 0 20px">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <label>Due date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.dueDate)}
                                     </span>
                                 `,
                             }
@@ -313,7 +317,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                                             </a>
                                                         </div>`;
                                                 } else {
-                                                    panelHtml = panel.id;
+                                                    return html`<div>${panel.id}</div>`;
                                                 }
                                             })}`;
                                     }
@@ -444,6 +448,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "panelLock",
                             type: "toggle-switch",
                             display: {
+                                helpMessage: "All existing interpretations must have the same panels to enable Panel Lock",
                                 disabled: clinicalAnalysis => {
                                     if (clinicalAnalysis?.locked) {
                                         return true;
@@ -451,7 +456,7 @@ class ClinicalAnalysisUpdate extends LitElement {
 
                                     const interpretations = [clinicalAnalysis.interpretation, ...clinicalAnalysis.secondaryInterpretations];
                                     for (const interpretation of interpretations) {
-                                        if (clinicalAnalysis.panels?.length !== interpretation.panels?.length) {
+                                        if (clinicalAnalysis.panels?.length !== interpretation?.panels?.length) {
                                             return true;
                                         }
                                         for (const interpretationPanel of interpretation.panels) {

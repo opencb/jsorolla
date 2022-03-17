@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import {classMap} from "lit/directives/class-map.js";
 import "../forms/file-upload.js";
 
 /**
@@ -37,17 +36,20 @@ export default class SelectTokenFilter extends LitElement {
 
     static get properties() {
         return {
-            config: {
-                type: Object
-            },
             value: {
                 type: String
+            },
+            classes: {
+                type: String
+            },
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "select-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
@@ -60,8 +62,9 @@ export default class SelectTokenFilter extends LitElement {
         this.select = $("#" + this._prefix);
         this.select.select2({
             tags: this._config.freeTag === true,
-            multiple: true,
+            multiple: this._config.multiple ?? true,
             width: "style",
+            allowClear: true,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             ajax: {
@@ -127,9 +130,18 @@ export default class SelectTokenFilter extends LitElement {
         if (_changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        if (_changedProperties.has("classes")) {
+            if (this.classes) {
+                this.select.data("select2").$selection.addClass(this.classes);
+            } else {
+                this.select.data("select2").$selection.removeClass("");
+            }
+        }
+
         if (_changedProperties.has("value")) {
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
-            this.select.empty();
+            // this.select.empty();
             const regExpSeparators = new RegExp("[" + this._config.separator.join("") + "]");
             this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(regExpSeparators) : "");
         }

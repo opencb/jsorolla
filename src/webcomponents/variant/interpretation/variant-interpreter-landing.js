@@ -17,11 +17,11 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
+import "../../clinical/clinical-analysis-view.js";
 import "../../commons/view/detail-tabs.js";
 import "../../individual/individual-view.js";
 import "../../loading-spinner.js";
@@ -61,15 +61,15 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
-        }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+        // }
 
         if (changedProperties.has("config")) {
             this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
         }
 
-        this._config = this.getDefaultConfig();
+        // this._config = this.getDefaultConfig();
         super.update(changedProperties);
     }
 
@@ -127,7 +127,7 @@ class VariantInterpreterLanding extends LitElement {
                 {
                     id: "general",
                     name: "Case Manager",
-                    active: this.writeMode,
+                    active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
@@ -219,17 +219,17 @@ class VariantInterpreterLanding extends LitElement {
                 {
                     id: "overview",
                     name: "Overview",
-                    active: !this.writeMode,
+                    active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
-                                    <opencga-clinical-analysis-view
+                                    <clinical-analysis-view
                                         .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
-                                    </opencga-clinical-analysis-view>
+                                    </clinical-analysis-view>
                                 </div>
                             </div>
                         `;

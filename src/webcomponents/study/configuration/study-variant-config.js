@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import "./config-list-update.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
@@ -46,7 +46,7 @@ export default class StudyVariantConfig extends LitElement {
 
     _init() {
         // console.log("init study variant config");
-        this.updateParams = {};
+
     }
 
     connectedCallback() {
@@ -66,7 +66,6 @@ export default class StudyVariantConfig extends LitElement {
             this._variantEngineConfig = JSON.parse(JSON.stringify(this.variantEngineConfig));
         }
     }
-
 
     onSyncItem(e) {
         e.stopPropagation();
@@ -140,7 +139,6 @@ export default class StudyVariantConfig extends LitElement {
         e.stopPropagation();
         console.log("on Field Change", e.detail);
         const {param} = e.detail;
-
         if (param?.includes("transcriptCombination")) {
             const val = e.detail.value;
             this.variantEngineConfig.sampleIndex.annotationIndexConfiguration.transcriptCombination = val;
@@ -151,10 +149,9 @@ export default class StudyVariantConfig extends LitElement {
                 ...this.variantEngineConfig.sampleIndex.annotationIndexConfiguration[node.child],
                 [param]: value
             };
+
         }
-
         console.log("edited", this.variantEngineConfig);
-
     }
 
     onAddValues(e) {
@@ -175,67 +172,102 @@ export default class StudyVariantConfig extends LitElement {
 
     configVariant(key, item, modal) {
 
+        // https://github.com/opencb/opencga/blob/develop/opencga-core/src/main/java/org/opencb/opencga/core/config/storage/IndexFieldConfiguration.java#L175
+        // Source
+        // VARIANT, META, FILE, SAMPLE, ANNOTATION
+
+        // https://github.com/opencb/opencga/blob/develop/opencga-core/src/main/java/org/opencb/opencga/core/config/storage/IndexFieldConfiguration.java#L183
         // Type
         // RANGE_LT, RANGE_GT. CATEGORICAL, CATEGORICAL_MULTI_VALUE
 
-        // Source
-        // VARIANT, META, FILE, SAMPLE, ANNOTATION
+        // CATEGORICAL -> Values
+        // RANGE_GT,RANGE_LT -> thresholds
+        // CATEGORICAL_MULTI_VALUE -> values & valuesMapping
 
         //  IndexFieldConfiguration
         /** Source, key,type, thresholds, values, valuesMapping, nullable
          **/
 
-        // DEPRECATED
-        // const configModal = isNew => {
-        //     return isNew ? {
-        //         type: "modal",
-        //         title: "Add Config",
-        //         buttonStyle: "margin-top:6px"
-        //     } : {
-        //         type: "modal",
-        //         title: "Edit Config",
-        //         item: {
-        //             title: item?.title,
-        //             subtitle: item?.subtitle
-        //         },
-        //         buttonClass: "pull-right",
-        //         btnGroups: [
-        //             {
-        //                 title: "Edit",
-        //                 openModal: true,
-        //             },
-        //             {
-        //                 title: "Delete",
-        //                 btnClass: "btn-danger",
-        //                 event: "removeItem"
-        //             }
-        //         ]
-        //     };
-        // };
-
-        const configSection = key => {
+        const configSection = (key, isNew) => {
             let node = {};
             switch (key) {
                 case "fileIndexConfiguration":
+                    node = {parent: key, child: "valuesMapping"};
                     return {
                         elements: [
                             {
-                                name: "Source",
+                                title: "Source",
                                 field: "source",
-                                type: "input-text",
+                                allowedValues: ["ANNOTATION", "FILE", "META", "SAMPLE", "VARIANT"],
+                                type: "select",
                             },
                             {
-                                name: "Key",
+                                title: "Key",
                                 field: "key",
                                 type: "input-text",
                             },
                             {
-                                name: "Type",
+                                title: "Type",
                                 field: "type",
-                                type: "input-text",
+                                allowedValues: ["CATEGORICAL", "CATEGORICAL_MULTI_VALUE", "RANGE_LT", "RANGE_GT"],
+                                type: "select",
                             },
                             {
-                                name: "Nullable",
+                                title: "Values",
+                                field: "values",
+                                type: "custom",
+                                display: {
+                                    visible: variant => variant?.type === "CATEGORICAL" || variant?.type === "CATEGORICAL_MULTI_VALUE",
+                                    contentLayout: "horizontal",
+                                    defaultLayout: "horizontal",
+                                    width: 12,
+                                    style: "padding-left: 0px",
+                                    render: variant => html`
+                                        <select-token-filter-static
+                                            .data=${variant}
+                                            .value="${variant?.join(",")}">
+                                        </select-token-filter-static>`
+                                }
+                            },
+                            {
+                                title: "thresholds",
+                                field: "thresholds",
+                                type: "custom",
+                                display: {
+                                    visible: variant => variant?.type === "RANGE_GT" || variant?.type === "RANGE_LT",
+                                    contentLayout: "horizontal",
+                                    defaultLayout: "horizontal",
+                                    width: 12,
+                                    style: "padding-left: 0px",
+                                    render: data => html`
+                                        <select-token-filter-static
+                                            .data=${data}
+                                            .value="${data?.join(",")}">
+                                        </select-token-filter-static>`
+                                }
+                            },
+                            {
+                                title: "ValuesMapping",
+                                field: "valuesMapping",
+                                type: "custom",
+                                display: {
+                                    visible: variant => variant?.type === "CATEGORICAL_MULTI_VALUE",
+                                    contentLayout: "horizontal",
+                                    defaultLayout: "horizontal",
+                                    width: 12,
+                                    style: "padding-left: 0px",
+                                    render: valuesMapping => {
+                                        return html`
+                                            <list-update
+                                                .node=${node}
+                                                .data="${{items: valuesMapping}}"
+                                                .config=${this.configVariant("valuesMapping", {}, true)}>
+                                            </list-update>`;
+                                    }
+                                }
+                            },
+                            {
+                                title: "Nullable",
                                 field: "nullable",
                                 type: "checkbox",
                             },
@@ -245,12 +277,12 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Study",
+                                title: "Study",
                                 field: "study",
                                 type: "input-text",
                             },
                             {
-                                name: "Population",
+                                title: "Population",
                                 field: "population",
                                 type: "input-text",
                             },
@@ -260,22 +292,20 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "key",
+                                title: "key",
                                 field: "key",
                                 type: "input-text",
                             },
                             {
-                                name: "Values",
+                                title: "Values",
                                 field: "values",
                                 type: "custom",
                                 display: {
-                                    render: data => {
-                                        return html `
-                                            <select-token-filter-static
-                                                .data=${data}
-                                                .value="${data?.join(",")}">
-                                            </select-token-filter-static>`;
-                                    }
+                                    render: data => html `
+                                        <select-token-filter-static
+                                            .data=${data}
+                                            .value="${data?.join(",")}">
+                                        </select-token-filter-static>`
                                 }
                             }
                         ]
@@ -285,11 +315,12 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Populations",
+                                title: "Populations",
                                 field: "populations",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    // layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -302,11 +333,12 @@ export default class StudyVariantConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "thresholds",
+                                title: "thresholds",
                                 field: "thresholds",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    // layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -329,31 +361,31 @@ export default class StudyVariantConfig extends LitElement {
                     return {
                         elements: [
                             {
-                                name: "Source",
+                                title: "Source",
                                 field: "source",
                                 type: "input-text",
                             },
                             {
-                                name: "Key",
+                                title: "Key",
                                 field: "key",
                                 type: "input-text",
                             },
                             {
-                                name: "Type",
+                                title: "Type",
                                 field: "type",
                                 type: "input-text",
                             },
                             {
-                                name: "Nullable",
+                                title: "Nullable",
                                 field: "nullable",
                                 type: "checkbox",
                             },
                             {
-                                name: "Values",
+                                title: "Values",
                                 field: "values",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
@@ -365,20 +397,22 @@ export default class StudyVariantConfig extends LitElement {
                                 }
                             },
                             {
-                                name: "ValuesMapping",
+                                title: "ValuesMapping",
                                 field: "valuesMapping",
                                 type: "custom",
                                 display: {
-                                    layout: "horizontal",
+                                    contentLayout: "horizontal",
                                     defaultLayout: "horizontal",
                                     width: 12,
                                     style: "padding-left: 0px",
-                                    render: valuesMapping => html`
-                                        <list-update
-                                            .node=${node}
-                                            .data="${{items: valuesMapping}}"
-                                            .config=${this.configVariant("valuesMapping", {}, true)}>
-                                        </list-update>`
+                                    render: valuesMapping => {
+                                        return html`
+                                            <list-update
+                                                .node=${node}
+                                                .data="${{items: valuesMapping}}"
+                                                .config=${this.configVariant("valuesMapping", {}, true)}>
+                                            </list-update>`;
+                                    }
                                 }
                             },
                         ]
@@ -388,25 +422,28 @@ export default class StudyVariantConfig extends LitElement {
 
         const configForm = (key, isNew) => {
             return {
-                title: "Edit",
-                buttons: {
-                    show: modal,
-                    cancelText: "Cancel",
-                    classes: modal ? "btn btn-primary ripple pull-right": "pull-right",
-                    okText: isNew? "Add" : "Edit"
-                },
+                title: isNew ? "Add Config":"Edit",
+                type: modal ? "modal" :"",
+                icon: isNew ? "fas fa-cogs":"fas fa-edit",
                 display: {
-                    labelWidth: 3,
-                    labelAlign: "right",
+                    titleVisible: false,
+                    buttonOkText: "Save",
+                    buttonClearText: "Cancel",
+                    buttonsVisible: modal,
+                    buttonsLayout: false,
+                    buttonsClassName: "btn btn-primary",
+                    modalButtonClassName: !isNew?"btn-sm":"",
+                    modalButtonStyle: isNew ? "margin-top:6px":"",
+                    titleWidth: 3,
+                    titleAlign: "right",
                     defaultLayout: "horizontal",
-                    mode: modal ? {type: "modal"}: "",
                     defaultValue: ""
                 },
-                sections: [configSection(key)]
+                sections: [configSection(key, isNew)]
             };
         };
 
-        if (key.constructor === Array) {
+        if (Array.isArray(key)) {
             const configs = {};
             key.forEach(key => {
                 configs[key] = {
@@ -435,21 +472,17 @@ export default class StudyVariantConfig extends LitElement {
     getDefaultConfig() {
         return {
             type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Update"
-            },
             display: {
-                // width: "8",
+                buttonOkText: "Update",
+                buttonClearText: "Cancel",
+                buttonsVisible: false,
+                buttonsLayout: false,
+                buttonsWidth: 8,
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                help: {
-                    mode: "block" // icon
-                }
             },
             sections: [
                 {
@@ -490,8 +523,11 @@ export default class StudyVariantConfig extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: annotationIndexConfiguration => {
-                                    const itemKeys = Object?.keys(annotationIndexConfiguration)
-                                        .filter(key => annotationIndexConfiguration[key] instanceof Object);
+                                    let itemKeys = [];
+                                    if (annotationIndexConfiguration) {
+                                        itemKeys = Object?.keys(annotationIndexConfiguration)
+                                            .filter(key => annotationIndexConfiguration[key] instanceof Object);
+                                    }
                                     return html`
                                         <config-list-update
                                             key="annotationIndexConfiguration"
@@ -504,7 +540,7 @@ export default class StudyVariantConfig extends LitElement {
                             }
                         },
                         // {
-                        //     name: "Transcript Combination",
+                        //     title: "Transcript Combination",
                         //     field: "sampleIndex.annotationIndexConfiguration.transcriptCombination",
                         //     type: "checkbox"
                         // },
@@ -515,6 +551,38 @@ export default class StudyVariantConfig extends LitElement {
     }
 
     render() {
+        if (!this.variantEngineConfig) {
+            // If the study does not have a configuration
+            // It'll create a new configuration object to add value.
+            const indexFieldConfiguration = {
+                source: "",
+                key: "",
+                type: "",
+                values: [],
+                valuesMapping: {},
+                nullable: false
+            };
+
+            this.variantEngineConfig = {
+                sampleIndex: {
+                    fileIndexConfiguration: {
+                        customFields: [],
+                    },
+                    annotationIndexConfiguration: {
+                        populationFrequency: {
+                            populations: [],
+                            thresholds: []
+                        },
+                        biotype: {...indexFieldConfiguration},
+                        consequenceType: {...indexFieldConfiguration},
+                        clinicalSource: {...indexFieldConfiguration},
+                        clinicalSignificance: {...indexFieldConfiguration},
+                        transcriptFlagIndexConfiguration: {...indexFieldConfiguration}
+                    }
+                }
+            };
+
+        }
         return html`
             <div style="margin: 25px 40px">
                 <data-form

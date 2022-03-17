@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -82,33 +82,32 @@ export default class SampleVariantStatsBrowser extends LitElement {
         if ((changedProperties.has("sample") || changedProperties.has("active")) && this.active) {
             this.sampleObserver();
         }
-
         if ((changedProperties.has("sampleId") || changedProperties.has("active")) && this.active) {
             this.sampleIdObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     sampleObserver() {
         // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
-        if (this.sample?.qualityControl?.variantMetrics) {
-            this._variantStatsPath = "variantMetrics";
-        } else if (this.sample?.qualityControl?.variant) {
-            this._variantStatsPath = "variant";
-        } else {
-            console.error("no path for variant stats defined");
+        // if (this.sample?.qualityControl?.variantMetrics) {
+        //     this._variantStatsPath = "variantMetrics";
+        // } else if (this.sample?.qualityControl?.variant) {
+        //     this._variantStatsPath = "variant";
+        // } else {
+        //     console.error("no path for variant stats defined");
+        // }
+        this._variantStatsPath = "variant";
+        if (this.sample?.qualityControl?.["variant"]?.variantStats.length > 0) {
+            this._variantStats = this.sample.qualityControl?.["variant"]?.variantStats[0];
+            this.selectVariantStats("ALL", this._variantStats);
         }
-        this._variantStats = this.sample.qualityControl?.[this._variantStatsPath]?.variantStats[0];
-        this.selectVariantStats("ALL", this._variantStats);
     }
 
     sampleIdObserver() {
@@ -116,7 +115,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sample = response.getResult(0);
-                    this.sampleObserver();
+                    // this.sampleObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
@@ -129,7 +128,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
-        // this.requestUpdate();
     }
 
     onVariantFilterChange(e) {
@@ -148,7 +146,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.executedQuery = {...this.query};
 
         this.renderVariantStats();
-        // this.requestUpdate();
     }
 
     onActiveFilterClear(e) {
@@ -157,7 +154,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.executedQuery = {...this.query};
 
         this.renderVariantStats();
-        // this.requestUpdate();
     }
 
     async renderVariantStats() {
@@ -202,7 +198,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
             description: this.save.description || "",
             stats: this.sampleQcVariantStats.stats
         };
-
+        delete variantStats.stats.consequenceTypeCount["other"];
+        delete variantStats.stats.biotypeCount["other"];
+        delete variantStats.stats.biotypeCount["other_non_pseudo_gene"];
 
         if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
             this.sample.qualityControl[this._variantStatsPath] = {
@@ -220,11 +218,15 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 console.log(restResponse);
-                Swal.fire({
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Success",
-                    icon: "success",
-                    html: "Variant Stats saved successfully"
+                    message: "Variant Stats saved successfully"
                 });
+                // Swal.fire({
+                //     title: "Success",
+                //     icon: "success",
+                //     html: "Variant Stats saved successfully"
+                // });
             })
             .catch(restResponse => {
                 console.error(restResponse);
@@ -307,7 +309,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                         collapsed: false,
                         filters: [
                             {
-                                id: "file-quality",
+                                id: "variant-file-sample-filter",
                                 title: "File Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 // showDepth: application.appConfig === "opencb"

@@ -50,6 +50,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     onFieldChange(e) {
         switch (e.detail.param) {
+            case "genotype.type":
+                this.config.genotype.type = e.detail.value;
+                break;
+            case "showHgvs":
+                this.config.showHgvs = e.detail.value;
+                break;
             case "geneSet.ensembl":
             case "geneSet.refseq":
             case "consequenceType.all":
@@ -75,12 +81,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     this.requestUpdate();
                 }
                 break;
-            case "genotype.type":
-                this.config.genotype.type = e.detail.value;
+            case "activeHighlights":
+                this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
                 break;
         }
 
-        LitUtils.dispatchCustomEvent(this, "configChange", this.config, null, null, {bubbles: true, composed: true});
+        LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
     render() {
@@ -98,6 +104,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
+            type: "pills",
             validation: {
                 validate: data => {
                     return data.geneSet?.ensembl || data.geneSet?.refseq;
@@ -112,6 +119,38 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 buttonsVisible: false
             },
             sections: [
+                {
+                    id: "gt",
+                    title: "General Settings",
+                    description: "Select some general options",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
+                        visible: () => !!this.config?.genotype?.type
+                    },
+                    elements: [
+                        {
+                            title: "Select how genotypes are displayed",
+                            field: "genotype.type",
+                            type: "select",
+                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
+                            display: {
+                                width: 6,
+                            }
+                        },
+                        {
+                            title: "Show HGVS column",
+                            field: "showHgvs",
+                            type: "checkbox",
+                            text: "Show HGVS",
+                            display: {
+                                width: 6,
+                            }
+                        }
+                    ]
+                },
                 {
                     title: "Transcript Filter",
                     // description: "Select which transcripts and consequence types are displayed in the variant grid",
@@ -136,7 +175,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "Ensembl",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
+                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version === "v5"
                             }
                         },
                         {
@@ -145,7 +184,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "RefSeq",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                visible: () => this.opencgaSession.project.internal?.cellbase?.version === "v5"
+                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version === "v5"
                             }
                         },
                         {
@@ -262,28 +301,32 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     ]
                 },
                 {
-                    id: "gt",
-                    title: "Sample Genotype",
-                    description: "Select how genotypes are displayed",
+                    title: "Variant Highlight",
                     display: {
                         titleHeader: "h4",
-                        titleStyle: "margin: 25px 5px 5px 5px",
-                        descriptionClassName: "help-block",
-                        descriptionStyle: "margin: 0px 10px",
-                        visible: () => !!this.config?.genotype?.type
+                        titleStyle: "margin: 5px 5px",
                     },
                     elements: [
                         {
-                            title: "Select Render Mode",
-                            field: "genotype.type",
+                            title: "Configure the highlight to apply to displayed variant rows",
+                            field: "activeHighlights",
                             type: "select",
-                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
+                            multiple: true,
+                            allowedValues: this.config?.highlights?.map(highlight => highlight.id) || [],
                             display: {
-                                width: 6,
-                            }
-                        }
-                    ]
-                }
+                                visible: () => (this.config?.highlights || []).length > 0,
+                            },
+                        },
+                        {
+                            type: "notification",
+                            text: "No highlight conditions defined.",
+                            display: {
+                                notificationType: "warning",
+                                visible: () => (this.config?.highlights || []).length === 0,
+                            },
+                        },
+                    ],
+                },
             ]
         };
     }

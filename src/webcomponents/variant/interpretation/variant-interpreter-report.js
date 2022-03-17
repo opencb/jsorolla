@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-grid.js";
+import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
 import "../../file/file-preview.js";
 
@@ -100,10 +101,6 @@ class VariantInterpreterReport extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            console.log(this.opencgaSession);
-            console.log(this.clinicalAnalysis);
-            console.log(this.clinicalAnalysis.proband.samples[0].qualityControl);
-
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
             const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
@@ -146,23 +143,32 @@ class VariantInterpreterReport extends LitElement {
                     "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
                     "with an interpretation of this report.",
                 ].join(" "),
-                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
-                    return item.status.toUpperCase() === "REPORTED";
-                }),
+                // TODO decide what to do here
+                // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
+                //     return item.status.toUpperCase() === "REPORTED";
+                // }),
+                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
+                hrdetect: null,
             };
 
-            const filesQuery = {
-                sampleIds: [somaticSample.id, germlineSample.id].join(","),
-                limit: 100,
-                study: this.opencgaSession.study.fqn,
-            };
+            const allPromises = [
+                this.opencgaSession.opencgaClient.files().search({
+                    sampleIds: [somaticSample.id, germlineSample.id].join(","),
+                    limit: 100,
+                    study: this.opencgaSession.study.fqn,
+                }),
+                this.opencgaSession.opencgaClient.samples().info(somaticSample.id, {
+                    include: "annotationSets",
+                    study: this.opencgaSession.study.fqn,
+                }),
+            ];
 
-            return this.opencgaSession.opencgaClient.files().search(filesQuery)
-                .then(response => {
-                    const files = response.responses[0].results;
+            return Promise.all(allPromises)
+                .then(values => {
+                    const files = values[0].responses[0].results;
 
                     // Get processing alignment info from one BAM file
                     const bamFile = files.find(f => f.format === "BAM");
@@ -207,16 +213,24 @@ class VariantInterpreterReport extends LitElement {
                             {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
                         ];
                         this._data.ascatPlots = ascatMetrics?.files
-                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id))
-                            .map(id => files.find(f => f.id === id)) || [];
+                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id));
                     }
 
                     this._data.qcPlots = {};
-                    if (somaticSample.qualityControl?.variant?.files?.length > 0) {
-                        this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
+                    if (somaticSample.qualityControl?.variant?.genomePlot?.file) {
+                        // this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
+                        this._data.qcPlots.genomePlotFile = somaticSample.qualityControl.variant.genomePlot.file;
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
+                    }
+
+                    // Add HRDetect value (if provided)
+                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
+                        return item.id === "hrdetectStats";
+                    });
+                    if (hrdetectStats) {
+                        this._data.hrdetect = hrdetectStats.annotations.probability;
                     }
 
                     // End filling report data
@@ -381,6 +395,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "ascatMetrics",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {
@@ -409,6 +424,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "sequenceMetrics",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -421,6 +437,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "tumourStats",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -433,6 +450,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "normalStats",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -445,6 +463,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "processingInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -457,6 +476,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "somaticCallingInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 transform: somaticCallingInfo => somaticCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
@@ -473,6 +493,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "customFilteringInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 headerVisible: false,
                                 columns: [
                                     {field: "field"},
@@ -485,6 +506,7 @@ class VariantInterpreterReport extends LitElement {
                             field: "germlineCallingInfo",
                             type: "table",
                             display: {
+                                style: "width:auto",
                                 transform: germlineCallingInfo => germlineCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
@@ -524,29 +546,19 @@ class VariantInterpreterReport extends LitElement {
                                         <div class="col-md-5">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[0]}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </file-preview>
-                                            <file-preview
-                                                .active="${true}"
-                                                .file="${images[0]}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </file-preview>
-                                            <file-preview
-                                                .active="${true}"
-                                                .file="${images[1]}"
+                                                .fileId="${images[0]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[2]}"
+                                                .fileId="${images[2]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                             <file-preview
                                                 .active="${true}"
-                                                .file="${images[1]}"
+                                                .fileId="${images[1]}"
                                                 .opencgaSession="${this.opencgaSession}">
                                             </file-preview>
                                         </div>
@@ -579,11 +591,17 @@ class VariantInterpreterReport extends LitElement {
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
                                         <div class="col-md-7">
-                                            <image-viewer .data="${qcPlots.genomePlot}"></image-viewer>
-                                            <img class="img-responsive" src="${qcPlots.genomePlot}"/>
+                                            <file-preview
+                                                .active="${true}"
+                                                .fileId="${qcPlots.genomePlotFile}"
+                                                .opencgaSession="${this.opencgaSession}">
+                                            </file-preview>
                                         </div>
                                         <div class="col-md-5">
-                                            <signature-view .signature="${qcPlots.signatures?.[0]}" .active="${this.active}"></signature-view>
+                                            <signature-view
+                                                .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV") || qcPlots.signatures?.[0]}"
+                                                .active="${this.active}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
                                             <p>
@@ -643,7 +661,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: false,
+                                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
@@ -665,13 +687,13 @@ class VariantInterpreterReport extends LitElement {
                                         })
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
                                     return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-grid
+                                        <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${defaultGridConfig}">
-                                        </variant-interpreter-grid>
+                                        </variant-interpreter-rearrangement-grid>
                                     `: null;
                                 },
                                 errorMessage: "No variants found in this category",
@@ -712,7 +734,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["SNV", "INDEL"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -734,13 +760,13 @@ class VariantInterpreterReport extends LitElement {
                                         })
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
                                     return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-grid
+                                        <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${defaultGridConfig}">
-                                        </variant-interpreter-grid>
+                                        </variant-interpreter-rearrangement-grid>
                                     ` : null;
                                 },
                                 errorMessage: "No variants found in this category",
@@ -767,7 +793,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["COPY_NUMBER", "CNV"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -831,11 +861,16 @@ class VariantInterpreterReport extends LitElement {
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
                                             <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"></signature-view>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-6">
                                             <h4>SBS signature contributions</h4>
-                                            <span style="font-weight: bold">Pending</span>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"
+                                                .plots="${["fitting"]}">
+                                            </signature-view>
                                         </div>
                                     </div>
                                 `,
@@ -873,16 +908,35 @@ class VariantInterpreterReport extends LitElement {
                                 render: clinicalAnalysis => html`
                                     <div class="row" style="padding: 20px">
                                         <div class="col-md-6">
-                                            <h4>SBS Profile</h4>
-                                            <signature-view .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}" .mode="${"SV"}"></signature-view>
+                                            <h4>Rearrangement Profile</h4>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
+                                                .mode="${"SV"}">
+                                            </signature-view>
                                         </div>
                                         <div class="col-md-6">
-                                            <h4>SBS signature contributions</h4>
-                                            <span style="font-weight: bold">Pending</span>
+                                            <h4>Rearrangement signature contributions</h4>
+                                            <signature-view
+                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
+                                                .plots="${["fitting"]}"
+                                                .mode="${"SV"}">
+                                            </signature-view>
                                         </div>
                                     </div>
                                 `,
                             },
+                        },
+                        {
+                            title: "Downstream Algorithms",
+                            type: "title",
+                            display: {
+                                titleStyle: "font-size:18px",
+                            },
+                        },
+                        {
+                            title: "HRDetect",
+                            field: "hrdetect",
+                            defaultValue: "Not provided",
                         },
                     ]
                 },

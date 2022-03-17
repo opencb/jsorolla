@@ -202,9 +202,11 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 <!--Summary Tab-->
                 <div role="tabpanel" class="tab-pane active" id="${this._prefix}VariantAnnotationSummary">
                     <br>
-                    <cellbase-variant-annotation-summary .variantAnnotation="${this.variantAnnotation}"
-                                                         .consequenceTypes="${this.consequenceTypes}"
-                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                    <cellbase-variant-annotation-summary
+                        .variantAnnotation="${this.variantAnnotation}"
+                        .consequenceTypes="${this.consequenceTypes}"
+                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                        .assembly="${this.assembly}">
                     </cellbase-variant-annotation-summary>
                 </div>
                 <!--TODO there is no such component

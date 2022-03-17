@@ -81,7 +81,7 @@ export default class VariantGridFormatter {
         const tooltipText = `
             <div class="dropdown-header" style="padding-left: 5px">External Links</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser")}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
                 </a>
             </div>
@@ -89,18 +89,35 @@ export default class VariantGridFormatter {
                 <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
                     UCSC Genome Browser
                 </a>
-            </div>`;
+            </div>
+        `;
 
         const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
+        // Add highlight icons
+        let iconHighlights = [];
+        if (config.highlights && config.activeHighlights) {
+            iconHighlights = config.activeHighlights.map(id => {
+                const highlight = config.highlights.find(item => item.id === id);
+                if (highlight.condition(row, index) && highlight.style?.icon) {
+                    const description = highlight.description || highlight.name || "";
+                    const icon = highlight.style.icon;
+                    const color = highlight.style.iconColor || "";
+
+                    return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
+                }
+            });
+        }
+
         return `
-            <div style="margin: 5px 0px">
+            <div style="margin:5px 0px;white-space:nowrap;">
                 <a tooltip-title='Links' tooltip-text='${tooltipText}'>
                     ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
                 </a>
+                ${iconHighlights.join("")}
             </div>
             ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
-            `;
+        `;
     }
 
     static snpFormatter(value, row, index, assembly) {
@@ -189,7 +206,7 @@ export default class VariantGridFormatter {
 
                         <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
                         <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
                         </div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
@@ -234,34 +251,85 @@ export default class VariantGridFormatter {
 
             // Do not write more than 4 genes per line, this could be easily configurable
             let resultHtml = "";
+            const maxDisplayedGenes = 10;
+            const allGenes = geneWithCtLinks.concat(geneLinks);
+
+            if (allGenes.length <= maxDisplayedGenes) {
+                resultHtml = allGenes.join(",");
+            } else {
+                resultHtml = `
+                    <div data-role="genes-list" data-variant-index="${index}">
+                        ${allGenes.slice(0, maxDisplayedGenes).join(",")}
+                        <span data-role="genes-list-extra" style="display:none">
+                            ,${allGenes.slice(maxDisplayedGenes).join(",")}
+                        </span>
+                        <div style="margin-top:8px;">
+                            <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                                ... show more genes (${(allGenes.length - maxDisplayedGenes)})
+                            </a>
+                            <a data-role="genes-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                                show less genes
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
 
             // First, print Genes with query CT
-            if (query?.ct) {
-                for (let i = 0; i < geneWithCtLinks.length; i++) {
-                    resultHtml += geneWithCtLinks[i];
-                    if (i + 1 !== geneWithCtLinks.length) {
-                        resultHtml += ",";
-                    }
-                }
-                resultHtml += "<br>";
-            }
+            // if (query?.ct) {
+            //     for (let i = 0; i < geneWithCtLinks.length; i++) {
+            //         resultHtml += geneWithCtLinks[i];
+            //         if (i + 1 !== geneWithCtLinks.length) {
+            //             resultHtml += ",";
+            //         }
+            //         genesCount++;
+            //     }
+            //     resultHtml += "<br>";
+            // }
 
-            // Second, the other genes
-            for (let i = 0; i < geneLinks.length; i++) {
-                resultHtml += geneLinks[i];
-                if (i + 1 !== geneLinks.length) {
-                    if (i === 0) {
-                        resultHtml += ",";
-                    } else if ((i + 1) % 2 !== 0) {
-                        resultHtml += ",";
-                    } else {
-                        resultHtml += "<br>";
-                    }
-                }
-            }
+            // // Second, the other genes
+            // for (let i = 0; i < geneLinks.length && genesCount < 10; i++) {
+            //     resultHtml += geneLinks[i];
+            //     if (i + 1 !== geneLinks.length) {
+            //         if (i === 0) {
+            //             resultHtml += ",";
+            //         } else if ((i + 1) % 2 !== 0) {
+            //             resultHtml += ",";
+            //         } else {
+            //             resultHtml += "<br>";
+            //         }
+            //     }
+            //     genesCount++;
+            // }
             return resultHtml;
+
         } else {
             return "-";
+        }
+    }
+
+    static hgvsFormatter(variant, gridConfig) {
+        BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
+        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
+
+        if (showArrayIndexes?.length > 0 && variant.annotation.hgvs?.length > 0) {
+            const results = [];
+            for (const index of showArrayIndexes) {
+                const consequenceType = variant.annotation.consequenceTypes[index];
+                const hgvsTranscriptIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.transcriptId));
+                const hgvsProteingIndex = variant.annotation.hgvs.findIndex(hgvs => hgvs.startsWith(consequenceType.proteinVariantAnnotation?.proteinId));
+                if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
+                    results.push(`
+                        <div style="margin: 5px 0">
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.transcriptId, variant.annotation.hgvs) || "-"}
+                        </div>
+                        <div style="margin: 5px 0">
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}
+                        </div>
+                    `);
+                }
+            }
+            return results.join("<hr style='margin: 5px'>");
         }
     }
 
@@ -533,7 +601,7 @@ export default class VariantGridFormatter {
                 link = BioinfoUtils.getProteinLink(split[0]);
             }
 
-            return `<a href=${link} target="_blank">${split[0]}</a>:${split[1]}`;
+            return `<a href=${link} target="_blank">${split[0]}</a>:<span style="font-weight:bold">${split[1]}</span>`;
         } else {
             if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
                 return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
@@ -634,7 +702,7 @@ export default class VariantGridFormatter {
                                 <div style="margin: 5px 0px">
                                     ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
                                 </div>` : ""
-                            }
+                }
                         </span>
                     </div>`;
 

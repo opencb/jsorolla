@@ -100,6 +100,8 @@ export default class SelectFieldFilter extends LitElement {
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
         this.selectPicker.selectpicker({
+            iconBase: "fas",
+            tickIcon: "fa-check",
             val: "",
             multipleSeparator: this.separator
         });
@@ -112,7 +114,12 @@ export default class SelectFieldFilter extends LitElement {
             this.data = this.data ?? [];
             this.selectPicker.selectpicker("refresh");
         }
-        if (changedProperties.has("value")) {
+
+        if (changedProperties.has("disabled")) {
+            this.selectPicker.selectpicker("refresh");
+        }
+
+        if (changedProperties.has("value") || changedProperties.has("data") || changedProperties.has("disabled")) {
             let val = "";
             if (this.value) {
                 if (this.multiple) {
@@ -128,10 +135,6 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("val", val);
         }
 
-        if (changedProperties.has("disabled")) {
-            this.selectPicker.selectpicker("refresh");
-        }
-
         if (changedProperties.has("classes")) {
             if (this.classes) {
                 this.selectPicker.selectpicker("setStyle", this.classes, "add");
@@ -143,7 +146,7 @@ export default class SelectFieldFilter extends LitElement {
         }
     }
 
-    filterChange(e) {
+    filterChange() {
         const selection = this.selectPicker.selectpicker("val");
         let val = null;
         if (selection && selection.length) {
@@ -164,6 +167,23 @@ export default class SelectFieldFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", val, {
             data: this.data,
         }, null, {bubbles: false, composed: false});
+    }
+
+    renderOption(option) {
+        let dataContent;
+        if (option.description) {
+            dataContent = `<span title="${option.description}">${option.name ?? option.id}</span>`;
+        } else {
+            dataContent = `<span>${option.name ?? option.id}</span>`;
+        }
+        return html`
+            <option
+                ?disabled="${option.disabled}"
+                ?selected="${option.selected}"
+                .value="${option.id ?? option.name}"
+                data-content="${dataContent}">
+            </option>
+        `;
     }
 
     render() {
@@ -188,29 +208,17 @@ export default class SelectFieldFilter extends LitElement {
                             ${opt?.fields ? html`
                                 <optgroup label="${opt.id ?? opt.name}">
                                     ${opt.fields.map(subopt => html`
-                                        ${UtilsNew.isObject(subopt) ? html`
-                                            <option
-                                                ?disabled="${subopt.disabled}"
-                                                ?selected="${subopt.selected}"
-                                                .value="${subopt.id ?? subopt.name}"
-                                                data-content="${subopt.name}">
-                                            </option>
-                                        ` : html`
-                                            <option>${subopt}</option>
-                                        `}
+                                        ${UtilsNew.isObject(subopt) ?
+                                            this.renderOption(subopt) :
+                                            html`<option>${subopt}</option>`
+                                        }
                                     `)}
                                 </optgroup>
                             ` : html`
-                                ${UtilsNew.isObject(opt) ? html`
-                                    <option
-                                        ?disabled="${opt.disabled}"
-                                        ?selected="${opt.selected}"
-                                        .value="${opt.id ?? opt.name}"
-                                        data-content="${opt.name ?? opt.id}">
-                                    </option>
-                                ` : html`
-                                    <option data-content="${opt}">${opt}</option>
-                                `}
+                                ${UtilsNew.isObject(opt) ?
+                                    this.renderOption(opt) :
+                                    html`<option data-content="${opt}">${opt}</option>`
+                                }
                             `}
                         `}
                     `)}

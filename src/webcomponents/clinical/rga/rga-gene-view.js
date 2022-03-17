@@ -113,6 +113,8 @@ export default class RgaGeneView extends LitElement {
             columns: this._columns,
             method: "get",
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             // Table properties
             pageSize: this._config.pageSize,
@@ -416,7 +418,7 @@ export default class RgaGeneView extends LitElement {
                                 _.variantStats.numHomAlt,
                                 _.variantStats.numCompHet
                             ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "rga_gene_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(dataString, "rga_gene_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(result, null, "\t"), "rga_gene_" + this.opencgaSession.study.id + ".json", "application/json");
                     }

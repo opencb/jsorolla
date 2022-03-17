@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/opencb-grid-toolbar.js";
 
 
 export default class IndividualGrid extends LitElement {
@@ -121,6 +121,8 @@ export default class IndividualGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 silentSort: false,
                 // Table properties
@@ -198,7 +200,7 @@ export default class IndividualGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             this.table.bootstrapTable("collapseRow", element[0].dataset.index);
@@ -235,7 +237,8 @@ export default class IndividualGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.individuals,
             sidePagination: "local",
-
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -259,10 +262,11 @@ export default class IndividualGrid extends LitElement {
     }
 
     detailFormatter(value, row) {
-        let result = `<div class='row' style="padding: 5px 10px 20px 10px">
-                        <div class='col-md-12'>
-                            <h5 style="font-weight: bold">Samples</h5>
-                `;
+        let result = `
+            <div class='row' style="padding: 5px 10px 20px 10px">
+                <div class='col-md-12'>
+                    <h5 style="font-weight: bold">Samples</h5>
+        `;
 
         if (UtilsNew.isNotEmptyArray(row.samples)) {
             let tableCheckboxHeader = "";
@@ -271,21 +275,23 @@ export default class IndividualGrid extends LitElement {
                 tableCheckboxHeader = "<th>Select</th>";
             }
 
-            result += `<div style="width: 90%;padding-left: 20px">
-                            <table class="table table-hover table-no-bordered">
-                                    <thead>
-                                        <tr class="table-header">
-                                            ${tableCheckboxHeader}
-                                            <th>Sample ID</th>
-                                            <th>Source</th>
-                                            <th>Collection Method</th>
-                                            <th>Preparation Method</th>
-                                            <th>Somatic</th>
-                                            <th>Creation Date</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
+            result += `
+                <div style="width: 90%;padding-left: 20px">
+                    <table class="table table-hover table-no-bordered">
+                        <thead>
+                            <tr class="table-header">
+                                ${tableCheckboxHeader}
+                                <th>Sample ID</th>
+                                <th>Source</th>
+                                <th>Collection Method</th>
+                                <th>Preparation Method</th>
+                                <th>Somatic</th>
+                                <th>Creation Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
 
             for (const sample of row.samples) {
                 let tableCheckboxRow = "";
@@ -300,25 +306,31 @@ export default class IndividualGrid extends LitElement {
                         }
                     }
 
-                    tableCheckboxRow = `<td><input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}></td>`;
+                    tableCheckboxRow = `
+                        <td>
+                            <input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}>
+                        </td>
+                    `;
                 }
 
-                const source = (UtilsNew.isNotEmpty(sample.source)) ? sample.source : "-";
-                const collectionMethod = (sample.collection !== undefined) ? sample.collection.method : "-";
-                const preparationMethod = (sample.processing !== undefined) ? sample.processing.preparationMethod : "-";
-                const cellLine = (sample.somatic) ? "Somatic" : "Germline";
+                const source = sample.source?.name || sample.source?.id || "-";
+                const collectionMethod = sample.collection?.method || "-";
+                const preparationMethod = sample.processing?.preparationMethod || "-";
+                const cellLine = sample.somatic ? "Somatic" : "Germline";
                 const creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
 
-                result += `<tr class="detail-view-row">
-                                        ${tableCheckboxRow}
-                                        <td>${sample.id}</td>
-                                        <td>${source}</td>
-                                        <td>${collectionMethod}</td>
-                                        <td>${preparationMethod}</td>
-                                        <td>${cellLine}</td>
-                                        <td>${creationDate}</td>
-                                        <td>${sample.status ? sample.status.name : ""}</td>
-                                   </tr>`;
+                result += `
+                    <tr class="detail-view-row">
+                        ${tableCheckboxRow}
+                        <td>${sample.id}</td>
+                        <td>${source}</td>
+                        <td>${collectionMethod}</td>
+                        <td>${preparationMethod}</td>
+                        <td>${cellLine}</td>
+                        <td>${creationDate}</td>
+                        <td>${sample.status ? sample.status.name : ""}</td>
+                    </tr>
+                `;
             }
             result += "</tbody></table></diV>";
         } else {
@@ -359,7 +371,11 @@ export default class IndividualGrid extends LitElement {
 
     samplesFormatter(value, row) {
         if (value?.length) {
-            return `<ul class="pad-left-15">${value.map(sample => `<li>${sample.id}</li>`).join("")}</ul>`;
+            return `
+                <ul class="pad-left-15" style="padding-top:10px" >
+                    ${value.map(sample => `<li>${sample.id}</li>`).join("")}
+                </ul>
+            `;
         } else {
             return "-";
         }
@@ -487,7 +503,7 @@ export default class IndividualGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex", "lifeStatus", "dateOfBirth", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "individuals_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
@@ -503,6 +519,24 @@ export default class IndividualGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
+    }
+
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}IndividualBrowserGrid"></table>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -526,26 +560,6 @@ export default class IndividualGrid extends LitElement {
                 fields: []
             }
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : nothing
-            }
-
-            <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}IndividualBrowserGrid"></table>
-            </div>
-        `;
     }
 
 }

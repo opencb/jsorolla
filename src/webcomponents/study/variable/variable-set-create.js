@@ -15,8 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
-import "./variable-list-update.js";
 import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import Types from "../../commons/types.js";
+import "../variable/variable-create.js";
+import "../variable/variable-update.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -46,11 +50,7 @@ export default class VariableSetCreate extends LitElement {
             unique: true
         };
         this.variable = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     refreshForm() {
@@ -86,9 +86,9 @@ export default class VariableSetCreate extends LitElement {
                     )
                 };
                 break;
-            case "variables":
-                this.variableSet = {...this.variableSet, variables: e.detail.value};
-                break;
+            // case "variables":
+            //     this.variableSet = {...this.variableSet, variables: e.detail.value};
+            //     break;
         }
     }
 
@@ -115,7 +115,6 @@ export default class VariableSetCreate extends LitElement {
 
 
     onClear(e) {
-        console.log("Clear Form");
         Swal.fire({
             title: "Are you sure to clear?",
             text: "You won't be able to revert this!",
@@ -149,17 +148,22 @@ export default class VariableSetCreate extends LitElement {
                 variables: [],
                 unique: true
             };
-            FormUtils.showAlert(
-                "New VariableSet",
-                "VariableSet save correctly",
-                "success"
-            );
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                title: "New VariableSet",
+                message: "VariableSet created correctly"
+            });
+            // FormUtils.showAlert(
+            //     "New VariableSet",
+            //     "VariableSet save correctly",
+            //     "success"
+            // );
         } catch (err) {
-            FormUtils.showAlert(
-                "New VariableSet",
-                `Could not save variableSet ${err}`,
-                "error"
-            );
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            // FormUtils.showAlert(
+            //     "New VariableSet",
+            //     `Could not save variableSet ${err}`,
+            //     "error"
+            // );
         } finally {
             this.requestUpdate();
             await this.updateComplete;
@@ -183,149 +187,19 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    sampleVariables() {
-        return [
-            {
-                "id": "typeCount",
-                "name": "typeCount",
-                "category": "",
-                "type": "MAP_INTEGER",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 7,
-                "dependsOn": "",
-                "description": "Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ...",
-                "attributes": {}
-            },
-            {
-                "id": "variantCount",
-                "name": "variantCount",
-                "category": "",
-                "type": "INTEGER",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 0,
-                "dependsOn": "",
-                "description": "Number of variants in the variant set",
-                "attributes": {}
-            },
-            {
-                "id": "hsMetricsReport",
-                "name": "Hs metrics report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 10,
-                "dependsOn": "",
-                "description": "Hs metrics report (from the picard/CollecHsMetrics command)",
-                "variables": [
-                    {
-                        "id": "onBaitVsSelected",
-                        "name": "On bait vs selected",
-                        "type": "DOUBLE",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 24,
-                        "description": "The percentage of on+near bait bases that are on as opposed to near"
-                    },
-                    {
-                        "id": "minTargetCoverage",
-                        "name": "Min target coverage",
-                        "type": "DOUBLE",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 23,
-                        "description": "The minimum coverage of targets"
-                    }
-                ]
-            },
-            {
-                "id": "fastQcReport",
-                "name": "FastQC report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 8,
-                "dependsOn": "",
-                "description": "FastQC report (from the FastQC tool)",
-                "variables": [],
-                "attributes": {}
-            },
-            {
-                "id": "mendelianErrorsReport",
-                "name": "Mendelian errors report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 7,
-                "dependsOn": "",
-                "description": "Mendelian errors report",
-                "variables": [
-                    {
-                        "id": "numErrors",
-                        "name": "Total number of errors",
-                        "type": "INTEGER",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 0,
-                        "description": "Total number of errors"
-                    },
-                    {
-                        "id": "chromAggregation",
-                        "name": "Aggregation per chromosome",
-                        "type": "OBJECT",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 2,
-                        "description": "Aggregation per chromosome",
-                        "variables": [
-                            {
-                                "id": "codeAggregation",
-                                "name": "Aggregation per error code",
-                                "type": "MAP_INTEGER",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 2,
-                                "description": "Aggregation per error code for that chromosome"
-                            },
-                            {
-                                "id": "numErrors",
-                                "name": "Total number of errors",
-                                "type": "STRING",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 1,
-                                "description": "Total number of errors"
-                            },
-                            {
-                                "id": "chromosome",
-                                "name": "chromosome",
-                                "type": "STRING",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 0,
-                                "description": "Chromosome"
-                            }
-                        ]
-                    },
-                ]
-            }
-        ];
+    onAddOrUpdateItem(e) {
+        const param = e.detail.param;
+        const value = e.detail.value;
+        if (UtilsNew.isNotEmpty(value)) {
+            this.variableSet = {...this.variableSet, variables: value};
+        } else {
+            this.variableSet = {
+                ...this.variableSet,
+                [param]: []
+            };
+            delete this.variableSet[param];
+        }
+        this.requestUpdate();
     }
 
     render() {
@@ -334,6 +208,7 @@ export default class VariableSetCreate extends LitElement {
                 .data=${this.variableSet}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
@@ -341,44 +216,28 @@ export default class VariableSetCreate extends LitElement {
 
 
     getDefaultConfig() {
-        return {
-            title: "Edit",
-            icon: "fas fa-edit",
+        return Types.dataFormConfig({
             type: "form",
-            buttons: {
-                show: true,
-                top: true,
-                classes: "pull-right",
-                cancelText: "Clear",
-                okText: "Save"
-            },
             display: {
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: "",
-                help: {
-                    mode: "block",
-                    // icon: "fa fa-lock",
-                }
+                buttonOkText: "Create"
             },
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            name: "Id",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             required: "required",
                             display: {
                                 placeholder: "Add a short ID...",
-                                help: {
-
-                                    icon: "fas fa-info-circle",
-                                    text: "short variableSet id"
-                                },
+                                helpIcon: "fas fa-info-circle",
+                                // helpText: "short variableSet id",
                                 validation: {
                                     message: "Please enter more that 3 character",
                                     validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
@@ -392,11 +251,10 @@ export default class VariableSetCreate extends LitElement {
                             name: "Name",
                             field: "name",
                             type: "input-text",
-                            required: "required",
                             display: {
                                 placeholder: "Name ...",
                                 help: {
-                                    text: "short name variable"
+                                    // text: "short name variable"
                                 },
                             }
                         },
@@ -414,7 +272,6 @@ export default class VariableSetCreate extends LitElement {
                             name: "Unique",
                             field: "unique",
                             type: "checkbox",
-                            required: true
                         },
                         {
                             name: "Confidential",
@@ -426,7 +283,6 @@ export default class VariableSetCreate extends LitElement {
                             name: "Description",
                             field: "description",
                             type: "input-text",
-                            required: true,
                             display: {
                                 rows: 3,
                                 placeholder: "variable description..."
@@ -438,24 +294,59 @@ export default class VariableSetCreate extends LitElement {
                     title: "Variables",
                     elements: [
                         {
+                            title: "Variables",
                             field: "variables",
-                            type: "custom",
+                            type: "custom-list",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-list-update
-                                        .variables="${this.variableSet?.variables}"
-                                        @changeVariables="${e => this.onFieldChange(e, "variables")}">
-                                    </variable-list-update>`
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                renderUpdate: (variable, callback) => html `
+                                    <variable-update
+                                        .variable="${variable}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                        @updateItem="${callback}">
+                                    </variable-update>
+                                `,
+                                renderCreate: (variable, callback) => html`
+                                    <label>Create new item</label>
+                                    <variable-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                        @addItem="${callback}">
+                                    </variable-create>`
                             }
                         },
                     ]
-                }
+                },
+                // {
+                //     title: "Variables",
+                //     elements: [
+                //         {
+                //             field: "variables",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: () => html`
+                //                     <variable-list-update
+                //                         .variables="${this.variableSet?.variables}"
+                //                         @changeVariables="${e => this.onFieldChange(e, "variables")}">
+                //                     </variable-list-update>`
+                //             }
+                //         },
+                //     ]
+                // }
             ]
-        };
+        });
     }
 
 }

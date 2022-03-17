@@ -23,26 +23,37 @@ import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
 import "./tool-header.js";
+
+// File
 import "../file/opencga-file-grid.js";
 import "../file/opencga-file-filter.js";
 import "../file/opencga-file-detail.js";
-import "../sample/opencga-sample-grid.js";
+// Samples
+import "../sample/sample-grid.js";
 import "../sample/sample-browser-filter.js";
-import "../sample/opencga-sample-detail.js";
+import "../sample/sample-detail.js";
+// Individual
 import "../individual/individual-grid.js";
 import "../individual/individual-browser-filter.js";
 import "../individual/individual-detail.js";
-import "../family/opencga-family-grid.js";
+// Family
+import "../family/family-grid.js";
 import "../family/opencga-family-filter.js";
 import "../family/opencga-family-detail.js";
+// Cohort
 import "../cohort/cohort-grid.js";
 import "../cohort/cohort-browser-filter.js";
 import "../cohort/cohort-detail.js";
+// Job
 import "../job/job-grid.js";
 import "../job/opencga-job-filter.js";
 import "../job/opencga-job-detail.js";
-// import "../job/job-browser.js";
 import "../job/job-timeline.js";
+// Disease Panel
+import "../disease-panel/disease-panel-browser-filter.js";
+import "../disease-panel/disease-panel-grid.js";
+import "../disease-panel/disease-panel-detail.js";
+// Clinical
 import "../clinical/clinical-analysis-grid.js";
 import "../clinical/clinical-analysis-browser-filter.js";
 import "../clinical/clinical-analysis-detail.js";
@@ -67,6 +78,9 @@ export default class OpencgaBrowser extends LitElement {
                 type: String
             },
             opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             query: {
@@ -333,18 +347,18 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-sample-grid
+                        <sample-grid
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.executedQuery}"
                             .config="${this.config.filter.result.grid}"
                             .active="${true}"
                             @selectrow="${e => this.onClickRow(e, "sample")}">
-                        </opencga-sample-grid>
-                        <opencga-sample-detail
+                        </sample-grid>
+                        <sample-detail
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config.filter.detail}"
                             .sampleId="${this.detail.sample?.id}">
-                        </opencga-sample-detail>
+                        </sample-detail>
                     </div>
                     ${facetView}`;
             case "INDIVIDUAL":
@@ -390,14 +404,14 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                        <opencga-family-grid
+                        <family-grid
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.executedQuery}"
                             .config="${this.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${this.eventNotifyName}"
                             @selectrow="${e => this.onClickRow(e, "family")}">
-                        </opencga-family-grid>
+                        </family-grid>
                         <opencga-family-detail
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config.filter.detail}"
@@ -425,6 +439,26 @@ export default class OpencgaBrowser extends LitElement {
                         </clinical-analysis-detail>
                     </div>
                 `;
+            case "DISEASE_PANEL":
+                this.endpoint = this.opencgaSession.opencgaClient.panels();
+                return html`
+                        <div id="table-tab" class="content-tab active">
+                            <disease-panel-grid
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${this.executedQuery}"
+                                .search="${this.executedQuery}"
+                                .config="${this.config.filter.result.grid}"
+                                .eventNotifyName="${this.eventNotifyName}"
+                                .active="${true}"
+                                @selectrow="${e => this.onClickRow(e, "diseasePanel")}">
+                            </disease-panel-grid>
+                            <disease-panel-detail
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${this.config.filter.detail}"
+                                .diseasePanelId="${this.detail.diseasePanel?.id}">
+                            </disease-panel-detail>
+                        </div>
+                        ${facetView}`;
             case "JOB":
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
@@ -544,6 +578,17 @@ export default class OpencgaBrowser extends LitElement {
                                         @queryChange="${this.onQueryFilterChange}"
                                         @querySearch="${this.onQueryFilterSearch}">
                                     </clinical-analysis-browser-filter>
+                                ` : null}
+
+                                ${this.resource === "DISEASE_PANEL" ? html`
+                                    <disease-panel-browser-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .config="${this.config.filter}"
+                                        .query="${this.query}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
+                                    </disease-panel-browser-filter>
                                 ` : null}
 
                                 ${this.resource === "JOB" ? html`

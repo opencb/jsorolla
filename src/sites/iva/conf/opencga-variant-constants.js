@@ -408,7 +408,7 @@ const POPULATION_FREQUENCIES = {
     },
     studies: [
         {
-            id: "1kG_phase3",
+            id: "1000G", // Old value: 1kG_phase3
             title: "1000 Genomes",
             populations: [
                 {
@@ -809,18 +809,23 @@ const tooltips = {
     region: "Filter out variants falling outside the genomic interval(s) defined",
     feature: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     diseasePanels: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen",
-    biotype: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    biotype: "Filtering out variants without the selected gene biotypes terms",
     type: "Only considers variants of the selected type",
-    consequenceTypeSelect: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
-    go: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
-    hpo: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    consequenceTypeSelect: "Filtering out variants without the selected Consequence type SO terms",
+    go: "The Gene Ontology (GO) knowledgebase is the world's largest source of information on the functions of genes." +
+        "This knowledge is both human-readable and machine-readable, and is a foundation for computational analysis of large-scale molecular biology and genetics experiments in biomedical research.",
+    hpo: "The Human Phenotype Ontology (HPO) provides a standardized vocabulary of phenotypic abnormalities encountered in human disease.",
     clinvar: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     fullTextSearch: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     cadd: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
         "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
         "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended",
     cohort: "Filter variants by the cohort alternate allele frequency",
-    sample: "Filter variants by sample genotypes or mode of inheritance (Compounf Het., de Novo, ...)"
+    sample: "Select variants by sample genotypes or mode of inheritance (Compounf Het., de Novo, ...)",
+    clinical: "Filter out variants without the selected annotations for a given clinical database",
+    variantCallerFile: "Filter out variants that do not satisfy the selected conditions for the displayed VCF info fields",
+    variantCallerSample: "Filter out variants that do not satisfy the selected conditions for the displayed VCF format fields",
+    vcfFile: "Filter out variants not in the VCF files selected",
 };
 
 const beacon = {
@@ -845,4 +850,6 @@ const PROTEIN_SUBSTITUTION_SCORE = {
         }
     }
 };
+
+const ACMG = [];
 

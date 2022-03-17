@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
-import "../../opencga/opencga-genome-browser.js";
 import "../../clinical/interpretation/clinical-interpretation-view.js";
 
 
@@ -43,6 +42,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            clinicalVariants: {
+                type: Array
+            },
             cellbaseClient: {
                 type: Object
             },
@@ -57,6 +59,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             },
             mode: {
                 type: String
+            },
+            gridConfig: {
+                type: Object,
             },
             config: {
                 type: Object
@@ -79,6 +84,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // this.interactive = true;
         this.filterClass = "col-md-2";
         this.gridClass = "col-md-10";
+        this.gridConfig = {};
 
         this._collapsed = true;
 
@@ -97,24 +103,31 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // this._interpretation = this.interpretation;
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("mode") || changedProperties.has("config")) {
-            this.propertyObserver();
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("gridConfig")) {
+            this.configObserver();
         }
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
             // this.clinicalAnalysisObserver();
         }
+        super.update(changedProperties);
     }
 
-    firstUpdated(_changedProperties) {
-    }
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
-    propertyObserver(opencgaSession, mode, config) {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        // Merge grid configuration
+        this._config.result.grid = {
+            ...this._config.result.grid,
+            ...this.gridConfig,
+        };
 
-        if (UtilsNew.isNotUndefinedOrNull(mode)) {
-            this.isCreate = mode.toLowerCase() === "create";
-        }
+        // if (UtilsNew.isNotUndefinedOrNull(mode)) {
+        //     this.isCreate = mode.toLowerCase() === "create";
+        // }
     }
 
     // clinicalAnalysisObserver() {
@@ -173,10 +186,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // }
     }
 
-    // onReviewVariant(e) {
-    //     $("#" + this._prefix + "ReviewSampleModal").modal("show");
-    // }
-
     onGenomeBrowserPositionChange(e) {
         $(".variant-interpretation-content").hide(); // hides all content divs
         $("#" + this._prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
@@ -207,171 +216,13 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         $("#" + this._prefix + "PreviewModal").modal("show");
     }
 
-    onSaveInterpretation(e, obj) {
-        // this.clinicalAnalysis
-        // debugger
+    onSaveInterpretation() {
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 // debugger
             })
             .catch(error => console.error(error));
-        // const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-        // const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-        // const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
-
-        // if (UtilsNew.isNotEmpty(id)) {
-        //     if (/s/.test(id)) {
-        //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-        //             detail: {
-        //                 message: "ID must not contains blanks.",
-        //                 type: UtilsNew.MESSAGE_ERROR
-        //             },
-        //             bubbles: true,
-        //             composed: true
-        //         }));
-        //     } else {
-        //         this.interpretation = this._createInterpretation();
-        //     }
-        // } else {
-        //     this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-        //         detail: {
-        //             message: "ID must not be empty.",
-        //             type: UtilsNew.MESSAGE_ERROR
-        //         },
-        //         bubbles: true,
-        //         composed: true
-        //     }));
-        // }
     }
-
-    // _createInterpretation() {
-    //     try {
-    //         // let userID = this.opencgaSession.opencgaClient._config.userId;
-    //         // let interpretation = {};
-    //         // interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this._prefix + "IDInterpretation");
-    //         // // interpretation.name = PolymerUtils.getValue(this._prefix + "NameInterpretation");
-    //         // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-    //         // interpretation.clinicalAnalysisId = this.clinicalAnalysisId;
-    //         // interpretation.software = {
-    //         //     name: "TEAM",
-    //         //     version: "2.0",
-    //         //     website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
-    //         //     repository: "https://github.com/opencb/opencga",
-    //         //     commit: "f43372aa",
-    //         //     params: {}
-    //         // };
-    //         // interpretation.analyst = {
-    //         //     name: userID,
-    //         //     email: "",
-    //         //     company: ""
-    //         // };
-    //         // interpretation.dependencies = [
-    //         //     {
-    //         //         name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
-    //         //     }
-    //         // ];
-    //         // interpretation.filters = this.query;
-    //         // //                interpretation.creationDate = Date();
-    //         // interpretation.comments = [{
-    //         //     author: userID,
-    //         //     type: "comment",
-    //         //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
-    //         //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
-    //         // }];
-    //         //
-    //         // // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
-    //         // // an additional field that should not be present in a reported variant.
-    //         // let reportedVariants = [];
-    //         // for (let i in this.reportedVariants) {
-    //         //     let variant = Object.assign({}, this.reportedVariants[i]);
-    //         //     delete variant['stateCheckBox'];
-    //         //     reportedVariants.push(variant);
-    //         // }
-    //         // interpretation.primaryFindings = reportedVariants;
-    //         // interpretation.attributes = {};
-    //         // // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
-    //
-    //
-    //         let params = {
-    //             study: this.opencgaSession.study.fqn
-    //         };
-    //
-    //         const _this = this;
-    //         console.error("new client recheck");
-    //         this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
-    //             .then(response => {
-    //                 console.log(response);
-    //                 // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
-    //                 console.error("interpretation ref is not defined");
-    //                 if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis)) {
-    //                     if (UtilsNew.isEmptyArray(this.interpretation.clinicalAnalysis.interpretations)) {
-    //                         this.interpretation.clinicalAnalysis.interpretations = [];
-    //                     } else {
-    //                         this.interpretation.clinicalAnalysis.interpretations = this.interpretation.clinicalAnalysis.interpretations.map(interpretation => {
-    //                             return {id: interpretation.id, name: interpretation.name, file: interpretation.file.id};
-    //                         });
-    //                     }
-    //                     this.interpretation.clinicalAnalysis.interpretations.push({
-    //                         id: this.interpretation.id,
-    //                         name: this.interpretation.name,
-    //                         file: response.response[0].result[0].id
-    //                     });
-    //                 }
-    //
-    //                 params = {
-    //                     study: _this.opencgaSession.study.fqn,
-    //                 };
-    //                 const interpretations = {interpretations: this.interpretation.clinicalAnalysis.interpretations};
-    //                 console.log("new clients change")
-    //                 _this.opencgaSession.opencgaClient.clinical().update(this.interpretation.clinicalAnalysis.id, interpretations, params)
-    //                     .then(response => {
-    //                         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //                             detail: {
-    //                                 message: this.interpretation.id + " interpretation has been created correctly.",
-    //                                 type: UtilsNew.MESSAGE_SUCCESS
-    //                             },
-    //                             bubbles: true,
-    //                             composed: true
-    //                         }));
-    //
-    //                         _this.cleanSaveInterpretation();
-    //                         console.log(response);
-    //                         // Update analysis with new interpretations
-    //                         _this.getAnalysisInterpretations();
-    //                     })
-    //                     .catch(err => {
-    //                         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //                             detail: {
-    //                                 message: err.error,
-    //                                 type: UtilsNew.MESSAGE_ERROR
-    //                             },
-    //                             bubbles: true,
-    //                             composed: true
-    //                         }));
-    //                     });
-    //             })
-    //             .catch(err => {
-    //                 this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //                     detail: {
-    //                         message: err.error,
-    //                         type: UtilsNew.MESSAGE_ERROR
-    //                     },
-    //                     bubbles: true,
-    //                     composed: true
-    //                 }));
-    //             });
-    //
-    //     } catch (err) {
-    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //             detail: {
-    //                 message: err,
-    //                 type: UtilsNew.MESSAGE_ERROR
-    //             },
-    //             bubbles: true,
-    //             composed: true
-    //         }));
-    //     }
-    // }
 
     cleanSaveInterpretation() {
         PolymerUtils.setValue(this._prefix + "IDInterpretation", "");
@@ -384,17 +235,111 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn
         };
-        const _this = this;
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params)
-            .then(function (response) {
-                _this.showSummary = false;
+            .then(response => {
+                this.showSummary = false;
                 if (response.response[0].numResults === 1) {
-                    _this.clinicalAnalysis = response.response[0].result[0];
+                    this.clinicalAnalysis = response.response[0].result[0];
                 }
             });
     }
 
+    render() {
+        // No primary findings in interpretation --> display message
+        if (!this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
+            return html`
+                <div class="alert alert-warning">
+                    <b>Warning</b>: there are not variants or annotations for this clinical interpretation.
+                </div>
+            `;
+        }
+
+        return html`
+            <div class="pull-right save-button">
+                <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">
+                    Preview
+                </button>
+                <button class="btn btn-primary" @click="${this.onSaveInterpretation}">
+                    <i class="fas fa-save icon-padding"></i> Save
+                </button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div style="padding-top: 5px">
+                        <div id="${this._prefix}collapsibleVariants" class="collapse in">
+                            ${this.clinicalAnalysis?.interpretation ? html`
+                                <variant-interpreter-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
+                                    .review="${true}"
+                                    .config="${this._config.result.grid}"
+                                    @selected="${this.selectedGene}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @checkvariant="${this.onCheckVariant}"
+                                    @reviewvariant="${this.onReviewVariant}"
+                                    @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
+                                </variant-interpreter-grid>
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .consequenceTypes="${this.consequenceTypes}"
+                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                    .config="${this._config.detail}">
+                                </variant-interpreter-detail>
+                            ` : html`
+                                <div class="alert alert-info">
+                                    <i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    ${this.interpretationView ? html`
+                        <clinical-interpretation-view
+                            id="id"
+                            interpretation="${this.interpretationView}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .opencgaClient="${this.opencgaSession.opencgaClient}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .consequenceTypes="${this.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                        </clinical-interpretation-view>
+                        ` : null}
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="display:flex;align-items:center;">
+                            <h4 style="margin-right:auto;">
+                                Interpretation preview
+                            </h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid" style="max-height:75vh;overflow-y:auto;">
+                                <json-viewer .data="${this.clinicalAnalysis?.interpretation}"></json-viewer>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
+        const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+        const exportFilename = `variant_interpreter_${this.opencgaSession?.study?.id}_${this.clinicalAnalysis?.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_primaryFindings_${date}`;
         return {
             title: "RD Case Interpreter",
             showTitle: false,
@@ -403,7 +348,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     pagination: true,
                     pageSize: 10,
                     pageList: [10, 25, 50],
-                    showExport: false,
+                    showExport: true,
+                    exportFilename: exportFilename,
                     detailView: true,
                     showReview: true,
                     showActions: false,
@@ -413,7 +359,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     nucleotideGenotype: true,
                     alleleStringLengthMax: 10,
 
-                    renderLocal: true,
+                    renderLocal: false,
 
                     header: {
                         horizontalAlign: "center",
@@ -424,7 +370,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         qual: 30,
                         dp: 20
                     },
-                    // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                     evidences: {
                         showSelectCheckbox: true
                     }
@@ -475,133 +420,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 ]
             }
         };
-    }
-
-    render() {
-        return html`
-        <style>
-            .prioritization-center {
-                margin: auto;
-                text-align: justify;
-                width: 95%;
-            }
-
-            .browser-variant-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-
-            .prioritization-variant-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-
-            .icon-padding {
-                padding-left: 4px;
-                padding-right: 8px;
-            }
-
-            .form-section-title {
-                padding: 5px 0px;
-                width: 90%;
-                border-bottom-width: 1px;
-                border-bottom-style: solid;
-                border-bottom-color: #ddd
-            }
-
-            .jso-label-title {
-                width: 15em !important;
-            }
-        </style>
-
-        <div class="">
-            <div class="pull-right save-button">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onViewInterpretation}">Preview</button>
-                <button class="btn btn-primary ripple" @click="${this.onSaveInterpretation}">
-                    <i class="fas fa-save icon-padding"></i>Save
-                </button>
-            </div>
-<!--            <tool-header title="Primary Findings" class="bg-white" icon="\${this._config.icon}"></tool-header>-->
-
-            <div class="row">
-                <div id="${this._prefix}SaveInterpretation">
-                    <div class="col-md-12">
-                        ${this.messageError ? html `
-                            <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
-                        ` : null}
-                        ${this.messageSuccess ? html `
-                            <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
-                        ` : null}
-                    </div>
-
-                    <div class="col-md-12">
-                        <div style="padding-top: 5px">
-
-                            <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation ?
-                                    html`
-                                        <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                                  .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                  .review="${true}"
-                                                                  .config="${this._config.result.grid}"
-                                                                  @selected="${this.selectedGene}"
-                                                                  @selectrow="${this.onSelectVariant}"
-                                                                  @checkvariant="${this.onCheckVariant}"
-                                                                  @reviewvariant="${this.onReviewVariant}"
-                                                                  @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                        </variant-interpreter-grid>
-
-                                        <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                                    .variant="${this.variant}"
-                                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .consequenceTypes="${this.consequenceTypes}"
-                                                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                    .config="${this._config.detail}">
-                                        </variant-interpreter-detail>` :
-                                    html`
-                                        <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.</div>`
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        ${this.interpretationView ? html`
-                            <clinical-interpretation-view id="id"
-                                                          interpretation="${this.interpretationView}"
-                                                          .opencgaSession="${this.opencgaSession}"
-                                                          .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                          .cellbaseClient="${this.cellbaseClient}"
-                                                          .consequenceTypes="${this.consequenceTypes}"
-                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-                            </clinical-interpretation-view>
-                        ` : null}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-         <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <json-viewer .data="${this.clinicalAnalysis?.interpretation}"></json-viewer>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    `;
     }
 
 }

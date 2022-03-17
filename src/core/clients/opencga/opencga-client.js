@@ -400,8 +400,11 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal", limit: 20});
-                                                    study.cohorts = cohortsResponse.responses[0].results;
+                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal,attributes", limit: 50});
+                                                    study.cohorts = cohortsResponse.responses[0].results
+                                                        .filter(cohort => !cohort.attributes?.IVA?.ignore);
+                                                    // FIXME line above should check cohort.internal instead
+                                                    // .filter(cohort => cohort.internal.index?.status === "READY");
 
                                                     // Check if lastStudy form User Configuration matches
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {

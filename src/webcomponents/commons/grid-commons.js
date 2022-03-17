@@ -19,6 +19,19 @@ import UtilsNew from "../../core/utilsNew.js";
 
 export default class GridCommons {
 
+    static GRID_ICONS_PREFIX = "fas";
+    static GRID_ICONS = {
+        paginationSwitchDown: "fa-caret-square-down",
+        paginationSwitchUp: "fa-caret-square-up",
+        refresh: "fa-sync",
+        toggleOff: "fa-toggle-off",
+        toggleOn: "fa-toggle-on",
+        columns: "fa-th-list",
+        fullscreen: "fa-arrows-alt",
+        detailOpen: "fa-plus",
+        detailClose: "fa-minus"
+    }
+
     constructor(gridId, context, config) {
         this.gridId = gridId;
         this.context = context;
@@ -28,7 +41,7 @@ export default class GridCommons {
     }
 
     responseHandler(response, bootstrapTableConfig) {
-        let numMatches, from, to, numTotalResultsText, approximateCountResult;
+        let numMatches, from, to, approximateCountResult;
         numMatches = this.context.numMatches || 0;
         if (response.getResponse().numMatches >= 0) {
             numMatches = response.getResponse().numMatches;
@@ -42,7 +55,7 @@ export default class GridCommons {
         if (response.getResponse(0).numResults < bootstrapTableConfig.pageSize) {
             to = numMatches;
         }
-        numTotalResultsText = numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const numTotalResultsText = numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         if (response.getParams().skip === 0 && numMatches < response.getParams().limit) {
             from = 1;
             to = numMatches;
@@ -151,8 +164,8 @@ export default class GridCommons {
             }
 
             if (table[0]) {
-                const selectedDataId = this.selectedRow?.[0].attributes["data-uniqueid"]["nodeValue"];
-                const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId): null;
+                const selectedDataId = this.selectedRow?.[0]?.attributes["data-uniqueid"]?.["nodeValue"];
+                const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId) : null;
                 if (selectedData) {
                     table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("success");
                 } else {
@@ -233,6 +246,30 @@ export default class GridCommons {
         } else {
             e.detail.id.split(",").forEach(id => this.context.table.bootstrapTable("hideColumn", id));
         }
+    }
+
+    rowHighlightStyle(row, index) {
+        // If no active highlight
+        if (!this.config.highlights || !this.config.activeHighlights || this.config.activeHighlights?.length === 0) {
+            return {};
+        }
+
+        let rowStyle = {};
+        this.config.highlights.forEach(highlight => {
+            if (this.config.activeHighlights.includes(highlight.id)) {
+                if (highlight.condition && highlight.condition(row, index)) {
+                    rowStyle = {
+                        css: {
+                            "background-color": highlight.style?.rowBackgroundColor || "",
+                            "opacity": highlight.style?.rowOpacity,
+                        },
+                    };
+                }
+            }
+        });
+
+        // Return background color for this row
+        return rowStyle;
     }
 
 }

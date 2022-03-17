@@ -118,16 +118,18 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         if (changedProperties.has("filters")) {
+            this.refreshFilters();
+
+            // Nacho (6/2/2021): probably observers should not dispatch new events
             // If there is any active filter we set the first one in the initialisation
-            if (this.filters) {
-                this.refreshFilters();
-                const activeFilter = this.filters.find(f => f.active);
-                if (activeFilter) {
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: activeFilter.query,
-                    }));
-                }
-            }
+            // if (this.filters) {
+            //     const activeFilter = this.filters.find(f => f.active);
+            //     if (activeFilter) {
+            //         this.dispatchEvent(new CustomEvent("activeFilterChange", {
+            //             detail: activeFilter.query,
+            //         }));
+            //     }
+            // }
         }
     }
 
@@ -281,15 +283,27 @@ export default class OpencgaActiveFilters extends LitElement {
         return !!this?.opencgaSession?.token;
     }
 
+    async fetchServerFilters() {
+        try {
+            const response = await this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id);
+            this.opencgaSession.user.filters = response.getResults();
+            this.refreshFilters();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     refreshFilters() {
         // Merge passed filters with user saved filters
         if (this.opencgaSession?.user?.filters?.length > 0) {
             // Add passed filters
             this._filters = this.filters || [];
+
             // Add a separator
             if (this._filters.length > 0 && !this._filters[this._filters.length - 1].separator) {
                 this._filters.push({separator: true});
             }
+
             // Add user's saved filters
             this._filters = [
                 ...this._filters,
@@ -354,22 +368,21 @@ export default class OpencgaActiveFilters extends LitElement {
                         if (result.value) {
                             this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                                 .then(response => {
-                                    if (restResponse?.getEvents?.("ERROR")?.length) {
+                                    if (response?.getEvents?.("ERROR")?.length) {
                                         return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                                     }
 
-                                    for (const i in this._filters) {
+                                    /* for (const i in this._filters) {
                                         if (this._filters[i].id === filterName) {
                                             this._filters[i] = response.response[0].result[0];
                                         }
-                                    }
+                                    } */
 
                                     // Display success message
                                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                                         message: "Filter has been saved",
                                     });
-                                    this.requestUpdate();
-                                    this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                                    this.fetchServerFilters();
                                     $("#" + this._prefix + "filterName").val("");
                                     $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(response => {
@@ -391,7 +404,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         action: "ADD"
                     })
                         .then(response => {
-                            if (restResponse.getEvents?.("ERROR")?.length) {
+                            if (response.getEvents?.("ERROR")?.length) {
                                 return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                             }
 
@@ -403,8 +416,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                                 message: "Filter has been saved",
                             });
-                            this.requestUpdate();
-                            this.updateComplete.then(() => UtilsNew.initTooltip(this));
+                            this.fetchServerFilters();
                         }).catch(response => {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
@@ -423,34 +435,32 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         $("#" + this._prefix + "Warning").hide();
-        if (!UtilsNew.isUndefinedOrNull(this._filters)) {
+        if (this._filters) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
                 if (filter.id === e.currentTarget.dataset.filterId) {
                     filter.active = true;
 
-                    // We need to merge the selected filter query with the "save.ignoreParams" of the current query,
-                    // otherwise the sample or file are deleted.
-                    const _query = {};
-                    if (this._config?.save?.ignoreParams) {
-                        for (const key of Object.keys(this.query)) {
-                            if (this._config.save.ignoreParams.includes(key)) {
-                                _query[key] = this.query[key];
-                            }
-                        }
+                    // Prepare new query object
+                    let newQuery = {};
+
+                    // 1. We need to add first all the 'lockedFields' to the selected saved query
+                    if (this._config?.lockedFields) {
+                        this._config.lockedFields
+                            .filter(lockedField => this.query[lockedField.id])
+                            .forEach(lockedField => newQuery[lockedField.id] = this.query[lockedField.id]);
                     }
 
-                    const _queryList = {..._query, ...filter.query};
-                    if (_queryList.study) {
-                        // add the current active study
-                        const studies = [...new Set([..._queryList.study.split(","), this.opencgaSession.study.fqn])];
-                        _queryList.study = studies.join(",");
+                    // 2. Now add the saved query filters
+                    newQuery = {...newQuery, ...filter.query};
+
+                    // 3. Make sure current active study is added if 'study' parameter exists
+                    if (newQuery.study) {
+                        const studies = [...new Set([...newQuery.study.split(","), this.opencgaSession.study.fqn])];
+                        newQuery.study = studies.join(",");
                     }
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: _queryList,
-                        /* bubbles: true,
-                        composed: true*/
-                    }));
+
+                    LitUtils.dispatchCustomEvent(this, "activeFilterChange", null, newQuery);
                 } else {
                     filter.active = false;
                 }
@@ -483,7 +493,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: "Filter has been deleted",
                         });
-                        this.refreshFilters();
+                        this.fetchServerFilters();
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
@@ -592,7 +602,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 "annot-ct": "Consequence Type",
                 "alternate_frequency": "Population ALT Frequency",
                 "annot-functional-score": "CADD",
-                "protein_substitution": "Protein Substitution",
+                "proteinSubstitution": "Protein Substitution",
                 "annot-go": "GO",
                 "annot-hpo": "HPO"
             },
@@ -622,8 +632,10 @@ export default class OpencgaActiveFilters extends LitElement {
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
+                        <!-- Render dropdown menu -->
                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
-                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
@@ -636,6 +648,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                         html`
                                             <li role="separator" class="divider"></li>` :
                                         html`
+                                            <!-- Add header before the first Saved filter-->
+                                            ${this.opencgaSession.user.filters
+                                                .filter(f => f.resource === this.resource)?.[0]?.id === item.id ? html`
+                                                    <li class="dropdown-header">Saved Filters</li>
+                                                ` : null
+                                            }
                                             <li>
                                                 <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
                                                         @click="${this.onServerFilterChange}">
@@ -646,14 +664,23 @@ export default class OpencgaActiveFilters extends LitElement {
                                                               data-filter-id="${item.id}">
                                                             <i class="fas fa-eye" data-action="view-filter"></i>
                                                         </span>
-                                                        <i data-cy="delete" data-action="delete-filter" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+
+                                                        <!-- Add delete icon only to saved filters -->
+                                                        ${this.opencgaSession.user.filters
+                                                            .filter(f => f.resource === this.resource)
+                                                            .findIndex(f => f.id === item.id) !== -1 ? html`
+                                                                <i data-cy="delete" data-action="delete-filter" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}"
+                                                                   @click="${this.serverFilterDelete}">
+                                                                </i>` : null
+                                                        }
                                                     </span>
                                                 </a>
                                             </li>`
-                                        )}
-                                    <li role="separator" class="divider"></li>
-                                    ` :
-                                "" }
+                                        )
+                                    }
+                                    <li role="separator" class="divider"></li>` : ""
+                                }
+
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
@@ -661,12 +688,15 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong></a>
-                                    </li>
-                                ` : null}
+                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
+                                            <i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong>
+                                        </a>
+                                    </li>` : null
+                                }
                             </ul>
                         </div>
 
+                        <!-- Render active filters -->
                         ${this.queryList ? html`
                             ${this.queryList.length === 0 ?
                                 html`
@@ -772,6 +802,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             </div>
                         ` : null}
                     </div>
+
                     <!-- aggregation stat section -->
                     ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
@@ -808,7 +839,8 @@ export default class OpencgaActiveFilters extends LitElement {
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                            <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                            <h
+                                class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
                         </div>
                         <div class="modal-body">
                             <div class="form-group row">

@@ -480,6 +480,8 @@ export default class RgaVariantView extends LitElement {
             columns: this._initTableColumns(),
             method: "get",
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
@@ -587,7 +589,7 @@ export default class RgaVariantView extends LitElement {
                                 _.individualStats?.singleParent?.numCompHet,
                                 _.individualStats?.missingParents?.numCompHet
                             ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "rga_variants_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(dataString, "rga_variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_variants_" + this.opencgaSession.study.id + ".json", "application/json");
                     }

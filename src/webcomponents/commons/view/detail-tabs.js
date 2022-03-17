@@ -75,6 +75,17 @@ export default class DetailTabs extends LitElement {
         this.activeTabs = _activeTabs;
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     changeBottomTab(e) {
         this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
         const tabId = e.currentTarget.dataset.id;
@@ -111,14 +122,6 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
-        if (!this.data) {
-            return html `<h4>No data found!</h4>`;
-        }
-
-        if (!this.opencgaSession) {
-            return html`<h4>NO OPENCGA CLIENT FOUND!</h4>`;
-        }
-
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }

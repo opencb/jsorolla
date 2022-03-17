@@ -97,6 +97,13 @@ export default class UtilsNew {
         return typeof arr !== "undefined" && arr !== null && arr.length > 0;
     }
 
+    static hasProp(obj, prop) {
+        if (UtilsNew.isEmpty(obj)) {
+            return false;
+        }
+        return prop in obj;
+    }
+
     static defaultString(str, str2) {
         return this.isNotEmpty(str) ? str : str2;
     }
@@ -107,6 +114,10 @@ export default class UtilsNew {
         }
 
         return false;
+    }
+
+    static filterKeys(obj, keys) {
+        return Object.fromEntries(keys.map(key => [key, obj[key]]));
     }
 
     static removeArrayByIndex(arr, index) {
@@ -158,7 +169,7 @@ export default class UtilsNew {
         return o != null && o.constructor.name === "Object";
     }
 
-    static getDiskUsage(bytes, numDecimals) {
+    static getDiskUsage(bytes, numDecimals = 2) {
         if (bytes === 0) {
             return "0 Byte";
         }
@@ -224,24 +235,26 @@ export default class UtilsNew {
 
     static jobStatusFormatter(status, appendDescription = false) {
         const description = appendDescription && status.description ? `<br>${status.description}` : "";
-        switch (status.name) {
+        // FIXME remove this backward-compatibility check in next v2.3
+        const statusId = status.id || status.name;
+        switch (statusId) {
             case "PENDING":
             case "QUEUED":
             case "REGISTERING":
             case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status.name}${description}</span>`;
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${statusId}${description}</span>`;
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status.name}${description}</span>`;
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${statusId}${description}</span>`;
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status.name}${description}</span>`;
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${statusId}${description}</span>`;
             case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
             case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${statusId}${description}</span>`;
             case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status.name}${description}</span>`;
+                return `<span class="text-warning"><i class="fas fa-ban"></i> ${statusId}${description}</span>`;
             case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status.name}${description}</span>`;
+                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${statusId}${description}</span>`;
         }
         return "-";
     }
@@ -328,6 +341,11 @@ export default class UtilsNew {
         return UtilsNew.downloadData(JSON.stringify(data, null, "    "), name, "application/json");
     }
 
+    static generateFileNameDownload(name, opencgaSession, type) {
+        //  "disease_panel_" + this.opencgaSession.project.id + "-" + this.opencgaSession.study.id + moment().format("YYYY-MM-DD") + ".txt"
+        return `${name}_${opencgaSession?.project?.id}_${opencgaSession?.study?.id}_${moment().format("YYYY-MM-DD")}.${type}`;
+    }
+
     static range(start, stop, step = 1) {
         return Array.from({length: (stop - start) / step}, (x, i) => (i + start) * step);
     }
@@ -352,6 +370,10 @@ export default class UtilsNew {
         // }
     }
 
+    // Performs a clone object specified object
+    static objectClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
 
     /**
      * Returns the object sorted by key in lexicographic order.
@@ -376,6 +398,31 @@ export default class UtilsNew {
             return JSON.stringify(_a) === JSON.stringify(_b);
         } else {
             return false;
+        }
+    }
+
+
+    /**
+    * Sort the array by object key or prop
+    * @param {Array} arr Array
+    * @param {String} prop key or prop the object to sort
+    * @returns {Array} return the array sorted
+    */
+    static sortArrayObj(arr, prop) {
+        const _arr = arr;
+        if (UtilsNew.isNotEmpty(_arr)) {
+            _arr.sort((a, b) =>{
+                if (a[prop] < b[prop]) {
+                    return -1;
+                }
+
+                if (a[prop] > b[prop]) {
+                    return 1;
+                }
+
+                return 0;
+            });
+            return _arr;
         }
     }
 
@@ -790,6 +837,29 @@ export default class UtilsNew {
             });
         }
         return stringArray;
+    }
+
+    // Escape HTML characters from the provided string
+    static escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Import file from the specified URL
+    // NOTE: in case that the file does not exist, a `null` value will be returned instead of rejecting the promise
+    static importFile(url) {
+        return window.fetch(url)
+            .then(response => response.ok && response.text() || null)
+            .catch(() => null);
+    }
+
+    // Import a JSON file from the specified url
+    static importJSONFile(url) {
+        return UtilsNew.importFile(url).then(content => content && JSON.parse(content) || null);
     }
 
 }

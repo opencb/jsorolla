@@ -94,7 +94,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     render() {
         if (!this.variant?.annotation) {
-            return html`<h3>Error: No valid variant or annotation</h3>`;
+            return;
         }
 
         if (!this._config?.items) {
@@ -124,7 +124,8 @@ export default class VariantInterpreterDetail extends LitElement {
                             <cellbase-variant-annotation-summary
                                     .variantAnnotation="${variant.annotation}"
                                     .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
+                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                    .assembly=${this.opencgaSession.project.organism.assembly}>
                             </cellbase-variant-annotation-summary>`;
                     }
                 },

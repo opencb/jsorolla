@@ -31,6 +31,9 @@ export default class IndividualIdAutocomplete extends LitElement {
             value: {
                 type: Object
             },
+            classes: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -40,6 +43,13 @@ export default class IndividualIdAutocomplete extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("value")) {
+            console.log(this.value);
+        }
+        super.update(changedProperties);
     }
 
     onFilterChange(key, value) {
@@ -53,8 +63,9 @@ export default class IndividualIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            placeholder: "Start typing...",
+            multiple: false,
             limit: 10,
+            placeholder: "Start typing...",
             fields: item => ({
                 "name": item.id
             }),
@@ -81,6 +92,7 @@ export default class IndividualIdAutocomplete extends LitElement {
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
+                .classes="${this.classes}"
                 .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>

@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../study/annotationset/annotation-set-update.js";
@@ -48,12 +49,13 @@ export default class FamilyCreate extends LitElement {
     _init() {
         this.family = {};
         this.members = "";
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     onFieldChange(e, field) {
         e.stopPropagation();
@@ -61,6 +63,13 @@ export default class FamilyCreate extends LitElement {
         switch (param) {
             case "members":
                 this.members = e.detail.value;
+                // let members = [];
+                // if (e.detail.value) {
+                //     members = e.detail.value.split(",").map(member => {
+                //         return {id: member};
+                //     });
+                // }
+                // this.family = {...this.family, members: e.detail.value};
                 break;
             case "annotationSets":
                 this.family = {...this.family, annotationSets: e.detail.value};
@@ -80,26 +89,27 @@ export default class FamilyCreate extends LitElement {
 
     onClear(e) {
         this.family = {};
+        this.members = "";
+        this._config = {...this.getDefaultConfig()};
         this.requestUpdate();
     }
 
     // https://ws.opencb.org/opencga-prod/webservices/#!/Families/createFamilyPOST
     onSubmit(e) {
+        console.log("Family Saved", this.family);
         this.opencgaSession.opencgaClient
             .families()
             .create(this.family, {study: this.opencgaSession.study.fqn, members: this.members})
             .then(res => {
                 // TODO: Add a condition to confirm if the information has been saved to the server.
-                this.family = {};
-                this.requestUpdate();
-                FormUtils.showAlert(
-                    "New Family",
-                    "Family save correctly",
-                    "success"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New Family",
+                    message: "family created correctly"
+                });
+                this.onClear();
             })
             .catch(err => {
-                console.error(err);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
             });
     }
 
@@ -116,25 +126,19 @@ export default class FamilyCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Edit",
-            icon: "fas fa-edit",
+        return {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
-                buttonOkText: "Save",
+                buttonOkText: "Create",
                 style: "margin: 10px",
                 titleWidth: 3,
-                // labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
-                // help: {
-                //     mode: "block",
-                // }
             },
             sections: [
                 {
+                    title: "Family General Information",
                     elements: [
                         {
                             title: "Family ID",
@@ -156,6 +160,55 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
+                            title: "Members",
+                            field: "members",
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                helpMessage: "Individual Ids",
+                                render: members => {
+                                    // const members = this.members + "";
+                                    return html`
+                                    <individual-id-autocomplete
+                                        .value="${members}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{multiple: true}}
+                                        @filterChange="${e => this.onFieldChange(e, "members")}">
+                                    </individual-id-autocomplete>`;
+                                }
+                            }
+                        },
+                        // {
+                        //     title: "Creation Date",
+                        //     field: "creationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        // {
+                        //     title: "Modification Date",
+                        //     field: "modificationDate",
+                        //     type: "input-date",
+                        //     display: {
+                        //         render: date =>
+                        //             moment(date, "YYYYMMDDHHmmss").format(
+                        //                 "DD/MM/YYYY"
+                        //             )
+                        //     }
+                        // },
+                        {
+                            title: "Expected Size",
+                            field: "expectedSize",
+                            type: "input-num",
+                            display: {
+                                placeholder: "Add a expected size...",
+                            }
+                        },
+                        {
                             title: "Description",
                             field: "description",
                             type: "input-text",
@@ -165,64 +218,20 @@ export default class FamilyCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Individual ID",
-                            field: "individualId",
+                            title: "Status",
+                            field: "status",
                             type: "custom",
                             display: {
-                                placeholder: "e.g. Homo sapiens, ...",
                                 render: () => html`
-                                    <individual-id-autocomplete
-                                        .value="${this.members}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @filterChange="${e => this.onFieldChange(e, "members")}">
-                                    </individual-id-autocomplete>`
-                            }
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "input-date",
-                            display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
-                        },
-                        {
-                            title: "Expected Size",
-                            field: "expectedSize",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a expected size...",
-                            }
-                        },
-                        {
-                            title: "Status name",
-                            field: "status.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add status name..."
-                            }
-                        },
-                        {
-                            title: "Status Description",
-                            field: "status.description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a status description..."
+                                    <status-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    </status-create>`
                             }
                         },
                     ]
@@ -250,7 +259,7 @@ export default class FamilyCreate extends LitElement {
                 //     ]
                 // }
             ]
-        });
+        };
     }
 
 }

@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import "./variant-interpreter-qc-overview.js";
-import "./variant-interpreter-qc-alignment.js";
 import "./variant-interpreter-qc-gene-coverage.js";
 import "../../commons/view/detail-tabs.js";
 import "../../sample/sample-variant-stats-browser.js";
@@ -183,7 +182,7 @@ class VariantInterpreterQc extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .active="${active}"
-                                    .settings="${this._settings?.tabs?.find(tab => "overview" === tab.id)?.settings}">
+                                    .settings="${this.settings?.tabs?.find(tab => "overview" === tab.id)?.settings}">
                                 </variant-interpreter-qc-overview>
                             </div>
                         `;

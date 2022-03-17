@@ -92,6 +92,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 // Table properties
                 pagination: this._config.pagination,
@@ -103,7 +105,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-
                 ajax: async params => {
                     const query = {
                         study: this.opencgaSession.study.fqn,
@@ -111,6 +112,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         exclude: "files,interpretation.primaryFindings,secondaryInterpretations",
+                        sort: "creationDate",
                         ...this.query
                     };
                     try {
@@ -324,15 +326,20 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     removeRowTable(clinicalAnalysisId) {
+        const data = this.table.bootstrapTable("getData");
         this.table.bootstrapTable("remove", {
             field: "id",
-            values: clinicalAnalysisId
+            values: [clinicalAnalysisId]
         });
+        if (data?.length === 0) {
+            this.table.bootstrapTable("prevPage");
+            this.table.bootstrapTable("refresh");
+        }
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.currentTarget.dataset;
 
+        const {action} = e.currentTarget.dataset;
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
@@ -386,7 +393,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+            this.fetchData({id: row.id, study: this.opencgaSession.study.fqn})
+                .then(restResponse => this.download(restResponse))
+                .catch(error => console.error(error));
         }
 
         if (action === "statusChange") {
@@ -627,7 +636,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     async onDownload(e) {
-        // TODO evaluate refactor using webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
         try {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
             this.requestUpdate();
@@ -641,35 +649,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 count: true,
                 study: this.opencgaSession.study.fqn
             };
-
-            const r = await this.fetchData(params);
-            const result = r.getResults();
-            let dataString;
-            if (result) {
-                // Check if user clicked in Tab or JSON format
-                if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = [
-                        ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretation IDs", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
-                        ...result.map(_ => [
-                            _.id,
-                            _.proband.id,
-                            _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "-",
-                            _?.disorder?.id ?? "-",
-                            _.type ?? "-",
-                            _.interpretation?.id ? `${_.interpretation.id}(primary)${_.secondaryInterpretations.length ? (", " + _.secondaryInterpretations.map(s => s.id).join(", ")) : ""}` : "-",
-                            _.status?.id ?? "-",
-                            _.priority?.id ?? "-",
-                            _.analyst?.assignee ?? "-",
-                            _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
-                        ].join("\t"))];
-                    UtilsNew.downloadData([dataString.join("\n")], "cases_" + this.opencgaSession.study.id + ".txt", "text/plain");
-                } else {
-                    const json = JSON.stringify(result, null, "\t");
-                    UtilsNew.downloadData(json, "cases_" + this.opencgaSession.study.id + ".json", "application/json");
-                }
-            } else {
-                console.error("Error in result format");
-            }
+            const restResponse = await this.fetchData(params);
+            this.download(restResponse, e?.detail?.option);
         } catch (e) {
             // in case it is a restResponse
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
@@ -677,6 +658,37 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();
 
+    }
+
+    download(restResponse, format = "JSON") {
+        const result = restResponse.getResults();
+        let dataString;
+        if (result) {
+            // Check if user clicked in Tab or JSON format
+            if (format?.toLowerCase() === "tab") {
+                dataString = [
+                    ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretation IDs", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
+                    ...result.map(_ => [
+                        _.id,
+                        _.proband.id,
+                        _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "-",
+                        _?.disorder?.id ?? "-",
+                        _.type ?? "-",
+                        _.interpretation?.id ? `${_.interpretation.id}(primary)${_.secondaryInterpretations.length ? (", " + _.secondaryInterpretations.map(s => s.id).join(", ")) : ""}` : "-",
+                        _.status?.id ?? "-",
+                        _.priority?.id ?? "-",
+                        _.analyst?.assignee ?? "-",
+                        _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
+                    ].join("\t"))];
+
+                UtilsNew.downloadData([dataString.join("\n")], result[0].id + ".tsv", "text/plain");
+            } else {
+                const json = JSON.stringify(result, null, "\t");
+                UtilsNew.downloadData(json, result[0].id + ".json", "application/json");
+            }
+        } else {
+            console.error("Error in result format");
+        }
     }
 
     getDefaultConfig() {

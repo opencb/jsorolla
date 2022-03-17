@@ -52,11 +52,11 @@ export default class StudyAdminConfiguration extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     getDefaultConfig() {
+
         return {
             items: [
                 {
@@ -66,10 +66,10 @@ export default class StudyAdminConfiguration extends LitElement {
                     active: true,
                     render: () => {
                         return html`
-                            <study-clinical-config
-                                .clinicalConfig=${this.study.internal.configuration.clinical}
-                                .opencgaSession=${this.opencgaSession}>
-                            </study-clinical-config>`;
+                        <study-clinical-config
+                            .clinicalConfig=${this.study.internal?.configuration?.clinical}
+                            .opencgaSession=${this.opencgaSession}>
+                        </study-clinical-config>`;
                     }
                 },
                 {
@@ -78,11 +78,11 @@ export default class StudyAdminConfiguration extends LitElement {
                     icon: "fas fa-dna",
                     render: () => {
                         return html`
-                            <study-variant-config
-                                .variantEngineConfig=${this.study.internal.configuration.variantEngine}
-                                .opencgaSession=${this.opencgaSession}>
-                            </study-variant-config>
-                        `;
+                        <study-variant-config
+                            .variantEngineConfig=${this.study.internal?.configuration?.variantEngine}
+                            .opencgaSession=${this.opencgaSession}>
+                        </study-variant-config>
+                    `;
                     }
                 }
             ]

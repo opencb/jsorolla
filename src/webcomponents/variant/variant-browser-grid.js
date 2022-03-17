@@ -81,12 +81,12 @@ export default class VariantBrowserGrid extends LitElement {
         // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    firstUpdated(changedProperties) {
+    firstUpdated() {
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -98,21 +98,15 @@ export default class VariantBrowserGrid extends LitElement {
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-            // Config for the grid toolbar
-            this.toolbarConfig = {
-                ...this._config.toolbar,
-                resource: "VARIANT",
-                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
-            };
+            this.configObserver();
+            this.requestUpdate();
+            this.renderVariants();
         }
     }
 
     opencgaSessionObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.variantBrowser};
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -129,6 +123,20 @@ export default class VariantBrowserGrid extends LitElement {
         this.samples = _samples;
 
         this.requestUpdate();
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            ...this._config.toolbar,
+            resource: "VARIANT",
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+            columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
+            // gridColumns: this._getDefaultColumns() // original column structure
+        };
     }
 
     onColumnChange(e) {
@@ -154,7 +162,8 @@ export default class VariantBrowserGrid extends LitElement {
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
-
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: this._config.pagination,
@@ -206,7 +215,7 @@ export default class VariantBrowserGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
@@ -227,8 +236,8 @@ export default class VariantBrowserGrid extends LitElement {
 
                     UtilsNew.initTooltip(this);
                 },
-                onPostBody: data => {
-                }
+                // onPostBody: data => {},
+                rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
             });
         }
     }
@@ -269,7 +278,8 @@ export default class VariantBrowserGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            }
+            },
+            rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
     }
 
@@ -463,6 +473,7 @@ export default class VariantBrowserGrid extends LitElement {
             sampleColumns = [];
             for (let i = 0; i < this.samples.length; i++) {
                 sampleColumns.push({
+                    id: this.samples[i].id,
                     title: this.samples[i].id,
                     field: "samples",
                     rowspan: 1,
@@ -480,6 +491,7 @@ export default class VariantBrowserGrid extends LitElement {
             cohortColumns = [];
             for (const study of this.cohorts) {
                 cohortColumns.push({
+                    id: study.id,
                     title: study.id,
                     field: study.id,
                     meta: {
@@ -510,7 +522,13 @@ export default class VariantBrowserGrid extends LitElement {
                     populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
                 }
 
+                // FIXME CellBase v5 uses 1000G while v4 uses 1kG_phase3, remove this in v2.3
+                if (this.populationFrequencies.studies[j].id === "1000G" && this.opencgaSession.project.internal.cellbase.version === "v4") {
+                    this.populationFrequencies.studies[j].id = "1kG_phase3";
+                }
+
                 populationFrequencyColumns.push({
+                    id: this.populationFrequencies.studies[j].id,
                     title: this.populationFrequencies.studies[j].title,
                     field: this.populationFrequencies.studies[j].id,
                     meta: {
@@ -668,6 +686,7 @@ export default class VariantBrowserGrid extends LitElement {
             ],
             [
                 {
+                    id: "SIFT",
                     title: "SIFT",
                     field: "sift",
                     colspan: 1,
@@ -676,6 +695,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "polyphen",
                     title: "Polyphen",
                     field: "polyphen",
                     colspan: 1,
@@ -684,6 +704,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "revel",
                     title: "Revel",
                     field: "revel",
                     colspan: 1,
@@ -692,6 +713,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "cadd",
                     title: "CADD",
                     field: "cadd",
                     colspan: 1,
@@ -701,6 +723,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "phylop",
                     title: "PhyloP",
                     field: "phylop",
                     colspan: 1,
@@ -710,6 +733,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "phastCons",
                     title: "PhastCons",
                     field: "phastCons",
                     colspan: 1,
@@ -719,6 +743,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "gerp",
                     title: "GERP",
                     field: "gerp",
                     colspan: 1,
@@ -732,6 +757,7 @@ export default class VariantBrowserGrid extends LitElement {
                 ...cohortColumns,
                 ...populationFrequencyColumns,
                 {
+                    id: "clinvar",
                     title: "ClinVar",
                     field: "clinvar",
                     colspan: 1,
@@ -740,6 +766,7 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "cosmic",
                     title: "Cosmic",
                     field: "cosmic",
                     colspan: 1,
@@ -770,7 +797,7 @@ export default class VariantBrowserGrid extends LitElement {
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
-                    UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results), "variants_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
@@ -783,6 +810,10 @@ export default class VariantBrowserGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
+    }
+
+    onChangeExportField(e) {
+        this.exportFields = e.detail.value;
     }
 
     getDefaultConfig() {
@@ -803,6 +834,9 @@ export default class VariantBrowserGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
+
+            highlights: [],
+            activeHighlights: [],
 
             geneSet: {
                 ensembl: true,
@@ -827,19 +861,8 @@ export default class VariantBrowserGrid extends LitElement {
         this.__config = e.detail.value;
     }
 
-    async onApplySettings(e) {
-        try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.variantBrowser, ...this.__config};
-
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                variantBrowser: this._config
-            });
-            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-            this.renderVariants();
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-        }
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
     getRightToolbar() {
@@ -855,18 +878,18 @@ export default class VariantBrowserGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config?.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .rightToolbar="${this.getRightToolbar()}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : null
-            }
+            ${this._config?.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .rightToolbar="${this.getRightToolbar()}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}"
+                    @changeExportField="${this.onChangeExportField}">
+                </opencb-grid-toolbar>
+            ` : null}
 
             <div>
                 <table id="${this.gridId}"></table>
@@ -891,7 +914,7 @@ export default class VariantBrowserGrid extends LitElement {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
                         </div>
                     </div>
                 </div>

@@ -20,11 +20,11 @@
 
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
+
 import {LitElement, html} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
 import "./obsolete/category-page.js";
-import "./iva-profile.js";
 import "./iva-settings.js";
 
 // @dev[jsorolla]
@@ -46,11 +46,12 @@ import "../../webcomponents/opencga/opencga-gene-view.js";
 import "../../webcomponents/opencga/opencga-transcript-view.js";
 import "../../webcomponents/opencga/opencga-protein-view.js";
 import "../../webcomponents/user/opencga-projects.js";
-import "../../webcomponents/sample/opencga-sample-browser.js";
+import "../../webcomponents/sample/sample-browser.js";
 import "../../webcomponents/sample/sample-view.js";
 import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
+import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
 import "../../webcomponents/user/opencga-login.js";
@@ -85,6 +86,8 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/user/user-profile.js";
+
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -94,6 +97,9 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
+
+// SETTINGS
+import DISEASE_PANEL_BROWSER_SETTINGS from "./conf/disease-panel-browser.settings.js";
 
 class IvaApp extends LitElement {
 
@@ -126,7 +132,7 @@ class IvaApp extends LitElement {
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
-        _config.cellbase = cellbase;
+        _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
         _config.tools = tools;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
@@ -155,10 +161,14 @@ class IvaApp extends LitElement {
             "file-manager",
             "beacon",
             "project",
-            "sample",
             "file",
+            // Sample
             "sample",
             "sample-view",
+            "sampleVariantStatsBrowser",
+            "sampleCancerVariantStatsBrowser",
+            "sampleUpdate",
+            "sample-variant-stats",
             "individual",
             "cohort",
             "clinicalAnalysis",
@@ -168,8 +178,6 @@ class IvaApp extends LitElement {
             "gene",
             "transcript",
             "protein",
-            "sample-grid",
-            "sampleUpdate",
             "browser",
             "family",
             "job",
@@ -180,13 +188,9 @@ class IvaApp extends LitElement {
             "cat-catalog",
             "cat-alignment",
             "cat-ga4gh",
-            // Sample
-            "sampleVariantStatsBrowser",
-            "sampleCancerVariantStatsBrowser",
             // Variant
             "eligibility",
             "gwas",
-            "sample-variant-stats",
             "cohort-variant-stats",
             "sample-eligibility",
             "knockout",
@@ -212,6 +216,7 @@ class IvaApp extends LitElement {
             "coverage-index",
             "job-view",
             "rga",
+            "disease-panel",
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
@@ -298,41 +303,44 @@ class IvaApp extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        // Initialise clients and create the session
-        // this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
-        // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
-        const sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
-        const userId = Cookies.get(this.config.opencga.cookie.prefix + "_userId");
-        this.opencgaClient = new OpenCGAClient({
-            host: this.config.opencga.host,
-            version: this.config.opencga.version,
-            token: sid,
-            userId: userId,
-            cookies: {active: true, prefix: this.config.opencga.cookie.prefix},
-            // TODO remove this soon!
-            // serverVersion: this.config.opencga.serverVersion
+        // Import server configuration from conf/server.json file (if exists)
+        // See issue https://github.com/opencb/jsorolla/issues/425
+        UtilsNew.importJSONFile("conf/server.json").then(serverConf => {
+
+            // Initialize opencga configuration
+            const opencgaHost = serverConf?.host || this.config.opencga.host;
+            const opencgaVersion = serverConf?.version || this.config.opencga.version;
+            const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            // console.log(opencgaHost, opencgaVersion);
+
+            // Initialise clients and create the session
+            // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
+            const sid = Cookies.get(opencgaPrefix + "_sid");
+            const userId = Cookies.get(opencgaPrefix + "_userId");
+
+            this.opencgaClient = new OpenCGAClient({
+                host: opencgaHost,
+                version: opencgaVersion,
+                token: sid,
+                userId: userId,
+                cookies: {
+                    active: true,
+                    prefix: opencgaPrefix,
+                },
+            });
+
+            this.reactomeClient = new ReactomeClient();
+
+            if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
+                // this.opencgaClient._config.token = sid;
+                this._createOpenCGASession();
+                // This must happen after creating the OpencgaClient
+                this.checkSessionActive();
+                this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
+            } else {
+                this._createOpencgaSessionFromConfig();
+            }
         });
-
-        // this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
-        this.cellbaseClient = new CellBaseClient({
-            host: this.config.cellbase.host,
-            version: this.config.cellbase.version,
-            species: "hsapiens"
-        });
-
-        console.log("cellbaseClient iva-app", this.cellbaseClient);
-
-        this.reactomeClient = new ReactomeClient();
-
-        if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
-            // this.opencgaClient._config.token = sid;
-            this._createOpenCGASession();
-            // This must happen after creating the OpencgaClient
-            this.checkSessionActive();
-            this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
-        } else {
-            this._createOpencgaSessionFromConfig();
-        }
     }
 
     updated(changedProperties) {
@@ -398,6 +406,7 @@ class IvaApp extends LitElement {
                 // this forces the observer to be executed.
                 this.opencgaSession = {..._response};
                 this.opencgaSession.mode = this.config.mode;
+                this.updateCellBaseClient();
                 // this.config.menu = [...application.menu];
                 this.config = {...this.config};
             })
@@ -431,6 +440,7 @@ class IvaApp extends LitElement {
 
                 // This triggers the event and call to opencgaSessionObserver
                 this.opencgaSession = opencgaSession;
+                this.updateCellBaseClient();
             } else {
                 // When no 'projects' is defined we fetch all public projects
                 if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous.user)) {
@@ -447,6 +457,7 @@ class IvaApp extends LitElement {
 
                             // This triggers the event and call to opencgaSessionObserver
                             this.opencgaSession = opencgaSession;
+                            this.updateCellBaseClient();
                         })
                         .catch(function (response) {
                             console.log("An error when getting projects");
@@ -463,7 +474,7 @@ class IvaApp extends LitElement {
     onLogin(credentials) {
         // This creates a new authenticated opencga-session object
 
-        console.log("iva-app: roger I'm in", credentials);
+        // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
 
@@ -773,11 +784,33 @@ class IvaApp extends LitElement {
             // Update the lastStudy in config iff has changed
             this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
 
-            // Refresh the session
+            // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
+            this.updateCellBaseClient();
         } else {
             // TODO Convert this into a user notification
             console.error("Study not found!");
+        }
+    }
+
+    updateCellBaseClient() {
+        this.cellbaseClient = null; // Reset cellbase client
+
+        if (this.opencgaSession?.project && this.opencgaSession?.project?.internal?.cellbase?.url) {
+            this.cellbaseClient = new CellBaseClient({
+                host: this.opencgaSession.project.internal.cellbase.url.replace(/\/$/, ""),
+                version: this.opencgaSession.project.internal.cellbase.version,
+                species: this.opencgaSession.project.organism.scientificName,
+            });
+            // console.log("cellbaseClient iva-app", this.cellbaseClient);
+        } else {
+            // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
+            // But this should be removed in future releases
+            this.cellbaseClient = new CellBaseClient({
+                host: this.config.cellbase.host,
+                version: this.config.cellbase.version,
+                species: "hsapiens",
+            });
         }
     }
 
@@ -1186,75 +1219,96 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.genomeBrowser ? html`
                     <div class="content" id="genomeBrowser">
-                        <opencga-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .opencgaClient="${this.opencgaClient}">
+                        <opencga-genome-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}">
                         </opencga-genome-browser>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.projects ? html`
                     <div class="content" id="projects">
-                        <opencga-projects  .opencgaSession="${this.opencgaSession}"
-                                           @project="${this.updateProject}"
-                                           @study="${this.updateStudy}">
+                        <opencga-projects
+                            .opencgaSession="${this.opencgaSession}"
+                            @project="${this.updateProject}"
+                            @study="${this.updateStudy}">
                         </opencga-projects>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.sample ? html`
                     <div class="content" id="sample">
-                        <opencga-sample-browser .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.queries.sample}"
-                                                .settings="${OPENCGA_SAMPLE_BROWSER_SETTINGS}"
-                                                @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
-                                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
-                        </opencga-sample-browser>
+                        <sample-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.sample}"
+                            .settings="${OPENCGA_SAMPLE_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
+                        </sample-browser>
                     </div>
                 ` : null}
 
+
                 ${this.config.enabledComponents.panel ? html`
                     <div class="content" id="panel">
-                        <opencga-panel-browser  .opencgaSession="${this.opencgaSession}"
-                                                .opencgaClient="${this.opencgaClient}"
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .eventNotifyName="${this.config.notifyEventMessage}"
-                                                @notifymessage="${this.onNotifyMessage}">
+                        <opencga-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .eventNotifyName="${this.config.notifyEventMessage}"
+                            @notifymessage="${this.onNotifyMessage}">
                         </opencga-panel-browser>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.file ? html`
                     <div class="content" id="file">
-                        <opencga-file-browser   .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.queries.file}"
-                                                .settings="${OPENCGA_FILE_BROWSER_SETTINGS}"
-                                                @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
-                                                @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
+                        <opencga-file-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .query="${this.queries.file}"
+                            .settings="${OPENCGA_FILE_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
                         </opencga-file-browser>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["disease-panel"] ? html`
+                    <div class="content" id="disease-panel">
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .query="${this.queries["disease-panel"]}"
+                            .settings="${DISEASE_PANEL_BROWSER_SETTINGS}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
+                        </disease-panel-browser>
                     </div>
                 ` : null}
 
                 <!--todo check-->
                 ${this.config.enabledComponents.gene ? html`
                     <div class="content" id="gene">
-                        <opencga-gene-view .opencgaSession="${this.opencgaSession}"
-                                           .cellbaseClient="${this.cellbaseClient}"
-                                           .geneId="${this.gene}"
-                                           .populationFrequencies="${this.config.populationFrequencies}"
-                                           .consequenceTypes="${this.config.consequenceTypes}"
-                                           .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                           .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                                           .summary="${this.config.opencga.summary}"
-                                           @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                        <opencga-gene-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .geneId="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
+                            .summary="${this.config.opencga.summary}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
                         </opencga-gene-view>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["sample-view"] ? html`
                     <div class="content" id="sample-view">
-                        <opencga-sample-view    .opencgaSession="${this.opencgaSession}"
-                                                .config="${this.config.sampleView}">
+                        <opencga-sample-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.sampleView}">
                         </opencga-sample-view>
                     </div>
                 ` : null}
@@ -1555,8 +1609,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <iva-profile .opencgaSession="${this.opencgaSession}">
-                        </iva-profile>
+                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
                     </div>
                 ` : null}
 

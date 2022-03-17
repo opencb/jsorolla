@@ -27,13 +27,14 @@ import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/feature-filter.js";
-import "../commons/filters/file-quality-filter.js";
+import "../commons/filters/variant-file-format-filter.js";
 import "../commons/filters/fulltext-search-accessions-filter.js";
 import "../commons/filters/go-accessions-filter.js";
 import "../commons/filters/hpo-accessions-filter.js";
 import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
+import "../commons/filters/sample-genotype-filter.js";
 import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
@@ -108,13 +109,16 @@ export default class VariantBrowserFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -276,7 +280,9 @@ export default class VariantBrowserFilter extends LitElement {
 
     renderFilterMenu() {
         if (this.config?.sections?.length > 0) {
-            return this.config.sections.map(section => this._createSection(section));
+            return this.config.sections
+                .filter(section => section.filters?.length > 0 && !section.filters.includes(undefined))
+                .map(section => this._createSection(section));
         } else {
             return html`No filter has been configured.`;
         }
@@ -301,9 +307,11 @@ export default class VariantBrowserFilter extends LitElement {
         // TODO replicate in all filters components
         const filters = section.filters.filter(filter => this._isFilterVisible(filter)) ?? [];
         const htmlFields = filters.map(filter => this._createSubSection(filter));
+
+        // TODO should we add a config variable to decide if the accordion is shown
         // We only display section accordions when more than a section exists,
         // otherwise we just render all filters without an accordion box.
-        return this.config.sections.length > 1 ? html`
+        return this.config.sections.length > 0 ? html`
             <section-filter
                 .filters="${htmlFields}"
                 .config="${section}">
@@ -374,21 +382,24 @@ export default class VariantBrowserFilter extends LitElement {
                         </variant-file-filter>`;
                     break;
                 case "file-quality":
-                    let depth;
-                    if (this.preparedQuery?.sampleData) {
-                        const sampleDataFilters = this.preparedQuery.sampleData.split(";");
-                        depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
-                    }
+                case "variant-file-sample-filter":
                     content = html`
-                        <file-quality-filter
-                            .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
-                            @filterChange="${e => this.onFilterChange({
-                                filter: "filter",
-                                sampleData: "sampleData",
-                                qual: "qual"
-                            }, e.detail.value)}" .config="${subsection}">
-                        </file-quality-filter>
+                        <variant-file-format-filter
+                            .sampleData="${this.preparedQuery.sampleData}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @filterChange="${e => this.onFilterChange("sampleData", e.detail.value)}">
+                        </variant-file-format-filter>
                     `;
+                    break;
+                case "variant-file-info-filter":
+                    content = html`
+                        <variant-file-info-filter
+                            .files="${subsection.params.files}"
+                            .study="${subsection.params.study || this.opencgaSession.study}"
+                            .fileData="${this.preparedQuery.fileData}"
+                            .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
+                            @filterChange="${e => this.onFilterChange("fileData", e.detail.value)}">
+                        </variant-file-info-filter>`;
                     break;
                 case "region":
                     content = html`
@@ -419,15 +430,17 @@ export default class VariantBrowserFilter extends LitElement {
                         <variant-type-filter
                             .type="${this.preparedQuery.type}"
                             .config="${subsection.params?.types ? {types: subsection.params.types} : {}}"
+                            .disabled="${disabled}"
                             @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
                         </variant-type-filter>`;
                     break;
                 case "populationFrequency":
                     content = html`
                         <population-frequency-filter
-                            .populationFrequencies="${subsection.populationFrequencies || POPULATION_FREQUENCIES}"
-                            .allowedFrequencies="${subsection.allowedFrequencies}"
-                            ?showSetAll="${subsection.showSetAll}"
+                            .populationFrequencies="${subsection.params.populationFrequencies}"
+                            .allowedFrequencies="${subsection.params.allowedFrequencies}"
+                            .populationFrequencyIndexConfiguration="${subsection.params.populationFrequencyIndexConfiguration}"
+                            ?showSetAll="${subsection.params.showSetAll}"
                             .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
                             @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;
@@ -444,8 +457,8 @@ export default class VariantBrowserFilter extends LitElement {
                 case "proteinSubstitutionScore":
                     content = html`
                         <protein-substitution-score-filter
-                            .protein_substitution="${this.preparedQuery.protein_substitution}"
-                            @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}">
+                            .proteinSubstitution="${this.preparedQuery.proteinSubstitution}"
+                            @filterChange="${e => this.onFilterChange("proteinSubstitution", e.detail.value)}">
                         </protein-substitution-score-filter>`;
                     break;
                 case "cadd":
@@ -484,6 +497,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .diseasePanels="${this.opencgaSession.study.panels}"
                             .panel="${this.preparedQuery.panel}"
+                            .panelFeatureType="${this.preparedQuery.panelFeatureType}"
                             .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
                             .panelConfidence="${this.preparedQuery.panelConfidence}"
                             .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
@@ -493,6 +507,7 @@ export default class VariantBrowserFilter extends LitElement {
                             .showExtendedFilters="${true}"
                             @filterChange="${e => this.onFilterChange({
                                 panel: "panel",
+                                panelFeatureType: "panelFeatureType",
                                 panelModeOfInheritance: "panelModeOfInheritance",
                                 panelConfidence: "panelConfidence",
                                 panelRoleInCancer: "panelRoleInCancer",
@@ -536,16 +551,6 @@ export default class VariantBrowserFilter extends LitElement {
                         <variant-ext-svtype-filter
                             @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
                         </variant-ext-svtype-filter>`;
-                    break;
-                case "variant-file-info-filter":
-                    content = html`
-                        <variant-file-info-filter
-                            .files="${subsection.params.files}"
-                            .study="${subsection.params.study || this.opencgaSession.study}"
-                            .fileData="${this.preparedQuery.fileData}"
-                            .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
-                            @filterChange="${e => this.onFilterChange("fileData", e.detail.value)}">
-                        </variant-file-info-filter>`;
                     break;
                 case "caveman":
                 case "strelka":

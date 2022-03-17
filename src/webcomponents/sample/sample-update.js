@@ -17,10 +17,15 @@
 import {LitElement, html, nothing} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
-import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
+import "../study/status/status-update.js";
+import "./external-source/external-source-update.js";
+
 export default class SampleUpdate extends LitElement {
 
     constructor() {
@@ -53,14 +58,8 @@ export default class SampleUpdate extends LitElement {
         this.sample = {};
         this.phenotype = {};
         this.annotationSets = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        // it's not working well init or update,
-        // it's working well here.. connectedCallback
         this.updateParams = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
     }
 
     update(changedProperties) {
@@ -104,21 +103,23 @@ export default class SampleUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        e.stopPropagation();
+        const param = field || e.detail.param;
+        switch (param) {
             case "id":
             case "description":
             case "individualId":
             case "somatic":
+            case "status":
+            case "source":
                 this.updateParams = FormUtils.updateScalar(
                     this._sample,
                     this.sample,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value);
                 break;
-            case "status.name":
-            case "status.description":
             case "processing.product":
             case "processing.preparationMethod":
             case "processing.extractionMethod":
@@ -134,7 +135,7 @@ export default class SampleUpdate extends LitElement {
                     this._sample,
                     this.sample,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value);
                 break;
         }
@@ -160,26 +161,19 @@ export default class SampleUpdate extends LitElement {
                 // this.sample = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
-                FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Update Sample",
+                    message: "Sample updated correclty"
+                });
+                // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
                 // sessionUpdateRequest
                 // TODO: dispacth to the user the data is saved
             })
             .catch(err => {
-                console.error(err);
-                FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
+                // console.error(err);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                // FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
-    }
-
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "phenotypes":
-                this.updateParams = {...this.updateParams, phenotypes: e.detai.value};
-                break;
-            case "annotationsets":
-                this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-                break;
-        }
     }
 
     // display a button to back sample browser.
@@ -204,6 +198,23 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
+    onAddOrUpdateItem(e) {
+        switch (e.detail.param) {
+            case "collection.from":
+                this.collection = {...this.collection, from: e.detail.value};
+                this.sample = {...this.sample, collection: this.collection};
+                this.updateParams = {...this.updateParams, collection: this.collection};
+                break;
+            case "phenotypes":
+                this.sample = {...this.sample, phenotypes: e.detail.value};
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                break;
+            case "annotationSets":
+                break;
+        }
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
@@ -212,6 +223,7 @@ export default class SampleUpdate extends LitElement {
                 .config="${this._config}"
                 .updateParams=${this.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
@@ -221,15 +233,14 @@ export default class SampleUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Sample Update",
             icon: "fas fa-edit",
             type: "form",
             display: {
                 style: "margin: 10px",
-                defaultValue: "",
                 defaultLayout: "horizontal",
                 labelAlign: "right",
                 labelWidth: 3,
+                buttonOkText: "Update"
             },
             sections: [{
                 title: "Sample General Information",
@@ -240,19 +251,36 @@ export default class SampleUpdate extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: "Add a short ID...",
+                            helpMessage: this.sample.creationDate? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate):"No creation date",
                             disabled: true,
-                            helpMessage: "Add short sample id",
                         }
                     },
                     {
                         title: "Individual ID",
                         field: "individualId",
-                        type: "input-text",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a short ID...",
-                            disabled: true,
-                            helpMessage: "Search individual to select"
+                            placeholder: "e.g. Homo sapiens, ...",
+                            render: individualId => html`
+                                <individual-id-autocomplete
+                                    .value="${individualId}"
+                                    .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config=${{multiple: false}}
+                                    @filterChange="${e =>
+                                        this.onFieldChange({
+                                            detail: {
+                                                param: "individualId",
+                                                value: e.detail.value
+                                            }
+                                        })}">
+                                </individual-id-autocomplete>`
                         }
+                    },
+                    {
+                        title: "Somatic",
+                        field: "somatic",
+                        type: "checkbox"
                     },
                     {
                         title: "Description",
@@ -264,35 +292,49 @@ export default class SampleUpdate extends LitElement {
                         }
                     },
                     {
-                        title: "Somatic",
-                        field: "somatic",
-                        type: "checkbox"
-                    },
-                    {
-                        title: "Status name",
-                        field: "status.name",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add a status name..."
-                        }
-                    },
-                    {
-                        title: "Status Description",
-                        field: "status.description",
-                        type: "input-text",
-                        display: {
-                            rows: 3,
-                            placeholder: "Add a description for the status..."
-                        }
-                    },
-                    {
-                        title: "Creation Date",
-                        field: "creationDate",
+                        title: "Source",
+                        field: "source",
                         type: "custom",
                         display: {
-                            render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                            render: source => html`
+                                <external-source-update
+                                    .source=${source}
+                                    .displayConfig="${{
+                                        defaultLayout: "vertical",
+                                        buttonsVisible: false,
+                                        width: 12,
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                    }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
+                                </external-source-update>`
                         }
                     },
+                    {
+                        title: "Status",
+                        field: "status",
+                        type: "custom",
+                        display: {
+                            render: status => html`
+                                <status-update
+                                    .status=${status}
+                                    .displayConfig="${{
+                                        defaultLayout: "vertical",
+                                        buttonsVisible: false,
+                                        width: 12,
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                    }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                </status-update>`
+                        }
+                    },
+                    // {
+                    //     title: "Creation Date",
+                    //     field: "creationDate",
+                    //     type: "input-date",
+                    //     display: {
+                    //         render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
+                    //     }
+                    // },
                 ]
             },
             {
@@ -301,9 +343,18 @@ export default class SampleUpdate extends LitElement {
                     {
                         title: "Product",
                         field: "processing.product",
-                        type: "input-text",
+                        type: "custom",
                         display: {
-                            placeholder: "Add a product..."
+                            render: product => html`
+                                <ontology-term-annotation-update
+                                    .ontology=${product}
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}
+                                ></ontology-term-annotation-update>`
                         }
                     },
                     {
@@ -333,7 +384,7 @@ export default class SampleUpdate extends LitElement {
                     {
                         title: "Quantity",
                         field: "processing.quantity",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add a quantity..."
                         }
@@ -352,11 +403,34 @@ export default class SampleUpdate extends LitElement {
                 title: "Collection Info",
                 elements: [
                     {
-                        title: "Tissue",
-                        field: "collection.tissue",
-                        type: "input-text",
+                        title: "From",
+                        field: "collection.from",
+                        type: "custom-list",
                         display: {
-                            placeholder: "Add a tissue..."
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            collapsedUpdate: true,
+                            renderUpdate: (from, callback) => html`
+                                <ontology-term-annotation-update
+                                    .ontology="${from}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            style: "margin-bottom:0px",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                    @updateItem="${callback}">
+                                </ontology-term-annotation-update>
+                            `,
+                            renderCreate: (from, callback) => html`
+                                <label>Create new item</label>
+                                <ontology-term-annotation-create
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                    @addItem="${callback}">
+                                </ontology-term-annotation-create>`
                         }
                     },
                     {
@@ -370,7 +444,7 @@ export default class SampleUpdate extends LitElement {
                     {
                         title: "Quantity",
                         field: "collection.quantity",
-                        type: "input-text",
+                        type: "input-num",
                         display: {
                             placeholder: "Add a quantity..."
                         }
@@ -397,19 +471,34 @@ export default class SampleUpdate extends LitElement {
                 title: "Phenotypes",
                 elements: [
                     {
-                        field: "phenotype",
-                        type: "custom",
+                        title: "Phenotype",
+                        field: "phenotypes",
+                        type: "custom-list",
                         display: {
-                            layout: "vertical",
-                            defaultLayout: "vertical",
-                            width: 12,
-                            style: "padding-left: 0px",
-                            render: () => html`
-                                <phenotype-list-update
-                                    .phenotypes="${this.sample?.phenotypes}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @changePhenotypes="${e => this.onSync(e, "phenotypes")}">
-                                </phenotype-list-update>`
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            collapsedUpdate: true,
+                            renderUpdate: (pheno, callback) => html`
+                                <ontology-term-annotation-update
+                                    .ontology="${pheno}"
+                                    .entity="${"phenotype"}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                    @updateItem="${callback}">
+                                </ontology-term-annotation-update>`,
+                            renderCreate: (pheno, callback) => html`
+                                <label>Create new item</label>
+                                <ontology-term-annotation-create
+                                    .entity="${"phenotype"}"
+                                    .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                    @addItem="${callback}">
+                                </ontology-term-annotation-create>`
                         }
                     },
                 ]

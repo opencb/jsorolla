@@ -20,6 +20,7 @@ import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../loading-spinner.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 export default class IndividualView extends LitElement {
 
@@ -80,6 +81,7 @@ export default class IndividualView extends LitElement {
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                     this.isLoading = false;
+                    console.log("individual: ", this.individual);
                 })
                 .catch(function (reason) {
                     this.individual = {};
@@ -155,11 +157,7 @@ export default class IndividualView extends LitElement {
                                     <individual-id-autocomplete
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}
+                                        .config=${{multiple: false}}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </individual-id-autocomplete>
                                 `,
@@ -175,7 +173,7 @@ export default class IndividualView extends LitElement {
                     },
                     elements: [
                         {
-                            title: "Sample ID",
+                            title: "Individual ID",
                             type: "custom",
                             display: {
                                 render: data => html`
@@ -199,9 +197,11 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Reported Sex (Karyotypic)",
-                            type: "complex",
+                            type: "custom",
                             display: {
-                                template: "${sex.id} (${karyotypicSex})",
+                                render: individual => `
+                                    ${individual.sex?.id ?? individual.sex ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
+                                `,
                             }
                         },
                         {
@@ -218,17 +218,26 @@ export default class IndividualView extends LitElement {
                             }
                         },
                         {
+                            title: "Ethnicity",
+                            field: "ethnicity.id",
+                        },
+                        {
                             title: "Disorders",
                             field: "disorders",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
+                                contentLayout: "horizontal",
+                                separator: ", ",
                                 render: disorder => {
                                     let id = disorder.id;
                                     if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                        id = `<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                     }
-                                    return html`${disorder.name} (${id})`;
+                                    if (disorder.name) {
+                                        return `${disorder.name} (${id})`;
+                                    } else {
+                                        return `${id}`;
+                                    }
                                 },
                                 defaultValue: "N/A"
                             }

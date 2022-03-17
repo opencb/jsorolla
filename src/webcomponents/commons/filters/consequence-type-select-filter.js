@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/select-field-filter.js";
 
@@ -46,7 +47,8 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this._ct = []; // this.ct is a comma separated list, this._ct is an array of the same data
-        this.isChecked = {};
+        this.presetSelected = new Map();
+        // this.isChecked = {};
         this.options = [];
     }
 
@@ -63,23 +65,52 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         );
     }
 
-    firstUpdated(_changedProperties) {
+    // eslint-disable-next-line no-unused-vars
+    firstUpdated(changedProperties) {
+        // Display SO terms in the badgers
         UtilsNew.initTooltip(this);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("ct")) {
-            if (this.ct) {
-                this._ct = this.ct.split(",");
-                // Select the checkboxes
-                for (const alias of this._config.alias) {
-                    this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
+            this.consequenceTypesObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    consequenceTypesObserver() {
+        if (this.ct) {
+            this._ct = this.ct.split(",");
+
+            // Josemi 2022-01-27 NOTE: this implementation has been reverted. We need to discuss this behavior in the future.
+            // See issue https://github.com/opencb/jsorolla/issues/376
+            // Add active presets using selected CT terms
+            // this.presetSelected = new Map(); // Reset active presets
+            // (this._config.alias || []).forEach(preset => {
+            //     const allTermsSelected = preset.terms.every(term => this._ct.includes(term));
+            //     if (allTermsSelected) {
+            //         this.presetSelected.set(preset.name, preset);
+            //     }
+            // });
+
+            // NOTE (Nacho 2022-01-31): we need to check if any ALREADY select alias is incomplete to remove it.
+            // But we keep NOT selecting a new alias even all its terms are selected.
+            const aliasToBeDeleted = [];
+            for (const key of this.presetSelected.keys()) {
+                for (const value of this.presetSelected.get(key).terms) {
+                    if (!this._ct.includes(value)) {
+                        aliasToBeDeleted.push(key);
+                        break;
+                    }
                 }
-            } else {
-                this._ct = [];
-                this.isChecked = {};
             }
-            this.requestUpdate();
+            for (const alias of aliasToBeDeleted) {
+                this.presetSelected.delete(alias);
+            }
+        } else {
+            this._ct = [];
+            this.presetSelected.clear();
         }
     }
 
@@ -92,58 +123,81 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         };
     }
 
-    onFilterChange(e) {
-        this.filterChange(e.detail.value);
-    }
-
     onPresetSelect(preset, e) {
         if (preset && this._config.alias) {
             const aliasSelect = this._config.alias.find(alias => alias.name === preset);
 
             if (aliasSelect) {
+                // 1. Add/delete selected presets
                 if (e.currentTarget.checked) {
-                    const ctSet = new Set(this._ct);
-                    for (const term of aliasSelect.terms) {
+                    // Just keep track of the selected preset
+                    this.presetSelected.set(aliasSelect.name, aliasSelect);
+                } else {
+                    // Remove preset selection and all its terms
+                    this.presetSelected.delete(aliasSelect.name);
+                    this._ct = this._ct.filter(ct => !aliasSelect.terms.includes(ct));
+                }
+
+                // 2. Add all terms from the still selected presets, just in case some shared terms were deleted
+                const ctSet = new Set(this._ct);
+                for (const key of this.presetSelected.keys()) {
+                    for (const term of this.presetSelected.get(key).terms) {
                         ctSet.add(term);
                     }
-                    this._ct = [...ctSet];
-                } else {
-                    this._ct = this._ct.filter(selected => !aliasSelect.terms.includes(selected));
                 }
-                this.filterChange(this._ct.join(","));
+                this._ct = [...ctSet];
+
+                // 3. Update display
+                this.requestUpdate();
+
+                // 4. Notify changes
+                this.filterChange();
             } else {
                 console.error("Consequence type preset not found: ", preset);
             }
         }
     }
 
-    filterChange(cts) {
-        this._ct = cts?.split(",") ?? [];
-        this.updateCheckboxes();
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: cts
+    onFilterChange(e) {
+        // 1. Set selected values
+        const ctSet = new Set(e.detail.value?.split(",") || []);
+        this._ct = [...ctSet];
+
+        // 2. Remove any preset election, this is not compatible with manual selection
+        for (const key of this.presetSelected.keys()) {
+            const allTermsSelected = this.presetSelected.get(key).terms.every(ct => this._ct.indexOf(ct) > -1);
+            if (!allTermsSelected) {
+                this.presetSelected.delete(key);
             }
-        });
-        this.dispatchEvent(event);
+        }
+
+        // 3. Update disaply
+        this.requestUpdate();
+
+        // 4. Notfify changes
+        this.filterChange();
+    }
+
+    filterChange() {
+        LitUtils.dispatchCustomEvent(this, "filterChange", this._ct.join(","));
     }
 
     /*  Updates the state of all checkboxes in case of item selected from the dropdown and in case of click on a checkbox,
         including indeterminate state (which is visual only, the real state is still true/false).
      */
-    updateCheckboxes() {
-        for (const alias of this._config.alias) {
-            this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
-            // $(`.${this._prefix}_ctCheckbox`).prop("indeterminate", false);
-
-            if (!this.isChecked[alias.name]) {
-                const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
-                $(`#${id}`).prop("indeterminate", alias.terms.some(v => this._ct.indexOf(v) > -1));
-            }
-        }
-        this.isChecked = {...this.isChecked};
-        this.requestUpdate();
-    }
+    // updateCheckboxes() {
+    //     for (const alias of this._config.alias) {
+    //         this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
+    //         $(`.${this._prefix}_ctCheckbox`).prop("indeterminate", false);
+    //
+    //         if (!this.isChecked[alias.name]) {
+    //             const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
+    //             $(`#${id}`).prop("indeterminate", alias.terms.some(v => this._ct.indexOf(v) > -1));
+    //         }
+    //     }
+    //     this.isChecked = {...this.isChecked};
+    //     this.requestUpdate();
+    // }
 
     getDefaultConfig() {
         return CONSEQUENCE_TYPES;
@@ -155,21 +209,20 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             <div class="form-group">
                 ${this._config.alias && this._config.alias.length > 0 ? html`
                     <div style="margin: 5px 0px">
-                        <span>Select a preset configuration:</span>
+                        <span>Add terms from a preset configuration:</span>
                     </div>
                     ${this._config.alias.map(alias => {
                         const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
-
                         return html`
                             <div style="margin: 5px 0px">
-                                <label class="text" for="${id}" style="font-weight: normal">
+                                <label class="text" for="${id}" style="font-weight: normal; cursor: pointer">
                                     <input
                                         type="checkbox"
                                         class="${this._prefix}_ctCheckbox"
                                         id="${id}"
                                         name="layout"
                                         value="${alias.name}"
-                                        .checked="${this.isChecked[alias.name]}"
+                                        .checked="${this.presetSelected.has(alias.name)}"
                                         @click="${e => this.onPresetSelect(alias.name, e)}">
                                     <span style="margin: 0px 5px">${alias.name} </span>
                                 </label>
@@ -184,11 +237,11 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
             <div class="form-group">
                 <div style="margin: 10px 0px">
-                    <span>Custom consequence type selection:</span>
+                    <span>Or select terms manually:</span>
                 </div>
                 <select-field-filter
                     multiple
-                    liveSearch=${"true"}
+                    ?liveSearch="${true}"
                     .data="${this.options}"
                     .value=${this._ct}
                     @filterChange="${this.onFilterChange}">
