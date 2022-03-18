@@ -295,6 +295,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
+
         const currentStatus = value.id || value.name || "-"; // Get current status
 
         // Dropdown button styles and classes
@@ -340,6 +341,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         const {action} = e.currentTarget.dataset;
         if (action === "delete") {
+            // TODO we need to remove SWAL
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
