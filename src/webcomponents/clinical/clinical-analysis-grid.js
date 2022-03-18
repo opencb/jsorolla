@@ -295,6 +295,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
+
         const currentStatus = value.id || value.name || "-"; // Get current status
 
         // Dropdown button styles and classes
