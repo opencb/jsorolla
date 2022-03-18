@@ -119,9 +119,13 @@ export default class DiseasePanelBrowser extends LitElement {
                                 resource: "DISEASE_PANEL"
                             },
                             {
-                                id: "feature",
-                                name: "Feature IDs (gene, SNPs...)",
-                                description: ""
+                                id: "genes",
+                                name: "Genes",
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
+                                field: "genes.name",
+                                resource: "DISEASE_PANEL"
                             },
                             {
                                 id: "region",
@@ -135,7 +139,7 @@ export default class DiseasePanelBrowser extends LitElement {
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
-                                field: "categories",
+                                field: "categories.name",
                                 resource: "DISEASE_PANEL"
                             },
                             {

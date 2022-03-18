@@ -54,7 +54,6 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
-import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
@@ -86,7 +85,9 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
+// import "../../webcomponents/user/user-password-reset.js";
 
 import "../../webcomponents/api/rest-api.js";
 
@@ -155,6 +156,7 @@ class IvaApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
+            // "reset-password",
             "settings",
             "account",
             "projects",
@@ -1048,12 +1050,6 @@ class IvaApp extends LitElement {
                     text-align: justify;
                     width: 90%;
                 }
-
-                #login {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
             </style>
 
             <!-- <loading-bar></loading-bar> -->
@@ -1136,12 +1132,11 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.login ? html`
                     <div class="content" id="login">
-                        <opencga-login  .opencgaSession="${this.opencgaSession}"
-                                        loginTitle="Sign in"
-                                        .notifyEventMessage="${this.config.notifyEventMessage}"
-                                        @login="${this.onLogin}"
-                                        @route="${this.route}"></opencga-login>
-                        </opencga-login>
+                        <user-login
+                            .opencgaSession="${this.opencgaSession}"
+                            @login="${this.onLogin}"
+                            @redirect="${this.route}">
+                        </user-login>
                     </div>
                 ` : null}
 
