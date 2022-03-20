@@ -1,11 +1,10 @@
-name: "Main Workflow for JSorolla"
+name: "Main development workflow"
 
 on:
   push:
     branches:
       - "develop"
       - "release-*"
-      - "TASK-*"
 
 jobs:
   build:
