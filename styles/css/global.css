@@ -2553,6 +2553,10 @@ interpretation-editor .status-wrapper .row > div:last-child {
     border-color: darkorange;
 }
 
+.selection-updated {
+    border-color: darkorange !important;
+}
+
 /****  select-field-filter-autocomplete (and disease-panel-filter for .selection-list) ****/
 .dropdown-item-extra {
     font-size: .8em;
@@ -2927,6 +2931,32 @@ div.clipboard-button:hover {
 
 .icon-hover:hover {
     color: red;
+}
+
+.export-fields-button {
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.export-fields-button:before {
+    font-family: "Font Awesome 5 Free", sans-serif;
+    content: "\f068";
+    font-weight: 900;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+#exportFields ul{
+    list-style: none;
+    padding-left: 20px;
+}
+
+.export-fields-button.collapsed:before {
+    content: "\f067";
 }
 
 /****** hpo and go filters ********/

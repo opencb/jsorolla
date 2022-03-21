@@ -215,6 +215,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
 
                 // Set table properties, these are read from config property
                 uniqueId: "id",
@@ -294,6 +296,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             data: variants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
 
             // Set table properties, these are read from config property
             uniqueId: "id",
@@ -746,9 +750,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     }
 
                     _columns[1].splice(i, 0, {
-                        title: `<span style="color: ${color}">${samples[i].id}</span>
-                                <br>
-                                <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
+                        title: `
+                            <div style="color:${color};word-break:break-all;max-width:192px;white-space:break-spaces;">${samples[i].id}</div>
+                            <div style="color:${color};font-style:italic;">${sampleInfo[samples[i].id].role}, ${affected}</div>
+                        `,
                         field: {
                             memberIdx: i,
                             memberName: samples[i].id,

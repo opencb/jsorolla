@@ -41,6 +41,9 @@ export default class PopulationFrequencyFilter extends LitElement {
             populationFrequencyAlt: {
                 type: String
             },
+            populationFrequencyIndexConfiguration: {
+                type: Object
+            },
             allowedFrequencies: {
                 type: String
             },
@@ -82,6 +85,9 @@ export default class PopulationFrequencyFilter extends LitElement {
         }
         if (changedProperties.has("populationFrequencyAlt")) {
             this.populationFrequencyAltObserver();
+        }
+        if (changedProperties.has("populationFrequencyIndexConfiguration")) {
+            this.populationFrequencyIndexConfigurationObserver();
         }
         super.update(changedProperties);
     }
@@ -129,7 +135,36 @@ export default class PopulationFrequencyFilter extends LitElement {
             $("input[data-mode=all]").val("");
         }
         this.state = {...this.state};
-        this.requestUpdate();
+        // this.requestUpdate();
+    }
+
+    populationFrequencyIndexConfigurationObserver() {
+        if (this.populationFrequencyIndexConfiguration) {
+            const populationFrequencyStudies = [];
+            const populationFrequencyStudiesIndexMap = {};
+            for (const population of this.populationFrequencyIndexConfiguration.populations) {
+                if (populationFrequencyStudiesIndexMap[population.study] === undefined) {
+                    populationFrequencyStudies.push(
+                        {
+                            id: population.study,
+                            title: population.study,
+                            populations: []
+                        }
+                    );
+                    populationFrequencyStudiesIndexMap[population.study] = populationFrequencyStudies.length - 1;
+                }
+                populationFrequencyStudies[populationFrequencyStudiesIndexMap[population.study]].populations.push(
+                    {
+                        id: population.population
+                    }
+                );
+            }
+            this.allowedFrequencies = this.populationFrequencyIndexConfiguration.thresholds.join(",");
+            this.populationFrequencies = {
+                studies: populationFrequencyStudies
+            };
+            this.populationFrequenciesObserver();
+        }
     }
 
     filterSelectChange(e, studyAndPopCode, type) {
@@ -218,7 +253,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                     <div style="padding-top: 10px">
                         <div style="margin-bottom: 5px">
                             <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                                style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
+                               style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
                             </i>
                             <strong>${study.title}</strong>
                         </div>
@@ -285,13 +320,13 @@ export default class PopulationFrequencyFilter extends LitElement {
                             ` : ""}
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                                 <number-field-filter
-                                        .value="${this.state[study.id + ":" + popFreq.id]?.value ?
-                                                ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) :
-                                                ""}"
-                                        .config="${{comparator: true, layout: [2, 5, 5]}}"
-                                        .label="${popFreq.id}"
-                                        type="text"
-                                        @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
+                                    .value="${this.state[study.id + ":" + popFreq.id]?.value ?
+                                        ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) :
+                                        ""}"
+                                    .config="${{comparator: true, layout: [2, 5, 5]}}"
+                                    .label="${popFreq.id}"
+                                    type="text"
+                                    @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
                                 </number-field-filter>
                             `)}
                         </div>

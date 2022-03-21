@@ -54,8 +54,8 @@ export default class GeneCoverageGrid extends LitElement {
         this._prefix = "gcgrid" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "GeneBrowserGrid";
 
-        //this.file = "SonsAlignedBamFile.bam"; // TODO remove
-        //this.gene = "TP53"; // TODO remove
+        // this.file = "SonsAlignedBamFile.bam"; // TODO remove
+        // this.gene = "TP53"; // TODO remove
         this.transcriptCoverageStats = null;
         this.loading = false;
         this.errorState = false;
@@ -72,13 +72,13 @@ export default class GeneCoverageGrid extends LitElement {
 
     firstUpdated(_changedProperties) {
         this._initTableColumns();
-        //this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
+        // this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
         this.table = this.querySelector("#" + this.gridId);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("geneIds")) {
-            //this.renderTable();
+            // this.renderTable();
         }
         if (changedProperties.has("transcriptCoverageStats")) {
             this.renderLocalTable();
@@ -99,6 +99,8 @@ export default class GeneCoverageGrid extends LitElement {
             data: this.transcriptCoverageStats,
             columns: this._initTableColumns(),
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -134,21 +136,23 @@ export default class GeneCoverageGrid extends LitElement {
                 this.table.bootstrapTable({
                     columns: this._columns,
                     uniqueId: "id",
+                    iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                    icons: GridCommons.GRID_ICONS,
                     // Table properties
                     showPaginationSwitch: true,
                     pagination: this._config.pagination,
                     pageSize: this._config.pageSize,
                     pageList: this._config.pageList,
                     showExport: this._config.showExport,
-                    //detailView: this._config.detailView,
+                    // detailView: this._config.detailView,
                     formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                     ajax: params => {
                         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
-                            .then( restResponse => {
+                            .then(restResponse => {
                                 this.transcriptCoverageStats = restResponse.getResults()[0].stats;
                                 params.success(this.transcriptCoverageStats);
                             })
-                            .catch( e => {
+                            .catch(e => {
                                 console.error(e);
                                 params.error(e);
                             });
@@ -165,9 +169,9 @@ export default class GeneCoverageGrid extends LitElement {
                         this.from = result.from || this.from;
                         this.to = result.to || this.to;
                     },
-                    onPostBody: (data) => {
+                    onPostBody: data => {
                         // We call onLoadSuccess to select first row
-                        //this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 0);
+                        // this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 0);
                     }
                 });
 
@@ -195,8 +199,8 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     cellStyle(value, row, index, field) {
-        let coverage = Number.parseInt(field.split(".")[1]);
-        let thresholdValue = this.coverageQuality ? this.coverageQuality[coverage] : 80;
+        const coverage = Number.parseInt(field.split(".")[1]);
+        const thresholdValue = this.coverageQuality ? this.coverageQuality[coverage] : 80;
         const color = value >= thresholdValue ? "#e7f7ec" : "#fef3f3";
         return {
             css: {
@@ -332,8 +336,8 @@ export default class GeneCoverageGrid extends LitElement {
             ` : null}
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar @download="${this.onDownload}">
-                </opencb-grid-toolbar>`
-            : null}
+                </opencb-grid-toolbar>` :
+            null}
             <div class="gene-coverage-grid">
                 <table id="${this.gridId}"></table>
             </div>
