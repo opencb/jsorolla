@@ -158,11 +158,7 @@ export default class CohortView extends LitElement {
                                     <cohort-id-autocomplete
                                         .value="${this.cohort?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            select2Config: {
-                                                multiple: false
-                                            }
-                                        }}"
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </cohort-id-autocomplete>
                                 `,

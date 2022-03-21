@@ -44,6 +44,9 @@ export default class SelectTokenFilterStatic extends LitElement {
             data: {
                 type: Array
             },
+            disabled: {
+                type: Boolean
+            },
             value: {
                 type: String
             }
@@ -133,7 +136,7 @@ export default class SelectTokenFilterStatic extends LitElement {
     render() {
         return html`
         <div>
-            <select id="${this._prefix}" class="${classMap({"no-data": !this.data?.length})}" style="width: 100%" @change="${this.filterChange}"></select>
+            <select ?disabled=${this.disabled} id="${this._prefix}" class="${classMap({"no-data": !this.data?.length})}" style="width: 100%" @change="${this.filterChange}"></select>
             <div class="hidden"></div>
         </div>
         `;

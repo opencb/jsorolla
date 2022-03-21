@@ -111,6 +111,8 @@ export default class DiseasePanelGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
 
                 // Table properties
                 uniqueId: "id",
@@ -152,7 +154,7 @@ export default class DiseasePanelGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             this.table.bootstrapTable("collapseRow", element[0].dataset.index);
@@ -195,6 +197,8 @@ export default class DiseasePanelGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.diseasePanels,
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -238,9 +242,9 @@ export default class DiseasePanelGrid extends LitElement {
                 rowspan: 2,
                 colspan: 1,
                 formatter: (value, row) => {
-                    if (row?.source?.project === "PanelApp") {
+                    if (row?.source && row?.source?.project === "PanelApp") {
                         return String.raw`
-                            <a href="${BioinfoUtils.getPanelAppLink(row.source.id)}" title="Panel ID: ${row.id}" target="_blank">
+                            <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
                                 ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
                     }
@@ -272,17 +276,20 @@ export default class DiseasePanelGrid extends LitElement {
                 rowspan: 2,
                 colspan: 1,
                 formatter: (value, row) => {
-                    const {id, author, project, version} = row.source;
-                    let projectAndVersion = "";
-                    if (project?.toUpperCase() === "PANELAPP") {
-                        projectAndVersion = `
+                    if (row?.source) {
+                        const {id, author, project, version} = row.source;
+                        let projectAndVersion = "";
+                        if (project?.toUpperCase() === "PANELAPP") {
+                            projectAndVersion = `
                             <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
                                 ${project} ${version} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
-                    } else {
-                        projectAndVersion = `${project || ""} ${version}`;
+                        } else {
+                            projectAndVersion = `${project || ""} ${version}`;
+                        }
+                        return `${author ? `${author} -` : ""} ${projectAndVersion}`;
                     }
-                    return `${author ? `${author} -` : ""} ${projectAndVersion}`;
+                    return "-";
                 },
                 align: "center",
             },
@@ -341,12 +348,12 @@ export default class DiseasePanelGrid extends LitElement {
                 const results = response.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toUpperCase() === "tab") {
-                        const fields = ["id", "name", "stats.genes", "stats.regions", "stats.variants", "source.author", "source.project", "source.version"];
+                    if (e.detail.option.toUpperCase() === "TAB") {
+                        const fields = ["id", "name", "stats.numberOfGenes", "stats.numberOfRegions", "stats.numberOfVariants", "source.author", "source.project", "source.version"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "disease_panel_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, UtilsNew.generateFileNameDownload("disease_panel", this.opencgaSession, ".txt"), "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), UtilsNew.generateFileNameDownload("disease_panel", this.opencgaSession, ".json"), "application/json");
                     }
                 } else {
                     console.error("Error in result format");

@@ -20,8 +20,8 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/text-field-filter.js";
 import "./disorder-manager.js";
-import "./disorder-create.js";
-import "./disorder-update.js";
+import "../disorder/disorder-create.js";
+import "../disorder/disorder-update.js";
 import "../../../core/utilsNew.js";
 
 export default class DisorderListUpdate extends LitElement {
@@ -147,12 +147,12 @@ export default class DisorderListUpdate extends LitElement {
     }
 
     renderItems(disorders) {
-        if (UtilsNew.isEmptyArray(disorders)) {
-            return html `
-                <div class="alert alert-info">
-                    <strong>Empty</strong>, Create a new disorder
-                </div>`;
-        }
+        // if (UtilsNew.isEmptyArray(disorders)) {
+        //     return html `
+        //         <div class="alert alert-info">
+        //             <strong>Empty</strong>, Create a new disorder
+        //         </div>`;
+        // }
         return html`
             ${disorders?.map(item => html`
                     <li>

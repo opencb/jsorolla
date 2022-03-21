@@ -141,6 +141,8 @@ export default class RgaIndividualView extends LitElement {
             columns: this._columns,
             method: "get",
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             // Table properties
             pageSize: this._config.pageSize,

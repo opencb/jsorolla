@@ -382,16 +382,10 @@ export default class VariantBrowserFilter extends LitElement {
                         </variant-file-filter>`;
                     break;
                 case "file-quality":
-                    let depth, vaf;
-                    if (this.preparedQuery?.sampleData) {
-                        const sampleDataFilters = this.preparedQuery.sampleData.split(";");
-                        depth = sampleDataFilters.find(filter => filter.startsWith("DP"))?.split(">=")[1];
-                        vaf = sampleDataFilters.find(filter => filter.startsWith("EXT_VAF"))?.split(">=")[1];
-                    }
+                case "variant-file-sample-filter":
                     content = html`
                         <variant-file-format-filter
-                            .depth="${depth}"
-                            .vaf="${vaf}"
+                            .sampleData="${this.preparedQuery.sampleData}"
                             .opencgaSession="${this.opencgaSession}"
                             @filterChange="${e => this.onFilterChange("sampleData", e.detail.value)}">
                         </variant-file-format-filter>
@@ -443,9 +437,10 @@ export default class VariantBrowserFilter extends LitElement {
                 case "populationFrequency":
                     content = html`
                         <population-frequency-filter
-                            .populationFrequencies="${subsection.populationFrequencies || POPULATION_FREQUENCIES}"
-                            .allowedFrequencies="${subsection.allowedFrequencies}"
-                            ?showSetAll="${subsection.showSetAll}"
+                            .populationFrequencies="${subsection.params.populationFrequencies}"
+                            .allowedFrequencies="${subsection.params.allowedFrequencies}"
+                            .populationFrequencyIndexConfiguration="${subsection.params.populationFrequencyIndexConfiguration}"
+                            ?showSetAll="${subsection.params.showSetAll}"
                             .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
                             @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;

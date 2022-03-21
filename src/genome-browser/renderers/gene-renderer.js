@@ -1,339 +1,342 @@
-import UtilsNew from "../../core/utilsNew.js";
 import Renderer from "./renderer.js";
 import {SVG} from "../../core/svg.js";
 import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
+import GenomeBrowserUtils from "../genome-browser-utils.js";
+import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 
 export default class GeneRenderer extends Renderer {
 
-    constructor(args) {
-        super(args);
-        //Extend and add Backbone Events
-        Object.assign(this, Backbone.Events);
+    render(features, options) {
+        (features || []).forEach((feature, index) => {
 
-        this.fontClass = "ocb-font-roboto ocb-font-size-11";
-        this.toolTipfontClass = "ocb-tooltip-font";
+            // Prevent rendering a feature twice
+            if (options.renderedFeatures.has(feature.id)) {
+                return;
+            }
 
-        if (_.isObject(args)) {
-            Object.assign(this, args);
-        }
+            // Add this feature to the list of rendered features
+            options.renderedFeatures.add(feature.id);
 
-        this.on(this.handlers);
-    }
-
-    setFeatureConfig(configObject) {
-        Object.assign(this, configObject);
-    }
-
-    render(features, args) {
-        let _this = this;
-        let draw = function (feature) {
-            // get feature render configuration
-            _this.setFeatureConfig(_this.getDefaultConfigGene().gene);
-            let color = _.isFunction(_this.color) ? _this.color(feature) : _this.color;
-            let label = _.isFunction(_this.label) ? _this.label(feature) : _this.label;
-            let height = _.isFunction(_this.height) ? _this.height(feature) : _this.height;
-            let tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(feature) : _this.tooltipTitle;
-            let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(feature) : _this.tooltipText;
-            let infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(feature) : _this.infoWidgetId;
+            const geneColor = this.getValueFromConfig("geneColor", [feature]);
+            const geneLabel = this.getValueFromConfig("geneLabel", [feature]);
+            const geneHeight = this.getValueFromConfig("geneHeight", [feature]);
+            const geneTooltipTitle = this.getValueFromConfig("geneTooltipTitle", [feature]);
+            const geneTooltipText = this.getValueFromConfig("geneTooltipText", [feature]);
 
             // get feature genomic information
-            let start = feature.start;
-            let end = feature.end;
-            let length = (end - start) + 1;
-
-            // transform to pixel position
-            let width = length * args.pixelBase;
+            const start = feature.start;
+            const end = feature.end;
+            const length = Math.max(Math.abs((end - start) + 1), 1);
+            const width = length * options.pixelBase;
 
             // var svgLabelWidth = _this.getLabelWidth(label, args);
-            let svgLabelWidth = label.length * 6.4;
+            const svgLabelWidth = geneLabel.length * 6.4;
 
             // calculate x to draw svg rect
-            let x = _this.getFeatureX(start, args);
+            const x = GenomeBrowserUtils.getFeatureX(start, options);
 
             let maxWidth = Math.max(width, 2);
             let textHeight = 0;
-            if (args.maxLabelRegionSize > args.regionSize) {
+            if (options.labelMaxRegionSize > options.regionSize) {
                 textHeight = 9;
                 maxWidth = Math.max(width, svgLabelWidth);
             }
 
             let rowY = 0;
-            let textY = textHeight + height + 1;
-            let rowHeight = textHeight + height + 5;
+            let textY = textHeight + geneHeight + 1;
+            const rowHeight = textHeight + geneHeight + 5;
+            let foundArea = false;
 
-            while (true) {
-                if (!(rowY in args.renderedArea)) {
-                    args.renderedArea[rowY] = new FeatureBinarySearchTree();
+            while (!foundArea) {
+                if (!options.renderedArea[rowY]) {
+                    // eslint-disable-next-line no-param-reassign
+                    options.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
-
-                let foundArea;//if true, i can paint
 
                 // check if gene transcripts can be painted
                 let checkRowY = rowY;
                 let foundTranscriptsArea = true;
-                if (!_.isEmpty(feature.transcripts)) {
-                    for (let i = 0, leni = feature.transcripts.length + 1; i < leni; i++) {
-                        if (!(checkRowY in args.renderedArea)) {
-                            args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
+
+                if (Array.isArray(feature.transcripts) && feature.transcripts.length > 0) {
+                    for (let i = 0; i < feature.transcripts.length; i++) {
+                        if (!options.renderedArea[checkRowY]) {
+                            // eslint-disable-next-line no-param-reassign
+                            options.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                         }
-                        if (args.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1})) {
+                        if (options.renderedArea[checkRowY].contains({start: x, end: x + maxWidth - 1})) {
                             foundTranscriptsArea = false;
                             break;
                         }
                         checkRowY += rowHeight;
                     }
                     if (foundTranscriptsArea === true) {
-                        foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
+                        foundArea = options.renderedArea[rowY].add({
+                            start: x,
+                            end: x + maxWidth - 1,
+                        });
                     }
                 } else {
-                    foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
+                    foundArea = options.renderedArea[rowY].add({
+                        start: x,
+                        end: x + maxWidth - 1,
+                    });
                 }
 
                 // paint genes
                 if (foundArea) {
-                    let featureGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-                        "feature_id": feature.id
+                    const geneGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
+                        "feature_id": feature.id,
                     });
-                    let rect = SVG.addChild(featureGroup, "rect", {
+
+                    // Render gene rectangle
+                    SVG.addChild(geneGroup, "rect", {
                         "x": x,
                         "y": rowY,
                         "width": width,
-                        "height": height,
+                        "height": geneHeight,
                         "stroke": "#3B0B0B",
                         "stroke-width": 0.5,
-                        "fill": color,
+                        "fill": geneColor,
                         "cursor": "pointer"
                     });
 
-                    if (args.maxLabelRegionSize > args.regionSize) {
-                        let text = SVG.addChild(featureGroup, "text", {
-                            "i": i,
+                    // Render gene label
+                    if (options.labelMaxRegionSize > options.regionSize) {
+                        const geneLabelElement = SVG.addChild(geneGroup, "text", {
+                            "i": index,
                             "x": x,
                             "y": textY,
                             "fill": "black",
                             "cursor": "pointer",
-                            "class": _this.fontClass
+                            "class": this.config.fontClass
                         });
-                        text.textContent = label;
+                        geneLabelElement.textContent = geneLabel;
                     }
 
-                    $(featureGroup).qtip({
-                        content: {text: tooltipText, title: tooltipTitle},
-                        // position: {target: "mouse", adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                        position: {target: "mouse", adjust: {x: 25, y: 15}},
-                        style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
+                    // Create geoup tooltip
+                    $(geneGroup).qtip({
+                        content: {
+                            text: geneTooltipText,
+                            title: geneTooltipTitle,
+                        },
+                        position: {
+                            target: "mouse",
+                            adjust: {x: 25, y: 15},
+                        },
+                        style: {
+                            width: true,
+                            classes: this.config.toolTipfontClass + " ui-tooltip ui-tooltip-shadow",
+                        },
                         show: {delay: 300},
                         hide: {delay: 300}
                     });
 
-
-                    featureGroup.addEventListener("click", function (e) {
-                        _this.trigger("feature:click", {
-                            query: feature[infoWidgetId],
+                    geneGroup.addEventListener("click", event => {
+                        this.trigger("feature:click", {
+                            query: feature[this.config.infoWidgetId],
                             feature: feature,
                             featureType: "gene",
-                            clickEvent: e
+                            clickEvent: event,
                         });
                     });
 
-                    //paint transcripts
+                    // paint transcripts
                     let checkRowY = rowY + rowHeight;
                     let checkTextY = textY + rowHeight;
-                    if (!_.isEmpty(feature.transcripts)) {
-                        /* warning not change var i */
-                        for (var i = 0, leni = feature.transcripts.length; i < leni; i++) { /*Loop over transcripts*/
-                            if (!(checkRowY in args.renderedArea)) {
-                                args.renderedArea[checkRowY] = new FeatureBinarySearchTree();
+                    if (Array.isArray(feature.transcripts) && feature.transcripts.length > 0) {
+                        // warning not change var i
+                        // for (var i = 0, leni = feature.transcripts.length; i < leni; i++) {
+                        feature.transcripts.forEach((transcript, transcriptIndex) => {
+                            if (!options.renderedArea[checkRowY]) {
+                                // eslint-disable-next-line no-param-reassign
+                                options.renderedArea[checkRowY] = new FeatureBinarySearchTree();
                             }
-                            let transcript = feature.transcripts[i];
-                            let transcriptX = _this.getFeatureX(transcript.start, args);
-                            let transcriptWidth = (transcript.end - transcript.start + 1) * ( args.pixelBase);
 
-                            //get type settings object
-                            _this.setFeatureConfig(_this.getDefaultConfigGene().transcript);
-                            let transcriptColor = _.isFunction(_this.color) ? _this.color(transcript) : _this.color;
-                            let label = _.isFunction(_this.label) ? _this.label(transcript) : _this.label;
-                            let height = _.isFunction(_this.height) ? _this.height(transcript) : _this.height;
-                            let tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(transcript) : _this.tooltipTitle;
-                            let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(transcript) : _this.tooltipText;
-                            let infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(transcript) : _this.infoWidgetId;
+                            const transcriptX = GenomeBrowserUtils.getFeatureX(transcript.start, options);
+                            const transcriptWidth = (transcript.end - transcript.start + 1) * options.pixelBase;
 
-                            //the length of the end of the gene is subtracted to the beginning of the transcript and is added the text of the transcript
+                            const transcriptColor = this.getValueFromConfig("transcriptColor", [transcript]);
+                            const transcriptLabel = this.getValueFromConfig("transcriptLabel", [transcript]);
+                            const transcriptHeight = this.getValueFromConfig("transcriptHeight", [transcript]);
+                            const transcriptTooltipTitle = this.getValueFromConfig("transcriptTooltipTitle", [transcript]);
+                            const transcriptTooltipText = this.getValueFromConfig("transcriptTooltipText", [transcript]);
 
-                            let svgLabelWidth = label.length * 6.4;
-                            let maxWidth = Math.max(width, width - ((feature.end - transcript.start) * ( args.pixelBase)) + svgLabelWidth);
+                            // the length of the end of the gene is subtracted to the beginning of the transcript and is added the text of the transcript
+                            const transcriptLabelWidth = transcriptLabel.length * 6.4;
+                            // const transcriptMaxWidth = Math.max(
+                            //     transcriptWidth,
+                            //     transcriptWidth - ((feature.end - transcript.start) * options.pixelBase) + transcriptLabelWidth
+                            // );
 
-
-                            //add to the tree the transcripts size
-                            args.renderedArea[checkRowY].add({start: x, end: x + maxWidth - 1});
-
-
-                            let transcriptGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
-                                "data-widget-id": transcript[infoWidgetId],
-                                "data-transcript-idx": i
+                            // add to the tree the transcripts size
+                            options.renderedArea[checkRowY].add({
+                                start: x,
+                                end: x + maxWidth - 1,
                             });
 
+                            const transcriptGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
+                                "data-widget-id": transcript[this.config.infoWidgetId],
+                                "data-transcript-idx": transcriptIndex,
+                            });
 
-                            let rect = SVG.addChild(transcriptGroup, "rect", {//this rect its like a line
+                            // Transcript line
+                            SVG.addChild(transcriptGroup, "rect", {
                                 "x": transcriptX,
                                 "y": checkRowY + 1,
                                 "width": transcriptWidth,
-                                "height": height,
+                                "height": transcriptHeight,
                                 "fill": "gray",
                                 "cursor": "pointer",
-                                "feature_id": transcript.id
+                                "feature_id": transcript.id,
                             });
-                            let text = SVG.addChild(transcriptGroup, "text", {
+
+                            // Transcript label element
+                            const transcriptLabelElement = SVG.addChild(transcriptGroup, "text", {
                                 "x": transcriptX,
                                 "y": checkTextY,
                                 "fill": "black",
                                 "cursor": "pointer",
-                                "class": _this.fontClass
+                                "class": this.config.fontClass,
                             });
-                            text.textContent = label;
+                            transcriptLabelElement.textContent = transcriptLabel;
 
-
+                            // Transcript tooltip
                             $(transcriptGroup).qtip({
-                                content: {text: tooltipText, title: tooltipTitle},
-                                // position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                                position: {target: "mouse", adjust: {x: 25, y: 15}},
-                                style: {width: true, classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
+                                content: {
+                                    text: transcriptTooltipText,
+                                    title: transcriptTooltipTitle,
+                                },
+                                position: {
+                                    target: "mouse",
+                                    adjust: {x: 25, y: 15},
+                                },
+                                style: {
+                                    width: true,
+                                    classes: this.config.toolTipfontClass + " ui-tooltip ui-tooltip-shadow",
+                                },
                                 show: {delay: 300},
                                 hide: {delay: 300}
                             });
 
-                            transcriptGroup.addEventListener("click", function (e) {
-                                // var query = this.getAttribute('data-widget-id');
-                                // var idx = this.getAttribute("data-transcript-idx");
-                                // _this.trigger('feature:click', {
-                                //     query: query,
-                                //     feature: feature.transcripts[idx],
-                                //     featureType: 'transcript',
-                                //     clickEvent: event
-                                // });
-                            });
+                            // paint exons
+                            // for (let e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++) {
+                            (transcript.exons || []).forEach((exon, exonIndex) => {
+                                const exonStart = parseInt(exon.start);
+                                const exonEnd = parseInt(exon.end);
+                                const middle = options.width / 2;
 
+                                const exonX = options.pixelPosition + middle - ((options.position - exonStart) * options.pixelBase);
+                                const exonWidth = (exonEnd - exonStart + 1) * options.pixelBase;
 
-                            //paint exons
-                            for (let e = 0, lene = feature.transcripts[i].exons.length; e < lene; e++) {
-                                let exon = feature.transcripts[i].exons[e];
-                                let exonStart = parseInt(exon.start);
-                                let exonEnd = parseInt(exon.end);
-                                let middle = args.width / 2;
+                                const exonColor = this.getValueFromConfig("exonColor", [exon, transcript]);
+                                // const exonLabel = this.getValueFromConfig("exonLabel", [exon, transcript]);
+                                const exonHeight = this.getValueFromConfig("exonHeight", [exon, transcript]);
+                                const exonTooltipTitle = this.getValueFromConfig("exonTooltipTitle", [exon, transcript]);
+                                const exonTooltipText = this.getValueFromConfig("exonTooltipText", [exon, transcript]);
 
-                                let exonX = args.pixelPosition + middle - ((args.position - exonStart) * args.pixelBase);
-                                let exonWidth = (exonEnd - exonStart + 1) * ( args.pixelBase);
-
-
-                                _this.setFeatureConfig(_this.getDefaultConfigGene().exon);
-                                let color = _.isFunction(_this.color) ? _this.color(exon) : _this.color;
-                                let label = _.isFunction(_this.label) ? _this.label(exon) : _this.label;
-                                let height = _.isFunction(_this.height) ? _this.height(exon) : _this.height;
-                                let tooltipTitle = _.isFunction(_this.tooltipTitle) ? _this.tooltipTitle(exon) : _this.tooltipTitle;
-                                let tooltipText = _.isFunction(_this.tooltipText) ? _this.tooltipText(exon, transcript) : _this.tooltipText;
-                                let infoWidgetId = _.isFunction(_this.infoWidgetId) ? _this.infoWidgetId(exon) : _this.infoWidgetId;
-
-                                let exonGroup = SVG.addChild(args.svgCanvasFeatures, "g", {
+                                const exonGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
                                     "class": "ocb-coding",
-                                    "data-id": exon.id
+                                    "data-id": exon.id,
+                                    "data-exon-index": exonIndex,
                                 });
 
                                 $(exonGroup).qtip({
-                                    content: {text: tooltipText, title: tooltipTitle},
-                                    // position: {target: 'mouse', adjust: {x: 15, y: 0}, viewport: $(window), effect: false},
-                                    position: {target: "mouse", adjust: {x: 25, y: 15}},
+                                    content: {
+                                        text: exonTooltipText,
+                                        title: exonTooltipTitle,
+                                    },
+                                    position: {
+                                        target: "mouse",
+                                        adjust: {x: 25, y: 15},
+                                    },
                                     style: {
                                         width: true,
-                                        classes: _this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"
+                                        classes: this.config.toolTipfontClass + " ui-tooltip ui-tooltip-shadow",
                                     },
                                     show: {delay: 300},
                                     hide: {delay: 300}
                                 });
 
-                                exonGroup.addEventListener("click", function (e) {
-                                    // console.log(this.dataset.id);
-                                    // var query = this.getAttribute('data-widget-id');
-                                    // var idx = this.getAttribute("data-transcript-idx");
-                                    // _this.trigger('feature:click', {
-                                    //     query: query,
-                                    //     feature: feature.transcripts[idx],
-                                    //     featureType: 'transcript',
-                                    //     clickEvent: event
-                                    // });
-                                });
-
-
                                 // Paint exons in white without coding region
-                                let eRect = SVG.addChild(exonGroup, "rect", {
-                                    "i": i,
+                                SVG.addChild(exonGroup, "rect", {
+                                    "i": transcriptIndex,
                                     "x": exonX,
                                     "y": checkRowY - 1,
                                     "width": exonWidth,
-                                    "height": height,
+                                    "height": exonHeight,
                                     "stroke": "gray",
                                     "stroke-width": 1,
-                                    "fill": "white",
-                                    "cursor": "pointer"
+                                    "fill": exonColor,
+                                    "cursor": "pointer",
                                 });
 
-                                let codingLength = exon.genomicCodingEnd - exon.genomicCodingStart;
-                                let codingX = args.pixelPosition + middle - ((args.position - exon.genomicCodingStart) * args.pixelBase);
-                                let codingReverseX = args.pixelPosition + middle - ((args.position - exon.genomicCodingEnd) * args.pixelBase);
-                                let codingWidth = (codingLength + 1) * (args.pixelBase);
+                                const codingLength = exon.genomicCodingEnd - exon.genomicCodingStart;
+                                const codingX = options.pixelPosition + middle - ((options.position - exon.genomicCodingStart) * options.pixelBase);
+                                const codingReverseX = options.pixelPosition + middle - ((options.position - exon.genomicCodingEnd) * options.pixelBase);
+                                const codingWidth = (codingLength + 1) * (options.pixelBase);
+
                                 if (codingLength > 0) {
-                                    let cRect = SVG.addChild(exonGroup, "rect", {
-                                        "i": i,
+                                    SVG.addChild(exonGroup, "rect", {
+                                        "i": transcriptIndex,
                                         "x": codingX,
                                         "y": checkRowY - 1,
                                         "width": codingWidth,
-                                        "height": height,
+                                        "height": exonHeight,
                                         "stroke": transcriptColor,
                                         "stroke-width": 1,
                                         "fill": transcriptColor,
-                                        "cursor": "pointer"
+                                        "cursor": "pointer",
                                     });
-                                    if (args.pixelBase > 9.5 && transcript.proteinSequence !== null && exon.phase !== null) {
+
+                                    if (options.pixelBase > 9.5 && transcript.proteinSequence && exon.phase) {
                                         // FIXME This fixes a Cellbase bug, phase=0 are not returned, we have to remove this when fixed
-                                        if (typeof exon.phase === "undefined") {
-                                            exon.phase = 0;
+                                        // const exonPhase = exon.phase || 0;
+
+                                        let proteinString = "";
+                                        let proteinPhaseOffset, sign;
+
+                                        if (exon.strand === "+" || exon.strand > 0) {
+                                            proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.floor(exon.cdsEnd / 3));
+                                            proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * options.pixelBase);
+                                            sign = 1;
+
+                                        // } else if (exon.strand === "-") {
+                                        } else {
+                                            proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.ceil(exon.cdsEnd / 3));
+                                            proteinPhaseOffset = codingReverseX - (options.pixelBase * 2) - (exon.phase * options.pixelBase);
+                                            sign = - 1;
                                         }
 
-                                        if (exon.strand === "+") {
-                                            /* not change var x let*/
-                                            var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.floor(exon.cdsEnd / 3));
-                                            var proteinPhaseOffset = codingX - (((3 - exon.phase) % 3) * args.pixelBase);
-                                            var sign = 1;
-
-                                        } else if (exon.strand === "-") {
-                                            var proteinString = transcript.proteinSequence.substring(Math.floor(exon.cdsStart / 3), Math.ceil(exon.cdsEnd / 3));
-                                            var proteinPhaseOffset = codingReverseX - (args.pixelBase * 2) - (exon.phase * args.pixelBase);
-                                            var sign = -1;
-                                        }
-
+                                        // Render protein sequence
                                         for (let j = 0; j < proteinString.length; j++) {
-                                            let codonRect = SVG.addChild(exonGroup, "rect", {
-                                                "x": proteinPhaseOffset + (sign * args.pixelBase * 3 * j ),
+                                            const codon = proteinString.charAt(j);
+                                            const codonConfig = GenomeBrowserConstants.CODON_CONFIG[codon];
+
+                                            SVG.addChild(exonGroup, "rect", {
+                                                "x": proteinPhaseOffset + (sign * options.pixelBase * 3 * j),
                                                 "y": checkRowY - 1,
-                                                "width": (args.pixelBase * 3),
-                                                "height": height,
+                                                "width": options.pixelBase * 3,
+                                                "height": exonHeight,
                                                 "stroke": "#3B0B0B",
                                                 "stroke-width": 0.5,
-                                                "fill": CODON_CONFIG[proteinString.charAt(j)].color,
+                                                "fill": codonConfig.color,
                                                 "class": "ocb-codon"
                                             });
-                                            let codonText = SVG.addChild(exonGroup, "text", {
-                                                "x": proteinPhaseOffset + (sign * args.pixelBase * j * 3) + args.pixelBase / 3,
+
+                                            // Codon text
+                                            const codonText = SVG.addChild(exonGroup, "text", {
+                                                "x": proteinPhaseOffset + (sign * options.pixelBase * j * 3) + options.pixelBase / 3,
                                                 "y": checkRowY - 3,
-                                                "width": (args.pixelBase * 3),
-                                                "class": "ocb-font-ubuntumono ocb-font-size-16 ocb-codon"
+                                                "width": options.pixelBase * 3,
+                                                "class": "ocb-font-ubuntumono ocb-font-size-16 ocb-codon",
                                             });
-                                            codonText.textContent = CODON_CONFIG[proteinString.charAt(j)].text;
+                                            codonText.textContent = codonConfig.text;
                                         }
                                     }
 
                                     // Draw phase only at zoom 100, where this.pixelBase < 11
-                                    //if (args.pixelBase < 11 && exon.phase != null && exon.phase != -1) {
+                                    // if (args.pixelBase < 11 && exon.phase != null && exon.phase != -1) {
                                     //    for (var p = 0, lenp = 3 - exon.phase; p < lenp; p++) {
                                     //        SVG.addChild(exonGroup, "rect", {
                                     //            "i": i,
@@ -347,164 +350,51 @@ export default class GeneRenderer extends Renderer {
                                     //            "cursor": "pointer"
                                     //        });
                                     //    }
-                                    //}
+                                    // }
                                 }
-                            }
+                            });
+
                             checkRowY += rowHeight;
                             checkTextY += rowHeight;
-                        }
-                    }// if transcrips != null
+                        });
+                    }
+
                     break;
                 }
+
                 rowY += rowHeight;
                 textY += rowHeight;
             }
-        };
-
-        //process features
-        for (let i = 0, leni = features.length; i < leni; i++) {
-            draw(features[i]);
-        }
+        });
     }
 
-    getDefaultConfigGene() {
+    getDefaultConfig() {
         return {
-            gene: {
-                label(f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    var str = "";
-                    str += (f.strand < 0 || f.strand == '-') ? "<" : "";
-                    str += " " + name + " ";
-                    str += (f.strand > 0 || f.strand == '+') ? ">" : "";
-                    if (f.biotype != null && f.biotype != '') {
-                        str += " [" + f.biotype + "]";
-                    }
-                    return str;
-                },
-                tooltipTitle(f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    var formatTitle = 'Gene';
-                    if (formatTitle) {
-                        formatTitle.replace(/_/gi, " ");
-                        formatTitle = formatTitle.charAt(0).toUpperCase() + formatTitle.slice(1);
-                    }
+            // Global configuration
+            infoWidgetId: "id",
+            histogramColor: "lightblue",
 
-                    return formatTitle + ' - <span class="ok">' + name + '</span>';
-                },
-                tooltipText(f) {
-                    var color = GENE_BIOTYPE_COLORS[f.biotype];
-                    var strand = (f.strand != null) ? f.strand : "NA";
-                    const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
-                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
-                    return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
-                        'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
-                        region +
-                        'source:&nbsp;<span class="ssel">' + f.source + '</span><br><br>' +
-                        'description:&nbsp;<span class="emph">' + f.description + '</span><br>';
-                },
-                color(f) {
-                    return GENE_BIOTYPE_COLORS[f.biotype];
-                },
-                infoWidgetId: "id",
-                height: 4,
-                histogramColor: "lightblue",
-            },
-            transcript: {
-                label(f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    var str = "";
-                    str += (f.strand < 0) ? "<" : "";
-                    str += " " + name + " ";
-                    str += (f.strand > 0) ? ">" : "";
-                    if (f.biotype != null && f.biotype != '') {
-                        str += " [" + f.biotype + "]";
-                    }
-                    return str;
-                },
-                tooltipTitle(f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    var formatTitle = 'Transcript';
-                    if (formatTitle) {
-                        formatTitle.replace(/_/gi, " ");
-                        formatTitle = formatTitle.charAt(0).toUpperCase() + formatTitle.slice(1);
-                    }
-                    return formatTitle +
-                        ' - <span class="ok">' + name + '</span>';
-                },
-                tooltipText(f) {
-                    var color = GENE_BIOTYPE_COLORS[f.biotype];
-                    var strand = (f.strand != null) ? f.strand : "NA";
-                    const region = `start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>` +
-                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
-                    return 'id:&nbsp;<span class="ssel">' + f.id + '</span><br>' +
-                        'biotype:&nbsp;<span class="emph" style="color:' + color + ';">' + f.biotype + '</span><br>' +
-                        'description:&nbsp;<span class="emph">' + f.description + '</span><br>' +
-                        region;
-                },
-                color(f) {
-                    return GENE_BIOTYPE_COLORS[f.biotype];
-                },
-                infoWidgetId: "id",
-                height: 1,
-                histogramColor: "lightblue",
-            },
-            exon: {
-                label(f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    return name;
-                },
-                tooltipTitle(f) {
-                    var name = (f.name != null) ? f.name : f.id;
-                    if (name == null) {
-                        name = '';
-                    }
-                    var formatTitle = 'Exon';
-                    if (formatTitle) {
-                        formatTitle.replace(/_/gi, " ");
-                        formatTitle = formatTitle.charAt(0).toUpperCase() + formatTitle.slice(1);
-                    }
-                    return formatTitle + ' - <span class="ok">' + name + '</span>';
-                },
-                tooltipText(e, t) {
-                    // return FEATURE_TYPES.getTipCommons(e) + FEATURE_TYPES._getSimpleKeys(e);
-                    let color = GENE_BIOTYPE_COLORS[t.biotype];
-                    var strandE = (e.strand != null) ? e.strand : "NA";
-                    const region = `start-end:&nbsp;<span style="font-weight: bold">${e.start}-${e.end} (${strandE})</span><br>` +
-                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(e.end - e.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
-                    var strandT = (t.strand != null) ? t.strand : "NA";
-                    const regionT = `start-end:&nbsp;<span style="font-weight: bold">${t.start}-${t.end} (${strandT})</span><br>` +
-                        `length:&nbsp;<span style="font-weight: bold; color:#005fdb">${(t.end - t.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}</span><br>`;
+            // Gene configuration
+            geneLabel: GenomeBrowserUtils.geneLabelFormatter,
+            geneTooltipTitle: GenomeBrowserUtils.geneTooltipTitleFormatter,
+            geneTooltipText: GenomeBrowserUtils.geneTooltipTextFormatter,
+            geneColor: GenomeBrowserUtils.geneColorFormatter,
+            geneHeight: 4,
 
-                    var simpleKey = '';
-                    for (let key in e) {
-                        if (key == 'start' || key == 'end' || key == 'id' || key == 'name' || key == 'length') {
-                            continue;
-                        }
-                        if (_.isNumber(e[key]) || _.isString(e[key])) {
-                            simpleKey += key + ':&nbsp;<span style="font-weight: bold">' + e[key] + '</span><br>'
-                        }
-                    }
+            // Transcript configuration
+            transcriptLabel: GenomeBrowserUtils.geneLabelFormatter,
+            transcriptTooltipTitle: GenomeBrowserUtils.transcriptTooltipTitleFormatter,
+            transcriptTooltipText: GenomeBrowserUtils.geneTooltipTextFormatter,
+            transcriptColor: GenomeBrowserUtils.geneColorFormatter,
+            transcriptHeight: 1,
 
-                    return `Transcript:<br>
-                    <div style="padding-left: 10px">
-                        id:&nbsp;<span class="ssel">${t.id}</span><br>
-                        biotype:&nbsp;<span class="emph" style="color:${color};">${t.biotype}</span><br>
-                        description:&nbsp;<span class="emph">${t.description}</span><br>
-                        ${regionT}<br>
-                    </div>
-                    Exon:<br>
-                    <div style="padding-left: 10px">
-                        ${region}${simpleKey}
-                    </div>
-                    `;
-                },
-                color(f) {
-                    return "black";
-                },
-                infoWidgetId: "id",
-                height: 7,
-                histogramColor: "lightblue"
-            },
+            // Exon configuration
+            exonLabel: GenomeBrowserUtils.exonLabelFormatter,
+            exonTooltipTitle: GenomeBrowserUtils.exonTooltipTitleFormatter,
+            exonTooltipText: GenomeBrowserUtils.exonTooltipTextFormatter,
+            exonColor: "#ffffff",
+            exonHeight: 7,
         };
     }
+
 }

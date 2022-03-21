@@ -96,6 +96,10 @@ export default class BioinfoUtils {
             }
         }
 
+        if (id?.startsWith("HGNC:")) {
+            return `https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/${id}`;
+        }
+
         // create +/- 5,000 bp region
         const split = location.split(new RegExp("[:-]"));
         const region = split[0] + ":" + (Number(split[1]) - 5000) + "-" + (Number(split[2]) + 5000);
