@@ -144,7 +144,9 @@ export default class OpencgaExport extends LitElement {
         $(`#${viewId} > .content-tab-wrapper > .content-tab`, this).removeClass("active");
         $("#" + this._prefix + tabId, this).addClass("active");
         for (const tab in this.activeTab[viewId]) {
-            this.activeTab[viewId][tab] = false;
+            if (Object.prototype.hasOwnProperty.call(this.activeTab[viewId], tab)) {
+                this.activeTab[viewId][tab] = false;
+            }
         }
         this.activeTab[viewId][tabId] = true;
         this.requestUpdate();
@@ -180,16 +182,22 @@ export default class OpencgaExport extends LitElement {
             case "url":
                 return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
             case "curl":
-                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
+                return `curl -X GET --header "Accept: application/json" --header "Authorization: \
+                Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
             case "wget":
                 return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
             case "cli":
                 // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
-                const client = this.config.resource === "VARIANT" ? "variant" : this.resourceMap[this.config.resource];
+                let client = this.resourceMap[this.config.resource];
+                let method = this.method;
+                if (this.config.resource === "CLINICAL_VARIANT") {
+                    client = "clinical";
+                    method = "variant-query";
+                }
                 const params = {...q};
                 params.token = params.sid;
                 delete params.sid;
-                return `opencga.sh ${client} ${this.method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
             case "js":
                 return this.generateJs();
             case "python":
@@ -215,7 +223,8 @@ export default class OpencgaExport extends LitElement {
         const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
+${this.resourceMap[this.config.resource]} = \
+${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
         return this.lineSplitter(str);
     }
 
