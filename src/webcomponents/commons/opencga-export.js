@@ -52,6 +52,8 @@ export default class OpencgaExport extends LitElement {
             code: {cli: true}
         };
 
+        this.limit = 10; // fixed limit
+
         this.resourceMap = {
             "VARIANT": "variants",
             "CLINICAL_VARIANT": "clinical",
@@ -157,7 +159,7 @@ export default class OpencgaExport extends LitElement {
             return "OpencgaSession not available";
         }
 
-        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: 10};
+        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: this.limit};
         if (this.config.resource === "FILE") {
             q = {...q, type: this.config.resource};
         }
@@ -178,11 +180,16 @@ export default class OpencgaExport extends LitElement {
             case "url":
                 return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
             case "curl":
-                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}/"`;
+                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
             case "wget":
                 return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
             case "cli":
-                return `opencga.sh ${this.resourceMap[this.config.resource]} ${this.method} ${Object.entries(q).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
+                const client = this.config.resource === "VARIANT" ? "variant" : this.resourceMap[this.config.resource];
+                const params = {...q};
+                params.token = params.sid;
+                delete params.sid;
+                return `opencga.sh ${client} ${this.method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
             case "js":
                 return this.generateJs();
             case "python":
@@ -193,7 +200,7 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateR() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const clientsName = {
             "VARIANT": "variantClient",
             "CLINICAL_VARIANT": "variantClient",
@@ -213,7 +220,7 @@ ${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}
     }
 
     generatePython() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `
 from pyopencga.opencga_config import ClientConfiguration
 from pyopencga.opencga_client import OpencgaClient
@@ -226,7 +233,7 @@ print(${this.resourceMap[this.config.resource]}.get_responses())`;
     }
 
     generateJs() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `
 import {OpenCGAClient} from "./opencga-client.js";
 const username = "${this.opencgaSession.user.id}";
