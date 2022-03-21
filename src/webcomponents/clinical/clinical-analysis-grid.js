@@ -340,7 +340,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     onActionClick(e, _, row) {
         const {action} = e.currentTarget.dataset;
         if (action === "delete") {
-            // TODO we need to remove SWAL ASAP.
+            // TODO we need to remove SWAL ASAP
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
