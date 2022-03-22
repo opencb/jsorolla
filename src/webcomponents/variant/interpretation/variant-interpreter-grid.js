@@ -300,7 +300,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
 
                             // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
-                            if (!this.opencgaSession.project.internal.cellbase.version.startsWith("v5.1")) {
+                            if (!this.opencgaSession.project.internal?.cellbase?.version.startsWith("v5.1")) {
                                 const geneSet = new Set();
                                 for (const variant of res.responses[0].results) {
                                     variant.annotation.consequenceTypes
