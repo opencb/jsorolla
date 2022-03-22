@@ -316,7 +316,7 @@ export default class OpencgaFileGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "files_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
