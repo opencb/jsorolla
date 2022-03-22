@@ -99,9 +99,6 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
 
-// SETTINGS
-import DISEASE_PANEL_BROWSER_SETTINGS from "./conf/disease-panel-browser.settings.js";
-
 class IvaApp extends LitElement {
 
     constructor() {
