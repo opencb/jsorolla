@@ -105,19 +105,31 @@ export default class OpencgaExport extends LitElement {
      * Build this.exportFields, which is a 1 or 2 dimensional array to keep track of the fields to include/exclude in TSV files.
      */
     buildExportFieldList() {
-
-        // avoid rebuilding of exportFields. That would make lose the current state.
-        if (this.exportFields) return;
+        // check if the column list has changed. If not, avoid rebuilding of exportFields. That would make lose the current state.
+        // we can't use UtilsNew.objectCompare here as gridColumns in some browsers has circular structure.
+        if (JSON.stringify(this.config.gridColumns.flatMap(c => Array.isArray(c) ? c.map(x => x.id) : c.id)) === this.currentGridColumns) {
+            return;
+        } else {
+            this.currentGridColumns = JSON.stringify(this.config.gridColumns.flatMap(c => Array.isArray(c) ? c.map(x => x.id) : c.id));
+        }
 
         let subIndx = 0; // offset in second row
-        const [firstRow, secondRow] = this.config.gridColumns;
+        let firstRow;
+        let secondRow = [];
+        // check if 1D or 2D array
+        if (Array.isArray(this.config.gridColumns) && Array.isArray(this.config.gridColumns[0])) {
+            [firstRow, secondRow] = this.config.gridColumns;
+        } else {
+            firstRow = this.config.gridColumns;
+        }
+
         this.exportFields = [];
 
-        /* Building the exportFields array. Each element has the form:
-            - id
-            - children // nested list elements
-            - export // flag to keeps the state during TSV export (false won't be included as column)
-            - excludeFromExport // flat to totally exclude grid columns from the list in this component and in the TSV (Action, checkboxes)
+        /* Building `exportFields` array. Each element has the form:
+            - {String} id: id of the column
+            - {Array} children: nested list elements
+            - {Boolean} export: flag to keeps the state for the TSV export (false won't be included as column in the file)
+            - {Boolean} excludeFromExport: flag to totally exclude the column from the list in this component and in the TSV (e.g. Action, checkboxes)
          */
         firstRow.filter(f => f?.visible !== false).forEach((c, i) => {
             if (c.rowspan !== 2 || !c.rowspan) {
