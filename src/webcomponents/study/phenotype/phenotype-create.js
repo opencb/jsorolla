@@ -91,7 +91,7 @@ export default class PhenotypeCreate extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                classes: "pull-right"
+                // classes: "pull-right"
             },
             display: {
                 labelWidth: 3,

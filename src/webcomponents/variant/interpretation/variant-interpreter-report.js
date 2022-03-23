@@ -151,17 +151,24 @@ class VariantInterpreterReport extends LitElement {
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
+                hrdetect: null,
             };
 
-            const filesQuery = {
-                sampleIds: [somaticSample.id, germlineSample.id].join(","),
-                limit: 100,
-                study: this.opencgaSession.study.fqn,
-            };
+            const allPromises = [
+                this.opencgaSession.opencgaClient.files().search({
+                    sampleIds: [somaticSample.id, germlineSample.id].join(","),
+                    limit: 100,
+                    study: this.opencgaSession.study.fqn,
+                }),
+                this.opencgaSession.opencgaClient.samples().info(somaticSample.id, {
+                    include: "annotationSets",
+                    study: this.opencgaSession.study.fqn,
+                }),
+            ];
 
-            return this.opencgaSession.opencgaClient.files().search(filesQuery)
-                .then(response => {
-                    const files = response.responses[0].results;
+            return Promise.all(allPromises)
+                .then(values => {
+                    const files = values[0].responses[0].results;
 
                     // Get processing alignment info from one BAM file
                     const bamFile = files.find(f => f.format === "BAM");
@@ -216,6 +223,14 @@ class VariantInterpreterReport extends LitElement {
                     }
                     if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
                         this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
+                    }
+
+                    // Add HRDetect value (if provided)
+                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
+                        return item.id === "hrdetectStats";
+                    });
+                    if (hrdetectStats) {
+                        this._data.hrdetect = hrdetectStats.annotations.probability;
                     }
 
                     // End filling report data
@@ -646,7 +661,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: false,
+                                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
@@ -715,7 +734,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["SNV", "INDEL"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -770,7 +793,11 @@ class VariantInterpreterReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...defaultGridConfig,
+                                                somatic: true,
+                                                variantTypes: ["COPY_NUMBER", "CNV"],
+                                            }}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -908,14 +935,8 @@ class VariantInterpreterReport extends LitElement {
                         },
                         {
                             title: "HRDetect",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => html`
-                                    <span>
-                                        0.998
-                                    </span>
-                                `,
-                            },
+                            field: "hrdetect",
+                            defaultValue: "Not provided",
                         },
                     ]
                 },

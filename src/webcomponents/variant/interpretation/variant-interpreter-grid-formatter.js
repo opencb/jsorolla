@@ -334,6 +334,7 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
+                const disabled = config.locked ? "disabled" : "";
                 // Evidence selected checkbox
                 const checboxHtml = `
                     <input
@@ -341,7 +342,8 @@ export default class VariantInterpreterGridFormatter {
                         ${re?.review?.select ? "checked" : ""}
                         class="${variantGrid._prefix}EvidenceReviewCheckbox"
                         data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}"
+                        ${disabled}>
                 `;
 
                 // Evidence edit button
@@ -349,7 +351,8 @@ export default class VariantInterpreterGridFormatter {
                     <button
                         class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
                         data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}">
+                        data-clinical-evidence-index="${re.index}"
+                        ${disabled}>
                         <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
                     </button>
                 `;
@@ -470,22 +473,23 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static vafGenotypeRenderer(vaf, depth, file, config) {
-        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
+        return `<span>${vaf.toFixed(3)} / ${depth}</span>`;
     }
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
         const widthPx = config?.width ? config.width : 80;
-        const refWidth = Math.max(widthPx * refFreq, 1);
+        const refWidth = widthPx * refFreq;
         const refColor = refFreq !== 0 ? "blue" : "black";
         const altWidth = widthPx - refWidth;
         const altColor = altFreq !== 0 ? "red" : "black";
-        const opacity = file?.data && file.data.FILTER === "PASS" ? 100 : 60;
-        return `<table style="width: ${widthPx}px">
-                    <tr>
-                        <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
-                        <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
-                    </tr>
-                </table>`;
+        const opacity = file?.data.FILTER === "PASS" ? 100 : 60;
+        return `
+            <table style="width: ${widthPx}px">
+                <tr>
+                    <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%; ${refWidth === 0 ? "display: none" : ""}">&nbsp;</td>
+                    <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%; ${altWidth === 0 ? "display: none" : ""}">&nbsp;</td>
+                </tr>
+            </table>`;
     }
 
     static alleleGenotypeRenderer(variant, sampleEntry, mode) {

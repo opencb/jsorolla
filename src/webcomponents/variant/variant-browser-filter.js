@@ -27,7 +27,7 @@ import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/feature-filter.js";
-import "../commons/filters/file-quality-filter.js";
+import "../commons/filters/variant-file-format-filter.js";
 import "../commons/filters/fulltext-search-accessions-filter.js";
 import "../commons/filters/go-accessions-filter.js";
 import "../commons/filters/hpo-accessions-filter.js";
@@ -382,26 +382,24 @@ export default class VariantBrowserFilter extends LitElement {
                         </variant-file-filter>`;
                     break;
                 case "file-quality":
-                    let depth, vaf;
-                    if (this.preparedQuery?.sampleData) {
-                        const sampleDataFilters = this.preparedQuery.sampleData.split(";");
-                        depth = sampleDataFilters.find(filter => filter.startsWith("DP"))?.split(">=")[1];
-                        vaf = sampleDataFilters.find(filter => filter.startsWith("EXT_VAF"))?.split(">=")[1];
-                    }
+                case "variant-file-sample-filter":
                     content = html`
-                        <file-quality-filter
-                            .filter="${this.preparedQuery.filter}"
-                            .depth="${depth}"
-                            .vaf="${vaf}"
-                            .qual="${this.preparedQuery.qual}"
+                        <variant-file-format-filter
+                            .sampleData="${this.preparedQuery.sampleData}"
                             .opencgaSession="${this.opencgaSession}"
-                            @filterChange="${e => this.onFilterChange({
-                                filter: "filter",
-                                sampleData: "sampleData",
-                                qual: "qual"
-                            }, e.detail.value)}" .config="${subsection}">
-                        </file-quality-filter>
+                            @filterChange="${e => this.onFilterChange("sampleData", e.detail.value)}">
+                        </variant-file-format-filter>
                     `;
+                    break;
+                case "variant-file-info-filter":
+                    content = html`
+                        <variant-file-info-filter
+                            .files="${subsection.params.files}"
+                            .study="${subsection.params.study || this.opencgaSession.study}"
+                            .fileData="${this.preparedQuery.fileData}"
+                            .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
+                            @filterChange="${e => this.onFilterChange("fileData", e.detail.value)}">
+                        </variant-file-info-filter>`;
                     break;
                 case "region":
                     content = html`
@@ -439,9 +437,10 @@ export default class VariantBrowserFilter extends LitElement {
                 case "populationFrequency":
                     content = html`
                         <population-frequency-filter
-                            .populationFrequencies="${subsection.populationFrequencies || POPULATION_FREQUENCIES}"
-                            .allowedFrequencies="${subsection.allowedFrequencies}"
-                            ?showSetAll="${subsection.showSetAll}"
+                            .populationFrequencies="${subsection.params.populationFrequencies}"
+                            .allowedFrequencies="${subsection.params.allowedFrequencies}"
+                            .populationFrequencyIndexConfiguration="${subsection.params.populationFrequencyIndexConfiguration}"
+                            ?showSetAll="${subsection.params.showSetAll}"
                             .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
                             @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;
@@ -552,16 +551,6 @@ export default class VariantBrowserFilter extends LitElement {
                         <variant-ext-svtype-filter
                             @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
                         </variant-ext-svtype-filter>`;
-                    break;
-                case "variant-file-info-filter":
-                    content = html`
-                        <variant-file-info-filter
-                            .files="${subsection.params.files}"
-                            .study="${subsection.params.study || this.opencgaSession.study}"
-                            .fileData="${this.preparedQuery.fileData}"
-                            .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
-                            @filterChange="${e => this.onFilterChange("fileData", e.detail.value)}">
-                        </variant-file-info-filter>`;
                     break;
                 case "caveman":
                 case "strelka":

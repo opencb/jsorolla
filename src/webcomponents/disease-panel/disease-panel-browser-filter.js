@@ -181,13 +181,19 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </template-autocomplete>`;
                 break;
-            case "feature":
+            case "genes":
                 content = html`
-                    <feature-filter
+                    <!-- <feature-filter
+                        .opencgaSession="\${this.opencgaSession}"
+                        .query=\${this.preparedQuery}
+                        @filterChange="\${e => this.onFilterChange("genes", e.detail.value)}">
+                    </feature-filter> -->
+                    <template-autocomplete
+                        .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .query=${this.preparedQuery}
-                        @filterChange="${e => this.onFilterChange("genes", e.detail.value)}">
-                    </feature-filter>`;
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </template-autocomplete>`;
                 break;
             case "region":
                 content = html`
@@ -199,11 +205,17 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                 break;
             case "categories":
                 content = html`
-                    <select-token-filter-static
-                        .config=${subsection}
+                    <!-- <select-token-filter-static
+                        .config=\${subsection}
+                        .value="\${this.preparedQuery[subsection.id]}"
+                        @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-token-filter-static> -->
+                    <template-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </select-token-filter-static>
+                    </template-autocomplete>
                 `;
                 break;
             case "tags":

@@ -19,9 +19,10 @@ import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/opencb-grid-toolbar.js";
+
 
 export default class FamilyGrid extends LitElement {
 
@@ -92,11 +93,12 @@ export default class FamilyGrid extends LitElement {
 
     renderTable() {
         // If this.individuals is provided as property we render the array directly
-        if (this.families && this.families.length > 0) {
+        if (this.families?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
         }
+        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -107,6 +109,8 @@ export default class FamilyGrid extends LitElement {
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
                 silentSort: false,
                 // Table properties
@@ -118,7 +122,6 @@ export default class FamilyGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
-                // Make Polymer components available to table formatters
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
@@ -183,7 +186,7 @@ export default class FamilyGrid extends LitElement {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("icon-plus")) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
                             this.table.bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
                             this.table.bootstrapTable("collapseRow", element[0].dataset.index);
@@ -223,7 +226,8 @@ export default class FamilyGrid extends LitElement {
             columns: this._getDefaultColumns(),
             data: this.families,
             sidePagination: "local",
-
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -233,7 +237,6 @@ export default class FamilyGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -340,7 +343,7 @@ export default class FamilyGrid extends LitElement {
         if (UtilsNew.isNotEmptyArray(value)) {
             const members = value.map(member => `<p>${member.id} (${member.sex})</p>`).join("");
             return `
-                <a tooltip-title="Members" tooltip-text="${members}"> 
+                <a tooltip-title="Members" tooltip-text="${members}">
                     ${value.length} members found
                 </a>
             `;

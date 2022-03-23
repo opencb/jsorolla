@@ -204,6 +204,8 @@ export default class KnockoutVariantView extends LitElement {
             // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config propertyparticularly tough
             uniqueId: "id",
             // pageSize: this._config.pageSize,

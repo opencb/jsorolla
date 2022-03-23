@@ -132,7 +132,7 @@ export default class StudyAdminCohort extends LitElement {
                                         <div class="btn-group">
                                             ${UtilsNew.isNotEmpty(this.cohort) ? html `
                                                 <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
-                                                    <i class="fas fa-times icon-hover"></i> Clear
+                                                    <i class="fas fa-arrow-left icon-hover"></i>  Back
                                                 </button>
                                                 <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.editForm(e)}">
                                                     <i class="${this.editCohort? "far fa-eye": "fa fa-edit"} icon-hover"></i> ${this.editCohort? "View" : "Edit"}

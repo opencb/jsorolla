@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
-import LitUtils from "./utils/lit-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaExport extends LitElement {
@@ -67,6 +66,8 @@ export default class OpencgaExport extends LitElement {
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
+
+        this.tabs = ["download", "export", "link", "script"]; // default tabs to show
     }
 
     connectedCallback() {
@@ -89,6 +90,9 @@ export default class OpencgaExport extends LitElement {
             }
             if (this.config.gridColumns) {
                 this.buildExportFieldList();
+            }
+            if (this.config.exportTabs) {
+                this.tabs = this.config.exportTabs;
             }
             this.requestUpdate();
         }
@@ -319,24 +323,26 @@ const client = new OpenCGAClient({
         return html`
             <div>
                 <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>
-                    <li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>
-                    <li><a data-toggle="tab" href="#link">Link</a></li>
-                    <li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>
+                    ${~this.tabs.indexOf("download") ? html`<li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>` : nothing}
+                    ${~this.tabs.indexOf("export") ? html`<li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>` : nothing}
+                    ${~this.tabs.indexOf("link") ? html`<li><a data-toggle="tab" href="#link">Link</a></li>` : nothing}
+                    ${~this.tabs.indexOf("code") ? html`<li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>` : nothing}
                 </ul>
             </div>
 
             <div class="tab-content">
-                <div id="${this._prefix}download" class="tab-pane active">
+                <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <form class="form-horizontal">
                         <div class="form-group" style="margin-top: 10px">
                             <div class="col-md-12">
                                 <div class="alert alert-warning" style="margin-bottom: 10px">
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <span>
-                                        <span style="font-weight: bold">Note: </span>This option will
+                                        <b>Note:</b> This option will <b>automatically download</b> the table, note that only first <b>1,000 records</b> are downloaded.
+                                        (If you need all records, please use 'Export Query')
+                                        <!-- <span style="font-weight: bold">Note: </span>This option will
                                         <span style="font-weight: bold">automatically download</span>
-                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded.
+                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded. -->
                                     </span>
                                 </div>
                             </div>
@@ -388,7 +394,7 @@ const client = new OpenCGAClient({
                     </div>
                 </div>
 
-                <div id="${this._prefix}export" class="tab-pane">
+                <div id="${this._prefix}export" class="tab-pane ${classMap({active: this.tabs[0] === "export"})}">
                     <form class="form-horizontal">
                         <div class="form-group" style="margin-top: 10px">
                             <div class="col-md-12">
@@ -441,7 +447,7 @@ const client = new OpenCGAClient({
                     </div>
                 </div>
 
-                <div id="link" class="tab-pane">
+                <div id="link" class="tab-pane ${classMap({active: this.tabs[0] === "link"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="url">URL
@@ -487,7 +493,7 @@ const client = new OpenCGAClient({
                 </div>
 
 
-                <div id="code" class="tab-pane">
+                <div id="code" class="tab-pane ${classMap({active: this.tabs[0] === "code"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="cli">CLI

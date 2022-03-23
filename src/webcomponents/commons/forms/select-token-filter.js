@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import {classMap} from "lit/directives/class-map.js";
 import "../forms/file-upload.js";
 
 /**
@@ -38,6 +37,9 @@ export default class SelectTokenFilter extends LitElement {
     static get properties() {
         return {
             value: {
+                type: String
+            },
+            classes: {
                 type: String
             },
             config: {
@@ -62,6 +64,7 @@ export default class SelectTokenFilter extends LitElement {
             tags: this._config.freeTag === true,
             multiple: this._config.multiple ?? true,
             width: "style",
+            allowClear: true,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             ajax: {
@@ -127,6 +130,15 @@ export default class SelectTokenFilter extends LitElement {
         if (_changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        if (_changedProperties.has("classes")) {
+            if (this.classes) {
+                this.select.data("select2").$selection.addClass(this.classes);
+            } else {
+                this.select.data("select2").$selection.removeClass("");
+            }
+        }
+
         if (_changedProperties.has("value")) {
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();

@@ -52,7 +52,6 @@ export default class StudyAdminConfiguration extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 

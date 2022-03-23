@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../commons/filters/sample-id-autocomplete.js";
 
@@ -50,17 +51,23 @@ export default class CohortUpdate extends LitElement {
     }
 
     _init() {
-        console.log("init variable");
         this.cohort = {};
+        this.updateParams = {};
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this.updateParams = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this.updateParams = {};
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     update(changedProperties) {
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+
         if (changedProperties.has("cohort")) {
             this.cohortObserver();
         }
@@ -93,24 +100,26 @@ export default class CohortUpdate extends LitElement {
         }
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "samples.id":
+                this.updateParams = FormUtils.updateObjectArray(
+                    this._cohort,
+                    this.cohort,
+                    this.updateParams,
+                    param,
+                    e.detail.value
+                );
+                break;
             case "id":
             case "name":
             case "description":
             case "type":
             case "creationDate":
             case "modificationDate":
+            case "status":
                 this.updateParams = FormUtils.updateScalar(
-                    this._cohort,
-                    this.cohort,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value);
-                break;
-            case "status.name":
-            case "status.description":
-                this.updateParams = FormUtils.updateObjectWithProps(
                     this._cohort,
                     this.cohort,
                     this.updateParams,
@@ -129,23 +138,23 @@ export default class CohortUpdate extends LitElement {
         this.cohortId = "";
     }
 
-    onSync(e, type) {
-        e.stopPropagation();
-        switch (type) {
-            case "samples":
-                let samples = [];
-                if (e.detail.value) {
-                    samples = e.detail.value.split(",").map(sample => {
-                        return {id: sample};
-                    });
-                }
-                this.cohort = {...this.cohort, samples: e.detail.value};
-                break;
-            case "annotationSets":
-                this.cohort = {...this.cohort, annotationSets: e.detail.value};
-                break;
-        }
-    }
+    // onSync(e, type) {
+    //     e.stopPropagation();
+    //     switch (type) {
+    //         case "samples":
+    //             let samples = [];
+    //             if (e.detail.value) {
+    //                 samples = e.detail.value.split(",").map(sample => {
+    //                     return {id: sample};
+    //                 });
+    //             }
+    //             this.cohort = {...this.cohort, samples: e.detail.value};
+    //             break;
+    //         case "annotationSets":
+    //             this.cohort = {...this.cohort, annotationSets: e.detail.value};
+    //             break;
+    //     }
+    // }
 
     onSubmit(e) {
         const params = {
@@ -153,7 +162,7 @@ export default class CohortUpdate extends LitElement {
             samplesAction: "SET",
             annotationSetsAction: "SET",
         };
-
+        // console.log("id", this.cohort.id, "update", this.updateParams);
         this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
             .then(res => {
                 this._cohort = JSON.parse(JSON.stringify(this.cohort));
@@ -183,12 +192,11 @@ export default class CohortUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            title: "Edit",
+            // title: "Edit",
             icon: "fas fa-edit",
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonClearText: "Cancel",
                 buttonOkText: "Update",
                 style: "margin: 10px",
                 titleWidth: 3,
@@ -197,6 +205,7 @@ export default class CohortUpdate extends LitElement {
             },
             sections: [
                 {
+                    title: "Cohort General Information",
                     elements: [
                         {
                             title: "Cohort ID",
@@ -206,18 +215,28 @@ export default class CohortUpdate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                helpMessage: "short cohort Id",
+                                // helpMessage: "Created on " + UtilsNew.dateFormatter(this.family.creationDate),
+                                helpMessage: this.cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this.cohort.creationDate):"No creation date",
                                 validation: {
                                 }
                             }
                         },
                         {
-                            title: "Cohort Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
+                            title: "Sample IDs",
+                            field: "samples",
+                            type: "custom",
                             display: {
-                                placeholder: "Select a cohort type..."
+                                render: samples => {
+                                    const sampleIds = Array.isArray(samples) ?
+                                        samples?.map(sample => sample.id).join(",") :
+                                        samples;
+                                    return html `
+                                    <sample-id-autocomplete
+                                        .value=${sampleIds}
+                                        .opencgaSession=${this.opencgaSession}
+                                        @filterChange="${e => this.onFieldChange(e, "samples.id")}">
+                                    </sample-id-autocomplete>`;
+                                }
                             }
                         },
                         {
@@ -230,21 +249,32 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Samples",
-                            field: "samples",
+                            title: "Status",
+                            field: "status",
                             type: "custom",
                             display: {
-                                render: samples => {
-                                    const sampleIds = samples?.map(sample => sample.id).join(",");
-                                    return html `
-                                    <sample-id-autocomplete
-                                        .value=${sampleIds}
-                                        .opencgaSession=${this.opencgaSession}
-                                        @filterChange="${e => this.onSync(e, "samples")}">
-                                    </sample-id-autocomplete>`;
-                                }
+                                render: status => html`
+                                    <status-update
+                                        .status=${status}
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    </status-update>`
                             }
                         },
+                        // {
+                        //     title: "Cohort Type",
+                        //     field: "type",
+                        //     type: "select",
+                        //     allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
+                        //     display: {
+                        //         placeholder: "Select a cohort type..."
+                        //     }
+                        // },
                         // {
                         //     title: "Creation Date",
                         //     field: "creationDate",
@@ -267,23 +297,6 @@ export default class CohortUpdate extends LitElement {
                         //             )
                         //     }
                         // },
-                        {
-                            title: "Status name",
-                            field: "status.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add status name..."
-                            }
-                        },
-                        {
-                            title: "Status Description",
-                            field: "status.description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Add a status description..."
-                            }
-                        }
                     ]
                 },
                 // {

@@ -19,9 +19,9 @@ import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "../study/phenotype/phenotype-list-update.js";
 import "../study/annotationset/annotation-set-update.js";
-import "../individual/disorder/disorder-list-update.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
+import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 
 
 export default class IndividualCreate extends LitElement {
@@ -47,41 +47,23 @@ export default class IndividualCreate extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "phenotypes":
-                this.individual = {...this.individual, phenotypes: e.detail.value};
-                break;
-            case "disorders":
-                this.individual = {...this.individual, disorders: e.detail.value};
-                break;
-            case "annotationsets":
-                this.individual = {...this.individual, annotationSets: e.detail.value};
-                break;
-            default:
-                this.individual = {
-                    ...FormUtils.createObject(
-                        this.individual,
-                        param,
-                        e.detail.value,
-                    )};
-                break;
+        if (param) {
+            this.individual = {
+                ...FormUtils.createObject(
+                    this.individual,
+                    param,
+                    e.detail.value,
+                )};
         }
-        this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
     onClear(e) {
-        console.log("onClear individual form", this);
         this.individual = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
@@ -89,12 +71,12 @@ export default class IndividualCreate extends LitElement {
 
     onSubmit(e) {
         e.stopPropagation();
+        console.log("saved", this.individual);
         this.opencgaSession.opencgaClient.individuals()
             .create(this.individual, {study: this.opencgaSession.study.fqn})
             .then(res => {
                 this.individual = {};
                 this.requestUpdate();
-                // FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Individual",
                     message: "New Individual created correctly"
@@ -105,12 +87,35 @@ export default class IndividualCreate extends LitElement {
             });
     }
 
+    onAddOrUpdateItem(e) {
+        const param = e.detail.param;
+        const value = e.detail.value;
+        if (UtilsNew.isNotEmpty(value)) {
+            switch (param) {
+                case "disorders":
+                    this.individual = {...this.individual, disorders: value};
+                    break;
+                case "phenotypes":
+                    this.individual = {...this.individual, phenotypes: value};
+                    break;
+            }
+        } else {
+            this.individual = {
+                ...this.individual,
+                [param]: []
+            };
+            delete this.individual[param];
+        }
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <data-form
                 .data=${this.individual}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${this.onSubmit}">
             </data-form>
@@ -123,23 +128,22 @@ export default class IndividualCreate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save",
-                buttonClearText: "Cancel",
+                buttonOkText: "Create",
                 titleWidth: 3,
                 with: "8",
                 defaultValue: "",
                 defaultLayout: "horizontal"
             },
-            validation: {
-                validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
-                message: "The father and mother must be different individuals",
-            },
+            // validation: {
+            //     validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
+            //     message: "The father and mother must be different individuals",
+            // },
             sections: [
                 {
                     title: "Individual General Information",
                     elements: [
                         {
-                            title: "Individual id",
+                            title: "Individual ID",
                             field: "id",
                             type: "input-text",
                             required: true,
@@ -159,7 +163,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Father id",
+                            title: "Father ID",
                             field: "father",
                             type: "custom",
                             display: {
@@ -175,14 +179,14 @@ export default class IndividualCreate extends LitElement {
                                             this.onFieldChange({
                                             detail: {
                                                 param: "father",
-                                                value: e.detail.value
+                                                value: {id: e.detail.value}
                                             }
                                         })}">
                                     </individual-id-autocomplete>`
                             }
                         },
                         {
-                            title: "Mother Id",
+                            title: "Mother ID",
                             field: "mother",
                             type: "custom",
                             display: {
@@ -198,23 +202,14 @@ export default class IndividualCreate extends LitElement {
                                             this.onFieldChange({
                                             detail: {
                                                 param: "mother",
-                                                value: e.detail.value
+                                                value: {id: e.detail.value}
                                             }
                                         })}">
                                     </individual-id-autocomplete>`
                             }
                         },
                         {
-                            title: "Sex",
-                            field: "sex",
-                            type: "select",
-                            allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
-                            display: {
-                                placeholder: "Select the sex..."
-                            }
-                        },
-                        {
-                            title: "Birth",
+                            title: "Date of Birth",
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {
@@ -225,19 +220,36 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Ethnicity",
-                            field: "ethnicity",
-                            type: "input-text",
+                            title: "Sex",
+                            field: "sex",
+                            type: "custom",
                             display: {
-                                placeholder: "Add an Ethnicity..."
+                                render: sex => html`
+                                    <ontology-term-annotation-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "sex")}
+                                    ></ontology-term-annotation-create>`
                             }
                         },
                         {
-                            title: "Parental Consanguinity",
-                            field: "parentalConsanguinity",
-                            type: "checkbox",
-                            checked: false,
-                            display: {}
+                            title: "Ethnicity",
+                            field: "ethnicity",
+                            type: "custom",
+                            display: {
+                                render: ethnicity => html`
+                                    <ontology-term-annotation-create
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange=${e => this.onFieldChange(e, "ethnicity")}>
+                                    </ontology-term-annotation-create>`
+                            }
                         },
                         {
                             title: "Karyotypic Sex",
@@ -256,7 +268,13 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 placeholder: "Select the life status..."
                             }
-                        }
+                        },
+                        {
+                            title: "Parental Consanguinity",
+                            field: "parentalConsanguinity",
+                            type: "checkbox",
+                            checked: false
+                        },
                     ]
                 },
                 {
@@ -308,7 +326,7 @@ export default class IndividualCreate extends LitElement {
                     title: "Population Info",
                     elements: [
                         {
-                            title: "Population name",
+                            title: "Population Name",
                             field: "population.name",
                             type: "input-text",
                             display: {
@@ -316,7 +334,7 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Subpopulation",
+                            title: "Sub-population",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {
@@ -324,9 +342,13 @@ export default class IndividualCreate extends LitElement {
                             }
                         },
                         {
-                            title: "populaton description",
+                            title: "Population Description",
                             field: "population.description",
                             type: "input-text",
+                            validation: {
+                                validate: () => this.individual?.population?.description ? !!this.individual?.population?.name : true,
+                                message: "The population name must be filled",
+                            },
                             display: {
                                 rows: 3,
                                 placeholder: "Add a description about the population..."
@@ -334,58 +356,143 @@ export default class IndividualCreate extends LitElement {
                         }
                     ]
                 },
+                // {
+                //     title: "Phenotypes",
+                //     elements: [
+                //         {
+                //             title: "",
+                //             type: "notification",
+                //             text: "Empty, create a new phenotype",
+                //             display: {
+                //                 visible: individual => !(individual?.phenotypes && individual?.phenotypes.length > 0),
+                //                 notificationType: "info",
+                //             }
+                //         },
+                //         {
+                //             field: "phenotypes",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: individual => html`
+                //                     <phenotype-list-update
+                //                         .phenotypes="${individual?.phenotypes}"
+                //                         @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
+                //                     </phenotype-list-update>`
+                //             }
+                //         },
+                //     ]
+                // },
                 {
                     title: "Phenotypes",
                     elements: [
                         {
-                            title: "",
-                            type: "notification",
-                            text: "Empty, create a new phenotype",
-                            display: {
-                                visible: individual => !(individual?.phenotypes && individual?.phenotypes.length > 0),
-                                notificationType: "info",
-                            }
-                        },
-                        {
+                            title: "Phenotype",
                             field: "phenotypes",
-                            type: "custom",
+                            type: "custom-list",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: individual => html`
-                                    <phenotype-list-update
-                                        .phenotypes="${individual?.phenotypes}"
-                                        @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
-                                    </phenotype-list-update>`
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                renderUpdate: (pheno, callback) => html`
+                                    <ontology-term-annotation-update
+                                        .ontology=${pheno}
+                                        .entity="${"phenotype"}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                        @updateItem="${callback}">
+                                    </ontology-term-annotation-update>
+                                `,
+                                renderCreate: (pheno, callback) => html`
+                                    <label>Create new item</label>
+                                    <ontology-term-annotation-create
+                                        .entity="${"phenotype"}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                        @addItem="${callback}">
+                                    </ontology-term-annotation-create>
+                                `
                             }
                         },
                     ]
                 },
+                // {
+                //     title: "Disorder",
+                //     elements: [
+                //         {
+                //             title: "",
+                //             type: "notification",
+                //             text: "Empty, create a new disorder",
+                //             display: {
+                //                 visible: individual => !(individual?.diosrders && individual?.disorders.length > 0),
+                //                 notificationType: "info",
+                //             }
+                //         },
+                //         {
+                //             field: "disorders",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: individual => html`
+                //                 <!-- Pass 'this.individual' to reflect the changes -->
+                //                     <disorder-list-update
+                //                         .disorders="${this.individual?.disorders}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
+                //                     </disorder-list-update>`
+                //             }
+                //         }
+                //     ]
+                // },
                 {
-                    title: "Disorder",
+                    title: "Disorders",
                     elements: [
                         {
+                            title: "Disorder",
                             field: "disorders",
-                            type: "custom",
+                            type: "custom-list",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: individual => html`
-                                <!-- Pass 'this.individual' to reflect the changes -->
-                                    <disorder-list-update
-                                        .disorders="${this.individual?.disorders}"
-                                        .evidences="${this.individual?.phenotypes}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
-                                    </disorder-list-update>`
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                renderUpdate: (disorder, callback) => html`
+                                    <ontology-term-annotation-update
+                                        .ontology=${disorder}
+                                        .entity="${"disorder"}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                        @updateItem="${callback}">
+                                    </ontology-term-annotation-update>
+                                `,
+                                renderCreate: (disorder, callback) => html`
+                                    <label>Create new item</label>
+                                    <ontology-term-annotation-create
+                                        .entity="${"disorder"}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                        @addItem="${callback}">
+                                    </ontology-term-annotation-create>
+                                `
                             }
-                        }
+                        },
                     ]
                 },
+
                 // {
                 //     title: "Annotations Sets",
                 //     elements: [

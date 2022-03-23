@@ -151,6 +151,8 @@ export default class RgaIndividualFamily extends LitElement {
             columns: this._initTableColumns(),
             method: "get",
             sidePagination: "server",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             // Table properties
             pagination: this._config.pagination,

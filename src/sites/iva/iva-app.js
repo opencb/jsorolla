@@ -54,7 +54,6 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/file/opencga-file-browser.js";
 import "../../webcomponents/family/opencga-family-browser.js";
-import "../../webcomponents/user/opencga-login.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
@@ -86,7 +85,9 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
+// import "../../webcomponents/user/user-password-reset.js";
 
 import "../../webcomponents/api/rest-api.js";
 
@@ -97,9 +98,6 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
-
-// SETTINGS
-import DISEASE_PANEL_BROWSER_SETTINGS from "./conf/disease-panel-browser.settings.js";
 
 class IvaApp extends LitElement {
 
@@ -155,6 +153,7 @@ class IvaApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
+            // "reset-password",
             "settings",
             "account",
             "projects",
@@ -303,32 +302,44 @@ class IvaApp extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        // Initialise clients and create the session
-        // this.opencgaClientConfig = new OpenCGAClientConfig(this.config.opencga.host, this.config.opencga.version, true, this.config.opencga.cookie.prefix);
-        // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
-        const sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
-        const userId = Cookies.get(this.config.opencga.cookie.prefix + "_userId");
-        this.opencgaClient = new OpenCGAClient({
-            host: this.config.opencga.host,
-            version: this.config.opencga.version,
-            token: sid,
-            userId: userId,
-            cookies: {active: true, prefix: this.config.opencga.cookie.prefix},
-            // TODO remove this soon!
-            // serverVersion: this.config.opencga.serverVersion
+        // Import server configuration from conf/server.json file (if exists)
+        // See issue https://github.com/opencb/jsorolla/issues/425
+        UtilsNew.importJSONFile("conf/server.json").then(serverConf => {
+
+            // Initialize opencga configuration
+            const opencgaHost = serverConf?.host || this.config.opencga.host;
+            const opencgaVersion = serverConf?.version || this.config.opencga.version;
+            const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
+            // console.log(opencgaHost, opencgaVersion);
+
+            // Initialise clients and create the session
+            // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
+            const sid = Cookies.get(opencgaPrefix + "_sid");
+            const userId = Cookies.get(opencgaPrefix + "_userId");
+
+            this.opencgaClient = new OpenCGAClient({
+                host: opencgaHost,
+                version: opencgaVersion,
+                token: sid,
+                userId: userId,
+                cookies: {
+                    active: true,
+                    prefix: opencgaPrefix,
+                },
+            });
+
+            this.reactomeClient = new ReactomeClient();
+
+            if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
+                // this.opencgaClient._config.token = sid;
+                this._createOpenCGASession();
+                // This must happen after creating the OpencgaClient
+                this.checkSessionActive();
+                this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
+            } else {
+                this._createOpencgaSessionFromConfig();
+            }
         });
-
-        this.reactomeClient = new ReactomeClient();
-
-        if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
-            // this.opencgaClient._config.token = sid;
-            this._createOpenCGASession();
-            // This must happen after creating the OpencgaClient
-            this.checkSessionActive();
-            this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
-        } else {
-            this._createOpencgaSessionFromConfig();
-        }
     }
 
     updated(changedProperties) {
@@ -1036,12 +1047,6 @@ class IvaApp extends LitElement {
                     text-align: justify;
                     width: 90%;
                 }
-
-                #login {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
             </style>
 
             <!-- <loading-bar></loading-bar> -->
@@ -1124,12 +1129,11 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.login ? html`
                     <div class="content" id="login">
-                        <opencga-login  .opencgaSession="${this.opencgaSession}"
-                                        loginTitle="Sign in"
-                                        .notifyEventMessage="${this.config.notifyEventMessage}"
-                                        @login="${this.onLogin}"
-                                        @route="${this.route}"></opencga-login>
-                        </opencga-login>
+                        <user-login
+                            .opencgaSession="${this.opencgaSession}"
+                            @login="${this.onLogin}"
+                            @redirect="${this.route}">
+                        </user-login>
                     </div>
                 ` : null}
 
