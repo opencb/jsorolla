@@ -24,19 +24,19 @@ context("2 - Login", () => {
     });
 
     it("2.1 - login unsuccessful: not existing user", () => {
-        cy.get("#opencgaUser").type("demouser");
-        cy.get("#opencgaPassword").type("demo2");
-        cy.get("form#formLogin").submit();
-        cy.get("#error").should("be.visible");
-        cy.get("#error").contains("Incorrect user or password");
+        cy.get("user-login .panel-body #user").type("demouser");
+        cy.get("user-login .panel-body #password").type("demo2");
+        cy.get("button.btn-primary").contains("Sign In").click();
+        cy.get(".alert.alert-danger").should("be.visible");
+        cy.get(".alert.alert-danger").contains("Incorrect user or password");
     });
 
     it("2.2 - login unsuccessful: wrong password", () => {
-        cy.get("#opencgaUser").type("testest23ml");
-        cy.get("#opencgaPassword").type("123456");
-        cy.get("form#formLogin").submit();
-        cy.get("#error").should("be.visible");
-        cy.get("#error").contains("CatalogAuthenticationException");
+        cy.get("user-login .panel-body #user").type("testest23ml");
+        cy.get("user-login .panel-body #password").type("123456");
+        cy.get("button.btn-primary").contains("Sign In").click();
+        cy.get(".alert.alert-danger").should("be.visible");
+        cy.get(".alert.alert-danger").contains("CatalogAuthenticationException");
     });
 
     it("2.3 - login successful", () => {
@@ -46,9 +46,9 @@ context("2 - Login", () => {
 
         expect(username, "username was set").to.be.a("string").and.not.be.empty;
         expect(password, "password was set").to.be.a("string").and.not.be.empty;
-        cy.get("#opencgaUser").type(username);
-        cy.get("#opencgaPassword").type(password);
-        cy.get("form#formLogin").submit();
+        cy.get("user-login .panel-body #user").type(username);
+        cy.get("user-login .panel-body #password").type(password);
+        cy.get("button.btn-primary").contains("Sign In").click();
 
         cy.get(".login-overlay", {timeout: TIMEOUT}).should("be.visible");
         cy.get(".login-overlay", {timeout: TIMEOUT}).should("not.exist");
