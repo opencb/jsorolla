@@ -21,7 +21,6 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class SampleGrid extends LitElement {
@@ -52,7 +51,7 @@ export default class SampleGrid extends LitElement {
             },
             active: {
                 type: Boolean
-            }
+            },
         };
     }
 
@@ -97,7 +96,7 @@ export default class SampleGrid extends LitElement {
 
     renderTable() {
         // If this.samples is provided as property we render the array directly
-        if (this.samples && this.samples.length > 0) {
+        if (this.samples?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -460,19 +459,16 @@ export default class SampleGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` :
-                ""
-            }
-
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : ""}
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}SampleBrowserGrid"></table>
             </div>

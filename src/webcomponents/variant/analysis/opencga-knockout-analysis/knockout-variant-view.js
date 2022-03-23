@@ -258,7 +258,7 @@ export default class KnockoutVariantView extends LitElement {
                     _.id,
                     _.dbSNP
                 ].join("\t"))];
-            UtilsNew.downloadData(dataString, "knockout_variant_view" + this.opencgaSession.study.id + ".txt", "text/plain");
+            UtilsNew.downloadData(dataString, "knockout_variant_view" + this.opencgaSession.study.id + ".tsv", "text/plain");
         } else {
             UtilsNew.downloadData(JSON.stringify(this.tableData, null, "\t"), "knockout_variant_view" + this.opencgaSession.study.id + ".json", "application/json");
         }
