@@ -112,14 +112,14 @@ context("6 - Case Interpreter", () => {
                     // checkResults("variant-interpreter-grid");
 
                     // check Disease Panel select is actually populated (but not querying for Diseases)
-                    cy.get("a[data-accordion-id=Clinical].collapsed").click();
+                    cy.get("variant-browser-filter a[data-cy-section-title=Clinical].collapsed").click();
                     cy.get("disease-panel-filter").should("be.visible");
-                    cy.get("disease-panel-filter button").click();
-                    cy.get("disease-panel-filter select-field-filter ul.dropdown-menu li").should("have.length.above", 0);
-                    cy.get("disease-panel-filter button").click();
+                    cy.get("disease-panel-filter button").first().click();
+                    cy.get("disease-panel-filter select-field-filter ul.dropdown-menu li").first().should("have.length.above", 0);
+                    cy.get("disease-panel-filter button").first().click();
 
                     // query LoF
-                    cy.get("variant-browser-filter a[data-accordion-id='ConsequenceType'].collapsed").click();
+                    cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType'].collapsed").click();
                     cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
                     cy.get("opencga-active-filters button[data-filter-name='ct']").contains("Consequence Types");
                     cy.get("div.search-button-wrapper button").click();
