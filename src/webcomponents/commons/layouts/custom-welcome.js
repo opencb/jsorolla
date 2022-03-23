@@ -107,7 +107,7 @@ export default class CustomWelcome extends LitElement {
                     const itemLink = `${item.id}${session?.project ? `/${session.project.id}/${session.study.id}`: ""}`;
                     return html`
                         <div class="col-md-3 com-sm-6">
-                            <div class="panel panel-default">
+                            <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
                                 <div class="panel-body" align="center" style="height:180px;">
                                     <a href="#${itemLink}" style="text-decoration:none!important;">
                                         <div align="center" class="">
