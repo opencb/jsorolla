@@ -208,6 +208,15 @@ export default class CohortUpdate extends LitElement {
                     title: "Cohort General Information",
                     elements: [
                         {
+                            title: "",
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.updateParams).length > 0,
+                                notificationType: "warning",
+                            }
+                        },
+                        {
                             title: "Cohort ID",
                             field: "id",
                             type: "input-text",
