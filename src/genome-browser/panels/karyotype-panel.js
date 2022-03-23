@@ -136,7 +136,7 @@ export default class KaryotypePanel {
 
         if (typeof this.chromosomeList !== "undefined") {
             this.clean();
-            this._drawSvg(this.chromosomeList, this.data2);
+            this.#drawSvg(this.chromosomeList, this.data2);
         }
     }
 
