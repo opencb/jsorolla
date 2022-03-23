@@ -34,6 +34,7 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
 
+import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
 
@@ -75,7 +76,10 @@ export default class VariantBrowser extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            cellbaseClient: {
+                type: Object,
+            },
         };
     }
 
@@ -749,6 +753,9 @@ export default class VariantBrowser extends LitElement {
                                 <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
+                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="genome-tab">
+                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Genome Browser
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -806,6 +813,27 @@ export default class VariantBrowser extends LitElement {
                                     .error="${this.errorState}">
                                 </opencb-facet-results>
                             </div>
+
+                            <div id="genome-tab" class="content-tab">
+                                <new-genome-browser
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{
+                                        cellBaseClient: this.cellbaseClient,
+                                    }}"
+                                    .region="${{
+                                        chromosome: "13",
+                                        start: 32996311,
+                                        end: 32996450,
+                                    }}"
+                                    .tracks="${[
+                                        {type: "gene-overview", overview: true, config: {}},
+                                        {type: "sequence", config: {}},
+                                        {type: "gene", config: {}},
+                                    ]}"
+                                    .active="${this.activeTab["genome-tab"]}">
+                                </new-genome-browser>
+                            </div>
+
                         </div>
                     </div>
                 </div>
