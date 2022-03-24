@@ -76,8 +76,8 @@ export default class OpencgaExport extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("query") || changedProperties.has("config")) {
             // this._config = {...this.getDefaultConfig(), ...this.config};
@@ -102,21 +102,31 @@ export default class OpencgaExport extends LitElement {
      * Build this.exportFields, which is a 1 or 2 dimensional array to keep track of the fields to include/exclude in TSV files.
      */
     buildExportFieldList() {
+
+        // avoid rebuilding of exportFields. That would make lose the current state.
+        if (this.exportFields) return;
+
         let subIndx = 0; // offset in second row
         const [firstRow, secondRow] = this.config.gridColumns;
         this.exportFields = [];
 
-        firstRow.forEach((c, i) => {
+        /* Building the exportFields array. Each element has the form:
+            - id
+            - children // nested list elements
+            - export // flag to keeps the state during TSV export (false won't be included as column)
+            - excludeFromExport // flat to totally exclude grid columns from the list in this component and in the TSV (Action, checkboxes)
+         */
+        firstRow.filter(f => f?.visible !== false).forEach((c, i) => {
             if (c.rowspan !== 2 || !c.rowspan) {
                 // add sub Level
                 const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
                 subIndx += c.colspan ? c.colspan : 0;
-                this.exportFields.push({id: c.id, export: true, nested: subFields.map(s => ({id: s.id, export: true}))});
+                this.exportFields.push({id: c.id, export: true, children: subFields.map(s => ({id: s.id, export: true, excludeFromExport: s.excludeFromExport}))});
             } else {
                 if (c.rowspan !== 2 || !c.rowspan) {
                     subIndx += c.colspan ? c.colspan : 0;
                 }
-                this.exportFields.push({id: c.id, export: true});
+                this.exportFields.push({id: c.id, export: true, excludeFromExport: c.excludeFromExport});
             }
         });
     }
@@ -213,6 +223,8 @@ print(${this.resourceMap[this.config.resource]}.get_responses())`;
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
         const str = `
 import {OpenCGAClient} from "./opencga-client.js";
+const username = "${this.opencgaSession.user.id}";
+const password = ""; // your password here
 const client = new OpenCGAClient({
     host: "${this.opencgaSession.server.host}",
     version: "v2",
@@ -220,12 +232,12 @@ const client = new OpenCGAClient({
 });
 (async () => {
     try {
-        await client.login(user, password)
+        await client.login(username, password)
         const session = await client.createSession();
         const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.method}(${JSON.stringify(q)});
         console.log(restResponse.getResults());
     } catch (e) {
-        console.error(e)
+        console.error(e);
     }
 })();`;
         return this.lineSplitter(str);
@@ -277,6 +289,7 @@ const client = new OpenCGAClient({
 
     changeFormat(e) {
         e.preventDefault();
+        this.exportFieldsVisible = false;
         this.format = e.currentTarget.dataset.format;
         this.requestUpdate();
     }
@@ -296,25 +309,26 @@ const client = new OpenCGAClient({
     changeExportField(e, index, parentIndex) {
         const {checked} = e.currentTarget;
         if (parentIndex) {
-            this.exportFields[parentIndex].nested[index].export = checked;
+            this.exportFields[parentIndex].children[index].export = checked;
         } else {
             this.exportFields[index].export = checked;
-            // select all nested when you click on a parent, and the other way around
-            if (this.exportFields[index].nested) {
-                this.exportFields[index].nested = this.exportFields[index].nested.map(li => ({...li, export: checked}));
+            // select all children when you click on a parent, and the other way around
+            if (this.exportFields[index].children) {
+                this.exportFields[index].children = this.exportFields[index].children.map(li => ({...li, export: checked}));
             }
         }
         this.exportFields = [...this.exportFields];
-        this.dispatchEvent(new CustomEvent("changeExportField", {
+        /* this.dispatchEvent(new CustomEvent("changeExportField", {
             detail: this.exportFields
-        }));
+        })); */
         this.requestUpdate();
     }
 
     onDownloadClick() {
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
-                option: this.format
+                option: this.format,
+                exportFields: this.exportFields
             }
         }));
     }
@@ -363,18 +377,21 @@ const client = new OpenCGAClient({
                         </div>
                         <div>
                             ${this.format === "tab" && this.exportFields?.length ? html`
-                                <span data-toggle="collapse" data-target="#exportFields" @click="${this.toggleExportField}">
-                                    <i class="${this.exportFieldsVisible ? "fa fa-minus" : "fa fa-plus"}"></i>
+                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#exportFields">
                                     Customise export fields
                                 </span>
                                 <div id="exportFields" class="collapse">
                                     <ul>
-                                        ${this.exportFields.map((li, i) => html`
+                                        ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                         <li>
                                             <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
-                                            ${li.nested ? html`
+                                            ${li.children ? html`
                                                 <ul>
-                                                    ${li.nested.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                    ${li.children
+                                                        .filter(li => !li.excludeFromExport)
+                                                        .map((s, y) => html`
+                                                            <li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>
+                                                        `)}
                                                 </ul>
                                             ` : ""}
                                         </li>
@@ -464,7 +481,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}url" class="content-tab active">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-url">
+                                <div class="code language-url" contentEditable="true">
                                     ${this.generateCode("url")}
                                 </div>
                             </div>
@@ -472,7 +489,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}curl" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-curl">
+                                <div class="code language-curl" contentEditable="true">
                                     ${this.generateCode("curl")}
                                 </div>
                             </div>
@@ -480,7 +497,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}wget" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-wget">
+                                <div class="code language-wget" contentEditable="true">
                                     ${this.generateCode("wget")}
                                 </div>
                             </div>
@@ -513,7 +530,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}cli" class="content-tab active">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-cli">
+                                <div class="code language-cli" contentEditable="true">
                                     ${this.generateCode("cli")}
                                 </div>
                             </div>
@@ -521,7 +538,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}python" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-python">
+                                <div class="code language-python" contentEditable="true">
                                     ${this.generateCode("python")}
                                 </div>
                             </div>
@@ -529,7 +546,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}r" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-r">
+                                <div class="code language-r" contentEditable="true">
                                     ${this.generateCode("r")}
                                 </div>
                             </div>
@@ -537,7 +554,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}js" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-javascript">
+                                <div class="code language-javascript" contentEditable="true">
                                     ${this.generateCode("js")}
                                 </div>
                             </div>
