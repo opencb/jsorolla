@@ -103,6 +103,7 @@ export default class VariantBrowser extends LitElement {
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
         this.errorState = false;
+        this.variant = null;
 
         this.activeTab = {};
     }
@@ -754,7 +755,7 @@ export default class VariantBrowser extends LitElement {
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
                                 <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="genome-tab">
-                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Genome Browser
+                                    <i class="fas fa-dna icon-padding" aria-hidden="true"></i> Genome Browser
                                 </button>
                             </div>
                         </div>
@@ -815,25 +816,29 @@ export default class VariantBrowser extends LitElement {
                             </div>
 
                             <div id="genome-tab" class="content-tab">
-                                <new-genome-browser
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{
-                                        cellBaseClient: this.cellbaseClient,
-                                    }}"
-                                    .region="${{
-                                        chromosome: "13",
-                                        start: 32996311,
-                                        end: 32996450,
-                                    }}"
-                                    .tracks="${[
-                                        {type: "gene-overview", overview: true, config: {}},
-                                        {type: "sequence", config: {}},
-                                        {type: "gene", config: {}},
-                                    ]}"
-                                    .active="${this.activeTab["genome-tab"]}">
-                                </new-genome-browser>
+                                ${this.variant ? html`
+                                    <new-genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            cellBaseClient: this.cellbaseClient,
+                                        }}"
+                                        .region="${this.variant}"
+                                        .tracks="${[
+                                            {type: "gene-overview", overview: true, config: {}},
+                                            {type: "sequence", config: {}},
+                                            {type: "gene", config: {}},
+                                            {
+                                                type: "opencga-variant",
+                                                config: {
+                                                    title: "Variants",
+                                                    height: 80,
+                                                },
+                                            },
+                                        ]}"
+                                        .active="${this.activeTab["genome-tab"]}">
+                                    </new-genome-browser>
+                                ` : null}
                             </div>
-
                         </div>
                     </div>
                 </div>
