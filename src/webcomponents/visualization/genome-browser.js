@@ -53,36 +53,35 @@ export default class GenomeBrowserComponent extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
-    firstUpdated() {
-        this.initGenomeBrowser();
-    }
-
-    // Josemi 20220324 NOTE: this method must be "update" instead of "updated" to prevent initializing GB twice
-    update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            if (this.genomeBrowser) {
-                this.genomeBrowser.destroy();
-                this.initGenomeBrowser();
-            }
-        }
-
-        if (changedProperties.has("active")) {
-            this.activeObserver();
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
         }
 
         if (changedProperties.has("region")) {
             this.regionObserver();
         }
 
-        super.update(changedProperties);
+        if (changedProperties.has("active")) {
+            this.activeObserver();
+        }
+
+        super.updated(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        if (this.genomeBrowser) {
+            this.genomeBrowser.destroy();
+            this.initGenomeBrowser();
+        }
     }
 
     activeObserver() {
-        if (this.active && this.genomeBrowser) {
-            const parent = this.querySelector(`div#${this._prefix}GenomeBrowser`);
-            const width = parent.getBoundingClientRect().width;
-
-            this.genomeBrowser.setWidth(width);
+        if (this.active && !this.genomeBrowser) {
+            // const parent = this.querySelector(`div#${this._prefix}GenomeBrowser`);
+            // const width = parent.getBoundingClientRect().width;
+            // this.genomeBrowser.setWidth(width);
+            this.initGenomeBrowser();
         }
     }
 
