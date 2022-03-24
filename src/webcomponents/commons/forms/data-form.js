@@ -644,7 +644,7 @@ export default class DataForm extends LitElement {
                 ${element.display?.icon ? html`
                     <i class="fas fa-${element.display.icon} icon-padding"></i>
                 ` : null}
-                <span>${element.text || ""}</span>
+                <span>${UtilsNew.renderHTML(element.text || "")}</span>
             </div>
         `;
     }

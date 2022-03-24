@@ -28,5 +28,3 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
     details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]
 };
 
-export default DISEASE_PANEL_BROWSER_SETTINGS;
-
