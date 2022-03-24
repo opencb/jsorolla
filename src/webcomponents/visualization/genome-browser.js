@@ -138,6 +138,7 @@ export default class GenomeBrowserComponent extends LitElement {
                 case "opencga-variant":
                     return new OpenCGAVariantTrack({
                         opencgaClient: this.opencgaSession.opencgaClient,
+                        opencgaStudy: this.opencgaSession.study.fqn,
                         ...track.config,
                     });
                 default:
