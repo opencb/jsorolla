@@ -31,7 +31,7 @@ export default class GenomeBrowserComponent extends LitElement {
                 type: Object,
             },
             species: {
-                type: Object,
+                type: String,
             },
             tracks: {
                 type: Array,
@@ -50,6 +50,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
         this.genomeBrowser = null;
         this.active = true;
+        this.species = "hsapiens";
         this.config = this.getDefaultConfig();
     }
 
@@ -65,8 +66,6 @@ export default class GenomeBrowserComponent extends LitElement {
         if (changedProperties.has("active")) {
             this.activeObserver();
         }
-
-        super.updated(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -93,30 +92,34 @@ export default class GenomeBrowserComponent extends LitElement {
 
     initGenomeBrowser() {
         const parent = this.querySelector(`div#${this._prefix}GenomeBrowser`);
+        const config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
         this.genomeBrowser = new GenomeBrowser(parent, {
             width: parent.getBoundingClientRect().width || 100,
             region: new Region(this.region),
             resizable: true,
-            ...this.config,
+            ...config,
         });
 
         // When GB is ready add tracks and draw
         this.genomeBrowser.on("ready", () => {
-            this.genomeBrowser.addTracks(this.getDetailTracks());
             this.genomeBrowser.addOverviewTracks(this.getOverviewTracks());
+            this.genomeBrowser.addTracks(this.getDetailTracks());
             this.genomeBrowser.draw();
         });
-    }
-
-    // Get only detail tracks
-    getDetailTracks() {
-        return this.parseTracks(this.tracks.filter(track => !track.overview));
     }
 
     // Get only overview tracks
     getOverviewTracks() {
         return this.parseTracks(this.tracks.filter(track => !!track.overview));
+    }
+
+    // Get only detail tracks
+    getDetailTracks() {
+        return this.parseTracks(this.tracks.filter(track => !track.overview));
     }
 
     parseTracks(tracks) {
