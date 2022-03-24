@@ -53,7 +53,19 @@ export default class GenomeBrowserComponent extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    firstUpdated() {
+        this.initGenomeBrowser();
+    }
+
+    // Josemi 20220324 NOTE: this method must be "update" instead of "updated" to prevent initializing GB twice
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+            if (this.genomeBrowser) {
+                this.genomeBrowser.destroy();
+                this.initGenomeBrowser();
+            }
+        }
+
         if (changedProperties.has("active")) {
             this.activeObserver();
         }
@@ -62,7 +74,7 @@ export default class GenomeBrowserComponent extends LitElement {
             this.regionObserver();
         }
 
-        super.updated(changedProperties);
+        super.update(changedProperties);
     }
 
     activeObserver() {
@@ -78,10 +90,6 @@ export default class GenomeBrowserComponent extends LitElement {
         if (this.genomeBrowser) {
             this.genomeBrowser.setRegion(this.region);
         }
-    }
-
-    firstUpdated() {
-        this.initGenomeBrowser();
     }
 
     initGenomeBrowser() {
