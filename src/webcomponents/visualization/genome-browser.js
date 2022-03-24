@@ -51,42 +51,45 @@ export default class GenomeBrowserComponent extends LitElement {
         this.genomeBrowser = null;
         this.active = true;
         this.species = "hsapiens";
+        this.tracks = [];
         this.config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("opencgaSession" || changedProperties.has("config") || changedProperties.has("tracks"))) {
+            this.opencgaSessionOrConfigObserver();
         }
 
-        if (changedProperties.has("region")) {
-            this.regionObserver();
-        }
-
-        if (changedProperties.has("active")) {
-            this.activeObserver();
+        if (changedProperties.has("region") || changedProperties.has("active")) {
+            this.propertyObserver();
         }
     }
 
-    opencgaSessionObserver() {
-        if (this.genomeBrowser) {
-            this.genomeBrowser.destroy();
-            this.initGenomeBrowser();
+    opencgaSessionOrConfigObserver() {
+        if (this.opencgaSession && this.config && this.tracks) {
+            if (this.genomeBrowser) {
+                this.genomeBrowser.destroy();
+                this.genomeBrowser = null;
+            }
+
+            // Check the active property to initialize genomebrowser
+            if (this.active) {
+                this.initGenomeBrowser();
+            }
         }
     }
 
-    activeObserver() {
-        if (this.active && !this.genomeBrowser) {
-            // const parent = this.querySelector(`div#${this._prefix}GenomeBrowser`);
-            // const width = parent.getBoundingClientRect().width;
-            // this.genomeBrowser.setWidth(width);
-            this.initGenomeBrowser();
-        }
-    }
+    propertyObserver() {
+        if (this.active) {
+            // Check for no genomebrowser instance ready
+            if (!this.genomeBrowser) {
+                return this.initGenomeBrowser();
+            }
 
-    regionObserver() {
-        if (this.genomeBrowser) {
-            this.genomeBrowser.setRegion(this.region);
+            // Check if region has been provided and is different from current region
+            if (this.region && !this.genomeBrowser.region.equals(new Region(this.region))) {
+                this.genomeBrowser.setRegion(this.region);
+            }
         }
     }
 
@@ -124,7 +127,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
     parseTracks(tracks) {
         return tracks.map(track => {
-            switch (track.type || "feature") {
+            switch (track.type) {
                 case "sequence":
                     return new SequenceTrack({
                         cellBaseClient: this.config.cellBaseClient,
