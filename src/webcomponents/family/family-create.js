@@ -141,6 +141,15 @@ export default class FamilyCreate extends LitElement {
                     title: "Family General Information",
                     elements: [
                         {
+                            title: "",
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.family).length > 0,
+                                notificationType: "warning",
+                            }
+                        },
+                        {
                             title: "Family ID",
                             field: "id",
                             type: "input-text",

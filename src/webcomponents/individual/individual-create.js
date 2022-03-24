@@ -48,6 +48,7 @@ export default class IndividualCreate extends LitElement {
 
     _init() {
         this._config = this.getDefaultConfig();
+        this.individual = {};
     }
 
     onFieldChange(e, field) {
@@ -142,6 +143,15 @@ export default class IndividualCreate extends LitElement {
                 {
                     title: "Individual General Information",
                     elements: [
+                        {
+                            title: "",
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.individual).length > 0,
+                                notificationType: "warning",
+                            }
+                        },
                         {
                             title: "Individual ID",
                             field: "id",
