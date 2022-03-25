@@ -53,6 +53,8 @@ export default class GenomeBrowserComponent extends LitElement {
         this.species = "hsapiens";
         this.tracks = [];
         this.config = this.getDefaultConfig();
+
+        this.prevRegion = null;
     }
 
     updated(changedProperties) {
@@ -86,9 +88,14 @@ export default class GenomeBrowserComponent extends LitElement {
                 return this.initGenomeBrowser();
             }
 
-            // Check if region has been provided and is different from current region
-            if (this.region && !this.genomeBrowser.region.equals(new Region(this.region))) {
-                this.genomeBrowser.setRegion(this.region);
+            // Check if region has been provided and is different from prev region
+            if (this.region) {
+                const nextRegion = new Region(this.region).toString();
+
+                if (this.prevRegion !== nextRegion) {
+                    this.genomeBrowser.setRegion(this.region);
+                    this.prevRegion = nextRegion;
+                }
             }
         }
     }
@@ -113,6 +120,9 @@ export default class GenomeBrowserComponent extends LitElement {
             this.genomeBrowser.addTracks(this.getDetailTracks());
             this.genomeBrowser.draw();
         });
+
+        // Save current region
+        this.prevRegion = new Region(this.region).toString();
     }
 
     // Get only overview tracks
