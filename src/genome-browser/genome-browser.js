@@ -155,28 +155,6 @@ export default class GenomeBrowser {
                 // $(this.targetDiv).width(event.width);
             }
         });
-
-        // TODO: fix an alternative to $.bind
-        // TODO: event.keyCode is deprecated, we should replace it whith event.key
-        // See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
-        // $("html").bind("keydown.genomeViewer", event => {
-        //     switch (event.keyCode) {
-        //         // ArrowDown or "-" keys
-        //         case 40:
-        //         case 109:
-        //             if (event.shiftKey) {
-        //                 this.increaseZoom(-10);
-        //             }
-        //             break;
-        //             // ArrowUp or "+" keys
-        //         case 38:
-        //         case 107:
-        //             if (event.shiftKey) {
-        //                 this.increaseZoom(10);
-        //             }
-        //             break;
-        //     }
-        // });
     }
 
     // Public draw method
@@ -190,10 +168,6 @@ export default class GenomeBrowser {
             this.target.removeChild(this.target.firstChild);
         }
         this.off();
-        // this.rendered = false;
-        // $("html").unbind(".genomeViewer");
-        // $("body").unbind(".genomeViewer");
-        // delete this;
     }
 
     // Get chromosomes from CellBase
