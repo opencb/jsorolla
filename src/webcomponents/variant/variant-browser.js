@@ -684,7 +684,34 @@ export default class VariantBrowser extends LitElement {
                         ]
                     }
                 ]
-            }
+            },
+            genomeBrowser: {
+                config: {
+                    cellBaseClient: this.cellbaseClient,
+                },
+                tracks: [
+                    {
+                        type: "gene-overview",
+                        overview: true,
+                        config: {},
+                    },
+                    {
+                        type: "sequence",
+                        config: {},
+                    },
+                    {
+                        type: "gene",
+                        config: {},
+                    },
+                    {
+                        type: "opencga-variant",
+                        config: {
+                            title: "Variants",
+                            height: 120,
+                        },
+                    },
+                ],
+            },
         };
     }
 
@@ -819,22 +846,9 @@ export default class VariantBrowser extends LitElement {
                                 ${this.variant ? html`
                                     <new-genome-browser
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            cellBaseClient: this.cellbaseClient,
-                                        }}"
+                                        .config="${this._config.genomeBrowser.config}"
                                         .region="${this.variant}"
-                                        .tracks="${[
-                                            {type: "gene-overview", overview: true, config: {}},
-                                            {type: "sequence", config: {}},
-                                            {type: "gene", config: {}},
-                                            {
-                                                type: "opencga-variant",
-                                                config: {
-                                                    title: "Variants",
-                                                    height: 80,
-                                                },
-                                            },
-                                        ]}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
                                         .active="${this.activeTab["genome-tab"]}">
                                     </new-genome-browser>
                                 ` : null}
