@@ -401,6 +401,41 @@ export default class UtilsNew {
         }
     }
 
+    static hasObjectNotValues(obj) {
+
+        // Check has object keys
+        if (Object.keys(obj).length > 0) {
+            return Object.keys(obj).some(k => {
+
+                // Check it's a object
+                if (typeof obj[k] === "object") {
+                    return UtilsNew.hasObjectNotValues(obj[k]);
+                }
+
+                // Object has not value
+                if (Array.isArray(obj[k])) {
+                    return UtilsNew.isEmptyArray(obj[k]);
+                }
+
+                // Check is null or empty
+                return obj[k] === null | obj[k] === "";
+            });
+        }
+        return false;
+    }
+
+
+    static isObjectValuesEmpty(obj) {
+        return Object.values(obj).every(val => {
+
+            if (val !== null && (typeof val === "object" || Array.isArray(val))) {
+                return UtilsNew.isObjectValuesEmpty(val);
+            }
+
+            return val === null ||val === "" || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
+        });
+    }
+
 
     /**
     * Sort the array by object key or prop

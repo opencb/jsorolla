@@ -36,6 +36,9 @@ export default class StatusUpdate extends LitElement {
             status: {
                 type: Object
             },
+            child: {
+                type: Boolean
+            },
             displayConfig: {
                 type: Object
             }
@@ -54,8 +57,16 @@ export default class StatusUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    firstUpdated(changedProperties) {
+    // For the "child" or nested form
+    // The child variable must be true to avoid multiple updating of the original values (not UpdateParams) in the parent form.
+        if (changedProperties.has("status") && this.child) {
+            this.statusObserver();
+        }
+    }
+
     update(changedProperties) {
-        if (changedProperties.has("status")) {
+        if (changedProperties.has("status") && !this.child) {
             this.statusObserver();
         }
 

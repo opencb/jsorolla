@@ -36,6 +36,9 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             ontology: {
                 type: Object
             },
+            child: {
+                type: Boolean
+            },
             ontologyId: {
                 type: String
             },
@@ -46,7 +49,6 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     _init() {
-        // this.ontology = {};
         this.displayConfigDefault = {
             buttonsAlign: "right",
             buttonClearText: "Clear",
@@ -58,8 +60,14 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("ontology") && this.child) {
+            this.ontologyObserver();
+        }
+    }
+
     update(changedProperties) {
-        if (changedProperties.has("ontology")) {
+        if (changedProperties.has("ontology") && !this.child) {
             this.ontologyObserver();
         }
 
@@ -86,15 +94,17 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        this.ontology = {...this.ontology, ...this.updateParams};
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
+        // this.ontology = {...this.ontology, ...this.updateParams};
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
+        // to reflect which field is updating...
+        this.requestUpdate();
     }
 
     onSendOntology(e) {
         // Send the ontology to the upper component
         e.stopPropagation();
-        this.updateParams = {};
         LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
+        this.updateParams = {};
     }
 
     onClear(e) {

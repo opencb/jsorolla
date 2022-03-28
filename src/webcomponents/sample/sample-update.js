@@ -140,6 +140,7 @@ export default class SampleUpdate extends LitElement {
                 break;
         }
         this.requestUpdate();
+        console.log("update...", this.updateParams);
     }
 
     onClear() {
@@ -250,7 +251,9 @@ export default class SampleUpdate extends LitElement {
                         type: "notification",
                         text: "Some changes have been done in the form. Not saved, changes will be lost",
                         display: {
-                            visible: () => Object.keys(this.updateParams).length > 0,
+                            // visible: () => Object.keys(this.updateParams).length > 0,
+                            visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+                            // visible: () => UtilsNew.hasObjectNotValues(this.updateParams),
                             notificationType: "warning",
                         }
                     },
@@ -308,10 +311,10 @@ export default class SampleUpdate extends LitElement {
                             render: source => html`
                                 <external-source-update
                                     .source=${source}
+                                    .child=${true}
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
-                                        width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
                                     @fieldChange=${e => this.onFieldChange(e, "source")}>
@@ -326,10 +329,10 @@ export default class SampleUpdate extends LitElement {
                             render: status => html`
                                 <status-update
                                     .status=${status}
+                                    .child=${true}
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
-                                        width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
                                     @fieldChange=${e => this.onFieldChange(e, "status")}>
@@ -357,6 +360,7 @@ export default class SampleUpdate extends LitElement {
                             render: product => html`
                                 <ontology-term-annotation-update
                                     .ontology=${product}
+                                    .child=${true}
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
@@ -490,6 +494,7 @@ export default class SampleUpdate extends LitElement {
                                 <ontology-term-annotation-update
                                     .ontology="${pheno}"
                                     .entity="${"phenotype"}"
+                                    .child=${true}
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonOkText: "Save",

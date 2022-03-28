@@ -54,6 +54,7 @@ export default class IndividualUpdate extends LitElement {
     _init() {
         this.individual = {};
         this.updateParams = {};
+        // this.updateParams = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -95,6 +96,7 @@ export default class IndividualUpdate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
+        // this.updateParams = this.updateParams || {};
         switch (param) {
             case "id":
             case "name":
@@ -221,7 +223,8 @@ export default class IndividualUpdate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.updateParams).length > 0,
+                                // visible: () => Object.keys(this.updateParams || {}).length > 0 || !!this.updateParams,
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                                 notificationType: "warning",
                             }
                         },
@@ -256,7 +259,7 @@ export default class IndividualUpdate extends LitElement {
                                     <individual-id-autocomplete
                                         .value="${father?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
+                                        .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
                                         .config=${{
                                             // This is the default value, but it is safe to leave it
                                             multiple: false,
@@ -311,6 +314,7 @@ export default class IndividualUpdate extends LitElement {
                                 render: sex => html`
                                     <ontology-term-annotation-update
                                         .ontology=${sex}
+                                        .child="${true}"
                                         .displayConfig="${{
                                                 defaultLayout: "vertical",
                                                 buttonsVisible: false,
@@ -328,6 +332,7 @@ export default class IndividualUpdate extends LitElement {
                                 render: ethnicity => html`
                                     <ontology-term-annotation-update
                                         .ontology=${ethnicity}
+                                        .child="${true}"
                                         .displayConfig="${{
                                                 defaultLayout: "vertical",
                                                 buttonsVisible: false,
@@ -464,6 +469,7 @@ export default class IndividualUpdate extends LitElement {
                                     return html`
                                     <ontology-term-annotation-update
                                         .ontology=${pheno}
+                                        .child="${true}"
                                         .entity="${"phenotype"}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
@@ -525,6 +531,7 @@ export default class IndividualUpdate extends LitElement {
                                 renderUpdate: (disorder, callback) => html`
                                     <ontology-term-annotation-update
                                         .ontology=${disorder}
+                                        .child="${true}"
                                         .entity="${"disorder"}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",

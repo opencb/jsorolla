@@ -1215,12 +1215,13 @@ export default class DataForm extends LitElement {
                     results = {param: field, value: [..._data, item]};
                 break;
             case "UPDATE":
+                // change id for index array.. because the user can change the ID.
                 const indexItem = _data.findIndex(item => item.id === item.id);
                 _data[indexItem] = item;
                 results = {param: field, value: _data};
-                const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
+                const regexPunctuation = /[()+,-.\/:; ?@[\]_{|}]/g;
                 const collapseTarget =`${field}${item?.id}Collapse`;
-                $(`#${collapseTarget.replace(regex, "")}`).collapse("hide");
+                $(`#${collapseTarget.replace(regexPunctuation, "")}`).collapse("hide");
                 break;
             case "REMOVE":
                 // This 'e' is the item to remove from array
