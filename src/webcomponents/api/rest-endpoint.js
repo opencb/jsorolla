@@ -103,9 +103,13 @@ export default class RestEndpoint extends LitElement {
                         for (const dataParameter of parameter.data) {
                             const paramType = dataParameter.type?.toLowerCase();
 
-                            this.data.body[dataParameter.name] =
-                                UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
-                                    dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
+                            // this.data.body[dataParameter.name] =
+                            //     UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
+                            //         dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
+
+                            // TODO: Rename 'setDataBody' function
+                            this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
+
                             if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType)) {
 
                                 if ((!dataParameter.innerParam && !dataParameter.complex) || dataParameter.type === "enum") {
@@ -334,6 +338,29 @@ export default class RestEndpoint extends LitElement {
             }];
         }
         return [];
+    }
+
+    #setDataBody(body, params) {
+        const paramType = params.type?.toLowerCase();
+        const _body = body;
+
+        // Basic Type
+        if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType) && !params.innerParam) {
+            _body[params.name] = params.value || "";
+        }
+
+        if (params.type === "List") {
+            _body[params.name] = [];
+        }
+
+        // Support object nested as 2nd Level
+        if (params.innerParam && !params.complex) {
+            _body[params.parentParamName] = {..._body[params.parentParamName], [params.name]: params.defaultValue || ""};
+        }
+
+        return _body;
+        // body[params.name] = UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
+        //     params.defaultValue || "" : params?.type === "List" ? [] : {};
     }
 
 
