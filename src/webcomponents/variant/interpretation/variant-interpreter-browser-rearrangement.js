@@ -131,38 +131,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             }
 
             this.callerToFile = {};
-            // 4. 'fileData' query param: fetch non SV files and set init query
-            // this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
-            //     .then(fileResponse => {
-            //         this.files = fileResponse.responses[0].results;
-            //         // Prepare a map from caller to File
-            //         this.callerToFile = {};
-            //         for (const file of this.files) {
-            //             if (file.software?.name) {
-            //                 const softwareName = file.software.name.toLowerCase();
-            //                 this.callerToFile[softwareName] = file;
-            //             }
-            //         }
-
-            //         // Init the default caller INFO filters
-            //         const fileDataFilters = [];
-            //         for (const caller of this._config.filter.callers) {
-            //             if (this.callerToFile[caller.id]) {
-            //                 fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
-            //             }
-            //         }
-
-            //         this.query = {
-            //             ...this.query,
-            //             fileData: fileDataFilters.join(",")
-            //         };
-
-            //         // NOTE: We need to update the _config to update the dynamic VCF caller filters
-            //         this._config = this.getDefaultConfig();
-            //     })
-            //     .catch(response => {
-            //         console.error("An error occurred fetching sample: ", response);
-            //     });
             if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
                 // Somatic callers with the right Variant Type and with defined INFO filters
                 const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
@@ -170,9 +138,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     .filter(vc => vc.types.includes("BREAKEND"))
                     .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
-                console.log("SOMATIC", this.somatic);
-                console.log("All callers: ", this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers);
-                console.log("Filtered callers: ", variantCallers);
                 // Files matching the selected Variant Callers
                 this.files = this.clinicalAnalysis.files
                     .filter(file => file.format.toUpperCase() === "VCF")
