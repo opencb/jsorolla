@@ -341,6 +341,11 @@ export default class UtilsNew {
         return UtilsNew.downloadData(JSON.stringify(data, null, "    "), name, "application/json");
     }
 
+    static generateFileNameDownload(name, opencgaSession, type) {
+        //  "disease_panel_" + this.opencgaSession.project.id + "-" + this.opencgaSession.study.id + moment().format("YYYY-MM-DD") + ".txt"
+        return `${name}_${opencgaSession?.project?.id}_${opencgaSession?.study?.id}_${moment().format("YYYY-MM-DD")}.${type}`;
+    }
+
     static range(start, stop, step = 1) {
         return Array.from({length: (stop - start) / step}, (x, i) => (i + start) * step);
     }

@@ -422,8 +422,9 @@ export default class VariantUtils {
                     if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data) && UtilsNew.isNotEmptyArray(study.samples?.[indexSample]?.data)) {
                         if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data)) {
                             const currentGenotype = study.samples?.[indexSample]?.data[0];
-                            let reference = currentGenotype.split("/")[0];
-                            let alternate = currentGenotype.split("/")[1];
+                            // let reference = currentGenotype.split(new RegExp("[/|]"))[0];
+                            // let alternate = currentGenotype.split(new RegExp("[/|]"))[1];
+                            let [reference, alternate] = currentGenotype.split(new RegExp("[/|]"));
                             let tooltipText = reference + " / " + alternate;
                             if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
                                 reference = parseInt(reference);
