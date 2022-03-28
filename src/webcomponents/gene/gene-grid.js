@@ -349,7 +349,7 @@ export default class GeneGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "tab") {
                         const fields = ["id", "individualId", "fileIds", "collection.method", "processing.preparationMethod", "somatic", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }

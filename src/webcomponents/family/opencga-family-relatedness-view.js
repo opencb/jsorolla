@@ -116,7 +116,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                     ["Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"].join("\t"),
                     data.join("\n")
                 ];
-                UtilsNew.downloadData(dataString, "family_relatedness" + this.opencgaSession.study.id + ".txt", "text/plain");
+                UtilsNew.downloadData(dataString, "family_relatedness" + this.opencgaSession.study.id + ".tsv", "text/plain");
             } else {
                 UtilsNew.downloadData(JSON.stringify(relatedness, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
             }

@@ -302,7 +302,7 @@ export default class GeneCoverageGrid extends LitElement {
                     _.id,
                     ..._.depths
                 ].join("\t"))];
-            UtilsNew.downloadData(dataString, "gene_coverage_" + this.opencgaSession.study.id + ".txt", "text/plain");
+            UtilsNew.downloadData(dataString, "gene_coverage_" + this.opencgaSession.study.id + ".tsv", "text/plain");
         } else {
             UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }
