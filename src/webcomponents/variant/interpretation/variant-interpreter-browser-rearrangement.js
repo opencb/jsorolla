@@ -326,6 +326,26 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         collapsed: false,
                         filters: [
                             {
+                                id: "variant-file",
+                                title: "VCF File Filter",
+                                visible: () => this.files?.length > 1,
+                                params: {
+                                    files: this.files
+                                },
+                                tooltip: tooltips.vcfFile,
+                            },
+                            {
+                                id: "variant-file-info-filter",
+                                title: "Variant Caller File Filter",
+                                visible: () => this.files?.length > 0,
+                                // visible: () => !!this.query.fileData,
+                                params: {
+                                    files: this.files,
+                                    opencgaSession: this.opencgaSession
+                                },
+                                tooltip: tooltips.variantCallerFile,
+                            },
+                            {
                                 id: "region",
                                 title: "Genomic Location",
                                 tooltip: tooltips.region
