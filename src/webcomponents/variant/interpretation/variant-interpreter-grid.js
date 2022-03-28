@@ -133,7 +133,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "VARIANT",
-                showExport: true,
                 columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
                 gridColumns: this._getDefaultColumns() // original column structure
             };
