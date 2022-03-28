@@ -63,7 +63,20 @@ export default class OpencgaExport extends LitElement {
             "COHORT": "cohorts",
             "FAMILY": "families",
             "CLINICAL_ANALYSIS": "clinical",
-            "JOB": "jobs"
+            "JOB": "jobs",
+            "DISEASE_PANEL": "panels"
+        };
+        this.rClients = {
+            "VARIANT": "variantClient",
+            "CLINICAL_VARIANT": "variantClient",
+            "FILE": "fileClient",
+            "SAMPLE": "sampleClient",
+            "INDIVIDUAL": "individualClient",
+            "COHORT": "cohortClient",
+            "FAMILY": "familyClient",
+            "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
+            "JOB": "jobClient",
+            "DISEASE_PANEL": "panelClient"
         };
 
         this.mode = "sync";
@@ -221,22 +234,11 @@ export default class OpencgaExport extends LitElement {
 
     generateR() {
         const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
-        const clientsName = {
-            "VARIANT": "variantClient",
-            "CLINICAL_VARIANT": "variantClient",
-            "FILE": "fileClient",
-            "SAMPLE": "sampleClient",
-            "INDIVIDUAL": "individualClient",
-            "COHORT": "cohortClient",
-            "FAMILY": "familyClient",
-            "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
-            "JOB": "jobClient"
-        };
         const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
 ${this.resourceMap[this.config.resource]} = \
-${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
+${this.rClients[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
         return this.lineSplitter(str);
     }
 
