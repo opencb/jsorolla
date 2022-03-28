@@ -24,6 +24,7 @@ import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-create.js";
+import "./external-source/external-source-create.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -71,8 +72,9 @@ export default class SampleCreate extends LitElement {
             case "description":
             case "somatic":
             case "individualId":
-            case "status": // this is object
-            case "processing.product": // this is object
+            case "status": // it's object
+            case "source": // it's object
+            case "processing.product": // it's object
             case "processing.preparationMethod":
             case "processing.extractionMethod":
             case "processing.labSambpleId":
@@ -236,6 +238,24 @@ export default class SampleCreate extends LitElement {
                         display: {
                             rows: 3,
                             placeholder: "Add a description..."
+                        }
+                    },
+                    {
+                        title: "Source",
+                        field: "source",
+                        type: "custom",
+                        display: {
+                            render: source => html`
+                                <external-source-create
+                                    .source=${source}
+                                    .displayConfig="${{
+                                        defaultLayout: "vertical",
+                                        buttonsVisible: false,
+                                        width: 12,
+                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                    }}"
+                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
+                                </external-source-create>`
                         }
                     },
                     {

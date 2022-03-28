@@ -151,12 +151,6 @@ export default class CustomNavBar extends LitElement {
                     width: 90%;
                 }
 
-                #login {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
                 .app-logo {
                     display: flex;
                     align-items: center;

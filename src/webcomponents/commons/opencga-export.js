@@ -76,8 +76,8 @@ export default class OpencgaExport extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("query") || changedProperties.has("config")) {
             // this._config = {...this.getDefaultConfig(), ...this.config};
@@ -110,17 +110,23 @@ export default class OpencgaExport extends LitElement {
         const [firstRow, secondRow] = this.config.gridColumns;
         this.exportFields = [];
 
-        firstRow.forEach((c, i) => {
+        /* Building the exportFields array. Each element has the form:
+            - id
+            - children // nested list elements
+            - export // flag to keeps the state during TSV export (false won't be included as column)
+            - excludeFromExport // flat to totally exclude grid columns from the list in this component and in the TSV (Action, checkboxes)
+         */
+        firstRow.filter(f => f?.visible !== false).forEach((c, i) => {
             if (c.rowspan !== 2 || !c.rowspan) {
                 // add sub Level
                 const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
                 subIndx += c.colspan ? c.colspan : 0;
-                this.exportFields.push({id: c.id, export: true, nested: subFields.map(s => ({id: s.id, export: true}))});
+                this.exportFields.push({id: c.id, export: true, children: subFields.map(s => ({id: s.id, export: true, excludeFromExport: s.excludeFromExport}))});
             } else {
                 if (c.rowspan !== 2 || !c.rowspan) {
                     subIndx += c.colspan ? c.colspan : 0;
                 }
-                this.exportFields.push({id: c.id, export: true});
+                this.exportFields.push({id: c.id, export: true, excludeFromExport: c.excludeFromExport});
             }
         });
     }
@@ -303,12 +309,12 @@ const client = new OpenCGAClient({
     changeExportField(e, index, parentIndex) {
         const {checked} = e.currentTarget;
         if (parentIndex) {
-            this.exportFields[parentIndex].nested[index].export = checked;
+            this.exportFields[parentIndex].children[index].export = checked;
         } else {
             this.exportFields[index].export = checked;
-            // select all nested when you click on a parent, and the other way around
-            if (this.exportFields[index].nested) {
-                this.exportFields[index].nested = this.exportFields[index].nested.map(li => ({...li, export: checked}));
+            // select all children when you click on a parent, and the other way around
+            if (this.exportFields[index].children) {
+                this.exportFields[index].children = this.exportFields[index].children.map(li => ({...li, export: checked}));
             }
         }
         this.exportFields = [...this.exportFields];
@@ -338,7 +344,6 @@ const client = new OpenCGAClient({
                 </ul>
             </div>
 
-            <!--<pre>${JSON.stringify(this.exportFields)}</pre>-->
             <div class="tab-content">
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <form class="form-horizontal">
@@ -377,12 +382,16 @@ const client = new OpenCGAClient({
                                 </span>
                                 <div id="exportFields" class="collapse">
                                     <ul>
-                                        ${this.exportFields.map((li, i) => html`
+                                        ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                         <li>
                                             <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
-                                            ${li.nested ? html`
+                                            ${li.children ? html`
                                                 <ul>
-                                                    ${li.nested.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                    ${li.children
+                                                        .filter(li => !li.excludeFromExport)
+                                                        .map((s, y) => html`
+                                                            <li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>
+                                                        `)}
                                                 </ul>
                                             ` : ""}
                                         </li>

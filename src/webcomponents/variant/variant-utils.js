@@ -25,8 +25,8 @@ export default class VariantUtils {
         const variantString = [];
         let populationMap = {};
 
-        let headerString = [];
-        let header = {};
+        const headerString = [];
+        const header = {};
 
         const sampleIds = samples?.forEach(sample => sample.id);
 
@@ -41,7 +41,7 @@ export default class VariantUtils {
                 if (study.studyId.includes("@")) {
                     const studyId = study.studyId.split(":")[1];
                     studyIds.push(studyId);
-                    cohortAlleleStatsColumns.push(`cohort.${studyId}.alleleCount`, `cohort.${studyId}.altAlleleFreq`);
+                    cohortAlleleStatsColumns.push(`cohorts.${studyId}.alleleCount`, `cohorts.${studyId}.altAlleleFreq`);
                     // alleleCount, altAlleleFreq
 
                     // cohort ALL is always the first element in study.stats
@@ -55,46 +55,22 @@ export default class VariantUtils {
             });
         }
 
-
         const popIds = studiesPopFrequencies?.flatMap(study => study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
         const popStudyIds = studiesPopFrequencies?.map(study => "popfreq." + study.id);
 
-        // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field)
-        headerString = [
-            "id",
-            "SNP ID",
-            "gene",
-            "type",
-            // TODO ADD SAMPLES (includeSample=all in VB and Case samples in Sample VB)
-            "consequenceType",
-            "deleteriousness.SIFT",
-            "deleteriousness.polyphen",
-            "deleteriousness.revel",
-            "deleteriousness.cadd",
-            "conservation.phylop",
-            "conservation.phastCons",
-            "conservation.gerp",
-            // AC / AF (cohorts IDs are comma joined)
-            // fieldList in the form    cohorts.RD38, cohorts.CG38
-            // TSV in the form          cohort.RD38.alleleCount,cohort.RD38.altAlleleFreq
-            ...cohortAlleleStatsColumns,
-            // fieldList in the form    popfreq.1kG_phase3, popfreq.GNOMAD_GENOMES
-            // TSV in the form          popfreq.1kG_phase3_SAS,popfreq.GNOMAD_GENOMES_ALL,popfreq.GNOMAD_GENOMES_AFR
-            ...popIds,
-            "clinicalInfo.clinvar",
-            "clinicalInfo.cosmic",
-        ];
+        /* // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field) */
         let flatFieldList = [];
 
-        // fieldList is expected to be always defined in VB and SVB, it would be not defined only in case of use of the old Download button and instead of the Export component.
+        // fieldList is expected to be always defined in VB and SVB.
+        // It would be not defined only in case of use of the old Download button and instead of the Export component.
         if (!fieldList) {
             // default list
             flatFieldList = [
                 "id",
-                "SNP ID",
                 "gene",
                 "type",
-                // TODO ADD SAMPLES (includeSample=all in VB and Case samples in Sample VB)
+                // Adding SAMPLES (includeSample=all in VB and Case samples in Sample VB)
+                ...samples.map(sample => sample.id),
                 "consequenceType",
                 "deleteriousness.SIFT",
                 "deleteriousness.polyphen",
@@ -103,12 +79,12 @@ export default class VariantUtils {
                 "conservation.phylop",
                 "conservation.phastCons",
                 "conservation.gerp",
-                // AC / AF (cohorts IDs are comma joined)
-                // fieldList in the form    cohorts.RD38, cohorts.CG38
-                // TSV in the form          cohort.RD38.alleleCount,cohort.RD38.altAlleleFreq
-                ...studyIds.map(studyId => `cohort.${studyId}`),
-                // fieldList in the form    popfreq.1kG_phase3, popfreq.GNOMAD_GENOMES
-                // TSV in the form          popfreq.1kG_phase3_SAS,popfreq.GNOMAD_GENOMES_ALL,popfreq.GNOMAD_GENOMES_AFR
+                // AC / AF
+                // fieldList (columns in the grid) is in the form: cohorts.RD38, cohorts.CG38
+                // TSV in the form: cohort.RD38.alleleCount,cohort.RD38.altAlleleFreq
+                ...studyIds.map(studyId => `cohorts.${studyId}`),
+                // fieldList (columns in the grid) is in the form: popfreq.1kG_phase3, popfreq.GNOMAD_GENOMES
+                // TSV in the form: popfreq.1kG_phase3_SAS,popfreq.GNOMAD_GENOMES_ALL,popfreq.GNOMAD_GENOMES_AFR
                 ...popStudyIds,
                 "clinicalInfo.clinvar",
                 "clinicalInfo.cosmic",
@@ -116,33 +92,42 @@ export default class VariantUtils {
 
 
         } else {
-            flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.nested?.filter(f => f.export).map(x => f.id + "." + x.id) ?? f.id);
-            // TODO ESlint parse error. Cannot read property 'range' of null https://github.com/babel/babel-eslint/issues/681
-            // flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.nested?.filter(f => f.export).map(x => `${f.id}.${x.id}`) ?? f.id);
-            headerString = [];
-
-            flatFieldList.forEach(f => {
-                if ("id" === f) {
-                    headerString.push("id");
-                    headerString.push("SNP ID");
-                } else if (f.startsWith("cohort.")) {
-                    studyIds.forEach(id => {
-                        if (f === "cohort." + id) {
-                            headerString.push("cohort." + id);
-                        }
-                    });
-                } else if (f.startsWith("popfreq.")) {
-                    studiesPopFrequencies.forEach(study => {
-                        if (f === "popfreq." + study.id) {
-                            headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
-                        }
-                    });
-                } else {
-                    headerString.push(f);
-                }
-
-            });
+            flatFieldList = fieldList
+                .filter(f => f.export && !f.excludeFromExport)
+                .flatMap(f => f.children?.filter(f => f.export && !f.excludeFromExport).map(x => f.id + "." + x.id) ?? f.id);
+            // ESlint parse error. Cannot read property 'range' of null https://github.com/babel/babel-eslint/issues/681
+            // flatFieldList = fieldList.filter(f => f.export).flatMap(f => f.children?.filter(f => f.export).map(x => `${f.id}.${x.id}`) ?? f.id);
         }
+
+        flatFieldList.forEach(f => {
+            if ("id" === f) {
+                headerString.push("id");
+                headerString.push("SNP ID");
+            } else if (f.startsWith("cohorts.")) {
+                // Cohorts Variant Browser
+                studyIds.forEach(id => {
+                    if (f === "cohorts." + id) {
+                        headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`);
+                    }
+                });
+            } else if ("frequencies.cohort" === f) {
+                // Cohorts in Sample Variant Browser
+                studyIds.forEach(id => headerString.push(`cohorts.${id}.alleleCount`, `cohorts.${id}.altAlleleFreq`));
+            } else if (f.startsWith("popfreq.")) {
+                // Pop freq in Variant Browser
+                studiesPopFrequencies.forEach(study => {
+                    if (f === "popfreq." + study.id) {
+                        headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
+                    }
+                });
+            } else if ("frequencies.populationFrequencies" === f) {
+                // Pop freq in Sample Variant Browser
+                studiesPopFrequencies.forEach(study => headerString.push(...study.populations.map(pop => "popfreq." + study.id + "_" + pop.id)));
+            } else {
+                headerString.push(f);
+            }
+
+        });
 
         rows.push(headerString.join("\t"));
 
@@ -162,7 +147,9 @@ export default class VariantUtils {
             // cohorts
             // popfreqs
             let clinvar = new Set();
-            let cosmic = new Set();
+            let cosmic = new Map();
+            let prediction = "-";
+
             populationMap = {};
 
             const description = {sift: "-", polyphen: "-"};
@@ -275,17 +262,20 @@ export default class VariantUtils {
                         }
                     }
                 }
-                // pfArray = Object.keys(populationMap).map(key => populationMap[key]);
 
                 // Clinvar, cosmic
                 if (v.annotation?.traitAssociation?.length) {
                     v.annotation.traitAssociation.forEach(clinicalData => {
-
                         if (clinicalData.source.name === "clinvar") {
                             clinvar.add(`${clinicalData.id} (${clinicalData.variantClassification.clinicalSignificance})`);
                         }
                         if (clinicalData.source.name === "cosmic") {
-                            cosmic.add("-"); // TODO cosmic data is missing?
+                            if (clinicalData?.somaticInformation?.primaryHistology) {
+                                if (!cosmic.has(clinicalData.id)) {
+                                    cosmic.set(clinicalData.id, new Set());
+                                }
+                                cosmic.get(clinicalData.id).add(clinicalData.somaticInformation.primaryHistology);
+                            }
                         }
                     });
                 }
@@ -294,9 +284,16 @@ export default class VariantUtils {
                 sift = typeof description.sift !== "undefined" ? description.sift : "-";
                 polyphen = typeof description.polyphen !== "undefined" ? description.polyphen : "-";
                 clinvar = clinvar.size > 0 ? [...clinvar].join(",") : "-";
-                cosmic = cosmic.size > 0 ? [...cosmic].join(",") : "-";
-
+                cosmic = cosmic.size > 0 ? [...cosmic.entries()].map(([traitId, histologies]) => traitId + "(" + [...histologies].join(",") + ")").join(",") : "-";
             }
+
+            // prediction
+            if (v.evidences) {
+                v.evidences.forEach(e => {
+                    prediction = e.classification.clinicalSignificance + (e.classification.acmg.length ? ("(" + e.classification.acmg.join(",") + ")") : "");
+                });
+            }
+
 
             // ID
             if (flatFieldList.includes("id")) {
@@ -323,19 +320,19 @@ export default class VariantUtils {
             }
 
             // type
-            if (flatFieldList.includes("consequenceType")) {
+            if (flatFieldList.includes("type")) {
                 row.push(v.type);
             }
-
-            // gt samples
-            row.push(...this.getGenotypeSamples(v, samples, nucleotideGenotype));
 
             // consequence type
             if (flatFieldList.includes("consequenceType")) {
                 row.push(ct);
             }
+
+            // gt samples
+            row.push(...this.getGenotypeSamples(v, samples, nucleotideGenotype));
+
             // deleteriousness
-            // if (fieldList.includes("deleteriousness")) {
             if (flatFieldList.includes("deleteriousness.SIFT")) {
                 row.push(sift);
             }
@@ -357,12 +354,11 @@ export default class VariantUtils {
             if (flatFieldList.includes("conservation.gerp")) {
                 row.push(gerp);
             }
-            // }
 
-            // Allele stats
-            // if (fieldList.includes("cohort")) {
+            // Allele stats (VB)
+            // frequencies.cohort (SVB)
             alleleStats.forEach(study => {
-                if (flatFieldList.includes(`cohorts.${study.id}`)) {
+                if (flatFieldList.includes(`cohorts.${study.id}`) || flatFieldList.includes("frequencies.cohort")) {
                     const ac = [];
                     const af = [];
                     study.stats.map(cohort => {
@@ -371,16 +367,12 @@ export default class VariantUtils {
                     });
                     row.push(ac.join(";"));
                     row.push(af.join(";"));
-                } else {
-                    console.log(`cohort.${study.id} excluded`);
                 }
-
             });
-            // }
 
             studiesPopFrequencies.forEach(study => {
                 study.populations.forEach(pop => {
-                    if (flatFieldList.includes("popfreq." + study.id)) {
+                    if (flatFieldList.includes("popfreq." + study.id) || flatFieldList.includes("frequencies.populationFrequencies")) {
                         const valuePopFreq = populationMap[study.id + "_" + pop.id];
                         row.push(UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "-");
                     }
@@ -394,6 +386,11 @@ export default class VariantUtils {
             if (flatFieldList.includes("clinicalInfo.cosmic")) {
                 row.push(cosmic);
             }
+
+            if (flatFieldList.includes("interpretation.prediction")) {
+                row.push(prediction);
+            }
+
 
             rows.push(row.join("\t"));
         }
@@ -425,8 +422,9 @@ export default class VariantUtils {
                     if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data) && UtilsNew.isNotEmptyArray(study.samples?.[indexSample]?.data)) {
                         if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data)) {
                             const currentGenotype = study.samples?.[indexSample]?.data[0];
-                            let reference = currentGenotype.split("/")[0];
-                            let alternate = currentGenotype.split("/")[1];
+                            // let reference = currentGenotype.split(new RegExp("[/|]"))[0];
+                            // let alternate = currentGenotype.split(new RegExp("[/|]"))[1];
+                            let [reference, alternate] = currentGenotype.split(new RegExp("[/|]"));
                             let tooltipText = reference + " / " + alternate;
                             if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
                                 reference = parseInt(reference);
@@ -480,8 +478,6 @@ export default class VariantUtils {
 
                             const referenceIndex = parseInt(reference);
                             const alternateIndex = parseInt(alternate);
-                            referenceValueColText = referenceValueColText;
-                            alternateValueColText = alternateValueColText;
                             colText = referenceValueColText + "/" + alternateValueColText;
                             res.push(colText);
 
