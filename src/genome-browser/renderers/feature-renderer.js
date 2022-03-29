@@ -1,96 +1,84 @@
 import Renderer from "./renderer.js";
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../../core/svg.js";
+import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
+import GenomeBrowserUtils from "../genome-browser-utils.js";
 
-/**
- * Any object with chromosome, start and end
- */
 export default class FeatureRenderer extends Renderer {
 
-    constructor(args) {
-        super(args);
+    render(features, options) {
+        const group = SVG.create("g");
 
-        if (args === null) {
-            args = FEATURE_TYPES.undefined;
-        }
+        (features || []).forEach((feature, featureIndex) => {
+            // TODO: review this
+            // if ("featureType" in feature) {
+            //     Object.assign(this, FEATURE_TYPES[feature.featureType]);
+            // }
+            // if ("featureClass" in feature) {
+            //     Object.assign(this, FEATURE_TYPES[feature.featureClass]);
+            // }
 
-        Object.assign(this, args);
-
-        // Extend and add Backbone Events
-        Object.assign(this, Backbone.Events);
-        this.on(this.handlers);
-    }
-
-    render(features, args) {
-        console.time("Generic Feature Render");
-
-        let svgGroup = SVG.create("g");
-        for (let i = 0; i < features.length; i++) {
-            let feature = features[i];
-
-            if ("featureType" in feature) {
-                Object.assign(this, FEATURE_TYPES[feature.featureType]);
-            }
-            if ("featureClass" in feature) {
-                Object.assign(this, FEATURE_TYPES[feature.featureClass]);
-            }
-
-            // FIXME Temporal fix for clinical
-            if (args.featureType === "clinical") {
-                if ("clinvarSet" in feature) {
-                    Object.assign(this, FEATURE_TYPES["Clinvar"]);
-                } else if ("mutationID" in feature) {
-                    Object.assign(this, FEATURE_TYPES["Cosmic"]);
-                } else {
-                    Object.assign(this, FEATURE_TYPES["GWAS"]);
-                }
-            }
+            // TODO: review this
+            // // Temporal fix for clinical
+            // if (args.featureType === "clinical") {
+            //     if ("clinvarSet" in feature) {
+            //         Object.assign(this, FEATURE_TYPES.Clinvar);
+            //     } else if ("mutationID" in feature) {
+            //         Object.assign(this, FEATURE_TYPES.Cosmic);
+            //     } else {
+            //         Object.assign(this, FEATURE_TYPES.GWAS);
+            //     }
+            // }
 
             // get feature render configuration
-            let color = _.isFunction(this.color) ? this.color(feature) : this.color;
-            let strokeColor = _.isFunction(this.strokeColor) ? this.color(feature) : this.strokeColor;
-            let label = _.isFunction(this.label) ? this.label(feature) : this.label;
-            let height = _.isFunction(this.height) ? this.height(feature) : this.height;
-            let tooltipTitle = _.isFunction(this.tooltipTitle) ? this.tooltipTitle(feature) : this.tooltipTitle;
-            let tooltipText = _.isFunction(this.tooltipText) ? this.tooltipText(feature) : this.tooltipText;
-            let infoWidgetId = _.isFunction(this.infoWidgetId) ? this.infoWidgetId(feature) : this.infoWidgetId;
+            const color = typeof this.config.color === "function" ? this.config.color(feature) : this.config.color;
+            const strokeColor = typeof this.config.strokeColor === "function" ? this.config.strokeColor(feature) : this.config.strokeColor;
+            const label = typeof this.config.label === "function" ? this.config.label(feature) : this.config.label;
+            const height = typeof this.config.height === "function" ? this.config.height(feature) : this.config.height;
+            const tooltipTitle = typeof this.config.tooltipTitle === "function" ? this.config.tooltipTitle(feature) : this.config.tooltipTitle;
+            const tooltipText = typeof this.config.tooltipText === "function" ? this.config.tooltipText(feature) : this.config.tooltipText;
+            const infoWidgetId = typeof this.config.infoWidgetId === "function" ? this.config.infoWidgetId(feature) : this.config.infoWidgetId;
 
             // get feature genomic information
-            let start = feature.start;
-            let end = feature.end;
-            let length = (end - start) + 1;
-
-            // check genomic length
-            length = (length < 0) ? Math.abs(length) : length;
-            length = (length === 0) ? 1 : length;
+            const start = feature.start;
+            const end = feature.end;
+            const length = Math.max(Math.abs((end - start) + 1), 1);
 
             // transform to pixel position
-            let width = length * args.pixelBase;
+            const width = Math.max(length * options.pixelBase, 1);
 
-            let svgLabelWidth = label.length * 6.4;
+            const svgLabelWidth = label.length * 6.4;
 
-            //calculate x to draw svg rect
-            let x = this.getFeatureX(start, args);
+            // calculate x to draw svg rect
+            const x = GenomeBrowserUtils.getFeatureX(start, options);
 
             let maxWidth = Math.max(width, 2);
             let textHeight = 0;
-            if (args.maxLabelRegionSize > args.regionSize) {
+            if (options.labelMaxRegionSize > options.regionSize) {
                 textHeight = 9;
                 maxWidth = Math.max(width, svgLabelWidth);
             }
 
             let rowY = 0;
             let textY = textHeight + height;
-            let rowHeight = textHeight + height + 2;
+            const rowHeight = textHeight + height + 5;
+            let foundArea = false;
 
-            while (true) {
-                if (!(rowY in args.renderedArea)) {
-                    args.renderedArea[rowY] = new FeatureBinarySearchTree();
+            while (!foundArea) {
+                if (!options.renderedArea[rowY]) {
+                    // eslint-disable-next-line no-param-reassign
+                    options.renderedArea[rowY] = new FeatureBinarySearchTree();
                 }
 
-                let foundArea = args.renderedArea[rowY].add({start: x, end: x + maxWidth - 1});
+                foundArea = options.renderedArea[rowY].add({
+                    start: x,
+                    end: x + maxWidth - 1,
+                });
+
                 if (foundArea) {
-                    let featureGroup = SVG.addChild(svgGroup, "g", {"feature_id": feature.id});
-                    let rect = SVG.addChild(featureGroup, "rect", {
+                    const featureGroup = SVG.addChild(group, "g", {
+                        feature_id: feature.id,
+                    });
+                    SVG.addChild(featureGroup, "rect", {
                         "x": x,
                         "y": rowY,
                         "width": width,
@@ -99,66 +87,83 @@ export default class FeatureRenderer extends Renderer {
                         "stroke-width": 1,
                         "stroke-opacity": 0.7,
                         "fill": color,
-                        "cursor": "pointer"
+                        "cursor": "pointer",
                     });
 
-                    if (args.maxLabelRegionSize > args.regionSize) {
-                        let text = SVG.addChild(featureGroup, "text", {
-                            "i": i,
+                    if (options.labelMaxRegionSize > options.regionSize) {
+                        const text = SVG.addChild(featureGroup, "text", {
+                            "i": featureIndex,
                             "x": x,
                             "y": textY,
                             "font-weight": 400,
                             "opacity": null,
                             "fill": "black",
                             "cursor": "pointer",
-                            "class": this.fontClass
+                            "class": this.config.fontClass || "",
                         });
                         text.textContent = label;
                     }
 
-                    if ("tooltipText" in this) {
+                    if (tooltipText && tooltipTitle) {
                         $(featureGroup).qtip({
-                            content: {text: tooltipText, title: tooltipTitle},
-                            position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
-                            style: {width: true, classes: this.toolTipfontClass + " ui-tooltip ui-tooltip-shadow"},
+                            content: {
+                                text: tooltipText,
+                                title: tooltipTitle,
+                            },
+                            position: {
+                                viewport: $(window),
+                                target: "mouse",
+                                adjust: {x: 25, y: 15},
+                            },
+                            style: {
+                                width: true,
+                                classes: `${this.config.toolTipfontClass} ui-tooltip ui-tooltip-shadow`,
+                            },
                             show: {delay: 300},
-                            hide: {delay: 300}
+                            hide: {delay: 300},
                         });
                     }
 
-                    $(featureGroup).mouseover(function (event) {
-                        this.dispatchEvent(new CustomEvent("feature:mouseover",
-                                {detail:{
-                                    query: feature[infoWidgetId],
-                                    feature: feature,
-                                    featureType: feature.featureType,
-                                    mouseoverEvent: event
-                                },
-                                    composed: true // for IE
-                                })
-                        );
+                    featureGroup.addEventListener("mouseover", event => {
+                        this.trigger("feature:mouseover", {
+                            query: feature[infoWidgetId],
+                            feature: feature,
+                            featureType: feature.featureType,
+                            mouseoverEvent: event,
+                        });
                     });
 
-                    $(featureGroup).click(function (event) {
-                        this.dispatchEvent(new CustomEvent("feature:click",
-                                {detail:{
-                                    query: feature[infoWidgetId],
-                                    feature: feature,
-                                    featureType: feature.featureType,
-                                    clickEvent: event
-                                },
-                                    composed: true //for IE
-                                })
-                        );
+                    featureGroup.addEventListener("click", event => {
+                        this.trigger("feature:click", {
+                            query: feature[infoWidgetId],
+                            feature: feature,
+                            featureType: feature.featureType,
+                            clickEvent: event,
+                        });
                     });
-                    break;
+                    // break;
                 }
                 rowY += rowHeight;
                 textY += rowHeight;
             }
-        }
-        args.svgCanvasFeatures.appendChild(svgGroup);
+        });
 
-        console.timeEnd("Generic Feature Render");
+        // Append SVG group element
+        options.svgCanvasFeatures.appendChild(group);
+
     }
+
+    // Default config for feature renderer
+    getDefaultConfig() {
+        return {
+            color: "#aaa",
+            infoWidgetId: "id",
+            height: 10,
+            histogramColor: "lightgray",
+            label: GenomeBrowserUtils.featurePositionFormatter,
+            tooltipTitle: GenomeBrowserUtils.featureTooltipTitleFormatter,
+            tooltipText: GenomeBrowserUtils.featureTooltipTextFormatter,
+        };
+    }
+
 }

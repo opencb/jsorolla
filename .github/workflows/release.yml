@@ -1,0 +1,34 @@
+name: "Release"
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+
+  docker:
+    needs: build
+    uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
+    secrets:
+      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+  release:
+    needs: [build, docker]
+    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
+    with:
+      artifact: jsorolla-release
+      file: iva-${{ needs.build.outputs.version }}.tar.gz
+
+  deploy:
+    needs: build
+    uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
+    with:
+      version: ${{ needs.build.outputs.version }}
+    secrets:
+      SSH_SWDEV_IP: ${{ secrets.SSH_SWDEV_IP }}
+      SSH_SWDEV_USER: ${{ secrets.SSH_SWDEV_USER }}
+      SSH_SWDEV_PASSWORD: ${{ secrets.SSH_SWDEV_PASSWORD }}

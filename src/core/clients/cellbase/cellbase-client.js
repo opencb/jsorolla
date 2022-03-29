@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../utilsNew.js";
 import {RestClient} from "../rest-client.js";
+import "../../cache/indexeddb-cache.js";
 
 
 export class CellBaseClient {
 
     constructor(config) {
-        // if (typeof config === "undefined") {
-        //     this._config = new CellBaseClientConfig();
-        // } else {
-        //     this._config = config;
-        // }
-
-        // this._config = config;
+        if (config) {
+            this._config = config;
+        } else {
+            this._config = this.getDefaultConfig();
+        }
         this.setConfig(config);
         if (this._config.cache.active) {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
@@ -39,7 +37,7 @@ export class CellBaseClient {
 
     getDefaultConfig() {
         return {
-            hosts: ["https://ws.opencb.org/cellbase-4.8.2"],
+            host: "http://bioinfo.hpc.cam.ac.uk/cellbase",
             version: "v4",
             species: "hsapiens",
             query: {
@@ -64,12 +62,13 @@ export class CellBaseClient {
         };
         this.getMeta("about")
             .then(response => {
-                if (response?.response?.[0]?.result[0]["Program: "] !== "CellBase (OpenCB)") {
-                    globalEvent("signingInError", {value: "Cellbase host not available."});
-                    globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
-                } else {
-                    globalEvent("hostInit", {host: "cellbase", value: "v" + response.response[0].result[0]["Version: "]});
-                }
+                const result = response?.response?.[0]?.result[0];
+                // Older versions of cellbase are using 'Version: ' as the key instead of 'Version' (Issue #185).
+                // To keep compatibility, we will check for both keys, but in the future only the newest key will be used.
+                globalEvent("hostInit", {
+                    host: "cellbase",
+                    value: "v" + (result["Version"] || result["Version: "]),
+                });
             })
             .catch(e => {
                 console.error(e);
@@ -82,23 +81,22 @@ export class CellBaseClient {
         this.indexedDBCache.createObjectStores(this._config.cache.subcategories);
     }
 
-    /**
+    /*
      * This method has been implemented to be backward compatible with old cellbase-manager.js
      */
     getOldWay(args) {
+        this._config.species = args.species.id || this._config.species;
         return this.get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
     }
 
     getMeta(param, options = {}) {
-        const hosts = options.hosts || this._config.hosts;
+        const host = options.host || this._config.host;
         const version = options.version || this._config.version;
-        const count = 0;
-        // let response;
-        let url = `${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
+        let url = `${host}/webservices/rest/${version}/` + "meta" + `/${param}`;
 
         // By default we assume https protocol instead of http
-        if (!url.startsWith("https://") && !url.startsWith("http://")) {
-            url = `https://${url}`;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = `http://${url}`;
         }
 
         // options.error = function() {
@@ -116,12 +114,10 @@ export class CellBaseClient {
     }
 
     getFiles(folderId, resource, params, options = {}) {
-        const hosts = options.hosts || this._config.hosts;
+        const host = options.host || this._config.host;
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
-        const count = 0;
-
-        let url = `http://${hosts[count]}/webservices/rest/${version}/${species}/` + "files";
+        let url = `http://${host}/webservices/rest/${version}/${species}/` + "files";
 
         if (typeof folderId !== "undefined" && folderId !== null && folderId !== "") {
             url += `/${folderId}/${resource}`;
@@ -134,7 +130,7 @@ export class CellBaseClient {
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
-        const k = this.generateKey();
+        const k = this.generateKey(params);
         return this.restClient.call(url, options, k);
     }
 
@@ -160,13 +156,10 @@ export class CellBaseClient {
 
     async get(category, subcategory, ids, resource, params, options = {}) {
         // we store the options from the parameter or from the default values in config
-        let hosts = options.hosts || this._config.hosts;
+        const host = options.host || this._config.host;
 
-        if (!hosts) {
+        if (!host) {
             throw new Error("Cellbase host not defined");
-        }
-        if (typeof hosts === "string") {
-            hosts = hosts.split(",");
         }
         const cache = options.cache || this._config.cache;
 
@@ -209,7 +202,9 @@ export class CellBaseClient {
                         // We make a copy of dataResponse
                         const query = {};
                         for (const i in dataResponse) {
-                            query[i] = dataResponse[i];
+                            if (Object.prototype.hasOwnProperty.call(dataResponse, i)) {
+                                query[i] = dataResponse[i];
+                            }
                         }
                         // And remove the key response
                         delete query["response"];
@@ -220,8 +215,7 @@ export class CellBaseClient {
                                     query: query,
                                     data: dataResponse.response[i]
                                 };
-                                // result['data'] = dataResponse.response[i];
-                                // // Update the data time to 0
+                                // Update the data time to 0
                                 result.data.dbTime = 0;
                                 _this.indexedDBCache.add(os, `${idArray[i]}_${resource}${suffixKey}`, result);
                             }
@@ -238,8 +232,7 @@ export class CellBaseClient {
                         }
                     };
                     if (uncachedQueries) {
-                        // response = _this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options);
-                        resolve(_this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options));
+                        resolve(_this._callRestWebService(host, category, subcategory, nonCachedIds, resource, params, options));
                     } else {
                         const queryResponse = results[0].query;
                         queryResponse["response"] = [];
@@ -256,34 +249,18 @@ export class CellBaseClient {
                 });
             });
         } else {
-            response = this._callRestWebService(hosts, category, subcategory, ids, resource, params, options);
+            response = this._callRestWebService(host, category, subcategory, ids, resource, params, options);
         }
 
         return response;
     }
 
-    _callRestWebService(hosts, category, subcategory, ids, resource, params, options) {
+    _callRestWebService(host, category, subcategory, ids, resource, params, options) {
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
 
-        const count = 0;
-        const url = this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-        /*
-        let response;
-        const userError = options.error;
-        const _this = this;
-        // if the URL query fails we try with next host
-
-         options.error = function () {
-            if (++count < hosts.length) {
-                // we need a new URL
-                url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-                response = this.restClient.call(url, options);
-            } else {
-                userError(this);
-            }
-        };*/
-        const k = this.generateKey();
+        const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
+        const k = this.generateKey({...params, species, category, subcategory, resource, params});
         return this.restClient.call(url, options, k);
     }
 
@@ -321,7 +298,9 @@ export class CellBaseClient {
         const keyArray = _.keys(params).sort();
         const keyValueArray = [];
         for (const i in keyArray) {
-            keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
+            if (Object.prototype.hasOwnProperty.call(keyArray, i)) {
+                keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
+            }
         }
         let suffixKey = keyValueArray.join("&");
         // suffixKey is preceded by '_' if suffix is true. Else it is treated as queryParam that needs to be sorted
@@ -337,11 +316,12 @@ export class CellBaseClient {
 
     setConfig(config) {
         this._config = {...this.getDefaultConfig(), ...config};
-        // this.clients = new Map();
     }
 
     generateKey(params) {
-        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}`;
+        // params is added to the key to avoid unwanted request abort.
+        // We can do it because we don't have tables in IVA that queries Cellbase.
+        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|") + JSON.stringify(params)}`;
     }
 
 }

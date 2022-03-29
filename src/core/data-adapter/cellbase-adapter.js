@@ -18,6 +18,7 @@
  * along with JS Common Libs. If not, see <http://www.gnu.org/licenses/>.
  */
 import FeatureAdapter from "./feature-adapter.js";
+import Region from "../bioinfo/region.js";
 
 export default class CellBaseAdapter extends FeatureAdapter {
 

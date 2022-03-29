@@ -18,25 +18,15 @@ export default class OpenCGAParentClass {
 
         const host = this._config.host;
         const version = this._config.version;
-        const rpc = this._config.mode;
-        let method = "GET";
-        let _options = options;
-        if (typeof _options === "undefined") {
-            _options = {};
-        }
+        // const rpc = this._config.mode;
+        const _options = options || {};
 
-        if (_options.hasOwnProperty("method")) {
-            method = _options.method;
-        }
+        const method = _options?.method || "GET";
 
-        let _params = params;
-
-        if (_params === undefined || _params === null || _params === "") {
-            _params = {};
-        }
+        const _params = params || {};
 
         // Check that sessionId is being given
-        if (!_params.hasOwnProperty("sid")) {
+        if (!_params.sid) {
             const sid = this._getSessionId();
             if (typeof sid !== "undefined") {
                 _options.sid = sid;
@@ -64,9 +54,16 @@ export default class OpenCGAParentClass {
     }
 
     _post(category1, ids1, category2, ids2, action, body, params = {}, options = {}) {
+        // Clear and Revert actions do not need a body, but needs a params
+        if (category2 === "interpretation" && (action === "clear" || action === "revert")) {
+            // eslint-disable-next-line no-param-reassign
+            params = body;
+            // eslint-disable-next-line no-param-reassign
+            body = {};
+        }
         const host = this._config.host;
         const version = this._config.version;
-        const rpc = this._config.mode;
+        // const rpc = this._config.mode;
         const k = this.generateKey(params);
         const _options = {...options, method: "POST"};
         if (this._config.token) {
@@ -81,7 +78,6 @@ export default class OpenCGAParentClass {
             _options["post-method"] = "form";
         }
         return this.restClient.call(url, _options, k);
-
     }
 
     // recheck
@@ -172,7 +168,9 @@ export default class OpenCGAParentClass {
     }
 
     generateKey(params) {
-        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}`;
+        // return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}`;
+        // Josemi 2022-01-28 NOTE: Temporally disable key generation, see issue https://github.com/opencb/jsorolla/issues/380
+        return "";
     }
 
 }

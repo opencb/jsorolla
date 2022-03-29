@@ -53,7 +53,7 @@ function FileWidget(args){
 //    	_this.loadFileFromServer(data);
 //    	_this.panel.setLoading(false);
 //	});
-    
+
 //    this.chartWidgetByChromosome = new ChartWidget({height:200,width:570});
 };
 
@@ -107,20 +107,20 @@ FileWidget.prototype.getFileUpload = function(){
 
 FileWidget.prototype.draw = function(){
 	var _this = this;
-	
+
 	if (this.openDialog == null){
-	
+
 		/** Bar for the chart **/
 		var featureCountBar = Ext.create('Ext.toolbar.Toolbar');
 		this.featureCountLabel = Ext.create('Ext.toolbar.TextItem', {
 			text:'<span class="dis">No file loaded</span>'
 		});
 		featureCountBar.add([this.featureCountLabel]);
-		
+
 		/** Bar for the file upload browser **/
 		var browseBar = Ext.create('Ext.toolbar.Toolbar');
 		browseBar.add(this.getFileUpload());
-		
+
 		this.panel = Ext.create('Ext.panel.Panel', {
 			border: false,
 	//		padding: "0 0 10 0",
@@ -129,7 +129,7 @@ FileWidget.prototype.draw = function(){
 //		    items : this.getChartItems(),
 		    bbar:featureCountBar
 		});
-		
+
 	//	var colorPicker = Ext.create('Ext.picker.Color', {
 	//	    value: '993300',  // initial selected color
 	//	    listeners: {
@@ -146,15 +146,15 @@ FileWidget.prototype.draw = function(){
             emptyText: 'Choose a name',
             flex:1
 		});
-		
+
 		var panelSettings = Ext.create('Ext.panel.Panel', {
 			border: false,
 			layout: 'hbox',
 			bodyPadding: 10,
-		    items : [this.trackNameField]	 
+		    items : [this.trackNameField]
 		});
-		
-		
+
+
 		if(this.wum){
 //			this.btnBrowse = Ext.create('Ext.button.Button', {
 //		        text: 'Browse server',
@@ -165,23 +165,23 @@ FileWidget.prototype.draw = function(){
 //	    	   		_this.browserData.draw($.cookie('bioinfo_sid'),_this.tags);
 //	       		}
 //			});
-			
+
 //			browseBar.add(this.btnBrowse);
-			
+
 			if(Cookies('bioinfo_sid') != null){
 				this.sessionInitiated();
 			}else{
 				this.sessionFinished();
 			}
 		}
-		
+
 		this.fileNameLabel = Ext.create('Ext.toolbar.TextItem', {
 //			text:'<span class="emph">Select a <span class="info">local</span> file or a <span class="info">server</span> file from your account.</span>'
 		});
 //		browseBar.add(['->',this.fileNameLabel]);
-		
-		
-		
+
+
+
 		this.btnOk = Ext.create('Ext.button.Button', {
 			text:'Ok',
 			disabled:true,
@@ -190,7 +190,7 @@ FileWidget.prototype.draw = function(){
 				_this.openDialog.close();
 			}
 		});
-		
+
 		this.openDialog = Ext.create('Ext.window.Window', {
 			title : 'Open '+this.title+' file',
 //			taskbar:Ext.getCmp(this.args.viewer.id+'uxTaskbar'),
@@ -198,7 +198,7 @@ FileWidget.prototype.draw = function(){
 	//		bodyPadding : 10,
 			resizable:false,
 			items : [browseBar, /*this.panel,*/ panelSettings],
-			buttons:[this.btnOk, 
+			buttons:[this.btnOk,
 			         {text:'Cancel', handler: function(){_this.openDialog.close();}}],
 			listeners: {
 			    	scope: this,
@@ -210,7 +210,7 @@ FileWidget.prototype.draw = function(){
 			      	}
 		    	}
 		});
-		
+
 	}
 	this.openDialog.show();
 };

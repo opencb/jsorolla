@@ -205,6 +205,48 @@ export class OpenCGAClient {
         return this.clients.get("ga4gh");
     }
 
+    /*
+     * Convenient function to create a client from the entity name, this is case insensitive.
+     */
+    getClient(entity) {
+        switch (entity?.toUpperCase()) {
+            case "USER":
+                return this.users();
+            case "PROJECT":
+                return this.projects();
+            case "STUDY":
+                return this.studies();
+            case "JOB":
+                return this.jobs();
+            case "FILE":
+                return this.files();
+            case "SAMPLE":
+                return this.samples();
+            case "INDIVIDUAL":
+                return this.individuals();
+            case "FAMILY":
+                return this.families();
+            case "COHORT":
+                return this.cohorts();
+            case "PANEL":
+            case "DISEASE_PANEL":
+                return this.panels();
+            case "ALIGNMENT":
+                return this.alignments();
+            case "VARIANT":
+                return this.variants();
+            case "VARIANT_OPERATIONS":
+                return this.variantOperations();
+            case "CLINICAL":
+            case "CLINICAL_ANALYSIS":
+                return this.clinical();
+            case "META":
+                return this.meta();
+            default:
+                throw new Error("Resource not recognized");
+        }
+    }
+
     async login(userId, password) {
         try {
             const restResponse = await this.users().login({user: userId, password: password});
@@ -308,7 +350,7 @@ export class OpenCGAClient {
                             session.server = {
                                 host: _this._config.host,
                                 version: _this._config.version,
-                                serverVersion: _this._config.serverVersion,
+                                // serverVersion: _this._config.serverVersion,
                             };
                             session.opencgaClient = _this;
                             _this._notifySessionEvent("signingIn", "Updating User config");
@@ -321,13 +363,23 @@ export class OpenCGAClient {
                             console.error(e);
                         }
 
+
+                        session.projects = session.user.projects;
+
+
                         // Fetch authorised Projects and Studies
                         _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
                         _this.projects().search({})
                             .then(async function (response) {
                                 try {
-                                    session.projects = response.response[0].result;
-                                    if (session.projects?.length && session?.projects[0]?.studies.length) {
+                                    // session.projects = response.responses[0].results;
+                                    for (const project of response.responses[0].results) {
+                                        let projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
+                                        if (projectIndex < 0) {
+                                            session.projects.push(project);
+                                        }
+                                    }
+                                    if (session.projects?.length) {    // && session?.projects[0]?.studies.length
                                         const studies = [];
                                         for (const project of session.projects) {
                                             // project.alias = project.alias || project.fqn || null;
@@ -335,6 +387,7 @@ export class OpenCGAClient {
                                                 for (const study of project.studies) {
                                                     // We need to store the user permission fr the all the studies fetched
                                                     _this._notifySessionEvent("signingIn", "Fetching User permissions");
+
                                                     let acl = null;
                                                     const admins = study.groups.find(g => g.id === "@admins");
                                                     if (admins.userIds?.includes(session.user.id)) {
@@ -347,8 +400,11 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal", limit: 20});
-                                                    study.cohorts = cohortsResponse.responses[0].results;
+                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal,attributes", limit: 50});
+                                                    study.cohorts = cohortsResponse.responses[0].results
+                                                        .filter(cohort => !cohort.attributes?.IVA?.ignore);
+                                                    // FIXME line above should check cohort.internal instead
+                                                    // .filter(cohort => cohort.internal.index?.status === "READY");
 
                                                     // Check if lastStudy form User Configuration matches
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
@@ -364,15 +420,19 @@ export class OpenCGAClient {
                                         /** if the user doesn't have his own Default study in User config then there the fallback is:
                                          *  first study of the first project
                                          */
-                                        // If no We select the first project and study as default
+                                        // We select the first project and study as default
                                         if (!session.project && !session.study) {
-                                            session.project = session.project ?? session.projects[0];
-                                            session.study = session.study ?? session.projects[0].studies[0];
+                                            for (const project of session.projects) {
+                                                if (project.studies?.length > 0) {
+                                                    session.project = project;
+                                                    session.study = project.studies[0];
+                                                }
+                                            }
                                         }
 
-                                        if (!session.project || !session.study) {
-                                            throw new Error("Default study not found");
-                                        }
+                                        // if (!session.project || !session.study) {
+                                        //     throw new Error("Default study not found");
+                                        // }
 
                                         // Fetch the Disease Panels for each Study
                                         _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
@@ -381,7 +441,7 @@ export class OpenCGAClient {
                                             const promise = _this.panels().search({
                                                 study: study,
                                                 limit: 2000,
-                                                include: "id,name,stats,source,genes.id,genes.name,regions.id"
+                                                include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
                                             });
                                             panelPromises.push(promise);
                                         }
@@ -392,7 +452,6 @@ export class OpenCGAClient {
                                             }
                                         }
                                     }
-                                    // debugger
                                     resolve(session);
                                 } catch (e) {
                                     console.error("Error getting study permissions, cohorts or disease panels");

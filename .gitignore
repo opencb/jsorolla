@@ -1,10 +1,15 @@
 
 build/
+build-next/
 dist/
 *node_modules/
 *web_modules/
 bower_components/
 grunt/
+dist-genome/
+custom-conf
+custom-sites
+*.tar.gz
 
 npm-debug.log
 
@@ -43,4 +48,11 @@ local.properties
 
 # PDT-specific
 .buildpath
+
+# Cypress
+fixtures
+screenshots
+support
+videos
+mochawesome-report
 
