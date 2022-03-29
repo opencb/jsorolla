@@ -47,27 +47,26 @@ export default class IndividualGrid extends LitElement {
             individuals: {
                 type: Array
             },
-            active: {
-                type: Boolean
-            },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.catalogUiUtils = new CatalogWebUtils();
         this.gridId = this._prefix + "IndividualBrowserGrid";
+        this.catalogUiUtils = new CatalogWebUtils();
         this.active = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig()};
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -90,7 +89,6 @@ export default class IndividualGrid extends LitElement {
             resource: "INDIVIDUAL",
             columns: this._getDefaultColumns()
         };
-
         this.renderTable();
     }
 
@@ -488,8 +486,8 @@ export default class IndividualGrid extends LitElement {
         this.requestUpdate();
         await this.updateComplete;
         const params = {
-            ...this.query,
             study: this.opencgaSession.study.fqn,
+            ...this.query,
             limit: 1000,
             skip: 0,
             count: false
@@ -532,7 +530,7 @@ export default class IndividualGrid extends LitElement {
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
                 </opencb-grid-toolbar>
-            ` : null}
+            ` : ""}
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>
             </div>
