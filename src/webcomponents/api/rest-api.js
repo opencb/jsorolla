@@ -91,7 +91,7 @@ export default class RestApi extends LitElement {
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="col-md-4 pre-scrollable-custom">
-                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false" data-cy="rest-api-endpoints">
                             ${this.api?.map(category => {
                                 const categoryName = category.name.replaceAll(" ", "_");
                                 const isFirst = category.name === this.api[0].name;
@@ -122,7 +122,7 @@ export default class RestApi extends LitElement {
                                                             <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[endpoint.method]}">
                                                                 ${endpoint.method}
                                                             </span>
-                                                            <span style="font-weight:bold;word-break:break-word;text-align:left;">
+                                                            <span style="font-weight:bold;word-break:break-word;text-align:left;" data-cy="endpoint-path">
                                                                 ${endpoint.path.replace("/{apiVersion}", "")}
                                                             </span>
                                                         </button>
