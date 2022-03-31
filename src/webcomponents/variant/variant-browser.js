@@ -844,13 +844,13 @@ export default class VariantBrowser extends LitElement {
 
                             <div id="genome-tab" class="content-tab">
                                 ${this.variant ? html`
-                                    <new-genome-browser
+                                    <genome-browser
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${this._config.genomeBrowser.config}"
                                         .region="${this.variant}"
                                         .tracks="${this._config.genomeBrowser.tracks}"
                                         .active="${this.activeTab["genome-tab"]}">
-                                    </new-genome-browser>
+                                    </genome-browser>
                                 ` : null}
                             </div>
                         </div>

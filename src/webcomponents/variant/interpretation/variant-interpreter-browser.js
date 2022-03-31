@@ -299,7 +299,7 @@ class VariantInterpreterBrowser extends LitElement {
                     id: "genome-browser",
                     name: "Genome Browser (Experimental)",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <new-genome-browser
+                        <genome-browser
                             .opencgaSession="${opencgaSession}"
                             .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
                             .active="${active}"
@@ -330,8 +330,8 @@ class VariantInterpreterBrowser extends LitElement {
                                         height: 120,
                                     },
                                 },
-                            ]}"
-                        ></new-genome-browser>
+                            ]}">
+                        </genome-browser>
                     `,
                 });
             }
