@@ -141,6 +141,43 @@ export default class FormUtils {
         return _updateParams;
     }
 
+    static compareObjectArray(_original, original, param) {
+        const [field, prop] = param.split(".");
+
+        let hasChanged = false;
+        // if (UtilsNew.isNotEmpty(values)) {
+        if (prop) {
+            // Let's find out if the content of the array is different from the '_original' array in the server
+            if (original[field][prop]?.length === _original[field][prop]?.length) {
+                for (const o of original[field][prop]) {
+                    const index = _original[field][prop].findIndex(_o => UtilsNew.objectCompare(o, _o));
+                    if (index > 0) {
+                        hasChanged = true;
+                        break;
+                    }
+                }
+            } else {
+                hasChanged = true;
+            }
+        } else {
+            // Let's find out if the content of the array is different from the '_original' array in the server
+            if (original[field]?.length === _original[field]?.length) {
+                for (const o of original[field]) {
+                    const index = _original[field].findIndex(_o => UtilsNew.objectCompare(o, _o));
+                    if (index > 0) {
+                        hasChanged = true;
+                        break;
+                    }
+                }
+            } else {
+                hasChanged = true;
+            }
+        }
+        // }
+
+        return hasChanged;
+    }
+
     static createObject(object, params, value) {
         let data = {...object};
         const [field, prop] = params.split(".");
