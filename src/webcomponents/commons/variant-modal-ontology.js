@@ -111,48 +111,35 @@ export default class VariantModalOntology extends LitElement {
         return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING";
     }
 
+    #getOntologies(results, child) {
+        const childrenSize = children => UtilsNew.isNotEmptyArray(children)?` Children:${children?.length}`:"";
+
+        return results.map((result, index) => (
+            {
+                name: result.name + childrenSize(result.children),
+                description: result.description,
+                comment: result.comment,
+                synonyms: result?.synonyms,
+                has_children: (result.children || []).length > 0,
+                children: result.children?.length > 0 ? this.#getGoTerm(result.children) : "",
+                nodes: result.children?.length > 0 ? [] : null,
+                obo_id: result.id,
+                depth: !child? 0: child?.depth + 1,
+                path: !child ? index : "000",
+                selectable: true,
+                state: {expanded: false},
+            }
+        ));
+    }
+
     async loadTermsTree() {
         const defaultsNodes = this.ontologyConfig.tree[this._config.ontologyFilter];
-        if (defaultsNodes?.length) {
-            // const requests = defaultsNodes.map(nodeUrl => fetch(this.#getGoTerm(nodeUrl)));
+        if (UtilsNew.isNotEmptyArray(defaultsNodes)) {
             try {
-                // const responses = await Promise.all(requests);
-                const fetchDefaultsTerm = await fetch(this.#getGoTerm(defaultsNodes.join(",")));
-                const ontologyTerms = await fetchDefaultsTerm.json();
+                const fetchOntology = await fetch(this.#getGoTerm(defaultsNodes.join(",")));
+                const ontologyTerms = await fetchOntology.json();
                 const results = ontologyTerms.responses[0].results;
-                const ontologyResults = results.map((result, index) => (
-                    {
-                        name: result.name + `${UtilsNew.isNotEmptyArray(result?.children)?` Children:${result.children?.length}`:""}`,
-                        description: result.description,
-                        comment: result.comment,
-                        synonyms: result?.synonyms,
-                        has_children: (result.children || []).length > 0,
-                        children: result.children?.length > 0 ? this.#getGoTerm(result.children) : "",
-                        nodes: result.children?.length > 0 ? [] : null,
-                        obo_id: result.id,
-                        depth: 0,
-                        path: index,
-                        selectable: true,
-                        state: {expanded: false},
-                    }
-                ));
-                this.rootTree.nodes = [...ontologyResults];
-                // for (const result of results) {
-                //     this.rootTree[0].nodes.push({
-                //         name: result.name + `${UtilsNew.isNotEmptyArray(result?.children)?` Children:${result.children?.length}`:""}`,
-                //         description: result.description,
-                //         comment: result.comment,
-                //         synonyms: result?.synonyms,
-                //         has_children: (result.children || []).length > 0,
-                //         children: result.children?.length > 0 ? this.#getGoTerm(result.children) : "",
-                //         nodes: result.children?.length > 0 ? [] : null,
-                //         obo_id: result.id,
-                //         depth: 0,
-                //         path: [i++],
-                //         selectable: true,
-                //         state: {expanded: false},
-                //     });
-                // }
+                this.rootTree.nodes = [...this.#getOntologies(results, false)];
                 this.requestUpdate();
             } catch (e) {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
@@ -160,46 +147,24 @@ export default class VariantModalOntology extends LitElement {
         }
     }
 
-    toggleNode(node) {
+    async toggleNode(node) {
         node.state.expanded = !node.state.expanded;
         this.rootTree = {...this.rootTree};
         // this.requestUpdate(); Not necessary
-        if (!node.nodes?.length) {
+        if (UtilsNew.isEmpty(node.nodes)) {
             node.state.loading = true;
             this.rootTree = {...this.rootTree};
-            // this.requestUpdate(); Not necessary
-            fetch(node.children)
-                .then(response => {
-                    response.json().then(json => {
-                        const results = json.responses[0].results;
-                        if (UtilsNew.isNotEmptyArray(results)) {
-                            results.forEach(elem => {
-                                node.nodes.push({
-                                    name: elem?.name + `${UtilsNew.isNotEmptyArray(elem?.children)?` Children:${elem.children?.length}`:""}`,
-                                    description: elem?.description,
-                                    comment: elem?.comment,
-                                    synonyms: elem?.synonyms,
-                                    has_children: elem?.children?.length > 0,
-                                    children: elem?.children?.length > 0 ? this.#getGoTerm(elem.children) : "",
-                                    nodes: elem?.children?.length > 0 ? [] : null,
-                                    obo_id: elem?.id,
-                                    depth: node?.depth + 1,
-                                    path: "000",
-                                    selectable: true,
-                                    state: {expanded: false},
-                                });
-                            });
-                        } else {
-                            console.warn("Error:", json);
-                        }
-                        node.state.loading = false;
-                        this.rootTree = {...this.rootTree};
-                        this.requestUpdate();
-                    });
-                })
-                .catch(error => {
-                    console.error("Error fetching Tree data: ", error);
-                });
+            try {
+                const fetchOntologyChildren = await fetch(node.children);
+                const ontologyChildren = await fetchOntologyChildren.json();
+                const results = ontologyChildren.responses[0].results;
+                node.nodes = [...this.#getOntologies(results, node)];
+                node.state.loading = false;
+                this.rootTree = {...this.rootTree};
+                this.requestUpdate();
+            } catch (e) {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+            }
         }
     }
 
@@ -251,26 +216,28 @@ export default class VariantModalOntology extends LitElement {
     }
 
     drawNode(node) {
+
+        const isLoading = flag => flag ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`:"";
+        const isExpanded = flag => flag ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`;
+        const isCollapsed = flag => flag ? "in" : "";
+        const isChildrenExpanded = flag => flag ?html`${node.nodes.map(n => this.drawNode(n))}` : "";
+
         return html`
             <div class="" role="tablist">
-                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" @click="${e => this.selectItem(node)}" data-obo-id="${node.obo_id}">
+                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" @click="${() => this.selectItem(node)}" data-obo-id="${node.obo_id}">
                     ${node.has_children ? html`
                         <span style="margin-left: ${node.depth}em">
                             <span @click="${() => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
-                                ${!node.state.expanded ?
-                                    html`<i class="fas fa-plus"></i>` :
-                                    html`<i class="fas fa-minus"></i>`}
+                                ${isExpanded(!node.state.expanded)}
                             </span>
                             ${node.name}
-                            ${node.state.loading ?
-                                html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` :
-                                ""}
+                            ${isLoading(node.state.loading)}
                         </span>`:
                         html` <span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
                 </div>
                 ${node.has_children ? html`
-                    <div class="panel-collapse collapse ${node.state.expanded ? "in" : ""}" role="tabpanel">
-                        ${node.state.expanded ? html`${node.nodes.map(n => this.drawNode(n))}` : ""}
+                    <div class="panel-collapse collapse ${isCollapsed(node.state.expanded)}" role="tabpanel">
+                        ${isChildrenExpanded(node.state.expanded)}
                     </div>
                 ` : ""}
             </div>`;
