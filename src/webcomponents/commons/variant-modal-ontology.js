@@ -18,17 +18,17 @@ import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import LitUtils from "./utils/lit-utils.js";
-import "./forms/select-token-filter";
 import NotificationUtils from "./utils/notification-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import "./forms/select-token-filter";
+import "../commons/filters/ontology-autocomplete-filter.js";
 
 
 export default class VariantModalOntology extends LitElement {
 
     constructor() {
         super();
-        // Set status and init private properties
-        this._init();
-
+        this.#init();
     }
 
     createRenderRoot() {
@@ -38,7 +38,7 @@ export default class VariantModalOntology extends LitElement {
     static get properties() {
         return {
             config: {
-                type: String
+                type: Object
             },
             selectedTerms: {
                 type: String
@@ -46,49 +46,46 @@ export default class VariantModalOntology extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    _init() {
-        this._prefix = "vmo-" + UtilsNew.randomString(6) + "_";
-        this.ebiConfig = {
-            root: "https://www.ebi.ac.uk/ols/api",
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
+        this.ontologyConfig = {
+            root: "https://ws.zettagenomics.com/cellbase/webservices/rest/v5/hsapiens/feature/ontology",
             tree: {
-                "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823",
-                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
-                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005",
-                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
-                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118",
-                    /* "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"*/],
-                "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150",
-                    "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
-                    "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"],
+                "HP": [
+                    "HP:0012823",
+                    "HP:0040279",
+                    "HP:0000005",
+                    "HP:0040006",
+                    "HP:0000118",
+                ],
+                "GO": [
+                    "GO:0008150",
+                    "GO:0005575",
+                    "GO:0003674"
+                ],
             },
             search: "/search",
         };
-        this.rootTree = [{text: "All", nodes: [], selectable: false}];
-
+        this.rootTree = {text: "All", nodes: [], selectable: false};
         this.selectedTerms = null;
     }
 
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("selectedTerms")) {
             // selectedTerm observer to handle subsequent reopening of the modal after a first selection
         }
+
         if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.ontologyFilterObserver();
         }
+        super.update(changedProperties);
     }
 
     ontologyFilterObserver() {
         this.loadTermsTree();
-        this.requestUpdate();
-    }
-
-    selectTerm(selected) {
+        // this.requestUpdate();
     }
 
     updateTerms(e) {
@@ -96,10 +93,10 @@ export default class VariantModalOntology extends LitElement {
         this.onFilterChange();
     }
 
-    addTerm(oboId) {
-        if (oboId) {
+    addTerm(ontologyId) {
+        if (ontologyId) {
             const elms = this.selectedTerms ? this.selectedTerms.split(",") : [];
-            const arr = [...new Set([...elms, oboId])];
+            const arr = [...new Set([...elms, ontologyId])];
             this.selectedTerms = arr.join(",");
         }
         // this.requestUpdate();
@@ -107,78 +104,93 @@ export default class VariantModalOntology extends LitElement {
     }
 
     onFilterChange() {
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.selectedTerms
-            }
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.selectedTerms);
+    }
+
+    #getGoTerm(goTerm) {
+        return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING";
     }
 
     async loadTermsTree() {
-        const defaultsNodes = this.ebiConfig.tree[this._config.ontologyFilter];
+        const defaultsNodes = this.ontologyConfig.tree[this._config.ontologyFilter];
         if (defaultsNodes?.length) {
-            const requests = defaultsNodes.map(nodeUrl => fetch(this.ebiConfig.root + nodeUrl));
+            // const requests = defaultsNodes.map(nodeUrl => fetch(this.#getGoTerm(nodeUrl)));
             try {
-                const responses = await Promise.all(requests);
-                let i = 0;
-                for (const response of responses) {
-                    const json = await response.json();
-                    this.rootTree[0].nodes.push({
-                        text: json.label,
-                        short_form: json.short_form,
-                        selectable: true,
-                        iri: json.iri,
-                        has_children: json.has_children,
-                        children: json.has_children ? json._links.children.href : "",
-                        nodes: json.has_children ? [] : null,
-                        path: [i++],
+                // const responses = await Promise.all(requests);
+                const fetchDefaultsTerm = await fetch(this.#getGoTerm(defaultsNodes.join(",")));
+                const ontologyTerms = await fetchDefaultsTerm.json();
+                const results = ontologyTerms.responses[0].results;
+                const ontologyResults = results.map((result, index) => (
+                    {
+                        name: result.name + `${UtilsNew.isNotEmptyArray(result?.children)?` Children:${result.children?.length}`:""}`,
+                        description: result.description,
+                        comment: result.comment,
+                        synonyms: result?.synonyms,
+                        has_children: (result.children || []).length > 0,
+                        children: result.children?.length > 0 ? this.#getGoTerm(result.children) : "",
+                        nodes: result.children?.length > 0 ? [] : null,
+                        obo_id: result.id,
                         depth: 0,
-                        obo_id: json.obo_id,
+                        path: index,
+                        selectable: true,
                         state: {expanded: false},
-                    });
-                }
+                    }
+                ));
+                this.rootTree.nodes = [...ontologyResults];
+                // for (const result of results) {
+                //     this.rootTree[0].nodes.push({
+                //         name: result.name + `${UtilsNew.isNotEmptyArray(result?.children)?` Children:${result.children?.length}`:""}`,
+                //         description: result.description,
+                //         comment: result.comment,
+                //         synonyms: result?.synonyms,
+                //         has_children: (result.children || []).length > 0,
+                //         children: result.children?.length > 0 ? this.#getGoTerm(result.children) : "",
+                //         nodes: result.children?.length > 0 ? [] : null,
+                //         obo_id: result.id,
+                //         depth: 0,
+                //         path: [i++],
+                //         selectable: true,
+                //         state: {expanded: false},
+                //     });
+                // }
                 this.requestUpdate();
             } catch (e) {
-                // console.error(e);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             }
         }
     }
 
     toggleNode(node) {
-
         node.state.expanded = !node.state.expanded;
         this.rootTree = {...this.rootTree};
-        this.requestUpdate();
-
+        // this.requestUpdate(); Not necessary
         if (!node.nodes?.length) {
             node.state.loading = true;
             this.rootTree = {...this.rootTree};
-            this.requestUpdate();
+            // this.requestUpdate(); Not necessary
             fetch(node.children)
                 .then(response => {
                     response.json().then(json => {
-                        if (json._embedded) {
-                            json._embedded.terms.forEach(elem => {
-                                // const path = currentNodeInTree.path.slice();
-                                // path.push(currentNodeInTree.nodes.length);
+                        const results = json.responses[0].results;
+                        if (UtilsNew.isNotEmptyArray(results)) {
+                            results.forEach(elem => {
                                 node.nodes.push({
-                                    text: elem.label,
-                                    short_form: elem.short_form,
-                                    selectable: true,
-                                    iri: elem.iri,
-                                    has_children: elem.has_children,
-                                    children: elem.has_children ? elem._links.children.href : "",
-                                    nodes: elem.has_children ? [] : null,
+                                    name: elem?.name + `${UtilsNew.isNotEmptyArray(elem?.children)?` Children:${elem.children?.length}`:""}`,
+                                    description: elem?.description,
+                                    comment: elem?.comment,
+                                    synonyms: elem?.synonyms,
+                                    has_children: elem?.children?.length > 0,
+                                    children: elem?.children?.length > 0 ? this.#getGoTerm(elem.children) : "",
+                                    nodes: elem?.children?.length > 0 ? [] : null,
+                                    obo_id: elem?.id,
+                                    depth: node?.depth + 1,
                                     path: "000",
-                                    depth: node.depth + 1,
-                                    obo_id: elem.obo_id,
+                                    selectable: true,
                                     state: {expanded: false},
                                 });
                             });
                         } else {
-                            console.warn("no _embedded elements", json);
+                            console.warn("Error:", json);
                         }
                         node.state.loading = false;
                         this.rootTree = {...this.rootTree};
@@ -196,6 +208,9 @@ export default class VariantModalOntology extends LitElement {
         this.requestUpdate();
     }
 
+    // * This config is not necessary because this component uses ontology-autocomplete-filter
+    // * to provide the data depends on the source GO or HP.
+    //  ! Deprecated
     getDefaultConfig() {
         return {
             limit: 10,
@@ -213,12 +228,12 @@ export default class VariantModalOntology extends LitElement {
                         _params.data.page = params.data.page || 1;
                         const q = _params?.data?.term ? _params.data.term : "";
                         try {
-                            const request = await fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + q + "*&ontology=" + this._config.ontologyFilter + "&rows=" + this._config.limit + "&queryFields=label,obo_id");
+                            const request = await fetch(this.ontologyConfig.root + this.ontologyConfig.search + "?id=^"+
+                                this.ontologyFilter + ":" + q + "&limit=" + this._config.limit + "&count=false");
                             const json = await request.json();
-                            const results = json.response.docs.map(i => ({text: i.label, id: i.obo_id, iri: i.iri}));
+                            const results = json.responses[0].results;
                             success(results);
                         } catch (e) {
-                            // console.error(e);
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
                             failure(e);
                         }
@@ -228,16 +243,12 @@ export default class VariantModalOntology extends LitElement {
                         _params.page = _params.page || 1;
                         return {
                             results: response,
-                            /* pagination: {
-                                more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
-                            }*/
                         };
                     }
                 },
-            }
+            },
         };
     }
-
 
     drawNode(node) {
         return html`
@@ -245,27 +256,30 @@ export default class VariantModalOntology extends LitElement {
                 <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" @click="${e => this.selectItem(node)}" data-obo-id="${node.obo_id}">
                     ${node.has_children ? html`
                         <span style="margin-left: ${node.depth}em">
-                            <span @click="${e => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
-                                ${!node.state.expanded ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`}
+                            <span @click="${() => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
+                                ${!node.state.expanded ?
+                                    html`<i class="fas fa-plus"></i>` :
+                                    html`<i class="fas fa-minus"></i>`}
                             </span>
-                            ${node.text}
-                            ${node.state.loading ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : ""}
-                        </span>
-                    ` : html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.text}</span>`}
+                            ${node.name}
+                            ${node.state.loading ?
+                                html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` :
+                                ""}
+                        </span>`:
+                        html` <span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
                 </div>
                 ${node.has_children ? html`
                     <div class="panel-collapse collapse ${node.state.expanded ? "in" : ""}" role="tabpanel">
-                    ${node.state.expanded ? html`${node.nodes.map(n => this.drawNode(n))}` : ""}
-                </div>
+                        ${node.state.expanded ? html`${node.nodes.map(n => this.drawNode(n))}` : ""}
+                    </div>
                 ` : ""}
-
             </div>`;
     }
 
     render() {
         return html`
             <div class="modal fade" id="${this._config.ontologyFilter}_ontologyModal" tabindex="-1" role="dialog"
-                 aria-labelledby="ontologyLabel">
+                aria-labelledby="ontologyLabel">
                 <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -278,33 +292,34 @@ export default class VariantModalOntology extends LitElement {
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <select-token-filter
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config=${this._config}
-                                                .value="${this.selectedTerms}"
-                                                @filterChange="${this.updateTerms}">
-                                        </select-token-filter>
+                                        <ontology-autocomplete-filter
+                                            source="${this._config.ontologyFilter}"
+                                            .value="${this.selectedTerms}"
+                                            @filterChange="${this.updateTerms}">
+                                        </ontology-autocomplete-filter>
                                     </div>
                                 </div>
                                 <div class="row ontology-tree-wrapper">
                                     <div class="col-md-6 ontology-tree">
-                                        ${this.rootTree[0].nodes.map(node => this.drawNode(node))}
+                                        ${this.rootTree?.nodes.map(node => this.drawNode(node))}
                                     </div>
                                     <div class="col-md-6">
                                         ${this.selectedItem ? html`
                                             <ul class="list-group infoHpo">
-                                                <li class="list-group-item"><strong>Label: </strong>${this.selectedItem.text}</li>
-                                                <li class="list-group-item"><strong>Short form: </strong>${this.selectedItem.short_form}</li>
-                                                <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedItem.obo_id}</li>
-                                                <li class="list-group-item"><strong>IRI: </strong>${this.selectedItem.iri}</li>
-                                                <li class="list-group-item"><strong>Description: </strong>${this.selectedItem.description}</li>
-                                                <li class="list-group-item">
-                                                    <button type="button" class="btn btn-default btn-small ripple" @click="${e => this.addTerm(this.selectedItem.obo_id)}">Add Term</button>
+                                                <li class="list-group-item"><strong>Name: </strong>${this.selectedItem.name}</li>
+                                                <li class="list-group-item"><strong>Id: </strong>${this.selectedItem.obo_id}</li>
+                                                <li class="list-group-item"><strong>IRI: </strong>
+                                                    <a href="${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}" target="_blank">
+                                                        ${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}
+                                                    </a>
                                                 </li>
+                                                <li class="list-group-item"><strong>Synonyms: </strong>${this.selectedItem.synonyms?.join(", ")}</li>
+                                                <li class="list-group-item"><strong>Description: </strong>${this.selectedItem.description}</li>
+                                                <li class="list-group-item"><strong>Comment: </strong>${this.selectedItem?.comment}</li>
                                             </ul>
+                                            <button type="button" class="btn btn-default btn-small" @click="${() => this.addTerm(this.selectedItem.obo_id)}">Add Term</button>
                                         ` : ""}
                                     </div>
-                                    </fieldset>
                                 </div>
                             </div>
                         </div>

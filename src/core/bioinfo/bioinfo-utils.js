@@ -205,4 +205,8 @@ export default class BioinfoUtils {
         return `https://panelapp.genomicsengland.co.uk/panels/${panelAppId}/`;
     }
 
+    static getOboLink(ontologyId) {
+        return `http://purl.obolibrary.org/obo/${ontologyId}/`;
+    }
+
 }

@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
-import "./accessions-autocomplete-filter.js";
+import "./ontology-autocomplete-filter.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 
@@ -25,8 +25,6 @@ export default class HpoAccessionsFilter extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -47,7 +45,7 @@ export default class HpoAccessionsFilter extends LitElement {
         this._selectedTermsArr = [];
         this.ontologyTerm = "HPO";
         this.ontologyFilter = "hp";
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.operator = ","; // or = , and = ;
     }
 
@@ -122,13 +120,13 @@ export default class HpoAccessionsFilter extends LitElement {
     }
 
     openModal(e) {
-        $("#hp_ontologyModal").modal("show");
+        $("#HP_ontologyModal").modal("show");
     }
 
     getDefaultConfig() {
         return {
             separator: [",", ";"], // this is being used in select-token-filter updated() fn and select2 config itself
-            ontologyFilter: "hp",
+            ontologyFilter: "HP",
             placeholder: "HP:0000001, HP:3000079"
         };
     }
@@ -136,7 +134,11 @@ export default class HpoAccessionsFilter extends LitElement {
     render() {
         return html`
 
-            <accessions-autocomplete-filter .value="${this.selectedTerms}" .config="${this._config}" @filterChange="${this.onFilterChange}"></accessions-autocomplete-filter>
+            <ontology-autocomplete-filter
+                .value="${this.selectedTerms}"
+                .config="${this._config}"
+                @filterChange="${this.onFilterChange}">
+            </ontology-autocomplete-filter>
 
             <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
                 <i class="fa fa-search searchingButton" aria-hidden="true"></i>
@@ -147,22 +149,22 @@ export default class HpoAccessionsFilter extends LitElement {
                     <label style="font-weight: normal;">Logical Operator</label>
                     <div class="switch-toggle text-white alert alert-light">
                         <input id="${this._prefix}hpoOrRadio" name="hpoRadio" type="radio" value="or" data-value=","
-                                   class="radio-or" ?checked="${this.operator === ","}" ?disabled="${this._selectedTermsArr.length < 2}"
-                                   @change="${this.changeOperator}">
+                                class="radio-or" ?checked="${this.operator === ","}" ?disabled="${this._selectedTermsArr.length < 2}"
+                                @change="${this.changeOperator}">
                             <label for="${this._prefix}hpoOrRadio"
-                                   class="rating-label rating-label-or">OR</label>
+                                class="rating-label rating-label-or">OR</label>
                         <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and" data-value=";"
-                                   class="radio-and" ?checked="${this.operator === ";"}" ?disabled="${this._selectedTermsArr.length < 2}" @change="${this.changeOperator}">
+                                class="radio-and" ?checked="${this.operator === ";"}" ?disabled="${this._selectedTermsArr.length < 2}" @change="${this.changeOperator}">
                             <label for="${this._prefix}hpoAndRadio"
-                                   class="rating-label rating-label-and">AND</label>
+                                class="rating-label rating-label-and">AND</label>
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
             </fieldset>
 
-            <variant-modal-ontology term="HPO"
-                                    .config="${this._config}"
-                                    .selectedTerms="${this.selectedTerms}"
-                                    @filterChange="${this.onFilterChange}">
+            <variant-modal-ontology
+                .config="${this._config}"
+                .selectedTerms="${this.selectedTerms}"
+                @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>
         `;
     }
