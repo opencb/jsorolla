@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/select-token-filter.js";
+import "../../commons/forms/text-field-filter.js";
+
 
 export default class FeatureFilter extends LitElement {
 
@@ -52,9 +53,20 @@ export default class FeatureFilter extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     updated(changedProperties) {
+        // TODO temp solution to handle CB being not available https://github.com/opencb/jsorolla/issues/426
+        if (changedProperties.has("cellbaseClient")) {
+            this.cellbaseClient.getMeta("about").then(() => {
+                this.cellbaseAvailable = true;
+            }).catch(()=> {
+                this.cellbaseAvailable = false;
+            }).finally(()=> {
+                this.requestUpdate();
+            });
+        }
         // XRefs, Gene and Variant Ids
         if (changedProperties.has("query")) {
             if (this.query.xref) {
@@ -150,12 +162,21 @@ export default class FeatureFilter extends LitElement {
     }
 
     render() {
-        return html`
-            <select-token-filter
-                .config=${this._config}
-                .value="${this.value}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>`;
+        if (this.cellbaseAvailable) {
+            return html`
+                <select-token-filter
+                    .config=${this._config}
+                    .value="${this.value}"
+                    @filterChange="${e => this.onFilterChange(e.detail.value)}">
+                </select-token-filter>`;
+        } else {
+            return html`
+                <text-field-filter
+                        .value="${this.value}"
+                        .config=${this._config}
+                        @filterChange="${e => this.onFilterChange(e.detail.value)}">
+                </text-field-filter>`;
+        }
     }
 
 }

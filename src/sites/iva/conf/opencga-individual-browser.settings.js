@@ -19,8 +19,9 @@ const OPENCGA_INDIVIDUAL_BROWSER_SETTINGS = {
         // merge criterium: spread operator
         toolbar: {
             showColumns: true,
-            showExport: false,
-            showDownload: true
+            showDownload: false,
+            showExport: true,
+            exportTabs: ["download", "link", "code"]
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span

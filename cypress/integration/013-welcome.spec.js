@@ -17,7 +17,13 @@
 import {login, goTo} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
+const homePanel = [
+    {id: "browser", title: "Variant Browser"},
+    {id: "clinicalAnalysisPortal", title: "Case Portal"},
+    {id: "cat-catalog", title: "Catalog"}
+];
 
+// resolve Home Category Cards (not used anymore)
 const resolveButtons = page => {
     cy.get(".login-overlay", {timeout: TIMEOUT}).should("not.exist");
     cy.get(`a[data-cat-id=${page.id}]`).should("be.visible").click();
@@ -44,11 +50,12 @@ context("13 - Welcome page", () => {
     });
 
     it("13.2 - check buttons resolves correctly", () => {
-
-        cy.get(".hi-icon-animation > a").each(el => {
-            const id = el.data("cat-id");
-            const title = el.data("title");
-            resolveButtons({id, title});
+        homePanel.forEach((el, i) => {
+            cy.get("div[data-cy-welcome-card-id=" + el.id + "]", {timeout: TIMEOUT}).should("be.visible");
+            cy.get("div[data-cy-welcome-card-id=" + el.id + "] a", {timeout: TIMEOUT}).first().click();
+            cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", el.title);
+            cy.wait(1000);
+            cy.get(".navbar-header > a[href='#home']").click();
         });
     });
 

@@ -2,7 +2,6 @@ import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
 import minifyHTML from "rollup-plugin-minify-html-literals";
-import summary from "rollup-plugin-summary";
 import fs from "fs";
 import path from "path";
 import del from "rollup-plugin-delete";
@@ -14,7 +13,6 @@ import pkg from "./package.json";
 const env = process.env || {};
 const buildPath = path.join(__dirname, "build");
 const sitesPath = path.join(__dirname, "src/sites");
-const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
 const internalCss = /(global|magic-check|style|toggle-switch)/gi;
 
@@ -116,7 +114,6 @@ export default sites.map(site => ({
             module: true,
             warnings: true
         }),
-        summary(),
         copy({
             targets: getCopyTargets(site),
         }),

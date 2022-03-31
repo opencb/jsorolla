@@ -17,8 +17,9 @@ const OPENCGA_JOB_BROWSER_SETTINGS = {
         // merge criterium: spread operator
         toolbar: {
             showColumns: true,
-            showExport: false,
-            showDownload: true,
+            showDownload: false,
+            showExport: true,
+            exportTabs: ["download", "link", "code"],
             autorefreshTiming: 60000, // 60s
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
