@@ -34,6 +34,7 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
 
+import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
 
@@ -75,7 +76,10 @@ export default class VariantBrowser extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            cellbaseClient: {
+                type: Object,
+            },
         };
     }
 
@@ -99,6 +103,7 @@ export default class VariantBrowser extends LitElement {
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
         this.errorState = false;
+        this.variant = null;
 
         this.activeTab = {};
     }
@@ -679,7 +684,34 @@ export default class VariantBrowser extends LitElement {
                         ]
                     }
                 ]
-            }
+            },
+            genomeBrowser: {
+                config: {
+                    cellBaseClient: this.cellbaseClient,
+                },
+                tracks: [
+                    {
+                        type: "gene-overview",
+                        overview: true,
+                        config: {},
+                    },
+                    {
+                        type: "sequence",
+                        config: {},
+                    },
+                    {
+                        type: "gene",
+                        config: {},
+                    },
+                    {
+                        type: "opencga-variant",
+                        config: {
+                            title: "Variants",
+                            height: 120,
+                        },
+                    },
+                ],
+            },
         };
     }
 
@@ -749,6 +781,9 @@ export default class VariantBrowser extends LitElement {
                                 <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
                                 </button>
+                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="genome-tab">
+                                    <i class="fas fa-dna icon-padding" aria-hidden="true"></i> Genome Browser
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -805,6 +840,18 @@ export default class VariantBrowser extends LitElement {
                                     .data="${this.facetResults}"
                                     .error="${this.errorState}">
                                 </opencb-facet-results>
+                            </div>
+
+                            <div id="genome-tab" class="content-tab">
+                                ${this.variant ? html`
+                                    <genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .region="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.activeTab["genome-tab"]}">
+                                    </genome-browser>
+                                ` : null}
                             </div>
                         </div>
                     </div>

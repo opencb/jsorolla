@@ -1211,11 +1211,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.genomeBrowser ? html`
                     <div class="content" id="genomeBrowser">
-                        <opencga-genome-browser
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .opencgaClient="${this.opencgaClient}">
-                        </opencga-genome-browser>
+                        Not available yet...
                     </div>
                 ` : null}
 

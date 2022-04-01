@@ -261,9 +261,9 @@ export default class ChromosomePanel {
         this.svg.setAttribute("width", width);
 
 
-        if (typeof this.chromosomeList !== "undefined") {
+        if (this.data) {
             this.clean();
-            this._drawSvg(this.chromosomeList, this.data2);
+            this.#drawSvg(this.data);
         }
     }
 
