@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
@@ -87,7 +86,7 @@ export default class OntologyAutocompleteFilter extends LitElement {
                             "&limit=" + this._config.limit + `&source=${this.source}`);
                             const goOntologies = await fetchGoOntologies.json();
                             const results = goOntologies.responses[0].results;
-                            const data = results.map(term => ({name: term.name, id: term.id}));
+                            const data = results.map(ontology => ({name: ontology.name, id: ontology.id}));
                             success(data);
                         } catch (e) {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);

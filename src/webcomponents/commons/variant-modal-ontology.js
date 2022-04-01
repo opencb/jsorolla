@@ -85,7 +85,6 @@ export default class VariantModalOntology extends LitElement {
 
     ontologyFilterObserver() {
         this.loadTermsTree();
-        // this.requestUpdate();
     }
 
     updateTerms(e) {
@@ -99,7 +98,6 @@ export default class VariantModalOntology extends LitElement {
             const arr = [...new Set([...elms, ontologyId])];
             this.selectedTerms = arr.join(",");
         }
-        // this.requestUpdate();
         this.onFilterChange();
     }
 
