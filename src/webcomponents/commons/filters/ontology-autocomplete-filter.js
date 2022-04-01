@@ -69,7 +69,7 @@ export default class OntologyAutocompleteFilter extends LitElement {
             fields: item => ({
                 name: item?.name,
                 id: item?.id,
-                IRI: BioinfoUtils.getOboLink(this.item?.id)
+                IRI: BioinfoUtils.getOboLink(item?.id)
             }),
             // * enables copy/paste of multiple terms
             freeTag: true,
