@@ -206,7 +206,8 @@ export default class BioinfoUtils {
     }
 
     static getOboLink(ontologyId) {
-        return `http://purl.obolibrary.org/obo/${ontologyId}/`;
+        const ontologyShort = ontologyId.replace(":", "_");
+        return `http://purl.obolibrary.org/obo/${ontologyShort}`;
     }
 
 }
