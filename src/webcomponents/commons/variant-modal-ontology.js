@@ -108,28 +108,28 @@ export default class VariantModalOntology extends LitElement {
     }
 
     #getGoTerm(goTerm) {
-        return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING";
+        return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING&skip=0&limit=10";
     }
 
     #getOntologies(results, child) {
-        const childrenSize = children => UtilsNew.isNotEmptyArray(children)?` Children:${children?.length}`:"";
-
-        return results.map((result, index) => (
-            {
-                name: result.name + childrenSize(result.children),
+        return results.map((result, index) => {
+            const hasChildren = UtilsNew.isNotEmptyArray(result?.children);
+            return {
+                name: result.name,
                 description: result.description,
                 comment: result.comment,
                 synonyms: result?.synonyms,
-                has_children: (result.children || []).length > 0,
-                children: result.children?.length > 0 ? this.#getGoTerm(result.children) : "",
-                nodes: result.children?.length > 0 ? [] : null,
+                has_children: hasChildren,
+                children_count: hasChildren ? result.children.length : 0,
+                children: hasChildren ? this.#getGoTerm(result.children): "",
+                nodes: hasChildren ? [] : null,
                 obo_id: result.id,
                 depth: !child? 0: child?.depth + 1,
                 path: !child ? index : "000",
                 selectable: true,
                 state: {expanded: false},
-            }
-        ));
+            };
+        });
     }
 
     async loadTermsTree() {
@@ -221,6 +221,8 @@ export default class VariantModalOntology extends LitElement {
         const isExpanded = flag => flag ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`;
         const isCollapsed = flag => flag ? "in" : "";
         const isChildrenExpanded = flag => flag ?html`${node.nodes.map(n => this.drawNode(n))}` : "";
+        const childrenSize = node.has_children ?
+            html`<span class="label label-primary"> Children: ${node.children_count}</span>`:"";
 
         return html`
             <div class="" role="tablist">
@@ -230,7 +232,7 @@ export default class VariantModalOntology extends LitElement {
                             <span @click="${() => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
                                 ${isExpanded(!node.state.expanded)}
                             </span>
-                            ${node.name}
+                            ${node.name} ${childrenSize}
                             ${isLoading(node.state.loading)}
                         </span>`:
                         html` <span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
@@ -244,6 +246,7 @@ export default class VariantModalOntology extends LitElement {
     }
 
     render() {
+
         return html`
             <div class="modal fade" id="${this._config.ontologyFilter}_ontologyModal" tabindex="-1" role="dialog"
                 aria-labelledby="ontologyLabel">
@@ -273,7 +276,7 @@ export default class VariantModalOntology extends LitElement {
                                     <div class="col-md-6">
                                         ${this.selectedItem ? html`
                                             <ul class="list-group infoHpo">
-                                                <li class="list-group-item"><strong>Name: </strong>${this.selectedItem.name}</li>
+                                                <li class="list-group-item"><strong>Name: </strong>${this.selectedItem.name} </li>
                                                 <li class="list-group-item"><strong>Id: </strong>${this.selectedItem.obo_id}</li>
                                                 <li class="list-group-item"><strong>IRI: </strong>
                                                     <a href="${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}" target="_blank">
