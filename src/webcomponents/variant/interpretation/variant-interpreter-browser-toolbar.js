@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 
 class VariantInterpreterBrowserToolbar extends LitElement {
@@ -63,43 +64,29 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         }
     }
 
-    onFilterPrimaryFindingVariants(e) {
-        this.dispatchEvent(new CustomEvent("filterVariants", {
-            detail: {
-                variants: this.clinicalAnalysis.interpretation.primaryFindings
-            },
-            bubbles: true,
-            composed: true
-        }));
+    onFilterPrimaryFindingVariants() {
+        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
+            variants: this.clinicalAnalysis.interpretation.primaryFindings,
+        });
     }
 
-    onFilterModifiedVariants(e) {
-        this.dispatchEvent(new CustomEvent("filterVariants", {
-            detail: {
-                variants: [...this.state.addedVariants, ...this.state.removedVariants]
-            },
-            bubbles: true,
-            composed: true
-        }));
+    onFilterModifiedVariants() {
+        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
+            variants: [
+                ...this.state.addedVariants,
+                ...this.state.removedVariants,
+            ],
+        });
     }
 
-    onResetModifiedVariants(e) {
-        this.dispatchEvent(new CustomEvent("resetVariants", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
+    onResetModifiedVariants() {
+        LitUtils.dispatchCustomEvent(this, "resetVariants", null);
     }
 
-    onSaveInterpretation(e) {
-        this.dispatchEvent(new CustomEvent("saveInterpretation", {
-            detail: {
-                comment: this.comment
-            },
-            bubbles: true,
-            composed: true
-        }));
+    onSaveInterpretation() {
+        LitUtils.dispatchCustomEvent(this, "saveInterpretation", null, {
+            comment: this.comment
+        });
         this.comment = {};
     }
 
@@ -107,20 +94,18 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         this.comment = this.comment ? this.comment : {};
         switch (type) {
             case "message":
-                this.comment.message = e.detail.value
+                this.comment.message = e.detail.value;
                 break;
             case "tags":
-                this.comment.tags = e.detail.value
+                this.comment.tags = e.detail.value;
                 break;
         }
     }
 
     renderVariant(variant, icon) {
-        let geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
-        let iconHtml = "";
-        if (icon) {
-            iconHtml = html`<span style="float: right; cursor: pointer"><i class="${icon}"></i></span>`;
-        }
+        const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        const iconHtml = icon ? html`<span style="float: right; cursor: pointer"><i class="${icon}"></i></span>` : "";
+
         return html`
             <div style="border-left: 2px solid #0c2f4c; margin: 15px 0px">
                 <div style="margin: 5px 10px">${variant.id} (${variant.type}) ${iconHtml}</div>
@@ -129,13 +114,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             </div>
         `;
     }
-    getDefaultConfig() {
-        return {
-
-        };
-    }
 
     render() {
+        const primaryFindings = this.clinicalAnalysis.interpretation?.primaryFindings;
+
         return html`
             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                 <div class="pull-right" role="group">
@@ -150,12 +132,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     <span style="font-weight: bold">Primary Findings</span>
                                 </div>
                                 <div>
-                                    ${this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0
-                                        ? this.clinicalAnalysis.interpretation.primaryFindings.map(variant => html`
-                                            ${this.renderVariant(variant)}
-                                        `)
-                                        : html`<div style="margin: 5px 5px">No primary findings found</div>`
-                                    }
+                                    ${primaryFindings?.length > 0 ? html`
+                                        ${primaryFindings.map(variant => this.renderVariant(variant))}
+                                    ` : html`
+                                        <div style="margin: 5px 5px">No primary findings found</div>
+                                    `}
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
@@ -180,12 +161,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     <span style="font-weight: bold">Added Variants</span>
                                 </div>
                                 <div>
-                                    ${this.state.addedVariants?.length > 0
-                                        ? this.state.addedVariants.map(variant => html`
-                                            ${this.renderVariant(variant, "fas fa-times")}
-                                        `)
-                                        : html`<div style="margin: 5px 5px">No new variants selected</div>`
-                                    }
+                                    ${this.state.addedVariants?.length > 0 ? html`
+                                        ${this.state.addedVariants.map(variant => this.renderVariant(variant, "fas fa-times"))}
+                                    ` : html`
+                                        <div style="margin: 5px 5px">No new variants selected</div>
+                                    `}
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
@@ -194,12 +174,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     <span style="font-weight: bold">Removed Variants</span>
                                 </div>
                                 <div>
-                                    ${this.state.removedVariants?.length > 0
-                                        ? this.state.removedVariants.map(variant => html`
-                                            ${this.renderVariant(variant, "fas fa-times")}
-                                        `)
-                                        : html`<div style="margin: 5px 5px">No variants to remove</div>`
-                                    }
+                                    ${this.state.removedVariants?.length > 0 ? html`
+                                        ${this.state.removedVariants.map(variant => this.renderVariant(variant, "fas fa-times"))}
+                                    ` : html`
+                                        <div style="margin: 5px 5px">No variants to remove</div>
+                                    `}
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
@@ -215,16 +194,15 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                         </ul>
                     </div>
-
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}SaveMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Save variants in the server">
                             <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
                             ${this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length ? html`
-                                    <span class="badge" style="margin-left: 5px">
-                                        ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
-                                    </span>` : null
-                            }
+                                <span class="badge" style="margin-left: 5px">
+                                    ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
+                                </span>
+                            ` : null}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
@@ -252,16 +230,21 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     <span style="font-weight: bold">Add new comment</span>
                                 </div>
                                 <div style="margin: 5px 0px">
-                                    <text-field-filter placeholder="Add comment..." .rows=${3} @filterChange="${e => this.onSaveFieldsChange("message", e)}"></text-field-filter>
+                                    <text-field-filter
+                                        placeholder="Add comment..." .rows=${3} @filterChange="${e => this.onSaveFieldsChange("message", e)}"></text-field-filter>
                                 </div>
                                 <div style="margin: 5px 0px">
-                                    <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onSaveFieldsChange(e)}"></text-field-filter>
+                                    <text-field-filter
+                                        placeholder="Add tags..."
+                                        .rows=${1}
+                                        @filterChange="${e => this.onSaveFieldsChange(e)}">
+                                    </text-field-filter>
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length|| this.state.updatedVariants?.length ? "" : "disabled"}"
+                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length ? "" : "disabled"}"
                                             @click="${this.onSaveInterpretation}" style="margin: 5px">Save
                                     </button>
                                 </div>
@@ -272,6 +255,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             </div>
         `;
     }
+
+    getDefaultConfig() {
+        return {};
+    }
+
 }
 
 customElements.define("variant-interpreter-browser-toolbar", VariantInterpreterBrowserToolbar);
