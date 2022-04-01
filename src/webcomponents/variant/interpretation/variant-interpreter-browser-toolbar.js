@@ -122,7 +122,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                 <div class="pull-right" role="group">
                     <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Show saved variants">
                             <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
                         </button>
@@ -151,7 +151,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                     </div>
 
                     <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
+                        <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Remove not saved variants">
                             <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
                         </button>
@@ -195,7 +195,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </ul>
                     </div>
                     <div class="btn-group">
-                        <button type="button" id="${this._prefix}SaveMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
+                        <button type="button" id="${this._prefix}SaveMenu" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Save variants in the server">
                             <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
                             ${this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length ? html`
