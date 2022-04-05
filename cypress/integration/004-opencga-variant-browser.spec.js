@@ -115,33 +115,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.7 Filters. Genomic: Disease Panels", () => {
-        // Genomic: Disease Panels
-        // TODO decomment once opencga error 'URI Too Long' is fixed
-        // disease-panel-filter select + button
-        // cy.get("disease-panel-filter").find(" a").contains("Childhood onset dystonia or chorea or related movement disorder").click({force:true}) // URI too long
-        // cy.get("disease-panel-filter").find(" a").contains("Amelogenesis imperfecta").click({force:true})
-        // cy.get("div.search-button-wrapper button").click();
-        //
-        // checkResultsOrNot("variant-browser-grid")
-
-        // NOTE Covid19... is the first URI too long
-        /* cy.get("disease-panel-filter div.dropdown-menu a").each(el => {
-
-            // cannot use cy.wrap(el) here. disease-panel-filter div.dropdown-menu is refreshed on click on buttons and DOM refs are broken (https://github.com/cypress-io/cypress/issues/7306)
-            const id = el.attr("id");
-            cy.get("#" + id).should("exist").click({force: true});
-            //cy.wrap(el).should("exist").click({force: true});
-            cy.get("div.search-button-wrapper button").click();
-            checkResultsOrNot("variant-browser-grid");
-            cy.wait(2000);
-            cy.get("opencga-active-filters button[data-filter-name='panel']").click();
-
-
-        });*/
-    });
-
-    it("4.8 Filters. Genomic: Gene Biotype", () => {
+    it("4.7 Filters. Genomic: Gene Biotype", () => {
         // Genomic: Gene Biotype
         cy.get("biotype-filter button").click();
         cy.get("biotype-filter input[type='search']").type("protein"); // typing protein_coding using autocomplete
@@ -153,7 +127,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.9 Filters. Genomic: Variant", () => {
+    it("4.8 Filters. Genomic: Variant", () => {
         // Genomic: Variant type cy.get('.magic-checkbox-wrapper > :nth-child(1) > label')
         cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
         cy.get("div.search-button-wrapper button").click();
@@ -162,7 +136,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.10 Filters. Consequence type: LoF", () => {
+    it("4.9 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
         cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
@@ -170,7 +144,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.11 Filters. Consequence type: Missense", () => {
+    it("4.10 Filters. Consequence type: Missense", () => {
         // Consequence type: SO Term - Use example: Missense
         cy.get("consequence-type-select-filter button").click();
         cy.get("consequence-type-select-filter input[type='search']").type("miss"); // typing missense using autocomplete
@@ -182,7 +156,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.12 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
+    it("4.11 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
         // Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001
         cy.get("variant-browser-filter a[data-cy-section-title='PopulationFrequency']").click();
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1kG_phase3']").click();
@@ -199,7 +173,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.13 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
+    it("4.12 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
         // Population Frequency: gnomAD - Set all < 0.00001
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-GNOMAD_GENOMES']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
@@ -210,9 +184,37 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
-        // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
+    it("4.13 Filters. Clinical: Disease Panels", () => {
         cy.get("variant-browser-filter a[data-cy-section-title='Clinical']").click();
+
+        // Clinical: Disease Panels
+        cy.get("disease-panel-filter").find(" a").contains("Childhood onset dystonia or chorea or related movement disorder").click({force: true}); // URI too long
+        cy.get("disease-panel-filter").find(" a").contains("Amelogenesis imperfecta").click({force: true});
+        cy.get("div.search-button-wrapper button").click();
+
+        checkResultsOrNot("variant-browser-grid");
+
+        // Test ALL Panels
+        // NOTE Covid19... is the first URI too long
+        /* cy.get("disease-panel-filter select-field-filter").within(() => {
+
+            cy.get("a").each(el => {
+                // cannot use cy.wrap(el) here. disease-panel-filter div.dropdown-menu is refreshed on click on buttons and DOM refs are broken (https://github.com/cypress-io/cypress/issues/7306)
+                const id = el.attr("id");
+                console.log("el", el);
+                cy.get("#" + id).should("exist").click({force: true});
+                // cy.wrap(el).should("exist").click({force: true});
+                cy.get("div.search-button-wrapper button").click();
+
+                checkResultsOrNot("variant-browser-grid");
+                cy.wait(2000);
+                cy.get("opencga-active-filters button[data-filter-name='panel']").click();
+            });
+        });*/
+    });
+
+    it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
+        // Clinical: ClinVar Accessions. Use example: Pathogenic
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
         cy.get("div.search-button-wrapper button").click();
