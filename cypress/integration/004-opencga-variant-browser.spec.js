@@ -196,20 +196,16 @@ context("4. Variant Browser", () => {
 
         // Test ALL Panels
         // NOTE Covid19... is the first URI too long
-        /* cy.get("disease-panel-filter select-field-filter").within(() => {
+        /* cy.get("disease-panel-filter div.dropdown-menu a").each(el => {
 
-            cy.get("a").each(el => {
-                // cannot use cy.wrap(el) here. disease-panel-filter div.dropdown-menu is refreshed on click on buttons and DOM refs are broken (https://github.com/cypress-io/cypress/issues/7306)
-                const id = el.attr("id");
-                console.log("el", el);
-                cy.get("#" + id).should("exist").click({force: true});
-                // cy.wrap(el).should("exist").click({force: true});
-                cy.get("div.search-button-wrapper button").click();
-
-                checkResultsOrNot("variant-browser-grid");
-                cy.wait(2000);
-                cy.get("opencga-active-filters button[data-filter-name='panel']").click();
-            });
+            // cannot use cy.wrap(el) here. disease-panel-filter div.dropdown-menu is refreshed on click on buttons and DOM refs are broken (https://github.com/cypress-io/cypress/issues/7306)
+            const id = el.attr("id");
+            cy.get("#" + id).should("exist").click({force: true});
+            //cy.wrap(el).should("exist").click({force: true});
+            cy.get("div.search-button-wrapper button").click();
+            checkResultsOrNot("variant-browser-grid");
+            cy.wait(2000);
+            cy.get("opencga-active-filters button[data-filter-name='panel']").click();
         });*/
     });
 
