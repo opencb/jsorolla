@@ -105,8 +105,15 @@ export default class VariantModalOntology extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", this.selectedTerms);
     }
 
-    #getGoTerm(goTerm) {
-        return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING&skip=0&limit=10";
+    #getGoTerm(goTerm, isParent = false, skip = 0) {
+        if (!isParent) {
+            return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING&skip=0&limit=10";
+        }
+
+        if (isParent) {
+            return this.ontologyConfig.root + this.ontologyConfig.search + "?parents=" + goTerm + "&sort=name&order=ASCENDING&limit=10&skip=" + skip;
+        }
+
     }
 
     #getOntologies(results, child) {
@@ -166,6 +173,21 @@ export default class VariantModalOntology extends LitElement {
         }
     }
 
+    async showMoreItems(node, lastIndex) {
+        // console.log("Node show more", node);
+        // Parent Id, Skip;
+        try {
+            const fetchOntologyChildren = await fetch(this.#getGoTerm(node.obo_id, true, lastIndex));
+            const ontologyChildren = await fetchOntologyChildren.json();
+            const results = ontologyChildren.responses[0].results;
+            node.nodes = [...node.nodes, ...this.#getOntologies(results, node)];
+            this.requestUpdate();
+        } catch (e) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+        }
+    }
+
+
     selectItem(node) {
         this.selectedItem = node;
         this.requestUpdate();
@@ -213,18 +235,36 @@ export default class VariantModalOntology extends LitElement {
         };
     }
 
-    drawNode(node) {
+    renderShowMore(showMore, index, lastIndex, node, parent) {
+        if (showMore && ((index+1) >= lastIndex) && ((index+1) <= parent.children_count)) {
+            return html`
+                <div class="ontology-node" role="tab">
+                    <span class="leaf" style="margin-left: ${node.depth}em; color: #337ab7"
+                        @click="${() => this.showMoreItems(parent, lastIndex)}">
+                        Show More...
+                    </span>
+                </div>`;
+        }
+    }
 
+    drawNode(node, index, parent, showMore) {
         const isLoading = flag => flag ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`:"";
         const isExpanded = flag => flag ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`;
         const isCollapsed = flag => flag ? "in" : "";
-        const isChildrenExpanded = flag => flag ?html`${node.nodes.map(n => this.drawNode(n))}` : "";
+
+
+        const isChildrenExpanded = flag => flag ?
+            html`${node.nodes.map((nodeChild, i) => this.drawNode(nodeChild, i, node, node?.children_count > node?.nodes?.length))}` :
+            "";
+
         const childrenSize = node.has_children ?
             html`<span class="label label-primary"> Children: ${node.children_count}</span>`:"";
 
+        const lastIndex = parent?.nodes?.length;
         return html`
-            <div class="" role="tablist">
-                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" @click="${() => this.selectItem(node)}" data-obo-id="${node.obo_id}">
+            <div role="tablist">
+                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab"
+                @click="${() => this.selectItem(node)}" data-obo-id="${node.obo_id}">
                     ${node.has_children ? html`
                         <span style="margin-left: ${node.depth}em">
                             <span @click="${() => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
@@ -233,13 +273,14 @@ export default class VariantModalOntology extends LitElement {
                             ${node.name} ${childrenSize}
                             ${isLoading(node.state.loading)}
                         </span>`:
-                        html` <span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
+                        html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
                 </div>
                 ${node.has_children ? html`
-                    <div class="panel-collapse collapse ${isCollapsed(node.state.expanded)}" role="tabpanel">
+                    <div class="panel-collapse collapse ${isCollapsed(node.state.expanded)}" role="tabpanel" >
                         ${isChildrenExpanded(node.state.expanded)}
                     </div>
                 ` : ""}
+                ${this.renderShowMore(showMore, index, lastIndex, node, parent)}
             </div>`;
     }
 
@@ -268,8 +309,8 @@ export default class VariantModalOntology extends LitElement {
                                     </div>
                                 </div>
                                 <div class="row ontology-tree-wrapper">
-                                    <div class="col-md-6 ontology-tree">
-                                        ${this.rootTree?.nodes.map(node => this.drawNode(node))}
+                                    <div class="col-md-6 ontology-tree" style="padding-bottom:10px">
+                                        ${this.rootTree?.nodes.map(node => this.drawNode(node, false))}
                                     </div>
                                     <div class="col-md-6">
                                         ${this.selectedItem ? html`
