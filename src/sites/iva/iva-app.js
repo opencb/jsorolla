@@ -1601,7 +1601,9 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
+                        <user-profile .opencgaSession="${this.opencgaSession}"
+                                      .settings="${USER_PROFILE_SETTINGS}">
+                        </user-profile>
                     </div>
                 ` : null}
 
