@@ -61,15 +61,17 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     firstUpdated(changedProperties) {
-        if (changedProperties.has("ontology") && this.child) {
+        if (changedProperties.has("ontology")) {
             this.ontologyObserver();
         }
     }
 
     update(changedProperties) {
-        if (changedProperties.has("ontology") && !this.child) {
-            this.ontologyObserver();
-        }
+        /*
+        *    if (changedProperties.has("ontology")) {
+        *        this.ontologyObserver();
+        *    }
+        */
 
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -94,7 +96,6 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        // this.ontology = {...this.ontology, ...this.updateParams};
         LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
         // to reflect which field is updating...
         this.requestUpdate();

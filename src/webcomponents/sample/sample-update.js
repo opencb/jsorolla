@@ -65,6 +65,7 @@ export default class SampleUpdate extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("sample")) {
+            console.log("FirstUpdate...", this);
             this._sample = JSON.parse(JSON.stringify(this.sample));
             // this.sampleObserver();
         }
@@ -72,6 +73,7 @@ export default class SampleUpdate extends LitElement {
 
     update(changedProperties) {
         // if (changedProperties.has("sample")) {
+        //     console.log("update...", this);
         //     this.sampleObserver();
         // }
 
@@ -166,9 +168,11 @@ export default class SampleUpdate extends LitElement {
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updateParams, params)
             .then(res => {
-                // this.sample = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
+                // this.sadmple = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
+                this.isSampleArraysChanged = false;
+                this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Update Sample",
                     message: "Sample updated correclty"
@@ -178,9 +182,7 @@ export default class SampleUpdate extends LitElement {
                 // TODO: dispacth to the user the data is saved
             })
             .catch(err => {
-                // console.error(err);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
     }
 
