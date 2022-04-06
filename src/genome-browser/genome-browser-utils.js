@@ -85,6 +85,23 @@ export default class GenomeBrowserUtils {
         return GenomeBrowserConstants.GENOTYPES_COLORS["others"];
     }
 
+    // Get individual sex icon
+    static getIndividualSexIcon(value) {
+        switch (value.toUpperCase()) {
+            case "MALE":
+                return "fa-mars";
+            case "FEMALE":
+                return "fa-venus";
+            default:
+                return "fa-genderless";
+        }
+    }
+
+    // Get individual sex color
+    static getIndividualSexColor() {
+        return "#333333";
+    }
+
     //
     // Feature utils
     //
