@@ -90,13 +90,13 @@ export default class VariantModalOntology extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", this.selectedTerms);
     }
 
-    #getGoTerm(goTerm, isParent = false, skip = 0) {
+    #getTerm(term, isParent = false, skip = 0) {
         const query = {
-            [!isParent ? "id" : "parents"]: goTerm,
+            [!isParent ? "id" : "parents"]: term,
             sort: "name",
             order: "ASCENDING",
             skip: !isParent? 0:skip,
-            limit: 10
+            limit: 50
         };
         return this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
     }
@@ -111,7 +111,7 @@ export default class VariantModalOntology extends LitElement {
                 synonyms: result?.synonyms,
                 has_children: hasChildren,
                 children_count: hasChildren ? result.children.length : 0,
-                children: hasChildren ? this.#getGoTerm(result.children): "",
+                children: hasChildren ? () => this.#getTerm(result.id, true, 0): "",
                 nodes: hasChildren ? [] : null,
                 obo_id: result.id,
                 depth: !child? 0: child?.depth + 1,
@@ -126,7 +126,7 @@ export default class VariantModalOntology extends LitElement {
         const defaultsNodes = this._config.tree[this._config.ontologyFilter];
         if (UtilsNew.isNotEmptyArray(defaultsNodes)) {
             try {
-                const fetchOntology = await this.#getGoTerm(defaultsNodes.join(","));
+                const fetchOntology = await this.#getTerm(defaultsNodes.join(","));
                 const results = fetchOntology.responses[0].results;
                 this.rootTree.nodes = [...this.#getOntologies(results, false)];
                 this.requestUpdate();
@@ -143,7 +143,7 @@ export default class VariantModalOntology extends LitElement {
             node.state.loading = true;
             this.rootTree = {...this.rootTree};
             try {
-                const fetchOntologyChildren = await node.children;
+                const fetchOntologyChildren = await node.children();
                 const results = fetchOntologyChildren.responses[0].results;
                 node.nodes = [...this.#getOntologies(results, node)];
                 node.state.loading = false;
@@ -157,7 +157,7 @@ export default class VariantModalOntology extends LitElement {
 
     async showMoreItems(node, lastIndex) {
         try {
-            const fetchOntologyChildren = await this.#getGoTerm(node.obo_id, true, lastIndex);
+            const fetchOntologyChildren = await this.#getTerm(node.obo_id, true, lastIndex);
             const results = fetchOntologyChildren.responses[0].results;
             node.nodes = [...node.nodes, ...this.#getOntologies(results, node)];
             this.requestUpdate();
@@ -188,15 +188,11 @@ export default class VariantModalOntology extends LitElement {
         const isLoading = flag => flag ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`:"";
         const isExpanded = flag => flag ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`;
         const isCollapsed = flag => flag ? "in" : "";
-
-
         const isChildrenExpanded = flag => flag ?
             html`${node.nodes.map((nodeChild, i) => this.drawNode(nodeChild, i, node, node?.children_count > node?.nodes?.length))}` :
             "";
-
         const childrenSize = node.has_children ?
-            html`<span class="label label-primary"> Children: ${node.children_count}</span>`:"";
-
+            html`<span class="label label-primary">${node.children_count} Terms</span>`:"";
         const lastIndex = parent?.nodes?.length;
         return html`
             <div role="tablist">
@@ -207,8 +203,7 @@ export default class VariantModalOntology extends LitElement {
                             <span @click="${() => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
                                 ${isExpanded(!node.state.expanded)}
                             </span>
-                            ${node.name} ${childrenSize}
-                            ${isLoading(node.state.loading)}
+                            ${node.name} ${childrenSize} ${isLoading(node.state.loading)}
                         </span>`:
                         html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
                 </div>
@@ -222,7 +217,6 @@ export default class VariantModalOntology extends LitElement {
     }
 
     render() {
-
         return html`
             <div class="modal fade" id="${this._config.ontologyFilter}_ontologyModal" tabindex="-1" role="dialog"
                 aria-labelledby="ontologyLabel">
@@ -254,10 +248,10 @@ export default class VariantModalOntology extends LitElement {
                                         ${this.selectedItem ? html`
                                             <ul class="list-group infoHpo">
                                                 <li class="list-group-item">
-                                                    <strong>Name:</strong>${this.selectedItem.name}
+                                                    <strong>Name: </strong>${this.selectedItem.name}
                                                 </li>
                                                 <li class="list-group-item">
-                                                    <strong>Id:</strong>${this.selectedItem.obo_id}
+                                                    <strong>ID: </strong>${this.selectedItem.obo_id}
                                                 </li>
                                                 <li class="list-group-item"><strong>IRI: </strong>
                                                     <a href="${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}" target="_blank">
@@ -265,10 +259,10 @@ export default class VariantModalOntology extends LitElement {
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">
-                                                    <strong>Synonyms:</strong>${this.selectedItem.synonyms?.join(", ")}
+                                                    <strong>Synonyms: </strong>${this.selectedItem.synonyms?.join(", ")}
                                                 </li>
                                                 <li class="list-group-item">
-                                                    <strong>Description:</strong>${this.selectedItem.description}
+                                                    <strong>Description: </strong>${this.selectedItem.description}
                                                 </li>
                                                 <li class="list-group-item">
                                                     <strong>Comment: </strong>${this.selectedItem?.comment}
