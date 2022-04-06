@@ -30,8 +30,8 @@ context("1 - Header bar (pre-login): checks on Header Bar elements", () => {
     it("1.1 - check login page content", () => {
         cy.get("#loginButton", {timeout: TIMEOUT}).should("be.visible");
         cy.get("#loginButton").click();
-        cy.get("#opencgaUser").should("be.visible");
-        cy.get("#opencgaPassword").should("be.visible");
+        cy.get("user-login .panel-body #user").should("be.visible");
+        cy.get("user-login .panel-body #password").should("be.visible");
     });
 
     it("1.2 - check header-bar icons resolve correctly", () => {

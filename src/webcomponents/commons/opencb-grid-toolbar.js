@@ -75,6 +75,7 @@ export default class OpencbGridToolbar extends LitElement {
         }));
     }
 
+    // not used as changes to exportFields is not propagated outside opencga-export anymore (exportFields is now sent on click on download button via `export` event)
     onChangeExportField(e) {
         // simply forwarding from opencga-export to grid components
         LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
@@ -209,7 +210,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
                                         ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export (Beta)
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
                                     </button>
                                 </div>
                             ` : null}

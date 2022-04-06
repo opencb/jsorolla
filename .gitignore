@@ -10,6 +10,7 @@ dist-genome/
 custom-conf
 custom-sites
 *.tar.gz
+package-lock.json
 
 npm-debug.log
 
