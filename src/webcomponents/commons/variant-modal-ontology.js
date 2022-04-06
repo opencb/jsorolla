@@ -43,29 +43,14 @@ export default class VariantModalOntology extends LitElement {
             selectedTerms: {
                 type: String
             },
+            cellbaseClient: {
+                type: Object
+            }
         };
     }
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.ontologyConfig = {
-            root: "https://ws.zettagenomics.com/cellbase/webservices/rest/v5/hsapiens/feature/ontology",
-            tree: {
-                "HP": [
-                    "HP:0012823",
-                    "HP:0040279",
-                    "HP:0000005",
-                    "HP:0040006",
-                    "HP:0000118",
-                ],
-                "GO": [
-                    "GO:0008150",
-                    "GO:0005575",
-                    "GO:0003674"
-                ],
-            },
-            search: "/search",
-        };
         this.rootTree = {text: "All", nodes: [], selectable: false};
         this.selectedTerms = null;
     }
@@ -106,14 +91,14 @@ export default class VariantModalOntology extends LitElement {
     }
 
     #getGoTerm(goTerm, isParent = false, skip = 0) {
-        if (!isParent) {
-            return this.ontologyConfig.root + this.ontologyConfig.search + "?id=" + goTerm + "&sort=name&order=ASCENDING&skip=0&limit=10";
-        }
-
-        if (isParent) {
-            return this.ontologyConfig.root + this.ontologyConfig.search + "?parents=" + goTerm + "&sort=name&order=ASCENDING&limit=10&skip=" + skip;
-        }
-
+        const query = {
+            [!isParent ? "id" : "parents"]: goTerm,
+            sort: "name",
+            order: "ASCENDING",
+            skip: !isParent? 0:skip,
+            limit: 10
+        };
+        return this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
     }
 
     #getOntologies(results, child) {
@@ -138,12 +123,11 @@ export default class VariantModalOntology extends LitElement {
     }
 
     async loadTermsTree() {
-        const defaultsNodes = this.ontologyConfig.tree[this._config.ontologyFilter];
+        const defaultsNodes = this._config.tree[this._config.ontologyFilter];
         if (UtilsNew.isNotEmptyArray(defaultsNodes)) {
             try {
-                const fetchOntology = await fetch(this.#getGoTerm(defaultsNodes.join(",")));
-                const ontologyTerms = await fetchOntology.json();
-                const results = ontologyTerms.responses[0].results;
+                const fetchOntology = await this.#getGoTerm(defaultsNodes.join(","));
+                const results = fetchOntology.responses[0].results;
                 this.rootTree.nodes = [...this.#getOntologies(results, false)];
                 this.requestUpdate();
             } catch (e) {
@@ -155,14 +139,12 @@ export default class VariantModalOntology extends LitElement {
     async toggleNode(node) {
         node.state.expanded = !node.state.expanded;
         this.rootTree = {...this.rootTree};
-        // this.requestUpdate(); Not necessary
         if (UtilsNew.isEmpty(node.nodes)) {
             node.state.loading = true;
             this.rootTree = {...this.rootTree};
             try {
-                const fetchOntologyChildren = await fetch(node.children);
-                const ontologyChildren = await fetchOntologyChildren.json();
-                const results = ontologyChildren.responses[0].results;
+                const fetchOntologyChildren = await node.children;
+                const results = fetchOntologyChildren.responses[0].results;
                 node.nodes = [...this.#getOntologies(results, node)];
                 node.state.loading = false;
                 this.rootTree = {...this.rootTree};
@@ -174,12 +156,9 @@ export default class VariantModalOntology extends LitElement {
     }
 
     async showMoreItems(node, lastIndex) {
-        // console.log("Node show more", node);
-        // Parent Id, Skip;
         try {
-            const fetchOntologyChildren = await fetch(this.#getGoTerm(node.obo_id, true, lastIndex));
-            const ontologyChildren = await fetchOntologyChildren.json();
-            const results = ontologyChildren.responses[0].results;
+            const fetchOntologyChildren = await this.#getGoTerm(node.obo_id, true, lastIndex);
+            const results = fetchOntologyChildren.responses[0].results;
             node.nodes = [...node.nodes, ...this.#getOntologies(results, node)];
             this.requestUpdate();
         } catch (e) {
@@ -191,48 +170,6 @@ export default class VariantModalOntology extends LitElement {
     selectItem(node) {
         this.selectedItem = node;
         this.requestUpdate();
-    }
-
-    // * This config is not necessary because this component uses ontology-autocomplete-filter
-    // * to provide the data depends on the source GO or HP.
-    //  ! Deprecated
-    getDefaultConfig() {
-        return {
-            limit: 10,
-            fields: item => {
-                return {
-                    name: item.text,
-                    id: item.id,
-                    IRI: item.iri,
-                };
-            },
-            select2Config: {
-                ajax: {
-                    transport: async (params, success, failure) => {
-                        const _params = params;
-                        _params.data.page = params.data.page || 1;
-                        const q = _params?.data?.term ? _params.data.term : "";
-                        try {
-                            const request = await fetch(this.ontologyConfig.root + this.ontologyConfig.search + "?id=^"+
-                                this.ontologyFilter + ":" + q + "&limit=" + this._config.limit + "&count=false");
-                            const json = await request.json();
-                            const results = json.responses[0].results;
-                            success(results);
-                        } catch (e) {
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-                            failure(e);
-                        }
-                    },
-                    processResults: (response, params) => {
-                        const _params = params;
-                        _params.page = _params.page || 1;
-                        return {
-                            results: response,
-                        };
-                    }
-                },
-            },
-        };
     }
 
     renderShowMore(showMore, index, lastIndex, node, parent) {
@@ -302,8 +239,9 @@ export default class VariantModalOntology extends LitElement {
                                 <div class="row">
                                     <div class="col-md-12">
                                         <ontology-autocomplete-filter
-                                            source="${this._config.ontologyFilter}"
+                                            .cellbaseClient="${this.cellbaseClient}"
                                             .value="${this.selectedTerms}"
+                                            .config="${this._config}"
                                             @filterChange="${this.updateTerms}">
                                         </ontology-autocomplete-filter>
                                     </div>
@@ -315,16 +253,26 @@ export default class VariantModalOntology extends LitElement {
                                     <div class="col-md-6">
                                         ${this.selectedItem ? html`
                                             <ul class="list-group infoHpo">
-                                                <li class="list-group-item"><strong>Name: </strong>${this.selectedItem.name} </li>
-                                                <li class="list-group-item"><strong>Id: </strong>${this.selectedItem.obo_id}</li>
+                                                <li class="list-group-item">
+                                                    <strong>Name:</strong>${this.selectedItem.name}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <strong>Id:</strong>${this.selectedItem.obo_id}
+                                                </li>
                                                 <li class="list-group-item"><strong>IRI: </strong>
                                                     <a href="${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}" target="_blank">
                                                         ${BioinfoUtils.getOboLink(this.selectedItem.obo_id)}
                                                     </a>
                                                 </li>
-                                                <li class="list-group-item"><strong>Synonyms: </strong>${this.selectedItem.synonyms?.join(", ")}</li>
-                                                <li class="list-group-item"><strong>Description: </strong>${this.selectedItem.description}</li>
-                                                <li class="list-group-item"><strong>Comment: </strong>${this.selectedItem?.comment}</li>
+                                                <li class="list-group-item">
+                                                    <strong>Synonyms:</strong>${this.selectedItem.synonyms?.join(", ")}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <strong>Description:</strong>${this.selectedItem.description}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <strong>Comment: </strong>${this.selectedItem?.comment}
+                                                </li>
                                             </ul>
                                             <button type="button" class="btn btn-default btn-small" @click="${() => this.addTerm(this.selectedItem.obo_id)}">Add Term</button>
                                         ` : ""}
@@ -339,6 +287,25 @@ export default class VariantModalOntology extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            tree: {
+                "HP": [
+                    "HP:0012823",
+                    "HP:0040279",
+                    "HP:0000005",
+                    "HP:0040006",
+                    "HP:0000118",
+                ],
+                "GO": [
+                    "GO:0008150",
+                    "GO:0005575",
+                    "GO:0003674"
+                ],
+            },
+        };
     }
 
 }

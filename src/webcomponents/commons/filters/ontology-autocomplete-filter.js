@@ -24,7 +24,6 @@ export default class OntologyAutocompleteFilter extends LitElement {
 
     constructor() {
         super();
-        this.#init();
     }
 
     createRenderRoot() {
@@ -33,22 +32,15 @@ export default class OntologyAutocompleteFilter extends LitElement {
 
     static get properties() {
         return {
-            source: {
-                type: String
-            },
             value: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             config: {
                 type: Object
             }
-        };
-    }
-
-    #init() {
-        this.ontologyConfig = {
-            root: "https://ws.zettagenomics.com/cellbase/webservices/rest/v5/hsapiens/feature/ontology",
-            search: "/search",
         };
     }
 
@@ -61,6 +53,16 @@ export default class OntologyAutocompleteFilter extends LitElement {
 
     onFilterChange(value) {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    }
+
+    render() {
+        return html`
+            <select-token-filter
+                .config=${this._config}
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange(e.detail.value)}">
+            </select-token-filter>
+        `;
     }
 
     getDefaultConfig() {
@@ -80,12 +82,14 @@ export default class OntologyAutocompleteFilter extends LitElement {
                     transport: async (params, success, failure) => {
                         const _params = params;
                         _params.data.page = params.data.page || 1;
-                        const term = _params?.data?.term ? _params.data.term : "";
+                        const query = {
+                            id: `^${_params?.data?.term ? _params.data.term : ""}`,
+                            limit: this._config.limit,
+                            source: this._config.ontologyFilter
+                        };
                         try {
-                            const fetchGoOntologies = await fetch(`${this.ontologyConfig.root}${this.ontologyConfig.search}?id=^${term}` +
-                            "&limit=" + this._config.limit + `&source=${this.source}`);
-                            const goOntologies = await fetchGoOntologies.json();
-                            const results = goOntologies.responses[0].results;
+                            const fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
+                            const results = fetchGoOntologies.responses[0].results;
                             const data = results.map(ontology => ({name: ontology.name, id: ontology.id}));
                             success(data);
                         } catch (e) {
@@ -103,16 +107,6 @@ export default class OntologyAutocompleteFilter extends LitElement {
                 },
             }
         };
-    }
-
-    render() {
-        return html`
-            <select-token-filter
-                .config=${this._config}
-                .value="${this.value}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>
-        `;
     }
 
 }

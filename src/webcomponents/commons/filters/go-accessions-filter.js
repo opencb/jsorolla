@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
 import "./ontology-autocomplete-filter.js";
-import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 
 
@@ -37,23 +36,22 @@ export default class GoAccessionsFilter extends LitElement {
         return {
             go: {
                 type: Object
+            },
+            cellbaseClient: {
+                type: Object
             }
         };
     }
 
     #init() {
-        this._prefix = "gaf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8) + "_";
         this.selectedTerms = "";
-        this.ontologyTerm = "GO";
-        this.ontologyFilter = "GO";
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
     }
 
     update(_changedProperties) {
         if (_changedProperties.has("go")) {
-            // this.selectedTerms = this.go ? this.go.split(/[,;]/) : [];
             this.selectedTerms = this.go;
-            // this.requestUpdate();
         }
         super.update(_changedProperties);
     }
@@ -85,7 +83,7 @@ export default class GoAccessionsFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    openModal(e) {
+    openModal(_e) {
         $("#GO_ontologyModal").modal("show");
     }
 
@@ -99,7 +97,7 @@ export default class GoAccessionsFilter extends LitElement {
     render() {
         return html`
             <ontology-autocomplete-filter
-                source="GO"
+                .cellbaseClient="${this.cellbaseClient}"
                 .value="${this.selectedTerms}"
                 .config="${this._config}"
                 @filterChange="${this.onFilterChange}">
@@ -111,6 +109,7 @@ export default class GoAccessionsFilter extends LitElement {
 
             <variant-modal-ontology
                 .config="${this._config}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .selectedTerms="${this.selectedTerms}"
                 @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>

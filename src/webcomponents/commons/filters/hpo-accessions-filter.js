@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
 import "./ontology-autocomplete-filter.js";
-import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 
 export default class HpoAccessionsFilter extends LitElement {
@@ -36,16 +35,17 @@ export default class HpoAccessionsFilter extends LitElement {
         return {
             "annot-hpo": {
                 type: Object
+            },
+            "cellbaseClient": {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "hpof-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8) + "_";
         this._selectedTermsArr = [];
-        this.ontologyTerm = "HPO";
-        this.ontologyFilter = "hp";
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.operator = ","; // or = , and = ;
     }
 
@@ -72,8 +72,6 @@ export default class HpoAccessionsFilter extends LitElement {
                 }
             } else {
                 this.selectedTerms = null;
-                // this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = "";
-                // $("input:radio").attr("disabled", true);
                 this.operator = null;
             }
         }
@@ -119,7 +117,7 @@ export default class HpoAccessionsFilter extends LitElement {
         this.notifyChange();
     }
 
-    openModal(e) {
+    openModal(_e) {
         $("#HP_ontologyModal").modal("show");
     }
 
@@ -136,6 +134,7 @@ export default class HpoAccessionsFilter extends LitElement {
 
             <ontology-autocomplete-filter
                 .value="${this.selectedTerms}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .config="${this._config}"
                 @filterChange="${this.onFilterChange}">
             </ontology-autocomplete-filter>
@@ -163,6 +162,7 @@ export default class HpoAccessionsFilter extends LitElement {
 
             <variant-modal-ontology
                 .config="${this._config}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .selectedTerms="${this.selectedTerms}"
                 @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>
