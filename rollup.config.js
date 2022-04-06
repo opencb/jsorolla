@@ -2,7 +2,6 @@ import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
 import minifyHTML from "rollup-plugin-minify-html-literals";
-import summary from "rollup-plugin-summary";
 import fs from "fs";
 import path from "path";
 import del from "rollup-plugin-delete";
@@ -116,7 +115,6 @@ export default sites.map(site => ({
             module: true,
             warnings: true
         }),
-        summary(),
         copy({
             targets: getCopyTargets(site),
         }),
