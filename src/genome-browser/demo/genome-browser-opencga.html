@@ -134,11 +134,6 @@
                 },
             });
 
-            // Register events listeners
-            genomeBrowser.on("region:change", event => {
-                console.log(event);
-            });
-
             // When GB is ready add tracks and draw
             genomeBrowser.on("ready", () => {
                 // Overview tracks
@@ -159,18 +154,6 @@
                         title: "Gene",
                         cellBaseClient: cellBaseClient,
                     }),
-                    // OpenCGA Variant track
-                    // new OpenCGAVariantTrack({
-                    //     title: "Variant (OpenCGA)",
-                    //     closable: false,
-                    //     histogramMinRegionSize: 200000,
-                    //     labelMaxRegionSize: 10000000,
-                    //     visibleRegionSize: 100000000,
-                    //     height: 100,
-                    //     opencgaClient: opencgaClient,
-                    //     opencgaStudy: "demo@family:platinum",
-                    //     // opencgaSamples: ["HG00096", "HG00097", "HG00099"],
-                    // }),
                     // OpenCGA Variant track with query
                     new OpenCGAVariantTrack({
                         title: "Variant (Samples)",
@@ -179,11 +162,11 @@
                         maxLabelRegionSize: 10000000,
                         minTranscriptRegionSize: 200000,
                         visibleRegionSize: 100000000,
-                        height: 80,
+                        height: 250,
                         opencgaClient: opencgaClient,
                         opencgaStudy: "demo@family:platinum",
                         query: {
-                            sample: "NA12877,NA12878",
+                            sample: "NA12877,NA12878,NA12889,NA12890,NA12891,NA12892",
                         },
                     }),
                 ]);
