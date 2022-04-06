@@ -63,7 +63,7 @@ export default class VariantRenderer extends Renderer {
 
                 const sampleGenotypeElement = SVG.addChild(group, "rect", {
                     "x": x,
-                    "y": (index + 1) * this.config.sampleHeight,
+                    "y": this.config.sampleHeaderHeight + (index * this.config.sampleHeight),
                     "width": width,
                     "height": this.config.sampleHeight - 2,
                     // "stroke": "#000000",
