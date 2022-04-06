@@ -131,11 +131,12 @@ export default class VariantBrowserGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this._config.toolbar,
             resource: "VARIANT",
+            showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+            ...this._config.toolbar,
             columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            // gridColumns: this._getDefaultColumns() // original column structure
+            gridColumns: this._getDefaultColumns() // original column structure
         };
     }
 
@@ -210,7 +211,10 @@ export default class VariantBrowserGrid extends LitElement {
 
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onClickRow: (row, selectedElement, field) => {
+                    // console.log(row)
+                    this.gridCommons.onClickRow(row.id, row, selectedElement);
+                },
                 onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -788,7 +792,8 @@ export default class VariantBrowserGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn,
             limit: 1000,
-            summary: !this.query.sample && !this.query.family,
+            summary: !this.query.sample && !this.query.family, // remove this to test includeSample param
+            // includeSample: "all" // TODO this causes a time-out
             ...this.query
         };
         this.opencgaSession.opencgaClient.variants().query(params)
@@ -796,14 +801,14 @@ export default class VariantBrowserGrid extends LitElement {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
+                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype, e.detail.exportFields);
                     UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results), "variants_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
             })
             .catch(response => {
-                // console.log(response);
+                console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
@@ -812,9 +817,10 @@ export default class VariantBrowserGrid extends LitElement {
             });
     }
 
-    onChangeExportField(e) {
+    // not used as changes to exportFields is not propagated outside opencga-export anymore (they are sent on click on download button via `export` event)
+    /* onChangeExportField(e) {
         this.exportFields = e.detail.value;
-    }
+    } */
 
     getDefaultConfig() {
         return {

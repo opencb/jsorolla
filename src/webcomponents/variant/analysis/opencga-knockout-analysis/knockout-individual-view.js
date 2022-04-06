@@ -232,7 +232,7 @@ export default class KnockoutIndividualView extends LitElement {
                     _.disorders.length ? _.disorders.map(disorder => disorder.name).join(",") : "-",
                     _.phenotypes.length ? _.phenotypes.map(disorder => disorder.name).join(",") : "-"
                 ].join("\t"))];
-            UtilsNew.downloadData(dataString, "knockout_individual_view" + this.opencgaSession.study.id + ".txt", "text/plain");
+            UtilsNew.downloadData(dataString, "knockout_individual_view" + this.opencgaSession.study.id + ".tsv", "text/plain");
         } else {
             UtilsNew.downloadData(JSON.stringify(this.tableData, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }

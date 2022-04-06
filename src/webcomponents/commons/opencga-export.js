@@ -52,15 +52,31 @@ export default class OpencgaExport extends LitElement {
             code: {cli: true}
         };
 
+        this.limit = 10; // fixed limit
+
         this.resourceMap = {
             "VARIANT": "variants",
+            "CLINICAL_VARIANT": "clinical",
             "FILE": "files",
             "SAMPLE": "samples",
             "INDIVIDUAL": "individuals",
             "COHORT": "cohorts",
             "FAMILY": "families",
             "CLINICAL_ANALYSIS": "clinical",
-            "JOB": "jobs"
+            "JOB": "jobs",
+            "DISEASE_PANEL": "panels"
+        };
+        this.rClients = {
+            "VARIANT": "variantClient",
+            "CLINICAL_VARIANT": "variantClient",
+            "FILE": "fileClient",
+            "SAMPLE": "sampleClient",
+            "INDIVIDUAL": "individualClient",
+            "COHORT": "cohortClient",
+            "FAMILY": "familyClient",
+            "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
+            "JOB": "jobClient",
+            "DISEASE_PANEL": "panelClient"
         };
 
         this.mode = "sync";
@@ -76,8 +92,8 @@ export default class OpencgaExport extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("query") || changedProperties.has("config")) {
             // this._config = {...this.getDefaultConfig(), ...this.config};
@@ -102,21 +118,43 @@ export default class OpencgaExport extends LitElement {
      * Build this.exportFields, which is a 1 or 2 dimensional array to keep track of the fields to include/exclude in TSV files.
      */
     buildExportFieldList() {
+        // check if the column list has changed. If not, avoid rebuilding of exportFields. That would make lose the current state.
+        // we can't use UtilsNew.objectCompare here as gridColumns in some browsers has circular structure.
+        if (JSON.stringify(this.config.gridColumns.flatMap(c => Array.isArray(c) ? c.map(x => x.id) : c.id)) === this.currentGridColumns) {
+            return;
+        } else {
+            this.currentGridColumns = JSON.stringify(this.config.gridColumns.flatMap(c => Array.isArray(c) ? c.map(x => x.id) : c.id));
+        }
+
         let subIndx = 0; // offset in second row
-        const [firstRow, secondRow] = this.config.gridColumns;
+        let firstRow;
+        let secondRow = [];
+        // check if 1D or 2D array
+        if (Array.isArray(this.config.gridColumns) && Array.isArray(this.config.gridColumns[0])) {
+            [firstRow, secondRow] = this.config.gridColumns;
+        } else {
+            firstRow = this.config.gridColumns;
+        }
+
         this.exportFields = [];
 
-        firstRow.forEach((c, i) => {
+        /* Building `exportFields` array. Each element has the form:
+            - {String} id: id of the column
+            - {Array} children: nested list elements
+            - {Boolean} export: flag to keeps the state for the TSV export (false won't be included as column in the file)
+            - {Boolean} excludeFromExport: flag to totally exclude the column from the list in this component and in the TSV (e.g. Action, checkboxes)
+         */
+        firstRow.filter(f => f?.visible !== false).forEach((c, i) => {
             if (c.rowspan !== 2 || !c.rowspan) {
                 // add sub Level
                 const subFields = secondRow.filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
                 subIndx += c.colspan ? c.colspan : 0;
-                this.exportFields.push({id: c.id, export: true, nested: subFields.map(s => ({id: s.id, export: true}))});
+                this.exportFields.push({id: c.id, export: true, children: subFields.map(s => ({id: s.id, export: true, excludeFromExport: s.excludeFromExport}))});
             } else {
                 if (c.rowspan !== 2 || !c.rowspan) {
                     subIndx += c.colspan ? c.colspan : 0;
                 }
-                this.exportFields.push({id: c.id, export: true});
+                this.exportFields.push({id: c.id, export: true, excludeFromExport: c.excludeFromExport});
             }
         });
     }
@@ -131,7 +169,9 @@ export default class OpencgaExport extends LitElement {
         $(`#${viewId} > .content-tab-wrapper > .content-tab`, this).removeClass("active");
         $("#" + this._prefix + tabId, this).addClass("active");
         for (const tab in this.activeTab[viewId]) {
-            this.activeTab[viewId][tab] = false;
+            if (Object.prototype.hasOwnProperty.call(this.activeTab[viewId], tab)) {
+                this.activeTab[viewId][tab] = false;
+            }
         }
         this.activeTab[viewId][tabId] = true;
         this.requestUpdate();
@@ -146,7 +186,7 @@ export default class OpencgaExport extends LitElement {
             return "OpencgaSession not available";
         }
 
-        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: 10};
+        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: this.limit};
         if (this.config.resource === "FILE") {
             q = {...q, type: this.config.resource};
         }
@@ -155,6 +195,10 @@ export default class OpencgaExport extends LitElement {
         if (this.config.resource === "VARIANT") {
             this.method = "query";
             ws = "analysis/variant/query";
+        } else if (this.config.resource === "CLINICAL_VARIANT") {
+            this.method = "query_variant";
+            ws = "analysis/clinical/variant/query";
+
         } else {
             this.method = "search";
         }
@@ -163,11 +207,22 @@ export default class OpencgaExport extends LitElement {
             case "url":
                 return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
             case "curl":
-                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}/"`;
+                return `curl -X GET --header "Accept: application/json" --header "Authorization: \
+                Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
             case "wget":
                 return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
             case "cli":
-                return `opencga.sh ${this.resourceMap[this.config.resource]} ${this.method} ${Object.entries(q).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
+                let client = this.resourceMap[this.config.resource];
+                let method = this.method;
+                if (this.config.resource === "CLINICAL_VARIANT") {
+                    client = "clinical";
+                    method = "variant-query";
+                }
+                const params = {...q};
+                params.token = params.sid;
+                delete params.sid;
+                return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
             case "js":
                 return this.generateJs();
             case "python":
@@ -178,41 +233,34 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateR() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
-        const clientsName = {
-            "VARIANT": "variantClient",
-            "FILE": "fileClient",
-            "SAMPLE": "sampleClient",
-            "INDIVIDUAL": "individualClient",
-            "COHORT": "cohortClient",
-            "FAMILY": "familyClient",
-            "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
-            "JOB": "jobClient"
-        };
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
+${this.resourceMap[this.config.resource]} = \
+${this.rClients[this.config.resource]}(OpencgaR = con, endpointName = "${this.toCamelCase(this.method)}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
         return this.lineSplitter(str);
     }
 
     generatePython() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `
 from pyopencga.opencga_config import ClientConfiguration
 from pyopencga.opencga_client import OpencgaClient
 
 config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
 oc = OpencgaClient(config, token="${this.opencgaSession.token}")
-${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', limit=10, ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
+${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
 print(${this.resourceMap[this.config.resource]}.get_responses())`;
         return this.lineSplitter(str);
     }
 
     generateJs() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: this.limit};
         const str = `
 import {OpenCGAClient} from "./opencga-client.js";
+const username = "${this.opencgaSession.user.id}";
+const password = ""; // your password here
 const client = new OpenCGAClient({
     host: "${this.opencgaSession.server.host}",
     version: "v2",
@@ -220,12 +268,12 @@ const client = new OpenCGAClient({
 });
 (async () => {
     try {
-        await client.login(user, password)
+        await client.login(username, password)
         const session = await client.createSession();
-        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.method}(${JSON.stringify(q)});
+        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.toCamelCase(this.method)}(${JSON.stringify(q)});
         console.log(restResponse.getResults());
     } catch (e) {
-        console.error(e)
+        console.error(e);
     }
 })();`;
         return this.lineSplitter(str);
@@ -277,6 +325,7 @@ const client = new OpenCGAClient({
 
     changeFormat(e) {
         e.preventDefault();
+        this.exportFieldsVisible = false;
         this.format = e.currentTarget.dataset.format;
         this.requestUpdate();
     }
@@ -284,6 +333,20 @@ const client = new OpenCGAClient({
     toggleExportField(e) {
         this.exportFieldsVisible = !this.exportFieldsVisible;
         this.requestUpdate();
+    }
+
+    /**
+     * Convert a string in snake_case into camelCase
+     * @param {String} str input in snake_case
+     * @returns {String} output in camelCase
+     */
+    toCamelCase(str) {
+        return str.toLowerCase().replace(/([-_][a-z])/g, group =>
+            group
+                .toUpperCase()
+                .replace("-", "")
+                .replace("_", "")
+        );
     }
 
     /**
@@ -296,25 +359,26 @@ const client = new OpenCGAClient({
     changeExportField(e, index, parentIndex) {
         const {checked} = e.currentTarget;
         if (parentIndex) {
-            this.exportFields[parentIndex].nested[index].export = checked;
+            this.exportFields[parentIndex].children[index].export = checked;
         } else {
             this.exportFields[index].export = checked;
-            // select all nested when you click on a parent, and the other way around
-            if (this.exportFields[index].nested) {
-                this.exportFields[index].nested = this.exportFields[index].nested.map(li => ({...li, export: checked}));
+            // select all children when you click on a parent, and the other way around
+            if (this.exportFields[index].children) {
+                this.exportFields[index].children = this.exportFields[index].children.map(li => ({...li, export: checked}));
             }
         }
         this.exportFields = [...this.exportFields];
-        this.dispatchEvent(new CustomEvent("changeExportField", {
+        /* this.dispatchEvent(new CustomEvent("changeExportField", {
             detail: this.exportFields
-        }));
+        })); */
         this.requestUpdate();
     }
 
     onDownloadClick() {
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
-                option: this.format
+                option: this.format,
+                exportFields: this.exportFields
             }
         }));
     }
@@ -363,18 +427,21 @@ const client = new OpenCGAClient({
                         </div>
                         <div>
                             ${this.format === "tab" && this.exportFields?.length ? html`
-                                <span data-toggle="collapse" data-target="#exportFields" @click="${this.toggleExportField}">
-                                    <i class="${this.exportFieldsVisible ? "fa fa-minus" : "fa fa-plus"}"></i>
+                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#exportFields">
                                     Customise export fields
                                 </span>
                                 <div id="exportFields" class="collapse">
                                     <ul>
-                                        ${this.exportFields.map((li, i) => html`
+                                        ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                         <li>
                                             <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
-                                            ${li.nested ? html`
+                                            ${li.children ? html`
                                                 <ul>
-                                                    ${li.nested.map((s, y) => html`<li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>`)}
+                                                    ${li.children
+                                                        .filter(li => !li.excludeFromExport)
+                                                        .map((s, y) => html`
+                                                            <li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>
+                                                        `)}
                                                 </ul>
                                             ` : ""}
                                         </li>
@@ -464,7 +531,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}url" class="content-tab active">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-url">
+                                <div class="code language-url" contentEditable="true">
                                     ${this.generateCode("url")}
                                 </div>
                             </div>
@@ -472,7 +539,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}curl" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-curl">
+                                <div class="code language-curl" contentEditable="true">
                                     ${this.generateCode("curl")}
                                 </div>
                             </div>
@@ -480,7 +547,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}wget" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-wget">
+                                <div class="code language-wget" contentEditable="true">
                                     ${this.generateCode("wget")}
                                 </div>
                             </div>
@@ -513,7 +580,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}cli" class="content-tab active">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-cli">
+                                <div class="code language-cli" contentEditable="true">
                                     ${this.generateCode("cli")}
                                 </div>
                             </div>
@@ -521,7 +588,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}python" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-python">
+                                <div class="code language-python" contentEditable="true">
                                     ${this.generateCode("python")}
                                 </div>
                             </div>
@@ -529,7 +596,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}r" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-r">
+                                <div class="code language-r" contentEditable="true">
                                     ${this.generateCode("r")}
                                 </div>
                             </div>
@@ -537,7 +604,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}js" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-javascript">
+                                <div class="code language-javascript" contentEditable="true">
                                     ${this.generateCode("js")}
                                 </div>
                             </div>

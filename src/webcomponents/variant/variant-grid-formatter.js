@@ -204,7 +204,8 @@ export default class VariantGridFormatter {
                     const tooltipText = `
                         ${geneViewMenuLink}
 
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
+    border-top: 1px solid #d9d9d9;'>External Links</div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
                         </div>
@@ -215,7 +216,8 @@ export default class VariantGridFormatter {
                              <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
                         </div>
 
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
+    border-top: 1px solid #d9d9d9;'>Clinical Resources</div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
                         </div>

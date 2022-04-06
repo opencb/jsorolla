@@ -16,8 +16,9 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
         // merge criterium: spread operator
         toolbar: {
             showColumns: true,
-            showExport: false,
-            showDownload: true
+            showDownload: false,
+            showExport: true,
+            exportTabs: ["download", "link", "code"]
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
@@ -27,6 +28,4 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]
 };
-
-export default DISEASE_PANEL_BROWSER_SETTINGS;
 

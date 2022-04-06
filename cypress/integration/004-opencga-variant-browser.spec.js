@@ -244,9 +244,9 @@ context("4. Variant Browser", () => {
             .then($div => {
                 // HPO filter is visible
                 if (Cypress.$(".subsection-content[data-cy='hpo']", $div).length) {
-                    selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant teratoma
-                    cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0012226");
-                    removeToken("hpo-accessions-filter", "HP:0012226");
+                    selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant thecoma
+                    cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0030983");
+                    removeToken("hpo-accessions-filter", "HP:0030983");
                 }
             });
     });
@@ -256,11 +256,11 @@ context("4. Variant Browser", () => {
         cy.get("variant-browser-filter a[data-cy-section-title='Deleteriousness']").click();
         cy.get("protein-substitution-score-filter .sift .score-comparator .select-field-filter").click();
         cy.get("protein-substitution-score-filter .sift .score-comparator .dropdown-menu").contains("<").click();
-        cy.get("protein-substitution-score-filter .sift .score-value input[type='text']").type("0.1");
+        cy.get("protein-substitution-score-filter .sift .score-value input[type='number']").type("0.1");
 
         cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
         cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains("≤").click();
-        cy.get("protein-substitution-score-filter .polyphen .score-value input[type='text']").type("0.1");
+        cy.get("protein-substitution-score-filter .polyphen .score-value input[type='number']").type("0.1");
 
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");

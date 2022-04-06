@@ -118,7 +118,7 @@ export default class IndividualQcInferredSex extends LitElement {
                 ].join("\t"),
                 data.join("\n")
             ];
-            UtilsNew.downloadData(dataString, "inferred_sex_" + this.opencgaSession.study.id + ".txt", "text/plain");
+            UtilsNew.downloadData(dataString, "inferred_sex_" + this.opencgaSession.study.id + ".tsv", "text/plain");
         } else {
             const data = this.individuals.map(individual => {
                 return {

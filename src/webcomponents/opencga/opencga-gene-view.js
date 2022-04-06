@@ -21,6 +21,8 @@ import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
 import "../variant/variant-browser-detail.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils";
+import {RestResponse} from "../../core/clients/rest-response";
 
 
 export default class OpencgaGeneView extends LitElement {
@@ -114,8 +116,17 @@ export default class OpencgaGeneView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             this.cellbaseClient.getGeneClient(this.geneId, "info", {exclude: "annotation", assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(async restResponse => {
+                .then(restResponse => {
                     this.gene = restResponse.getResult(0);
+                }).catch(e => {
+                    if (e instanceof RestResponse || e instanceof Error) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+                    } else {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, {
+                            value: "Generic Error: " + JSON.stringify(e)
+                        });
+                    }
+                }).finally(async () => {
                     this.requestUpdate();
                     await this.updateComplete;
                     UtilsNew.initTooltip(this);
