@@ -44,7 +44,7 @@ export default class GoAccessionsFilter extends LitElement {
     }
 
     #init() {
-        this._prefix = UtilsNew.randomString(8) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this.selectedTerms = "";
         this._config = this.getDefaultConfig();
     }
