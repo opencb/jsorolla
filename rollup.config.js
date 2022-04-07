@@ -11,10 +11,12 @@ import {terser} from "rollup-plugin-terser";
 import {execSync} from "child_process";
 import pkg from "./package.json";
 
+// eslint-disable-next-line no-undef
 const env = process.env || {};
+// eslint-disable-next-line no-undef
 const buildPath = path.join(__dirname, "build");
+// eslint-disable-next-line no-undef
 const sitesPath = path.join(__dirname, "src/sites");
-const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
 const internalCss = /(global|magic-check|style|toggle-switch)/gi;
 
@@ -72,13 +74,22 @@ const getSiteContent = name => {
 
 const getCopyTargets = site => {
     const targets = [
-        {src: `./src/sites/${site}/img`, dest: `${buildPath}/${site}/`},
-        {src: "./styles/img", dest: `${buildPath}/${site}/`},
-        // {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
-        // {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
-        {src: "./styles/fonts", dest: `${buildPath}/${site}/`},
-        // {src: "./node_modules/bootstrap/dist/fonts/*.woff2", dest: `${buildPath}/${site}/vendors/fonts`},
-        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2", dest: `${buildPath}/${site}/vendors/webfonts`},
+        {
+            src: `./src/sites/${site}/img`,
+            dest: `${buildPath}/${site}/`,
+        },
+        {
+            src: "./styles/img",
+            dest: `${buildPath}/${site}/`,
+        },
+        {
+            src: "./styles/fonts",
+            dest: `${buildPath}/${site}/`,
+        },
+        {
+            src: "./node_modules/@fortawesome/fontawesome-free/webfonts/*.woff2",
+            dest: `${buildPath}/${site}/vendors/webfonts`,
+        },
     ];
     if (env.npm_config_custom_site) {
         targets.push({

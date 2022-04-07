@@ -4,6 +4,7 @@ import {defineConfig} from "vite";
 import replace from "@rollup/plugin-replace";
 import pkg from "./package.json";
 
+// eslint-disable-next-line no-undef
 const env = process.env || {};
 const sites = ["iva", "api"];
 
@@ -15,20 +16,24 @@ const getCustomSitePath = (name, folder) => {
 };
 
 const transformHtmlContent = html => {
+    let outputHtml = html;
     sites.forEach(name => {
         const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        html = html.replace(regex, getCustomSitePath(name, "conf"));
+        outputHtml = outputHtml.replace(regex, getCustomSitePath(name, "conf"));
     });
-    return html;
+    return outputHtml;
 };
 
 const configureServer = server => {
     server.middlewares.use((req, res, next) => {
         if (env.npm_config_custom_site && req.url.startsWith("/src/sites") && req.url.includes("img")) {
             const customUrl = req.url.replace("/src/sites", `/custom-sites/${env.npm_config_custom_site}`);
+            // eslint-disable-next-line no-undef
             const originalPath = path.join(process.cwd(), req.url);
+            // eslint-disable-next-line no-undef
             const customPath = path.join(process.cwd(), customUrl);
             if (!fs.existsSync(originalPath) && fs.existsSync(customPath)) {
+                // eslint-disable-next-line no-param-reassign
                 req.url = customUrl; // Replace the url with the correct image path
             }
         }
