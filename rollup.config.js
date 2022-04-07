@@ -1,6 +1,7 @@
 import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
 import minifyHTML from "rollup-plugin-minify-html-literals";
 import fs from "fs";
 import path from "path";
@@ -92,6 +93,12 @@ export default sites.map(site => ({
     plugins: [
         del({
             targets: `build/${site}`,
+        }),
+        replace({
+            preventAssignment: true,
+            values: {
+                "process.env.VERSION": JSON.stringify(pkg.version),
+            },
         }),
         html({
             rootDir: `${sitesPath}/${site}/`,
