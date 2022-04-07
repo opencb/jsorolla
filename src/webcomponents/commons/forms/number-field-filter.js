@@ -128,6 +128,7 @@ export default class NumberFieldFilter extends LitElement {
         return {
             layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
             comparator: true,
+            comparatorForceSelection: true,
             values: this.defaultComparators.filter(item => {
                 return wantedComparators.includes(item.id);
             }),
@@ -148,6 +149,7 @@ export default class NumberFieldFilter extends LitElement {
                             <select-field-filter
                                     .data="${this._config.values}"
                                     .value="${this.state.comparator}"
+                                    ?forceSelection="${this._config.comparatorForceSelection}"
                                     @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">
                             </select-field-filter>
                         </div>` : null
