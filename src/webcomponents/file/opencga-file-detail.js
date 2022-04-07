@@ -23,7 +23,7 @@ export default class OpencgaFileDetail extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,7 +47,7 @@ export default class OpencgaFileDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.file = null;
         this._config = this.getDefaultConfig();
     }
@@ -72,13 +72,15 @@ export default class OpencgaFileDetail extends LitElement {
                     this.file = null;
                     console.error(restResponse);
                 });
+        } else {
+            this.file = null;
         }
     }
 
     render() {
         if (!this.file) {
             return html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> File not found.</div>`;
+                <div class="alert alert-info" style="margin-top:12px"><i class="fas fa-3x fa-info-circle align-middle"></i> File not found.</div>`;
         }
 
         return html`
