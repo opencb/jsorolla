@@ -233,6 +233,9 @@ class IvaApp extends LitElement {
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
 
+        // Get version from env variable
+        this.version = process.env.VERSION;
+
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
@@ -1701,8 +1704,9 @@ class IvaApp extends LitElement {
             </div>
 
             <custom-footer
-                .host=${this.host}
-                .config=${this.config}>
+                .version="${this.version}"
+                .host="${this.host}"
+                .config="${this.config}">
             </custom-footer>
         `;
     }
