@@ -24,7 +24,7 @@ export default class HpoAccessionsFilter extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -42,7 +42,7 @@ export default class HpoAccessionsFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this._selectedTermsArr = [];
         this._config = this.getDefaultConfig();
@@ -117,7 +117,7 @@ export default class HpoAccessionsFilter extends LitElement {
         this.notifyChange();
     }
 
-    openModal(_e) {
+    openModal() {
         $("#HP_ontologyModal").modal("show");
     }
 

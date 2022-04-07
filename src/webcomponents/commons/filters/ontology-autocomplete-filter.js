@@ -22,10 +22,6 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class OntologyAutocompleteFilter extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }

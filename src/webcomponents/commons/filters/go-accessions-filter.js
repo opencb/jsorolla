@@ -83,7 +83,7 @@ export default class GoAccessionsFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    openModal(_e) {
+    openModal() {
         $("#GO_ontologyModal").modal("show");
     }
 

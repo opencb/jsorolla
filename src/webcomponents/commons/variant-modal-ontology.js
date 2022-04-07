@@ -166,7 +166,6 @@ export default class VariantModalOntology extends LitElement {
         }
     }
 
-
     selectItem(node) {
         this.selectedItem = node;
         this.requestUpdate();
