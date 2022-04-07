@@ -479,6 +479,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <go-accessions-filter
                             .go="${this.preparedQuery.go}"
+                            .cellbaseClient="${this.cellbaseClient}"
                             @ontologyModalOpen="${this.onOntologyModalOpen}"
                             @filterChange="${e => this.onFilterChange("go", e.detail.value)}">
                         </go-accessions-filter>`;
@@ -487,6 +488,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <hpo-accessions-filter
                             .annot-hpo="${this.preparedQuery["annot-hpo"]}"
+                            .cellbaseClient="${this.cellbaseClient}"
                             @ontologyModalOpen="${this.onOntologyModalOpen}"
                             @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
                         </hpo-accessions-filter>`;
