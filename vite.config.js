@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import {defineConfig} from "vite";
+import replace from "@rollup/plugin-replace";
+import pkg from "./package.json";
 
 const env = process.env || {};
 const sites = ["iva", "api"];
@@ -46,6 +48,15 @@ export default defineConfig({
         outDir: "build"
     },
     plugins: [
+        {
+            ...replace({
+                preventAssignment: true,
+                values: {
+                    "process.env.VERSION": JSON.stringify(pkg.version),
+                },
+            }),
+            apply: "serve",
+        },
         {
             name: "html-transform",
             transformIndexHtml: transformHtmlContent,
