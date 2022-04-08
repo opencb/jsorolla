@@ -184,7 +184,7 @@ export default class GenomeBrowserUtils {
     }
 
     // Sample genotype tooltip title formatter
-    static sampleGenotypeTooltipTitleFormatter(feature, sample) {
+    static sampleGenotypeTooltipTitleFormatter() {
         return "";
     }
 
