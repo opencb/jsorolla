@@ -115,6 +115,9 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                 style: `opacity:${this.config.sampleBackgroundOpacity}`,
             });
         });
+
+        // Update track height
+        this.height = this.config.sampleHeaderHeight + this.sampleNames.length * this.config.sampleHeight;
     }
 
     getData(options) {
