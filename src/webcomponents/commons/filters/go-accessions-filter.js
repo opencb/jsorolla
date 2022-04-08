@@ -17,8 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
-import "./accessions-autocomplete-filter.js";
-import LitUtils from "../utils/lit-utils.js";
+import "./ontology-autocomplete-filter.js";
 import NotificationUtils from "../utils/notification-utils.js";
 
 
@@ -26,9 +25,7 @@ export default class GoAccessionsFilter extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -39,23 +36,22 @@ export default class GoAccessionsFilter extends LitElement {
         return {
             go: {
                 type: Object
+            },
+            cellbaseClient: {
+                type: Object
             }
         };
     }
 
-    _init() {
-        this._prefix = "gaf-" + UtilsNew.randomString(6) + "_";
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
         this.selectedTerms = "";
-        this.ontologyTerm = "GO";
-        this.ontologyFilter = "go";
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     update(_changedProperties) {
         if (_changedProperties.has("go")) {
-            // this.selectedTerms = this.go ? this.go.split(/[,;]/) : [];
             this.selectedTerms = this.go;
-            // this.requestUpdate();
         }
         super.update(_changedProperties);
     }
@@ -87,33 +83,33 @@ export default class GoAccessionsFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    openModal(e) {
-        $("#go_ontologyModal").modal("show");
+    openModal() {
+        $("#GO_ontologyModal").modal("show");
     }
 
     getDefaultConfig() {
         return {
             placeholder: "GO:0000145",
-            ontologyFilter: "go"
+            ontologyFilter: "GO"
         };
     }
 
     render() {
         return html`
-            <accessions-autocomplete-filter
-                ontologyFilter="go"
+            <ontology-autocomplete-filter
+                .cellbaseClient="${this.cellbaseClient}"
                 .value="${this.selectedTerms}"
                 .config="${this._config}"
                 @filterChange="${this.onFilterChange}">
-            </accessions-autocomplete-filter>
+            </ontology-autocomplete-filter>
 
             <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
                 <i class="fa fa-search" aria-hidden="true"></i>  Browse GO Terms
             </button>
 
             <variant-modal-ontology
-                term="GO"
                 .config="${this._config}"
+                .cellbaseClient="${this.cellbaseClient}"
                 .selectedTerms="${this.selectedTerms}"
                 @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>
