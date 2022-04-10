@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../forms/number-field-filter.js";
 
 
 export default class CohortStatsFilter extends LitElement {
@@ -145,7 +146,7 @@ export default class CohortStatsFilter extends LitElement {
             }
 
             // If not cohort are left then we remove everything?
-            if (this.state[study].length === 0) {
+            if (this.state[study]?.length === 0) {
                 delete this.state[study];
             }
         }
@@ -183,12 +184,12 @@ export default class CohortStatsFilter extends LitElement {
 
                     <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
                         ${study.cohorts.map(cohort => {
-                            const stateCohort = this.state?.[study.id]?.find(c => c.id === cohort.id);
+                            const stateCohort = this.state?.[study.id]?.find(c => c.cohort === cohort.id);
                             return html`
                                 <div class="form-group" style="margin: 5px 0px">
                                     <number-field-filter
                                         .value="${stateCohort?.value ?
-                                            (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") :
+                                            (stateCohort?.comparator ?? this.defaultComparator) + (stateCohort.value ?? "") :
                                             ""}"
                                         .config="${{comparator: true, layout: [3, 4, 5]}}"
                                         .label="${cohort.id}"
