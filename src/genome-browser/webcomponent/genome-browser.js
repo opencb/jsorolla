@@ -1019,4 +1019,4 @@ export default class GenomeBrowserComponent extends LitElement {
 
 }
 
-customElements.define("genome-browser", GenomeBrowserComponent);
+customElements.define("genome-browser-old", GenomeBrowserComponent);
