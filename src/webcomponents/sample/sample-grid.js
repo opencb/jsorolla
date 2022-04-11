@@ -371,10 +371,17 @@ export default class SampleGrid extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.attributes.OPENCGA_CLINICAL_ANALYSIS?.id}">
-                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
-                                </a>
+                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ?
+                                    row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter (${clinicalAnalysis.id})
+                                        </a>
+                                    `).join("") :
+                                    `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
+                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
+                                    </a>`
+                                }
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>

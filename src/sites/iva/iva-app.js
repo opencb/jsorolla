@@ -1474,7 +1474,12 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["sampleVariantStatsBrowser"] ? html`
                     <div class="content" id="sampleVariantStatsBrowser">
-                        <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-variant-stats-browser>
+                        <sample-variant-stats-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .sampleId="${this.sampleId}"
+                            .active="${true}"
+                            .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
+                        </sample-variant-stats-browser>
                     </div>
                 ` : null}
 
