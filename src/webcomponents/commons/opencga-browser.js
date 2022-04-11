@@ -311,6 +311,8 @@ export default class OpencgaBrowser extends LitElement {
     renderView(entity) {
         // TODO be sure to execute this function each template update, otherwise props in the following components won't be updated.
         // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
+
+        // !DEPRECATED
         const facetView = html`
             <div id="facet-tab" class="content-tab">
                 <opencb-facet-results
@@ -322,174 +324,44 @@ export default class OpencgaBrowser extends LitElement {
                 </opencb-facet-results>
             </div>
         `;
+        // ///////////
 
-        switch (entity) {
-            case "FILE":
-                this.endpoint = this.opencgaSession.opencgaClient.files();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <opencga-file-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.result.grid}"
-                            .query="${this.executedQuery}"
-                            .eventNotifyName="${this.eventNotifyName}"
-                            @selectrow="${e => this.onClickRow(e, "file")}">
-                        </opencga-file-grid>
-                        <opencga-file-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .fileId="${this.detail.file?.id}">
-                        </opencga-file-detail>
-                    </div>
-                    ${facetView}
-                `;
-            case "SAMPLE":
-                this.endpoint = this.opencgaSession.opencgaClient.samples();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <sample-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.executedQuery}"
-                            .config="${this.config.filter.result.grid}"
-                            .active="${true}"
-                            @selectrow="${e => this.onClickRow(e, "sample")}">
-                        </sample-grid>
-                        <sample-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .sampleId="${this.detail.sample?.id}">
-                        </sample-detail>
-                    </div>
-                    ${facetView}`;
-            case "INDIVIDUAL":
-                this.endpoint = this.opencgaSession.opencgaClient.individuals();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <individual-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.result.grid}"
-                            .eventNotifyName="${this.eventNotifyName}"
-                            .query="${this.executedQuery}"
-                            .active="${true}"
-                            @selectrow="${e => this.onClickRow(e, "individual")}">
-                        </individual-grid>
-                        <individual-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .individualId="${this.detail.individual?.id}">
-                        </individual-detail>
-                    </div>
-                    ${facetView}`;
-            case "COHORT":
-                this.endpoint = this.opencgaSession.opencgaClient.cohorts();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <cohort-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.executedQuery}"
-                            .search="${this.executedQuery}"
-                            .config="${this.config.filter.result.grid}"
-                            .eventNotifyName="${this.eventNotifyName}"
-                            .active="${true}"
-                            @selectrow="${e => this.onClickRow(e, "cohort")}">
-                        </cohort-grid>
-                        <cohort-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .cohortId="${this.detail.cohort?.id}">
-                        </cohort-detail>
-                    </div>
-                    ${facetView}`;
-            case "FAMILY":
-                this.endpoint = this.opencgaSession.opencgaClient.families();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <family-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.executedQuery}"
-                            .config="${this.config.filter.result.grid}"
-                            .active="${true}"
-                            .eventNotifyName="${this.eventNotifyName}"
-                            @selectrow="${e => this.onClickRow(e, "family")}">
-                        </family-grid>
-                        <opencga-family-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .family="${this.detail.family}">
-                        </opencga-family-detail>
-                    </div>
-                    ${facetView}`;
-            case "CLINICAL_ANALYSIS":
-                this.endpoint = this.opencgaSession.opencgaClient.clinical();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <clinical-analysis-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.result.grid}"
-                            .query="${this.executedQuery}"
-                            .search="${this.executedQuery}"
-                            .active="${true}"
-                            @selectanalysis="${this.onSelectClinicalAnalysis}"
-                            @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
-                        </clinical-analysis-grid>
-                        <clinical-analysis-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}">
-                        </clinical-analysis-detail>
-                    </div>
-                `;
-            case "DISEASE_PANEL":
-                this.endpoint = this.opencgaSession.opencgaClient.panels();
-                return html`
-                        <div id="table-tab" class="content-tab active">
-                            <disease-panel-grid
-                                .opencgaSession="${this.opencgaSession}"
-                                .query="${this.executedQuery}"
-                                .search="${this.executedQuery}"
-                                .config="${this.config.filter.result.grid}"
-                                .eventNotifyName="${this.eventNotifyName}"
-                                .active="${true}"
-                                @selectrow="${e => this.onClickRow(e, "diseasePanel")}">
-                            </disease-panel-grid>
-                            <disease-panel-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${this.config.filter.detail}"
-                                .diseasePanelId="${this.detail.diseasePanel?.id}">
-                            </disease-panel-detail>
-                        </div>
-                        ${facetView}`;
-            case "JOB":
-                this.endpoint = this.opencgaSession.opencgaClient.jobs();
-                return html`
-                    <div id="table-tab" class="content-tab active">
-                        <job-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.result.grid}"
-                            .query="${this.executedQuery}"
-                            .search="${this.executedQuery}"
-                            .eventNotifyName="${this.eventNotifyName}"
-                            .files="${this.files}"
-                            @selectrow="${e => this.onClickRow(e, "job")}">
-                        </job-grid>
-                        <opencga-job-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${this.config.filter.detail}"
-                            .jobId="${this.detail.job?.id}">
-                        </opencga-job-detail>
-                    </div>
-                    ${facetView}
-                    <div id="visual-browser-tab" class="content-tab">
-                        <jobs-timeline
-                            .opencgaSession="${this.opencgaSession}"
-                            .active="${this.activeTab["visual-browser-tab"]}"
-                            .query="${this.executedQuery}">
-                        </jobs-timeline>
-                    </div>
-                `;
-            default:
-                return html`entity not recognized`;
+        const entities = ({
+            FILE: () => this.opencgaSession.opencgaClient.files(),
+            SAMPLE: () => this.opencgaSession.opencgaClient.samples(),
+            INDIVIDUAL: () => this.opencgaSession.opencgaClient.individuals(),
+            COHORT: () => this.opencgaSession.opencgaClient.cohorts(),
+            FAMILY: () => this.opencgaSession.opencgaClient.families(),
+            CLINICAL_ANALYSIS: () => this.opencgaSession.opencgaClient.clinical(),
+            DISEASE_PANEL: () => this.opencgaSession.opencgaClient.panels(),
+            JOB: () => this.opencgaSession.opencgaClient.jobs(),
+        });
+
+        const params = {
+            opencgaSession: this.opencgaSession,
+            config: this.config,
+            executedQuery: this.executedQuery,
+            detail: this.detail,
+            resource: this.resource,
+            facetQuery: this.facetQuery,
+            facetResults: this.facetResults,
+            eventNotifyName: this.eventNotifyName,
+            activeTab: name => this.activeTab[name],
+            onClickRow: (e, eventName) => this.onClickRow(e, eventName),
+        };
+
+        if (!entities[entity]) {
+            return html`entity not recognized`;
         }
+
+        this.endpoint = entities[entity]();
+
+        return this.config.views.map(view =>
+            html`
+                <div id="${view.id}" class="content-tab ${view?.active?"active":""}">
+                    ${view.render(params)}
+                </div>
+            `);
     }
 
     render() {

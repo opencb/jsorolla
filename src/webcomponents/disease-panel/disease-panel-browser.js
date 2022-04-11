@@ -94,7 +94,22 @@ export default class DiseasePanelBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <disease-panel-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}">
+                        </disease-panel-grid>
+                        <disease-panel-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .diseasePanelId="${params.detail.diseasePanel?.id}">
+                        </disease-panel-detail>`
                 },
             ],
             filter: {

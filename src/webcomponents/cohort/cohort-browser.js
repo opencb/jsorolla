@@ -97,12 +97,35 @@ export default class CohortBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html `
+                        <cohort-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "cohort")}">
+                        </cohort-grid>
+                        <cohort-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .cohortId="${params.detail.cohort?.id}">
+                        </cohort-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.activeTab("facet-tab")}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }/*
                 {
                     id: "comparator-tab",

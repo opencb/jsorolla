@@ -17,6 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "../commons/opencb-facet-results.js";
+import "./job-timeline.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -94,15 +96,44 @@ export default class JobBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
+                    render: params => html`
+                        <job-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .files="${params.files}"
+                            @selectrow="${e => params.onClickRow(e, "job")}">
+                        </job-grid>
+                        <opencga-job-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .jobId="${params.detail.job?.id}">
+                        </opencga-job-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.activeTab}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 },
                 {
                     id: "visual-browser-tab",
                     name: "Visual browser",
+                    render: params => html `
+                        <jobs-timeline
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.activeTab("visual-browser-tab")}"
+                            .query="${params.executedQuery}">
+                        </jobs-timeline>`
                 },
             ],
             filter: {

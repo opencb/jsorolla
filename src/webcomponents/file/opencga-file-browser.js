@@ -21,6 +21,7 @@ import "./file-preview.js";
 import "./file-view.js";
 import "../commons/opencga-browser.js";
 import UtilsNew from "../../core/utilsNew.js";
+import "../commons/opencb-facet-results.js";
 
 export default class OpencgaFileBrowser extends LitElement {
 
@@ -114,12 +115,34 @@ export default class OpencgaFileBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <opencga-file-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .query="${params.executedQuery}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            @selectrow="${e => params.onClickRow(e, "file")}">
+                        </opencga-file-grid>
+                        <opencga-file-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .fileId="${params.detail.file?.id}">
+                        </opencga-file-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.activeTab("facet-tab")}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>
+                    `
                 }
             ],
             filter: {
@@ -475,10 +498,11 @@ export default class OpencgaFileBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-            <opencga-browser resource="FILE"
-                             .opencgaSession="${this.opencgaSession}"
-                             .query="${this.query}"
-                             .config="${this._config}">
+            <opencga-browser
+                resource="FILE"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
             </opencga-browser>` : "";
     }
 

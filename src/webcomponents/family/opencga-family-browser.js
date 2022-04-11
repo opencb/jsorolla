@@ -110,12 +110,34 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html `
+                        <family-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .active="${true}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            @selectrow="${e => params.onClickRow(e, "family")}">
+                        </family-grid>
+                        <opencga-family-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .family="${params.detail.family}">
+                        </opencga-family-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.activeTab("facet-tab")}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }
                 /*
                 {

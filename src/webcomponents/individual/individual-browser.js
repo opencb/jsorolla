@@ -23,6 +23,7 @@ import "./qc/individual-qc-mendelian-errors.js";
 import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
+import "../commons/opencb-facet-results.js";
 
 export default class IndividualBrowser extends LitElement {
 
@@ -91,6 +92,16 @@ export default class IndividualBrowser extends LitElement {
         }
     }
 
+    render() {
+        return this.opencgaSession && this._config ? html`
+            <opencga-browser
+                resource="INDIVIDUAL"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>` : "";
+    }
+
     getDefaultConfig() {
         return {
             title: "Individual Browser",
@@ -100,12 +111,34 @@ export default class IndividualBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <individual-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .query="${params.executedQuery}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "individual")}">
+                        </individual-grid>
+                        <individual-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .individualId="${params.detail.individual?.id}">
+                        </individual-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.activeTab("facet-tab")}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }
                 /*
                 {
@@ -484,15 +517,6 @@ export default class IndividualBrowser extends LitElement {
         };
     }
 
-    render() {
-        return this.opencgaSession && this._config ? html`
-            <opencga-browser
-                resource="INDIVIDUAL"
-                .opencgaSession="${this.opencgaSession}"
-                .query="${this.query}"
-                .config="${this._config}">
-            </opencga-browser>` : "";
-    }
 
 }
 

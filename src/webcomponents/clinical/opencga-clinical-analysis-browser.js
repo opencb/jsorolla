@@ -108,7 +108,23 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: self => html `
+                        <clinical-analysis-grid
+                            .opencgaSession="${self.opencgaSession}"
+                            .config="${self.config.filter.result.grid}"
+                            .query="${self.executedQuery}"
+                            .search="${self.executedQuery}"
+                            .active="${true}"
+                            @selectanalysis="${self.onSelectClinicalAnalysis}"
+                            @selectrow="${e => self.onClickRow(e, "clinicalAnalysis")}">
+                        </clinical-analysis-grid>
+                        <clinical-analysis-detail
+                            .opencgaSession="${self.opencgaSession}"
+                            .config="${self.config.filter.detail}"
+                            .clinicalAnalysisId="${self.detail.clinicalAnalysis?.id}">
+                        </clinical-analysis-detail>
+                    `
                 }/*
                 {
                     id: "facet-tab",
