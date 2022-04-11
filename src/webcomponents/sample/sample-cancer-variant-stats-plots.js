@@ -90,31 +90,37 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     }
 
     signatureQuery() {
-        // console.log(this.queries);
-        // debugger
-        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+        const params = {
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
             ...this.query,
             ...this.queries?.["SNV"]
-        }).then(restResult => {
-            this.signature = restResult.responses[0].results[0];
-            this.dispatchEvent(new CustomEvent("changeSignature", {
-                detail: {
-                    signature: this.signature
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }).catch(response => {
-            this.signature = {
-                errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
-            };
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-        }).finally(() => {
-            this.requestUpdate();
-        });
+        };
+
+        // Add default region filter including only canonical chromosomes
+        if (!params.region) {
+            params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
+        }
+
+        this.opencgaSession.opencgaClient.variants().queryMutationalSignature(params)
+            .then(restResult => {
+                this.signature = restResult.responses[0].results[0];
+                this.dispatchEvent(new CustomEvent("changeSignature", {
+                    detail: {
+                        signature: this.signature
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            }).catch(response => {
+                this.signature = {
+                    errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
+                };
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            }).finally(() => {
+                this.requestUpdate();
+            });
     }
 
     deletionsStats() {
