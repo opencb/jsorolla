@@ -227,21 +227,23 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     .active="${this.active}"
                                     @changeCircosPlot="${this.onChangeCircosPlot}">
                                 </circos-view>
-            <!--<img width="640" src="https://www.researchgate.net/profile/Angela_Baker6/publication/259720064/figure/fig1/AS:613877578465328@1523371228720/Circos-plot-summarizing-somatic-events-A-summary-of-all-identified-somatic-genomic.png">-->
                             </div>
                             <div class="col-md-5">
                                 <div style="margin-bottom: 20px">
                                     <h2>Mutational Catalogue</h2>
-                                    <signature-view .signature="${this.signature}" .active="${this.active}"></signature-view>
-                                            <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
+                                    <signature-view
+                                        .signature="${this.signature}"
+                                        ?active="${this.active}">
+                                    </signature-view>
+                                    <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                 </div>
                                 <div style="padding-top: 20px">
                                     <h2>Small Deletions and Insertions</h2>
                                     <div class="">
                                         <h3>${this.deletionAggregationStatsResults?.[0].count} deletions and insertions</h3>
                                         <simple-chart
-                                            .title="Type"
-                                            .xAxisTitle="types"
+                                            title="Type"
+                                            xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.deletionTypeStats}"
                                             .config="${this.facetConfig}"
@@ -255,8 +257,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     <div class="">
                                         <h3>${this.aggregationStatsResults?.[0].count} rearrangements</h3>
                                         <simple-chart
-                                            .title="Type"
-                                            .xAxisTitle="types"
+                                            title="Type"
+                                            xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
                                             .config="${this.facetConfig}"
