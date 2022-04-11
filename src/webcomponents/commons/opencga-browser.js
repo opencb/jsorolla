@@ -308,34 +308,7 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    renderView(entity) {
-        // TODO be sure to execute this function each template update, otherwise props in the following components won't be updated.
-        // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
-
-        // !DEPRECATED
-        const facetView = html`
-            <div id="facet-tab" class="content-tab">
-                <opencb-facet-results
-                    resource="${this.resource}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .active="${this.activeTab["facet-tab"]}"
-                    .query="${this.facetQuery}"
-                    .data="${this.facetResults}">
-                </opencb-facet-results>
-            </div>
-        `;
-        // ///////////
-
-        const entities = ({
-            FILE: () => this.opencgaSession.opencgaClient.files(),
-            SAMPLE: () => this.opencgaSession.opencgaClient.samples(),
-            INDIVIDUAL: () => this.opencgaSession.opencgaClient.individuals(),
-            COHORT: () => this.opencgaSession.opencgaClient.cohorts(),
-            FAMILY: () => this.opencgaSession.opencgaClient.families(),
-            CLINICAL_ANALYSIS: () => this.opencgaSession.opencgaClient.clinical(),
-            DISEASE_PANEL: () => this.opencgaSession.opencgaClient.panels(),
-            JOB: () => this.opencgaSession.opencgaClient.jobs(),
-        });
+    renderView() {
 
         const params = {
             opencgaSession: this.opencgaSession,
@@ -349,12 +322,6 @@ export default class OpencgaBrowser extends LitElement {
             activeTab: name => this.activeTab[name],
             onClickRow: (e, eventName) => this.onClickRow(e, eventName),
         };
-
-        if (!entities[entity]) {
-            return html`entity not recognized`;
-        }
-
-        this.endpoint = entities[entity]();
 
         return this.config.views.map(view =>
             html`
@@ -525,7 +492,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-active-filters>
 
                             <div class="main-view">
-                                ${this.renderView(this.resource)}
+                                ${this.renderView()}
                             </div>
 
                             <!-- Other option: return an {string, TemplateResult} map -->
