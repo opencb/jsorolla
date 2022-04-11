@@ -274,7 +274,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
 
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
@@ -288,7 +288,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         unknownGenotype: "0/0"
                     };
 
-                    this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                    this.opencgaSession.opencgaClient.clinical().queryVariant(this.filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
                             params.success(res);
@@ -1073,26 +1073,10 @@ export default class VariantInterpreterGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
-            const samples = this.query.sample.split(";");
-            const sortedSamples = [];
-            for (const sample of samples) {
-                const sampleFields = sample.split(":");
-                if (sampleFields && sampleFields[0] === this.clinicalAnalysis.proband.samples[0].id) {
-                    sortedSamples.unshift(sample);
-                } else {
-                    sortedSamples.push(sample);
-                }
-            }
-            this.query.sample = sortedSamples.join(";");
-        }
-
         const filters = {
-            study: this.opencgaSession.study.fqn,
+            ...this.filters,
             limit: 1000,
             count: false,
-            includeSampleId: "true",
-            ...this.query
         };
         this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
             .then(restResponse => {
