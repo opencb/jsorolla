@@ -18,22 +18,21 @@ import {LitElement, html} from "lit";
 
 export default class CustomFooter extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
 
     static get properties() {
         return {
+            version: {
+                type: String,
+            },
             host: {
-                type: Object
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -43,7 +42,7 @@ export default class CustomFooter extends LitElement {
                 <div class="container">
                     <img style="height: 25px;" src="${this.config?.footerLogo}" alt="logo">
                     <p class="footer-item">
-                        IVA <sup>${this.config?.version}</sup>
+                        IVA <sup>${this.version || this.config?.version}</sup>
                     </p>
                     <p class="footer-item">
                         OpenCGA

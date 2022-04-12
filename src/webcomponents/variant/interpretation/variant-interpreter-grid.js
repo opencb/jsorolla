@@ -26,8 +26,6 @@ import "../../clinical/interpretation/clinical-interpretation-variant-review.js"
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
-// FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
-import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
@@ -73,13 +71,6 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
-
-        // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
-        this.cellbaseClient = new CellBaseClient({
-            host: "https://ws.zettagenomics.com/cellbase",
-            version: "v5",
-            species: "hsapiens"
-        });
 
         // Set colors
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
@@ -300,66 +291,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-
-                            // FIXME Temporary fix in IVA, THIS MUST BE FIXED IN CELLBASE ASAP!
-                            if (!this.opencgaSession.project.internal?.cellbase?.version.startsWith("v5.1")) {
-                                const geneSet = new Set();
-                                for (const variant of res.responses[0].results) {
-                                    variant.annotation.consequenceTypes
-                                        .filter(ct => ct.transcriptFlags?.includes("MANE Select"))
-                                        .map(ct => geneSet.add(ct.geneName));
-                                }
-                                // make sure there are some genes to query
-                                if (geneSet.size > 0) {
-                                    const geneNamesString = Array.from(geneSet).join(",");
-                                    this.cellbaseClient.get("feature", "gene", geneNamesString, "info", {
-                                        exclude: "transcripts.exons,transcripts.tfbs,transcripts.annotation,annotation",
-                                        source: "ensembl"
-                                    })
-                                        .then(genes => {
-                                            const refseqManeSelectSet = new Set();
-                                            const refseqManePlusClinicalSet = new Set();
-                                            for (const gene of genes.responses) {
-                                                if (gene.results?.length) {
-                                                    const transcripts = gene.results[0].transcripts
-                                                        .filter(t => t.flags?.includes("MANE Select") || t.flags?.includes("MANE Plus Clinical"));
-                                                    for (const transcript of transcripts) {
-                                                        const xref = transcript.xrefs.find(x => x.dbName === "mane_select_refseq");
-                                                        if (xref) {
-                                                            if (transcript.flags.includes("MANE Select")) {
-                                                                refseqManeSelectSet.add(xref.id);
-                                                            } else {
-                                                                refseqManePlusClinicalSet.add(xref.id);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            for (const variant of res.responses[0].results) {
-                                                for (const ct of variant.annotation.consequenceTypes) {
-                                                    if (!ct.transcriptFlags) {
-                                                        ct.transcriptFlags = [];
-                                                    }
-                                                    if (refseqManeSelectSet.has(ct.transcriptId)) {
-                                                        ct.transcriptFlags.push("MANE Select");
-                                                    }
-                                                    if (refseqManePlusClinicalSet.has(ct.transcriptId)) {
-                                                        ct.transcriptFlags.push("MANE Plus Clinical");
-                                                    }
-                                                }
-                                            }
-
-                                            params.success(res);
-                                        })
-                                        .catch(e =>{
-                                            console.error(e);
-                                        });
-                                } else {
-                                    params.success(res);
-                                }
-                            } else {
-                                params.success(res);
-                            }
+                            params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
