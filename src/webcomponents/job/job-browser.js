@@ -124,7 +124,7 @@ export default class JobBrowser extends LitElement {
                         <opencb-facet-results
                             resource="${params.resource}"
                             .opencgaSession="${params.opencgaSession}"
-                            .active="${params.activeTab}"
+                            .active="${params.active}"
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
@@ -135,7 +135,7 @@ export default class JobBrowser extends LitElement {
                     render: params => html `
                         <jobs-timeline
                             .opencgaSession="${params.opencgaSession}"
-                            .active="${params.activeTab("visual-browser-tab")}"
+                            .active="${params.active}"
                             .query="${params.executedQuery}">
                         </jobs-timeline>`
                 },

@@ -123,7 +123,7 @@ export default class SampleBrowser extends LitElement {
                         <opencb-facet-results
                             resource="${params.resource}"
                             .opencgaSession="${params.opencgaSession}"
-                            .active="${params.activeTab("facet-tab")}"
+                            .active="${params.active}"
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
