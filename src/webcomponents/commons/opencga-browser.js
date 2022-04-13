@@ -28,8 +28,6 @@ export default class OpencgaBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -74,8 +72,7 @@ export default class OpencgaBrowser extends LitElement {
 
         this.checkProjects = false;
 
-        this.activeFilterAlias = {
-        };
+        this.activeFilterAlias = {};
 
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
@@ -83,12 +80,7 @@ export default class OpencgaBrowser extends LitElement {
         this.detail = {};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        // we don't need _config here
-    }
-
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         $(".bootstrap-select", this).selectpicker();
         UtilsNew.initTooltip(this);
     }
@@ -97,12 +89,15 @@ export default class OpencgaBrowser extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
         if (changedProperties.has("selectedFacet")) {
             this.facetQueryBuilder();
         }
+
         super.update(changedProperties);
     }
 
@@ -262,19 +257,21 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onActiveFacetClear(e) {
+    onActiveFacetClear() {
         this.selectedFacet = {};
         this.onRun();
         this.requestUpdate();
     }
 
     onClickRow(e, resource) {
-        this.detail = {...this.detail, [resource]: e.detail.row};
+        this.detail = {
+            ...this.detail,
+            [resource]: e.detail.row,
+        };
         this.requestUpdate();
     }
 
     renderView() {
-
         if (!this.config.views) {
             return html`No view has been configured`;
         }
@@ -292,16 +289,14 @@ export default class OpencgaBrowser extends LitElement {
             onClickRow: (e, eventName) => this.onClickRow(e, eventName),
         };
 
-        return this.config.views.map(view =>
-            html`
-                <div id="${view.id}" class="content-tab ${view?.active?"active":""}">
-                    ${view.render(params)}
-                </div>
-            `);
+        return this.config.views.map(view => html`
+            <div id="${view.id}" class="content-tab ${view?.active ? "active" : ""}">
+                ${view.render(params)}
+            </div>
+        `);
     }
 
     renderfilter() {
-
         if (!this.config?.filter) {
             return html`${nothing}`;
         }
@@ -317,11 +312,11 @@ export default class OpencgaBrowser extends LitElement {
         return html`
             <div role="tabpanel" class="tab-pane active" id="filters_tab">
                 ${this.config.filter.render(params)}
-            </div>`;
+            </div>
+        `;
     }
 
     renderAggregation() {
-
         if (!this.config?.aggregation) {
             return html`${nothing}`;
         }
@@ -332,15 +327,14 @@ export default class OpencgaBrowser extends LitElement {
             onFacetQueryChange: this.onFacetQueryChange
         };
 
-
         return html `
             <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
                 ${this.config.aggregation.render(params)}
-            </div>`;
+            </div>
+        `;
     }
 
     renderButtonViews() {
-
         if (!this.config.views) {
             return html`No view has been configured`;
         }
@@ -356,8 +350,8 @@ export default class OpencgaBrowser extends LitElement {
                             @click="${this.onClickPill}"
                             data-id="${tab.id}">
                             <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
-                        </button>`
-                    )}
+                        </button>
+                    `)}
                 </div>
             </div>
         `;
