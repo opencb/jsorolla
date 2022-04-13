@@ -139,7 +139,7 @@ export default class DiseasePanelBrowser extends LitElement {
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
-                                field: "genes.name",
+                                field: "genes.id",
                                 resource: "DISEASE_PANEL"
                             },
                             {

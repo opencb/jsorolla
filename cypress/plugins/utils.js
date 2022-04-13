@@ -28,9 +28,9 @@ export const login = () => {
     cy.visit("http://localhost:3000/src/sites/iva/#login");
     const username = Cypress.env("username");
     const password = Cypress.env("password");
-    cy.get("#opencgaUser").type(username);
-    cy.get("#opencgaPassword").type(password, {log: false});
-    cy.get("form#formLogin").submit();
+    cy.get("user-login .panel-body #user").type(username);
+    cy.get("user-login .panel-body #password").type(password, {log: false});
+    cy.get("button.btn-primary").contains("Sign In").click();
 
     // temp fix
     cy.get(".login-overlay", {timeout: TIMEOUT}).should("be.visible");
@@ -121,7 +121,6 @@ export const checkResultsOrNot = (gridSelector, id) => {
 
         });
 };
-
 
 /**
  * Given column and row coordinates, it returns the value of a single cell out of a bootstrap table

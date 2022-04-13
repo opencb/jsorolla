@@ -19,6 +19,8 @@ import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
+import {RestResponse} from "../../core/clients/rest-response";
+import NotificationUtils from "../commons/utils/notification-utils";
 
 
 export default class OpencgaTranscriptView extends LitElement {
@@ -123,7 +125,15 @@ export default class OpencgaTranscriptView extends LitElement {
                     // let querySelector = PolymerUtils.getElementById(_this._prefix + "TranscriptSvg");
                     // querySelector.appendChild(svg);
                 }).catch(e => {
-                    console.error(e);
+                    if (e instanceof RestResponse || e instanceof Error) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+                    } else {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, {
+                            value: "Generic Error: " + JSON.stringify(e)
+                        });
+                    }
+                }).finally(async () => {
+                    this.requestUpdate();
                 });
 
         }

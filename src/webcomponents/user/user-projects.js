@@ -108,6 +108,15 @@ export default class UserProjects extends LitElement {
                     },
                 },
                 {
+                    title: "Data Release",
+                    text: project.attributes.release,
+                    type: "text",
+                    display: {
+                        textStyle: "padding-left:16px;",
+                        visible: !!project?.attributes?.release
+                    },
+                },
+                {
                     title: "Project Owner",
                     text: owner || "-",
                     type: "text",

@@ -99,9 +99,6 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
 
-// SETTINGS
-import DISEASE_PANEL_BROWSER_SETTINGS from "./conf/disease-panel-browser.settings.js";
-
 class IvaApp extends LitElement {
 
     constructor() {
@@ -235,6 +232,9 @@ class IvaApp extends LitElement {
 
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
+
+        // Get version from env variable
+        this.version = process.env.VERSION;
 
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
@@ -1214,11 +1214,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.genomeBrowser ? html`
                     <div class="content" id="genomeBrowser">
-                        <opencga-genome-browser
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .opencgaClient="${this.opencgaClient}">
-                        </opencga-genome-browser>
+                        Not available yet...
                     </div>
                 ` : null}
 
@@ -1604,7 +1600,10 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
+                        <user-profile
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${USER_PROFILE_SETTINGS}">
+                        </user-profile>
                     </div>
                 ` : null}
 
@@ -1704,8 +1703,9 @@ class IvaApp extends LitElement {
             </div>
 
             <custom-footer
-                .host=${this.host}
-                .config=${this.config}>
+                .version="${this.version}"
+                .host="${this.host}"
+                .config="${this.config}">
             </custom-footer>
         `;
     }

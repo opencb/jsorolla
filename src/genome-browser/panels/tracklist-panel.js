@@ -463,6 +463,14 @@ export default class TrackListPanel {
     setWidth(width) {
         // console.log(`trackListPanel setWidth ------> ${width}`);
         this.width = width - 18;
+
+        // Update track elements position
+        this.centerLine.style.left = `${this.width / 2}px`;
+
+        // Emit resize event
+        this.trigger("resize", {
+            width: this.width,
+        });
     }
 
     highlight(event) {
@@ -588,6 +596,9 @@ export default class TrackListPanel {
         if (!track.rendered) {
             track.render(this.tlTracksDiv);
         }
+
+        // Track resize
+        this.on("resize", event => track.setWidth(event.width));
 
         // Track region change listener
         this.on("trackRegion:change", event => {
