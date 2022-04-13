@@ -16,6 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "./utils/lit-utils.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
 import "./forms/select-field-filter.js";
@@ -131,14 +132,11 @@ export default class OpencgaBrowser extends LitElement {
                     this.executedQuery = {study: this.opencgaSession.study.fqn};
                 }
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
-                this.dispatchEvent(new CustomEvent("queryChange", {
-                    detail: this.preparedQuery
-                }));
+                LitUtils.dispatchCustomEvent(this, "queryChange", undefined, {
+                    ...this.preparedQuery,
+                });
                 this.detail = {};
-            } else {
-                // console.error("same queries")
             }
-            // this.requestUpdate();
         }
     }
 
@@ -149,7 +147,6 @@ export default class OpencgaBrowser extends LitElement {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
-                // timeout: 60000,
                 field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
@@ -159,13 +156,9 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     notifySearch(query) {
-        this.dispatchEvent(new CustomEvent("querySearch", {
-            detail: {
-                query: query
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchCustomEvent(this, "querySearch", undefined, {
+            query: query
+        });
     }
 
     async onRun() {
@@ -177,19 +170,6 @@ export default class OpencgaBrowser extends LitElement {
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
-        // this.requestUpdate();
-
-        /* if (Object.keys(this.selectedFacet).length) {
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                // timeout: 60000,
-                field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this._changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }*/
     }
 
     onFilterChange(e) {
@@ -221,11 +201,9 @@ export default class OpencgaBrowser extends LitElement {
     // TODO review
     // this is used only in case of Search button inside filter component. Only in Clinical Analysis Browser.
     onQueryFilterSearch(e) {
-        this.dispatchEvent(new CustomEvent("querySearch", {
-            detail: {
-                query: e.detail.query
-            }
-        }));
+        LitUtils.dispatchCustomEvent(this, "querySearch", undefined, {
+            query: e.detail.query,
+        });
     }
 
     onActiveFilterChange(e) {
