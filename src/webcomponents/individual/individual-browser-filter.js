@@ -20,7 +20,7 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/filters/disorder-id-autocomplete.js";
+import "../commons/filters/disorder-id-individuals-autocomplete.js";
 import "../commons/filters/phenotype-name-autocomplete.js";
 import "../commons/filters/ethnicity-autocomplete.js";
 import "../commons/forms/date-filter.js";
@@ -160,8 +160,8 @@ export default class IndividualBrowserFilter extends LitElement {
                 break;
             case "disorders":
                 content = html`
-                    <disorder-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                              @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-autocomplete>`;
+                    <disorder-id-individuals-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
+                                              @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-individuals-autocomplete>`;
                 break;
             case "phenotypes":
                 content = html`
