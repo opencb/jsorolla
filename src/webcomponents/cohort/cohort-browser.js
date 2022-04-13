@@ -18,6 +18,9 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "./cohort-grid.js";
+import "./cohort-browser-filter.js";
+import "./cohort-detail.js";
 
 export default class CohortBrowser extends LitElement {
 
@@ -136,6 +139,15 @@ export default class CohortBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html`
+                    <cohort-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        .variableSets="${params.variableSets}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </cohort-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -234,6 +246,12 @@ export default class CohortBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "numSamples[0..10]:1"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

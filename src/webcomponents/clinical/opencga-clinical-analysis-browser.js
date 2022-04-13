@@ -18,6 +18,9 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
+import "./clinical-analysis-grid.js";
+import "./clinical-analysis-browser-filter.js";
+import "./clinical-analysis-detail.js";
 
 
 export default class OpencgaClinicalAnalysisBrowser extends LitElement {
@@ -109,20 +112,20 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
-                    render: self => html `
+                    render: params => html `
                         <clinical-analysis-grid
-                            .opencgaSession="${self.opencgaSession}"
-                            .config="${self.config.filter.result.grid}"
-                            .query="${self.executedQuery}"
-                            .search="${self.executedQuery}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
                             .active="${true}"
-                            @selectanalysis="${self.onSelectClinicalAnalysis}"
-                            @selectrow="${e => self.onClickRow(e, "clinicalAnalysis")}">
+                            @selectanalysis="${params.onSelectClinicalAnalysis}"
+                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail
-                            .opencgaSession="${self.opencgaSession}"
-                            .config="${self.config.filter.detail}"
-                            .clinicalAnalysisId="${self.detail.clinicalAnalysis?.id}">
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .clinicalAnalysisId="${params.detail.clinicalAnalysis?.id}">
                         </clinical-analysis-detail>
                     `
                 }/*
@@ -136,6 +139,14 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 }*/
             ],
             filter: {
+                render: params => html `
+                    <clinical-analysis-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </clinical-analysis-browser-filter>`,
                 sections: [
                     {
                         name: "section title",

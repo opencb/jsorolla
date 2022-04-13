@@ -18,7 +18,11 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
+import "../commons/facet-filter.js";
 import "./job-timeline.js";
+import "./job-grid.js";
+import "./opencga-job-filter.js";
+import "./opencga-job-detail.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -138,6 +142,16 @@ export default class JobBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html `
+                    <opencga-job-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .files="${params.files}"
+                        .query="${params.query}"
+                        .variableSets="${params.variableSets}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </opencga-job-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -266,6 +280,12 @@ export default class JobBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "toolId>>executorId"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2,
                 },

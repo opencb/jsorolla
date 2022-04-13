@@ -18,6 +18,10 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
+import "../commons/facet-filter.js";
+import "./sample-grid.js";
+import "./sample-detail.js";
+import "./sample-browser-filter";
 
 export default class SampleBrowser extends LitElement {
 
@@ -131,6 +135,14 @@ export default class SampleBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html`
+                    <sample-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </sample-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -263,6 +275,12 @@ export default class SampleBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "somatic"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

@@ -17,13 +17,17 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./qc/individual-qc-inferred-sex.js";
-import "./individual-view.js";
-import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
 import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
+import "../commons/facet-filter.js";
 import "../commons/opencb-facet-results.js";
+import "./individual-view.js";
+import "./individual-grid.js";
+import "./individual-browser-filter.js";
+import "./individual-detail.js";
+
 
 export default class IndividualBrowser extends LitElement {
 
@@ -148,6 +152,14 @@ export default class IndividualBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html`
+                    <individual-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </individual-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -325,6 +337,12 @@ export default class IndividualBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

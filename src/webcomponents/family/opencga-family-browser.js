@@ -17,6 +17,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "../commons/facet-filter.js";
+import "./family-grid.js";
+import "./opencga-family-filter.js";
+import "./opencga-family-detail.js";
 
 
 export default class OpencgaFamilyBrowser extends LitElement {
@@ -147,6 +151,14 @@ export default class OpencgaFamilyBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html`
+                    <opencga-family-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </opencga-family-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -247,6 +259,12 @@ export default class OpencgaFamilyBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "phenotypes", "expectedSize", "numMembers[0..20]:2"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

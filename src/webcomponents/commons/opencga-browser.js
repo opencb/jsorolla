@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
@@ -23,41 +23,6 @@ import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
 import "./tool-header.js";
-
-// File
-import "../file/opencga-file-grid.js";
-import "../file/opencga-file-filter.js";
-import "../file/opencga-file-detail.js";
-// Samples
-import "../sample/sample-grid.js";
-import "../sample/sample-browser-filter.js";
-import "../sample/sample-detail.js";
-// Individual
-import "../individual/individual-grid.js";
-import "../individual/individual-browser-filter.js";
-import "../individual/individual-detail.js";
-// Family
-import "../family/family-grid.js";
-import "../family/opencga-family-filter.js";
-import "../family/opencga-family-detail.js";
-// Cohort
-import "../cohort/cohort-grid.js";
-import "../cohort/cohort-browser-filter.js";
-import "../cohort/cohort-detail.js";
-// Job
-import "../job/job-grid.js";
-import "../job/opencga-job-filter.js";
-import "../job/opencga-job-detail.js";
-import "../job/job-timeline.js";
-// Disease Panel
-import "../disease-panel/disease-panel-browser-filter.js";
-import "../disease-panel/disease-panel-grid.js";
-import "../disease-panel/disease-panel-detail.js";
-// Clinical
-import "../clinical/clinical-analysis-grid.js";
-import "../clinical/clinical-analysis-browser-filter.js";
-import "../clinical/clinical-analysis-detail.js";
-
 
 export default class OpencgaBrowser extends LitElement {
 
@@ -310,6 +275,10 @@ export default class OpencgaBrowser extends LitElement {
 
     renderView() {
 
+        if (!this.config.views) {
+            return html`No view has been configured`;
+        }
+
         const params = {
             opencgaSession: this.opencgaSession,
             config: this.config,
@@ -331,7 +300,71 @@ export default class OpencgaBrowser extends LitElement {
             `);
     }
 
+    renderfilter() {
+
+        if (!this.config?.filter) {
+            return html`${nothing}`;
+        }
+
+        const params = {
+            opencgaSession: this.opencgaSession,
+            config: this.config,
+            query: this.query,
+            onQueryFilterChange: this.onQueryFilterChange,
+            onQueryFilterSearch: this.onQueryFilterSearch
+        };
+
+        return html`
+            <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                ${this.config.filter.render(params)}
+            </div>`;
+    }
+
+    renderAggregation() {
+
+        if (!this.config?.aggregation) {
+            return html`${nothing}`;
+        }
+
+        const params = {
+            config: this.config,
+            selectedFacet: this.selectedFacet,
+            onFacetQueryChange: this.onFacetQueryChange
+        };
+
+
+        return html `
+            <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
+                ${this.config.aggregation.render(params)}
+            </div>`;
+    }
+
+    renderButtonViews() {
+
+        if (!this.config.views) {
+            return html`No view has been configured`;
+        }
+
+        return html `
+            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                <div class="btn-group" role="group" style="margin-left: 0px">
+                    ${this.config.views.map(tab => html`
+                        <button
+                            type="button"
+                            class="btn btn-success content-pills ${tab.active ? "active" : ""}"
+                            ?disabled=${tab.disabled}
+                            @click="${this.onClickPill}"
+                            data-id="${tab.id}">
+                            <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
+                        </button>`
+                    )}
+                </div>
+            </div>
+        `;
+    }
+
     render() {
+
         return html`
             <!--<div class="alert alert-info">selectedFacet: \${JSON.stringify(this.selectedFacet)}</div>
             <div class="alert alert-info">preparedFacetQueryFormatted: \${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
@@ -346,131 +379,27 @@ export default class OpencgaBrowser extends LitElement {
                                 <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
                             </button>
                         </div>
+
                         <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                             <li role="presentation" class="active">
-                                <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
+                                <a href="#filters_tab" aria-controls="filter" role="tab" data-toggle="tab">Filters</a>
                             </li>
                             ${this.config.aggregation ? html`
                                 <li role="presentation">
-                                    <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a>
+                                    <a href="#facet_tab" aria-controls="aggregation" role="tab" data-toggle="tab">Aggregation</a>
                                 </li>
                             ` : null}
                         </ul>
+
                         <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                                ${this.resource === "FILE" ? html`
-                                    <opencga-file-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-file-filter>
-                                ` : null}
-
-                                ${this.resource === "SAMPLE" ? html`
-                                    <sample-browser-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </sample-browser-filter>
-                                ` : null}
-
-                                ${this.resource === "INDIVIDUAL" ? html`
-                                    <individual-browser-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </individual-browser-filter>
-                                ` : null}
-
-                                ${this.resource === "FAMILY" ? html`
-                                    <opencga-family-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-family-filter>
-                                ` : null}
-
-                                ${this.resource === "COHORT" ? html`
-                                    <cohort-browser-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        .variableSets="${this.variableSets}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </cohort-browser-filter>
-                                ` : null}
-
-                                ${this.resource === "CLINICAL_ANALYSIS" ? html`
-                                    <clinical-analysis-browser-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </clinical-analysis-browser-filter>
-                                ` : null}
-
-                                ${this.resource === "DISEASE_PANEL" ? html`
-                                    <disease-panel-browser-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .config="${this.config.filter}"
-                                        .query="${this.query}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </disease-panel-browser-filter>
-                                ` : null}
-
-                                ${this.resource === "JOB" ? html`
-                                    <opencga-job-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this.config.filter}"
-                                        .files="${this.files}"
-                                        .query="${this.query}"
-                                        .variableSets="${this.variableSets}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-job-filter>
-                                ` : null}
-                            </div>
-
-                            ${this.config.aggregation ? html`
-                                <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                    <facet-filter
-                                        .config="${this.config.aggregation}"
-                                        .selectedFacet="${this.selectedFacet}"
-                                        @facetQueryChange="${this.onFacetQueryChange}">
-                                    </facet-filter>
-                                </div>
-                            ` : null}
+                            ${this.renderfilter()}
+                            ${this.renderAggregation()}
                         </div>
                     </div>
 
                     <div class="col-md-10">
                         <!-- tabs buttons -->
-                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                            <div class="btn-group" role="group" style="margin-left: 0px">
-                                ${this.config.views && this.config.views.length ? this.config.views.map(tab => html`
-                                    <button
-                                        type="button"
-                                        class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}"
-                                        ?disabled=${tab.disabled}
-                                        @click="${this.onClickPill}"
-                                        data-id="${tab.id}">
-                                        <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
-                                    </button>
-                                `) : html`No view has been configured`}
-                            </div>
-                        </div>
+                        ${this.renderButtonViews()}
 
                         <div>
                             <opencga-active-filters

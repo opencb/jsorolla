@@ -16,10 +16,14 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import {construction} from "../commons/under-construction.js";
 import "../gene/gene-grid.js";
 import "../commons/opencga-browser.js";
 import "./disease-panel-summary.js";
-import {construction} from "../commons/under-construction.js";
+import "./disease-panel-browser-filter.js";
+import "./disease-panel-grid.js";
+import "./disease-panel-detail.js";
+
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -114,6 +118,15 @@ export default class DiseasePanelBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html `
+                    <disease-panel-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .cellbaseClient="${params.cellbaseClient}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </disease-panel-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
