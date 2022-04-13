@@ -29,7 +29,7 @@ export default class OpencgaBrowser extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -64,20 +64,19 @@ export default class OpencgaBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = "facet" + UtilsNew.randomString(6);
 
         this.query = {};
         this.preparedQuery = {};
         this.executedQuery = {};
 
-        this.checkProjects = false;
+        this.activeView = "";
 
         this.activeFilterAlias = {};
 
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
-        this.activeTab = {};
         this.detail = {};
     }
 
@@ -99,23 +98,23 @@ export default class OpencgaBrowser extends LitElement {
             this.facetQueryBuilder();
         }
 
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
-            this.checkProjects = true;
-            this.query = {study: this.opencgaSession.study.fqn};
-
-            this.preparedQuery = {study: this.opencgaSession.study.fqn};
+            this.query = {
+                study: this.opencgaSession.study.fqn,
+            };
+            this.preparedQuery = {
+                study: this.opencgaSession.study.fqn,
+            };
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
-            // this.requestUpdate();
-            // this.onRun();
-
-            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
-        } else {
-            this.checkProjects = false;
         }
     }
 
@@ -140,7 +139,18 @@ export default class OpencgaBrowser extends LitElement {
         }
     }
 
+    configObserver() {
+        if (this.config?.views) {
+            const defaultActiveView = this.config.views.find(view => view.active);
+            if (defaultActiveView) {
+                this.activeView = defaultActiveView.id;
+            }
+        }
+    }
+
     facetQueryBuilder() {
+        this.facetQuery = null;
+
         if (Object.keys(this.selectedFacet).length) {
             this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
 
@@ -149,9 +159,7 @@ export default class OpencgaBrowser extends LitElement {
                 study: this.opencgaSession.study.fqn,
                 field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
-            this._changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
+            this.changeView("facet-tab");
         }
     }
 
@@ -176,19 +184,8 @@ export default class OpencgaBrowser extends LitElement {
         this.query = e.detail;
     }
 
-    onClickPill(e) {
-        this._changeView(e.currentTarget.dataset.id);
-    }
-
-    _changeView(tabId) {
-        $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).removeClass("active");
-        Object.keys(this.activeTab).forEach(tab => {
-            this.activeTab[tab] = false;
-        });
-        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).addClass("active");
-        this.activeTab[tabId] = true;
+    changeView(id) {
+        this.activeView = id;
         this.requestUpdate();
     }
 
@@ -254,80 +251,70 @@ export default class OpencgaBrowser extends LitElement {
             return html`No view has been configured`;
         }
 
-        const params = {
-            opencgaSession: this.opencgaSession,
-            config: this.config,
-            executedQuery: this.executedQuery,
-            detail: this.detail,
-            resource: this.resource,
-            facetQuery: this.facetQuery,
-            facetResults: this.facetResults,
-            eventNotifyName: this.eventNotifyName,
-            activeTab: name => this.activeTab[name],
-            onClickRow: (e, eventName) => this.onClickRow(e, eventName),
-        };
-
         return this.config.views.map(view => html`
-            <div id="${view.id}" class="content-tab ${view?.active ? "active" : ""}">
-                ${view.render(params)}
+            <div id="${view.id}" class="content-tab ${this.activeView === view.id ? "active" : ""}">
+                ${view.render({
+                    opencgaSession: this.opencgaSession,
+                    config: this.config,
+                    executedQuery: this.executedQuery,
+                    detail: this.detail,
+                    resource: this.resource,
+                    facetQuery: this.facetQuery,
+                    facetResults: this.facetResults,
+                    eventNotifyName: this.eventNotifyName,
+                    active: this.activeView === view.id,
+                    onClickRow: (e, eventName) => this.onClickRow(e, eventName),
+                })}
             </div>
         `);
     }
 
     renderfilter() {
-        if (!this.config?.filter) {
+        if (typeof this.config?.filter?.render !== "function") {
             return html`${nothing}`;
         }
 
-        const params = {
-            opencgaSession: this.opencgaSession,
-            config: this.config,
-            query: this.query,
-            onQueryFilterChange: this.onQueryFilterChange,
-            onQueryFilterSearch: this.onQueryFilterSearch
-        };
-
         return html`
             <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                ${this.config.filter.render(params)}
+                ${this.config.filter.render({
+                    opencgaSession: this.opencgaSession,
+                    config: this.config,
+                    query: this.query,
+                    onQueryFilterChange: this.onQueryFilterChange,
+                    onQueryFilterSearch: this.onQueryFilterSearch,
+                })}
             </div>
         `;
     }
 
     renderAggregation() {
-        if (!this.config?.aggregation) {
+        if (typeof this.config?.aggregation?.render !== "function") {
             return html`${nothing}`;
         }
 
-        const params = {
-            config: this.config,
-            selectedFacet: this.selectedFacet,
-            onFacetQueryChange: this.onFacetQueryChange
-        };
-
         return html `
             <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                ${this.config.aggregation.render(params)}
+                ${this.config.aggregation.render({
+                    config: this.config,
+                    selectedFacet: this.selectedFacet,
+                    onFacetQueryChange: this.onFacetQueryChange,
+                })}
             </div>
         `;
     }
 
     renderButtonViews() {
-        if (!this.config.views) {
-            return html`No view has been configured`;
-        }
-
         return html `
             <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                 <div class="btn-group" role="group" style="margin-left: 0px">
-                    ${this.config.views.map(tab => html`
+                    ${(this.config.views || []).map(view => html`
                         <button
                             type="button"
-                            class="btn btn-success content-pills ${tab.active ? "active" : ""}"
-                            ?disabled=${tab.disabled}
-                            @click="${this.onClickPill}"
-                            data-id="${tab.id}">
-                            <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
+                            class="btn btn-success content-pills ${this.activeView === view.id ? "active" : ""}"
+                            ?disabled=${view.disabled}
+                            @click="${() => this.changeView(view.id)}">
+                            <i class="${view.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> 
+                            <strong>${view.name}</strong>
                         </button>
                     `)}
                 </div>
