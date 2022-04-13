@@ -364,77 +364,72 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     render() {
-
-        return html`
-            <!--<div class="alert alert-info">selectedFacet: \${JSON.stringify(this.selectedFacet)}</div>
-            <div class="alert alert-info">preparedFacetQueryFormatted: \${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
-            <div class="alert alert-info">executedFacetQueryFormatted:\${JSON.stringify(this.executedFacetQueryFormatted)}</div>-->
-
-            ${this.checkProjects ? html`
-                <tool-header title="${this.config.title}" icon="${this.config.icon}"></tool-header>
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="search-button-wrapper">
-                            <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
-                            </button>
-                        </div>
-
-                        <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                            <li role="presentation" class="active">
-                                <a href="#filters_tab" aria-controls="filter" role="tab" data-toggle="tab">Filters</a>
-                            </li>
-                            ${this.config.aggregation ? html`
-                                <li role="presentation">
-                                    <a href="#facet_tab" aria-controls="aggregation" role="tab" data-toggle="tab">Aggregation</a>
-                                </li>
-                            ` : null}
-                        </ul>
-
-                        <div class="tab-content">
-                            ${this.renderfilter()}
-                            ${this.renderAggregation()}
-                        </div>
-                    </div>
-
-                    <div class="col-md-10">
-                        <!-- tabs buttons -->
-                        ${this.renderButtonViews()}
-
-                        <div>
-                            <opencga-active-filters
-                                facetActive
-                                .resource="${this.resource}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                                .query="${this.preparedQuery}"
-                                .executedQuery="${this.executedQuery}"
-                                .facetQuery="${this.preparedFacetQueryFormatted}"
-                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                                .alias="${this.activeFilterAlias}"
-                                .config="${this.config.activeFilters}"
-                                .filters="${this.config.filter.examples}"
-                                @activeFilterChange="${this.onActiveFilterChange}"
-                                @activeFilterClear="${this.onActiveFilterClear}"
-                                @activeFacetChange="${this.onActiveFacetChange}"
-                                @activeFacetClear="${this.onActiveFacetClear}">
-                            </opencga-active-filters>
-
-                            <div class="main-view">
-                                ${this.renderView()}
-                            </div>
-
-                            <!-- Other option: return an {string, TemplateResult} map -->
-                            <div class="v-space"></div>
-                        </div>
-                    </div>
-                </div>
-            ` : html`
+        if (!this.opencgaSession?.study?.fqn) {
+            return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
                     <h3>No public projects available to browse. Please login to continue</h3>
                 </div>
-            `}
+            `;
+        }
+
+        return html`
+            <tool-header
+                .title="${this.config.title}"
+                .icon="${this.config.icon}">
+            </tool-header>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="search-button-wrapper">
+                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> 
+                            ${this.config.searchButtonText || "Search"}
+                        </button>
+                    </div>
+                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#filters_tab" aria-controls="filter" role="tab" data-toggle="tab">Filters</a>
+                        </li>
+                        ${this.config.aggregation ? html`
+                            <li role="presentation">
+                                <a href="#facet_tab" aria-controls="aggregation" role="tab" data-toggle="tab">Aggregation</a>
+                            </li>
+                        ` : null}
+                    </ul>
+                    <div class="tab-content">
+                        ${this.renderfilter()}
+                        ${this.renderAggregation()}
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    ${this.renderButtonViews()}
+                    <div>
+                        <opencga-active-filters
+                            facetActive
+                            .resource="${this.resource}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                            .query="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
+                            .facetQuery="${this.preparedFacetQueryFormatted}"
+                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                            .alias="${this.activeFilterAlias}"
+                            .config="${this.config.activeFilters}"
+                            .filters="${this.config.filter.examples}"
+                            @activeFilterChange="${this.onActiveFilterChange}"
+                            @activeFilterClear="${this.onActiveFilterClear}"
+                            @activeFacetChange="${this.onActiveFacetChange}"
+                            @activeFacetClear="${this.onActiveFacetClear}">
+                        </opencga-active-filters>
+
+                        <div class="main-view">
+                            ${this.renderView()}
+                        </div>
+                        <!-- Other option: return an {string, TemplateResult} map -->
+                        <div class="v-space"></div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 
