@@ -1068,14 +1068,13 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    // TODO fix tab jsonToTabConvert isn't working!
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
         const filters = {
             ...this.filters,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             count: false,
         };
         this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
