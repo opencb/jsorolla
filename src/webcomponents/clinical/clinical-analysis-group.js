@@ -72,10 +72,10 @@ export default class ClinicalAnalysisGroup extends LitElement {
         return html`
             <div>
                 <div style="display:flex;">
-                    <button type="button" class="btn btn-default btn-sm">
-                        <i class="fas fa-plus icon-padding"></i> 
-                        <span>Create Case</span>
-                    </button>
+                    <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm">
+                        <i class="fas fa-columns icon-padding"></i> 
+                        <span>New</span>
+                    </a>
                     <div class="dropdown" style="margin-left:auto;">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
                             <i class="fas fa-layer-group icon-padding"></i> 
