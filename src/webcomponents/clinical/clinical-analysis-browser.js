@@ -24,7 +24,7 @@ import "./clinical-analysis-detail.js";
 import "./clinical-analysis-group.js";
 
 
-export default class OpencgaClinicalAnalysisBrowser extends LitElement {
+export default class ClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
@@ -262,4 +262,4 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
 }
 
-customElements.define("opencga-clinical-analysis-browser", OpencgaClinicalAnalysisBrowser);
+customElements.define("clinical-analysis-browser", ClinicalAnalysisBrowser);
