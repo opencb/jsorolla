@@ -26,7 +26,7 @@ import "./clinical-analysis-view.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/disorder-id-individuals-autocomplete.js";
+import "../commons/filters/disorder-autocomplete.js";
 import "../commons/filters/proband-id-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
@@ -604,12 +604,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "disorder") ? html`
                                             <!-- Disorder -->
                                             <div class="btn-group" data-cy="form-disorder">
-                                                <disorder-id-individuals-autocomplete
+                                                <disorder-autocomplete
                                                     .config=${{placeholder: "Disorders", freeTag: true}}
+                                                    .resource=${"INDIVIDUAL"}
                                                     .value="${this.query?.disorder}"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}">
-                                                </disorder-id-individuals-autocomplete>
+                                                </disorder-autocomplete>
 
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
