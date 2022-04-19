@@ -340,9 +340,9 @@ export default class OpencgaBrowser extends LitElement {
             <div class="row">
                 <div class="col-md-2">
                     <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
+                        <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> 
-                            ${this.config.searchButtonText || "Search"}
+                            <strong>${this.config.searchButtonText || "Search"}</strong> 
                         </button>
                     </div>
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">
