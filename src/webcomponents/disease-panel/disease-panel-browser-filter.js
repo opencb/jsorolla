@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/filters/disease-panel-id-autocomplete.js";
-import "../commons/filters/disorder-id-autocomplete.js";
+import "../commons/filters/disorder-id-individuals-autocomplete.js";
 import "../commons/filters/template-autocomplete.js";
 import "../commons/filters/feature-filter.js";
 import "../commons/filters/region-filter.js";

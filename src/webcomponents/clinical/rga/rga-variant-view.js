@@ -553,7 +553,7 @@ export default class RgaVariantView extends LitElement {
             study: this.opencgaSession.study.fqn,
             count: false,
             ...this._query,
-            limit: 100
+            limit: e.detail?.exportLimit ?? 1000,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(params)
             .then(restResponse => {

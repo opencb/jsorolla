@@ -488,7 +488,7 @@ export default class IndividualGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn,
             ...this.query,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             skip: 0,
             count: false
         };

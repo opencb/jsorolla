@@ -366,7 +366,7 @@ export default class JobGrid extends LitElement {
         this.requestUpdate();
         await this.updateComplete;
         const filters = {
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             skip: 0,
             count: false,
             study: this.opencgaSession.study.fqn,

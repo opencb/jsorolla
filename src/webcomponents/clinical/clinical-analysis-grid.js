@@ -643,7 +643,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             const params = {
                 ...this.query,
                 exclude: "files",
-                limit: 100,
+                limit: e.detail?.exportLimit ?? 1000,
                 order: "asc",
                 skip: 0,
                 count: true,

@@ -269,7 +269,8 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "id",
                 visible: this._config.downloadFile ?? true, // it comes from opencga-sample-browser.config.js
                 formatter: (value, row) => {
-                    const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
+                    const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value +
+                        "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
                     return `<a class="btn btn-small btn-default ripple one-line" target="_blank" href="${url}"> <i class="fas fa-download"></i> Download</a>`;
                 },
                 valign: "middle",
@@ -301,7 +302,7 @@ export default class OpencgaFileGrid extends LitElement {
         await this.updateComplete;
         const params = {
             ...this.query,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             skip: 0,
             count: false,
             study: this.opencgaSession.study.fqn,
