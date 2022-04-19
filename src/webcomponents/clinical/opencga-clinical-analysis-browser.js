@@ -21,6 +21,7 @@ import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
 import "./clinical-analysis-browser-filter.js";
 import "./clinical-analysis-detail.js";
+import "./clinical-analysis-group.js";
 
 
 export default class OpencgaClinicalAnalysisBrowser extends LitElement {
@@ -118,7 +119,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
                             .search="${params.executedQuery}"
-                            .active="${true}"
+                            .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
                         </clinical-analysis-grid>
@@ -127,16 +128,22 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             .config="${params.config.filter.detail}"
                             .clinicalAnalysisId="${params.detail.clinicalAnalysis?.id}">
                         </clinical-analysis-detail>
-                    `
-                }/*
-                {
-                    id: "facet-tab",
-                    name: "Aggregation stats"
+                    `,
                 },
                 {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
+                    id: "group",
+                    name: "Group by",
+                    icon: "fas fa-layer-group",
+                    active: false,
+                    render: params => html`
+                        <clinical-analysis-group
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .query="${params.executedQuery}"
+                            .active="${params.active}">
+                        </clinical-analysis-group>
+                    `,
+                },
             ],
             filter: {
                 render: params => html `
@@ -233,7 +240,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (clinicalAnalysis, active, opencgaSession) => html`
+                            render: clinicalAnalysis => html`
                                 <json-viewer .data="${clinicalAnalysis}"></json-viewer>
                             `,
                         }
