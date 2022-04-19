@@ -38,7 +38,7 @@ import NotificationUtils from "../../webcomponents/commons/utils/notification-ut
 import NotificationManager from "../../core/notification-manager.js";
 
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
+import "../../webcomponents/clinical/clinical-analysis-browser.js";
 import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
 import "../../webcomponents/variant/variant-browser.js";
 import "../../webcomponents/variant/variant-beacon.js";
@@ -58,7 +58,6 @@ import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
@@ -1397,13 +1396,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.clinicalAnalysis ? html`
                     <div class="content" id="clinicalAnalysis">
-                        <opencga-clinical-analysis-browser
+                        <clinical-analysis-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${OPENCGA_CLINICAL_ANALYSIS_BROWSER_SETTINGS}"
                             .query="${this.queries["clinical-analysis"]}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
-                        </opencga-clinical-analysis-browser>
+                        </clinical-analysis-browser>
                     </div>
                 ` : null}
 
