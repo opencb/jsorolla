@@ -152,7 +152,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             },
                             {
                                 id: "disorders",
-                                name: "Disorder",
+                                name: "Disorders",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 description: ""
                             },
