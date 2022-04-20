@@ -43,8 +43,8 @@ context("9 - Family Browser", () => {
 
                 checkResults("family-grid");
                 getResult("family-grid", 3, 0, "html").then($html => {
-                    cy.wrap($html).get("span[data-cy]").then($text => {
-                        cy.get(".subsection-content[data-cy=disorders] input").type($text.first().text() + "{enter}");
+                    cy.wrap($html).get("span[data-cy='disorder-id']").then($text => {
+                        selectToken(".subsection-content[data-cy=disorders]", $text.first().text(), true); // disorder id
                         cy.get("div.search-button-wrapper button").click();
                         checkResults("family-grid");
                         cy.get("opencga-active-filters button[data-filter-name='disorders']").click();
