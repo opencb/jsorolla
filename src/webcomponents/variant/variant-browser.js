@@ -222,13 +222,9 @@ export default class VariantBrowser extends LitElement {
     }
 
     notifySearch(query) {
-        this.dispatchEvent(new CustomEvent("querySearch", {
-            detail: {
-                query: query
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchCustomEvent(this, "querySearch", null, {
+            query: query
+        });
     }
 
     async onRun() {
@@ -328,7 +324,9 @@ export default class VariantBrowser extends LitElement {
 
     onSampleChange(e) {
         this.samples = e.detail.samples;
-        this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+        LitUtils.dispatchCustomEvent(this, "sampleChange", undefined, {
+            samples: this.samples,
+        });
     }
 
     onSelectVariant(e) {
