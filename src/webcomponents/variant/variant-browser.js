@@ -96,6 +96,7 @@ export default class VariantBrowser extends LitElement {
         this.results = [];
         this._showInitMessage = true;
 
+        this.searchActive = true;
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};
@@ -198,10 +199,8 @@ export default class VariantBrowser extends LitElement {
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.detail = {};
-            } else {
-                // console.error("same queries")
+                this.searchActive = false; // Disable search button
             }
-            // this.requestUpdate();
         }
     }
 
@@ -317,6 +316,10 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onQueryComplete() {
+        this.searchActive = true;
+        this.requestUpdate();
+    }
 
     onClickRow(e) {
         this.detail = {...this.detail, [e.detail.resource]: e.detail.data};
@@ -732,8 +735,9 @@ export default class VariantBrowser extends LitElement {
                 <div class="col-md-2 left-menu">
 
                     <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText}
+                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
 
@@ -818,6 +822,7 @@ export default class VariantBrowser extends LitElement {
                                     .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                     .config="${this._config.filter.result.grid}"
+                                    @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
                                     @gridconfigsave="${this.onGridConfigSave}">
                                 </variant-browser-grid>
