@@ -106,12 +106,12 @@ export default class VariantBrowser extends LitElement {
         this.errorState = false;
         this.variant = null;
 
-        this.activeTab = {};
+        this.activeTab = "table-tab";
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -137,7 +137,10 @@ export default class VariantBrowser extends LitElement {
             return;
         }
         // merge filters
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
@@ -149,7 +152,10 @@ export default class VariantBrowser extends LitElement {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
         if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+            this._config.filter.result.grid.toolbar = {
+                ...this._config.filter.result.grid.toolbar,
+                ...this.settings.table.toolbar,
+            };
         }
 
         // Apply user configuration
@@ -215,7 +221,7 @@ export default class VariantBrowser extends LitElement {
                 // FIXME rename fields to field
                 fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
-            this._changeView("facet-tab");
+            this.changeView("facet-tab");
         } else {
             this.facetQuery = null;
         }
@@ -249,20 +255,11 @@ export default class VariantBrowser extends LitElement {
     }
 
     onClickPill(e) {
-        this._changeView(e.currentTarget.dataset.id);
+        this.changeView(e.currentTarget.dataset.id);
     }
 
-    _changeView(tabId) {
-        $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) {
-            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
-                this.activeTab[tab] = false;
-            }
-        }
-        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).addClass("active");
-        this.activeTab[tabId] = true;
+    changeView(id) {
+        this.activeTab = id;
         this.requestUpdate();
     }
 
@@ -777,15 +774,27 @@ export default class VariantBrowser extends LitElement {
                     <div>
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button type="button" class="btn btn-success active content-pills" @click="${this.onClickPill}" data-id="table-tab">
+                                <button
+                                    type="button"
+                                    data-id="table-tab"
+                                    class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
+                                    @click="${this.onClickPill}">
                                     <i class="fa fa-table icon-padding" aria-hidden="true"></i>
                                     <strong>Table Result</strong>
                                 </button>
-                                <button type="button" class="btn btn-success content-pills" @click="${this.onClickPill}" data-id="facet-tab">
+                                <button
+                                    type="button"
+                                    data-id="facet-tab"
+                                    class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
+                                    @click="${this.onClickPill}">
                                     <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
                                     <strong>Aggregation Stats</strong>
                                 </button>
-                                <button type="button" class="btn btn-success content-pills" @click="${this.onClickPill}" data-id="genome-tab">
+                                <button
+                                    type="button"
+                                    data-id="genome-tab"
+                                    class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
+                                    @click="${this.onClickPill}">
                                     <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
                                     <strong>Genome Browser</strong>
                                 </button>
@@ -813,7 +822,7 @@ export default class VariantBrowser extends LitElement {
                         </opencga-active-filters>
 
                         <div class="main-view">
-                            <div id="table-tab" class="content-tab active">
+                            <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
                                 <variant-browser-grid
                                     .opencgaSession="${this.opencgaSession}"
                                     .query="${this.executedQuery}"
@@ -837,25 +846,25 @@ export default class VariantBrowser extends LitElement {
                                 </variant-browser-detail>
                             </div>
 
-                            <div id="facet-tab" class="content-tab">
+                            <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
                                 <opencb-facet-results
                                     resource="VARIANT"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab["facet-tab"]}"
+                                    .active="${this.activeTab === "facet-tab"}"
                                     .query="${this.facetQuery}"
                                     .data="${this.facetResults}"
                                     .error="${this.errorState}">
                                 </opencb-facet-results>
                             </div>
 
-                            <div id="genome-tab" class="content-tab">
+                            <div id="genome-tab" class="${`content-tab ${this.activeTab === "genome-tab" ? "active" : ""}`}">
                                 ${this.variant ? html`
                                     <genome-browser
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${this._config.genomeBrowser.config}"
                                         .region="${this.variant}"
                                         .tracks="${this._config.genomeBrowser.tracks}"
-                                        .active="${this.activeTab["genome-tab"]}">
+                                        .active="${this.activeTab === "genome-tab"}">
                                     </genome-browser>
                                 ` : null}
                             </div>
