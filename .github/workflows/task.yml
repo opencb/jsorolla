@@ -1,0 +1,13 @@
+name: "Task Workflow for Task branches"
+
+on:
+  push:
+    branches:
+      - "TASK-*"
+
+jobs:
+  build:
+    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+
+#  test:
+    ## Work in progess
