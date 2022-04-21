@@ -305,19 +305,17 @@ export default class OpencgaBrowser extends LitElement {
 
     renderButtonViews() {
         return html `
-            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                <div class="btn-group" role="group" style="margin-left: 0px">
-                    ${(this.config.views || []).map(view => html`
-                        <button
-                            type="button"
-                            class="btn btn-success content-pills ${this.activeView === view.id ? "active" : ""}"
-                            ?disabled=${view.disabled}
-                            @click="${() => this.changeView(view.id)}">
-                            <i class="${view.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> 
-                            <strong>${view.name}</strong>
-                        </button>
-                    `)}
-                </div>
+            <div class="content-pills" role="toolbar" aria-label="toolbar">
+                ${(this.config.views || []).map(view => html`
+                    <button
+                        type="button"
+                        class="btn btn-success ${this.activeView === view.id ? "active" : ""}"
+                        ?disabled=${view.disabled}
+                        @click="${() => this.changeView(view.id)}">
+                        <i class="${view.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> 
+                        <strong>${view.name}</strong>
+                    </button>
+                `)}
             </div>
         `;
     }
