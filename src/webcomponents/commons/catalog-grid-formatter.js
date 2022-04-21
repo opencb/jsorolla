@@ -126,7 +126,7 @@ export default class CatalogGridFormatter {
             } else {
                 results = key ? files.map(file => file?.name) : files;
             }
-            return results.length > 20 ? results.length + " files" : `<ul class="pad-left-15">${results.map(file => `<li>${file}</li>`).join("")}</ul>`;
+            return results.length > 20 ? results.length + " files" : `<ul class="pad-left-15">${results.map(file => `<li class="break-word">${file}</li>`).join("")}</ul>`;
         } else {
             return "-";
         }

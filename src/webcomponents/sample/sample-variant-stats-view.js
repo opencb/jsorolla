@@ -111,8 +111,7 @@ class SampleVariantStatsView extends LitElement {
             this.sampleObserver();
         }
 
-        if ((changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description") || changedProperties.has("active"))
-            && this.active) {
+        if ((changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description") || changedProperties.has("active")) && this.active) {
             this.sampleVariantStatsObserver();
         }
 
@@ -194,7 +193,8 @@ class SampleVariantStatsView extends LitElement {
                 // showTitle: false,
                 labelWidth: 3,
                 defaultValue: "-",
-                defaultLayout: "horizontal"
+                defaultLayout: "horizontal",
+                buttonsVisible: false
             },
             sections: [
                 {

@@ -791,7 +791,7 @@ export default class VariantBrowserGrid extends LitElement {
         await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             summary: !this.query.sample && !this.query.family, // remove this to test includeSample param
             // includeSample: "all" // TODO this causes a time-out
             ...this.query
