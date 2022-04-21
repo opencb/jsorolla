@@ -112,6 +112,7 @@ export default class RestEndpoint extends LitElement {
 
                             if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType)) {
 
+                                // Primitive type or Enum
                                 if ((!dataParameter.innerParam && !dataParameter.complex) || dataParameter.type === "enum") {
                                     bodyElements.push(
                                         {
@@ -119,7 +120,7 @@ export default class RestEndpoint extends LitElement {
                                             field: "body." + dataParameter.name,
                                             type: this.passwordKeys.includes(dataParameter.name) ?"input-password":this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
                                             allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: dataParameter.defaultValue,
+                                            defaultValue: this.getDefaultValue(dataParameter),
                                             required: !!dataParameter.required,
                                             display: {
                                                 helpMessage: parameter.description
@@ -127,7 +128,7 @@ export default class RestEndpoint extends LitElement {
                                         }
                                     );
                                 }
-
+                                // For Objects
                                 if (dataParameter.complex === false && dataParameter.innerParam === true) {
                                     bodyElements.push(
                                         {
@@ -135,7 +136,7 @@ export default class RestEndpoint extends LitElement {
                                             field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
                                             type: this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
                                             allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: dataParameter.defaultValue,
+                                            defaultValue: this.getDefaultValue(dataParameter),
                                             required: !!dataParameter.required,
                                             display: {
                                                 helpMessage: dataParameter.description
@@ -143,18 +144,18 @@ export default class RestEndpoint extends LitElement {
                                         }
                                     );
                                 }
-
                             }
                         }
                     }
                 } else {
-                    this.data[parameter.name] = parameter.defaultValue || "";
+                    // this.data[parameter.name] = parameter.defaultValue || "";
+                    this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
                         name: parameter.name,
                         field: parameter.name,
                         type: this.paramsTypeToHtml[parameter.type],
                         allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
-                        defaultValue: parameter.defaultValue,
+                        defaultValue: this.getDefaultValue(parameter),
                         required: !!parameter.required,
                         display: {
                             helpMessage: parameter.description,
@@ -279,6 +280,13 @@ export default class RestEndpoint extends LitElement {
         if (this.opencgaSession?.study && this.data?.study) {
             this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
         }
+    }
+
+    getDefaultValue(parameter) {
+        if (parameter.type === "boolean") {
+            return parameter.defaultValue === "true" || parameter.defaultValue === true;
+        }
+        return parameter.defaultValue;
     }
 
     isAdministrator() {

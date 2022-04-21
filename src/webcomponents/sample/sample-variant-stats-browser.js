@@ -74,7 +74,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.consequenceTypes = SAMPLE_STATS_CONSEQUENCE_TYPES;
     }
 
@@ -132,9 +132,11 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
 
     settingsObserver() {
-        this.config = {...this.getDefaultConfig()};
+        // merging misc 1st level props from settings and then delete useless prop `menu`
+        this._config = {...this.getDefaultConfig(), ...this.settings};
+        delete this._config?.menu;
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
         this.requestUpdate();
     }

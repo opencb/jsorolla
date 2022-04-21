@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 
 
-export default class DisorderIdAutocomplete extends LitElement {
+export default class DisorderIdIndividualsAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -88,4 +88,4 @@ export default class DisorderIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("disorder-id-autocomplete", DisorderIdAutocomplete);
+customElements.define("disorder-id-individuals-autocomplete", DisorderIdIndividualsAutocomplete);

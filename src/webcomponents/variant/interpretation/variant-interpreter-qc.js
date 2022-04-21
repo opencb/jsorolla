@@ -226,7 +226,7 @@ class VariantInterpreterQc extends LitElement {
                                     .active="${active}"
                                     .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                 </sample-variant-stats-browser>
-                                <h3>Not implemented yet.</h3>
+                                <!--<h3>Not implemented yet.</h3>-->
                             </div>
                         `;
                     },
