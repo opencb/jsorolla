@@ -254,10 +254,6 @@ export default class VariantBrowser extends LitElement {
         }*/
     }
 
-    onClickPill(e) {
-        this.changeView(e.currentTarget.dataset.id);
-    }
-
     changeView(id) {
         this.activeTab = id;
         this.requestUpdate();
@@ -774,25 +770,22 @@ export default class VariantBrowser extends LitElement {
                     <div class="content-pills" role="toolbar" aria-label="toolbar">
                         <button
                             type="button"
-                            data-id="table-tab"
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
-                            @click="${this.onClickPill}">
+                            @click="${() => this.changeView("table-tab")}">
                             <i class="fa fa-table icon-padding" aria-hidden="true"></i>
                             <strong>Table Result</strong>
                         </button>
                         <button
                             type="button"
-                            data-id="facet-tab"
                             class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
-                            @click="${this.onClickPill}">
+                            @click="${() => this.changeView("facet-tab")}">
                             <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
                             <strong>Aggregation Stats</strong>
                         </button>
                         <button
                             type="button"
-                            data-id="genome-tab"
                             class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
-                            @click="${this.onClickPill}">
+                            @click="${() => this.changeView("genome-tab")}">
                             <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
                             <strong>Genome Browser</strong>
                         </button>
