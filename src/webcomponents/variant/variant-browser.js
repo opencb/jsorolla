@@ -771,35 +771,31 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div>
-                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                            <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button
-                                    type="button"
-                                    data-id="table-tab"
-                                    class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
-                                    @click="${this.onClickPill}">
-                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i>
-                                    <strong>Table Result</strong>
-                                </button>
-                                <button
-                                    type="button"
-                                    data-id="facet-tab"
-                                    class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
-                                    @click="${this.onClickPill}">
-                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
-                                    <strong>Aggregation Stats</strong>
-                                </button>
-                                <button
-                                    type="button"
-                                    data-id="genome-tab"
-                                    class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
-                                    @click="${this.onClickPill}">
-                                    <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
-                                    <strong>Genome Browser</strong>
-                                </button>
-                            </div>
-                        </div>
+                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                        <button
+                            type="button"
+                            data-id="table-tab"
+                            class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
+                            @click="${this.onClickPill}">
+                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
+                            <strong>Table Result</strong>
+                        </button>
+                        <button
+                            type="button"
+                            data-id="facet-tab"
+                            class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
+                            @click="${this.onClickPill}">
+                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
+                            <strong>Aggregation Stats</strong>
+                        </button>
+                        <button
+                            type="button"
+                            data-id="genome-tab"
+                            class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
+                            @click="${this.onClickPill}">
+                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
+                            <strong>Genome Browser</strong>
+                        </button>
                     </div>
 
                     <div>
