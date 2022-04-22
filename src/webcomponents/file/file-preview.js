@@ -193,10 +193,6 @@ export default class FilePreview extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {};
-    }
-
     render() {
         return html`
             <style>
@@ -252,6 +248,10 @@ export default class FilePreview extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
