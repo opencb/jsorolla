@@ -18,13 +18,13 @@ import {checkResults, login, getResult, checkResultsOrNot, hasResults, Facet, ch
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("9 - Family Browser", () => {
+context("11. Family Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("9.1 - query", () => {
+    it("11.1 - query", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser");
 
@@ -77,7 +77,7 @@ context("9 - Family Browser", () => {
         });
     });
 
-    it("9.2 - aggregated query", () => {
+    it("11.2 - aggregated query", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser");
 

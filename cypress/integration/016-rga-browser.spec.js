@@ -20,13 +20,13 @@ import {TIMEOUT} from "../plugins/constants.js";
 
 let ENABLED = false;
 
-context("14 - RGA Browser", () => {
+context("16.  RGA Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("14.0 - RGA Check availability for current study", () => {
+    it("16.0 - RGA Check availability for current study", () => {
         cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
         cy.get("rga-browser", {timeout: TIMEOUT}).then($comp => {
             if (!Cypress.$("tool-header[title='Recessive Variant Browser']", $comp).length) {
@@ -37,7 +37,7 @@ context("14 - RGA Browser", () => {
         });
     });
 
-    it("14.1 - Variant View", () => {
+    it("16.1 - Variant View", () => {
         if (!ENABLED) {
             cy.log("RGA Variant View Test skipped");
             return;
@@ -134,7 +134,7 @@ context("14 - RGA Browser", () => {
         });
     });
 
-    it("14.2 - Individual View", () => {
+    it("16.2 - Individual View", () => {
         if (!ENABLED) {
             cy.log("RGA Individual View Test skipped");
             return;
@@ -184,7 +184,7 @@ context("14 - RGA Browser", () => {
 
     });
 
-    it("14.3 - Gene View", () => {
+    it("16.3 - Gene View", () => {
         if (!ENABLED) {
             cy.log("RGA Gene View Test skipped");
             return;

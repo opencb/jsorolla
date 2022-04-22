@@ -18,13 +18,13 @@ import {checkResults, login, getResult, checkResultsOrNot, hasResults, changePag
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("10 - Disease Browser", () => {
+context("10. Disease Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("9.1 - query", () => {
+    it("10.1 - query", () => {
         cy.get("a[data-id=disease-panel]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Disease Panel Browser");
 

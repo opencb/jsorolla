@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-import {login, goTo, getResult, checkResults, checkResultsOrNot, selectToken} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {login, goTo} from "../plugins/utils.js";
 
 const endpoints = [
     "Users", "Projects", "Studies", "Files", "Jobs", "Samples", "Individuals", "Families", "Cohorts", "Disease Panels",
     "Analysis - Alignment", "Analysis - Variant", "Analysis - Clinical", "Operations - Variant Storage", "Meta", "GA4GH", "Admin"
 ];
 
-context("15 - Rest API", () => {
+context("17. Rest API", () => {
     before(() => {
         login();
         goTo("iva");

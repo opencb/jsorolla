@@ -18,13 +18,13 @@ import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, anno
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("10 - File Browser", () => {
+context("12/ File Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("10.1 - query", () => {
+    it("12.1 - query", () => {
         cy.get("a[data-id=file]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "File Browser");
 
@@ -58,7 +58,7 @@ context("10 - File Browser", () => {
 
     });
 
-    it("10.2 - aggregated query", () => {
+    it("12.2 - aggregated query", () => {
         cy.get("a[data-id=file]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
 

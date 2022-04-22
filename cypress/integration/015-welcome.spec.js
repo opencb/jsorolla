@@ -32,13 +32,13 @@ const resolveButtons = page => {
     cy.get(".navbar-header > a[href='#home']").click();
 };
 
-context("13 - Welcome page", () => {
+context("15. Welcome page", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("13.1 - check home page content", () => {
+    it("15.1 - check home page content", () => {
         // cy.get("#home-nav > img", {timeout: TIMEOUT}).should("be.visible");
         cy.get(".navbar-brand > img", {timeout: TIMEOUT}).should("be.visible");
         // cy.get("a#home-nav").click();
@@ -49,7 +49,7 @@ context("13 - Welcome page", () => {
         cy.get("#welcome-page-title ").contains("Interactive Variant Analysis");
     });
 
-    it("13.2 - check buttons resolves correctly", () => {
+    it("15.2 - check buttons resolves correctly", () => {
         homePanel.forEach((el, i) => {
             cy.get("div[data-cy-welcome-card-id=" + el.id + "]", {timeout: TIMEOUT}).should("be.visible");
             cy.get("div[data-cy-welcome-card-id=" + el.id + "] a", {timeout: TIMEOUT}).first().click();
