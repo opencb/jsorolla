@@ -36,10 +36,10 @@ context("5. Variant Browser", () => {
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 13); // we are hiding only the columns with rowspan=2
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container thead > tr:first-child > th", {timeout: TIMEOUT}).should("have.lengthOf", 6); // testing the first level of the header
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 13);
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container thead > tr:first-child > th", {timeout: TIMEOUT}).should("have.lengthOf", 10);
 
     });
 
