@@ -29,7 +29,7 @@ context("17. Rest API", () => {
     });
 
     it("15.0 - Check existence and order of endpoints", () => {
-        cy.get("a[data-user-menu='rest-api']").click({force: true});
+        cy.get(".navbar-nav li a[data-cy='rest-api']").click({force: true});
 
         cy.get("div[data-cy=rest-api-endpoints] .panel-title").each((item, i) => {
             cy.wrap(item).should("contain.text", endpoints[i]);
