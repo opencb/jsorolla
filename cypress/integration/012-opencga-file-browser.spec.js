@@ -18,7 +18,7 @@ import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, anno
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("12/ File Browser", () => {
+context("12. File Browser", () => {
     before(() => {
         login();
         goTo("iva");
