@@ -219,32 +219,28 @@ export default class FilePreview extends LitElement {
                     ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
                         <div style="margin: 25px 0 5px 0">
                             <label>
-                                <span>${fileWithContent.name}</span> <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                <span>${fileWithContent.name}</span>
+                                <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
                             </label>
                         </div>
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "text" ? html`
                             <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "image" ? html`
                             <image-viewer
                                 .data="${fileWithContent.content}">
                             </image-viewer>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "json" ? html`
                             <json-viewer
                                 .data="${fileWithContent.content}">
                             </json-viewer>
-                        ` : null
-                        }
-                    `) : null
-                    }
+                        ` : null}
+                    `) : null}
                 </div>
             </div>
         `;
