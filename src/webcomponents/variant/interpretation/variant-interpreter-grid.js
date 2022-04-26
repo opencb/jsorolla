@@ -293,9 +293,9 @@ export default class VariantInterpreterGrid extends LitElement {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
                             params.success(res);
                         })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .catch(e => params.error(e))
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
                 },
                 responseHandler: response => {
