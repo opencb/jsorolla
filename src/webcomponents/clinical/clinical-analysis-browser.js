@@ -28,9 +28,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -51,14 +49,14 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.errorState = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
@@ -72,19 +70,22 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.settings.table,
+                toolbar: {
+                    ...this._config.filter.result.grid.toolbar,
+                    ...(this.settings.table.toolbar || {}),
+                },
+            };
         }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
-        // this.requestUpdate();
     }
 
     render() {
@@ -218,7 +219,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         pageList: [10, 25, 50],
                         detailView: false,
                         multiSelection: false,
-                        showActions: true
+                        showActions: true,
+                        toolbar: {
+                            showCreate: true,
+                        },
                     }
                 },
                 detail: {
