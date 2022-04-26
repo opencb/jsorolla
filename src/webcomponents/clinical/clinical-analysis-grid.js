@@ -105,7 +105,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: async params => {
+                ajax: params => {
+                    let response = null;
                     const query = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -115,13 +116,19 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         sort: "creationDate",
                         ...this.query
                     };
-                    try {
-                        const data = await this.fetchData(query);
-                        params.success(data);
-                    } catch (e) {
-                        console.log(e);
-                        params.error(e);
-                    }
+
+                    this.fetchData(query)
+                        .then(res => {
+                            response = res;
+                            params.success(res);
+                        })
+                        .catch(error => {
+                            response = error;
+                            params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", response);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
