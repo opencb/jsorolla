@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../core/utilsNew.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class CatalogGridFormatter {
 
@@ -36,7 +37,7 @@ export default class CatalogGridFormatter {
             if (phenotype.id && phenotype.id !== phenotype.name) {
                 if (phenotype.source && phenotype.source.toUpperCase() === "HPO") {
                     result.push(`
-                        <a target="_blank" href="https://hpo.jax.org/app/browse/terms/${phenotype.id}">${phenotype.id}</a>`);
+                        <a target="_blank" href="${BioinfoUtils.getHpoLink(phenotype.id)}">${phenotype.id}</a>`);
                 } else {
                     result.push(phenotype.id);
                 }
@@ -62,7 +63,7 @@ export default class CatalogGridFormatter {
             switch (split[0]) {
                 case "HP":
                     idHtml = `
-                        <a href="https://hpo.jax.org/app/browse/term/${value.id}" target="_blank">${value.id}
+                        <a href="${BioinfoUtils.getHpoLink(value.id)}" target="_blank">${value.id}
                             <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
                         </a>`;
                     break;
@@ -94,7 +95,7 @@ export default class CatalogGridFormatter {
                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                     panelHtml += `
                         <div style="margin: 5px 0px">
-                            <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}/" target="_blank">
                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                             </a>
                         </div>`;

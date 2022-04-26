@@ -205,4 +205,8 @@ export default class BioinfoUtils {
         return `https://panelapp.genomicsengland.co.uk/panels/${panelAppId}/`;
     }
 
+    static getHpoLink(hpoTerm) {
+        return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
+    }
+
 }
