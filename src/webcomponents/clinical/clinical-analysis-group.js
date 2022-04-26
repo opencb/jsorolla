@@ -1,4 +1,5 @@
 import {LitElement, html} from "lit";
+import UtilsNew from "../../core/utilsNew.js";
 import "./clinical-analysis-grid.js";
 
 export default class ClinicalAnalysisGroup extends LitElement {
@@ -30,6 +31,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
     }
 
     #init() {
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this.activeGroup = this._config.groups[0];
         this.groups = [];
@@ -63,9 +65,16 @@ export default class ClinicalAnalysisGroup extends LitElement {
             });
     }
 
-    handleGroupChange(newGroup) {
+    onGroupChange(newGroup) {
         this.activeGroup = newGroup;
         this.updateGroups();
+    }
+
+    onQueryComplete(event, item) {
+        const totalResults = event.detail.value?.responses[0]?.numTotalResults || 0;
+        if (totalResults > 0) {
+            this.querySelector(`#${this._prefix}GroupCount${item}`).textContent = `(${totalResults} cases)`;
+        }
     }
 
     render() {
@@ -84,7 +93,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
                         <ul class="dropdown-menu btn-sm" style="left:auto;right:0px;">
                             ${this._config.groups.map(group => html`
                                 <li>
-                                    <a style="cursor:pointer;" @click="${() => this.handleGroupChange(group)}">
+                                    <a style="cursor:pointer;" @click="${() => this.onGroupChange(group)}">
                                         <label style="display:flex;align-items:center;margin-bottom:0px;">
                                             <input
                                                 type="radio"
@@ -105,6 +114,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
                         <h1>
                             <i class="fas ${this.activeGroup.display.icon} icon-padding"></i>
                             <strong>${item || this.activeGroup.display.emptyTitle}</strong>
+                            <span id="${this._prefix}GroupCount${item}"></span>
                         </h1>
                         <clinical-analysis-grid
                             .opencgaSession="${this.opencgaSession}"
@@ -113,7 +123,8 @@ export default class ClinicalAnalysisGroup extends LitElement {
                                 ...this.query,
                                 [this.activeGroup.queryField]: item,
                             }}"
-                            .active="${true}">
+                            .active="${true}"
+                            @queryComplete="${e => this.onQueryComplete(e, item)}">
                         </clinical-analysis-grid>
                     </div>
                 `)}
