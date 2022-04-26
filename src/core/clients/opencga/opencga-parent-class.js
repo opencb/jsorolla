@@ -167,9 +167,10 @@ export default class OpenCGAParentClass {
         return this._config.token;
     }
 
-    generateKey(params) {
-        // if concurrent=true the request bypass the request queue in RestClient
-        return params?.concurrent !== true ? `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}` : false;
+    generateKey() {
+        // Josemi 2022-04-22 NOTE: disabled key generation. See task https://app.clickup.com/t/36631768/TASK-670
+        // return params?.concurrent !== true ? `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}` : false;
+        return "";
     }
 
 }
