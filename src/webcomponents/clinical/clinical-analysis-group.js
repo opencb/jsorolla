@@ -48,6 +48,10 @@ export default class ClinicalAnalysisGroup extends LitElement {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
+                toolbar: {
+                    ...(this.config.toolbar || {}),
+                    showCreate: false, // Hide create button in each grid
+                },
             };
 
             this.updateGroups();
@@ -81,7 +85,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
         return html`
             <div>
                 <div style="display:flex;">
-                    <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm">
+                    <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm text-black">
                         <i class="fas fa-columns icon-padding"></i> 
                         <span>New</span>
                     </a>
