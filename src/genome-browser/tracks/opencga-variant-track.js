@@ -38,8 +38,10 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             this.renderer = new VariantRenderer({
                 sampleNames: this.sampleNames,
                 sampleHeight: this.config.sampleHeight,
-                sampleHeaderHeight: this.config.sampleHeaderHeight,
-                sampleHeaderDividerHeight: this.config.sampleHeaderDividerHeight,
+                headerHeight: this.config.headerHeight,
+                dividerHeight: this.config.dividerHeight,
+                lollipopVisible: this.config.lollipopVisible,
+                lollipopHeight: this.config.lollipopHeight,
                 ...this.config.renderer,
             });
         }
@@ -61,6 +63,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             });
         });
 
+        const topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
                 ${this.sampleNames.map(name => {
@@ -81,7 +84,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                     `;
                 }).join("")}
             </div>
-            <div id="${this.prefix}SampleHeaderDivider" style="position:absolute;width:100%;"></div>
+            <div id="${this.prefix}Divider" style="position:absolute;width:100%;"></div>
         `);
 
         // Sample names
@@ -89,17 +92,19 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.sampleNamesDiv.style.backgroundColor = "rgba(255,255,255,0.7)";
         this.sampleNamesDiv.style.paddingLeft = "16px";
         this.sampleNamesDiv.style.paddingRight = "16px";
-        this.sampleNamesDiv.style.paddingTop = `${this.config.sampleHeaderHeight}px`;
+        this.sampleNamesDiv.style.paddingTop = `${topPosition}px`;
 
-        // Sample header divider
-        this.sampleHeaderDividerDiv = template.querySelector(`div#${this.prefix}SampleHeaderDivider`);
-        this.sampleHeaderDividerDiv.style.height = `${this.config.sampleHeaderDividerHeight}px`;
-        this.sampleHeaderDividerDiv.style.backgroundColor = this.config.sampleHeaderDividerColor;
-        this.sampleHeaderDividerDiv.style.top = `${this.config.sampleHeaderHeight - this.config.sampleHeaderDividerHeight - 2}px`;
+        // Header divider
+        this.dividerDiv = template.querySelector(`div#${this.prefix}Divider`);
+        if (this.config.dividerVisible) {
+            this.dividerDiv.style.height = `${this.config.dividerHeight}px`;
+            this.dividerDiv.style.backgroundColor = this.config.dividerColor;
+            this.dividerDiv.style.top = `${topPosition - (this.config.dividerHeight / 2)}px`;
+        }
 
         // Append elements
         this.content.appendChild(this.sampleNamesDiv);
-        this.content.appendChild(this.sampleHeaderDividerDiv);
+        this.content.appendChild(this.dividerDiv);
         // this.content.insertBefore(this.sampleBackgroundDiv, this.content.firstChild);
         // this.content.appendChild(this.sampleBackgroundDiv);
 
@@ -108,7 +113,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.sampleNames.forEach((name, index) => {
             SVG.addChild(bgGroup, "rect", {
                 x: "0px",
-                y: `${this.config.sampleHeaderHeight + (index * this.config.sampleHeight)}px`,
+                y: `${topPosition + (index * this.config.sampleHeight)}px`,
                 width: "100%",
                 height: `${this.config.sampleHeight}px`,
                 fill: index % 2 ? this.config.sampleBackgroundEven : this.config.sampleBackgroundOdd,
@@ -116,7 +121,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         });
 
         // Update track height
-        this.height = this.config.sampleHeaderHeight + this.sampleNames.length * this.config.sampleHeight;
+        this.height = topPosition + this.sampleNames.length * this.config.sampleHeight;
     }
 
     getData(options) {
@@ -160,9 +165,15 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             sampleHeight: 40,
             sampleBackgroundOdd: "rgba(255,255,255,0.2)",
             sampleBackgroundEven: "rgba(164, 171, 182, 0.2)", // === "#a4abb6",
-            sampleHeaderHeight: 20,
-            sampleHeaderDividerHeight: 2,
-            sampleHeaderDividerColor: "#d4d8dd",
+            // Variants header
+            headerHeight: 20,
+            // Lollipop and samples divider
+            dividerVisible: true,
+            dividerHeight: 2,
+            dividerColor: "#d4d8dd",
+            // Lollipop configuration
+            lollipopVisible: true,
+            lollipopHeight: 40,
         };
     }
 
