@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../forms/select-token-filter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 
 
-export default class TemplateAutocomplete extends LitElement {
+export default class CatalogAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -107,4 +107,4 @@ export default class TemplateAutocomplete extends LitElement {
 
 }
 
-customElements.define("template-autocomplete", TemplateAutocomplete);
+customElements.define("catalog-autocomplete", CatalogAutocomplete);

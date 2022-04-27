@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/filters/disease-panel-id-autocomplete.js";
 import "../commons/filters/disorder-id-individuals-autocomplete.js";
-import "../commons/filters/template-autocomplete.js";
+import "../commons/filters/catalog-autocomplete.js";
 import "../commons/filters/feature-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/forms/date-filter.js";
@@ -174,12 +174,12 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                 break;
             case "disorders":
                 content = html`
-                    <template-autocomplete
+                    <catalog-autocomplete
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </template-autocomplete>`;
+                    </catalog-autocomplete>`;
                 break;
             case "genes":
                 content = html`
@@ -188,12 +188,12 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .query=\${this.preparedQuery}
                         @filterChange="\${e => this.onFilterChange("genes", e.detail.value)}">
                     </feature-filter> -->
-                    <template-autocomplete
+                    <catalog-autocomplete
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </template-autocomplete>`;
+                    </catalog-autocomplete>`;
                 break;
             case "region":
                 content = html`
@@ -210,22 +210,22 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .value="\${this.preparedQuery[subsection.id]}"
                         @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </select-token-filter-static> -->
-                    <template-autocomplete
+                    <catalog-autocomplete
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </template-autocomplete>
+                    </catalog-autocomplete>
                 `;
                 break;
             case "tags":
                 content = html`
-                    <template-autocomplete
+                    <catalog-autocomplete
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </template-autocomplete>`;
+                    </catalog-autocomplete>`;
                 break;
             case "date":
                 content = html`
