@@ -33,15 +33,27 @@ export default class CatalogAutocomplete extends LitElement {
             value: {
                 type: Object
             },
+            searchField: {
+                type: String,
+            },
+            queryField: {
+                type: String,
+            },
+            resource: {
+                type: String,
+            },
             config: {
                 type: Object
             }
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
     }
 
     onFilterChange(key, value) {
@@ -57,24 +69,29 @@ export default class CatalogAutocomplete extends LitElement {
         return {
             limit: 10,
             source: (params, success, failure) => {
-                switch (this._config.resource) {
-                    case "DISEASE_PANEL":
-                        const page = params?.data?.page || 1;
-                        const attr = params?.data?.term ? {[this._config.field]: "~/" + params?.data?.term + "/i"} : null;
-                        const filters = {
-                            study: this.opencgaSession.study.fqn,
-                            limit: this._config.limit,
-                            count: false,
-                            skip: (page - 1) * this._config.limit,
-                            ...attr
-                        };
-                        this.opencgaSession.opencgaClient.panels().distinct(this._config.field, filters)
-                            .then(response => success(response))
-                            .catch(error => failure(error));
-                        break;
-                    default:
-                        break;
-                }
+                const resources = {
+                    "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
+                    "INDIVIDUAL": this.opencgaSession.opencgaClient.individuals(),
+                    "SAMPLE": this.opencgaSession.opencgaClient.samples(),
+                    "FAMILY": this.opencgaSession.opencgaClient.families(),
+                    "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
+                };
+
+                const page = params?.data?.page || 1;
+                const attr = params?.data?.term ? {[this.queryField]: "~/" + params?.data?.term + "/i"} : null;
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: this._config.limit,
+                    count: false,
+                    skip: (page - 1) * this._config.limit,
+                    ...attr
+                };
+
+                // this.opencgaSession.opencgaClient.panels().distinct(this._config.field, filters)
+                resources[this._config.resource].distinct(this.searchField, filters)
+                    .then(response => success(response))
+                    .catch(error => failure(error));
+
             },
             preprocessResults(results) {
                 // if results come with null, emtpy or undefined it'll removed.
