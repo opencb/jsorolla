@@ -111,8 +111,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                 y: `${this.config.sampleHeaderHeight + (index * this.config.sampleHeight)}px`,
                 width: "100%",
                 height: `${this.config.sampleHeight}px`,
-                fill: index % 2 ? this.config.sampleBackgroundColorEven : this.config.sampleBackgroundColorOdd,
-                style: `opacity:${this.config.sampleBackgroundOpacity}`,
+                fill: index % 2 ? this.config.sampleBackgroundEven : this.config.sampleBackgroundOdd,
             });
         });
 
@@ -159,9 +158,8 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             renderer: {}, // Renderer configuration
             histogramRenderer: {}, // Histogram renderer configuration
             sampleHeight: 40,
-            sampleBackgroundOpacity: 0.2,
-            sampleBackgroundColorOdd: "#ffffff",
-            sampleBackgroundColorEven: "#a4abb6",
+            sampleBackgroundOdd: "rgba(255,255,255,0.2)",
+            sampleBackgroundEven: "rgba(164, 171, 182, 0.2)", // === "#a4abb6",
             sampleHeaderHeight: 20,
             sampleHeaderDividerHeight: 2,
             sampleHeaderDividerColor: "#d4d8dd",
