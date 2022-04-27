@@ -88,7 +88,7 @@ export default class CatalogAutocomplete extends LitElement {
                 };
 
                 // this.opencgaSession.opencgaClient.panels().distinct(this._config.field, filters)
-                resources[this._config.resource].distinct(this.searchField, filters)
+                resources[this.resource].distinct(this.searchField, filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
 
@@ -108,7 +108,7 @@ export default class CatalogAutocomplete extends LitElement {
 
     render() {
 
-        if (!this._config.resource) {
+        if (!this.resource) {
             return html`resource not provided`;
         }
 

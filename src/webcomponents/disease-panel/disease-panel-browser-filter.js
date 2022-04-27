@@ -178,6 +178,7 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"disorders.id"}"
                         .searchField="${"disorders.id"}"
+                        .resource="${"DISEASE_PANEL"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
@@ -194,6 +195,7 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"genes.id"}"
                         .searchField="${"genes.id"}"
+                        .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
@@ -218,6 +220,7 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"categories.name"}"
                         .searchField="${"categories.name"}"
+                        .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
@@ -230,6 +233,7 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"tags"}"
                         .searchField="${"tags"}"
+                        .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
