@@ -1,11 +1,29 @@
 import Renderer from "./renderer.js";
 import GenomeBrowserUtils from "../genome-browser-utils.js";
 import {SVG} from "../../core/svg.js";
+import LollipopLayout from "../../core/visualisation/lollipop-layout.js";
 
 export default class VariantRenderer extends Renderer {
 
+    constructor(config) {
+        super(config);
+        this.lollipopLayout = new LollipopLayout({
+            maxWidth: this.config.lollipopMaxWidth,
+        });
+    }
+
     render(features, options) {
-        (features || []).forEach(feature => {
+        const topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
+        let lollipopPositions = [];
+        const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
+        const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
+        // const lollipopEndX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.end, options);
+
+        if (this.config.lollipopVisible) {
+            lollipopPositions = this.lollipopLayout.layout(features || [], options.requestedRegion, lollipopRegionWidth);
+        }
+
+        (features || []).forEach((feature, featureIndex) => {
             const group = SVG.addChild(options.svgCanvasFeatures, "g", {});
 
             // get feature genomic information
@@ -17,25 +35,50 @@ export default class VariantRenderer extends Renderer {
             const width = Math.max(length * options.pixelBase, 1);
             const x = GenomeBrowserUtils.getFeatureX(start, options);
 
-            // Get variant info
+            // Get variant information
             const variantColor = this.getValueFromConfig("variantColor", [feature]);
             const variantTooltipTitle = this.getValueFromConfig("variantTooltipTitle", [feature]);
             const variantTooltipText = this.getValueFromConfig("variantTooltipText", [feature]);
 
-            // Render feature position
-            const variantElement = SVG.addChild(group, "rect", {
-                "x": x,
-                "y": 0,
-                "width": `${width}px`,
-                "height": `${this.config.sampleHeaderHeight - this.config.sampleHeaderDividerHeight - 4}px`,
-                // "stroke": "#000000",
-                // "stroke-width": 1,
-                // "stroke-opacity": 0.7,
-                "fill": variantColor,
-                "cursor": "pointer",
-            });
+            let variantElement = null;
 
-            if (variantTooltipText) {
+            // Check if lollipops are visible
+            if (this.config.lollipopVisible) {
+                const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
+                const lollipopPath = [
+                    `M ${lollipopX},${this.config.lollipopHeight / 8}`,
+                    `L ${lollipopX},${this.config.lollipopHeight / 2}`,
+                    `L ${x},${3 * this.config.lollipopHeight / 4}`,
+                    `L ${x},${this.config.lollipopHeight}`,
+                ];
+                // Render lollipop stick
+                SVG.addChild(group, "path", {
+                    "d": lollipopPath.join(" "),
+                    "fill": "transparent",
+                    "stroke": this.config.lollipopStickColor,
+                    "stroke-width": this.config.lollipopStickWidth,
+                });
+                // Lollipop shape
+                variantElement = SVG.addChild(group, "circle", {
+                    "cx": lollipopX,
+                    "cy": this.config.lollipopHeight / 8,
+                    "r": 5,
+                    "fill": variantColor,
+                });
+
+            } else {
+                variantElement = SVG.addChild(group, "rect", {
+                    "x": x,
+                    "y": 0,
+                    "width": `${width}px`,
+                    "height": `${this.config.headerHeight - this.config.dividerHeight - 1}px`,
+                    "fill": variantColor,
+                    "cursor": "pointer",
+                });
+            }
+
+            // Display tooltip
+            if (variantElement && variantTooltipText) {
                 $(variantElement).qtip({
                     content: {
                         text: variantTooltipText,
@@ -63,7 +106,7 @@ export default class VariantRenderer extends Renderer {
 
                 const sampleGenotypeElement = SVG.addChild(group, "rect", {
                     "x": x,
-                    "y": this.config.sampleHeaderHeight + (index * this.config.sampleHeight),
+                    "y": topPosition + (index * this.config.sampleHeight) + 1,
                     "width": width,
                     "height": this.config.sampleHeight - 2,
                     // "stroke": "#000000",
@@ -111,7 +154,16 @@ export default class VariantRenderer extends Renderer {
             // sampleTrackY: 15,
             // sampleTrackFontSize: 12,
             sampleNames: [],
-            sampleHeight: 20,
+            sampleHeight: 40,
+            // Header configuration
+            headerHeight: 20,
+            dividerHeight: 2,
+            // Lollipop configuration
+            lollipopVisible: true,
+            lollipopHeight: 40,
+            lollipopStickColor: "rgb(164,171,182)",
+            lollipopStickWidth: 1,
+            lollipopMaxWidth: 10,
         };
     }
 
