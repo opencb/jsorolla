@@ -22,6 +22,7 @@ import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/cohort-id-autocomplete.js";
+import "../commons/filters/sample-id-autocomplete.js";
 
 
 export default class CohortBrowserFilter extends LitElement {

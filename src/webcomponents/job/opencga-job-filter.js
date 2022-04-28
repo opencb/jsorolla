@@ -20,6 +20,7 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/filters/jobs-id-autocomplete.js";
+import "../commons/filters/file-name-autocomplete.js";
 import "../commons/filters/analysis-tool-id-autocomplete.js";
 
 
@@ -143,34 +144,56 @@ export default class OpencgaJobFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <jobs-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                          @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></jobs-id-autocomplete>`;
+                    <jobs-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </jobs-id-autocomplete>`;
                 break;
             case "input":
                 content = html`
-                    <file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
+                    <file-name-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </file-name-autocomplete>`;
                 break;
             case "tool":
                 content = html`
-                    <analysis-tool-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></analysis-tool-id-autocomplete>`;
+                    <analysis-tool-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </analysis-tool-id-autocomplete>`;
                 break;
             case "tags":
                 content = html`
-                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}"
-                                       @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                    <text-field-filter
+                        placeholder="${subsection.placeholder}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .separator="${",;"}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </text-field-filter>`;
                 break;
             case "internal.status.name":
             case "visited":
             case "priority":
                 content = html`
-                    <select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}"
-                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                    <select-field-filter
+                        multiple .value="${this.preparedQuery[subsection.id]}"
+                        .data="${subsection.allowedValues}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-field-filter>`;
                 break;
             case "creationDate":
                 content = html`
-                    <date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                    <date-filter
+                        .creationDate="${this.preparedQuery.creationDate}"
+                        @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                    </date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

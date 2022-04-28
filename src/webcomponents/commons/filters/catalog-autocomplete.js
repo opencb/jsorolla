@@ -75,6 +75,7 @@ export default class CatalogAutocomplete extends LitElement {
                     "SAMPLE": this.opencgaSession.opencgaClient.samples(),
                     "FAMILY": this.opencgaSession.opencgaClient.families(),
                     "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
+                    "FILE": this.opencgaSession.opencgaClient.files()
                 };
 
                 const page = params?.data?.page || 1;

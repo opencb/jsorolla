@@ -138,12 +138,16 @@ export default class ClinicalAnalysisBrowserFilter extends LitElement {
                 break;
             case "proband":
                 content = html`
-                    <proband-id-autocomplete
+                    <catalog-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"proband"}"
+                        .searchField="${"proband.id"}"
+                        .resource="${"CLINICAL_ANALYSIS"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </proband-id-autocomplete>`;
+                    </catalog-autocomplete>
+                `;
                 break;
             case "family":
                 content = html`

@@ -167,51 +167,66 @@ export default class OpencgaFileFilter extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-
                     </file-name-autocomplete>`;
                 break;
             case "sampleIds":
-                content = html`<sample-id-autocomplete
+                content = html`
+                    <sample-id-autocomplete
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                </sample-id-autocomplete>`;
+                    </sample-id-autocomplete>`;
                 break;
             case "directory":
-                content = html`<directory-autocomplete
-                        .opencgaSession="${this.opencgaSession}"
+                content = html`
+                    <catalog-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"path"}"
+                        .searchField="${"path"}"
+                        .resource="${"FILE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                </directory-autocomplete>`;
+                    </catalog-autocomplete>
+                `;
                 break;
             case "path":
-                content = html`<text-field-filter
+                content = html`
+                    <text-field-filter
                         placeholder="${subsection.placeholder}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                </text-field-filter>`;
+                    </text-field-filter>`;
                 break;
             case "format":
             case "bioformat":
             case "internal.index.status.name":
-                content = html`<select-field-filter
+                content = html`
+                    <select-field-filter
                         multiple
                         .value="${this.preparedQuery[subsection.id]}"
                         .data="${subsection.allowedValues}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                </select-field-filter>`;
+                    </select-field-filter>
+                `;
                 break;
             case "annotations":
                 content = html`
-                        <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                      resource="FILE"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                      @annotationChange="${this.onAnnotationChange}">
-                        </opencga-annotation-filter-modal>`;
+                    <opencga-annotation-filter-modal
+                        .opencgaSession="${this.opencgaSession}"
+                        resource="FILE"
+                        .config="${this.annotationFilterConfig}"
+                        .selectedVariablesText="${this.preparedQuery.annotation}"
+                        @annotationChange="${this.onAnnotationChange}">
+                    </opencga-annotation-filter-modal>
+                    `;
                 break;
             case "date":
-                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                content = html`
+                    <date-filter
+                        .creationDate="${this.preparedQuery.creationDate}"
+                        @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                    </date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

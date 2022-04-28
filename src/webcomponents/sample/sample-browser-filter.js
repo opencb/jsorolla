@@ -25,7 +25,7 @@ import "../commons/filters/somatic-filter.js";
 import "../commons/forms/section-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
-import "../commons/filters/phenotype-name-autocomplete.js";
+import "../commons/filters/catalog-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
@@ -154,53 +154,75 @@ export default class SampleBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <sample-id-autocomplete .config="${subsection}"
-                                                  .opencgaSession="${this.opencgaSession}"
-                                                  .value="${this.preparedQuery[subsection.id]}"
-                                                  @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    <sample-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </sample-id-autocomplete>
-                    <!--<select-token-filter-static .config="\${subsection}"
-                                                  .value="\${this.preparedQuery[subsection.id]}"
-                                                  @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </select-token-filter-static> -->
                 `;
                 break;
             case "individualId":
                 content = html`
-                    <individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </individual-id-autocomplete>`;
+                    <individual-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </individual-id-autocomplete>
+                    `;
                 break;
             case "fileIds":
                 content = html`
-                    <file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </file-name-autocomplete>`;
+                    <file-name-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </file-name-autocomplete>
+                    `;
                 break;
             case "source":
             case "phenotypes":
                 content = html`
-                    <phenotype-name-autocomplete .config="${{...subsection, resource: "SAMPLE"}}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .value="${this.preparedQuery[subsection.id]}"
-                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </phenotype-name-autocomplete>`;
+                    <catalog-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"phenotypes"}"
+                        .searchField="${"phenotypes.name"}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-autocomplete>
+                    `;
                 break;
             case "annotations":
                 content = html`
-                    <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                     .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                     resource="SAMPLE"
-                                                     .config="${this.annotationFilterConfig}"
-                                                     .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                     @annotationChange="${this.onAnnotationChange}">
-                    </opencga-annotation-filter-modal>`;
+                    <opencga-annotation-filter-modal
+                        .opencgaSession="${this.opencgaSession}"
+                        .opencgaClient="${this.opencgaSession.opencgaClient}"
+                        resource="SAMPLE"
+                        .config="${this.annotationFilterConfig}"
+                        .selectedVariablesText="${this.preparedQuery.annotation}"
+                        @annotationChange="${this.onAnnotationChange}">
+                    </opencga-annotation-filter-modal>
+                    `;
                 break;
             case "somatic":
-                content = html`<somatic-filter .value="${this.preparedQuery.somatic}" @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}"></somatic-filter>`;
+                content = html`
+                    <somatic-filter
+                        .value="${this.preparedQuery.somatic}"
+                        @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}">
+                    </somatic-filter>
+                    `;
                 break;
             case "date":
-                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                content = html`
+                    <date-filter
+                        .creationDate="${this.preparedQuery.creationDate}"
+                        @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                    </date-filter>
+                    `;
                 break;
             default:
                 console.error("Filter component not found");
@@ -215,9 +237,9 @@ export default class SampleBrowserFilter extends LitElement {
                         </div>` : null
                     }
                 </div>
-               <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                   ${content}
-               </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
             </div>`;
     }
 
