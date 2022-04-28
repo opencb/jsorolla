@@ -78,7 +78,7 @@ export default class CatalogGridFormatter {
                     break;
             }
             if (value.name) {
-                return `<span data-cy="disorder-name">${value.name}</span> <span style="white-space: nowrap">(${idHtml})</span>`;
+                return `<span data-cy="disorder-name">${value.name}</span> (<span style="white-space: nowrap" data-cy="disorder-id">${idHtml}</span>)`;
             } else {
                 return `${idHtml}`;
             }
