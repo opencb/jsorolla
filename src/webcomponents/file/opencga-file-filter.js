@@ -24,7 +24,6 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/file-name-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
-import "../commons/filters/directory-autocomplete.js";
 
 export default class OpencgaFileFilter extends LitElement {
 

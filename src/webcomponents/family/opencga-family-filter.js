@@ -20,7 +20,6 @@ import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/disorder-id-families-autocomplete.js";
 import "../commons/filters/catalog-autocomplete.js";
 
 export default class OpencgaFamilyFilter extends LitElement {

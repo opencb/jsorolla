@@ -26,8 +26,7 @@ import "./clinical-analysis-view.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/disorder-id-individuals-autocomplete.js";
-import "../commons/filters/proband-id-autocomplete.js";
+import "../commons/filters/catalog-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
 import "../commons/view/detail-tabs.js";
@@ -557,12 +556,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "proband") ? html`
                                             <!-- Proband -->
                                             <div class="btn-group" data-cy="form-proband">
-                                                <proband-id-autocomplete
-                                                    .config=${{placeholder: "Proband Id"}}
+                                                <catalog-autocomplete
                                                     .value="${this.query?.proband}"
+                                                    .queryField="${"proband"}"
+                                                    .searchField="${"proband.id"}"
+                                                    .resource="${"CLINICAL_ANALYSIS"}"
                                                     .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Proband Id"}}
                                                     @filterChange="${e => this.onFilterChange("proband", e.detail.value)}">
-                                                </proband-id-autocomplete>
+                                                </catalog-autocomplete>
                                                     <!--<button type="button" class="btn btn-default dropdown-toggle filter-button"
                                                         id="\${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                                     <span class="ocap-text-button">Proband: <span>\${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
@@ -604,12 +606,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "disorder") ? html`
                                             <!-- Disorder -->
                                             <div class="btn-group" data-cy="form-disorder">
-                                                <disorder-id-individuals-autocomplete
-                                                    .config=${{placeholder: "Disorders", freeTag: true}}
+                                                <catalog-autocomplete
                                                     .value="${this.query?.disorder}"
+                                                    .queryField="${"disorders"}"
+                                                    .searchField="${"disorders.name"}"
+                                                    .resource="${"INDIVIDUAL"}"
                                                     .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Disorders", freeTag: true}}
                                                     @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}">
-                                                </disorder-id-individuals-autocomplete>
+                                                </catalog-autocomplete>
 
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">

@@ -20,7 +20,6 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/filters/disorder-id-individuals-autocomplete.js";
 import "../commons/filters/catalog-autocomplete.js";
 import "../commons/forms/date-filter.js";
 

@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
-import "../commons/filters/proband-id-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
