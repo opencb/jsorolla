@@ -280,4 +280,40 @@ export default class GenomeBrowserUtils {
         `;
     }
 
+    //
+    // Lollipops utils
+    //
+
+    // Lollipop shape formatter
+    static lollipopShapeFormatter(feature, parent, x, y, width, color) {
+        const type = feature.type || "";
+        const half = width / 2;
+        switch (type.toUpperCase()) {
+            case "SNV":
+                return SVG.addChild(parent, "circle", {
+                    "cx": x,
+                    "cy": y,
+                    "r": half,
+                    "fill": color,
+                });
+            case "INDEL":
+                return SVG.addChild(parent, "path", {
+                    "d": `M${x},${y-half} L${x-half},${y+half} L${x+half},${y+half} Z`,
+                    "fill": color,
+                    "stroke-width": "0px",
+                });
+            default:
+                return SVG.addChild(parent, "path", {
+                    "d": `M${x},${y-half} L${x-half},${y} L${x},${y+half} L${x+half},${y} Z`,
+                    "fill": color,
+                    "stroke-width": "0px",
+                });
+        }
+    }
+
+    // Lollipop width formatter
+    static lollipopWidthFormatter(feature) {
+        return 1;
+    }
+
 }
