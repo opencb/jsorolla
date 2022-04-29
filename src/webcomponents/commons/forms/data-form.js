@@ -159,7 +159,7 @@ export default class DataForm extends LitElement {
 
     _getErrorMessage(element, section) {
         const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
-        return html`<div style="padding-top: 7px"><em>${text}</em></div>`;
+        return html`<div><em>${text}</em></div>`;
     }
 
     /**
@@ -514,7 +514,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <div class="col-md-${titleWidth}">
-                            <label class="control-label ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0px; text-align:${titleAlign};${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         </div>
@@ -534,7 +534,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="control-label ${titleClassName}" style="${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0px; ${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         ` : null}
@@ -729,7 +729,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <label style="font-weight: normal;margin: 0">
+            <label style="padding-top: 0px; font-weight: normal;margin: 0">
                 <input
                     type="checkbox"
                     class="${this._prefix}FilterCheckbox"
