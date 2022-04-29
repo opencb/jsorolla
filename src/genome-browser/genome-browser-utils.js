@@ -311,9 +311,4 @@ export default class GenomeBrowserUtils {
         }
     }
 
-    // Lollipop width formatter
-    static lollipopWidthFormatter(feature) {
-        return 1;
-    }
-
 }

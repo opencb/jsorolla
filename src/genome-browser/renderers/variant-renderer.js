@@ -17,7 +17,6 @@ export default class VariantRenderer extends Renderer {
         let lollipopPositions = [];
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
-        // const lollipopEndX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.end, options);
 
         if (this.config.lollipopVisible) {
             lollipopPositions = this.lollipopLayout.layout(features || [], options.requestedRegion, lollipopRegionWidth);
@@ -45,6 +44,8 @@ export default class VariantRenderer extends Renderer {
             // Check if lollipops are visible
             if (this.config.lollipopVisible) {
                 const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
+                const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
+                console.log(lollipopWidth);
                 const lollipopPath = [
                     `M ${lollipopX},${this.config.lollipopHeight / 8}`,
                     `L ${lollipopX},${this.config.lollipopHeight / 2}`,
@@ -59,13 +60,14 @@ export default class VariantRenderer extends Renderer {
                     "stroke-width": this.config.lollipopStickWidth,
                 });
                 // Lollipop shape
-                variantElement = SVG.addChild(group, "circle", {
-                    "cx": lollipopX,
-                    "cy": this.config.lollipopHeight / 8,
-                    "r": 5,
-                    "fill": variantColor,
-                });
-
+                variantElement = this.getValueFromConfig("lollipopShape", [
+                    feature,
+                    group,
+                    lollipopX,
+                    this.config.lollipopHeight / 8,
+                    this.config.lollipopMinWidth + lollipopWidth * (this.config.lollipopMaxWidth - this.config.lollipopMinWidth),
+                    variantColor,
+                ]);
             } else {
                 variantElement = SVG.addChild(group, "rect", {
                     "x": x,
@@ -163,7 +165,10 @@ export default class VariantRenderer extends Renderer {
             lollipopHeight: 40,
             lollipopStickColor: "rgb(164,171,182)",
             lollipopStickWidth: 1,
+            lollipopMinWidth: 5,
             lollipopMaxWidth: 10,
+            lollipopShape: GenomeBrowserUtils.lollipopShapeFormatter,
+            lollipopWidth: 1, // GenomeBrowserUtils.lollipopWidthFormatter,
         };
     }
 
