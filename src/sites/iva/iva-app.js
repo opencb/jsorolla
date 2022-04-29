@@ -39,7 +39,7 @@ import NotificationManager from "../../core/notification-manager.js";
 
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
-import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
+import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
 import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
@@ -1161,9 +1161,10 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["clinicalAnalysisPortal"] ? html`
                     <div class="content" id="clinicalAnalysisPortal">
-                        <tool-header title="${"Case Portal"}" icon="${"fas fa-window-restore"}"></tool-header>
-                        <opencga-clinical-review-cases  .opencgaSession="${this.opencgaSession}"
-                                                        .settings="${OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS}"></opencga-clinical-review-cases>
+                        <clinical-analysis-portal
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS}">
+                        </clinical-analysis-portal>
                     </div>
                 ` : null}
 
