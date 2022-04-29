@@ -159,7 +159,7 @@ export default class DataForm extends LitElement {
 
     _getErrorMessage(element, section) {
         const text = element?.display?.errorMessage ?? section?.display?.errorMessage ?? this.config?.display?.errorMessage ?? "Error: No valid data found";
-        return html`<div><em>${text}</em></div>`;
+        return html`<div style="padding-top: 7px"><em>${text}</em></div>`;
     }
 
     /**
