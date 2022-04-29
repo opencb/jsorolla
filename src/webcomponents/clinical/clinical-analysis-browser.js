@@ -51,7 +51,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.errorState = false;
     }
 
     connectedCallback() {
@@ -70,18 +69,23 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = this.getDefaultConfig();
+        const defaultConfig = this.getDefaultConfig();
+        this._config = {
+            ...defaultConfig,
+            ...this.settings,
+        };
+
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(defaultConfig.filter, this.settings);
         }
 
         if (this.settings?.table) {
             this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
+                ...defaultConfig.filter.result.grid,
                 ...this.settings.table,
                 toolbar: {
-                    ...this._config.filter.result.grid.toolbar,
+                    ...defaultConfig.filter.result.grid.toolbar,
                     ...(this.settings.table.toolbar || {}),
                 },
             };
@@ -154,7 +158,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         .query="${params.query}"
                         @queryChange="${params.onQueryFilterChange}"
                         @querySearch="${params.onQueryFilterSearch}">
-                    </clinical-analysis-browser-filter>`,
+                    </clinical-analysis-browser-filter>
+                `,
                 sections: [
                     {
                         name: "section title",
