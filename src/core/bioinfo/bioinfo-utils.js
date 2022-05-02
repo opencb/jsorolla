@@ -210,4 +210,8 @@ export default class BioinfoUtils {
         return `http://purl.obolibrary.org/obo/${ontologyShort}`;
     }
 
+    static getHpoLink(hpoTerm) {
+        return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
+    }
+
 }

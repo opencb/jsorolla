@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 
-
+// Nacho 20-04-2022 - DEPRECATED: use new disorder-autocomplete now.
 export default class DisorderIdFamiliesAutocomplete extends LitElement {
 
     createRenderRoot() {

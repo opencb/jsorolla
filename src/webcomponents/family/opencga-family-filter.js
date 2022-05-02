@@ -20,7 +20,7 @@ import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/disorder-id-families-autocomplete.js";
+import "../commons/filters/disorder-autocomplete.js";
 
 export default class OpencgaFamilyFilter extends LitElement {
 
@@ -199,12 +199,13 @@ export default class OpencgaFamilyFilter extends LitElement {
                 break;
             case "disorders":
                 content = html`
-                    <disorder-id-families-autocomplete
+                    <disorder-autocomplete
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
+                        .resource=${"FAMILY"}
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </disorder-id-families-autocomplete>
+                    </disorder-autocomplete>
                     `;
                 break;
             case "phenotypes":
