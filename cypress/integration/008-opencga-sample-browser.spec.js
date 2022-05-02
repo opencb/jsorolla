@@ -18,13 +18,13 @@ import {login, checkResults, changePage, getResult, Facet, dateFilterCheck, anno
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("7 - Sample Browser", () => {
+context("8. Sample Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("7.1 - query", () => {
+    it("8.1 - query", () => {
         cy.get("a[data-id=sample]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Sample Browser");
 
@@ -54,7 +54,7 @@ context("7 - Sample Browser", () => {
         annotationFilterCheck("sample-grid");
 
     });
-    it("7.2 - aggregated query", () => {
+    it("8.2 - aggregated query", () => {
         cy.get("a[data-id=sample]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
 

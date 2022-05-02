@@ -21,45 +21,45 @@ import {TIMEOUT} from "../plugins/constants.js";
 /**
  * Header bar (post-login)
  */
-context("3 - Header bar (post-login): Checks each menu item in header-bar resolves correctly", () => {
+context("4. Header bar (post-login): Checks each menu item in header-bar resolves correctly", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("3.1 - checks Variant Browser menu item", () => {
+    it("4.1 - checks Variant Browser menu item", () => {
         cy.get("a[data-id=browser]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser"); // should assertion comes from Chai and it follows its logic
         checkResults("variant-browser-grid");
 
     });
 
-    it("3.2 - checks Case Portal menu item", () => {
+    it("4.2 - checks Case Portal menu item", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
         checkResults("clinical-analysis-grid");
     });
 
-    it("3.3 - checks Sample Browser menu item", () => {
+    it("4.3 - checks Sample Browser menu item", () => {
         cy.get("a[data-id=sample]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Sample Browser");
         checkResults("sample-grid");
     });
 
-    it("3.4 - checks Individual Browser menu item", () => {
+    it("4.4 - checks Individual Browser menu item", () => {
         cy.get("a[data-id=individual]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Individual Browser"); // should assertion comes from Chai and it follows its logic
         checkResults("individual-grid");
 
     });
 
-    it("3.5 - checks Family Browser menu item", () => {
+    it("4.5 - checks Family Browser menu item", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser"); // should assertion comes from Chai and it follows its logic
         checkResultsOrNot("family-grid");
     });
 
-    it("3.6 - checks study selector menu items", () => {
+    it("4.6 - checks study selector menu items", () => {
         // switching between all the studies
         cy.get("a[data-study]").each(($el, index, $list) => {
             const study = $el.data("study");
@@ -70,7 +70,7 @@ context("3 - Header bar (post-login): Checks each menu item in header-bar resolv
         });
     });
 
-    it("3.7 - checks User menu items", () => {
+    it("4.7 - checks User menu items", () => {
         cy.get("li[data-cy='user-menu'] > a").click();
         cy.get("a[data-user-menu='account']").click();
         cy.get("div.page-title h2").should("be.visible").and("contain", "Your profile");

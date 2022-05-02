@@ -18,19 +18,19 @@ import {login, goTo, randomString, checkResults, selectToken} from "../plugins/u
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("5 - Case Portal", () => {
+context("6. Case Portal", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("5.1 - check query results", () => {
+    it("6.1 - check query results", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
         checkResults("clinical-analysis-grid");
     });
 
-    it("5.2 - Filter: caseId", () => {
+    it("6.2 - Filter: caseId", () => {
         // reading from the first row the case Id, the proband Id, and the Family Id and use them as filters
         cy.get("clinical-analysis-grid .bootstrap-table .fixed-table-container tr[data-index=0]", {timeout: TIMEOUT})
             .find("td:nth-child(1) a[data-cy='case-id']")
@@ -42,7 +42,7 @@ context("5 - Case Portal", () => {
             });
     });
 
-    it("5.3 - Filter: Proband Sample Id", () => {
+    it("6.3 - Filter: Proband Sample Id", () => {
         cy.get("clinical-analysis-grid .bootstrap-table .fixed-table-container tr[data-index=0]", {timeout: TIMEOUT})
             .find("td:nth-child(2) p[data-cy='proband-sample-id']").first()
             .then($p => {
@@ -54,7 +54,7 @@ context("5 - Case Portal", () => {
             });
     });
 
-    it("5.4 - Filter: Proband Id", () => {
+    it("6.4 - Filter: Proband Id", () => {
         cy.get("clinical-analysis-grid .bootstrap-table .fixed-table-container tr[data-index=0]", {timeout: TIMEOUT})
             .find("td:nth-child(2) span[data-cy='proband-id']")
             .then($span => {
@@ -66,7 +66,7 @@ context("5 - Case Portal", () => {
             });
     });
 
-    it("5.5 - Filter: Disorder name", () => {
+    it("6.5 - Filter: Disorder name", () => {
         // check whether there is a disorder-name, then it tests the filter itself (Cancer studies (type=SINGLE) doesn't have disorder names)
         cy.get("clinical-analysis-grid .bootstrap-table .fixed-table-container tr[data-index=0]", {timeout: TIMEOUT})
             .find("td:nth-child(4)")
@@ -81,7 +81,7 @@ context("5 - Case Portal", () => {
             });
     });
 
-    it("5.6 - Filter: Family Id", () => {
+    it("6.6 - Filter: Family Id", () => {
         // check whether there is a family-id, then it tests the filter itself (Cancer studies doesn't have family ids)
         cy.get("clinical-analysis-grid .bootstrap-table .fixed-table-container tr[data-index=0]", {timeout: TIMEOUT})
             .find("td:nth-child(3)")
@@ -96,7 +96,7 @@ context("5 - Case Portal", () => {
             });
     });
 
-    it("5.7 - Filter: Priority Id", () => {
+    it("6.7 - Filter: Priority Id", () => {
         // check whether priority filter is enabled and visible first, then it tests the filter itself
         cy.get("div.lhs", {timeout: 5000}).then($wc => {
             if (Cypress.$("div[data-cy='form-priority']", $wc).length) {
@@ -116,7 +116,7 @@ context("5 - Case Portal", () => {
     });
 
 
-    it("5.2 - Columns Visibility", () => {
+    it("6.2 - Columns Visibility", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
 
