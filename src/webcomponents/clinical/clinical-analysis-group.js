@@ -65,6 +65,12 @@ export default class ClinicalAnalysisGroup extends LitElement {
             })
             .then(response => {
                 this.groups = response.getResults();
+
+                // Check if a custom sorting function has been provided
+                if (typeof this.activeGroup.customSort === "function") {
+                    this.groups = this.activeGroup.customSort(this.groups);
+                }
+
                 this.requestUpdate();
             });
     }
@@ -154,6 +160,10 @@ export default class ClinicalAnalysisGroup extends LitElement {
                     title: "Status",
                     distinctField: "status.id",
                     queryField: "status",
+                    customSort: items => {
+                        // We are assuming values are always sorted from less to most important
+                        return items.reverse();
+                    },
                     display: {
                         title: "Status",
                         icon: "fa-dot-circle",
@@ -164,6 +174,10 @@ export default class ClinicalAnalysisGroup extends LitElement {
                     id: "priority",
                     distinctField: "priority.id",
                     queryField: "priority",
+                    customSort: items => {
+                        // We are assuming values are always sorted from less to most important
+                        return items.reverse();
+                    },
                     display: {
                         title: "Priority",
                         icon: "fa-flag",
