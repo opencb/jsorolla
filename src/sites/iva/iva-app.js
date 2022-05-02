@@ -1163,7 +1163,7 @@ class IvaApp extends LitElement {
                     <div class="content" id="clinicalAnalysisPortal">
                         <clinical-analysis-portal
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS}">
+                            .settings="${CLINICAL_ANALYSIS_PORTAL_SETTINGS}">
                         </clinical-analysis-portal>
                     </div>
                 ` : null}
