@@ -18,12 +18,12 @@ import {TIMEOUT} from "../plugins/constants.js";
 import {goTo} from "../plugins/utils.js";
 
 
-context("2 - Login", () => {
+context("3. Login", () => {
     beforeEach(() => {
         cy.visit("http://localhost:3000/src/sites/iva/#login");
     });
 
-    it("2.1 - login unsuccessful: not existing user", () => {
+    it("3.1 - login unsuccessful: not existing user", () => {
         cy.get("user-login .panel-body #user").type("demouser");
         cy.get("user-login .panel-body #password").type("demo2");
         cy.get("button.btn-primary").contains("Sign In").click();
@@ -31,7 +31,7 @@ context("2 - Login", () => {
         cy.get(".alert.alert-danger").contains("Incorrect user or password");
     });
 
-    it("2.2 - login unsuccessful: wrong password", () => {
+    it("3.2 - login unsuccessful: wrong password", () => {
         cy.get("user-login .panel-body #user").type("testest23ml");
         cy.get("user-login .panel-body #password").type("123456");
         cy.get("button.btn-primary").contains("Sign In").click();
@@ -39,7 +39,7 @@ context("2 - Login", () => {
         cy.get(".alert.alert-danger").contains("CatalogAuthenticationException");
     });
 
-    it("2.3 - login successful", () => {
+    it("3.3 - login successful", () => {
 
         const username = Cypress.env("username");
         const password = Cypress.env("password");
