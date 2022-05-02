@@ -5,7 +5,7 @@ export class RestClient {
     constructor() {
         if (!RestClient.instance) {
             RestClient.instance = this;
-            this.requests = {};
+            // this.requests = {};
         }
         return RestClient.instance;
     }
@@ -66,12 +66,11 @@ export class RestClient {
         return dataResponse;
     }
 
-    call(url, options, k) {
+    call(url, options) {
         let method = "GET";
         let async = true;
 
-        // k is false iff there is concurrent=true param in the call
-        const key = k ? RestClient.hash(k) : null;
+        // const key = k ? RestClient.hash(k) : null;
 
         let dataResponse = null;
 
@@ -92,29 +91,26 @@ export class RestClient {
             async = options.async || true;
         }
 
-        // console.time(`REST call to ${url}`);
         // Creating the promise
         return new Promise((resolve, reject) => {
 
             const request = new XMLHttpRequest();
 
-            // k is false iff there is concurrent=true param in the call
-            if (key) {
-                if (this.requests[key]) {
-                    // pending prev request
-                    this.requests[key] = {...this.requests[key], pending: true};
-                } else {
-                    // pending false as there is no prev request
-                    this.requests[key] = {pending: false, request, url, key};
-                }
-            }
+            // Josemi 2022-04-22 NOTE: disabled requests registry
+            // Related task: https://app.clickup.com/t/36631768/TASK-670
+            // if (key) {
+            //     if (this.requests[key]) {
+            //         // pending prev request
+            //         this.requests[key] = {...this.requests[key], pending: true};
+            //     } else {
+            //         // pending false as there is no prev request
+            //         this.requests[key] = {pending: false, request, url, key};
+            //     }
+            // }
 
             request.onload = event => {
-                // console.log("on load EVENT", event);
-                // console.log("on load URL", url);
-
                 // request is fulfilled
-                delete this.requests[key];
+                // delete this.requests[key];
 
                 if (request.status === 200) {
 
@@ -201,21 +197,22 @@ export class RestClient {
                 request.send();
             }
 
-            if (this.requests[key]) {
-                // console.log("FULL LIST", Object.entries(this.requests))
-                // console.log("this.requests[key]", this.requests[key]);
-                if (this.requests[key].pending) {
-                    console.warn("aborting request", this.requests[key].url);
-                    this.requests[key].request.abort();
-                    delete this.requests[key];
-                } else {
-                    // not aborting
-                }
-            }
-
+            // Josemi 2022-04-22 NOTE: disabled requests registry
+            // Related task: https://app.clickup.com/t/36631768/TASK-670
+            // if (this.requests[key]) {
+            //     // console.log("FULL LIST", Object.entries(this.requests))
+            //     // console.log("this.requests[key]", this.requests[key]);
+            //     if (this.requests[key].pending) {
+            //         console.warn("aborting request", this.requests[key].url);
+            //         this.requests[key].request.abort();
+            //         delete this.requests[key];
+            //     }
+            // }
         });
     }
 
+    // Josemi 2022-04-22 NOTE: deprecated after removing the requests registry
+    // Related task: https://app.clickup.com/t/36631768/TASK-670
     static hash(str) {
         let hash = 0; let i, chr;
         if (str.length === 0) return hash;
