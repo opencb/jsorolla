@@ -23,13 +23,13 @@ const getCaseType = grid => {
 };
 
 
-context("6 - Case Interpreter", () => {
+context("7. Case Interpreter", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("6.1 - check query results", () => {
+    it("7.1 - check query results", () => {
         let caseId;
 
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
