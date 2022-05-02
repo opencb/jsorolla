@@ -7,6 +7,7 @@ export default class VariantRenderer extends Renderer {
 
     constructor(config) {
         super(config);
+
         this.lollipopLayout = new LollipopLayout({
             maxWidth: this.config.lollipopMaxWidth,
         });
@@ -45,20 +46,21 @@ export default class VariantRenderer extends Renderer {
             if (this.config.lollipopVisible) {
                 const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
-                console.log(lollipopWidth);
                 const lollipopPath = [
                     `M ${lollipopX},${this.config.lollipopHeight / 8}`,
                     `L ${lollipopX},${this.config.lollipopHeight / 2}`,
                     `L ${x},${3 * this.config.lollipopHeight / 4}`,
                     `L ${x},${this.config.lollipopHeight}`,
                 ];
+
                 // Render lollipop stick
-                SVG.addChild(group, "path", {
+                const lollipopStick = SVG.addChild(group, "path", {
                     "d": lollipopPath.join(" "),
                     "fill": "transparent",
                     "stroke": this.config.lollipopStickColor,
                     "stroke-width": this.config.lollipopStickWidth,
                 });
+
                 // Lollipop shape
                 variantElement = this.getValueFromConfig("lollipopShape", [
                     feature,
@@ -68,6 +70,21 @@ export default class VariantRenderer extends Renderer {
                     this.config.lollipopMinWidth + lollipopWidth * (this.config.lollipopMaxWidth - this.config.lollipopMinWidth),
                     variantColor,
                 ]);
+
+                // Register lollipop focus events
+                if (this.config.lollipopFocusEnabled) {
+                    variantElement.addEventListener("mouseenter", () => {
+                        lollipopStick.setAttribute("stroke", this.config.lollipopFocusColor);
+                        lollipopStick.setAttribute("stroke-width", this.config.lollipopFocusWidth);
+                        variantElement.setAttribute("stroke", this.config.lollipopFocusColor);
+                        variantElement.setAttribute("stroke-width", this.config.lollipopFocusWidth);
+                    });
+                    variantElement.addEventListener("mouseleave", () => {
+                        lollipopStick.setAttribute("stroke", this.config.lollipopStickColor);
+                        lollipopStick.setAttribute("stroke-width", this.config.lollipopStickWidth);
+                        variantElement.setAttribute("stroke-width", 0);
+                    });
+                }
             } else {
                 variantElement = SVG.addChild(group, "rect", {
                     "x": x,
@@ -169,6 +186,10 @@ export default class VariantRenderer extends Renderer {
             lollipopMaxWidth: 10,
             lollipopShape: GenomeBrowserUtils.lollipopShapeFormatter,
             lollipopWidth: 1, // GenomeBrowserUtils.lollipopWidthFormatter,
+            // Lollipop focus
+            lollipopFocusEnabled: true,
+            lollipopFocusWidth: 2,
+            lollipopFocusColor: "orange",
         };
     }
 
