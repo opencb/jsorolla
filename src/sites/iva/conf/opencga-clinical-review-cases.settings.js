@@ -1,12 +1,11 @@
+// Josemi NOTE 2022-05-02
+// DEPRECATED: use clinical-analysis-portal.settings.js instead
 const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
-    title: "Case Portal",
-    icon: "fas fa-window-restore",
     menu: {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
             {
-                // filters: ["case", "sample", "proband", "family", "disorder", "status", "priority", "type", "assignee"]
-                filters: ["id", "family", "proband", "sample", "status", "priority", "type", "date"]
+                filters: ["case", "sample", "proband", "family", "disorder", "status", "priority", "type", "assignee"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
@@ -35,5 +34,4 @@ const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
         // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "actions"]
     },
     // details: ["clinical-analysis-view", "proband-view"]
-    details: ["clinical-analysis-view", "json-view"],
 };
