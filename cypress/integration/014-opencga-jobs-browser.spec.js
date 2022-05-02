@@ -18,13 +18,13 @@ import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, anno
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("12 - Jobs Browser", () => {
+context("14. Jobs Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("12.1 - query", () => {
+    it("14.1 - query", () => {
         cy.get("a[data-id=job]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Jobs Browser");
 
@@ -64,7 +64,7 @@ context("12 - Jobs Browser", () => {
 
     });
 
-    it("12.1 - aggregated query", () => {
+    it("14.2 - aggregated query", () => {
         cy.get("a[data-id=job]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
 
