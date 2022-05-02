@@ -374,12 +374,12 @@ export class OpenCGAClient {
                                 try {
                                     // session.projects = response.responses[0].results;
                                     for (const project of response.responses[0].results) {
-                                        let projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
+                                        const projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
                                         if (projectIndex < 0) {
                                             session.projects.push(project);
                                         }
                                     }
-                                    if (session.projects?.length) {    // && session?.projects[0]?.studies.length
+                                    if (session.projects?.length) { // && session?.projects[0]?.studies.length
                                         const studies = [];
                                         for (const project of session.projects) {
                                             // project.alias = project.alias || project.fqn || null;
@@ -411,8 +411,9 @@ export class OpenCGAClient {
                                                         session.project = project;
                                                         session.study = study;
                                                     }
+
                                                     // Keep track of the studies to fetch Disease Panels
-                                                    studies.push(project.id + ":" + study.id);
+                                                    studies.push(study.fqn);
                                                 }
                                             }
                                         }
