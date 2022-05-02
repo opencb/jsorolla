@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit";
+import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-token-filter.js";
 
@@ -22,8 +22,6 @@ export default class CatalogAutocomplete extends LitElement {
 
     constructor() {
         super();
-
-        this.#init();
     }
 
     createRenderRoot() {
@@ -38,14 +36,14 @@ export default class CatalogAutocomplete extends LitElement {
             value: {
                 type: Object
             },
+            distinctField: {
+                type: String,
+            },
+            queryField: {
+                type: String,
+            },
             resource: {
                 type: String,
-            },
-            searchField: {
-                type: String,
-            },
-            query: {
-                type: Object,
             },
             config: {
                 type: Object
@@ -53,40 +51,11 @@ export default class CatalogAutocomplete extends LitElement {
         };
     }
 
-    #init() {
-        this.RESOURCES = {};
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
-    }
-
-    opencgaSessionObserver() {
-        this.RESOURCES = {
-            "SAMPLE": {
-                searchField: "id",
-                client: this.opencgaSession.opencgaClient.samples(),
-                fields: item => ({
-                    "name": item.id,
-                    "Individual ID": item?.individualId
-                }),
-                query: {
-                    include: "id,individualId"
-                }
-            },
-            "INDIVIDUAL": this.opencgaSession.opencgaClient.individuals(),
-            "FAMILY": this.opencgaSession.opencgaClient.families(),
-            "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
-            "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
-            "FILE": this.opencgaSession.opencgaClient.files()
-        };
-        this._config = this.getDefaultConfig();
     }
 
     onFilterChange(key, value) {
@@ -96,21 +65,30 @@ export default class CatalogAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            placeholder: "",
-            fields: this.RESOURCES[this.resource].fields,
             source: (params, success, failure) => {
+                const RESOURCES = {
+                    "SAMPLE": this.opencgaSession.opencgaClient.samples(),
+                    "INDIVIDUAL": this.opencgaSession.opencgaClient.individuals(),
+                    "FAMILY": this.opencgaSession.opencgaClient.families(),
+                    "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
+                    "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
+                    "FILE": this.opencgaSession.opencgaClient.files()
+                };
+
                 const page = params?.data?.page || 1;
-                const attr = params?.data?.term ? {[this.searchField]: "~/" + params?.data?.term + "/i"} : null;
+                // 'queryField' is the name of the REST parameter to filter documents, normally this will be the same as 'distinctField'.
+                // But in some cases it can be different. For example, 'disorders' and 'disorders.id'
+                const attr = params?.data?.term ? {[this.queryField]: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    ...this.query,
-                    ...attr,
+                    ...attr
                 };
 
-                this.RESOURCES[this.resource].client.search(filters)
+                // The exact name of the field, see the example above about 'disorders' and 'disorders.id'
+                RESOURCES[this.resource].distinct(this.distinctField, filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
 
@@ -120,7 +98,7 @@ export default class CatalogAutocomplete extends LitElement {
                 const resultsCleaned = results.filter(r => r);
                 if (resultsCleaned.length) {
                     if ("string" === typeof resultsCleaned[0]) {
-                        return resultsCleaned.map(s => ({ id: s }));
+                        return resultsCleaned.map(s => ({id: s}));
                     }
                 }
                 return resultsCleaned;
