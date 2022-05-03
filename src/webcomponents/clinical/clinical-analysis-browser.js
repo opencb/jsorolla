@@ -226,7 +226,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         multiSelection: false,
                         showActions: true,
                         toolbar: {
-                            showCreate: true,
+                            showCreate: false,
                         },
                     }
                 },

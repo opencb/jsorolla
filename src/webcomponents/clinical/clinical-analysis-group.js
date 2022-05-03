@@ -91,10 +91,12 @@ export default class ClinicalAnalysisGroup extends LitElement {
         return html`
             <div>
                 <div style="display:flex;">
-                    <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm text-black">
-                        <i class="fas fa-columns icon-padding"></i> 
-                        <span>New</span>
-                    </a>
+                    ${this.config?.toolbar?.showCreate ? html`
+                        <a type="button" href="#clinical-analysis-create/" class="btn btn-default btn-sm text-black">
+                            <i class="fas fa-columns icon-padding"></i> 
+                            <span>New</span>
+                        </a>
+                    ` : null}
                     <div class="dropdown" style="margin-left:auto;">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
                             <i class="fas fa-layer-group icon-padding"></i> 
