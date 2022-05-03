@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/individual-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
@@ -154,12 +154,13 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html `
-                                    <individual-id-autocomplete
+                                    <catalog-search-autocomplete
                                         .value="${this.sample?.id}"
+                                        .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{multiple: false}}
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </individual-id-autocomplete>
+                                    </catalog-search-autocomplete>
                                 `,
                             }
                         }

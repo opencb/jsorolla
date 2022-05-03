@@ -21,6 +21,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class IndividualUpdate extends LitElement {
@@ -244,14 +245,12 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: father => html`
-                                    <individual-id-autocomplete
+                                    <catalog-search-autocomplete
                                         .value="${father?.id}"
+                                        .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
-                                        .config=${{
-                                            // This is the default value, but it is safe to leave it
-                                            multiple: false,
-                                        }}
+                                        .config=${{multiple: false}}
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -259,7 +258,8 @@ export default class IndividualUpdate extends LitElement {
                                                 value: {id: e.detail.value}
                                             }
                                         })}">
-                                    </individual-id-autocomplete>`
+                                    </catalog-search-autocomplete>
+                                `
                             }
                         },
                         {
@@ -269,13 +269,12 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: mother => html`
-                                    <individual-id-autocomplete
+                                    <catalog-search-autocomplete
                                         .value="${mother?.id}"
+                                        .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            // This is the default value, but it is safe to leave it
-                                            multiple: false,
-                                        }}
+                                        .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
+                                        .config=${{multiple: false}}
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -283,7 +282,8 @@ export default class IndividualUpdate extends LitElement {
                                                 value: {id: e.detail.value}
                                             }
                                         })}">
-                                    </individual-id-autocomplete>`
+                                    </catalog-search-autocomplete>
+                                    `
                             }
                         },
                         {

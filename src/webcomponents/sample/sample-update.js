@@ -25,6 +25,7 @@ import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-update.js";
 import "./external-source/external-source-update.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -262,19 +263,21 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             placeholder: "e.g. Homo sapiens, ...",
                             render: individualId => html`
-                                <individual-id-autocomplete
+                                <catalog-search-autocomplete
                                     .value="${individualId}"
-                                    .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
+                                    .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
+                                    .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
                                     .config=${{multiple: false}}
                                     @filterChange="${e =>
                                         this.onFieldChange({
-                                            detail: {
-                                                param: "individualId",
-                                                value: e.detail.value
-                                            }
-                                        })}">
-                                </individual-id-autocomplete>`
+                                        detail: {
+                                            param: "individualId",
+                                            value: e.detail.value
+                                        }
+                                    })}">
+                                </catalog-search-autocomplete>
+                                `
                         }
                     },
                     {

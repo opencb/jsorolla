@@ -48,6 +48,9 @@ export default class CatalogSearchAutocomplete extends LitElement {
             query: {
                 type: Object,
             },
+            classes: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -216,6 +219,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
+                .classes="${this.classes}"
                 .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>

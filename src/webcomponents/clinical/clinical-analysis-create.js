@@ -21,6 +21,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 
@@ -419,14 +420,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: probandId => {
                                     return html`
-                                        <individual-id-autocomplete
+                                        <catalog-search-autocomplete
                                             .value="${probandId}"
+                                            .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config=${{
                                                 addButton: false,
                                                 multiple: false
-                                            }} @filterChange="${e => this.onIndividualChange(e)}">
-                                        </individual-id-autocomplete>
+                                            }}
+                                            @filterChange="${e => this.onIndividualChange(e)}">
+                                        </catalog-search-autocomplete>
                                     `;
                                 },
                             },
@@ -612,14 +615,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 render: () => html`
-                                    <individual-id-autocomplete
+                                    <catalog-search-autocomplete
+                                        .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
+                                        .config=${{
                                             addButton: false,
                                             multiple: false
-                                        }}"
+                                        }}
                                         @filterChange="${e => this.onCancerChange(e)}">
-                                    </individual-id-autocomplete>
+                                    </catalog-search-autocomplete>
                                 `,
                             },
                         },
