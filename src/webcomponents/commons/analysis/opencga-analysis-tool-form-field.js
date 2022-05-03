@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/select-field-filter.js";
 import "../forms/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
-import "../filters/family-id-autocomplete.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
 import "../forms/checkbox-field-filter.js";
@@ -189,11 +188,14 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                     </cohort-id-autocomplete>`;
             case "FAMILY_FILTER":
                 return html`
-                    <family-id-autocomplete
+                    <catalog-search-autocomplete
                         .value="${fieldConfig.value ?? fieldConfig.defaultValue}"
-                        .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}"
+                        .resource="${"FAMILY"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </family-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
             case "CLINICAL_ANALYSIS_FILTER":
                 return html`
                     <clinical-analysis-id-autocomplete

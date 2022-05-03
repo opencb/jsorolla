@@ -494,14 +494,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             required: true,
                             display: {
                                 render: () => html`
-                                    <family-id-autocomplete
+                                    <catalog-search-autocomplete
+                                        .resource="${"FAMILY"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             addButton: false,
                                             multiple: false
                                         }}"
                                         @filterChange="${e => this.onFamilyChange(e)}">
-                                    </family-id-autocomplete>
+                                    </catalog-search-autocomplete>
                                 `,
                             },
                         },

@@ -25,7 +25,7 @@ import "./clinical-analysis-grid.js";
 import "./clinical-analysis-view.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
-import "../commons/filters/family-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
@@ -589,9 +589,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "family") ? html`
                                             <!-- Family -->
                                             <div class="btn-group" data-cy="form-family">
-                                                <family-id-autocomplete .config=${{placeholder: "Family Id"}}  .value="${this.query?.family}" .opencgaSession="${this.opencgaSession}"
-                                                                        @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
-
+                                                <catalog-search-autocomplete
+                                                    .value="${this.query?.family}"
+                                                    .resource="${"FAMILY"}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Family Id"}}
+                                                    @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></catalog-search-autocomplete>
+                                                </catalog-search-autocomplete>
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                                     <span class="ocap-text-button">Family: <span>\${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
