@@ -298,7 +298,7 @@ export default class GenomeBrowserUtils {
                 });
             case "INDEL":
                 return SVG.addChild(parent, "path", {
-                    "d": `M${x},${y-half} L${x-half},${y+half} L${x+half},${y+half} Z`,
+                    "d": `M${x},${y+half} L${x-half},${y-half} L${x+half},${y-half} Z`,
                     "fill": color,
                     "stroke-width": "0px",
                 });
