@@ -97,7 +97,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
             this.regionObserver();
         }
         if (changedProperties.has("active")) {
-            //this._setActive();
+            // this._setActive();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
@@ -139,7 +139,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
     }
 
     onFilterChange(_, e) {
-        this._addSample(e)
+        this._addSample(e);
     }
 
     addSample(e) {
@@ -165,17 +165,17 @@ export default class OpencgaGenomeBrowser extends LitElement {
 
         this.opencgaClient.files().search(queryParams)
             .then(response => {
-                //console.log("response", response)
+                // console.log("response", response)
                 const results = response.getResults();
                 this._availableFiles.push({
                     name: sample,
                     files: results
-                })
+                });
                 this.requestUpdate();
             })
-            .catch(function(response) {
-                //_this.showErrorAlert(response.error);
-                console.log("Error: ",response.error)
+            .catch(function (response) {
+                // _this.showErrorAlert(response.error);
+                console.log("Error: ", response.error);
             });
     }
 
@@ -207,7 +207,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
                     includeIndividual: false,
                     limit: 20
                 })
-                .then(function(response) {
+                .then(function (response) {
                     //                            _this.autocompleteSampleData = response.response[0].result;
                     let options = "";
                     for (const sample of response.response[0].result) {
@@ -225,15 +225,15 @@ export default class OpencgaGenomeBrowser extends LitElement {
 
         if (genomeBrowser !== undefined && genomeBrowser !== null) {
             const inputArray = this.querySelectorAll("input[name=" + this._prefix + "file-checkbox]:checked");
-            console.log("inputArray",inputArray)
+            console.log("inputArray", inputArray);
 
             const myVariantFiles = [];
             const myAlignmentFiles = [];
             inputArray.forEach(input => {
-                console.log("input", input)
+                console.log("input", input);
                 const fileId = input.dataset.id;
-                this._availableFiles.forEach( sample => {
-                    sample.files.forEach( file => {
+                this._availableFiles.forEach(sample => {
+                    sample.files.forEach(file => {
                         if (file.id === fileId) {
                             if (file.format === "VCF") {
                                 myVariantFiles.push(file);
@@ -241,11 +241,11 @@ export default class OpencgaGenomeBrowser extends LitElement {
                                 myAlignmentFiles.push(file);
                             }
                         }
-                    })
-                })
+                    });
+                });
             });
 
-            console.log("my", myVariantFiles, myAlignmentFiles)
+            console.log("my", myVariantFiles, myAlignmentFiles);
 
             // In order to notify of the changes to the genome browser, we make a copy of the tracks object
             const _tracks = this.tracks;
@@ -257,7 +257,7 @@ export default class OpencgaGenomeBrowser extends LitElement {
             // if (myVariantFiles.length > 0 || myAlignmentFiles.length > 0) {
             // Hide Genome Browser initial message
             this.displayGenomeBrowserMessage = "none";
-            //genomeBrowser.active = true;
+            // genomeBrowser.active = true;
             this.genomeBrowserActive = true;
             this.requestUpdate();
 
@@ -300,7 +300,13 @@ export default class OpencgaGenomeBrowser extends LitElement {
                             Search samples by ID:
                         </div>
                         <div class="col-md-2">
-                            <sample-id-autocomplete .config="${{showList: false}}" .opencgaSession="${this.opencgaSession}" .value="${true}" @filterChange="${e => this.onFilterChange("samples", e.detail.value)}"></sample-id-autocomplete>
+                            <!-- Pending: Why value is true? -->
+                            <sample-id-autocomplete
+                                .config="${{showList: false}}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .value="${true}"
+                                @filterChange="${e => this.onFilterChange("samples", e.detail.value)}">
+                            </sample-id-autocomplete>
                         </div>
                         <div class="col-md-2">
                             <input id="${this._prefix}AutocompleteSearchInput" type="text" class="form-control form-control-sm" placeholder="HG01879..."

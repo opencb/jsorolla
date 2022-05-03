@@ -19,7 +19,6 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/select-field-filter.js";
 import "../forms/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
-import "../filters/sample-id-autocomplete.js";
 import "../filters/family-id-autocomplete.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
@@ -156,12 +155,14 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                     </variant-type-filter>`;
             case "SAMPLE_FILTER":
                 return html`
-                    <sample-id-autocomplete
+                    <catalog-search-autocomplete
                         .value="${fieldConfig.value ?? fieldConfig.defaultValue}"
-                        .config="${fieldConfig}"
+                        .resource="${"SAMPLE"}"
                         .opencgaSession="${this.opencgaSession}"
+                        .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
             case "GENE_FILTER":
                 return html`
                     <feature-filter

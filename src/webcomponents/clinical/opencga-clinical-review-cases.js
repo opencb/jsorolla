@@ -534,8 +534,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "sample") ? html`
                                             <!-- Sample -->
                                             <div class="btn-group" data-cy="form-sample">
-                                                <sample-id-autocomplete .config=${{placeholder: "Sample Id"}}  .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
-                                                                        @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                <catalog-search-autocomplete
+                                                    .value="${this.query?.sample}"
+                                                    .resource="${"SAMPLE"}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Sample Id"}}
+                                                    @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
+                                                </catalog-search-autocomplete>
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}sampleMenu"
                                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
