@@ -9,15 +9,16 @@ export default class VariantRenderer extends Renderer {
         super(config);
 
         this.lollipopLayout = new LollipopLayout({
-            maxWidth: this.config.lollipopMaxWidth,
+            minSeparation: this.config.lollipopMaxWidth,
         });
     }
 
     render(features, options) {
         const topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
-        let lollipopPositions = [];
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
+        const lollipopStickHeight = this.config.lollipopHeight - this.config.lollipopMaxWidth / 2;
+        let lollipopPositions = [];
 
         if (this.config.lollipopVisible) {
             lollipopPositions = this.lollipopLayout.layout(features || [], options.requestedRegion, lollipopRegionWidth);
@@ -48,9 +49,9 @@ export default class VariantRenderer extends Renderer {
                 const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
                 const lollipopPath = [
-                    `M ${lollipopX},${this.config.lollipopHeight / 8}`,
-                    `L ${lollipopX},${this.config.lollipopHeight / 2}`,
-                    `L ${center},${3 * this.config.lollipopHeight / 4}`,
+                    `M ${lollipopX},${this.config.lollipopMaxWidth / 2}`,
+                    `L ${lollipopX},${(this.config.lollipopMaxWidth / 2) + lollipopStickHeight / 2}`,
+                    `L ${center},${(this.config.lollipopMaxWidth / 2) + 3 * lollipopStickHeight / 4}`,
                     `L ${center},${this.config.lollipopHeight}`,
                 ];
 
@@ -67,7 +68,7 @@ export default class VariantRenderer extends Renderer {
                     feature,
                     group,
                     lollipopX,
-                    this.config.lollipopHeight / 8,
+                    this.config.lollipopMaxWidth / 2,
                     this.config.lollipopMinWidth + lollipopWidth * (this.config.lollipopMaxWidth - this.config.lollipopMinWidth),
                     variantColor,
                 ]);
@@ -183,10 +184,10 @@ export default class VariantRenderer extends Renderer {
             lollipopHeight: 40,
             lollipopStickColor: "rgb(164,171,182)",
             lollipopStickWidth: 1,
-            lollipopMinWidth: 5,
-            lollipopMaxWidth: 10,
+            lollipopMinWidth: 10,
+            lollipopMaxWidth: 15,
             lollipopShape: GenomeBrowserUtils.lollipopShapeFormatter,
-            lollipopWidth: 1, // GenomeBrowserUtils.lollipopWidthFormatter,
+            lollipopWidth: GenomeBrowserUtils.lollipopWidthFormatter,
             // Lollipop focus
             lollipopFocusEnabled: true,
             lollipopFocusWidth: 2,

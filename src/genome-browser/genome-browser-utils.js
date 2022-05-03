@@ -311,4 +311,19 @@ export default class GenomeBrowserUtils {
         }
     }
 
+    // Lollipop width
+    static lollipopWidthFormatter(feature) {
+        if (feature.studies) {
+            // We will get only the first study in this list
+            if (feature.studies[0]?.stats) {
+                // Get only the stat item with the cohortId === "ALL"
+                const item = feature.studies[0].stats.find(stat => stat.cohortId === "ALL");
+                if (item) {
+                    return item.altAlleleFreq || 0;
+                }
+            }
+        }
+        return 0;
+    }
+
 }
