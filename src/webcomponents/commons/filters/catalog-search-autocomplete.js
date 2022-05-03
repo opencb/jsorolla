@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit";
+import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/select-token-filter.js";
 
-export default class CatalogAutocomplete extends LitElement {
+export default class CatalogSearchAutocomplete extends LitElement {
 
     constructor() {
         super();
@@ -71,6 +72,7 @@ export default class CatalogAutocomplete extends LitElement {
         this.RESOURCES = {
             "SAMPLE": {
                 searchField: "id",
+                placeholder: "HG01879, HG01880, HG01881...",
                 client: this.opencgaSession.opencgaClient.samples(),
                 fields: item => ({
                     "name": item.id,
@@ -80,11 +82,88 @@ export default class CatalogAutocomplete extends LitElement {
                     include: "id,individualId"
                 }
             },
-            "INDIVIDUAL": this.opencgaSession.opencgaClient.individuals(),
-            "FAMILY": this.opencgaSession.opencgaClient.families(),
-            "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
-            "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
-            "FILE": this.opencgaSession.opencgaClient.files()
+            "INDIVIDUAL": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.individuals(),
+                fields: item => ({
+                    "name": item.id
+                }),
+                query: {
+                    include: "id"
+                }
+            },
+            "FAMILY": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.families(),
+                fields: item => ({
+                    "name": item.id
+                }),
+                query: {
+                    include: "id"
+                }
+            },
+
+            "CLINICAL_ANALYSIS": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.clinical(),
+                fields: item => ({
+                    "name": item.id,
+                    "Proband Id": item?.proband?.id
+                }),
+                query: {
+                    include: "id,proband"
+                }
+            },
+            "DISEASE_PANEL": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.panels(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id"
+                }
+            },
+            "JOB": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.jobs(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id"
+                }
+            },
+            "COHORT": {
+                searchField: "id",
+                placeholder: "Start typing",
+                client: this.opencgaSession.opencgaClient.cohorts(),
+                fields: item => ({
+                    "name": item.id
+                }),
+                query: {
+                    include: "id"
+                }
+            },
+            "FILE": {
+                searchField: "id",
+                placeholder: "eg. samples.tsv, phenotypes.vcf...",
+                client: this.opencgaSession.opencgaClient.files(),
+                fields: item => ({
+                    name: item.name,
+                    Format: item.format ?? "N/A",
+                    Size: UtilsNew.getDiskUsage(item.size)
+                }),
+                query: {
+                    type: "FILE",
+                    include: "id,name,format,size",
+                }
+            }
         };
         this._config = this.getDefaultConfig();
     }
@@ -96,17 +175,17 @@ export default class CatalogAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            placeholder: "",
+            placeholder: this.RESOURCES[this.resource].placeholder,
             fields: this.RESOURCES[this.resource].fields,
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const attr = params?.data?.term ? {[this.searchField]: "~/" + params?.data?.term + "/i"} : null;
+                const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    ...this.query,
+                    ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
 
@@ -120,7 +199,7 @@ export default class CatalogAutocomplete extends LitElement {
                 const resultsCleaned = results.filter(r => r);
                 if (resultsCleaned.length) {
                     if ("string" === typeof resultsCleaned[0]) {
-                        return resultsCleaned.map(s => ({ id: s }));
+                        return resultsCleaned.map(s => ({id: s}));
                     }
                 }
                 return resultsCleaned;
@@ -145,4 +224,4 @@ export default class CatalogAutocomplete extends LitElement {
 
 }
 
-customElements.define("catalog-autocomplete", CatalogAutocomplete);
+customElements.define("catalog-search-autocomplete", CatalogSearchAutocomplete);

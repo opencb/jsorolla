@@ -25,7 +25,8 @@ import "../commons/filters/somatic-filter.js";
 import "../commons/forms/section-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
-import "../commons/filters/catalog-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
@@ -154,46 +155,49 @@ export default class SampleBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <sample-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>
+                    </catalog-search-autocomplete>
                 `;
                 break;
             case "individualId":
                 content = html`
-                    <individual-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"INDIVIDUAL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </individual-id-autocomplete>
+                    </catalog-search-autocomplete>
                     `;
                 break;
             case "fileIds":
                 content = html`
-                    <file-name-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"FILE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </file-name-autocomplete>
+                    </catalog-search-autocomplete>
                     `;
                 break;
             case "source":
             case "phenotypes":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"phenotypes"}"
-                        .searchField="${"phenotypes.name"}"
+                        .distinctField="${"phenotypes.name"}"
                         .resource="${"SAMPLE"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>
+                    </catalog-distinct-autocomplete>
                     `;
                 break;
             case "annotations":

@@ -20,7 +20,8 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/filters/catalog-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/forms/date-filter.js";
 
 export default class IndividualBrowserFilter extends LitElement {
@@ -148,58 +149,61 @@ export default class IndividualBrowserFilter extends LitElement {
             case "father":
             case "mother":
                 content = html`
-                    <individual-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"INDIVIDUAL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </individual-id-autocomplete>`;
+                    </catalog-search-autocomplete>`;
                 break;
             case "samples":
                 content = html`
-                    <sample-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
                 break;
             case "disorders":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"disorders"}"
-                        .searchField="${"disorders.name"}"
+                        .distinctField="${"disorders.name"}"
                         .resource="${"INDIVIDUAL"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "phenotypes":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"phenotypes"}"
-                        .searchField="${"phenotypes.name"}"
+                        .distinctField="${"phenotypes.name"}"
                         .resource="${"INDIVIDUAL"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>
+                    </catalog-distinct-autocomplete>
                     `;
                 break;
             case "ethnicity":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"ethnicity"}"
-                        .searchField="${"ethnicity"}"
+                        .distinctField="${"ethnicity"}"
                         .resource="${"INDIVIDUAL"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>
+                    </catalog-distinct-autocomplete>
                 `;
                 break;
             case "sex":

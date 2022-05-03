@@ -22,8 +22,8 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
-import "../commons/filters/file-name-autocomplete.js";
-import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -162,31 +162,35 @@ export default class OpencgaFileFilter extends LitElement {
         switch (subsection.id) {
             case "name":
                 content = html`
-                    <file-name-autocomplete
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </file-name-autocomplete>`;
-                break;
-            case "sampleIds":
-                content = html`
-                    <sample-id-autocomplete
-                        .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
-                break;
-            case "directory":
-                content = html`
-                    <catalog-autocomplete
-                        .value="${this.preparedQuery[subsection.id]}"
-                        .queryField="${"path"}"
-                        .searchField="${"path"}"
                         .resource="${"FILE"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>
+                    </catalog-search-autocomplete>`;
+                break;
+            case "sampleIds":
+                content = html`
+                    <catalog-search-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-search-autocomplete>`;
+                break;
+            case "directory":
+                content = html`
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"path"}"
+                        .distinctField="${"path"}"
+                        .resource="${"FILE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-distinct-autocomplete>
                 `;
                 break;
             case "path":

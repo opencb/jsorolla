@@ -17,11 +17,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/date-filter.js";
-import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
-import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class ClinicalAnalysisBrowserFilter extends LitElement {
@@ -128,43 +127,49 @@ export default class ClinicalAnalysisBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <clinical-analysis-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"CLINICAL_ANALYSIS"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </clinical-analysis-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
                 break;
             case "proband":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"proband"}"
-                        .searchField="${"proband.id"}"
+                        .distinctField="${"proband.id"}"
                         .resource="${"CLINICAL_ANALYSIS"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>
+                    </catalog-distinct-autocomplete>
                 `;
                 break;
             case "family":
                 content = html`
-                    <family-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"FAMILY"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </family-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
                 break;
             case "sample":
                 content = html`
-                    <sample-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
                 break;
             case "priority":
                 content = html`

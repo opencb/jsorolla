@@ -22,7 +22,7 @@ import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/cohort-id-autocomplete.js";
-import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class CohortBrowserFilter extends LitElement {
@@ -163,21 +163,24 @@ export default class CohortBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <cohort-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"COHORT"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </cohort-id-autocomplete>`;
+                    </catalog-search-autocomplete>`;
                 break;
             case "samples":
                 content = html`
-                    <sample-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
                 break;
             case "annotations":
                 content = html`

@@ -19,8 +19,8 @@ import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
-import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/catalog-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class OpencgaFamilyFilter extends LitElement {
 
@@ -181,45 +181,48 @@ export default class OpencgaFamilyFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <family-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"FAMILY"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </family-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
                 break;
             case "members":
                 content = html`
-                    <individual-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"INDIVIDUAL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </individual-id-autocomplete>`;
+                    </catalog-search-autocomplete>`;
                 break;
             case "phenotypes":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"phenotypes"}"
-                        .searchField="${"phenotypes.name"}"
+                        .distinctField="${"phenotypes.name"}"
                         .resource="${"FAMILY"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "disorders":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"disorders"}"
-                        .searchField="${"disorders.id"}"
+                        .distinctField="${"disorders.id"}"
                         .resource="${"FAMILY"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "annotations":
                 content = html`

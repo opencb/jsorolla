@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-token-filter.js";
 
-export default class CatalogAutocomplete extends LitElement {
+export default class CatalogDistinctAutocomplete extends LitElement {
 
     constructor() {
         super();
@@ -72,6 +72,7 @@ export default class CatalogAutocomplete extends LitElement {
                     "FAMILY": this.opencgaSession.opencgaClient.families(),
                     "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
                     "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
+                    "JOB": this.opencgaSession.opencgaClient.jobs(),
                     "FILE": this.opencgaSession.opencgaClient.files()
                 };
 
@@ -123,4 +124,4 @@ export default class CatalogAutocomplete extends LitElement {
 
 }
 
-customElements.define("catalog-autocomplete", CatalogAutocomplete);
+customElements.define("catalog-distinct-autocomplete", CatalogDistinctAutocomplete);

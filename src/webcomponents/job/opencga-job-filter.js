@@ -19,10 +19,8 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
-import "../commons/filters/jobs-id-autocomplete.js";
-import "../commons/filters/file-name-autocomplete.js";
-import "../commons/filters/analysis-tool-id-autocomplete.js";
-
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class OpencgaJobFilter extends LitElement {
 
@@ -58,7 +56,7 @@ export default class OpencgaJobFilter extends LitElement {
 
     _init() {
         // super.ready();
-        this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
 
         this.annotationFilterConfig = {
             class: "small",
@@ -144,30 +142,37 @@ export default class OpencgaJobFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <jobs-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"JOB"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </jobs-id-autocomplete>`;
+                    </catalog-search-autocomplete>`;
                 break;
             case "input":
                 content = html`
-                    <file-name-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"FILE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </file-name-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
                 break;
             case "tool":
                 content = html`
-                    <analysis-tool-id-autocomplete
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"id"}"
+                        .distinctField="${"tool.id"}"
+                        .resource="${"JOB"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </analysis-tool-id-autocomplete>`;
+                    </catalog-distinct-autocomplete>
+                    `;
                 break;
             case "tags":
                 content = html`

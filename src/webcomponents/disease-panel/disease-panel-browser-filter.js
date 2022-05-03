@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "../commons/filters/disease-panel-id-autocomplete.js";
-import "../commons/filters/catalog-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/filters/feature-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/forms/date-filter.js";
@@ -163,25 +163,26 @@ export default class DiseasePanelBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <disease-panel-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </disease-panel-id-autocomplete>
-                    `;
-                break;
-            case "disorders":
-                content = html`
-                    <catalog-autocomplete
-                        .value="${this.preparedQuery[subsection.id]}"
-                        .queryField="${"disorders.id"}"
-                        .searchField="${"disorders.id"}"
                         .resource="${"DISEASE_PANEL"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
+                break;
+            case "disorders":
+                content = html`
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"disorders.id"}"
+                        .distinctField="${"disorders.id"}"
+                        .resource="${"DISEASE_PANEL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "genes":
                 content = html`
@@ -190,15 +191,15 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .query=\${this.preparedQuery}
                         @filterChange="\${e => this.onFilterChange("genes", e.detail.value)}">
                     </feature-filter> -->
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"genes.id"}"
-                        .searchField="${"genes.id"}"
+                        .distinctField="${"genes.id"}"
                         .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "region":
                 content = html`
@@ -215,28 +216,28 @@ export default class DiseasePanelBrowserFilter extends LitElement {
                         .value="\${this.preparedQuery[subsection.id]}"
                         @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </select-token-filter-static> -->
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"categories.name"}"
-                        .searchField="${"categories.name"}"
+                        .distinctField="${"categories.name"}"
                         .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>
+                    </catalog-distinct-autocomplete>
                 `;
                 break;
             case "tags":
                 content = html`
-                    <catalog-autocomplete
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"tags"}"
-                        .searchField="${"tags"}"
+                        .distinctField="${"tags"}"
                         .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "date":
                 content = html`
