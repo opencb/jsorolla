@@ -17,7 +17,7 @@ export default class VariantRenderer extends Renderer {
         const topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
-        const lollipopStickHeight = this.config.lollipopHeight - this.config.lollipopMaxWidth / 2;
+        const lollipopStickHeight = this.config.lollipopHeight - this.config.lollipopFocusWidth - this.config.lollipopMaxWidth / 2;
         let lollipopPositions = [];
 
         if (this.config.lollipopVisible) {
@@ -49,7 +49,7 @@ export default class VariantRenderer extends Renderer {
                 const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
                 const lollipopPath = [
-                    `M ${lollipopX},${this.config.lollipopMaxWidth / 2}`,
+                    `M ${lollipopX},${this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2}`,
                     `L ${lollipopX},${(this.config.lollipopMaxWidth / 2) + lollipopStickHeight / 2}`,
                     `L ${center},${(this.config.lollipopMaxWidth / 2) + 3 * lollipopStickHeight / 4}`,
                     `L ${center},${this.config.lollipopHeight}`,
@@ -68,7 +68,7 @@ export default class VariantRenderer extends Renderer {
                     feature,
                     group,
                     lollipopX,
-                    this.config.lollipopMaxWidth / 2,
+                    this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2,
                     this.config.lollipopMinWidth + lollipopWidth * (this.config.lollipopMaxWidth - this.config.lollipopMinWidth),
                     variantColor,
                 ]);
