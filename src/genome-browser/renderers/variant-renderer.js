@@ -34,6 +34,7 @@ export default class VariantRenderer extends Renderer {
             // transform to pixel position
             const width = Math.max(length * options.pixelBase, 1);
             const x = GenomeBrowserUtils.getFeatureX(start, options);
+            const center = GenomeBrowserUtils.getFeatureX(start + length / 2, options);
 
             // Get variant information
             const variantColor = this.getValueFromConfig("variantColor", [feature]);
@@ -49,8 +50,8 @@ export default class VariantRenderer extends Renderer {
                 const lollipopPath = [
                     `M ${lollipopX},${this.config.lollipopHeight / 8}`,
                     `L ${lollipopX},${this.config.lollipopHeight / 2}`,
-                    `L ${x},${3 * this.config.lollipopHeight / 4}`,
-                    `L ${x},${this.config.lollipopHeight}`,
+                    `L ${center},${3 * this.config.lollipopHeight / 4}`,
+                    `L ${center},${this.config.lollipopHeight}`,
                 ];
 
                 // Render lollipop stick
