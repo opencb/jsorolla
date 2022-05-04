@@ -14,14 +14,21 @@ export default class VariantRenderer extends Renderer {
     }
 
     render(features, options) {
-        const topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
         const lollipopStickHeight = this.config.lollipopHeight - this.config.lollipopFocusWidth - this.config.lollipopMaxWidth / 2;
+        let lollipopStickStart = this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2;
         let lollipopPositions = [];
+        let topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
         if (this.config.lollipopVisible) {
             lollipopPositions = this.lollipopLayout.layout(features || [], options.requestedRegion, lollipopRegionWidth);
+        }
+
+        // Check if highlights are visible
+        if (this.config.highlightVisible) {
+            topPosition = topPosition + this.config.highlightHeight;
+            lollipopStickStart = lollipopStickStart + this.config.highlightHeight;
         }
 
         (features || []).forEach((feature, featureIndex) => {
@@ -49,10 +56,10 @@ export default class VariantRenderer extends Renderer {
                 const lollipopX = lollipopStartX + lollipopPositions[featureIndex];
                 const lollipopWidth = Math.min(1, Math.max(0, this.getValueFromConfig("lollipopWidth", [feature])));
                 const lollipopPath = [
-                    `M ${lollipopX},${this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2}`,
-                    `L ${lollipopX},${(this.config.lollipopMaxWidth / 2) + lollipopStickHeight / 2}`,
-                    `L ${center},${(this.config.lollipopMaxWidth / 2) + 3 * lollipopStickHeight / 4}`,
-                    `L ${center},${this.config.lollipopHeight}`,
+                    `M ${lollipopX},${lollipopStickStart}`,
+                    `L ${lollipopX},${lollipopStickStart + lollipopStickHeight / 2}`,
+                    `L ${center},${lollipopStickStart + 3 * lollipopStickHeight / 4}`,
+                    `L ${center},${lollipopStickStart + lollipopStickHeight}`,
                 ];
 
                 // Render lollipop stick
@@ -68,7 +75,7 @@ export default class VariantRenderer extends Renderer {
                     feature,
                     group,
                     lollipopX,
-                    this.config.lollipopFocusWidth + this.config.lollipopMaxWidth / 2,
+                    lollipopStickStart,
                     this.config.lollipopMinWidth + lollipopWidth * (this.config.lollipopMaxWidth - this.config.lollipopMinWidth),
                     variantColor,
                 ]);
@@ -114,6 +121,65 @@ export default class VariantRenderer extends Renderer {
                         classes: `${this.config.toolTipfontClass} ui-tooltip ui-tooltip-shadow`,
                     },
                 });
+            }
+
+            // Check if highlights are visible
+            if (this.config.highlightVisible && this.config.highlights?.length) {
+                const satisfiedHighlights = this.config.highlights.filter(item => {
+                    return !!item.condition(feature);
+                });
+
+                if (satisfiedHighlights.length > 0) {
+                    const highlightText = satisfiedHighlights.map(item => {
+                        return `
+                            <div style="font-weight:bold;margin-bottom:2px">${item.name || item.id || "-"}</div>
+                            <div style="margin-bottom:8px;">${item.description || "-"}</div>
+                        `;
+                    });
+                    const iconCenterX = this.config.lollipopVisible ? lollipopStartX + lollipopPositions[featureIndex] : center;
+                    const iconCenterY = this.config.highlightHeight / 2;
+                    const iconHalf = this.config.highlightIconSize / 2;
+                    const iconPath = [
+                        `M${iconCenterX},${iconCenterY} l0,${iconHalf}`,
+                        `M${iconCenterX},${iconCenterY} l0,-${iconHalf}`,
+                        `M${iconCenterX},${iconCenterY} l${iconHalf},${iconHalf / 2}`,
+                        `M${iconCenterX},${iconCenterY} l${iconHalf},-${iconHalf / 2}`,
+                        `M${iconCenterX},${iconCenterY} l-${iconHalf},${iconHalf / 2}`,
+                        `M${iconCenterX},${iconCenterY} l-${iconHalf},-${iconHalf / 2}`,
+                    ];
+
+                    // Create highlight icon
+                    SVG.addChild(group, "path", {
+                        "d": iconPath.join(" "),
+                        "fill": "transparent",
+                        "stroke-width": this.config.highlightIconWidth,
+                        "stroke": this.config.highlightIconColor,
+                    });
+
+                    // Mask for displaying tooltip with the highlight info
+                    const highlightMaskElement = SVG.addChild(group, "rect", {
+                        x: iconCenterX - this.config.highlightIconSize / 2,
+                        y: 0,
+                        width: this.config.highlightIconSize,
+                        height: this.config.highlightHeight,
+                        fill: "transparent",
+                        stroke: "transparent",
+                    });
+                    $(highlightMaskElement).qtip({
+                        content: {
+                            text: highlightText.join(""),
+                            title: feature.id || null,
+                        },
+                        position: {
+                            viewport: window,
+                            target: "mouse",
+                        },
+                        style: {
+                            width: true,
+                            classes: `${this.config.toolTipfontClass} ui-tooltip ui-tooltip-shadow`,
+                        },
+                    });
+                }
             }
 
             // Render for each sample in feature.studies[0].samples
@@ -192,6 +258,13 @@ export default class VariantRenderer extends Renderer {
             lollipopFocusEnabled: true,
             lollipopFocusWidth: 2,
             lollipopFocusColor: "orange",
+            // Highlights
+            highlights: [],
+            highlightVisible: true,
+            highlightHeight: 16,
+            highlightIconColor: "red",
+            highlightIconSize: 6,
+            highlightIconWidth: 1,
         };
     }
 
