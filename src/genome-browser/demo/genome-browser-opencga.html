@@ -162,6 +162,14 @@
                         query: {
                             sample: "NA12877,NA12878,NA12889,NA12890,NA12891,NA12892",
                         },
+                        highlights: [
+                            {
+                                id: "test1",
+                                name: "[TEST] Length > 0",
+                                description: "This variant has length > 0.",
+                                condition: feature => feature.end - feature.start + 1 > 0,
+                            },
+                        ],
                     }),
                 ]);
 
