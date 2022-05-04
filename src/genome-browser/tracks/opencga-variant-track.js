@@ -42,6 +42,9 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                 dividerHeight: this.config.dividerHeight,
                 lollipopVisible: this.config.lollipopVisible,
                 lollipopHeight: this.config.lollipopHeight,
+                highlights: this.config.highlights,
+                highlightVisible: this.config.highlightVisible,
+                highlightHeight: this.config.highlightHeight,
                 ...this.config.renderer,
             });
         }
@@ -63,7 +66,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             });
         });
 
-        const topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
+        const topPosition = this.getHeaderHeight();
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
                 ${this.sampleNames.map(name => {
@@ -124,6 +127,18 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.height = topPosition + this.sampleNames.length * this.config.sampleHeight;
     }
 
+    // Get total header height
+    getHeaderHeight() {
+        let height = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
+
+        // Check if highlights are visible
+        if (this.config.highlightVisible) {
+            height = height + this.config.highlightHeight;
+        }
+
+        return height;
+    }
+
     getData(options) {
         if (options.dataType === "histogram" && !this.sampleNames) {
             // Fetch aggregation stats for the current region
@@ -174,6 +189,10 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             // Lollipop configuration
             lollipopVisible: true,
             lollipopHeight: 40,
+            // Highlights
+            highlights: [],
+            highlightVisible: true,
+            highlightHeight: 16,
         };
     }
 
