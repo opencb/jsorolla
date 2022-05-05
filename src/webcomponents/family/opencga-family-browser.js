@@ -215,7 +215,9 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     }
                 ],
                 activeFilters: {
-                    complexFields: ["annotation"]
+                    complexFields: [
+                        {id: "annotation", separator: ";"},
+                    ],
                 },
                 result: {
                     grid: {
