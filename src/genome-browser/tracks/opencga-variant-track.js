@@ -16,14 +16,6 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
 
         // Initialize Rendererers
         this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
-        this.renderer = new FeatureRenderer({
-            color: GenomeBrowserUtils.variantColorFormatter,
-            label: GenomeBrowserUtils.variantLabelFormatter,
-            tooltipTitle: GenomeBrowserUtils.variantTooltipTitleFormatter,
-            tooltipText: GenomeBrowserUtils.variantTooltipTextFormatter,
-            histogramColor: "#58f3f0",
-            ...this.config.renderer,
-        });
 
         // Check if samples has been provided in the query object
         if (this.config?.query?.sample) {
@@ -34,7 +26,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             // Initialize samples DOM
             this.#initSamplesDOM();
 
-            // Initialize variant renderer
+            // Initialize variant renderer to display Sample Genotypes
             this.renderer = new VariantRenderer({
                 sampleNames: this.sampleNames,
                 sampleHeight: this.config.sampleHeight,
@@ -45,6 +37,16 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                 highlights: this.config.highlights,
                 highlightVisible: this.config.highlightVisible,
                 highlightHeight: this.config.highlightHeight,
+                ...this.config.renderer,
+            });
+        } else {
+            // If not samples are provided then we use the basic feature renderer as we do in CellBase variant track
+            this.renderer = new FeatureRenderer({
+                color: GenomeBrowserUtils.variantColorFormatter,
+                label: GenomeBrowserUtils.variantLabelFormatter,
+                tooltipTitle: GenomeBrowserUtils.variantTooltipTitleFormatter,
+                tooltipText: GenomeBrowserUtils.variantTooltipTextFormatter,
+                histogramColor: "#58f3f0",
                 ...this.config.renderer,
             });
         }
@@ -66,7 +68,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             });
         });
 
-        const topPosition = this.getHeaderHeight();
+        const topPosition = this.#getHeaderHeight();
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
                 ${this.sampleNames.map(name => {
@@ -128,7 +130,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
     }
 
     // Get total header height
-    getHeaderHeight() {
+    #getHeaderHeight() {
         let height = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
         // Check if highlights are visible
