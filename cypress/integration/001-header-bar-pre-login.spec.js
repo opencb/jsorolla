@@ -21,7 +21,7 @@ import {goTo} from "../plugins/utils.js";
 /**
  * Header bar (pre-login)
  */
-context("1 - Header bar (pre-login): checks on Header Bar elements", () => {
+context("1. Header bar (pre-login): checks on Header Bar elements", () => {
     before(() => {
         cy.visit("http://localhost:3000/src/sites/iva/");
 

@@ -88,7 +88,7 @@ export default class OpencgaExport extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -96,7 +96,7 @@ export default class OpencgaExport extends LitElement {
         }*/
 
         if (changedProperties.has("query") || changedProperties.has("config")) {
-            // this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {...this.getDefaultConfig(), ...this.config};
             if (this.config?.resource) {
                 document.querySelectorAll("code").forEach(block => {
                     // hljs.highlightBlock(block);
@@ -157,10 +157,6 @@ export default class OpencgaExport extends LitElement {
                 this.exportFields.push({id: c.id, export: true, excludeFromExport: c.excludeFromExport});
             }
         });
-    }
-
-    getDefaultConfig() {
-        return {};
     }
 
     _changeTab(e) {
@@ -378,9 +374,17 @@ const client = new OpenCGAClient({
         this.dispatchEvent(new CustomEvent("export", {
             detail: {
                 option: this.format,
-                exportFields: this.exportFields
+                exportFields: this.exportFields,
+                exportLimit: this._config.exportLimit
             }
         }));
+    }
+
+    getDefaultConfig() {
+        return {
+            exportNote: "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.\n (If you need all records, please use 'Export Query')",
+            exportLimit: 1000,
+        };
     }
 
     render() {
@@ -402,11 +406,8 @@ const client = new OpenCGAClient({
                                 <div class="alert alert-warning" style="margin-bottom: 10px">
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <span>
-                                        <b>Note:</b> This option will <b>automatically download</b> the table, note that only first <b>1,000 records</b> are downloaded.
-                                        (If you need all records, please use 'Export Query')
-                                        <!-- <span style="font-weight: bold">Note: </span>This option will
-                                        <span style="font-weight: bold">automatically download</span>
-                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded. -->
+                                        <b>Note:</b>
+                                        ${UtilsNew.renderHTML(this._config.exportNote.replace("%limit%", this._config.exportLimit))}
                                     </span>
                                 </div>
                             </div>

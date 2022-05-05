@@ -17,6 +17,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "../commons/facet-filter.js";
+import "./family-grid.js";
+import "./opencga-family-filter.js";
+import "./opencga-family-detail.js";
 
 
 export default class OpencgaFamilyBrowser extends LitElement {
@@ -110,12 +114,34 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html `
+                        <family-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .active="${true}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            @selectrow="${e => params.onClickRow(e, "family")}">
+                        </family-grid>
+                        <opencga-family-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .family="${params.detail.family}">
+                        </opencga-family-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.active}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }
                 /*
                 {
@@ -125,6 +151,14 @@ export default class OpencgaFamilyBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html`
+                    <opencga-family-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </opencga-family-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -152,7 +186,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             },
                             {
                                 id: "disorders",
-                                name: "Disorder",
+                                name: "Disorders",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 description: ""
                             },
@@ -225,6 +259,12 @@ export default class OpencgaFamilyBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "phenotypes", "expectedSize", "numMembers[0..20]:2"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

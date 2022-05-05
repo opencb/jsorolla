@@ -52,7 +52,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             query: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             },
             active: {
@@ -74,7 +74,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.consequenceTypes = SAMPLE_STATS_CONSEQUENCE_TYPES;
     }
 
@@ -88,8 +88,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
         }
         super.update(changedProperties);
     }
@@ -128,6 +128,17 @@ export default class SampleVariantStatsBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
+    }
+
+
+    settingsObserver() {
+        // merging misc 1st level props from settings and then delete useless prop `menu`
+        this._config = {...this.getDefaultConfig(), ...this.settings};
+        delete this._config?.menu;
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+        this.requestUpdate();
     }
 
     onVariantFilterChange(e) {
@@ -289,7 +300,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         return {
             title: "Sample Variant Stats",
             icon: "fas fa-search",
-            showTitle: true,
+            showTitle: false,
             titleClass: "",
             titleIcon: "fas fa-user",
             filter: {

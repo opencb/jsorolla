@@ -479,6 +479,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <go-accessions-filter
                             .go="${this.preparedQuery.go}"
+                            .cellbaseClient="${this.cellbaseClient}"
                             @ontologyModalOpen="${this.onOntologyModalOpen}"
                             @filterChange="${e => this.onFilterChange("go", e.detail.value)}">
                         </go-accessions-filter>`;
@@ -487,6 +488,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <hpo-accessions-filter
                             .annot-hpo="${this.preparedQuery["annot-hpo"]}"
+                            .cellbaseClient="${this.cellbaseClient}"
                             @ontologyModalOpen="${this.onOntologyModalOpen}"
                             @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
                         </hpo-accessions-filter>`;
@@ -602,19 +604,8 @@ export default class VariantBrowserFilter extends LitElement {
 
     render() {
         return html`
-            <div>
-                ${this.config.searchButton ?
-                    html`
-                        <div class="search-button-wrapper">
-                            <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                                <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
-                            </button>
-                        </div>` :
-                    null
-                }
-                <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                    ${this.renderFilterMenu()}
-                </div>
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+                ${this.renderFilterMenu()}
             </div>
         `;
     }

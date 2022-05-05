@@ -167,9 +167,9 @@ export default class OpenCGAParentClass {
         return this._config.token;
     }
 
-    generateKey(params) {
-        // return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}`;
-        // Josemi 2022-01-28 NOTE: Temporally disable key generation, see issue https://github.com/opencb/jsorolla/issues/380
+    generateKey() {
+        // Josemi 2022-04-22 NOTE: disabled key generation. See task https://app.clickup.com/t/36631768/TASK-670
+        // return params?.concurrent !== true ? `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}` : false;
         return "";
     }
 

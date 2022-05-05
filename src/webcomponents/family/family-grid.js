@@ -341,7 +341,7 @@ export default class FamilyGrid extends LitElement {
 
     membersFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(value)) {
-            const members = value.map(member => `<p>${member.id} (${member.sex})</p>`).join("");
+            const members = value.map(member => `<p>${member.id} (${member.sex?.id || member.sex})</p>`).join("");
             return `
                 <a tooltip-title="Members" tooltip-text="${members}">
                     ${value.length} members found
@@ -438,7 +438,7 @@ export default class FamilyGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn,
             ...this.query,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             skip: 0,
             count: false
         };

@@ -203,7 +203,7 @@ class VariantInterpreterQc extends LitElement {
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .sample="${this.sample}"
                                     .active="${active}"
-                                    .config="${{showTitle: false}}">
+                                    .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                 </sample-variant-stats-browser>
                             </div>
                         `;
@@ -224,9 +224,9 @@ class VariantInterpreterQc extends LitElement {
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .sample="${this.sample}"
                                     .active="${active}"
-                                    .config="${{showTitle: false}}">
+                                    .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                 </sample-variant-stats-browser>
-                                <h3>Not implemented yet.</h3>
+                                <!--<h3>Not implemented yet.</h3>-->
                             </div>
                         `;
                     },
@@ -267,7 +267,7 @@ class VariantInterpreterQc extends LitElement {
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .sample="${this.somaticSample}"
                                     .active="${active}"
-                                    .config="${{showTitle: false}}">
+                                    .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                 </sample-variant-stats-browser>
                             </div>
                         `;
@@ -287,7 +287,7 @@ class VariantInterpreterQc extends LitElement {
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .sample="${this.sample}"
                                         .active="${active}"
-                                        .config="${{showTitle: false}}">
+                                        .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
                                     </sample-variant-stats-browser>
                                 </div>
                             `;

@@ -17,6 +17,11 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "../commons/opencb-facet-results.js";
+import "../commons/facet-filter.js";
+import "./sample-grid.js";
+import "./sample-detail.js";
+import "./sample-browser-filter";
 
 export default class SampleBrowser extends LitElement {
 
@@ -95,12 +100,33 @@ export default class SampleBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <sample-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "sample")}">
+                        </sample-grid>
+                        <sample-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .sampleId="${params.detail.sample?.id}">
+                        </sample-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html `
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.active}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }/*
                 {
                     id: "comparator-tab",
@@ -109,6 +135,14 @@ export default class SampleBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
+                render: params => html`
+                    <sample-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </sample-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -241,6 +275,12 @@ export default class SampleBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "somatic"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

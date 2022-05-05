@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import "../commons/view/detail-tabs.js";
 import "./disease-panel-summary.js";
 import {construction} from "../commons/under-construction.js";
@@ -23,7 +23,7 @@ export default class DiseasePanelDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,7 +47,7 @@ export default class DiseasePanelDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
@@ -77,6 +77,8 @@ export default class DiseasePanelDetail extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            this.diseasePanel = null;
         }
     }
 
@@ -88,7 +90,7 @@ export default class DiseasePanelDetail extends LitElement {
                     .config="${this._config}"
                     .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
-            ` : nothing;
+            ` : null;
     }
 
     getDefaultConfig() {
@@ -100,7 +102,7 @@ export default class DiseasePanelDetail extends LitElement {
                     id: "disease-panel-view",
                     name: "Overview",
                     active: true,
-                    render: (diseasePanel, active, opencgaSession) => {
+                    render: (diseasePanel, _active, opencgaSession) => {
                         return html`
                             <disease-panel-summary
                                 .diseasePanel="${diseasePanel}"
@@ -122,18 +124,18 @@ export default class DiseasePanelDetail extends LitElement {
                 {
                     id: "disease-panel-regions",
                     name: "Regions",
-                    render: (diseasePanel, active, opencgaSession) => construction
+                    render: () => construction
                 },
                 {
                     id: "disease-panel-variants",
                     name: "Variants",
-                    render: (diseasePanel, active, opencgaSession) => construction
+                    render: () => construction
                 },
                 {
                     id: "json-view",
                     name: "JSON Data",
                     mode: "development",
-                    render: (diseasePanel, active, opencgaSession) => {
+                    render: (diseasePanel, active) => {
                         return html`
                             <json-viewer
                                 .data="${diseasePanel}"

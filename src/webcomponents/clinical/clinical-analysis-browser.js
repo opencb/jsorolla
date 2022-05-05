@@ -18,15 +18,17 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
+import "./clinical-analysis-grid.js";
+import "./clinical-analysis-browser-filter.js";
+import "./clinical-analysis-detail.js";
+import "./clinical-analysis-group.js";
 
 
-export default class OpencgaClinicalAnalysisBrowser extends LitElement {
+export default class ClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,14 +49,13 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.errorState = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
@@ -68,19 +69,27 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        const defaultConfig = this.getDefaultConfig();
+        this._config = {
+            ...defaultConfig,
+            ...this.settings,
+        };
+
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(defaultConfig.filter, this.settings);
         }
 
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            this._config.filter.result.grid = {
+                ...defaultConfig.filter.result.grid,
+                ...this.settings.table,
+                toolbar: {
+                    ...defaultConfig.filter.result.grid.toolbar,
+                    ...(this.settings.table.toolbar || {}),
+                },
+            };
         }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
-        // this.requestUpdate();
     }
 
     render() {
@@ -108,18 +117,49 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
-                }/*
-                {
-                    id: "facet-tab",
-                    name: "Aggregation stats"
+                    active: true,
+                    render: params => html `
+                        <clinical-analysis-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
+                            .active="${params.active}"
+                            @selectanalysis="${params.onSelectClinicalAnalysis}"
+                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
+                        </clinical-analysis-grid>
+                        <clinical-analysis-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .clinicalAnalysisId="${params.detail.clinicalAnalysis?.id}">
+                        </clinical-analysis-detail>
+                    `,
                 },
                 {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
+                    id: "group",
+                    name: "Group by",
+                    icon: "fas fa-layer-group",
+                    active: false,
+                    render: params => html`
+                        <clinical-analysis-group
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .query="${params.executedQuery}"
+                            .active="${params.active}">
+                        </clinical-analysis-group>
+                    `,
+                },
             ],
             filter: {
+                render: params => html `
+                    <clinical-analysis-browser-filter
+                        .opencgaSession="${params.opencgaSession}"
+                        .config="${params.config.filter}"
+                        .query="${params.query}"
+                        @queryChange="${params.onQueryFilterChange}"
+                        @querySearch="${params.onQueryFilterSearch}">
+                    </clinical-analysis-browser-filter>
+                `,
                 sections: [
                     {
                         name: "section title",
@@ -179,12 +219,15 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                 ],
                 result: {
                     grid: {
-                        readOnlyMode: true,
+                        readOnlyMode: false,
                         pageSize: 10,
                         pageList: [10, 25, 50],
                         detailView: false,
                         multiSelection: false,
-                        showActions: true
+                        showActions: true,
+                        toolbar: {
+                            showCreate: false,
+                        },
                     }
                 },
                 detail: {
@@ -206,7 +249,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (clinicalAnalysis, active, opencgaSession) => html`
+                            render: clinicalAnalysis => html`
                                 <json-viewer .data="${clinicalAnalysis}"></json-viewer>
                             `,
                         }
@@ -228,4 +271,4 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
 }
 
-customElements.define("opencga-clinical-analysis-browser", OpencgaClinicalAnalysisBrowser);
+customElements.define("clinical-analysis-browser", ClinicalAnalysisBrowser);

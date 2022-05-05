@@ -5,7 +5,7 @@ export class RestClient {
     constructor() {
         if (!RestClient.instance) {
             RestClient.instance = this;
-            this.requests = {};
+            // this.requests = {};
         }
         return RestClient.instance;
     }
@@ -66,10 +66,12 @@ export class RestClient {
         return dataResponse;
     }
 
-    call(url, options, k) {
+    call(url, options) {
         let method = "GET";
         let async = true;
-        // const key = RestClient.hash(k || "RandomString");
+
+        // const key = k ? RestClient.hash(k) : null;
+
         let dataResponse = null;
 
         const eventFire = new CustomEvent("request", {
@@ -89,28 +91,24 @@ export class RestClient {
             async = options.async || true;
         }
 
-        // console.time(`REST call to ${url}`);
         // Creating the promise
         return new Promise((resolve, reject) => {
 
-            // let key = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}`;
             const request = new XMLHttpRequest();
 
-            // Josemi 2022-01-28 NOTE: disabled requests registry until due to issues with images until we found a better solution
-            // Related issue: https://github.com/opencb/jsorolla/issues/380
-            // if (this.requests[key]) {
-            //     // pending prev request
-            //     this.requests[key] = {...this.requests[key], pending: true};
-
-            // } else {
-            //     // pending false as there is no prev request
-            //     this.requests[key] = {pending: false, request, url, key};
+            // Josemi 2022-04-22 NOTE: disabled requests registry
+            // Related task: https://app.clickup.com/t/36631768/TASK-670
+            // if (key) {
+            //     if (this.requests[key]) {
+            //         // pending prev request
+            //         this.requests[key] = {...this.requests[key], pending: true};
+            //     } else {
+            //         // pending false as there is no prev request
+            //         this.requests[key] = {pending: false, request, url, key};
+            //     }
             // }
 
             request.onload = event => {
-                // console.log("on load EVENT", event);
-                // console.log("on load URL", url);
-
                 // request is fulfilled
                 // delete this.requests[key];
 
@@ -199,22 +197,22 @@ export class RestClient {
                 request.send();
             }
 
+            // Josemi 2022-04-22 NOTE: disabled requests registry
+            // Related task: https://app.clickup.com/t/36631768/TASK-670
             // if (this.requests[key]) {
             //     // console.log("FULL LIST", Object.entries(this.requests))
             //     // console.log("this.requests[key]", this.requests[key]);
-
             //     if (this.requests[key].pending) {
             //         console.warn("aborting request", this.requests[key].url);
             //         this.requests[key].request.abort();
             //         delete this.requests[key];
-            //     } else {
-            //         // not aborting
             //     }
             // }
-
         });
     }
 
+    // Josemi 2022-04-22 NOTE: deprecated after removing the requests registry
+    // Related task: https://app.clickup.com/t/36631768/TASK-670
     static hash(str) {
         let hash = 0; let i, chr;
         if (str.length === 0) return hash;

@@ -17,7 +17,7 @@
 import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
-context("4. Variant Browser", () => {
+context("5. Variant Browser", () => {
     before(() => {
         login();
         goTo("iva");
@@ -27,7 +27,7 @@ context("4. Variant Browser", () => {
         cy.get("a[data-id=browser]", {timeout: TIMEOUT}).click({force: true});
     });
 
-    it("4.1 Columns Visibility", () => {
+    it("5.1 Columns Visibility", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser");
 
         checkResults("variant-browser-grid");
@@ -36,15 +36,15 @@ context("4. Variant Browser", () => {
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 13); // we are hiding only the columns with rowspan=2
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container thead > tr:first-child > th", {timeout: TIMEOUT}).should("have.lengthOf", 6); // testing the first level of the header
 
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 13);
+        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container thead > tr:first-child > th", {timeout: TIMEOUT}).should("have.lengthOf", 10);
 
     });
 
     // Variant Browser: Filter controls
-    it("4.2 Create/Delete canned filter", () => {
+    it("5.2 Create/Delete canned filter", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser");
 
         cy.get("input[value*=LoF]").click({force: true});
@@ -73,7 +73,7 @@ context("4. Variant Browser", () => {
     });
 
     // Variant Browser: Individual filters
-    it("4.3 Pagination", () => {
+    it("5.3 Pagination", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser"); // should assertion comes from Chai and it follows its logic
         checkResults("variant-browser-grid");
         changePage("variant-browser-grid", 2);
@@ -82,7 +82,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
+    it("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser"); // should assertion comes from Chai and it follows its logic
         cy.get("variant-browser a[href='#filters_tab']").click();
         // Study and Cohorts: Cohort Alternate Stats
@@ -96,7 +96,7 @@ context("4. Variant Browser", () => {
 
     });
 
-    it("4.5 Filters. Genomic: Genomic Location", () => {
+    it("5.5 Filters. Genomic: Genomic Location", () => {
         cy.get("variant-browser-filter a[data-cy-section-title='Genomic']").click();
         cy.get("region-filter textarea").type("1:5000000-10000000");
         cy.get("div.search-button-wrapper button").click();
@@ -105,7 +105,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.6 Filters. Genomic: Feature IDs", () => {
+    it("5.6 Filters. Genomic: Feature IDs", () => {
         selectToken("feature-filter", "C5", true);
         cy.get("opencga-active-filters").contains("XRef");
         selectToken("feature-filter", "rs", true);
@@ -115,33 +115,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.7 Filters. Genomic: Disease Panels", () => {
-        // Genomic: Disease Panels
-        // TODO decomment once opencga error 'URI Too Long' is fixed
-        // disease-panel-filter select + button
-        // cy.get("disease-panel-filter").find(" a").contains("Childhood onset dystonia or chorea or related movement disorder").click({force:true}) // URI too long
-        // cy.get("disease-panel-filter").find(" a").contains("Amelogenesis imperfecta").click({force:true})
-        // cy.get("div.search-button-wrapper button").click();
-        //
-        // checkResultsOrNot("variant-browser-grid")
-
-        // NOTE Covid19... is the first URI too long
-        /* cy.get("disease-panel-filter div.dropdown-menu a").each(el => {
-
-            // cannot use cy.wrap(el) here. disease-panel-filter div.dropdown-menu is refreshed on click on buttons and DOM refs are broken (https://github.com/cypress-io/cypress/issues/7306)
-            const id = el.attr("id");
-            cy.get("#" + id).should("exist").click({force: true});
-            //cy.wrap(el).should("exist").click({force: true});
-            cy.get("div.search-button-wrapper button").click();
-            checkResultsOrNot("variant-browser-grid");
-            cy.wait(2000);
-            cy.get("opencga-active-filters button[data-filter-name='panel']").click();
-
-
-        });*/
-    });
-
-    it("4.8 Filters. Genomic: Gene Biotype", () => {
+    it("5.7 Filters. Genomic: Gene Biotype", () => {
         // Genomic: Gene Biotype
         cy.get("biotype-filter button").click();
         cy.get("biotype-filter input[type='search']").type("protein"); // typing protein_coding using autocomplete
@@ -153,7 +127,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.9 Filters. Genomic: Variant", () => {
+    it("5.8 Filters. Genomic: Variant", () => {
         // Genomic: Variant type cy.get('.magic-checkbox-wrapper > :nth-child(1) > label')
         cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
         cy.get("div.search-button-wrapper button").click();
@@ -162,7 +136,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.10 Filters. Consequence type: LoF", () => {
+    it("5.9 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
         cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
@@ -170,7 +144,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.11 Filters. Consequence type: Missense", () => {
+    it("5.10 Filters. Consequence type: Missense", () => {
         // Consequence type: SO Term - Use example: Missense
         cy.get("consequence-type-select-filter button").click();
         cy.get("consequence-type-select-filter input[type='search']").type("miss"); // typing missense using autocomplete
@@ -182,7 +156,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.12 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
+    it("5.11 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
         // Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001
         cy.get("variant-browser-filter a[data-cy-section-title='PopulationFrequency']").click();
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1kG_phase3']").click();
@@ -199,7 +173,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.13 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
+    it("5.12 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
         // Population Frequency: gnomAD - Set all < 0.00001
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-GNOMAD_GENOMES']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
@@ -210,9 +184,35 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
-        // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
+    it("5.13 Filters. Clinical: Disease Panels", () => {
         cy.get("variant-browser-filter a[data-cy-section-title='Clinical']").click();
+
+        // Clinical: Disease Panels
+        cy.get("disease-panel-filter").find(" a").contains("Childhood onset dystonia or chorea or related movement disorder").click({force: true}); // URI too long
+        cy.get("disease-panel-filter").find(" a").contains("Amelogenesis imperfecta").click({force: true});
+        cy.get("div.search-button-wrapper button").click();
+
+        checkResultsOrNot("variant-browser-grid");
+
+        // Test ALL Panels
+        // NOTE Covid19... is the first URI too long
+        /* cy.get("disease-panel-filter div.dropdown-menu a").each(el => {
+
+            // cannot use cy.wrap(el) here. disease-panel-filter div.dropdown-menu is refreshed on click on buttons and DOM refs are broken (https://github.com/cypress-io/cypress/issues/7306)
+            const id = el.attr("id");
+            cy.get("#" + id).should("exist").click({force: true});
+            //cy.wrap(el).should("exist").click({force: true});
+            cy.get("div.search-button-wrapper button").click();
+            checkResultsOrNot("variant-browser-grid");
+            cy.wait(2000);
+            cy.get("opencga-active-filters button[data-filter-name='panel']").click();
+        });*/
+        cy.get("opencga-active-filters button[data-filter-name='panel']").click();
+
+    });
+
+    it("5.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
+        // Clinical: ClinVar Accessions. Use example: Pathogenic
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
         cy.get("div.search-button-wrapper button").click();
@@ -221,7 +221,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.15 Filters. Clinical and Disease: Full text: Mortality", () => {
+    it("5.15 Filters. Clinical and Disease: Full text: Mortality", () => {
         // Clinical and Disease: Full text. Use example: Mortality
         cy.get("fulltext-search-accessions-filter textarea").type("Mortality");
         // cy.get("fulltext-search-accessions-filter textarea").type("centroid");
@@ -231,7 +231,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.16 Filters. GO and HPO", () => {
+    it("5.16 Filters. GO and HPO", () => {
         cy.get("[data-cy-section-title=Phenotype]").click();
 
         // GO
@@ -251,7 +251,7 @@ context("4. Variant Browser", () => {
             });
     });
 
-    it("4.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
+    it("5.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
         cy.get("variant-browser-filter a[data-cy-section-title='Deleteriousness']").click();
         cy.get("protein-substitution-score-filter .sift .score-comparator .select-field-filter").click();
@@ -268,7 +268,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
+    it("5.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
         cy.get("protein-substitution-score-filter .sift .score-select .dropdown .btn").click();
         cy.get("protein-substitution-score-filter .sift .score-select .dropdown a").contains("Tolerated").click();
@@ -282,7 +282,7 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.19 Filters. Conservation: PhyloP", () => {
+    it("5.19 Filters. Conservation: PhyloP", () => {
         cy.get("variant-browser-filter")
             .then($div => {
                 // Conservation Score is visible
@@ -301,7 +301,7 @@ context("4. Variant Browser", () => {
             });
     });
 
-    it("4.20 Check gene-view", () => {
+    it("5.20 Check gene-view", () => {
         cy.get("button[data-id='table-tab']", {timeout: TIMEOUT}).click();
         cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index='0'] a.gene-tooltip:first-child")
             .should("be.visible", {timeout: TIMEOUT})
@@ -312,7 +312,7 @@ context("4. Variant Browser", () => {
     });
 
     // Variant Browser: Tabs
-    it("4.21 checks Variant Browser detail tabs", () => {
+    it("5.21 checks Variant Browser detail tabs", () => {
 
         cy.get("variant-browser-detail > detail-tabs > div.panel > h3", {timeout: TIMEOUT}).should("contain", "Variant:");
 
@@ -348,7 +348,7 @@ context("4. Variant Browser", () => {
         cy.get("variant-beacon-network", {timeout: TIMEOUT}).find(".beacon-square").its("length").should("eq", 15);
     });
 
-    it("4.22 aggregated query", () => {
+    it("5.22 aggregated query", () => {
 
         cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});

@@ -38,8 +38,8 @@ import NotificationUtils from "../../webcomponents/commons/utils/notification-ut
 import NotificationManager from "../../core/notification-manager.js";
 
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
-import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
+import "../../webcomponents/clinical/clinical-analysis-browser.js";
+import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
 import "../../webcomponents/variant/variant-beacon.js";
 import "../../webcomponents/opencga/opencga-gene-view.js";
@@ -58,7 +58,6 @@ import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/opencga-job-view.js";
-import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
@@ -232,6 +231,9 @@ class IvaApp extends LitElement {
 
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
+
+        // Get version from env variable
+        this.version = process.env.VERSION;
 
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
@@ -1159,9 +1161,10 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["clinicalAnalysisPortal"] ? html`
                     <div class="content" id="clinicalAnalysisPortal">
-                        <tool-header title="${"Case Portal"}" icon="${"fas fa-window-restore"}"></tool-header>
-                        <opencga-clinical-review-cases  .opencgaSession="${this.opencgaSession}"
-                                                        .settings="${OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS}"></opencga-clinical-review-cases>
+                        <clinical-analysis-portal
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${CLINICAL_ANALYSIS_PORTAL_SETTINGS}">
+                        </clinical-analysis-portal>
                     </div>
                 ` : null}
 
@@ -1394,13 +1397,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.clinicalAnalysis ? html`
                     <div class="content" id="clinicalAnalysis">
-                        <opencga-clinical-analysis-browser
+                        <clinical-analysis-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${OPENCGA_CLINICAL_ANALYSIS_BROWSER_SETTINGS}"
                             .query="${this.queries["clinical-analysis"]}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
-                        </opencga-clinical-analysis-browser>
+                        </clinical-analysis-browser>
                     </div>
                 ` : null}
 
@@ -1467,7 +1470,12 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["sampleVariantStatsBrowser"] ? html`
                     <div class="content" id="sampleVariantStatsBrowser">
-                        <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-variant-stats-browser>
+                        <sample-variant-stats-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .sampleId="${this.sampleId}"
+                            .active="${true}"
+                            .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
+                        </sample-variant-stats-browser>
                     </div>
                 ` : null}
 
@@ -1597,7 +1605,10 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
+                        <user-profile
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${USER_PROFILE_SETTINGS}">
+                        </user-profile>
                     </div>
                 ` : null}
 
@@ -1697,8 +1708,9 @@ class IvaApp extends LitElement {
             </div>
 
             <custom-footer
-                .host=${this.host}
-                .config=${this.config}>
+                .version="${this.version}"
+                .host="${this.host}"
+                .config="${this.config}">
             </custom-footer>
         `;
     }

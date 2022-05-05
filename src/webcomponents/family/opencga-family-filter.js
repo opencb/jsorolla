@@ -20,6 +20,7 @@ import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
+import "../commons/filters/disorder-autocomplete.js";
 
 export default class OpencgaFamilyFilter extends LitElement {
 
@@ -102,9 +103,9 @@ export default class OpencgaFamilyFilter extends LitElement {
 
     onAnnotationChange(e) {
         if (e.detail.value) {
-            this.preparedQuery.annotation = e.detail.value
+            this.preparedQuery.annotation = e.detail.value;
         } else {
-            delete this.preparedQuery.annotation
+            delete this.preparedQuery.annotation;
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
@@ -179,22 +180,51 @@ export default class OpencgaFamilyFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<family-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></family-id-autocomplete>`;
+                content = html`
+                    <family-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </family-id-autocomplete>`;
                 break;
             case "members":
-                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`
+                content = html`
+                    <individual-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </individual-id-autocomplete>`;
                 break;
             case "disorders":
+                content = html`
+                    <disorder-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .resource=${"FAMILY"}
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </disorder-autocomplete>
+                    `;
+                break;
             case "phenotypes":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`
+                    <text-field-filter
+                        placeholder="${subsection.placeholder}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </text-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                             resource="FAMILY"
-                                                             .config="${this.annotationFilterConfig}"
-                                                             .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                             @annotationChange="${this.onAnnotationChange}">
-                            </opencga-annotation-filter-modal>`;
+                content = html`
+                    <opencga-annotation-filter-modal
+                        .opencgaSession="${this.opencgaSession}"
+                         resource="FAMILY"
+                         .config="${this.annotationFilterConfig}"
+                         .selectedVariablesText="${this.preparedQuery.annotation}"
+                         @annotationChange="${this.onAnnotationChange}">
+                    </opencga-annotation-filter-modal>`;
                 break;
             case "date":
                 content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;

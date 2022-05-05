@@ -16,10 +16,13 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
-// import "../../clinical/interpretation/clinical-interpretation-view.js";
+import "../../clinical/interpretation/clinical-interpretation-view.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
+import NotificationUtils from "../../commons/utils/notification-utils";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager";
+import LitUtils from "../../commons/utils/lit-utils";
 
 
 export default class VariantInterpreterReviewPrimary extends LitElement {
@@ -70,23 +73,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovi-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
-        // TODO recheck this variant-interpretation-editor doesn't have a "mode" prop in opencga-variant-interpretation
-        this.mode = "create";
-        this.isCreate = this.mode.toLowerCase() === "create";
-
-        this.interpretationCollapsed = false;
-        this.variantsCollapsed = false;
-        // this.isInterpretedVariants = false;
-
-        // this.checkProjects = false;
-        // this.interactive = true;
-        this.filterClass = "col-md-2";
-        this.gridClass = "col-md-10";
         this.gridConfig = {};
-
-        this._collapsed = true;
 
         this.messageError = false;
         this.messageSuccess = false;
@@ -99,17 +88,17 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // console.log("this.interpretation in variant-interpretation-editor", this.interpretation)
-        // this._interpretation = this.interpretation;
+
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("gridConfig")) {
             this.configObserver();
         }
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
-            // this.clinicalAnalysisObserver();
-        }
+        // if (changedProperties.has("clinicalAnalysis")) {
+        //     this.clinicalAnalysisObserver();
+        // }
         super.update(changedProperties);
     }
 
@@ -124,10 +113,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             ...this._config.result.grid,
             ...this.gridConfig,
         };
-
-        // if (UtilsNew.isNotUndefinedOrNull(mode)) {
-        //     this.isCreate = mode.toLowerCase() === "create";
-        // }
     }
 
     // clinicalAnalysisObserver() {
@@ -145,103 +130,70 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     //     }
     // }
 
-    toggleInterpretationCollapsed(e) {
-        this.interpretationCollapsed = !this.interpretationCollapsed;
-    }
-
-    toggleVariantsCollapsed(e) {
-        this.variantsCollapsed = !this.variantsCollapsed;
-    }
-
-    onClinicalAnalysisEditor(e) {
-        this.clinicalAnalysis = Object.assign({}, e.detail.clinicalAnalysis);
-    }
-
-    _changeBottomTab(e) {
-        const _activeTabs = {};
-        for (const detail of this.config.detail) {
-            _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
-        }
-        this.set("detailActiveTabs", _activeTabs);
-    }
-
-    checkVariant(variant) {
-        return variant.split(":").length > 2;
-    }
-
     onSelectVariant(e) {
+        this.variantId = e.detail.id;
         this.variant = e.detail.row;
         this.requestUpdate();
     }
 
     onCheckVariant(e) {
-        // Alexis: we need to do something like this:
-        this.checkedVariants = e.detail.rows;
-
-        // We set/remove disable status to Save button
-        // if (this.checkedVariants.length > 0 && UtilsNew.isNotEmptyArray(this.samples)) {
-        //     PolymerUtils.removeAttribute(this._prefix + 'SaveInterpretationButton', 'disabled');
-        // } else {
-        //     PolymerUtils.setAttribute(this._prefix + 'SaveInterpretationButton', 'disabled', true);
-        // }
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            if (e.detail.checked) {
+                this.clinicalAnalysisManager.addVariant(row);
+            } else {
+                this.clinicalAnalysisManager.removeVariant(row);
+            }
+        });
     }
 
-    onGenomeBrowserPositionChange(e) {
-        $(".variant-interpretation-content").hide(); // hides all content divs
-        $("#" + this._prefix + "GenomeBrowser").show(); // get the href and use it find which div to show
-
-        // Show the active button
-        $(".variant-interpretation-view-buttons").removeClass("active");
-        // $(e.target).addClass("active");
-        PolymerUtils.addClass(this._prefix + "GenomeBrowserButton", "active");
-
-        this._genomeBrowserActive = true;
-
-        this.region = e.detail.genomeBrowserPosition;
+    onUpdateVariant(e) {
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            this.clinicalAnalysisManager.updateSingleVariant(row);
+        });
+        this.requestUpdate();
     }
 
-    _backToSelectAnalysis(e) {
-        this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
-    }
-
-    _goToReport(e) {
-        this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.clinicalAnalysis.interpretation}}));
-    }
-
-    triggerBeacon(e) {
-        this.variantToBeacon = this.variant.id;
-    }
 
     onViewInterpretation(e) {
         $("#" + this._prefix + "PreviewModal").modal("show");
     }
 
-    onSaveInterpretation() {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
-            .then(response => {
-                // debugger
-            })
-            .catch(error => console.error(error));
+    onSaveVariants(e) {
+        // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
+        this.currentQueryBeforeSaveEvent = this.query;
+
+        // Save current query in the added variants
+        this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
+
+        const comment = e.detail.comment;
+        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            }, null, {bubbles: true, composed: true});
+        });
     }
 
-    cleanSaveInterpretation() {
-        PolymerUtils.setValue(this._prefix + "IDInterpretation", "");
-        // PolymerUtils.setValue(this._prefix + "NameInterpretation", "");
-        PolymerUtils.setValue(this._prefix + "DescriptionInterpretation", "");
-        PolymerUtils.setValue(this._prefix + "CommentInterpretation", "");
-    }
+    async onGridConfigSave(e) {
+        const newGridConfig = {...e.detail.value};
 
-    getAnalysisInterpretations() {
-        const params = {
-            study: this.opencgaSession.study.fqn
-        };
-        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, params)
-            .then(response => {
-                this.showSummary = false;
-                if (response.response[0].numResults === 1) {
-                    this.clinicalAnalysis = response.response[0].result[0];
-                }
+        // Remove highlights and copies configuration from new config
+        delete newGridConfig.highlights;
+        // delete newConfig.copies;
+
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
+            this.settingsObserver();
+            this.requestUpdate();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
             });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
     }
 
     render() {
@@ -249,7 +201,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         if (!this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             return html`
                 <div class="alert alert-warning">
-                    <b>Warning</b>: there are not variants or annotations for this clinical interpretation.
+                    <b>Warning</b>: there are not variants for this clinical interpretation.
                 </div>
             `;
         }
@@ -259,43 +211,40 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">
                     Preview
                 </button>
-                <button class="btn btn-primary" @click="${this.onSaveInterpretation}">
-                    <i class="fas fa-save icon-padding"></i> Save
+                <button class="btn btn-primary" @click="${this.onSaveVariants}">
+                    <i class="fas fa-save icon-padding"></i> Save ${this.clinicalAnalysisManager.state?.updatedVariants?.length > 0 ? html`
+                        <span class="badge" style="margin-left: 5px">${this.clinicalAnalysisManager.state?.updatedVariants.length}</span>
+                    `: null}
                 </button>
             </div>
 
             <div class="row">
                 <div class="col-md-12">
                     <div style="padding-top: 5px">
-                        <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                            ${this.clinicalAnalysis?.interpretation ? html`
-                                <variant-interpreter-grid
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .clinicalVariants="${this.clinicalVariants}"
-                                    .review="${true}"
-                                    .config="${this._config.result.grid}"
-                                    @selected="${this.selectedGene}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @checkvariant="${this.onCheckVariant}"
-                                    @reviewvariant="${this.onReviewVariant}"
-                                    @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
-                                </variant-interpreter-grid>
-                                <variant-interpreter-detail
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .variant="${this.variant}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .consequenceTypes="${this.consequenceTypes}"
-                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                    .config="${this._config.detail}">
-                                </variant-interpreter-detail>
-                            ` : html`
-                                <div class="alert alert-info">
-                                    <i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.
-                                </div>
-                            `}
-                        </div>
+                        ${this.clinicalAnalysis?.interpretation ? html`
+                            <variant-interpreter-grid
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .clinicalVariants="${this.clinicalVariants}"
+                                .review="${true}"
+                                .config="${this._config.result.grid}"
+                                @selectrow="${this.onSelectVariant}"
+                                @updaterow="${this.onUpdateVariant}"
+                                @checkrow="${this.onCheckVariant}"
+                                @gridconfigsave="${this.onGridConfigSave}">
+                            </variant-interpreter-grid>
+                            <variant-interpreter-detail
+                                .opencgaSession="${this.opencgaSession}"
+                                .variant="${this.variant}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .config="${this._config.detail}">
+                            </variant-interpreter-detail>
+                        ` : html`
+                            <div class="alert alert-info">
+                                <i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.
+                            </div>
+                        `}
                     </div>
                 </div>
                 <div class="col-md-12">
@@ -309,9 +258,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                             .consequenceTypes="${this.consequenceTypes}"
                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
                         </clinical-interpretation-view>
-                        ` : null}
-                    </div>
+                    ` : null}
                 </div>
+            </div>
             </div>
 
             <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -411,11 +360,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     {
                         id: "beacon",
                         title: "Beacon"
-                        // Uncomment and edit Beacon hosts to change default hosts
-                        // hosts: [
-                        //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
-                        //     "lovd", "hgmd", "icgc", "sahgp"
-                        // ]
                     }
                 ]
             }

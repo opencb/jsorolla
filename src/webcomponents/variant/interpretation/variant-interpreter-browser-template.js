@@ -70,6 +70,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
+        this.searchActive = true;
         this.variant = null;
         this.query = {};
         this.savedVariants = [];
@@ -164,7 +165,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (this.opencgaSession && this.query) {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.searchActive = false;
         }
+        this.requestUpdate();
+    }
+
+    onQueryComplete() {
+        this.searchActive = true;
         this.requestUpdate();
     }
 
@@ -243,6 +250,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
         this.requestUpdate();
+    }
+
+    onSearch() {
+        this.onVariantFilterSearch({
+            detail: {
+                query: this.preparedQuery,
+            },
+        });
     }
 
     onActiveFilterClear() {
@@ -341,6 +356,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
             <div class="row">
                 <div class="col-md-2">
+                    <div class="search-button-wrapper">
+                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
+                            <i class="fa fa-search" aria-hidden="true"></i> 
+                            <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
+                        </button>
+                    </div>
                     <variant-browser-filter
                         .opencgaSession="${this.opencgaSession}"
                         .query="${this.query}"
@@ -398,6 +419,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         .query="${this.executedQuery}"
                                         .review="${true}"
                                         .config="${this._config.filter.result.grid}"
+                                        @queryComplete="${this.onQueryComplete}"
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}"
@@ -409,6 +431,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         .query="${this.executedQuery}"
                                         .review="${true}"
                                         .config="${this._config.filter.result.grid}"
+                                        @queryComplete="${this.onQueryComplete}"
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}">
