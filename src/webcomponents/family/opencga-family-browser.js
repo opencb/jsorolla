@@ -77,32 +77,46 @@ export default class OpencgaFamilyBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
+
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.settings.table,
+            };
         }
         if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+            this._config.filter.result.grid.toolbar = {
+                ...this._config.filter.result.grid.toolbar,
+                ...this.settings.table.toolbar,
+            };
         }
+    }
+
+    render() {
+        return html`
+            <opencga-browser
+                resource="FAMILY"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
@@ -128,7 +142,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.detail}"
                             .family="${params.detail.family}">
-                        </opencga-family-detail>`
+                        </opencga-family-detail>
+                    `,
                 },
                 {
                     id: "facet-tab",
@@ -141,7 +156,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             .active="${params.active}"
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                        </opencb-facet-results>
+                    `,
                 }
                 /*
                 {
@@ -158,7 +174,8 @@ export default class OpencgaFamilyBrowser extends LitElement {
                         .query="${params.query}"
                         @queryChange="${params.onQueryFilterChange}"
                         @querySearch="${params.onQueryFilterSearch}">
-                    </opencga-family-filter>`,
+                    </opencga-family-filter>
+                `,
                 sections: [
                     {
                         title: "Section title",
@@ -215,7 +232,9 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     }
                 ],
                 activeFilters: {
-                    complexFields: ["annotation"]
+                    complexFields: [
+                        {id: "annotation", separator: ";"},
+                    ],
                 },
                 result: {
                     grid: {
@@ -235,36 +254,53 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             // visible:
-                            render: (family, active, opencgaSession) => {
-                                return html`<family-view .opencgaSession="${opencgaSession}" .family="${family}" .settings="${OPENCGA_FAMILY_VIEW_SETTINGS}"></family-view>`;
-                            }
+                            render: (family, active, opencgaSession) => html`
+                                <family-view
+                                    .opencgaSession="${opencgaSession}"
+                                    .family="${family}"
+                                    .settings="${OPENCGA_FAMILY_VIEW_SETTINGS}">
+                                </family-view>
+                            `,
                         },
                         {
                             id: "family-relatedness",
                             name: "Relatedness",
-                            render: (family, active, opencgaSession) => {
-                                return html`<opencga-family-relatedness-view .family="${family}" .opencgaSession="${opencgaSession}"></opencga-family-relatedness-view>`;
-                            }
+                            render: (family, active, opencgaSession) => html`
+                                <opencga-family-relatedness-view
+                                    .family="${family}"
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-family-relatedness-view>
+                            `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (family, active, opencgaSession) => {
-                                return html`<json-viewer .data="${family}" .active="${active}"></json-viewer>`;
-                            }
+                            render: (family, active, opencgaSession) => html`
+                                <json-viewer 
+                                    .data="${family}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         }
                     ]
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "phenotypes", "expectedSize", "numMembers[0..20]:2"],
+                default: [
+                    "creationYear>>creationMonth",
+                    "status",
+                    "phenotypes",
+                    "expectedSize",
+                    "numMembers[0..20]:2",
+                ],
                 render: params => html `
                     <facet-filter
                         .config="${params.config.aggregation}"
                         .selectedFacet="${params.selectedFacet}"
                         @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
+                    </facet-filter>
+                `,
                 result: {
                     numColumns: 2
                 },
@@ -377,16 +413,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
             },
             annotations: {}
         };
-    }
-
-    render() {
-        return this.opencgaSession && this._config ? html`
-            <opencga-browser  resource="FAMILY"
-                              .opencgaSession="${this.opencgaSession}"
-                              .query="${this.query}"
-                              .config="${this._config}">
-            </opencga-browser>` :
-            "";
     }
 
 }
