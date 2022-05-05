@@ -106,8 +106,9 @@ export default class StudyAdminIndividual extends LitElement {
     }
 
     onIndividualSearch(e) {
-        if (e.detail.status.error) {
+        if (e.detail?.status?.error) {
             // inform
+            console.log("Error Found");
         } else {
             this.individual = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};

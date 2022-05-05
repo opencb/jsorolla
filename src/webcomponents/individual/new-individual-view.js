@@ -98,7 +98,7 @@ export default class NewIndividualView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    this.notify(error);
+                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, null, error);
                 });
             this.individualId = "";
         }
@@ -106,22 +106,6 @@ export default class NewIndividualView extends LitElement {
 
     onFilterChange(e) {
         this.individualId = e.detail.value;
-    }
-
-    notify(error) {
-        // this.dispatchEvent(new CustomEvent("individualSearch", {
-        //     detail: {
-        //         value: this.individual,
-        //         status: {
-        //             // true if error is defined and not empty
-        //             error: !!error,
-        //             message: error
-        //         }
-        //     },
-        //     bubbles: true,
-        //     composed: true
-        // }));
-        LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, null, error);
     }
 
     renderEvidences(value) {
@@ -193,10 +177,6 @@ export default class NewIndividualView extends LitElement {
                 .data=${this.individual}
                 .config="${this._config}">
             </data-form>
-
-            <!-- Phenotypes Tables -->
-            <!-- Disorders Tables -->
-            <!-- Sample Views -->
         `;
     }
 
@@ -248,28 +228,46 @@ export default class NewIndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => html`
-                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid}) <b>Version:</b> ${data.version}
+                                    <span style="font-weight: bold">${data.id}</span>
+                                    <span style="margin: 0 20px">
+                                        <b>Version:</b> ${data.version}
+                                    </span>
+                                    <span style="margin: 0 20px">
+                                        <b>UUID:</b> ${data.uuid}
+                                    </span>
                                 `,
                             },
                         },
                         {
                             title: "Name",
+                            field: "name",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Father ID",
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const father = data.father.id ? data.father.id: "N/A";
-                                    const mother = data.mother.id ? data.mother.id: "N/A";
+                                    const father = data.father?.id ? data.father?.id : "N/A";
+                                    const uuid = data.father?.uuid ? html `(UUID: ${data.father.uuid})` : "";
                                     return html`
-                                        <label>${data.name}</label>
-                                        <span style="padding-left: 50px">
-                                            <label>Father ID:</label> ${father}
-                                        </span>
-                                        <span style="margin: 0 20px">
-                                            <label>Mother ID:</label> ${mother}
-                                        </span>
-                                    `;
+                                        <span style="font-weight: bold">${father}</span> ${uuid}
+                                `;
                                 },
-                            }
+                            },
+                        },
+                        {
+                            title: "Mother ID",
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    const mother = data.mother?.id ? data.mother?.id : "N/A";
+                                    const uuid = data.mother?.uuid ? html `(UUID: ${data.mother.uuid})` : "";
+                                    return html`
+                                        <span style="font-weight: bold">${mother}</span> ${uuid}
+                                    `;
+                                }
+                            },
                         },
                         {
                             title: "Sex",
@@ -277,17 +275,11 @@ export default class NewIndividualView extends LitElement {
                             display: {
                                 render: data => {
                                     const sexId = data.sex.id ? data.sex.id : "N/A";
-                                    const karyotypicSex = data.karyotypicSex ? data.karyotypicSex: "N/A";
+                                    const karyotypicSex = data.karyotypicSex ? `(${data.karyotypicSex})`: "";
                                     const inferredKaryotypicSex = data?.qualityControl?.inferredSexReports && data.qualityControl.inferredSexReports?.length > 0 ?
                                         data.qualityControl.inferredSexReports[0].inferredKaryotypicSex : "N/A";
                                     return html`
-                                        <span>${sexId}</span>
-                                        <span style="padding-left: 50px">
-                                            <label>Karyotypic Sex:</label> ${karyotypicSex }
-                                        </span>
-                                        <span style="margin: 0 20px">
-                                            <label>Inferred Karyotypic Sex:</label> ${inferredKaryotypicSex}
-                                        </span>
+                                        <span>${sexId}</span> ${karyotypicSex}
                                     `;
                                 },
                             }
@@ -296,62 +288,44 @@ export default class NewIndividualView extends LitElement {
                             title: "Ethnicity",
                             field: "ethnicity.name",
                             defaultValue: "N/A"
-
                         },
                         {
                             title: "Location",
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const address = data.location.address ? data.location.address : "N/A";
-                                    const postalCode = data.location.postalCode ? data.location.postalCode: "N/A";
-                                    const city = data.location.city ? data.location.city : "N/A";
-                                    const state = data.location.state ? data.location.state : "N/A";
-                                    const country = data.location.country ? data.location.country : "N/A";
+                                    const address = data.location?.address ? `${data.location.address},` : "";
+                                    const postalCode = data.location?.postalCode ? `${data.location.postalCode},`: "";
+                                    const city = data.location?.city ? `${data.location.city} ` : "";
+                                    const state = data.location?.state ? `${data.location.state} ` : "";
+                                    const country = data.location?.country ? `(${data.location.country})` : "";
+                                    if (!(address && postalCode && city && state && country)) {
+                                        return "N/A";
+                                    }
                                     return html`
                                         <span>
-                                            <label>Address:</label> ${address}
-                                        </span>
-                                        <span style="margin: 0 20px">
-                                            <label>Postal Code:</label> ${postalCode}
-                                        </span>
-                                        <span style="margin: 0 20px">
-                                            <label>City:</label> ${city}
-                                        </span>
-                                        <span style="margin: 0 20px">
-                                            <label>State:</label> ${state}
-                                        </span>
-                                        <span style="margin: 0 20px">
-                                            <label>Country:</label> ${country}
+                                            ${address} ${postalCode} ${city} ${state} ${country}
                                         </span>
                                     `;
                                 },
                             }
                         },
                         {
-                            title: "Life Status",
+                            title: "Status",
+                            field: "status.name",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Created on",
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const lifeStatus = data.lifeStatus;
-                                    const status = data?.internal?.status ? data?.internal?.status?.name : "N/A";
                                     const creationDate = data.creationDate ? UtilsNew.dateFormatter(data.creationDate): "N/A";
-                                    const modificationDate = data.modificationDate ?UtilsNew.dateFormatter(data.modificationDate): "N/A";
-                                    return html`
-                                        <span>${lifeStatus}</span>
-                                        <div style="float:right">
-                                            <p style="margin: 0 20px">
-                                                <label>Status:</label> ${status}
-                                            </p>
-                                            <p style="margin: 0 20px">
-                                                <label>Creation Date:</label> ${creationDate}
-                                            </p>
-                                            <p style="margin: 0 20px">
-                                                <label>Modification Date:</label> ${modificationDate}
-                                            </p>
-                                        </div>
+                                    const modificationDate = data.modificationDate ? `(Last modified on ${UtilsNew.dateFormatter(data.modificationDate)})`: "N/A";
+                                    return html `
+                                        ${creationDate} ${modificationDate}
                                     `;
-                                },
+                                }
                             }
                         },
                         {
@@ -371,7 +345,8 @@ export default class NewIndividualView extends LitElement {
                             field: "phenotypes",
                             type: "table",
                             display: {
-                                errorMessage: "No phenotypes",
+                                defaultValue: "Not Phenotypes",
+                                errorMessage: "Error",
                                 columns: [
                                     {
                                         title: "ID",
@@ -415,7 +390,8 @@ export default class NewIndividualView extends LitElement {
                             field: "disorders",
                             type: "table",
                             display: {
-                                errorMessage: "No Disorders",
+                                defaultValue: "Not Disorders",
+                                errorMessage: "Error",
                                 columns: [
                                     {
                                         title: "ID",
