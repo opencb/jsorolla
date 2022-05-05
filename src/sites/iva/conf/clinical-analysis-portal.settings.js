@@ -1,12 +1,12 @@
-// Josemi NOTE 2022-05-02
-// DEPRECATED: use clinical-analysis-portal.settings.js instead
-const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
+const CLINICAL_ANALYSIS_PORTAL_SETTINGS = {
+    title: "Case Portal",
+    icon: "fas fa-window-restore",
     menu: {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
             {
-                filters: ["case", "sample", "proband", "family", "disorder", "status", "priority", "type", "assignee"]
-            }
+                filters: ["id", "family", "proband", "sample", "status", "priority", "type", "date"],
+            },
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
         examples: [
@@ -17,7 +17,7 @@ const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
                     disorder: "Intellectual disability"
                 }
             }*/
-        ]
+        ],
     },
     table: {
         // merge criterium: spread operator
@@ -25,7 +25,7 @@ const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
             showColumns: true,
             showCreate: true,
             showExport: false,
-            showDownload: true
+            showDownload: true,
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
@@ -33,5 +33,5 @@ const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
         // TODO NOTE this refers to clinical-analysis-grid (same list in clinical-analysis-browser.settings)
         // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "actions"]
     },
-    // details: ["clinical-analysis-view", "proband-view"]
+    details: ["clinical-analysis-view"],
 };

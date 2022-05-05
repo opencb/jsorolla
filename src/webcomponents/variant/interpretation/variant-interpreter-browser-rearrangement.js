@@ -280,7 +280,10 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types"
                     },
-                    complexFields: ["sample", "fileData"],
+                    complexFields: [
+                        {id: "sample", separator: ";"},
+                        {id: "fileData", separator: ","},
+                    ],
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
