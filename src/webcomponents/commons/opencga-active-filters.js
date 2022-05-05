@@ -184,10 +184,13 @@ export default class OpencgaActiveFilters extends LitElement {
                         }
                         value = filterFields.join(/[,;]/);
                     } else {
-                        // If we find a field with both ; and , or the field has been defined as complex, we will only
-                        // separate by ;
-                        if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
-                            filterFields = value.split(new RegExp(";"));
+                        // Check if the field has been defined as complex
+                        const complexField = this._config.complexFields.find(item => item.id === key);
+                        if (complexField) {
+                            filterFields = value.split(complexField.separator);
+                        } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
+                            // If we find a field with both ; and , we will separate by ;
+                            filterFields = value.split(";");
                         } else {
                             filterFields = value.split(new RegExp("[,;]"));
                         }
@@ -531,8 +534,13 @@ export default class OpencgaActiveFilters extends LitElement {
                 _queryList[name] = filterFields.join(";");
 
             } else {
-                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
-                    filterFields = _queryList[name].split(new RegExp(";"));
+                // Check if the field has been defined as complex
+                const complexField = this._config.complexFields.find(item => item.id === name);
+                if (complexField) {
+                    filterFields = _queryList[name].split(complexField.separator);
+                } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
+                    // If we find a field with both ; and , we will separate by ;
+                    filterFields = _queryList[name].split(";");
                 } else {
                     filterFields = _queryList[name].split(new RegExp("[,;]"));
                 }
@@ -540,14 +548,14 @@ export default class OpencgaActiveFilters extends LitElement {
                 const indexOfValue = filterFields.indexOf(value);
                 filterFields.splice(indexOfValue, 1);
 
-                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
+                if (complexField) {
+                    _queryList[name] = filterFields.join(complexField.separator);
+                } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
                     _queryList[name] = filterFields.join(";");
+                } else if (_queryList[name].indexOf(",") !== -1) {
+                    _queryList[name] = filterFields.join(",");
                 } else {
-                    if (_queryList[name].indexOf(",") !== -1) {
-                        _queryList[name] = filterFields.join(",");
-                    } else {
-                        _queryList[name] = filterFields.join(";");
-                    }
+                    _queryList[name] = filterFields.join(";");
                 }
             }
         }
