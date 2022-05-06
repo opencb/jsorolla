@@ -23,7 +23,6 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/filters/variant-file-format-filter.js";
 import "../commons/filters/somatic-filter.js";
 import "../commons/forms/section-filter.js";
-import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";

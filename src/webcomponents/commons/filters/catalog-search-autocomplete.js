@@ -171,7 +171,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    onFilterChange(key, value) {
+    onFilterChange(value) {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
@@ -221,7 +221,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 .config="${this._config}"
                 .classes="${this.classes}"
                 .value="${this.value}"
-                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(e.detail.value)}">
             </select-token-filter>
         `;
     }

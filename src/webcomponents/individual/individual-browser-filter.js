@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
-import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/forms/date-filter.js";

@@ -21,7 +21,6 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
-import "../commons/filters/cohort-id-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 

@@ -58,7 +58,7 @@ export default class CatalogDistinctAutocomplete extends LitElement {
         super.update(changedProperties);
     }
 
-    onFilterChange(key, value) {
+    onFilterChange(value) {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
@@ -117,7 +117,7 @@ export default class CatalogDistinctAutocomplete extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
                 .value="${this.value}"
-                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(e.detail.value)}">
             </select-token-filter>
         `;
     }
