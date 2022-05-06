@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class CohortIdAutocomplete extends LitElement {
+// Nacho 20-04-2022 - DEPRECATED: use new disorder-autocomplete now.
+export default class DisorderIdFamiliesAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -55,22 +55,27 @@ export default class CohortIdAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            fields: item => ({
-                name: item.id
-            }),
+            /* fields: item => ({
+                name: item
+            }),*/
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params.data.term + "/i"} : null;
+                const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
-                    count: true,
+                    count: false,
                     skip: (page - 1) * this._config.limit,
-                    include: "id",
-                    ...id
+                    ...disorders
                 };
-                this.opencgaSession.opencgaClient.cohorts().search(filters)
-                    .then(response => success(response))
+                this.opencgaSession.opencgaClient.families().distinct("disorders.id", filters)
+                    .then(response => {
+                        // TODO filtering clientside in all filters that use distinct endpoints
+                        // const r = response.getResults().filter(r => r.toLowerCase().startsWith(params?.data?.term?.toLowerCase() ?? ""));
+                        // response.responses[0].results = r;
+                        // response.responses[0].numMatches = r.length
+                        success(response);
+                    })
                     .catch(error => failure(error));
             },
         };
@@ -89,4 +94,4 @@ export default class CohortIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("cohort-id-autocomplete", CohortIdAutocomplete);
+customElements.define("disorder-id-families-autocomplete", DisorderIdFamiliesAutocomplete);

@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class PhenotypeNameAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
+export default class JobsIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -43,13 +43,6 @@ export default class PhenotypeNameAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    endpoint(resource) {
-        return {
-            INDIVIDUAL: this.opencgaSession.opencgaClient.individuals(),
-            SAMPLE: this.opencgaSession.opencgaClient.samples(),
-        }[resource];
-    }
-
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -61,28 +54,22 @@ export default class PhenotypeNameAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            resource: "INDIVIDUAL",
             limit: 10,
-            /* fields: item => ({
-                name: item
-            }),*/
-            // direct select2 configuration
-            select2Config: {
-                // enables free tokenisation as phenotypes field actually perform a full-text search (while the autocomplete works in IDs only)
-                tags: true
-            },
+            fields: item => ({
+                "name": item.id,
+            }),
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const phenotypes = params?.data?.term ? {phenotypes: "~/" + params?.data?.term + "/i"} : null;
+                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    // include: "id,proband",
-                    ...phenotypes
+                    include: "id",
+                    ...id
                 };
-                this.endpoint(this._config.resource).distinct("phenotypes.name", filters)
+                this.opencgaSession.opencgaClient.jobs().search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -102,4 +89,4 @@ export default class PhenotypeNameAutocomplete extends LitElement {
 
 }
 
-customElements.define("phenotype-name-autocomplete", PhenotypeNameAutocomplete);
+customElements.define("jobs-id-autocomplete", JobsIdAutocomplete);

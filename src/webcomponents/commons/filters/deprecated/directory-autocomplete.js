@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class ProbandIdAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-distinct-autocomplete now.
+export default class DirectoryAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -56,19 +56,19 @@ export default class ProbandIdAutocomplete extends LitElement {
         return {
             limit: 10,
             /* fields: item => ({
-                name: item.id
+                name: item
             }),*/
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const proband = params?.data?.term ? {proband: "~/" + params?.data?.term + "/i"} : null;
+                const path = params?.data?.term ? {path: "~/" + params.data.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    ...proband
+                    ...path
                 };
-                this.opencgaSession.opencgaClient.clinical().distinct("proband.id", filters)
+                this.opencgaSession.opencgaClient.files().distinct("path", filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -83,10 +83,9 @@ export default class ProbandIdAutocomplete extends LitElement {
                 .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>
-
         `;
     }
 
 }
 
-customElements.define("proband-id-autocomplete", ProbandIdAutocomplete);
+customElements.define("directory-autocomplete", DirectoryAutocomplete);

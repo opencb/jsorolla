@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-// Nacho 20-04-2022 - DEPRECATED: use new disorder-autocomplete now.
-export default class DisorderIdFamiliesAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
+export default class FamilyIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -43,6 +43,13 @@ export default class DisorderIdFamiliesAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("property")) {
+            this.propertyObserver();
+        }
+        super.update(changedProperties);
+    }
+
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -55,27 +62,22 @@ export default class DisorderIdFamiliesAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            /* fields: item => ({
-                name: item
-            }),*/
+            fields: item => ({
+                name: item.id
+            }),
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
+                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    ...disorders
+                    include: "id",
+                    ...id
                 };
-                this.opencgaSession.opencgaClient.families().distinct("disorders.id", filters)
-                    .then(response => {
-                        // TODO filtering clientside in all filters that use distinct endpoints
-                        // const r = response.getResults().filter(r => r.toLowerCase().startsWith(params?.data?.term?.toLowerCase() ?? ""));
-                        // response.responses[0].results = r;
-                        // response.responses[0].numMatches = r.length
-                        success(response);
-                    })
+                this.opencgaSession.opencgaClient.families().search(filters)
+                    .then(response => success(response))
                     .catch(error => failure(error));
             },
         };
@@ -94,4 +96,4 @@ export default class DisorderIdFamiliesAutocomplete extends LitElement {
 
 }
 
-customElements.define("disorder-id-families-autocomplete", DisorderIdFamiliesAutocomplete);
+customElements.define("family-id-autocomplete", FamilyIdAutocomplete);

@@ -15,9 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-export default class ClinicalAnalysisIdAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
+export default class CohortIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -55,8 +56,7 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
         return {
             limit: 10,
             fields: item => ({
-                "name": item.id,
-                "Proband Id": item?.proband?.id
+                name: item.id
             }),
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
@@ -64,12 +64,12 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
-                    count: false,
+                    count: true,
                     skip: (page - 1) * this._config.limit,
-                    include: "id,proband",
+                    include: "id",
                     ...id
                 };
-                this.opencgaSession.opencgaClient.clinical().search(filters)
+                this.opencgaSession.opencgaClient.cohorts().search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -89,4 +89,4 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-id-autocomplete", ClinicalAnalysisIdAutocomplete);
+customElements.define("cohort-id-autocomplete", CohortIdAutocomplete);
