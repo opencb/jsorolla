@@ -72,22 +72,18 @@
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
         const params = new URLSearchParams(window.location.search);
         const cellBaseConfig = {
-            host: params.get("CELLBASE_HOST") || GenomeBrowserConstants.CELLBASE_HOST,
-            version: params.get("CELLBASE_VERSION") || GenomeBrowserConstants.CELLBASE_VERSION,
+            host: params.get("CELLBASE_HOST") || "https://ws.zettagenomics.com/cellbase",
+            version: params.get("CELLBASE_VERSION") || "v5",
             cache: {
                 active: false,
             },
         };
-
-        console.log("CellBase Host: " + cellBaseConfig.host);
-        console.log("CellBase Version: " + cellBaseConfig.version);
-
         const cellBaseClient = new CellBaseClient(cellBaseConfig);
 
         // OpenCGA client config
         const opencgaClientConfig = {
-            host: params.get("OPENCGA_HOST") || GenomeBrowserConstants.OPENCGA_HOST,
-            version: params.get("OPENCGA_VERSION") || GenomeBrowserConstants.OPENCGA_VERSION,
+            host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
+            version: params.get("OPENCGA_VERSION") || "v2",
             // serverVersion: "1.4"
         };
         const opencgaClient = new OpenCGAClient(opencgaClientConfig);
@@ -99,13 +95,11 @@
             return opencgaClient.login(user, password)
                 .then(() => {
                     console.log(`User '${user}' successfully logged in in opencga.`);
-                    //opencgaClient = new OpenCGAClient(opencgaClientConfig);
                 })
                 .catch(error => {
                     console.log(`Error logging in '${user}'`, e);
                 });
         };
-
 
         const run = availableSpecies => {
             const region = new Region({
@@ -134,11 +128,6 @@
                 },
             });
 
-            // Register events listeners
-            genomeBrowser.on("region:change", event => {
-                console.log(event);
-            });
-
             // When GB is ready add tracks and draw
             genomeBrowser.on("ready", () => {
                 // Overview tracks
@@ -159,18 +148,6 @@
                         title: "Gene",
                         cellBaseClient: cellBaseClient,
                     }),
-                    // OpenCGA Variant track
-                    // new OpenCGAVariantTrack({
-                    //     title: "Variant (OpenCGA)",
-                    //     closable: false,
-                    //     histogramMinRegionSize: 200000,
-                    //     labelMaxRegionSize: 10000000,
-                    //     visibleRegionSize: 100000000,
-                    //     height: 100,
-                    //     opencgaClient: opencgaClient,
-                    //     opencgaStudy: "demo@family:platinum",
-                    //     // opencgaSamples: ["HG00096", "HG00097", "HG00099"],
-                    // }),
                     // OpenCGA Variant track with query
                     new OpenCGAVariantTrack({
                         title: "Variant (Samples)",
@@ -179,12 +156,20 @@
                         maxLabelRegionSize: 10000000,
                         minTranscriptRegionSize: 200000,
                         visibleRegionSize: 100000000,
-                        height: 80,
+                        height: 200,
                         opencgaClient: opencgaClient,
                         opencgaStudy: "demo@family:platinum",
                         query: {
-                            sample: "NA12877,NA12878",
+                            sample: "NA12877,NA12878,NA12889,NA12890,NA12891,NA12892",
                         },
+                        highlights: [
+                            {
+                                id: "test1",
+                                name: "[TEST] Length > 0",
+                                description: "This variant has length > 0.",
+                                condition: feature => feature.end - feature.start + 1 > 0,
+                            },
+                        ],
                     }),
                 ]);
 
