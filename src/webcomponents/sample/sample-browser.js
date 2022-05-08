@@ -135,14 +135,14 @@ export default class SampleBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html`
-                    <sample-browser-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </sample-browser-filter>`,
+                // render: params => html`
+                //     <sample-browser-filter
+                //         .opencgaSession="${params.opencgaSession}"
+                //         .config="${params.config.filter}"
+                //         .query="${params.query}"
+                //         @queryChange="${params.onQueryFilterChange}"
+                //         @querySearch="${params.onQueryFilterSearch}">
+                //     </sample-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",

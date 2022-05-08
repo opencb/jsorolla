@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import LitUtils from "./utils/lit-utils.js";
+import "./opencga-browser-filter.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
 import "./forms/select-field-filter.js";
@@ -270,21 +271,35 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderfilter() {
-        if (typeof this.config?.filter?.render !== "function") {
-            return html`${nothing}`;
-        }
+        // if (typeof this.config?.filter?.render !== "function") {
+        //     return html`${nothing}`;
+        // }
 
-        return html`
-            <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                ${this.config.filter.render({
-                    opencgaSession: this.opencgaSession,
-                    config: this.config,
-                    query: this.query,
-                    onQueryFilterChange: this.onQueryFilterChange,
-                    onQueryFilterSearch: this.onQueryFilterSearch,
-                })}
-            </div>
-        `;
+        if (this.config.filter.render) {
+            return html`
+                <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                    ${this.config.filter.render({
+                        opencgaSession: this.opencgaSession,
+                        config: this.config,
+                        query: this.query,
+                        onQueryFilterChange: this.onQueryFilterChange,
+                        onQueryFilterSearch: this.onQueryFilterSearch,
+                    })}
+                </div>
+            `;
+        } else {
+            return html`
+                <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                    <opencga-browser-filter
+                        .resource="${this.resource}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config.filter}"
+                        @queryChange="${this.onQueryFilterChange}"
+                        @querySearch="${this.onQueryFilterSearch}">
+                    </opencga-browser-filter>
+                </div>
+            `;
+        }
     }
 
     renderAggregation() {
@@ -312,7 +327,7 @@ export default class OpencgaBrowser extends LitElement {
                         class="btn btn-success ${this.activeView === view.id ? "active" : ""}"
                         ?disabled=${view.disabled}
                         @click="${() => this.changeView(view.id)}">
-                        <i class="${view.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> 
+                        <i class="${view.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i>
                         <strong>${view.name}</strong>
                     </button>
                 `)}
@@ -339,8 +354,8 @@ export default class OpencgaBrowser extends LitElement {
                 <div class="col-md-2">
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> 
-                            <strong>${this.config.searchButtonText || "Search"}</strong> 
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            <strong>${this.config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">

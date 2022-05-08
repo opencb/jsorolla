@@ -152,14 +152,14 @@ export default class IndividualBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html`
-                    <individual-browser-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </individual-browser-filter>`,
+                // render: params => html`
+                //     <individual-browser-filter
+                //         .opencgaSession="${params.opencgaSession}"
+                //         .config="${params.config.filter}"
+                //         .query="${params.query}"
+                //         @queryChange="${params.onQueryFilterChange}"
+                //         @querySearch="${params.onQueryFilterSearch}">
+                //     </individual-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",

@@ -167,15 +167,15 @@ export default class OpencgaFamilyBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html`
-                    <opencga-family-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </opencga-family-filter>
-                `,
+                // render: params => html`
+                //     <opencga-family-filter
+                //         .opencgaSession="${params.opencgaSession}"
+                //         .config="${params.config.filter}"
+                //         .query="${params.query}"
+                //         @queryChange="${params.onQueryFilterChange}"
+                //         @querySearch="${params.onQueryFilterSearch}">
+                //     </opencga-family-filter>
+                // `,
                 sections: [
                     {
                         title: "Section title",
@@ -277,7 +277,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (family, active, opencgaSession) => html`
-                                <json-viewer 
+                                <json-viewer
                                     .data="${family}"
                                     .active="${active}">
                                 </json-viewer>
