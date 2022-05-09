@@ -24,6 +24,7 @@ import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/section-filter.js";
 
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
 export default class DiseasePanelBrowserFilter extends LitElement {
 
     constructor() {
