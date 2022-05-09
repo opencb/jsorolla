@@ -52,8 +52,8 @@ import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
-import "../../webcomponents/file/opencga-file-browser.js";
-import "../../webcomponents/family/opencga-family-browser.js";
+import "../../webcomponents/file/file-browser.js";
+import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
@@ -1255,13 +1255,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.file ? html`
                     <div class="content" id="file">
-                        <opencga-file-browser
+                        <file-browser
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.queries.file}"
                             .settings="${OPENCGA_FILE_BROWSER_SETTINGS}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
-                        </opencga-file-browser>
+                        </file-browser>
                     </div>
                 ` : null}
 
@@ -1373,13 +1373,13 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.family ? html`
                     <div class="content" id="family">
-                        <opencga-family-browser
+                        <family-browser
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.queries.family}"
                             .settings="${OPENCGA_FAMILY_BROWSER_SETTINGS}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
-                        </opencga-family-browser>
+                        </family-browser>
                     </div>
                 ` : null}
 
