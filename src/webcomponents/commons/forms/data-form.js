@@ -359,15 +359,19 @@ export default class DataForm extends LitElement {
         }
 
         // Section values
+        let sectionStyle = section?.display?.style ?? "";
         const sectionClassName = section?.display?.className ?? section?.display?.classes ?? "";
-        const sectionStyle = section?.display?.style ?? "";
         const sectionWidth = "col-md-" + this._getSectionWidth(section);
 
         // Section title values
-        const titleHeader = section?.display?.titleHeader ?? "h3";
+        let titleHeader = section?.display?.titleHeader ?? "h3";
         const titleClassName = section?.display?.titleClassName ?? section?.display?.titleClasses ?? "";
         const titleStyle = section?.display?.titleStyle ?? "";
 
+        if (this.config?.nested) {
+            titleHeader = "h4";
+            sectionStyle = "margin-left:20px;" + sectionStyle;
+        }
         // Section description values
         const description = section.description ?? section.text ?? null;
         const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";

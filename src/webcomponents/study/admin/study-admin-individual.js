@@ -19,7 +19,7 @@ import DetailTabs from "../../commons/view/detail-tabs.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../individual/individual-update.js";
 import "../../individual/individual-create.js";
-import "../../individual/new-individual-view.js";
+import "../../individual/individual-view.js";
 
 export default class StudyAdminIndividual extends LitElement {
 
@@ -144,11 +144,11 @@ export default class StudyAdminIndividual extends LitElement {
                                             .opencgaSession="${opencgaSession}">
                                         </individual-update>
                                     ` : html`
-                                        <new-individual-view
+                                        <individual-view
                                             .individual="${this.individual}"
                                             .opencgaSession="${opencgaSession}"
                                             @individualSearch="${e => this.onIndividualSearch(e)}">
-                                        </new-individual-view>`}
+                                        </individual-view>`}
                                 </div>
                             </div>`;
                     }
