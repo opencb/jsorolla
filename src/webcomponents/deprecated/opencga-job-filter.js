@@ -22,6 +22,7 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
 export default class OpencgaJobFilter extends LitElement {
 
     constructor() {

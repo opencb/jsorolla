@@ -21,8 +21,7 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./job-timeline.js";
 import "./job-grid.js";
-import "./opencga-job-filter.js";
-import "./opencga-job-detail.js";
+import "./job-detail.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -89,6 +88,27 @@ export default class JobBrowser extends LitElement {
         }
     }
 
+    render() {
+        // No openCGA session available
+        if (!this.opencgaSession) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue</h3>
+                </div>
+            `;
+        }
+
+        return html`
+            <opencga-browser
+                resource="JOB"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Jobs Browser",
@@ -110,11 +130,11 @@ export default class JobBrowser extends LitElement {
                             .files="${params.files}"
                             @selectrow="${e => params.onClickRow(e, "job")}">
                         </job-grid>
-                        <opencga-job-detail
+                        <job-detail
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.detail}"
                             .jobId="${params.detail.job?.id}">
-                        </opencga-job-detail>`
+                        </job-detail>`
                 },
                 {
                     id: "facet-tab",
@@ -142,16 +162,6 @@ export default class JobBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html `
-                    <opencga-job-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .files="${params.files}"
-                        .query="${params.query}"
-                        .variableSets="${params.variableSets}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </opencga-job-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -184,7 +194,7 @@ export default class JobBrowser extends LitElement {
                                 fileUpload: false,
                             },
                             {
-                                id: "internal.status.name",
+                                id: "internalStatus",
                                 name: "Status",
                                 placeholder: "Status",
                                 allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "REGISTERING", "UNREGISTERED", "ABORTED", "DELETED"],
@@ -248,7 +258,8 @@ export default class JobBrowser extends LitElement {
                                 return html`
                                     <opencga-job-view
                                         .opencgaSession=${opencgaSession} mode="simple" .job="${job}">
-                                    </opencga-job-view>`;
+                                    </opencga-job-view>
+                                `;
                             },
                         },
                         {
@@ -260,7 +271,8 @@ export default class JobBrowser extends LitElement {
                                         .opencgaSession=${opencgaSession}
                                         .active="${active}"
                                         .job="${job}">
-                                    </opencga-job-detail-log>`;
+                                    </opencga-job-detail-log>
+                                `;
                             },
                         },
                         {
@@ -272,7 +284,8 @@ export default class JobBrowser extends LitElement {
                                     <json-viewer
                                         .data="${job}"
                                         .active="${active}">
-                                    </json-viewer>`;
+                                    </json-viewer>
+                                `;
                             },
                         },
                     ],
@@ -285,7 +298,8 @@ export default class JobBrowser extends LitElement {
                         .config="${params.config.aggregation}"
                         .selectedFacet="${params.selectedFacet}"
                         @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
+                    </facet-filter>
+                `,
                 result: {
                     numColumns: 2,
                 },
@@ -416,26 +430,6 @@ export default class JobBrowser extends LitElement {
         };
     }
 
-    render() {
-        // No openCGA session available
-        if (!this.opencgaSession) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
-        }
-
-        return html`
-            <opencga-browser
-                resource="JOB"
-                .opencgaSession="${this.opencgaSession}"
-                .query="${this.query}"
-                .config="${this._config}">
-            </opencga-browser>
-        `;
-    }
 
 }
 

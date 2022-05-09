@@ -18,9 +18,9 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-job-detail-log.js";
 import "./opencga-job-view.js";
-import "./../commons/view/detail-tabs.js";
+import "../commons/view/detail-tabs.js";
 
-export default class OpencgaJobDetail extends LitElement {
+export default class JobDetail extends LitElement {
 
     constructor() {
         super();
@@ -75,7 +75,7 @@ export default class OpencgaJobDetail extends LitElement {
                     .then(response => {
                         this.job = response.getResult(0);
                     })
-                    .catch(function(reason) {
+                    .catch(function (reason) {
                         console.error(reason);
                     });
             } else {
@@ -103,24 +103,29 @@ export default class OpencgaJobDetail extends LitElement {
                     name: "Logs",
                     render: (job, active, opencgaSession) => {
                         return html`
-                            <opencga-job-detail-log    .opencgaSession=${opencgaSession}
-                                                        .active="${active}"
-                                                        .job="${job}">
+                            <opencga-job-detail-log
+                                .opencgaSession=${opencgaSession}
+                                .active="${active}"
+                                .job="${job}">
                             </opencga-job-detail-log>
                         `;
                     }
                 }
             ]
-        }
+        };
     }
 
     render() {
-        return this.opencgaSession && this.job
-            ? html`
-                <detail-tabs .data="${this.job}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
-            : null;
+        return this.opencgaSession && this.job ?
+            html`
+                <detail-tabs
+                    .data="${this.job}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>` :
+            null;
     }
 
 }
 
-customElements.define("opencga-job-detail", OpencgaJobDetail);
+customElements.define("job-detail", JobDetail);
