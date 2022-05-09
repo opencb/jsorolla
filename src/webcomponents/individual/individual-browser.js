@@ -25,7 +25,6 @@ import "../commons/facet-filter.js";
 import "../commons/opencb-facet-results.js";
 import "./individual-view.js";
 import "./individual-grid.js";
-import "./individual-browser-filter.js";
 import "./individual-detail.js";
 
 
@@ -152,14 +151,6 @@ export default class IndividualBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                // render: params => html`
-                //     <individual-browser-filter
-                //         .opencgaSession="${params.opencgaSession}"
-                //         .config="${params.config.filter}"
-                //         .query="${params.query}"
-                //         @queryChange="${params.onQueryFilterChange}"
-                //         @querySearch="${params.onQueryFilterSearch}">
-                //     </individual-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -291,7 +282,12 @@ export default class IndividualBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (individual, active, opencgaSession) => {
-                                return html`<individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-view>`;
+                                return html`
+                                    <individual-view
+                                        .individual="${individual}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </individual-view>
+                                `;
                             }
                         },
                         {
@@ -307,21 +303,32 @@ export default class IndividualBrowser extends LitElement {
                                         .query="${{"proband": individual.id}}"
                                         .config=${config}
                                         .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-grid>`;
+                                    </clinical-analysis-grid>
+                                `;
                             }
                         },
                         {
                             id: "individual-inferred-sex",
                             name: "Inferred Sex",
                             render: (individual, active, opencgaSession) => {
-                                return html`<individual-qc-inferred-sex .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-inferred-sex>`;
+                                return html`
+                                    <individual-qc-inferred-sex
+                                        .individual="${individual}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </individual-qc-inferred-sex>
+                                `;
                             }
                         },
                         {
                             id: "individual-mendelian-error",
                             name: "Mendelian Error",
                             render: (individual, active, opencgaSession) => {
-                                return html`<individual-qc-mendelian-errors .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-mendelian-errors>`;
+                                return html`
+                                    <individual-qc-mendelian-errors
+                                        .individual="${individual}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </individual-qc-mendelian-errors>
+                                `;
                             }
                         },
                         {
@@ -329,7 +336,12 @@ export default class IndividualBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (individual, active, opencgaSession) => {
-                                return html`<json-viewer .data="${individual}" .active="${active}"></json-viewer>`;
+                                return html`
+                                    <json-viewer
+                                        .data="${individual}"
+                                        .active="${active}">
+                                    </json-viewer>
+                                `;
                             }
                         }
                     ]

@@ -23,6 +23,7 @@ import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/forms/date-filter.js";
 
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
 export default class IndividualBrowserFilter extends LitElement {
 
     constructor() {
