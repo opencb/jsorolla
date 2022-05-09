@@ -23,7 +23,7 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
 export default class CohortBrowserFilter extends LitElement {
 
     constructor() {
