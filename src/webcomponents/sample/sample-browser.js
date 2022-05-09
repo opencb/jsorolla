@@ -21,7 +21,6 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./sample-grid.js";
 import "./sample-detail.js";
-import "./sample-browser-filter";
 
 export default class SampleBrowser extends LitElement {
 
@@ -135,14 +134,6 @@ export default class SampleBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                // render: params => html`
-                //     <sample-browser-filter
-                //         .opencgaSession="${params.opencgaSession}"
-                //         .config="${params.config.filter}"
-                //         .query="${params.query}"
-                //         @queryChange="${params.onQueryFilterChange}"
-                //         @querySearch="${params.onQueryFilterSearch}">
-                //     </sample-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -221,7 +212,12 @@ export default class SampleBrowser extends LitElement {
                             active: true,
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-view>`;
+                                    <sample-view
+                                        .sample="${sample}"
+                                        .active="${active}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </sample-view>
+                                `;
                             }
                         },
                         {
@@ -229,7 +225,12 @@ export default class SampleBrowser extends LitElement {
                             name: "Variant Stats",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
+                                    <sample-variant-stats-view
+                                        .sampleId="${sample.id}"
+                                        .active="${active}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </sample-variant-stats-view>
+                                `;
                             }
                         },
                         {
@@ -237,7 +238,11 @@ export default class SampleBrowser extends LitElement {
                             name: "Samtools Flagstat",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <samtools-flagstats-view .sample="${sample}" .opencgaSession="${opencgaSession}"></samtools-flagstats-view>`;
+                                    <samtools-flagstats-view
+                                        .sample="${sample}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </samtools-flagstats-view>
+                                `;
                             }
                         },
                         {
@@ -245,7 +250,11 @@ export default class SampleBrowser extends LitElement {
                             name: "Individual",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></individual-view>`;
+                                    <individual-view
+                                        .individualId="${sample?.individualId}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </individual-view>
+                                `;
                             }
                         },
                         {
@@ -258,7 +267,8 @@ export default class SampleBrowser extends LitElement {
                                         .active="${active}"
                                         .config="${{downloadFile: this.config.downloadFile}}"
                                         .opencgaSession="${opencgaSession}">
-                                    </opencga-file-grid>`;
+                                    </opencga-file-grid>
+                                `;
                             }
                         },
                         {
@@ -267,7 +277,11 @@ export default class SampleBrowser extends LitElement {
                             mode: "development",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
+                                    <json-viewer
+                                        .data="${sample}"
+                                        .active="${active}">
+                                    </json-viewer>
+                                `;
                             }
                         }
                     ]
@@ -280,7 +294,8 @@ export default class SampleBrowser extends LitElement {
                         .config="${params.config.aggregation}"
                         .selectedFacet="${params.selectedFacet}"
                         @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
+                    </facet-filter>
+                `,
                 result: {
                     numColumns: 2
                 },

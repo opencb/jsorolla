@@ -27,6 +27,7 @@ import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";
 
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
 export default class SampleBrowserFilter extends LitElement {
 
     constructor() {
