@@ -44,6 +44,9 @@ export default class OpencgaBrowserFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             resource: {
                 type: String
             },
@@ -79,15 +82,25 @@ export default class OpencgaBrowserFilter extends LitElement {
         this.filterToResource = {
             "fileIds": "FILE",
             "samples": "SAMPLE",
+            "sample": "SAMPLE",
+            "sampleIds": "SAMPLE",
             "individualId": "INDIVIDUAL",
-            "members": "INDIVIDUAL"
+            "members": "INDIVIDUAL",
+            "family": "FAMILY",
+            "input": "FILE",
+
         };
 
         // Select the right distinct field to be displayed
         this.filterToDistinctField = {
             "phenotypes": "phenotypes.name",
             "disorders": "disorders.name",
-            "ethnicity": "ethnicity.id"
+            "ethnicity": "ethnicity.id",
+            "proband": "proband.id",
+            "tool": "tool.id",
+            "genes": "genes.id",
+            "categories": "categories.name",
+            "tags": "tags"
         };
     }
 
@@ -146,20 +159,10 @@ export default class OpencgaBrowserFilter extends LitElement {
     }
 
     notifyQuery(query) {
-        // this.dispatchEvent(new CustomEvent("queryChange", {
-        //     detail: {
-        //         query: query
-        //     }
-        // }));
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {query: query});
     }
 
     notifySearch(query) {
-        // this.dispatchEvent(new CustomEvent("querySearch", {
-        //     detail: {
-        //         query: query
-        //     }
-        // }));
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {query: query});
     }
 
@@ -176,12 +179,18 @@ export default class OpencgaBrowserFilter extends LitElement {
         } else {
             switch (subsection.id) {
                 case "id":
+                case "name":
                 case "fileIds":
+                case "directory":
                 case "father":
                 case "mother":
                 case "samples":
+                case "sample":
+                case "sampleIds":
                 case "individualId":
                 case "members":
+                case "family":
+                case "input":
                     content = html`
                         <catalog-search-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
@@ -195,6 +204,11 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "phenotypes":
                 case "disorders":
                 case "ethnicity":
+                case "proband":
+                case "tool":
+                case "categories":
+                case "genes":
+                case "tags":
                     content = html`
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
@@ -208,16 +222,30 @@ export default class OpencgaBrowserFilter extends LitElement {
                     `;
                     break;
                 case "sex":
+                case "type": // cohort, clinical
                 case "karyotypicSex":
                 case "affectationStatus":
                 case "lifeStatus":
+                case "format":
+                case "bioformat":
+                case "internal.index.status.name":
+                case "internalStatus":
+                case "visited":
                     content = html`
                         <select-field-filter
-                            ?multiple="${subsection.multiple}"
-                            .data="${subsection.allowedValues}"
                             .value="${this.preparedQuery[subsection.id]}"
+                            .data="${subsection.allowedValues}"
+                            ?multiple="${subsection?.multiple}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </select-field-filter>`;
+                    break;
+                case "path":
+                    content = html`
+                        <text-field-filter
+                            placeholder="${subsection.placeholder}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        </text-field-filter>`;
                     break;
                 case "annotations":
                     content = html`
@@ -239,7 +267,33 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </somatic-filter>
                     `;
                     break;
+                case "priority":
+                    content = html`
+                        <clinical-priority-filter
+                            .priority="${this.preparedQuery[subsection.id]}"
+                            .priorities="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.priorities ?? [])}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        </clinical-priority-filter>`;
+                    break;
+                case "status":
+                    content = html`
+                        <clinical-status-filter
+                            .status="${this.preparedQuery[subsection.id]}"
+                            .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
+                            .multiple=${true}
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        </clinical-status-filter>`;
+                    break;
+                case "region":
+                    content = html`
+                        <region-filter
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .region="${this.preparedQuery.region}"
+                            @filterChange="${e => this.onFilterChange("regions", e.detail.value)}">
+                        </region-filter>`;
+                    break;
                 case "date":
+                case "creationDate":
                     content = html`
                         <date-filter
                             .creationDate="${this.preparedQuery.creationDate}"

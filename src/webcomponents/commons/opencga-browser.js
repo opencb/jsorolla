@@ -293,6 +293,7 @@ export default class OpencgaBrowser extends LitElement {
                     <opencga-browser-filter
                         .resource="${this.resource}"
                         .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient}"
                         .config="${this.config.filter}"
                         @queryChange="${this.onQueryFilterChange}"
                         @querySearch="${this.onQueryFilterSearch}">
