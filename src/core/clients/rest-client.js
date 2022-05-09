@@ -44,14 +44,14 @@ export class RestClient {
 
         request.onerror = function (event) {
             // console.log(event)
-            console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
+            console.error(`REST-Client: an error occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
             }
         };
 
         request.ontimeout = function (event) {
-            console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
+            console.error(`REST-Client: a timeout occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
             }
@@ -159,15 +159,15 @@ export class RestClient {
             };
 
             request.onerror = function (event) {
-                console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
+                console.error(`REST-Client: an error occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
-                reject(Error(`CellBaseClient: an error occurred when calling to '${url}'`));
+                reject(Error(`REST-Client: an error occurred when calling to '${url}'`));
             };
 
             request.ontimeout = function (event) {
-                console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
+                console.error(`REST-Client: a timeout occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
