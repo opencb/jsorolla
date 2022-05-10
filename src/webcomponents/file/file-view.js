@@ -126,7 +126,13 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => html`
-                                    <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
+                                    <span style="font-weight: bold">${data.id}</span>
+                                    <span style="margin: 0 20px">
+                                        <b>Version:</b> ${data.version}
+                                    </span>
+                                    <span style="margin: 0 20px">
+                                        <b>UUID:</b> ${data.uuid}
+                                    </span>
                                 `,
                             }
                         },
@@ -162,19 +168,24 @@ export default class FileView extends LitElement {
                             }
                         },
                         {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
-                        },
-                        {
                             title: "Status",
                             field: "internal.status",
                             type: "custom",
                             display: {
                                 render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
+                            }
+                        },
+                        {
+                            title: "Created on",
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    const creationDate = data.creationDate ? UtilsNew.dateFormatter(data.creationDate): "N/A";
+                                    const modificationDate = data.modificationDate ? `(Last modified on ${UtilsNew.dateFormatter(data.modificationDate)})`: "N/A";
+                                    return html `
+                                        ${creationDate} ${modificationDate}
+                                    `;
+                                }
                             }
                         },
                         {

@@ -22,6 +22,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
+import "../file/file-view.js";
 
 export default class SampleView extends LitElement {
 
@@ -126,6 +127,30 @@ export default class SampleView extends LitElement {
         }));
     }
 
+    renderFileTab(fileIds) {
+
+        const generateFileConfig = file => ({
+            id: file,
+            name: file,
+            render: () => html`
+                <file-view
+                    .fileId="${file}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${{nested: true}}>
+                </file-view>
+            `
+        });
+
+        const configTabs = fileIds?.map(file => generateFileConfig(file));
+
+        return html `
+            <detail-tabs
+                .config="${{items: configTabs}}"
+                .opencgaSession="${this.opemgSession}">
+            </detail-tabs>
+        `;
+    }
+
     render() {
         if (this.isLoading) {
             return html`
@@ -187,33 +212,36 @@ export default class SampleView extends LitElement {
                             title: "Sample ID",
                             type: "custom",
                             display: {
-                                visible: sample => sample?.id,
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                render: data => html`
+                                    <span style="font-weight: bold">${data.id}</span>
+                                    <span style="margin: 0 20px">
+                                        <b>Version:</b> ${data.version}
+                                    </span>
+                                    <span style="margin: 0 20px">
+                                        <b>UUID:</b> ${data.uuid}
+                                    </span>
+                                `,
                             }
                         },
                         {
                             title: "Individual ID",
                             field: "individualId"
                         },
-                        {
-                            title: "Files",
-                            field: "fileIds",
-                            type: "list",
-                            display: {
-                                defaultValue: "Files not found or empty",
-                                contentLayout: "bullets"
-                            }
-                        },
+                        // {
+                        //     title: "Files",
+                        //     field: "fileIds",
+                        //     type: "list",
+                        //     display: {
+                        //         defaultValue: "Files not found or empty",
+                        //         contentLayout: "bullets"
+                        //     }
+                        // },
                         {
                             title: "Somatic",
                             field: "somatic",
                             display: {
                                 defaultValue: "false"
                             }
-                        },
-                        {
-                            title: "Version",
-                            field: "version"
                         },
                         {
                             title: "Status",
@@ -224,19 +252,16 @@ export default class SampleView extends LitElement {
                             }
                         },
                         {
-                            title: "Creation Date",
-                            field: "creationDate",
+                            title: "Created on",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "custom",
-                            display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: data => {
+                                    const creationDate = data.creationDate ? UtilsNew.dateFormatter(data.creationDate): "N/A";
+                                    const modificationDate = data.modificationDate ? `(Last modified on ${UtilsNew.dateFormatter(data.modificationDate)})`: "N/A";
+                                    return html `
+                                        ${creationDate} ${modificationDate}
+                                    `;
+                                }
                             }
                         },
                         {
@@ -244,22 +269,22 @@ export default class SampleView extends LitElement {
                             field: "description",
                             defaultValue: "N/A",
                         },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            defaultValue: "N/A",
-                            display: {
-                                contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype?.id;
-                                    if (phenotype?.id?.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
-                                    }
-                                    return html`${phenotype?.name} (${id})`;
-                                },
-                            }
-                        },
+                        // {
+                        //     title: "Phenotypes",
+                        //     field: "phenotypes",
+                        //     type: "list",
+                        //     defaultValue: "N/A",
+                        //     display: {
+                        //         contentLayout: "bullets",
+                        //         render: phenotype => {
+                        //             let id = phenotype?.id;
+                        //             if (phenotype?.id?.startsWith("HP:")) {
+                        //                 id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                        //             }
+                        //             return html`${phenotype?.name} (${id})`;
+                        //         },
+                        //     }
+                        // },
                         /*
                             {
                                 title: "Annotation sets",
@@ -270,6 +295,65 @@ export default class SampleView extends LitElement {
                                 }
                             }
                         */
+                    ]
+                },
+                {
+                    title: "Phenotypes",
+                    display: {
+                        visible: data => data?.phenotypes,
+                    },
+                    elements: [
+                        {
+                            field: "phenotypes",
+                            type: "table",
+                            display: {
+                                defaultValue: "No phenotypes found",
+                                errorMessage: "Error",
+                                columns: [
+                                    {
+                                        title: "ID",
+                                        type: "custom",
+                                        display: {
+                                            render: phenotype => html`<span style="font-weight: bold">${phenotype.id}</span>`,
+                                        },
+                                    },
+                                    {
+                                        title: "Name",
+                                        field: "name",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Source",
+                                        field: "source  ",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Status",
+                                        field: "status.name",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Description",
+                                        field: "description",
+                                        defaultValue: "N/A"
+                                    },
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Files",
+                    display: {
+                        visible: data => data?.fileIds,
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => this.renderFileTab(data.fileIds)
+                            }
+                        }
                     ]
                 }
             ]
