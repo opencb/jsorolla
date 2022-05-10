@@ -76,6 +76,12 @@ export default class DataForm extends LitElement {
         this.data = {};
     }
 
+    firstUpdated() {
+        if (this.config?.display?.useTooltip) {
+            UtilsNew.initTooltip(this);
+        }
+    }
+
     update(changedProperties) {
         if (changedProperties.has("data")) {
             // Undefined or null values are accepted only when rendering form.

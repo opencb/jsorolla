@@ -144,10 +144,14 @@ export default class IndividualView extends LitElement {
             if (phenotype.status) {
                 result.push(`(${phenotype.status})`);
             }
-            return html`<p>${result.join(" ")}</p>`;
+            return `<p>${result.join(" ")}</p>`;
         }).join("");
         if (value && value.length > 0) {
-            return html`<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
+            return html`
+                <div class="tooltip-div">
+                    <a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>
+                </div>
+            `;
         } else {
             // TODO Think about this
             return html`<div>${tooltip}</div>`;
@@ -200,7 +204,8 @@ export default class IndividualView extends LitElement {
                 titleWidth: 2,
                 defaultValue: "-",
                 defaultLayout: "horizontal",
-                buttonsVisible: false
+                buttonsVisible: false,
+                useTooltip: true
             },
             sections: [
                 {
