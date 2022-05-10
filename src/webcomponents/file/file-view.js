@@ -128,9 +128,6 @@ export default class FileView extends LitElement {
                                 render: data => html`
                                     <span style="font-weight: bold">${data.id}</span>
                                     <span style="margin: 0 20px">
-                                        <b>Version:</b> ${data.version}
-                                    </span>
-                                    <span style="margin: 0 20px">
                                         <b>UUID:</b> ${data.uuid}
                                     </span>
                                 `,
