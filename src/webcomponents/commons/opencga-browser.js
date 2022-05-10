@@ -271,11 +271,8 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderfilter() {
-        // if (typeof this.config?.filter?.render !== "function") {
-        //     return html`${nothing}`;
-        // }
-
         if (this.config.filter.render) {
+            // TODO can this be deleted?
             return html`
                 <div role="tabpanel" class="tab-pane active" id="filters_tab">
                     ${this.config.filter.render({

@@ -88,7 +88,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "members": "INDIVIDUAL",
             "family": "FAMILY",
             "input": "FILE",
-
+            "output": "FILE",
         };
 
         // Select the right distinct field to be displayed
@@ -116,17 +116,17 @@ export default class OpencgaBrowserFilter extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("variables")) {
-            // this.variablesChanged()
-        }
+        // if (changedProperties.has("variables")) {
+        //     this.variablesChanged()
+        // }
+        super.update(changedProperties);
     }
 
-    // TODO review
-    // this is used only in case of Search button inside filter component.
+    // TODO review, this is used only in case of Search button inside filter component.
     onSearch() {
         this.notifySearch(this.preparedQuery);
     }
@@ -163,7 +163,7 @@ export default class OpencgaBrowserFilter extends LitElement {
     }
 
     notifySearch(query) {
-        LitUtils.dispatchCustomEvent(this, "queryChange", null, {query: query});
+        LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query});
     }
 
     _createSection(section) {
@@ -192,6 +192,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "members":
                 case "family":
                 case "input":
+                case "output":
                     content = html`
                         <catalog-search-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
@@ -304,7 +305,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     `;
                     break;
                 default:
-                    console.error("Filter component not found");
+                    console.error("Filter component not found: ", id);
             }
         }
 
@@ -313,7 +314,9 @@ export default class OpencgaBrowserFilter extends LitElement {
                 <div class="browser-subsection" id="${subsection.id}">${subsection.name}
                     ${subsection.description ? html`
                         <div class="tooltip-div pull-right">
-                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a>
                         </div>` : null
                     }
                 </div>
