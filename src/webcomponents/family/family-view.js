@@ -228,40 +228,40 @@ export default class FamilyView extends LitElement {
                             title: "Family Name",
                             field: "name"
                         },
-                        {
-                            title: "Disorders",
-                            field: "disorders",
-                            type: "list",
-                            display: {
-                                visible: !this._config?.hiddenFields?.includes("disorders"),
-                                contentLayout: "bullets",
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name} (${id})`;
-                                },
-                                defaultValue: "N/A"
-                            }
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            display: {
-                                visible: !this._config?.hiddenFields?.includes("phenotypes"),
-                                contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype.id;
-                                    if (phenotype.id.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
-                                    }
-                                    return html`${phenotype.name} (${id})`;
-                                },
-                                defaultValue: "N/A"
-                            }
-                        },
+                        // {
+                        //     title: "Disorders",
+                        //     field: "disorders",
+                        //     type: "list",
+                        //     display: {
+                        //         visible: !this._config?.hiddenFields?.includes("disorders"),
+                        //         contentLayout: "bullets",
+                        //         render: disorder => {
+                        //             let id = disorder.id;
+                        //             if (disorder.id.startsWith("OMIM:")) {
+                        //                 id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                        //             }
+                        //             return html`${disorder.name} (${id})`;
+                        //         },
+                        //         defaultValue: "N/A"
+                        //     }
+                        // },
+                        // {
+                        //     title: "Phenotypes",
+                        //     field: "phenotypes",
+                        //     type: "list",
+                        //     display: {
+                        //         visible: !this._config?.hiddenFields?.includes("phenotypes"),
+                        //         contentLayout: "bullets",
+                        //         render: phenotype => {
+                        //             let id = phenotype.id;
+                        //             if (phenotype.id.startsWith("HP:")) {
+                        //                 id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                        //             }
+                        //             return html`${phenotype.name} (${id})`;
+                        //         },
+                        //         defaultValue: "N/A"
+                        //     }
+                        // },
                         {
                             title: "Expected Size",
                             field: "expectedSize"
@@ -280,6 +280,104 @@ export default class FamilyView extends LitElement {
                             field: "description",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("description"),
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Phenotypes",
+                    display: {
+                        visible: individual => individual?.phenotypes,
+                    },
+                    elements: [
+                        {
+                            field: "phenotypes",
+                            type: "table",
+                            display: {
+                                defaultValue: "No phenotypes found",
+                                errorMessage: "Error",
+                                columns: [
+                                    {
+                                        title: "ID",
+                                        type: "custom",
+                                        display: {
+                                            render: phenotype => html`<span style="font-weight: bold">${phenotype.id}</span>`,
+                                        },
+                                    },
+                                    {
+                                        title: "Name",
+                                        field: "name",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Source",
+                                        field: "source  ",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Status",
+                                        field: "status.name",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Description",
+                                        field: "description",
+                                        defaultValue: "N/A"
+                                    },
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Disorders",
+                    display: {
+                        visible: individual => individual?.disorders,
+                    },
+                    elements: [
+                        {
+                            field: "disorders",
+                            type: "table",
+                            display: {
+                                defaultValue: "No disorders found",
+                                errorMessage: "Error",
+                                columns: [
+                                    {
+                                        title: "ID",
+                                        type: "custom",
+                                        display: {
+                                            render: disorder => html`<span style="font-weight: bold">${disorder.id}</span>`,
+                                        },
+                                    },
+                                    {
+                                        title: "Name",
+                                        field: "name",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Source",
+                                        field: "source  ",
+                                        defaultValue: "N/A"
+                                    },
+                                    {
+                                        title: "Status",
+                                        field: "status.name",
+                                        defaultValue: "N/A"
+                                    },
+                                    // {
+                                    //     title: "Evidences",
+                                    //     type: "custom",
+                                    //     display: {
+                                    //         render: disorder => this.renderEvidences(disorder.evidences)
+                                    //     },
+                                    //     defaultValue: "N/A"
+                                    // },
+                                    {
+                                        title: "Description",
+                                        field: "description",
+                                        defaultValue: "N/A"
+                                    },
+                                ]
                             }
                         }
                     ]
