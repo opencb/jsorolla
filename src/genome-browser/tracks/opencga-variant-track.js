@@ -12,17 +12,10 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         super(config);
 
         this.sampleNames = null;
+        this.samplesInfo = null;
 
         // Initialize Rendererers
         this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
-        this.renderer = new FeatureRenderer({
-            color: GenomeBrowserUtils.variantColorFormatter,
-            label: GenomeBrowserUtils.variantLabelFormatter,
-            tooltipTitle: GenomeBrowserUtils.variantTooltipTitleFormatter,
-            tooltipText: GenomeBrowserUtils.variantTooltipTextFormatter,
-            histogramColor: "#58f3f0",
-            ...this.config.renderer,
-        });
 
         // Check if samples has been provided in the query object
         if (this.config?.query?.sample) {
@@ -33,45 +26,90 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             // Initialize samples DOM
             this.#initSamplesDOM();
 
-            // Initialize variant renderer
+            // Initialize variant renderer to display Sample Genotypes
             this.renderer = new VariantRenderer({
                 sampleNames: this.sampleNames,
                 sampleHeight: this.config.sampleHeight,
-                sampleHeaderHeight: this.config.sampleHeaderHeight,
-                sampleHeaderDividerHeight: this.config.sampleHeaderDividerHeight,
+                headerHeight: this.config.headerHeight,
+                dividerHeight: this.config.dividerHeight,
+                lollipopVisible: this.config.lollipopVisible,
+                lollipopHeight: this.config.lollipopHeight,
+                highlights: this.config.highlights,
+                highlightVisible: this.config.highlightVisible,
+                highlightHeight: this.config.highlightHeight,
+                ...this.config.renderer,
+            });
+        } else {
+            // If not samples are provided then we use the basic feature renderer as we do in CellBase variant track
+            this.renderer = new FeatureRenderer({
+                color: GenomeBrowserUtils.variantColorFormatter,
+                label: GenomeBrowserUtils.variantLabelFormatter,
+                tooltipTitle: GenomeBrowserUtils.variantTooltipTitleFormatter,
+                tooltipText: GenomeBrowserUtils.variantTooltipTextFormatter,
+                histogramColor: "#58f3f0",
                 ...this.config.renderer,
             });
         }
     }
 
-    #initSamplesDOM() {
+    async #initSamplesDOM() {
+        this.samplesInfo = new Map();
+        const response = await this.config.opencgaClient.samples().search({
+            study: this.config.opencgaStudy,
+            id: this.sampleNames.join(","),
+            includeIndividual: true,
+        });
+
+        response.getResults().forEach(result => {
+            this.samplesInfo.set(result.id, {
+                disorders: result.attributes?.OPENCGA_INDIVIDUAL?.disorders || [],
+                sex: result.attributes?.OPENCGA_INDIVIDUAL?.sex?.id || "UNKNOWN",
+                somatic: !!result.somatic,
+            });
+        });
+
+        const topPosition = this.#getHeaderHeight();
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
-                ${this.sampleNames.map(name => `
-                    <div style="font-size:0.75rem;height:${this.config.sampleHeight}px;">
-                        <span style="font-weight:bold;vertical-align:middle;">${name}</span>
-                    </div>
-                `).join("")}
+                ${this.sampleNames.map(name => {
+                    const info = this.samplesInfo.get(name);
+                    const sampleColor = info.disorders.length > 0 ? "#CC0000" : "inherit";
+                    const sampleSexIcon = GenomeBrowserUtils.getIndividualSexIcon(info.sex);
+                    const sampleSexColor = GenomeBrowserUtils.getIndividualSexColor(info.sex);
+                    return `
+                        <div style="height:${this.config.sampleHeight}px;display:flex;flex-direction:column;justify-content:center;">
+                            <div style="font-size:14px;">
+                                <i class="fas ${sampleSexIcon}" style="padding-right:4px;color:${sampleSexColor};"></i>
+                                <b style="color:${sampleColor};">${name}</b>
+                            </div>
+                            <div style="color:#6C757D;font-size:10px;padding-left:12px;">
+                                <b>${info.somatic ? "Somatic" : "Germline"} sample</b>
+                            </div>
+                        </div>
+                    `;
+                }).join("")}
             </div>
-            <div id="${this.prefix}SampleHeaderDivider" style="position:absolute;width:100%;"></div>
+            <div id="${this.prefix}Divider" style="position:absolute;width:100%;"></div>
         `);
 
         // Sample names
         this.sampleNamesDiv = template.querySelector(`div#${this.prefix}SampleNames`);
-        this.sampleNamesDiv.style.backgroundColor = "rgba(255,255,255,0.6)";
-        this.sampleNamesDiv.style.paddingLeft = "8px";
-        this.sampleNamesDiv.style.paddingRight = "8px";
-        this.sampleNamesDiv.style.paddingTop = `${this.config.sampleHeight}px`;
+        this.sampleNamesDiv.style.backgroundColor = "rgba(255,255,255,0.7)";
+        this.sampleNamesDiv.style.paddingLeft = "16px";
+        this.sampleNamesDiv.style.paddingRight = "16px";
+        this.sampleNamesDiv.style.paddingTop = `${topPosition}px`;
 
-        // Sample header divider
-        this.sampleHeaderDividerDiv = template.querySelector(`div#${this.prefix}SampleHeaderDivider`);
-        this.sampleHeaderDividerDiv.style.height = `${this.config.sampleHeaderDividerHeight}px`;
-        this.sampleHeaderDividerDiv.style.backgroundColor = this.config.sampleHeaderDividerColor;
-        this.sampleHeaderDividerDiv.style.top = `${this.config.sampleHeaderHeight - this.config.sampleHeaderDividerHeight - 2}px`;
+        // Header divider
+        this.dividerDiv = template.querySelector(`div#${this.prefix}Divider`);
+        if (this.config.dividerVisible) {
+            this.dividerDiv.style.height = `${this.config.dividerHeight}px`;
+            this.dividerDiv.style.backgroundColor = this.config.dividerColor;
+            this.dividerDiv.style.top = `${topPosition - (this.config.dividerHeight / 2)}px`;
+        }
 
         // Append elements
         this.content.appendChild(this.sampleNamesDiv);
-        this.content.appendChild(this.sampleHeaderDividerDiv);
+        this.content.appendChild(this.dividerDiv);
         // this.content.insertBefore(this.sampleBackgroundDiv, this.content.firstChild);
         // this.content.appendChild(this.sampleBackgroundDiv);
 
@@ -80,13 +118,27 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
         this.sampleNames.forEach((name, index) => {
             SVG.addChild(bgGroup, "rect", {
                 x: "0px",
-                y: `${this.config.sampleHeaderHeight + (index * this.config.sampleHeight)}px`,
+                y: `${topPosition + (index * this.config.sampleHeight)}px`,
                 width: "100%",
-                height: `${this.config.sampleHeaderHeight}px`,
-                fill: index % 2 ? this.config.sampleBackgroundColorEven : this.config.sampleBackgroundColorOdd,
-                style: `opacity:${this.config.sampleBackgroundOpacity}`,
+                height: `${this.config.sampleHeight}px`,
+                fill: index % 2 ? this.config.sampleBackgroundEven : this.config.sampleBackgroundOdd,
             });
         });
+
+        // Update track height
+        this.height = topPosition + this.sampleNames.length * this.config.sampleHeight;
+    }
+
+    // Get total header height
+    #getHeaderHeight() {
+        let height = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
+
+        // Check if highlights are visible
+        if (this.config.highlightVisible) {
+            height = height + this.config.highlightHeight;
+        }
+
+        return height;
     }
 
     getData(options) {
@@ -127,13 +179,22 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             labelMaxRegionSize: 10000000,
             renderer: {}, // Renderer configuration
             histogramRenderer: {}, // Histogram renderer configuration
-            sampleHeight: 20,
-            sampleBackgroundOpacity: 0.2,
-            sampleBackgroundColorOdd: "#ffffff",
-            sampleBackgroundColorEven: "#a4abb6",
-            sampleHeaderHeight: 20,
-            sampleHeaderDividerHeight: 2,
-            sampleHeaderDividerColor: "#d4d8dd",
+            sampleHeight: 40,
+            sampleBackgroundOdd: "rgba(255,255,255,0.2)",
+            sampleBackgroundEven: "rgba(164, 171, 182, 0.2)", // === "#a4abb6",
+            // Variants header
+            headerHeight: 20,
+            // Lollipop and samples divider
+            dividerVisible: true,
+            dividerHeight: 2,
+            dividerColor: "#d4d8dd",
+            // Lollipop configuration
+            lollipopVisible: true,
+            lollipopHeight: 40,
+            // Highlights
+            highlights: [],
+            highlightVisible: true,
+            highlightHeight: 16,
         };
     }
 

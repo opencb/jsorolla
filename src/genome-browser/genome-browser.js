@@ -3,13 +3,10 @@ import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 import UtilsNew from "../core/utilsNew.js";
 import TrackListPanel from "./panels/tracklist-panel.js";
-// import FeatureTrack from "./tracks/feature-track.js";
 import NavigationBar from "./panels/navigation-bar.js";
 import KaryotypePanel from "./panels/karyotype-panel.js";
 import ChromosomePanel from "./panels/chromosome-panel.js";
 import StatusBar from "./panels/status-bar.js";
-// import FeatureRenderer from "./renderers/feature-renderer.js";
-import GenomeBrowserConstants from "./genome-browser-constants.js";
 
 
 export default class GenomeBrowser {
@@ -509,15 +506,11 @@ export default class GenomeBrowser {
                 region: region,
                 sender: event.sender,
             });
-            /**/
             return true;
         } else {
             if (event.sender && event.sender.updateRegionControls) {
                 event.sender.updateRegionControls();
             }
-            // console.log('****************************');
-            // console.log('**************************** region change already in progress');
-            // console.log('****************************');
             return false;
         }
     }
@@ -829,13 +822,6 @@ export default class GenomeBrowser {
         this.trackListPanel.deleteTracksCache();
     }
 
-    // TODO - DEPRECATED
-    checkRenderedTrack(trackId) {
-        console.log("DEPRECATED METHOD");
-        console.log(this.checkRenderedTrack);
-        this.trackExists(trackId);
-    }
-
     // Get default configuration for GenomeBrowser
     getDefaultConfig() {
         return {
@@ -847,8 +833,8 @@ export default class GenomeBrowser {
 
             // CellBase configuration
             cellBaseClient: null,
-            cellBaseHost: GenomeBrowserConstants.CELLBASE_HOST,
-            cellBaseVersion: GenomeBrowserConstants.CELLBASE_VERSION,
+            cellBaseHost: null,
+            cellBaseVersion: null,
 
             // TO REVIEW
             sidePanel: false,

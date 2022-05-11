@@ -7,8 +7,6 @@
 
     <script type="text/javascript" src="../genome-browser.config.js"></script>
 
-
-    <!-- links for use to src -->
     <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
     <link rel="stylesheet" href="../../../styles/css/global.css">
@@ -71,22 +69,20 @@
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
         const params = new URLSearchParams(window.location.search);
         const cellBaseConfig = {
-            host: params.get("CELLBASE_HOST") || GenomeBrowserConstants.CELLBASE_HOST,
-            version: params.get("CELLBASE_VERSION") || GenomeBrowserConstants.CELLBASE_VERSION,
+            host: params.get("CELLBASE_HOST") || "https://ws.zettagenomics.com/cellbase",
+            version: params.get("CELLBASE_VERSION") || "v5",
             cache: {
                 active: false,
             },
         };
-
-        console.log("CellBase Host: " + cellBaseConfig.host);
-        console.log("CellBase Version: " + cellBaseConfig.version);
-
         const cellBaseClient = new CellBaseClient(cellBaseConfig);
 
-        // GenomeBrowser, Region and Species:
-        // let genomeBrowser;
-        const region = new Region({ chromosome: "13", start: 32996311, end: 32996450 }); // initial region
         const parent = document.getElementById("application");
+        const region = new Region({
+            chromosome: "13",
+            start: 32996311,
+            end: 32996450,
+        });
 
         const run = availableSpecies => {
             const species = availableSpecies.vertebrates[0];
@@ -107,11 +103,6 @@
                     collapsed: false,
                     collapsible: true
                 },
-            });
-
-            // Register events listeners
-            genomeBrowser.on("region:change", event => {
-                console.log(event);
             });
 
             // When GB is ready add tracks and draw
@@ -138,27 +129,6 @@
                         cellBaseClient: cellBaseClient,
                     }),
                 ]);
-
-                /** *************************************************************************/
-                /** *** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
-                /** *************************************************************************/
-
-                // const geneOverviewTrack = new GeneOverviewTrack({ cellbaseClient:cellBaseClient });
-                // genomeBrowser.addOverviewTrack(geneOverviewTrack);
-
-                /** ************************************************************************/
-                /** *** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
-                /** ************************************************************************/
-
-                // const gene = new GeneTrack({cellbaseClient: cellBaseClient});
-                // tracks.push(gene);
-
-                /** *************************************************************************/
-                /** ***   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
-                /** *************************************************************************/
-
-                // const snp = new SnpTrack({cellbaseClient: cellBaseClient});
-                // tracks.push(snp);
 
                 genomeBrowser.draw();
             });
