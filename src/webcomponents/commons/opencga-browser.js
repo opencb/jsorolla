@@ -288,6 +288,7 @@ export default class OpencgaBrowser extends LitElement {
             return html`
                 <div role="tabpanel" class="tab-pane active" id="filters_tab">
                     <opencga-browser-filter
+                        .query="${this.query}"
                         .resource="${this.resource}"
                         .opencgaSession="${this.opencgaSession}"
                         .cellbaseClient="${this.cellbaseClient}"
