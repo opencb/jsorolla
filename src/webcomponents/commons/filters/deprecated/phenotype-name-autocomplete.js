@@ -15,9 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-export default class ClinicalAnalysisIdAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-distinct-autocomplete now.
+export default class PhenotypeNameAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -42,6 +43,14 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    endpoint(resource) {
+        return {
+            INDIVIDUAL: this.opencgaSession.opencgaClient.individuals(),
+            SAMPLE: this.opencgaSession.opencgaClient.samples(),
+            FAMILY: this.opencgaSession.opencgaClient.families(),
+        }[resource] || this.opencgaSession.opencgaClient.samples();
+    }
+
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -54,22 +63,26 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            fields: item => ({
-                "name": item.id,
-                "Proband Id": item?.proband?.id
-            }),
+            /* fields: item => ({
+                name: item
+            }),*/
+            // direct select2 configuration
+            select2Config: {
+                // enables free tokenisation as phenotypes field actually perform a full-text search (while the autocomplete works in IDs only)
+                tags: true
+            },
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params.data.term + "/i"} : null;
+                const phenotypes = params?.data?.term ? {phenotypes: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    include: "id,proband",
-                    ...id
+                    // include: "id,proband",
+                    ...phenotypes
                 };
-                this.opencgaSession.opencgaClient.clinical().search(filters)
+                this.endpoint(this._config.resource).distinct("phenotypes.name", filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -89,4 +102,4 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-id-autocomplete", ClinicalAnalysisIdAutocomplete);
+customElements.define("phenotype-name-autocomplete", PhenotypeNameAutocomplete);

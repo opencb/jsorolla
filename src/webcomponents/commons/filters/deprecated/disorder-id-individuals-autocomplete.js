@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class DiseasePanelIdAutocomplete extends LitElement {
+// Nacho 20-04-2022 - DEPRECATED: use new disorder-autocomplete now.
+export default class DisorderIdIndividualsAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -43,13 +43,6 @@ export default class DiseasePanelIdAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("property")) {
-            this.propertyObserver();
-        }
-        super.update(changedProperties);
-    }
-
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -62,21 +55,20 @@ export default class DiseasePanelIdAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            fields: item => ({
-                name: item.id
-            }),
+            /* fields: item => ({
+                name: item
+            }),*/
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
+                const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    include: "id",
-                    ...id
+                    ...disorders
                 };
-                this.opencgaSession.opencgaClient.panels().search(filters)
+                this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -96,5 +88,4 @@ export default class DiseasePanelIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("disease-panel-id-autocomplete", DiseasePanelIdAutocomplete);
-
+customElements.define("disorder-id-individuals-autocomplete", DisorderIdIndividualsAutocomplete);

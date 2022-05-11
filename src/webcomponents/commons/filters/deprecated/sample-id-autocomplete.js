@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class FileNameAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
+export default class SampleIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -53,28 +52,27 @@ export default class FileNameAutocomplete extends LitElement {
         this.dispatchEvent(event);
     }
 
+
     getDefaultConfig() {
         return {
-            placeholder: "eg. samples.tsv, phenotypes.vcf...",
+            placeholder: "HG01879, HG01880, HG01881...",
             limit: 10,
             fields: item => ({
-                name: item.name,
-                Format: item.format ?? "N/A",
-                Size: UtilsNew.getDiskUsage(item.size)
+                "name": item.id,
+                "Individual ID": item?.individualId
             }),
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const name = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
+                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
-                    count: false,
+                    count: true,
                     skip: (page - 1) * this._config.limit,
-                    type: "FILE",
-                    include: "id,name,format,size",
-                    ...name
+                    include: "id,individualId",
+                    ...id
                 };
-                this.opencgaSession.opencgaClient.files().search(filters)
+                this.opencgaSession.opencgaClient.samples().search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -94,4 +92,4 @@ export default class FileNameAutocomplete extends LitElement {
 
 }
 
-customElements.define("file-name-autocomplete", FileNameAutocomplete);
+customElements.define("sample-id-autocomplete", SampleIdAutocomplete);

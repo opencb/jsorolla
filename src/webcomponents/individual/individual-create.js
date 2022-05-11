@@ -19,6 +19,7 @@ import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
@@ -168,13 +169,12 @@ export default class IndividualCreate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: () => html`
-                                    <individual-id-autocomplete
-                                        .value="${this.sample?.father}"
+                                render: father => html`
+                                    <catalog-search-autocomplete
+                                        .value="${father}"
+                                        .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            multiple: false
-                                        }}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -182,7 +182,8 @@ export default class IndividualCreate extends LitElement {
                                                 value: {id: e.detail.value}
                                             }
                                         })}">
-                                    </individual-id-autocomplete>`
+                                    </catalog-search-autocomplete>
+                                `,
                             }
                         },
                         {
@@ -191,13 +192,12 @@ export default class IndividualCreate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: () => html`
-                                    <individual-id-autocomplete
-                                        .value="${this.sample?.mother}"
+                                render: mother => html`
+                                    <catalog-search-autocomplete
+                                        .value="${mother}"
+                                        .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            multiple: false
-                                        }}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -205,7 +205,8 @@ export default class IndividualCreate extends LitElement {
                                                 value: {id: e.detail.value}
                                             }
                                         })}">
-                                    </individual-id-autocomplete>`
+                                    </catalog-search-autocomplete>
+                                `,
                             }
                         },
                         {
@@ -231,8 +232,9 @@ export default class IndividualCreate extends LitElement {
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "sex")}
-                                    ></ontology-term-annotation-create>`
+                                        @fieldChange="${e => this.onFieldChange(e, "sex")}">
+                                    </ontology-term-annotation-create>
+                                `,
                             }
                         },
                         {
@@ -247,8 +249,9 @@ export default class IndividualCreate extends LitElement {
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "ethnicity")}>
-                                    </ontology-term-annotation-create>`
+                                        @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
+                                    </ontology-term-annotation-create>
+                                `,
                             }
                         },
                         {

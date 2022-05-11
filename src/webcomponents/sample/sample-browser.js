@@ -21,7 +21,6 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./sample-grid.js";
 import "./sample-detail.js";
-import "./sample-browser-filter";
 
 export default class SampleBrowser extends LitElement {
 
@@ -135,14 +134,6 @@ export default class SampleBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html`
-                    <sample-browser-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </sample-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -219,56 +210,67 @@ export default class SampleBrowser extends LitElement {
                             id: "sample-view",
                             name: "Overview",
                             active: true,
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <sample-view
+                                    .sample="${sample}"
+                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-view>
+                            `,
                         },
                         {
                             id: "sample-variant-stats-view",
                             name: "Variant Stats",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <sample-variant-stats-view
+                                    .sampleId="${sample.id}"
+                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-variant-stats-view>
+                            `,
                         },
                         {
                             id: "samtools-flags-stats-view",
                             name: "Samtools Flagstat",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <samtools-flagstats-view .sample="${sample}" .opencgaSession="${opencgaSession}"></samtools-flagstats-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <samtools-flagstats-view
+                                    .sample="${sample}"
+                                    .opencgaSession="${opencgaSession}">
+                                </samtools-flagstats-view>
+                            `,
                         },
                         {
                             id: "individual-view",
                             name: "Individual",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></individual-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <individual-view
+                                    .individualId="${sample?.individualId}"
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-view>
+                            `,
                         },
                         {
                             id: "file-view",
                             name: "Files",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <opencga-file-grid
-                                        .query="${{sampleIds: sample.id}}"
-                                        .active="${active}"
-                                        .config="${{downloadFile: this.config.downloadFile}}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </opencga-file-grid>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <opencga-file-grid
+                                    .query="${{sampleIds: sample.id}}"
+                                    .active="${active}"
+                                    .config="${{downloadFile: this.config.downloadFile}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-file-grid>
+                            `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <json-viewer
+                                    .data="${sample}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         }
                     ]
                 }
@@ -280,7 +282,8 @@ export default class SampleBrowser extends LitElement {
                         .config="${params.config.aggregation}"
                         .selectedFacet="${params.selectedFacet}"
                         @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
+                    </facet-filter>
+                `,
                 result: {
                     numColumns: 2
                 },

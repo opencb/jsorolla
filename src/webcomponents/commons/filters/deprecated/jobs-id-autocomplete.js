@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class TemplateAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
+export default class JobsIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -56,45 +55,28 @@ export default class TemplateAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
+            fields: item => ({
+                "name": item.id,
+            }),
             source: (params, success, failure) => {
-                switch (this._config.resource) {
-                    case "DISEASE_PANEL":
-                        const page = params?.data?.page || 1;
-                        const attr = params?.data?.term ? {[this._config.field]: "~/" + params?.data?.term + "/i"} : null;
-                        const filters = {
-                            study: this.opencgaSession.study.fqn,
-                            limit: this._config.limit,
-                            count: false,
-                            skip: (page - 1) * this._config.limit,
-                            ...attr
-                        };
-                        this.opencgaSession.opencgaClient.panels().distinct(this._config.field, filters)
-                            .then(response => success(response))
-                            .catch(error => failure(error));
-                        break;
-                    default:
-                        break;
-                }
+                const page = params?.data?.page || 1;
+                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: this._config.limit,
+                    count: false,
+                    skip: (page - 1) * this._config.limit,
+                    include: "id",
+                    ...id
+                };
+                this.opencgaSession.opencgaClient.jobs().search(filters)
+                    .then(response => success(response))
+                    .catch(error => failure(error));
             },
-            preprocessResults(results) {
-                // if results come with null, emtpy or undefined it'll removed.
-                const resultsCleaned = results.filter(r => r);
-                if (resultsCleaned.length) {
-                    if ("string" === typeof resultsCleaned[0]) {
-                        return resultsCleaned.map(s => ({id: s}));
-                    }
-                }
-                return resultsCleaned;
-            }
         };
     }
 
     render() {
-
-        if (!this._config.resource) {
-            return html`resource not provided`;
-        }
-
         return html`
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
@@ -107,4 +89,4 @@ export default class TemplateAutocomplete extends LitElement {
 
 }
 
-customElements.define("template-autocomplete", TemplateAutocomplete);
+customElements.define("jobs-id-autocomplete", JobsIdAutocomplete);

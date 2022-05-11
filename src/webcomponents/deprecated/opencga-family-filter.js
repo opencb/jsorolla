@@ -19,9 +19,10 @@ import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
-import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/disorder-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
 export default class OpencgaFamilyFilter extends LitElement {
 
     constructor() {
@@ -181,41 +182,48 @@ export default class OpencgaFamilyFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <family-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"FAMILY"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </family-id-autocomplete>`;
+                    </catalog-search-autocomplete>
+                    `;
                 break;
             case "members":
                 content = html`
-                    <individual-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </individual-id-autocomplete>`;
-                break;
-            case "disorders":
-                content = html`
-                    <disorder-autocomplete
-                        .config="${subsection}"
+                        .resource="${"INDIVIDUAL"}"
                         .opencgaSession="${this.opencgaSession}"
-                        .resource=${"FAMILY"}
-                        .value="${this.preparedQuery[subsection.id]}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </disorder-autocomplete>
-                    `;
+                    </catalog-search-autocomplete>`;
                 break;
             case "phenotypes":
                 content = html`
-                    <phenotype-name-autocomplete
-                        .config="${{...subsection, resource: "FAMILY"}}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"phenotypes"}"
+                        .distinctField="${"phenotypes.name"}"
+                        .resource="${"FAMILY"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </phenotype-name-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
+                break;
+            case "disorders":
+                content = html`
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"disorders"}"
+                        .distinctField="${"disorders.id"}"
+                        .resource="${"FAMILY"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "annotations":
                 content = html`

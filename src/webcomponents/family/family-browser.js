@@ -19,11 +19,10 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
 import "./family-grid.js";
-import "./opencga-family-filter.js";
-import "./opencga-family-detail.js";
+import "./family-detail.js";
 
 
-export default class OpencgaFamilyBrowser extends LitElement {
+export default class FamilyBrowser extends LitElement {
 
     constructor() {
         super();
@@ -138,11 +137,11 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "family")}">
                         </family-grid>
-                        <opencga-family-detail
+                        <family-detail
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.detail}"
                             .family="${params.detail.family}">
-                        </opencga-family-detail>
+                        </family-detail>
                     `,
                 },
                 {
@@ -167,15 +166,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html`
-                    <opencga-family-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </opencga-family-filter>
-                `,
                 sections: [
                     {
                         title: "Section title",
@@ -277,7 +267,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (family, active, opencgaSession) => html`
-                                <json-viewer 
+                                <json-viewer
                                     .data="${family}"
                                     .active="${active}">
                                 </json-viewer>
@@ -417,4 +407,4 @@ export default class OpencgaFamilyBrowser extends LitElement {
 
 }
 
-customElements.define("opencga-family-browser", OpencgaFamilyBrowser);
+customElements.define("family-browser", FamilyBrowser);

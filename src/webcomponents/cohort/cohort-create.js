@@ -21,6 +21,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/status/status-create.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class CohortCreate extends LitElement {
@@ -160,11 +161,13 @@ export default class CohortCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: samples => html `
-                                <sample-id-autocomplete
+                                <catalog-search-autocomplete
                                     .value=${samples?.map(sample => sample.id).join(",")}
-                                    .opencgaSession=${this.opencgaSession}
+                                    .resource="${"SAMPLE"}"
+                                    .opencgaSession="${this.opencgaSession}"
                                     @filterChange="${e => this.onFieldChange(e, "samples")}">
-                                </sample-id-autocomplete>`
+                                </catalog-search-autocomplete>
+                                `
                             }
                         },
                         {

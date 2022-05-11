@@ -19,7 +19,7 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
-import "../commons/filters/individual-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../commons/tool-header.js";
 
@@ -167,14 +167,15 @@ export default class FamilyCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
                                 render: members => {
-                                    // const members = this.members + "";
                                     return html`
-                                    <individual-id-autocomplete
-                                        .value="${members}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config=${{multiple: true}}
-                                        @filterChange="${e => this.onFieldChange(e, "members")}">
-                                    </individual-id-autocomplete>`;
+                                        <catalog-search-autocomplete
+                                            .value="${members}"
+                                            .resource="${"INDIVIDUAL"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => this.onFieldChange(e, "members")}">
+                                        </catalog-search-autocomplete>
+                                    `;
                                 }
                             }
                         },

@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
 export default class FamilyIdAutocomplete extends LitElement {
 
     createRenderRoot() {

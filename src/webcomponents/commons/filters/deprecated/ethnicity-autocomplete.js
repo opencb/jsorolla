@@ -15,9 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-export default class IndividualIdAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-distinct-autocomplete now.
+export default class EthnicityAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -31,9 +32,6 @@ export default class IndividualIdAutocomplete extends LitElement {
             value: {
                 type: Object
             },
-            classes: {
-                type: String
-            },
             config: {
                 type: Object
             }
@@ -43,13 +41,6 @@ export default class IndividualIdAutocomplete extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("value")) {
-            console.log(this.value);
-        }
-        super.update(changedProperties);
     }
 
     onFilterChange(key, value) {
@@ -64,22 +55,17 @@ export default class IndividualIdAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            placeholder: "Start typing...",
-            fields: item => ({
-                "name": item.id
-            }),
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
+                const ethnicity = params?.data?.term ? {ethnicity: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
-                    count: true,
+                    count: false,
                     skip: (page - 1) * this._config.limit,
-                    include: "id",
-                    ...id
+                    ...ethnicity
                 };
-                this.opencgaSession.opencgaClient.individuals().search(filters)
+                this.opencgaSession.opencgaClient.individuals().distinct("ethnicity", filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -91,7 +77,6 @@ export default class IndividualIdAutocomplete extends LitElement {
             <select-token-filter
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                .classes="${this.classes}"
                 .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>
@@ -100,4 +85,4 @@ export default class IndividualIdAutocomplete extends LitElement {
 
 }
 
-customElements.define("individual-id-autocomplete", IndividualIdAutocomplete);
+customElements.define("ethnicity-autocomplete", EthnicityAutocomplete);
