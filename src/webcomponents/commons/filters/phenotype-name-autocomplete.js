@@ -47,7 +47,8 @@ export default class PhenotypeNameAutocomplete extends LitElement {
         return {
             INDIVIDUAL: this.opencgaSession.opencgaClient.individuals(),
             SAMPLE: this.opencgaSession.opencgaClient.samples(),
-        }[resource];
+            FAMILY: this.opencgaSession.opencgaClient.families(),
+        }[resource] || this.opencgaSession.opencgaClient.samples();
     }
 
     onFilterChange(key, value) {
@@ -61,7 +62,6 @@ export default class PhenotypeNameAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            resource: "INDIVIDUAL",
             limit: 10,
             /* fields: item => ({
                 name: item

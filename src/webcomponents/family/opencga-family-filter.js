@@ -210,20 +210,21 @@ export default class OpencgaFamilyFilter extends LitElement {
                 break;
             case "phenotypes":
                 content = html`
-                    <text-field-filter
-                        placeholder="${subsection.placeholder}"
+                    <phenotype-name-autocomplete
+                        .config="${{...subsection, resource: "FAMILY"}}"
+                        .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    </phenotype-name-autocomplete>`;
                 break;
             case "annotations":
                 content = html`
                     <opencga-annotation-filter-modal
                         .opencgaSession="${this.opencgaSession}"
-                         resource="FAMILY"
-                         .config="${this.annotationFilterConfig}"
-                         .selectedVariablesText="${this.preparedQuery.annotation}"
-                         @annotationChange="${this.onAnnotationChange}">
+                        resource="FAMILY"
+                        .config="${this.annotationFilterConfig}"
+                        .selectedVariablesText="${this.preparedQuery.annotation}"
+                        @annotationChange="${this.onAnnotationChange}">
                     </opencga-annotation-filter-modal>`;
                 break;
             case "date":

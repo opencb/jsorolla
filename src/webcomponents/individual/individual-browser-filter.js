@@ -180,7 +180,7 @@ export default class IndividualBrowserFilter extends LitElement {
             case "phenotypes":
                 content = html`
                     <phenotype-name-autocomplete
-                        .config="${subsection}"
+                        .config="${{...subsection, resource: "INDIVIDUAL"}}"
                         .opencgaSession="${this.opencgaSession}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
