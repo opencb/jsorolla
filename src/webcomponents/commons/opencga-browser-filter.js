@@ -240,7 +240,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                             .data="${subsection.allowedValues}"
                             ?multiple="${subsection?.multiple}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </select-field-filter>`;
+                        </select-field-filter>
+                    `;
                     break;
                 case "path":
                     content = html`
@@ -248,7 +249,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                             placeholder="${subsection.placeholder}"
                             .value="${this.preparedQuery[subsection.id]}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </text-field-filter>`;
+                        </text-field-filter>
+                    `;
                     break;
                 case "annotations":
                     content = html`
@@ -285,7 +287,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                             .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
                             .multiple=${true}
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </clinical-status-filter>`;
+                        </clinical-status-filter>
+                    `;
                     break;
                 case "region":
                     content = html`
@@ -293,7 +296,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                             .cellbaseClient="${this.cellbaseClient}"
                             .region="${this.preparedQuery.region}"
                             @filterChange="${e => this.onFilterChange("regions", e.detail.value)}">
-                        </region-filter>`;
+                        </region-filter>
+                    `;
                     break;
                 case "date":
                 case "creationDate":
@@ -323,7 +327,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                 <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                     ${content}
                 </div>
-            </div>`;
+            </div>
+        `;
     }
 
     render() {
