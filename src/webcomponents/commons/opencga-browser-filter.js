@@ -322,8 +322,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                             <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                             </a>
-                        </div>` : null
-                    }
+                        </div>
+                    ` : null}
                 </div>
                 <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                     ${content}
