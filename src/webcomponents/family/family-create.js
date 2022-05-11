@@ -167,13 +167,12 @@ export default class FamilyCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
                                 render: members => {
-                                    // const members = this.members + "";
                                     return html`
                                         <catalog-search-autocomplete
                                             .value="${members}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config=${{multiple: true}}
+                                            .config="${{multiple: true}}"
                                             @filterChange="${e => this.onFieldChange(e, "members")}">
                                         </catalog-search-autocomplete>
                                     `;

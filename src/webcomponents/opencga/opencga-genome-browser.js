@@ -230,7 +230,6 @@ export default class OpencgaGenomeBrowser extends LitElement {
             const myVariantFiles = [];
             const myAlignmentFiles = [];
             inputArray.forEach(input => {
-                console.log("input", input);
                 const fileId = input.dataset.id;
                 this._availableFiles.forEach(sample => {
                     sample.files.forEach(file => {
@@ -244,8 +243,6 @@ export default class OpencgaGenomeBrowser extends LitElement {
                     });
                 });
             });
-
-            console.log("my", myVariantFiles, myAlignmentFiles);
 
             // In order to notify of the changes to the genome browser, we make a copy of the tracks object
             const _tracks = this.tracks;

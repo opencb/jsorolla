@@ -268,7 +268,7 @@ export default class SampleUpdate extends LitElement {
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
-                                    .config=${{multiple: false}}
+                                    .config="${{multiple: false}}"
                                     @filterChange="${e =>
                                         this.onFieldChange({
                                         detail: {
@@ -277,7 +277,7 @@ export default class SampleUpdate extends LitElement {
                                         }
                                     })}">
                                 </catalog-search-autocomplete>
-                                `
+                            `,
                         }
                     },
                     {
@@ -301,15 +301,16 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: source => html`
                                 <external-source-update
-                                    .source=${source}
+                                    .source="${source}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
-                                </external-source-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "source")}">
+                                </external-source-update>
+                            `,
                         }
                     },
                     {
@@ -319,15 +320,16 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: status => html`
                                 <status-update
-                                    .status=${status}
+                                    .status="${status}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
-                                </status-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "status")}">
+                                </status-update>
+                            `,
                         }
                     },
                     // {
@@ -350,14 +352,15 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: product => html`
                                 <ontology-term-annotation-update
-                                    .ontology=${product}
+                                    .ontology="${product}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}
-                                ></ontology-term-annotation-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
+                                </ontology-term-annotation-update>
+                            `,
                         }
                     },
                     {
@@ -490,7 +493,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @updateItem="${callback}">
-                                </ontology-term-annotation-update>`,
+                                </ontology-term-annotation-update>
+                            `,
                             renderCreate: (pheno, callback) => html`
                                 <label>Create new item</label>
                                 <ontology-term-annotation-create
@@ -501,7 +505,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @addItem="${callback}">
-                                </ontology-term-annotation-create>`
+                                </ontology-term-annotation-create>
+                            `,
                         }
                     },
                 ]

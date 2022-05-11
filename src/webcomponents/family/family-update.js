@@ -153,12 +153,12 @@ export default class FamilyUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                    .data=${this.family}
-                    .config="${this._config}"
-                    .updateParams=${this.updateParams}
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
+                .data="${this.family}"
+                .config="${this._config}"
+                .updateParams="${this.updateParams}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
@@ -215,7 +215,7 @@ export default class FamilyUpdate extends LitElement {
                                             .config="${{multiple: true}}"
                                             @filterChange="${e => this.onFieldChange(e, "members.id")}">
                                         </catalog-search-autocomplete>
-                                        `;
+                                    `;
                                 }
                             },
                         },

@@ -168,7 +168,8 @@ export default class OpencgaFileFilter extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-search-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
                 break;
             case "sampleIds":
                 content = html`
@@ -178,7 +179,8 @@ export default class OpencgaFileFilter extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-search-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
                 break;
             case "directory":
                 content = html`
@@ -199,7 +201,8 @@ export default class OpencgaFileFilter extends LitElement {
                         placeholder="${subsection.placeholder}"
                         .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    </text-field-filter>
+                `;
                 break;
             case "format":
             case "bioformat":
@@ -222,14 +225,15 @@ export default class OpencgaFileFilter extends LitElement {
                         .selectedVariablesText="${this.preparedQuery.annotation}"
                         @annotationChange="${this.onAnnotationChange}">
                     </opencga-annotation-filter-modal>
-                    `;
+                `;
                 break;
             case "date":
                 content = html`
                     <date-filter
                         .creationDate="${this.preparedQuery.creationDate}"
                         @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                    </date-filter>`;
+                    </date-filter>
+                `;
                 break;
             default:
                 console.error("Filter component not found");

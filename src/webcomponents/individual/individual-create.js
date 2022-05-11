@@ -174,7 +174,7 @@ export default class IndividualCreate extends LitElement {
                                         .value="${father}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -183,7 +183,7 @@ export default class IndividualCreate extends LitElement {
                                             }
                                         })}">
                                     </catalog-search-autocomplete>
-                                `
+                                `,
                             }
                         },
                         {
@@ -197,7 +197,7 @@ export default class IndividualCreate extends LitElement {
                                         .value="${mother}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -205,7 +205,8 @@ export default class IndividualCreate extends LitElement {
                                                 value: {id: e.detail.value}
                                             }
                                         })}">
-                                    </catalog-search-autocomplete>`
+                                    </catalog-search-autocomplete>
+                                `,
                             }
                         },
                         {
@@ -231,8 +232,9 @@ export default class IndividualCreate extends LitElement {
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "sex")}
-                                    ></ontology-term-annotation-create>`
+                                        @fieldChange="${e => this.onFieldChange(e, "sex")}">
+                                    </ontology-term-annotation-create>
+                                `,
                             }
                         },
                         {
@@ -247,8 +249,9 @@ export default class IndividualCreate extends LitElement {
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "ethnicity")}>
-                                    </ontology-term-annotation-create>`
+                                        @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
+                                    </ontology-term-annotation-create>
+                                `,
                             }
                         },
                         {

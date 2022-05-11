@@ -193,9 +193,9 @@ export default class IndividualUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.individual}
+                .data="${this.individual}"
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
@@ -250,7 +250,7 @@ export default class IndividualUpdate extends LitElement {
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -259,7 +259,7 @@ export default class IndividualUpdate extends LitElement {
                                             }
                                         })}">
                                     </catalog-search-autocomplete>
-                                `
+                                `,
                             }
                         },
                         {
@@ -274,7 +274,7 @@ export default class IndividualUpdate extends LitElement {
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                             detail: {
@@ -283,7 +283,7 @@ export default class IndividualUpdate extends LitElement {
                                             }
                                         })}">
                                     </catalog-search-autocomplete>
-                                    `
+                                `,
                             }
                         },
                         {
@@ -301,14 +301,15 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 render: sex => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${sex}
+                                        .ontology="${sex}"
                                         .displayConfig="${{
                                                 defaultLayout: "vertical",
                                                 buttonsVisible: false,
                                                 style: "border-left: 2px solid #0c2f4c padding-left:12px",
                                             }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "sex")}
-                                    ></ontology-term-annotation-update>`
+                                        @fieldChange="${e => this.onFieldChange(e, "sex")}">
+                                    </ontology-term-annotation-update>
+                                `,
                             }
                         },
                         {
@@ -318,14 +319,15 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 render: ethnicity => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${ethnicity}
+                                        .ontology="${ethnicity}"
                                         .displayConfig="${{
                                                 defaultLayout: "vertical",
                                                 buttonsVisible: false,
                                                 style: "border-left: 2px solid #0c2f4c padding-left:12px",
                                             }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "ethnicity")}
-                                    ></ontology-term-annotation-update>`
+                                        @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
+                                    </ontology-term-annotation-update>
+                                `,
                             }
                         },
                         {
@@ -453,17 +455,17 @@ export default class IndividualUpdate extends LitElement {
                                 collapsedUpdate: true,
                                 renderUpdate: (pheno, callback) => {
                                     return html`
-                                    <ontology-term-annotation-update
-                                        .ontology=${pheno}
-                                        .entity="${"phenotype"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </ontology-term-annotation-update>
-                                `;
+                                        <ontology-term-annotation-update
+                                            .ontology="${pheno}"
+                                            .entity="${"phenotype"}"
+                                            .displayConfig="${{
+                                                defaultLayout: "vertical",
+                                                buttonOkText: "Save",
+                                                buttonClearText: "",
+                                            }}"
+                                            @updateItem="${callback}">
+                                        </ontology-term-annotation-update>
+                                    `;
                                 },
                                 renderCreate: (pheno, callback) => html`
                                     <label>Create new item</label>
@@ -476,7 +478,7 @@ export default class IndividualUpdate extends LitElement {
                                         }}"
                                         @addItem="${callback}">
                                     </ontology-term-annotation-create>
-                                `
+                                `,
                             }
                         },
                     ]
@@ -536,7 +538,7 @@ export default class IndividualUpdate extends LitElement {
                                         }}"
                                         @addItem="${callback}">
                                     </ontology-term-annotation-create>
-                                `
+                                `,
                             }
                         },
                     ]

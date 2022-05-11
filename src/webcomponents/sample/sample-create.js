@@ -216,7 +216,7 @@ export default class SampleCreate extends LitElement {
                                     .value="${individualId}"
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config=${{multiple: false}}
+                                    .config="${{multiple: false}}"
                                     @filterChange="${e =>
                                         this.onFieldChange({
                                         detail: {

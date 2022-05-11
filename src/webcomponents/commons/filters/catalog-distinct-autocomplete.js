@@ -20,10 +20,6 @@ import "../forms/select-token-filter.js";
 
 export default class CatalogDistinctAutocomplete extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
@@ -60,6 +56,21 @@ export default class CatalogDistinctAutocomplete extends LitElement {
 
     onFilterChange(value) {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    }
+
+    render() {
+        if (!this.resource) {
+            return html`resource not provided`;
+        }
+
+        return html`
+            <select-token-filter
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange(e.detail.value)}">
+            </select-token-filter>
+        `;
     }
 
     getDefaultConfig() {
@@ -105,21 +116,6 @@ export default class CatalogDistinctAutocomplete extends LitElement {
                 return resultsCleaned;
             }
         };
-    }
-
-    render() {
-        if (!this.resource) {
-            return html`resource not provided`;
-        }
-
-        return html`
-            <select-token-filter
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .value="${this.value}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>
-        `;
     }
 
 }

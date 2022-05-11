@@ -134,7 +134,8 @@ export default class JobBrowser extends LitElement {
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.detail}"
                             .jobId="${params.detail.job?.id}">
-                        </job-detail>`
+                        </job-detail>
+                    `,
                 },
                 {
                     id: "facet-tab",

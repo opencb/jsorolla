@@ -278,14 +278,15 @@ export default class OpencgaBrowserFilter extends LitElement {
                             .priority="${this.preparedQuery[subsection.id]}"
                             .priorities="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.priorities ?? [])}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                        </clinical-priority-filter>`;
+                        </clinical-priority-filter>
+                    `;
                     break;
                 case "status":
                     content = html`
                         <clinical-status-filter
                             .status="${this.preparedQuery[subsection.id]}"
                             .statuses="${Object.values(this.opencgaSession.study.internal?.configuration?.clinical?.status)?.flat()}"
-                            .multiple=${true}
+                            .multiple="${true}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                         </clinical-status-filter>
                     `;

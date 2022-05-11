@@ -175,6 +175,22 @@ export default class CatalogSearchAutocomplete extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
+    render() {
+        if (!this.resource) {
+            return html`resource not provided`;
+        }
+
+        return html`
+            <select-token-filter
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .classes="${this.classes}"
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange(e.detail.value)}">
+            </select-token-filter>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             limit: 10,
@@ -208,22 +224,6 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 return resultsCleaned;
             }
         };
-    }
-
-    render() {
-        if (!this.resource) {
-            return html`resource not provided`;
-        }
-
-        return html`
-            <select-token-filter
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .classes="${this.classes}"
-                .value="${this.value}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>
-        `;
     }
 
 }

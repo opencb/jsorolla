@@ -169,7 +169,7 @@ export default class SampleView extends LitElement {
                                         .value="${this.sample?.id}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,

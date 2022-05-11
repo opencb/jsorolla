@@ -129,8 +129,6 @@ export default class JobTimeline extends LitElement {
         if (this.draw) {
             this.draw.clear();
             // TODO FIXME for some reason draw is not actually really cleared (cache issue?)
-            console.log("CHILDS", this.draw);
-            console.log("first", this.draw.first());
         }
         // console.log("timestampMinMax", this.timestampMin, this.timestampMax);
 

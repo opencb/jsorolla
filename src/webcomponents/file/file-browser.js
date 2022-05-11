@@ -108,13 +108,19 @@ export default class FileBrowser extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this._config ? html`
+
+        if (!this.opencgaSession || !this._config) {
+            return "";
+        }
+
+        return html`
             <opencga-browser
                 resource="FILE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}">
-            </opencga-browser>` : "";
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
@@ -282,7 +288,7 @@ export default class FileBrowser extends LitElement {
                                     <file-preview
                                         .active="${active}"
                                         .file="${file}"
-                                        .opencgaSession=${opencgaSession}>
+                                        .opencgaSession="${opencgaSession}">
                                     </file-preview>
                                 `;
                             }
@@ -291,13 +297,12 @@ export default class FileBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (file, active) => {
-                                return html`
-                                    <json-viewer
-                                        .data="${file}"
-                                        .active="${active}">
-                                    </json-viewer>`;
-                            }
+                            render: (file, active) => html`
+                                <json-viewer
+                                    .data="${file}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         }
                     ]
                 }

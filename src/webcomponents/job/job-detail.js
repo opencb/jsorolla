@@ -104,7 +104,7 @@ export default class JobDetail extends LitElement {
                     render: (job, active, opencgaSession) => {
                         return html`
                             <opencga-job-detail-log
-                                .opencgaSession=${opencgaSession}
+                                .opencgaSession="${opencgaSession}"
                                 .active="${active}"
                                 .job="${job}">
                             </opencga-job-detail-log>
@@ -116,14 +116,17 @@ export default class JobDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.job ?
-            html`
-                <detail-tabs
-                    .data="${this.job}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>` :
-            null;
+        if (!this.opencgaSession || !this.job) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.job}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
     }
 
 }

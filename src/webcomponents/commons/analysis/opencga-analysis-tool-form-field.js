@@ -27,7 +27,6 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -50,15 +49,10 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
 
     _init() {
-        this._prefix = "oatff-" + UtilsNew.randomString(6);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
+        this._prefix = UtilsNew.randomString(8);
     }
 
     onFilterChange(fieldId, value) {
-        console.log(fieldId, value);
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
                 param: fieldId,
@@ -77,20 +71,23 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 return html`
                     <select-field-filter
                         ?multiple="${fieldConfig.multiple}"
-                        ?disabled=${this.config.disabled}
-                        ?required=${this.config.required}
+                        ?disabled="${this.config.disabled}"
+                        ?required="${this.config.required}"
                         .data="${fieldConfig.allowedValues}"
                         .value="${fieldConfig.defaultValue}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </select-field-filter>`;
+                    </select-field-filter>
+                `;
             case "string":
                 return html`
                     <text-field-filter
                         placeholder="${fieldConfig.placeholder || ""}"
-                        ?disabled=${this.config.disabled} ?required=${this.config.required}
+                        ?disabled="${this.config.disabled}"
+                        ?required="${this.config.required}"
                         .value="${fieldConfig.defaultValue || ""}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    </text-field-filter>
+                `;
             case "number":
                 const [min = "", max = ""] = fieldConfig.allowedValues || [];
                 return html`
@@ -100,57 +97,71 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                         ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}"
                         id="${this._prefix}-input-${fieldConfig.id}" class="form-control input-sm ${this._prefix}FilterTextInput"
                         placeholder="${fieldConfig.placeholder || ""}" @input="${e => this.onFilterChange(fieldConfig.id, e.target.value)}">
-                        </div>`;
+                    </div>
+                `;
             case "checkbox":
-                return html`<checkbox-field-filter .value="${fieldConfig.value}" .data="${fieldConfig.allowedValues}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></checkbox-field-filter>`;
+                return html`
+                    <checkbox-field-filter
+                        .value="${fieldConfig.value}"
+                        .data="${fieldConfig.allowedValues}"
+                        @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
+                    </checkbox-field-filter>
+                `;
             case "boolean":
-                return html`<div class="form-horizontal">
-                                <div class="from-group form-inline">
-                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}"
-                                    id="${this._prefix + fieldConfig.id}yes" ?checked=${fieldConfig.value === "yes"}
-                                    value="yes" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}">
-                                        <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}yes"> Yes </label>
-                                    <input class="magic-radio" type="radio" name="${fieldConfig.id}"
-                                    id="${this._prefix + fieldConfig.id}no" ?checked=${fieldConfig.value === "no"}
-                                    value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}">
-                                        <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}no"> No </label>
-                                </div>
-                            </div>`;
+                return html`
+                    <div class="form-horizontal">
+                        <div class="from-group form-inline">
+                            <input class="magic-radio" type="radio" name="${fieldConfig.id}"
+                            id="${this._prefix + fieldConfig.id}yes" ?checked=${fieldConfig.value === "yes"}
+                            value="yes" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}">
+                                <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}yes"> Yes </label>
+                            <input class="magic-radio" type="radio" name="${fieldConfig.id}"
+                            id="${this._prefix + fieldConfig.id}no" ?checked=${fieldConfig.value === "no"}
+                            value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}">
+                                <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}no"> No </label>
+                        </div>
+                    </div>
+                `;
             case "CLINVAR_ACCESSION_FILTER":
                 return html`
                     <clinvar-accessions-filter
                         .config="${{clinvar: false}}"
                         .clinicalSignificance="${fieldConfig.value}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e?.detail?.value?.clinicalSignificance)}">
-                    </clinvar-accessions-filter>`;
+                    </clinvar-accessions-filter>
+                `;
             case "COHORT_FREQUENCY_FILTER":
                 return html`
                     <cohort-stats-filter
                         .opencgaSession="${this.opencgaSession}"
-                        .onlyCohortAll=${true}
+                        .onlyCohortAll="${true}"
                         .cohortStatsAlt="${fieldConfig.value}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </cohort-stats-filter>`;
+                    </cohort-stats-filter>
+                `;
             case "POPULATION_FREQUENCY_FILTER":
                 return html`
                     <population-frequency-filter
                         .populationFrequencyAlt="${fieldConfig.value}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </population-frequency-filter>`;
+                    </population-frequency-filter>
+                `;
             case "CONSEQUENCE_TYPE_FILTER":
                 return html`
                     <consequence-type-select-filter
                         .ct="${fieldConfig.value}"
                         .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </consequence-type-select-filter>`;
+                    </consequence-type-select-filter>
+                `;
             case "VARIANT_TYPE_FILTER":
                 return html`
                     <variant-type-filter
                         .type="${fieldConfig.value}"
                         .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </variant-type-filter>`;
+                    </variant-type-filter>
+                `;
             case "SAMPLE_FILTER":
                 return html`
                     <catalog-search-autocomplete
@@ -186,7 +197,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </catalog-search-autocomplete>`;
+                    </catalog-search-autocomplete>
+                `;
             case "FAMILY_FILTER":
                 return html`
                     <catalog-search-autocomplete
@@ -201,19 +213,22 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 return html`
                     <clinical-analysis-id-autocomplete
                         .value="${fieldConfig.value ?? fieldConfig.defaultValue}"
-                        .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}"
+                        .config="${fieldConfig}"
+                        .opencgaSession="${this.opencgaSession}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </clinical-analysis-id-autocomplete>`;
+                    </clinical-analysis-id-autocomplete>
+                `;
             default:
                 console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");
                 return html`
                     <text-field-filter
                         .value="${fieldConfig.value ?? fieldConfig.defaultValue}"
                         placeholder="${fieldConfig.placeholder || ""}"
-                        ?disabled=${this.config.disabled}
-                        ?required=${this.config.required}
+                        ?disabled="${this.config.disabled}"
+                        ?required="${this.config.required}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    </text-field-filter>
+                `;
         }
     }
 

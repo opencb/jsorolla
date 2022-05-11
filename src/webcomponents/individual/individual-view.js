@@ -158,7 +158,7 @@ export default class IndividualView extends LitElement {
                                         .value="${this.sample?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
