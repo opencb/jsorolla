@@ -330,6 +330,13 @@ class VariantInterpreterBrowser extends LitElement {
                                         height: 120,
                                     },
                                 },
+                                {
+                                    type: "opencga-alignment",
+                                    config: {
+                                        title: `Alignments - ${clinicalAnalysis.proband.samples[0].id}`,
+                                        sample: clinicalAnalysis.proband.samples[0].id,
+                                    },
+                                },
                             ]}">
                         </genome-browser>
                     `,
