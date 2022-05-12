@@ -468,9 +468,16 @@ export default class FeatureTrack {
         return this.dataAdapter.getData(options);
     }
 
-    getDataHandler(data, request) {
-        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
+    getDataHandler(response, request) {
+        // Check if responses is an array (multiple calls) or a single element (single call)
+        let data = [];
+        if (response && Array.isArray(response)) {
+            data = response.map(res => res.responses[0].results);
+        } else {
+            data = response.responses[0].results;
+        }
 
+        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
         renderer.render(data, {
             // cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -530,7 +537,8 @@ export default class FeatureTrack {
 
             // Import and draw data
             this.getData(options).then(response => {
-                this.getDataHandler(response.responses[0].results, options);
+                // this.getDataHandler(response.responses[0].results, options);
+                this.getDataHandler(response, options);
                 this.setLoading(false);
             });
         }
@@ -563,7 +571,8 @@ export default class FeatureTrack {
                     }),
                 };
                 this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results, options);
+                    // return this.getDataHandler(response.responses[0].results, options);
+                    return this.getDataHandler(response, options);
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
@@ -578,7 +587,8 @@ export default class FeatureTrack {
                     }),
                 };
                 this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results, options);
+                    // return this.getDataHandler(response.responses[0].results, options);
+                    return this.getDataHandler(response, options);
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
