@@ -2,7 +2,7 @@ import FeatureTrack from "./feature-track.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";
 import AlignmentRenderer from "../renderers/alignment-renderer.js";
 
-export default class AlignmentTrack extends FeatureTrack {
+export default class OpenCGAAlignmentTrack extends FeatureTrack {
 
     constructor(config) {
         super(config);
@@ -13,47 +13,55 @@ export default class AlignmentTrack extends FeatureTrack {
             ...(this.config.renderer || {}),
         });
 
-        // Init sample and file info
-        this.#getSampleAndAlignmentInfo();
+        this.alignmentInfo = null;
     }
 
     // Import sample info
     async #getSampleAndAlignmentInfo() {
-        this.sampleInfo = await this.config.opencgaClient.samples()
-            .info(this.config.sample, {
-                study: this.config.opencgaStudy,
-                includeIndividual: true,
-            })
-            .results[0];
+        // this.sampleInfo = await this.config.opencgaClient.samples()
+        //     .info(this.config.sample, {
+        //         study: this.config.opencgaStudy,
+        //         includeIndividual: true,
+        //     })
+        //     .results[0];
 
         // Alignment file info
-        this.alignmentInfo = await this.config.opencgaClient.files()
-            .query({
+        const alignmentResponse = await this.config.opencgaClient.files()
+            .search({
                 study: this.config.opencgaStudy,
                 sampleIds: this.config.sample,
                 bioformat: "ALIGNMENT",
                 exclude: "qualityControl,attributes",
-            })
-            .results[0];
+            });
+        this.alignmentInfo = alignmentResponse.getResults()[0];
     }
 
-    getData(options) {
-        if (options.dataType === "histogram") {
-            // Fetch aggregation stats for the current region
-            // return this.config.opencgaClient.variants().aggregationStats({
-            //     study: this.config.opencgaStudy,
-            //     region: options.region.toString(),
-            //     field: `start[${options.region.start}..${options.region.end}]:${this.config.histogramInterval}`,
-            // });
-        } else {
-            // Fetch alignments info for the current region
-            return this.config.opencgaClient.alignments().query({
-                file: this.alignmentInfo.id,
-                study: this.config.opencgaStudy,
-                limit: 5000,
-                region: options.region.toString(),
-            });
+    async getData(options) {
+        if (!this.alignmentInfo) {
+            await this.#getSampleAndAlignmentInfo();
         }
+
+        // Fetch alignments info for the current region
+        const alignmentsRequest = this.config.opencgaClient.alignments().query(this.alignmentInfo.id, {
+            study: this.config.opencgaStudy,
+            limit: 5000,
+            region: options.region.toString(),
+            offset: 0,
+        });
+
+        // Fetch coverage data for the current region
+        const coverageRequest = this.config.opencgaClient.alignments().queryCoverage(this.alignmentInfo.id, {
+            study: this.config.opencgaStudy,
+            region: options.region.toString(),
+            windowSize: 1,
+            offset: 0,
+        });
+
+        // Wrap all requests in a single promise
+        return Promise.all([
+            coverageRequest,
+            alignmentsRequest,
+        ]);
     }
 
     getDefaultConfig() {
