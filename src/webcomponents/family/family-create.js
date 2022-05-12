@@ -138,7 +138,7 @@ export default class FamilyCreate extends LitElement {
             },
             sections: [
                 {
-                    title: "Family General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "Family ID",

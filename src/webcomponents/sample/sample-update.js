@@ -244,7 +244,7 @@ export default class SampleUpdate extends LitElement {
                 buttonOkText: "Update"
             },
             sections: [{
-                title: "Sample General Information",
+                title: "General Information",
                 elements: [
                     {
                         title: "Sample ID",
