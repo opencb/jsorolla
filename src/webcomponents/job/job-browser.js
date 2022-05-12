@@ -198,7 +198,7 @@ export default class JobBrowser extends LitElement {
                                 id: "internalStatus",
                                 name: "Status",
                                 placeholder: "Status",
-                                allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "REGISTERING", "UNREGISTERED", "ABORTED", "DELETED"],
+                                allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
                                 defaultValue: "",
                                 description: "Job internal status",
                             },
@@ -345,7 +345,7 @@ export default class JobBrowser extends LitElement {
                                 id: "status",
                                 name: "Status",
                                 type: "category",
-                                allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "REGISTERING", "UNREGISTERED", "ABORTED", "DELETED"],
+                                allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
                                 description: "Status",
                             },
                             {
