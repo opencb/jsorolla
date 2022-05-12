@@ -142,7 +142,7 @@ export default class CohortCreate extends LitElement {
             },
             sections: [
                 {
-                    title: "Cohort General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "Cohort ID",

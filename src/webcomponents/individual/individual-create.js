@@ -141,7 +141,7 @@ export default class IndividualCreate extends LitElement {
             // },
             sections: [
                 {
-                    title: "Individual General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "Individual ID",

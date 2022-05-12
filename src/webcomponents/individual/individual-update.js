@@ -114,17 +114,6 @@ export default class IndividualUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            // case "phenotypes":
-            //     this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
-            //     this.individual = {...this.individual, phenotypes: e.detail.value};
-            //     break;
-            // case "disorders":
-            //     this.updateParams = {...this.updateParams, disorders: e.detail.value};
-            //     this.individual = {...this.individual, disorders: e.detail.value};
-            //     break;
-            // case "annotationSets":
-            //     this.updateParams = {...this.updateParams, annotationSets: e.detail.value};
-            //     break;
             case "location.address":
             case "location.postalCode":
             case "location.city":
@@ -156,7 +145,8 @@ export default class IndividualUpdate extends LitElement {
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            phenotypesAction: "SET"
+            phenotypesAction: "SET",
+            disordersAction: "SET"
         };
         console.log("individualId", this.individual.id, "updateParams:", this.updateParams, "param:", params);
         this.opencgaSession.opencgaClient.individuals()
@@ -179,9 +169,11 @@ export default class IndividualUpdate extends LitElement {
         switch (e.detail.param) {
             case "disorders":
                 this.individual = {...this.individual, disorders: e.detail.value};
+                this.updateParams = {...this.updateParams, disorders: e.detail.value};
                 break;
             case "phenotypes":
                 this.individual = {...this.individual, phenotypes: e.detail.value};
+                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
                 break;
             case "annotationSets":
                 console.log("for annotationSets array");
@@ -215,7 +207,7 @@ export default class IndividualUpdate extends LitElement {
             },
             sections: [
                 {
-                    title: "Individual General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "Individual ID",

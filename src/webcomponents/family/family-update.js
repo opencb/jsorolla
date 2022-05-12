@@ -176,7 +176,7 @@ export default class FamilyUpdate extends LitElement {
             },
             sections: [
                 {
-                    title: "Family General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "Family ID",

@@ -193,7 +193,7 @@ export default class SampleCreate extends LitElement {
                 buttonOkText: "Create"
             },
             sections: [{
-                title: "Sample General Information",
+                title: "General Information",
                 elements: [
                     {
                         title: "Sample ID",
