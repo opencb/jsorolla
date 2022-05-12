@@ -131,7 +131,7 @@ export class JobMonitor extends LitElement {
 
         const query = {
             study: this.opencgaSession.study.fqn,
-            internalStatus: "PENDING,QUEUED,RUNNING,REGISTERING,UNREGISTERED,DONE,ERROR,ABORTED",
+            internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
             limit: this._config.limit || 10,
             sort: "creationDate",
             include: "id,internal.status,tool,creationDate",
@@ -206,7 +206,7 @@ export class JobMonitor extends LitElement {
                         <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
                         <li class="info">
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
                             <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh"><i class="fas fa-sync-alt"></i></button>
 
