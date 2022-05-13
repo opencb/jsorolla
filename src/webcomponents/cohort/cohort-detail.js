@@ -22,7 +22,7 @@ export default class CohortDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,7 +46,7 @@ export default class CohortDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
@@ -59,7 +59,6 @@ export default class CohortDetail extends LitElement {
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
         }
         super.update(changedProperties);
     }
@@ -85,8 +84,13 @@ export default class CohortDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.cohort ? html`
-            <detail-tabs .data="${this.cohort}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` : null;
+        return this.opencgaSession && this.cohort ?
+            html`
+                <detail-tabs
+                    .data="${this.cohort}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>` : null;
     }
 
 }

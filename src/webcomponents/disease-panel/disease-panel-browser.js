@@ -16,10 +16,12 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import {construction} from "../commons/under-construction.js";
 import "../gene/gene-grid.js";
 import "../commons/opencga-browser.js";
 import "./disease-panel-summary.js";
-import {construction} from "../commons/under-construction.js";
+import "./disease-panel-grid.js";
+import "./disease-panel-detail.js";
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -94,7 +96,22 @@ export default class DiseasePanelBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <disease-panel-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}">
+                        </disease-panel-grid>
+                        <disease-panel-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .diseasePanelId="${params.detail.diseasePanel?.id}">
+                        </disease-panel-detail>`
                 },
             ],
             filter: {
@@ -124,7 +141,7 @@ export default class DiseasePanelBrowser extends LitElement {
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
-                                field: "genes.name",
+                                field: "genes.id",
                                 resource: "DISEASE_PANEL"
                             },
                             {

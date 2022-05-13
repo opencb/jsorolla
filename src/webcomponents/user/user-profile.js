@@ -4,6 +4,7 @@ import "../commons/view/detail-tabs.js";
 import "./user-info.js";
 import "./user-projects.js";
 import "./user-password-change.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class UserProfile extends LitElement {
 
@@ -21,11 +22,27 @@ export default class UserProfile extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            settings: {
+                type: Object
+            }
         };
     }
 
     #init() {
         this.config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        if (this.settings?.items) {
+            this.config.items = UtilsNew.mergeConfigById(this.config.items, this.settings?.items);
+        }
     }
 
     render() {

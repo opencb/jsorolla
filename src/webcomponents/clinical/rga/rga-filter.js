@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/forms/text-field-filter.js";
 import "../../commons/forms/checkbox-field-filter.js";
 import "../../commons/filters/feature-filter.js";
@@ -23,7 +24,6 @@ import "../../commons/filters/variant-type-filter.js";
 import "../../commons/filters/cohort-stats-filter.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 import "../../commons/filters/clinvar-accessions-filter.js";
-import "../../commons/filters/individual-id-autocomplete.js";
 import "../../commons/filters/population-frequency-filter.js";
 import "../../commons/filters/region-filter.js";
 
@@ -245,8 +245,14 @@ export default class RgaFilter extends LitElement {
                 break;
             case "individualId":
                 content = html`
-                    <individual-id-autocomplete .value="${this.preparedQuery[subsection.id]}" .config="${subsection}" .opencgaSession="${this.opencgaSession}"
-                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
+                    <catalog-search-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"INDIVIDUAL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-search-autocomplete>
+                `;
                 // content = this.rgaIndividualFilter(subsection);
                 break;
             default:

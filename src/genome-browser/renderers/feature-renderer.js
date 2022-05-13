@@ -29,6 +29,14 @@ export default class FeatureRenderer extends Renderer {
             //     }
             // }
 
+            // Prevent rendering a feature twice
+            if (options.renderedFeatures) {
+                if (options.renderedFeatures.has(feature.id)) {
+                    return;
+                }
+                options.renderedFeatures.add(feature.id);
+            }
+
             // get feature render configuration
             const color = typeof this.config.color === "function" ? this.config.color(feature) : this.config.color;
             const strokeColor = typeof this.config.strokeColor === "function" ? this.config.strokeColor(feature) : this.config.strokeColor;

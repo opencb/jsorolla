@@ -475,7 +475,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     alias: {
                         ct: "Consequence Types"
                     },
-                    complexFields: ["genotype"],
+                    complexFields: [
+                        {id: "genotype", separator: ";"},
+                    ],
                     hiddenFields: []
                 },
                 callers: [

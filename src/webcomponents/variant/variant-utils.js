@@ -35,7 +35,6 @@ export default class VariantUtils {
         const cohortAlleleStatsColumns = [];
         const alleleStats = [];
         const studyIds = [];
-        console.log("json", json);
         if (json[0].studies?.length) {
             json[0].studies.forEach(study => {
                 if (study.studyId.includes("@")) {

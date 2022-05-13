@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
 import "./sample-variant-stats-view.js";
@@ -25,7 +24,7 @@ export default class SampleDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,7 +48,7 @@ export default class SampleDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
@@ -80,7 +79,8 @@ export default class SampleDetail extends LitElement {
                 .catch(reason => {
                     console.error(reason);
                 });
-
+        } else {
+            this.sample = null;
         }
     }
 

@@ -468,7 +468,7 @@ export default class FeatureTrack {
         return this.dataAdapter.getData(options);
     }
 
-    getDataHandler(data) {
+    getDataHandler(data, request) {
         const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
 
         renderer.render(data, {
@@ -485,7 +485,8 @@ export default class FeatureTrack {
             pixelPosition: this.pixelPosition,
             resource: this.resource,
             species: this.species,
-            featureType: this.featureType
+            featureType: this.featureType,
+            requestedRegion: request.region,
         });
 
         this.updateHeight();
@@ -529,7 +530,7 @@ export default class FeatureTrack {
 
             // Import and draw data
             this.getData(options).then(response => {
-                this.getDataHandler(response.responses[0].results);
+                this.getDataHandler(response.responses[0].results, options);
                 this.setLoading(false);
             });
         }
@@ -562,7 +563,7 @@ export default class FeatureTrack {
                     }),
                 };
                 this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results);
+                    return this.getDataHandler(response.responses[0].results, options);
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
@@ -577,7 +578,7 @@ export default class FeatureTrack {
                     }),
                 };
                 this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results);
+                    return this.getDataHandler(response.responses[0].results, options);
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }

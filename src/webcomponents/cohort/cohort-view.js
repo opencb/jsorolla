@@ -155,12 +155,13 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html `
-                                    <cohort-id-autocomplete
+                                    <catalog-search-autocomplete
                                         .value="${this.cohort?.id}"
+                                        .resource="${"COHORT"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </cohort-id-autocomplete>
+                                    </catalog-search-autocomplete>
                                 `,
                             }
                         }

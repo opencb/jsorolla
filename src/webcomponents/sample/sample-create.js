@@ -25,6 +25,7 @@ import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-create.js";
 import "./external-source/external-source-create.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -192,7 +193,7 @@ export default class SampleCreate extends LitElement {
                 buttonOkText: "Create"
             },
             sections: [{
-                title: "Sample General Information",
+                title: "General Information",
                 elements: [
                     {
                         title: "",
@@ -220,10 +221,11 @@ export default class SampleCreate extends LitElement {
                         display: {
                             placeholder: "e.g. Homo sapiens, ...",
                             render: individualId => html`
-                                <individual-id-autocomplete
+                                <catalog-search-autocomplete
                                     .value="${individualId}"
+                                    .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config=${{multiple: false}}
+                                    .config="${{multiple: false}}"
                                     @filterChange="${e =>
                                         this.onFieldChange({
                                         detail: {
@@ -231,7 +233,8 @@ export default class SampleCreate extends LitElement {
                                             value: e.detail.value
                                         }
                                     })}">
-                                </individual-id-autocomplete>`
+                                </catalog-search-autocomplete>
+                            `
                         }
                     },
                     {

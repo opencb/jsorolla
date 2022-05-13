@@ -20,6 +20,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../study/status/status-update.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FamilyUpdate extends LitElement {
 
@@ -152,12 +153,12 @@ export default class FamilyUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                    .data=${this.family}
-                    .config="${this._config}"
-                    .updateParams=${this.updateParams}
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
+                .data="${this.family}"
+                .config="${this._config}"
+                .updateParams="${this.updateParams}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
@@ -175,7 +176,7 @@ export default class FamilyUpdate extends LitElement {
             },
             sections: [
                 {
-                    title: "Family General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "",
@@ -215,12 +216,15 @@ export default class FamilyUpdate extends LitElement {
                                     const membersIds = Array.isArray(members) ?
                                         members?.map(member => member.id).join(",") : members;
                                     return html`
-                                        <individual-id-autocomplete
+                                        <catalog-search-autocomplete
                                             .value="${membersIds}"
+                                            .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
+                                            .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
                                             .config="${{multiple: true}}"
                                             @filterChange="${e => this.onFieldChange(e, "members.id")}">
-                                        </individual-id-autocomplete>`;
+                                        </catalog-search-autocomplete>
+                                    `;
                                 }
                             },
                         },

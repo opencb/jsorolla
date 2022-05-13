@@ -98,7 +98,10 @@ export default class FilePreview extends LitElement {
 
     fileIdsObserver() {
         if (this.opencgaSession && this.fileIds) {
-            this.opencgaSession.opencgaClient.files().info(this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(","), {study: this.opencgaSession.study.fqn})
+            const ids = this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(",");
+            this.opencgaSession.opencgaClient.files().info(ids, {
+                study: this.opencgaSession.study.fqn,
+            })
                 .then(response => {
                     this.files = response.responses[0].results;
                 })
@@ -118,7 +121,7 @@ export default class FilePreview extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn,
             includeIndividual: true,
-            lines: 200
+            lines: 200,
         };
 
         this.filesWithContent = this.files.map(file => {
@@ -190,10 +193,6 @@ export default class FilePreview extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {};
-    }
-
     render() {
         return html`
             <style>
@@ -220,35 +219,35 @@ export default class FilePreview extends LitElement {
                     ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
                         <div style="margin: 25px 0 5px 0">
                             <label>
-                                <span>${fileWithContent.name}</span> <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                <span>${fileWithContent.name}</span>
+                                <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
                             </label>
                         </div>
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "text" ? html`
                             <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "image" ? html`
                             <image-viewer
                                 .data="${fileWithContent.content}">
                             </image-viewer>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "json" ? html`
                             <json-viewer
                                 .data="${fileWithContent.content}">
                             </json-viewer>
-                        ` : null
-                        }
-                    `) : null
-                    }
+                        ` : null}
+                    `) : null}
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }

@@ -17,6 +17,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "../commons/opencb-facet-results.js";
+import "../commons/facet-filter.js";
+import "./sample-grid.js";
+import "./sample-detail.js";
 
 export default class SampleBrowser extends LitElement {
 
@@ -95,12 +99,33 @@ export default class SampleBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <sample-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "sample")}">
+                        </sample-grid>
+                        <sample-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .sampleId="${params.detail.sample?.id}">
+                        </sample-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html `
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.active}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }/*
                 {
                     id: "comparator-tab",
@@ -185,62 +210,80 @@ export default class SampleBrowser extends LitElement {
                             id: "sample-view",
                             name: "Overview",
                             active: true,
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <sample-view
+                                    .sample="${sample}"
+                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-view>
+                            `,
                         },
                         {
                             id: "sample-variant-stats-view",
                             name: "Variant Stats",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <sample-variant-stats-view
+                                    .sampleId="${sample.id}"
+                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}">
+                                </sample-variant-stats-view>
+                            `,
                         },
                         {
                             id: "samtools-flags-stats-view",
                             name: "Samtools Flagstat",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <samtools-flagstats-view .sample="${sample}" .opencgaSession="${opencgaSession}"></samtools-flagstats-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <samtools-flagstats-view
+                                    .sample="${sample}"
+                                    .opencgaSession="${opencgaSession}">
+                                </samtools-flagstats-view>
+                            `,
                         },
                         {
                             id: "individual-view",
                             name: "Individual",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></individual-view>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <individual-view
+                                    .individualId="${sample?.individualId}"
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-view>
+                            `,
                         },
                         {
                             id: "file-view",
                             name: "Files",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <opencga-file-grid
-                                        .query="${{sampleIds: sample.id}}"
-                                        .active="${active}"
-                                        .config="${{downloadFile: this.config.downloadFile}}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </opencga-file-grid>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <opencga-file-grid
+                                    .query="${{sampleIds: sample.id}}"
+                                    .active="${active}"
+                                    .config="${{downloadFile: this.config.downloadFile}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </opencga-file-grid>
+                            `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (sample, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
-                            }
+                            render: (sample, active, opencgaSession) => html`
+                                <json-viewer
+                                    .data="${sample}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         }
                     ]
                 }
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "somatic"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>
+                `,
                 result: {
                     numColumns: 2
                 },

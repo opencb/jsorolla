@@ -20,6 +20,7 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
 import "./variant-interpreter-browser-rearrangement.js";
+import "../../visualization/genome-browser.js";
 import "../../commons/view/detail-tabs.js";
 
 class VariantInterpreterBrowser extends LitElement {
@@ -292,6 +293,47 @@ class VariantInterpreterBrowser extends LitElement {
                         });
                     }
                 }
+
+                // Append genome browser
+                items.push({
+                    id: "genome-browser",
+                    name: "Genome Browser (Experimental)",
+                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <genome-browser
+                            .opencgaSession="${opencgaSession}"
+                            .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
+                            .active="${active}"
+                            .config="${{
+                                cellBaseClient: this.cellbaseClient,
+                            }}"
+                            .tracks="${[
+                                {
+                                    type: "gene-overview",
+                                    overview: true,
+                                    config: {},
+                                },
+                                {
+                                    type: "sequence",
+                                    config: {},
+                                },
+                                {
+                                    type: "gene",
+                                    config: {},
+                                },
+                                {
+                                    type: "opencga-variant",
+                                    config: {
+                                        title: "Variants",
+                                        query: {
+                                            sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                                        },
+                                        height: 120,
+                                    },
+                                },
+                            ]}">
+                        </genome-browser>
+                    `,
+                });
             }
         }
 

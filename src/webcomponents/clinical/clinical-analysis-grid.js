@@ -105,7 +105,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 detailView: this._config.detailView,
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
-                ajax: async params => {
+                ajax: params => {
+                    let response = null;
                     const query = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -115,13 +116,19 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         sort: "creationDate",
                         ...this.query
                     };
-                    try {
-                        const data = await this.fetchData(query);
-                        params.success(data);
-                    } catch (e) {
-                        console.log(e);
-                        params.error(e);
-                    }
+
+                    this.fetchData(query)
+                        .then(res => {
+                            response = res;
+                            params.success(res);
+                        })
+                        .catch(error => {
+                            response = error;
+                            params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", response);
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -340,7 +347,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     onActionClick(e, _, row) {
         const {action} = e.currentTarget.dataset;
         if (action === "delete") {
-            // TODO we need to remove SWAL ASAP
+            // TODO we need to remove SWAL soon.
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",
@@ -363,7 +370,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Case '${clinicalAnalysisId}' has been deleted.`,
                         });
-                        // this.renderTable();
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.removeRowTable(clinicalAnalysisId);
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -385,6 +392,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
                     });
+                    LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                     this.renderTable();
                 })
                 .catch(response => {
@@ -403,6 +411,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Status of case '${row.id}' has been changed to '${status}'.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
                         // console.error(response);
@@ -419,6 +431,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
                         // console.error(response);
@@ -643,7 +659,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             const params = {
                 ...this.query,
                 exclude: "files",
-                limit: 100,
+                limit: e.detail?.exportLimit ?? 1000,
                 order: "asc",
                 skip: 0,
                 count: true,
@@ -691,6 +707,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             readOnlyMode: false, // it hides priority and status selectors even if the user has permissions
@@ -713,23 +746,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             // it comes from external settings and it is used in _getDefaultColumns()
             // columns: []
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : null}
-
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
-            </div>
-        `;
     }
 
 }

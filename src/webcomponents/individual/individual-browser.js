@@ -17,12 +17,16 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./qc/individual-qc-inferred-sex.js";
-import "./individual-view.js";
-import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
 import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/json-viewer.js";
+import "../commons/facet-filter.js";
+import "../commons/opencb-facet-results.js";
+import "./individual-view.js";
+import "./individual-grid.js";
+import "./individual-detail.js";
+
 
 export default class IndividualBrowser extends LitElement {
 
@@ -91,6 +95,16 @@ export default class IndividualBrowser extends LitElement {
         }
     }
 
+    render() {
+        return this.opencgaSession && this._config ? html`
+            <opencga-browser
+                resource="INDIVIDUAL"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>` : "";
+    }
+
     getDefaultConfig() {
         return {
             title: "Individual Browser",
@@ -100,12 +114,34 @@ export default class IndividualBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html`
+                        <individual-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .query="${params.executedQuery}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "individual")}">
+                        </individual-grid>
+                        <individual-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .individualId="${params.detail.individual?.id}">
+                        </individual-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.active}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }
                 /*
                 {
@@ -245,9 +281,12 @@ export default class IndividualBrowser extends LitElement {
                             id: "individual-view",
                             name: "Overview",
                             active: true,
-                            render: (individual, active, opencgaSession) => {
-                                return html`<individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-view>`;
-                            }
+                            render: (individual, active, opencgaSession) => html`
+                                <individual-view
+                                    .individual="${individual}"
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-view>
+                            `,
                         },
                         {
                             id: "clinical-analysis-grid",
@@ -262,36 +301,52 @@ export default class IndividualBrowser extends LitElement {
                                         .query="${{"proband": individual.id}}"
                                         .config=${config}
                                         .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-grid>`;
+                                    </clinical-analysis-grid>
+                                `;
                             }
                         },
                         {
                             id: "individual-inferred-sex",
                             name: "Inferred Sex",
-                            render: (individual, active, opencgaSession) => {
-                                return html`<individual-qc-inferred-sex .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-inferred-sex>`;
-                            }
+                            render: (individual, active, opencgaSession) => html`
+                                <individual-qc-inferred-sex
+                                    .individual="${individual}"
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-qc-inferred-sex>
+                            `,
                         },
                         {
                             id: "individual-mendelian-error",
                             name: "Mendelian Error",
-                            render: (individual, active, opencgaSession) => {
-                                return html`<individual-qc-mendelian-errors .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-qc-mendelian-errors>`;
-                            }
+                            render: (individual, active, opencgaSession) => html`
+                                <individual-qc-mendelian-errors
+                                    .individual="${individual}"
+                                    .opencgaSession="${opencgaSession}">
+                                </individual-qc-mendelian-errors>
+                            `
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (individual, active, opencgaSession) => {
-                                return html`<json-viewer .data="${individual}" .active="${active}"></json-viewer>`;
-                            }
+                            render: (individual, active, opencgaSession) => html`
+                                <json-viewer
+                                    .data="${individual}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         }
                     ]
                 }
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },
@@ -484,15 +539,6 @@ export default class IndividualBrowser extends LitElement {
         };
     }
 
-    render() {
-        return this.opencgaSession && this._config ? html`
-            <opencga-browser
-                resource="INDIVIDUAL"
-                .opencgaSession="${this.opencgaSession}"
-                .query="${this.query}"
-                .config="${this._config}">
-            </opencga-browser>` : "";
-    }
 
 }
 

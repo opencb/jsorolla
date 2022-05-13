@@ -83,7 +83,7 @@ export default class JobTimeline extends LitElement {
             // exclude: "execution",
             ...this.query
         };
-        this.opencgaSession.opencgaClient.jobs().search(filters).then( restResponse => {
+        this.opencgaSession.opencgaClient.jobs().search(filters).then(restResponse => {
             const results = restResponse.getResults();
             if (!results.length) {
                 this.querySelector("#svg-timeline").innerHTML = "No matching records found";
@@ -113,9 +113,9 @@ export default class JobTimeline extends LitElement {
             this._results = this._results.sort((a, b) => a.timestampStart - b.timestampStart);
             this.generateTimeline();
 
-        }).catch( e => {
+        }).catch(e => {
             console.log(e);
-        }).finally( () => {
+        }).finally(() => {
             this.querySelector("#loading").style.display = "none";
         });
     }
@@ -129,10 +129,8 @@ export default class JobTimeline extends LitElement {
         if (this.draw) {
             this.draw.clear();
             // TODO FIXME for some reason draw is not actually really cleared (cache issue?)
-            console.log("CHILDS", this.draw)
-            console.log("first", this.draw.first())
         }
-        //console.log("timestampMinMax", this.timestampMin, this.timestampMax);
+        // console.log("timestampMinMax", this.timestampMin, this.timestampMax);
 
         this._config.board.width = this._config.board.width || this.querySelector("#svg-timeline").clientWidth - 200;
         this.tick = Math.round(this._config.board.width / this._config.ticks);
@@ -180,7 +178,7 @@ export default class JobTimeline extends LitElement {
         this.intervals.forEach((target, i) => {
             if (target.dependsOn && target.dependsOn.length) {
                 target.dependsOn.forEach(dep => {
-                    if (!dep || !dep.id) console.error("Dependant Job ID not defined, dep", target)
+                    if (!dep || !dep.id) console.error("Dependant Job ID not defined, dep", target);
                     const source = this.intervals.find(c => c.id === dep.id);
                     if (source) {
                         this.draw.line(source.end, source.y, target.start, target.y).stroke({
@@ -208,13 +206,13 @@ export default class JobTimeline extends LitElement {
     }
 
     onJobClick(line) {
-        SVG.find(".job").forEach( line => line.stroke({color: line.node.attributes._color.value}));
+        SVG.find(".job").forEach(line => line.stroke({color: line.node.attributes._color.value}));
         if (this._config.edgesVisibility === "onclick") {
             SVG.find(".edge").stroke({opacity: 0});
             SVG.find(`.edge[id*="${line.id()}"]`).stroke({opacity: .3});
         }
         line.stroke({color: "#000"});
-        //this.file
+        // this.file
         this.jobId = line.id();
         this.requestUpdate();
     }
@@ -232,7 +230,9 @@ export default class JobTimeline extends LitElement {
                 color: "#ddd",
                 width: 1
             });
-            this.draw.text(moment(this.timestampMin + this.dateTick * i).format("D MMM YY") + "\n    " + moment(this.timestampMin + this.dateTick * i).format("HH:ss")).dy(this._config.board.originY).dx(this._config.board.originX + this.tick * i - 20);
+            this.draw.text(
+                moment(this.timestampMin + this.dateTick * i).format("D MMM YY") + "\n    " +
+                moment(this.timestampMin + this.dateTick * i).format("HH:ss")).dy(this._config.board.originY).dx(this._config.board.originX + this.tick * i - 20);
 
         }
     }
@@ -368,10 +368,10 @@ export default class JobTimeline extends LitElement {
             <div id="svg-timeline">
             </div>
         </div>
-        <opencga-job-detail
+        <job-detail
             .opencgaSession="${this.opencgaSession}"
             .jobId="${this.jobId}">
-        </opencga-job-detail>
+        </job-detail>
         `;
     }
 
