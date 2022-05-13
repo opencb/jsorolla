@@ -63,6 +63,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             mode: {
                 type: String
             },
+            settings: {
+                type: Object,
+            },
             gridConfig: {
                 type: Object,
             },
@@ -93,42 +96,51 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("gridConfig")) {
-            this.configObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("gridConfig") || changedProperties.has("settings")) {
+            this.settingsObserver();
         }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+
         super.update(changedProperties);
     }
 
-    configObserver() {
+    settingsObserver() {
         this._config = {
             ...this.getDefaultConfig(),
-            ...this.config,
+            ...(this.config || {}),
         };
 
-        // Merge grid configuration
-        this._config.result.grid = {
-            ...this._config.result.grid,
-            ...this.gridConfig,
-        };
+        if (this.gridConfig) {
+            this._config.result.grid = {
+                ...this._config.result.grid,
+                ...this.gridConfig,
+            };
+        }
+
+        if (this.settings?.table) {
+            this._config.result.grid = {
+                ...this._config.result.grid,
+                ...this.settings.table,
+            };
+        }
+
+        if (this.settings?.table?.toolbar) {
+            this._config.result.grid.toolbar = {
+                ...this._config.result.grid.toolbar,
+                ...this.settings.table.toolbar,
+            };
+        }
+
+        // Add copy.execute functions
+        if (this._config.result.grid?.copies?.length > 0) {
+            this._config.result.grid?.copies.forEach(copy => {
+                const originalCopy = this.settings.table.copies.find(c => c.id === copy.id);
+                if (originalCopy.execute) {
+                    // eslint-disable-next-line no-param-reassign
+                    copy.execute = originalCopy.execute;
+                }
+            });
+        }
     }
-
-    // clinicalAnalysisObserver() {
-    //     if (this.clinicalAnalysis) {
-    //         this._interpretation = this.clinicalAnalysis.interpretation;
-    //         if (UtilsNew.isNotUndefinedOrNull(this._interpretation)) {
-    //             if (UtilsNew.isNotEmptyArray(this._interpretation.primaryFindings)) {
-    //                 this.isInterpretedVariants = true;
-    //             } else {
-    //                 this.isInterpretedVariants = false;
-    //             }
-    //         }
-    //         // this.fillForm(this._interpretation);
-    //         this.requestUpdate();
-    //     }
-    // }
 
     onSelectVariant(e) {
         this.variantId = e.detail.id;
@@ -156,7 +168,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
 
-    onViewInterpretation(e) {
+    onViewInterpretation() {
         $("#" + this._prefix + "PreviewModal").modal("show");
     }
 
@@ -165,6 +177,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         this.currentQueryBeforeSaveEvent = this.query;
 
         // Save current query in the added variants
+        // eslint-disable-next-line no-param-reassign
         this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
 
         const comment = e.detail.comment;
