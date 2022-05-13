@@ -232,16 +232,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}">
                                 </clinical-analysis-view>
                             `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            mode: "development",
-                            render: clinicalAnalysis => html`
-                                <json-viewer
-                                    .data="${clinicalAnalysis}">
-                                </json-viewer>
-                            `,
                         }
                     ]
                 }
