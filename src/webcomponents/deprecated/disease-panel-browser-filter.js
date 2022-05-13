@@ -16,21 +16,23 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
-import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/filters/feature-filter.js";
+import "../commons/filters/region-filter.js";
 import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
-import "../commons/forms/select-field-filter.js";
-import "../commons/filters/cohort-id-autocomplete.js";
+import "../commons/forms/section-filter.js";
 
-
-export default class CohortBrowserFilter extends LitElement {
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
+export default class DiseasePanelBrowserFilter extends LitElement {
 
     constructor() {
         super();
-        this._init();
-    }
 
+        this._init();
+
+    }
     createRenderRoot() {
         return this;
     }
@@ -40,10 +42,10 @@ export default class CohortBrowserFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cohorts: {
-                type: Array
-            },
             query: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             variableSets: {
@@ -52,15 +54,11 @@ export default class CohortBrowserFilter extends LitElement {
             variables: {
                 type: Array
             },
-            // compact: {
-            //     type: Boolean
-            // },
             config: {
                 type: Object
             }
         };
     }
-
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
@@ -81,31 +79,52 @@ export default class CohortBrowserFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    firstUpdated() {
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
         UtilsNew.initTooltip(this);
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
         if (changedProperties.has("variables")) {
-            this.variablesChanged();
+            // this.variablesChanged()
         }
-        if (changedProperties.has("opencgaSession")) {
-            // this.updateVariableSets();
-        }
-        super.update(changedProperties);
+    }
+
+    // TODO review
+    // this is used only in case of Search button inside filter component.
+    onSearch() {
+        this.notifySearch(this.preparedQuery);
     }
 
     queryObserver() {
-        console.log("queryObserver()", this.query);
         this.preparedQuery = this.query || {};
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
-    onSearch() {
-        this.notifySearch(this.preparedQuery);
+    onFilterChange(key, value) {
+        if (key instanceof Object && value instanceof Object) {
+            for (const k of Object.keys(key)) {
+                const v = value[k];
+                if (v && v !== "") {
+                    this.preparedQuery = {...this.preparedQuery, ...{[k]: v}};
+                } else {
+                    delete this.preparedQuery[k];
+                    this.preparedQuery = {...this.preparedQuery};
+                }
+            }
+        } else {
+            if (value && value !== "") {
+                this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+            } else {
+                delete this.preparedQuery[key];
+                this.preparedQuery = {...this.preparedQuery};
+            }
+        }
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     onAnnotationChange(e) {
@@ -119,26 +138,11 @@ export default class CohortBrowserFilter extends LitElement {
         this.requestUpdate();
     }
 
-    onFilterChange(key, value) {
-        console.log("filterChange", {[key]: value});
-        if (value && value !== "") {
-            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
-        } else {
-            console.log("deleting", key, "from preparedQuery");
-            delete this.preparedQuery[key];
-            this.preparedQuery = {...this.preparedQuery};
-        }
-        this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
-    }
-
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
@@ -146,9 +150,7 @@ export default class CohortBrowserFilter extends LitElement {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
@@ -162,51 +164,93 @@ export default class CohortBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <cohort-id-autocomplete
+                    <catalog-search-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"DISEASE_PANEL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-search-autocomplete>
+                    `;
+                break;
+            case "disorders":
+                content = html`
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"disorders.id"}"
+                        .distinctField="${"disorders.id"}"
+                        .resource="${"DISEASE_PANEL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-distinct-autocomplete>`;
+                break;
+            case "genes":
+                content = html`
+                    <!-- <feature-filter
+                        .opencgaSession="\${this.opencgaSession}"
+                        .query=\${this.preparedQuery}
+                        @filterChange="\${e => this.onFilterChange("genes", e.detail.value)}">
+                    </feature-filter> -->
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"genes.id"}"
+                        .distinctField="${"genes.id"}"
+                        .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </cohort-id-autocomplete>`;
+                    </catalog-distinct-autocomplete>`;
                 break;
-            case "samples":
+            case "region":
                 content = html`
-                    <sample-id-autocomplete
+                    <region-filter
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .region="${this.preparedQuery.region}"
+                        @filterChange="${e => this.onFilterChange("regions", e.detail.value)}">
+                    </region-filter>`;
+                break;
+            case "categories":
+                content = html`
+                    <!-- <select-token-filter-static
+                        .config=\${subsection}
+                        .value="\${this.preparedQuery[subsection.id]}"
+                        @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-token-filter-static> -->
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"categories.name"}"
+                        .distinctField="${"categories.name"}"
+                        .resource="${"DISEASE_PANEL"}"
                         .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
+                    </catalog-distinct-autocomplete>
+                `;
                 break;
-            case "annotations":
+            case "tags":
                 content = html`
-                    <opencga-annotation-filter-modal
-                        resource="COHORT"
+                    <catalog-distinct-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .queryField="${"tags"}"
+                        .distinctField="${"tags"}"
+                        .resource="${"DISEASE_PANEL"}"
+                        .config="${subsection}"
                         .opencgaSession="${this.opencgaSession}"
-                        .opencgaClient="${this.opencgaSession.opencgaClient}"
-                        .config="${this.annotationFilterConfig}"
-                        .selectedVariablesText="${this.preparedQuery.annotation}"
-                        @annotationChange="${this.onAnnotationChange}">
-                    </opencga-annotation-filter-modal>`;
-                break;
-            case "type":
-                content = html`
-                    <select-field-filter
-                            ?multiple="${subsection.multiple}"
-                            .data="${subsection.allowedValues}"
-                            .value="${this.preparedQuery[subsection.id]}"
-                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </select-field-filter>`;
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-distinct-autocomplete>`;
                 break;
             case "date":
-                content = html`<date-filter
+                content = html`
+                    <date-filter
                         .creationDate="${this.preparedQuery.creationDate}"
                         @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                </date-filter>`;
+                    </date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
         }
+
         return html`
             <div class="form-group">
                 <div class="browser-subsection" id="${subsection.id}">${subsection.name}
@@ -222,10 +266,6 @@ export default class CohortBrowserFilter extends LitElement {
             </div>`;
     }
 
-    variablesChanged() {
-        this._areVariablesEmpty = (this.variables.length === 0);
-    }
-
     render() {
         return html`
             ${this.config?.searchButton ? html`
@@ -234,7 +274,7 @@ export default class CohortBrowserFilter extends LitElement {
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>
-            ` : null}
+                ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
@@ -244,4 +284,4 @@ export default class CohortBrowserFilter extends LitElement {
 
 }
 
-customElements.define("cohort-browser-filter", CohortBrowserFilter);
+customElements.define("disease-panel-browser-filter", DiseasePanelBrowserFilter);

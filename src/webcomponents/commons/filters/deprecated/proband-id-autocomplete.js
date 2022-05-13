@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../forms/select-token-filter.js";
+import "../../forms/select-token-filter.js";
 
-
-export default class SampleIdAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-distinct-autocomplete now.
+export default class ProbandIdAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -52,27 +52,23 @@ export default class SampleIdAutocomplete extends LitElement {
         this.dispatchEvent(event);
     }
 
-
     getDefaultConfig() {
         return {
-            placeholder: "HG01879, HG01880, HG01881...",
             limit: 10,
-            fields: item => ({
-                "name": item.id,
-                "Individual ID": item?.individualId
-            }),
+            /* fields: item => ({
+                name: item.id
+            }),*/
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
+                const proband = params?.data?.term ? {proband: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
-                    count: true,
+                    count: false,
                     skip: (page - 1) * this._config.limit,
-                    include: "id,individualId",
-                    ...id
+                    ...proband
                 };
-                this.opencgaSession.opencgaClient.samples().search(filters)
+                this.opencgaSession.opencgaClient.clinical().distinct("proband.id", filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -87,9 +83,10 @@ export default class SampleIdAutocomplete extends LitElement {
                 .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-token-filter>
+
         `;
     }
 
 }
 
-customElements.define("sample-id-autocomplete", SampleIdAutocomplete);
+customElements.define("proband-id-autocomplete", ProbandIdAutocomplete);

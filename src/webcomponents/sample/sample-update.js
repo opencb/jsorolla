@@ -25,6 +25,7 @@ import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-update.js";
 import "./external-source/external-source-update.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -243,7 +244,7 @@ export default class SampleUpdate extends LitElement {
                 buttonOkText: "Update"
             },
             sections: [{
-                title: "Sample General Information",
+                title: "General Information",
                 elements: [
                     {
                         title: "Sample ID",
@@ -262,19 +263,21 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             placeholder: "e.g. Homo sapiens, ...",
                             render: individualId => html`
-                                <individual-id-autocomplete
+                                <catalog-search-autocomplete
                                     .value="${individualId}"
-                                    .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
+                                    .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config=${{multiple: false}}
+                                    .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
+                                    .config="${{multiple: false}}"
                                     @filterChange="${e =>
                                         this.onFieldChange({
-                                            detail: {
-                                                param: "individualId",
-                                                value: e.detail.value
-                                            }
-                                        })}">
-                                </individual-id-autocomplete>`
+                                        detail: {
+                                            param: "individualId",
+                                            value: e.detail.value
+                                        }
+                                    })}">
+                                </catalog-search-autocomplete>
+                            `,
                         }
                     },
                     {
@@ -298,15 +301,16 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: source => html`
                                 <external-source-update
-                                    .source=${source}
+                                    .source="${source}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
-                                </external-source-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "source")}">
+                                </external-source-update>
+                            `,
                         }
                     },
                     {
@@ -316,15 +320,16 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: status => html`
                                 <status-update
-                                    .status=${status}
+                                    .status="${status}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
-                                </status-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "status")}">
+                                </status-update>
+                            `,
                         }
                     },
                     // {
@@ -347,14 +352,15 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: product => html`
                                 <ontology-term-annotation-update
-                                    .ontology=${product}
+                                    .ontology="${product}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}
-                                ></ontology-term-annotation-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
+                                </ontology-term-annotation-update>
+                            `,
                         }
                     },
                     {
@@ -487,7 +493,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @updateItem="${callback}">
-                                </ontology-term-annotation-update>`,
+                                </ontology-term-annotation-update>
+                            `,
                             renderCreate: (pheno, callback) => html`
                                 <label>Create new item</label>
                                 <ontology-term-annotation-create
@@ -498,7 +505,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @addItem="${callback}">
-                                </ontology-term-annotation-create>`
+                                </ontology-term-annotation-create>
+                            `,
                         }
                     },
                 ]

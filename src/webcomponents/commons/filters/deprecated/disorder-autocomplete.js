@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
-import LitUtils from "../utils/lit-utils";
+import "../../forms/select-token-filter.js";
+import LitUtils from "../../utils/lit-utils";
 
-
+// Rodiel 02-05-2022 - DEPRECATED: use new catalog-distinct-autocomplete now.
 export default class DisorderAutocomplete extends LitElement {
 
     createRenderRoot() {

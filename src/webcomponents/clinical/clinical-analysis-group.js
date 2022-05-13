@@ -59,6 +59,8 @@ export default class ClinicalAnalysisGroup extends LitElement {
     }
 
     updateGroups() {
+        this.groups = []; // Reset groups
+        this.requestUpdate();
         this.opencgaSession.opencgaClient.clinical()
             .distinct(this.activeGroup.distinctField, {
                 study: this.opencgaSession.study.fqn,
@@ -85,6 +87,11 @@ export default class ClinicalAnalysisGroup extends LitElement {
         if (totalResults > 0) {
             this.querySelector(`#${this._prefix}GroupCount${item}`).textContent = `(${totalResults} cases)`;
         }
+    }
+
+    onRowUpdate() {
+        // If a row has been updated, we force a refresh of all groups
+        this.updateGroups();
     }
 
     render() {
@@ -136,6 +143,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
                                 [this.activeGroup.queryField]: item,
                             }}"
                             .active="${true}"
+                            @rowUpdate="${() => this.onRowUpdate()}"
                             @queryComplete="${e => this.onQueryComplete(e, item)}">
                         </clinical-analysis-grid>
                     </div>

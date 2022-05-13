@@ -370,7 +370,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Case '${clinicalAnalysisId}' has been deleted.`,
                         });
-                        // this.renderTable();
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.removeRowTable(clinicalAnalysisId);
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -392,6 +392,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
                     });
+                    LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                     this.renderTable();
                 })
                 .catch(response => {
@@ -410,6 +411,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Status of case '${row.id}' has been changed to '${status}'.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
                         // console.error(response);
@@ -426,6 +431,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
                         // console.error(response);
@@ -698,6 +707,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             readOnlyMode: false, // it hides priority and status selectors even if the user has permissions
@@ -720,23 +746,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             // it comes from external settings and it is used in _getDefaultColumns()
             // columns: []
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : null}
-
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
-            </div>
-        `;
     }
 
 }

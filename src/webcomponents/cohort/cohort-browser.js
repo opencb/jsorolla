@@ -19,7 +19,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
-import "./cohort-browser-filter.js";
 import "./cohort-detail.js";
 
 export default class CohortBrowser extends LitElement {
@@ -83,12 +82,12 @@ export default class CohortBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-                <opencga-browser
-                    resource="COHORT"
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.query}"
-                    .config="${this._config}">
-                </opencga-browser>` : "";
+            <opencga-browser
+                resource="COHORT"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>` : "";
     }
 
     getDefaultConfig() {
@@ -139,15 +138,6 @@ export default class CohortBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html`
-                    <cohort-browser-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        .variableSets="${params.variableSets}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </cohort-browser-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -157,7 +147,7 @@ export default class CohortBrowser extends LitElement {
                                 id: "id",
                                 name: "ID",
                                 type: "string",
-                                placeholder: "LP-1234,LP-2345...",
+                                placeholder: "Start typing...",
                                 description: ""
                             },
                             {
@@ -215,7 +205,8 @@ export default class CohortBrowser extends LitElement {
                                     <cohort-view
                                         .opencgaSession="${opencgaSession}"
                                         .cohort="${cohort}">
-                                    </cohort-view>`;
+                                    </cohort-view>
+                                `;
                             }
                         },
                         {
@@ -238,7 +229,11 @@ export default class CohortBrowser extends LitElement {
                             mode: "development",
                             render: (cohort, active, opencgaSession) => {
                                 return html`
-                                    <json-viewer .data="${cohort}" .active="${active}"></json-viewer>`;
+                                    <json-viewer
+                                        .data="${cohort}"
+                                        .active="${active}">
+                                    </json-viewer>
+                                `;
                             }
                         }
                     ]

@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
-import "./clinical-analysis-browser-filter.js";
 import "./clinical-analysis-detail.js";
 import "./clinical-analysis-group.js";
 
@@ -151,15 +150,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
             ],
             filter: {
-                render: params => html `
-                    <clinical-analysis-browser-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </clinical-analysis-browser-filter>
-                `,
                 sections: [
                     {
                         name: "section title",
@@ -181,7 +171,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             {
                                 id: "proband",
                                 name: "Proband ID",
-                                placeholder: "LP-1234, LP-2345...",
+                                placeholder: "PRO-1234, PRO-2345...",
                                 description: ""
                             },
                             {
@@ -194,10 +184,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                 id: "type",
                                 name: "Case Type",
                                 description: "",
-                                params: {
-                                    // FIXME Move this to a CONSTANT!
-                                    allowedValues: ["SINGLE", "FAMILY", "CANCER"],
-                                }
+                                multiple: true,
+                                allowedValues: ["SINGLE", "FAMILY", "CANCER"],
                             },
                             {
                                 id: "status",
@@ -243,14 +231,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}">
                                 </clinical-analysis-view>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            mode: "development",
-                            render: clinicalAnalysis => html`
-                                <json-viewer .data="${clinicalAnalysis}"></json-viewer>
                             `,
                         }
                     ]

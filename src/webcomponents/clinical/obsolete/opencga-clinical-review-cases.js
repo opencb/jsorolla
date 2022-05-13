@@ -25,9 +25,8 @@ import "./clinical-analysis-grid.js";
 import "./clinical-analysis-view.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
-import "../commons/filters/family-id-autocomplete.js";
-import "../commons/filters/disorder-autocomplete.js";
-import "../commons/filters/proband-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-status-filter.js";
 import "../commons/view/detail-tabs.js";
@@ -535,8 +534,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "sample") ? html`
                                             <!-- Sample -->
                                             <div class="btn-group" data-cy="form-sample">
-                                                <sample-id-autocomplete .config=${{placeholder: "Sample Id"}}  .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
-                                                                        @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                <catalog-search-autocomplete
+                                                    .value="${this.query?.sample}"
+                                                    .resource="${"SAMPLE"}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Sample Id"}}
+                                                    @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
+                                                </catalog-search-autocomplete>
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}sampleMenu"
                                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -557,12 +561,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "proband") ? html`
                                             <!-- Proband -->
                                             <div class="btn-group" data-cy="form-proband">
-                                                <proband-id-autocomplete
-                                                    .config=${{placeholder: "Proband Id"}}
+                                                <catalog-distinct-autocomplete
                                                     .value="${this.query?.proband}"
+                                                    .queryField="${"proband"}"
+                                                    .distinctField="${"proband.id"}"
+                                                    .resource="${"CLINICAL_ANALYSIS"}"
                                                     .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Proband Id"}}
                                                     @filterChange="${e => this.onFilterChange("proband", e.detail.value)}">
-                                                </proband-id-autocomplete>
+                                                </catalog-distinct-autocomplete>
                                                     <!--<button type="button" class="btn btn-default dropdown-toggle filter-button"
                                                         id="\${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                                     <span class="ocap-text-button">Proband: <span>\${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
@@ -582,9 +589,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "family") ? html`
                                             <!-- Family -->
                                             <div class="btn-group" data-cy="form-family">
-                                                <family-id-autocomplete .config=${{placeholder: "Family Id"}}  .value="${this.query?.family}" .opencgaSession="${this.opencgaSession}"
-                                                                        @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
-
+                                                <catalog-search-autocomplete
+                                                    .value="${this.query?.family}"
+                                                    .resource="${"FAMILY"}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Family Id"}}
+                                                    @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></catalog-search-autocomplete>
+                                                </catalog-search-autocomplete>
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                                     <span class="ocap-text-button">Family: <span>\${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
@@ -604,13 +615,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "disorder") ? html`
                                             <!-- Disorder -->
                                             <div class="btn-group" data-cy="form-disorder">
-                                                <disorder-autocomplete
-                                                    .config=${{placeholder: "Disorders", freeTag: true}}
-                                                    .resource=${"INDIVIDUAL"}
+                                                <catalog-distinct-autocomplete
                                                     .value="${this.query?.disorder}"
+                                                    .queryField="${"disorders"}"
+                                                    .distinctField="${"disorders.name"}"
+                                                    .resource="${"INDIVIDUAL"}"
                                                     .opencgaSession="${this.opencgaSession}"
+                                                    .config=${{placeholder: "Disorders", freeTag: true}}
                                                     @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}">
-                                                </disorder-autocomplete>
+                                                </catalog-distinct-autocomplete>
 
                                                     <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                         id="\${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">

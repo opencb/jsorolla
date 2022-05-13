@@ -15,10 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../forms/select-token-filter.js";
 
-// Nacho 20-04-2022 - DEPRECATED: use new disorder-autocomplete now.
-export default class DisorderIdIndividualsAutocomplete extends LitElement {
+// Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.
+export default class FileNameAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -54,21 +55,26 @@ export default class DisorderIdIndividualsAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            placeholder: "eg. samples.tsv, phenotypes.vcf...",
             limit: 10,
-            /* fields: item => ({
-                name: item
-            }),*/
+            fields: item => ({
+                name: item.name,
+                Format: item.format ?? "N/A",
+                Size: UtilsNew.getDiskUsage(item.size)
+            }),
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
+                const name = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    ...disorders
+                    type: "FILE",
+                    include: "id,name,format,size",
+                    ...name
                 };
-                this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters)
+                this.opencgaSession.opencgaClient.files().search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
             },
@@ -88,4 +94,4 @@ export default class DisorderIdIndividualsAutocomplete extends LitElement {
 
 }
 
-customElements.define("disorder-id-individuals-autocomplete", DisorderIdIndividualsAutocomplete);
+customElements.define("file-name-autocomplete", FileNameAutocomplete);

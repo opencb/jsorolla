@@ -24,9 +24,8 @@ import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "./opencga-file-grid.js";
 import "./opencga-file-detail.js";
-import "./opencga-file-filter.js";
 
-export default class OpencgaFileBrowser extends LitElement {
+export default class FileBrowser extends LitElement {
 
     constructor() {
         super();
@@ -108,6 +107,22 @@ export default class OpencgaFileBrowser extends LitElement {
         }
     }
 
+    render() {
+
+        if (!this.opencgaSession || !this._config) {
+            return "";
+        }
+
+        return html`
+            <opencga-browser
+                resource="FILE"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "File Browser",
@@ -150,14 +165,6 @@ export default class OpencgaFileBrowser extends LitElement {
             ],
             filter: {
                 searchButton: false,
-                render: params => html `
-                    <opencga-file-filter
-                        .opencgaSession="${params.opencgaSession}"
-                        .config="${params.config.filter}"
-                        .query="${params.query}"
-                        @queryChange="${params.onQueryFilterChange}"
-                        @querySearch="${params.onQueryFilterSearch}">
-                    </opencga-file-filter>`,
                 sections: [
                     {
                         title: "Section title",
@@ -195,6 +202,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                 id: "format",
                                 name: "Format",
                                 type: "category",
+                                multiple: true,
                                 allowedValues: ["VCF", "BCF", "GVCF", "TBI", "BIGWIG", "SAM", "BAM", "BAI", "CRAM", "CRAI", "FASTQ", "FASTA", "PED", "TAB_SEPARATED_VALUES",
                                     "COMMA_SEPARATED_VALUES", "XML", "PROTOCOL_BUFFER", "JSON", "AVRO", "PARQUET", "IMAGE", "PLAIN", "BINARY", "EXECUTABLE", "GZIP", "NONE", "UNKNOWN"],
                                 placeholder: "genomes/resources/files/...",
@@ -204,6 +212,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                 id: "bioformat",
                                 name: "Bioformat",
                                 type: "category",
+                                multiple: true,
                                 allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX",
                                     "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED",
                                     "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED",
@@ -214,6 +223,7 @@ export default class OpencgaFileBrowser extends LitElement {
                             {
                                 id: "internal.index.status.name",
                                 name: "Index Status",
+                                multiple: true,
                                 allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE"],
                                 type: "category"
                             },
@@ -278,7 +288,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                     <file-preview
                                         .active="${active}"
                                         .file="${file}"
-                                        .opencgaSession=${opencgaSession}>
+                                        .opencgaSession="${opencgaSession}">
                                     </file-preview>
                                 `;
                             }
@@ -287,9 +297,12 @@ export default class OpencgaFileBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (file, active) => {
-                                return html`<json-viewer .data="${file}" .active="${active}"></json-viewer>`;
-                            }
+                            render: (file, active) => html`
+                                <json-viewer
+                                    .data="${file}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         }
                     ]
                 }
@@ -513,16 +526,7 @@ export default class OpencgaFileBrowser extends LitElement {
         };
     }
 
-    render() {
-        return this.opencgaSession && this._config ? html`
-            <opencga-browser
-                resource="FILE"
-                .opencgaSession="${this.opencgaSession}"
-                .query="${this.query}"
-                .config="${this._config}">
-            </opencga-browser>` : "";
-    }
 
 }
 
-customElements.define("opencga-file-browser", OpencgaFileBrowser);
+customElements.define("file-browser", FileBrowser);

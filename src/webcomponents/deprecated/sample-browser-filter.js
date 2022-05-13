@@ -17,22 +17,25 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
-import "../commons/forms/text-field-filter.js";
-import "../commons/forms/select-field-filter.js";
-import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/filters/disorder-autocomplete.js";
-import "../commons/filters/phenotype-name-autocomplete.js";
-import "../commons/filters/ethnicity-autocomplete.js";
 import "../commons/forms/date-filter.js";
+import "../commons/opencga-facet-view.js";
+import "../commons/forms/text-field-filter.js";
+import "../commons/filters/variant-file-format-filter.js";
+import "../commons/filters/somatic-filter.js";
+import "../commons/forms/section-filter.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/forms/select-token-filter-static.js";
 
-export default class IndividualBrowserFilter extends LitElement {
+// Rodiel 09-05-2022 - DEPRECATED: opencga-browser support filters by config or use opencga-browser-filter.
+export default class SampleBrowserFilter extends LitElement {
 
     constructor() {
         super();
 
         this._init();
-    }
 
+    }
     createRenderRoot() {
         return this;
     }
@@ -40,14 +43,20 @@ export default class IndividualBrowserFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object,
+                type: Object
             },
             query: {
-                type: Object,
+                type: Object
+            },
+            variableSets: {
+                type: Array
+            },
+            variables: {
+                type: Array
             },
             config: {
-                type: Object,
-            },
+                type: Object
+            }
         };
     }
 
@@ -57,13 +66,12 @@ export default class IndividualBrowserFilter extends LitElement {
         this.annotationFilterConfig = {
             class: "small",
             buttonClass: "btn-sm",
-            inputClass: "input-sm",
+            inputClass: "input-sm"
         };
 
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
-
     }
 
     connectedCallback() {
@@ -74,6 +82,7 @@ export default class IndividualBrowserFilter extends LitElement {
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
+
         UtilsNew.initTooltip(this);
     }
 
@@ -81,10 +90,31 @@ export default class IndividualBrowserFilter extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+        if (changedProperties.has("variables")) {
+            // this.variablesChanged()
+        }
     }
 
+    // TODO review
+    // this is used only in case of Search button inside filter component.
     onSearch() {
         this.notifySearch(this.preparedQuery);
+    }
+
+    queryObserver() {
+        this.preparedQuery = this.query || {};
+        this.requestUpdate();
+    }
+
+    onFilterChange(key, value) {
+        if (value && value !== "") {
+            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
+        } else {
+            delete this.preparedQuery[key];
+            this.preparedQuery = {...this.preparedQuery};
+        }
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     onAnnotationChange(e) {
@@ -98,43 +128,19 @@ export default class IndividualBrowserFilter extends LitElement {
         this.requestUpdate();
     }
 
-
-    queryObserver() {
-        console.log("queryObserver()", this.query);
-        this.preparedQuery = this.query || {};
-        this.requestUpdate();
-    }
-
-    onFilterChange(key, value) {
-        console.log("filterChange", {[key]: value});
-        if (value && value !== "") {
-            this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
-        } else {
-            console.log("deleting", key, "from preparedQuery");
-            delete this.preparedQuery[key];
-            this.preparedQuery = {...this.preparedQuery};
-        }
-        this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
-    }
-
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query,
-            },
-            bubbles: true,
-            composed: true,
+                query: query
+            }
         }));
     }
 
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query,
-            },
-            bubbles: true,
-            composed: true,
+                query: query
+            }
         }));
     }
 
@@ -147,82 +153,79 @@ export default class IndividualBrowserFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-            case "father":
-            case "mother":
                 content = html`
-                    <individual-id-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-search-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"
-                    ></individual-id-autocomplete>`;
-                break;
-            case "samples":
-                content = html`
-                    <sample-id-autocomplete
-                        .config="${subsection}"
+                        .resource="${"SAMPLE"}"
                         .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
+                        .config="${subsection}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete>`;
-                break;
-            case "disorders":
-                content = html`
-                    <disorder-autocomplete
-                        .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .resource=${"INDIVIDUAL"}
-                        .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </disorder-autocomplete>
+                    </catalog-search-autocomplete>
                 `;
                 break;
+            case "individualId":
+                content = html`
+                    <catalog-search-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"INDIVIDUAL"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-search-autocomplete>
+                    `;
+                break;
+            case "fileIds":
+                content = html`
+                    <catalog-search-autocomplete
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .resource="${"FILE"}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${subsection}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </catalog-search-autocomplete>
+                    `;
+                break;
+            case "source":
             case "phenotypes":
                 content = html`
-                    <phenotype-name-autocomplete
-                        .config="${{...subsection, resource: "INDIVIDUAL"}}"
-                        .opencgaSession="${this.opencgaSession}"
+                    <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </phenotype-name-autocomplete>`;
-                break;
-            case "ethnicity":
-                content = html`
-                    <ethnicity-autocomplete
+                        .queryField="${"phenotypes"}"
+                        .distinctField="${"phenotypes.name"}"
+                        .resource="${"SAMPLE"}"
+                        .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .value="${this.preparedQuery[subsection.id]}"
                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </ethnicity-autocomplete>`;
-                break;
-            case "sex":
-            case "karyotypicSex":
-            case "affectationStatus":
-            case "lifeStatus":
-                content = html`
-                    <select-field-filter
-                        ?multiple="${subsection.multiple}"
-                        .data="${subsection.allowedValues}"
-                        .value="${this.preparedQuery[subsection.id]}"
-                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </select-field-filter>`;
+                    </catalog-distinct-autocomplete>
+                    `;
                 break;
             case "annotations":
                 content = html`
                     <opencga-annotation-filter-modal
                         .opencgaSession="${this.opencgaSession}"
-                        resource="INDIVIDUAL"
+                        .opencgaClient="${this.opencgaSession.opencgaClient}"
+                        resource="SAMPLE"
                         .config="${this.annotationFilterConfig}"
                         .selectedVariablesText="${this.preparedQuery.annotation}"
                         @annotationChange="${this.onAnnotationChange}">
-                    </opencga-annotation-filter-modal>`;
+                    </opencga-annotation-filter-modal>
+                    `;
+                break;
+            case "somatic":
+                content = html`
+                    <somatic-filter
+                        .value="${this.preparedQuery.somatic}"
+                        @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}">
+                    </somatic-filter>
+                    `;
                 break;
             case "date":
                 content = html`
                     <date-filter
                         .creationDate="${this.preparedQuery.creationDate}"
                         @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                    </date-filter>`;
+                    </date-filter>
+                    `;
                 break;
             default:
                 console.error("Filter component not found");
@@ -234,13 +237,13 @@ export default class IndividualBrowserFilter extends LitElement {
                     ${subsection.description ? html`
                         <div class="tooltip-div pull-right">
                             <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                        </div>` : null}
+                        </div>` : null
+                    }
                 </div>
                 <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                     ${content}
                 </div>
-            </div>
-        `;
+            </div>`;
     }
 
     render() {
@@ -251,7 +254,7 @@ export default class IndividualBrowserFilter extends LitElement {
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>
-            ` : null}
+                ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 ${this.config?.sections?.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
@@ -261,4 +264,4 @@ export default class IndividualBrowserFilter extends LitElement {
 
 }
 
-customElements.define("individual-browser-filter", IndividualBrowserFilter);
+customElements.define("sample-browser-filter", SampleBrowserFilter);

@@ -17,9 +17,9 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./family-view.js";
-import "./../commons/view/detail-tabs.js";
+import "../commons/view/detail-tabs.js";
 
-export default class OpencgaFamilyDetail extends LitElement {
+export default class FamilyDetail extends LitElement {
 
     constructor() {
         super();
@@ -100,4 +100,4 @@ export default class OpencgaFamilyDetail extends LitElement {
 
 }
 
-customElements.define("opencga-family-detail", OpencgaFamilyDetail);
+customElements.define("family-detail", FamilyDetail);

@@ -20,7 +20,7 @@ import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
-import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class CohortUpdate extends LitElement {
 
@@ -205,7 +205,7 @@ export default class CohortUpdate extends LitElement {
             },
             sections: [
                 {
-                    title: "Cohort General Information",
+                    title: "General Information",
                     elements: [
                         {
                             title: "Cohort ID",
@@ -231,11 +231,14 @@ export default class CohortUpdate extends LitElement {
                                         samples?.map(sample => sample.id).join(",") :
                                         samples;
                                     return html `
-                                    <sample-id-autocomplete
-                                        .value=${sampleIds}
-                                        .opencgaSession=${this.opencgaSession}
-                                        @filterChange="${e => this.onFieldChange(e, "samples.id")}">
-                                    </sample-id-autocomplete>`;
+                                        <catalog-search-autocomplete
+                                            .value=${sampleIds}
+                                            .resource="${"SAMPLE"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config=${{multiple: false}}
+                                            @filterChange="${e => this.onFieldChange(e, "samples.id")}">
+                                        </catalog-search-autocomplete>
+                                    `;
                                 }
                             }
                         },
