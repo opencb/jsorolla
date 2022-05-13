@@ -123,13 +123,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             };
         }
 
-        if (this.settings?.table?.toolbar) {
-            this._config.result.grid.toolbar = {
-                ...this._config.result.grid.toolbar,
-                ...this.settings.table.toolbar,
-            };
-        }
-
         // Add copy.execute functions
         if (this._config.result.grid?.copies?.length > 0) {
             this._config.result.grid?.copies.forEach(copy => {
