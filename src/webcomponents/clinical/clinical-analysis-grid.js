@@ -411,6 +411,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Status of case '${row.id}' has been changed to '${status}'.`,
+                        });
                         LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
@@ -428,6 +431,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
+                        });
                         LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
