@@ -370,7 +370,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Case '${clinicalAnalysisId}' has been deleted.`,
                         });
-                        // this.renderTable();
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.removeRowTable(clinicalAnalysisId);
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -392,6 +392,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
                     });
+                    LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                     this.renderTable();
                 })
                 .catch(response => {
@@ -410,6 +411,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
                         // console.error(response);
@@ -426,6 +428,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     if (!response.getResultEvents("ERROR").length) {
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.renderTable();
                     } else {
                         // console.error(response);
