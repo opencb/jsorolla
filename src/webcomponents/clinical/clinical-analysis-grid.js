@@ -698,6 +698,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}">
+                </opencb-grid-toolbar>
+            ` : null}
+
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             readOnlyMode: false, // it hides priority and status selectors even if the user has permissions
@@ -720,23 +737,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             // it comes from external settings and it is used in _getDefaultColumns()
             // columns: []
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : null}
-
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
-            </div>
-        `;
     }
 
 }
