@@ -79,72 +79,34 @@ export default class AlignmentRenderer extends Renderer {
             this.#renderDifferences(readsGroup, polyDrawing[key].differences.N, "#888");
             this.#renderDifferences(readsGroup, polyDrawing[key].differences.D, "#000");
 
-            // if (polyDrawing[keys[i]].differences.I.length > 0) {
-            //         const text = SVG.addChild(bamReadGroup, "text", {
-            //             y: parseInt(keys[i]) + polyDrawing[keys[i]].config.height,
-            //             class: "ocb-font-ubuntumono ocb-font-size-15",
-            //         });
-            //         for (let j = 0; j < polyDrawing[keys[i]].differences.I.length; j++) {
-            //             const diff = polyDrawing[keys[i]].differences.I[j];
-            //             const t = SVG.addChild(text, "tspan", {
-            //                 x: diff.pos - (diff.size / 2),
-            //                 // "font-weight": 'bold',
-            //                 textLength: diff.size,
-            //             });
-            //             t.textContent = "|";
-            //             $(t).qtip({
-            //                 content: {text: diff.seq, title: "Insertion"},
-            //                 position: {target: "mouse", adjust: {x: 25, y: 15}},
-            //                 style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
-            //             });
-            //         }
-            //     }
+            if (polyDrawing[key].differences.I.length > 0) {
+                const text = SVG.addChild(readsGroup, "text", {
+                    y: parseInt(key) + polyDrawing[key].config.height,
+                    class: "ocb-font-ubuntumono ocb-font-size-15",
+                });
+
+                polyDrawing[key].differences["I"].forEach(diff => {
+                    const t = SVG.addChild(text, "tspan", {
+                        x: diff.pos - (diff.size / 2),
+                        // "font-weight": 'bold',
+                        textLength: diff.size,
+                    });
+                    t.textContent = "|";
+                    // $(t).qtip({
+                    //     content: {text: diff.seq, title: "Insertion"},
+                    //     position: {target: "mouse", adjust: {x: 25, y: 15}},
+                    //     style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
+                    // });
+                });
+            }
         });
-
-        // console.timeEnd(`BamRender ${response.params.resource}`);
-    }
-
-    _addChunks(chunk, polyDrawing, args) {
-        if (typeof chunk.alignments === "undefined" || chunk.alignments.length === 0) {
-            return;
-        }
-
-        const alignments = chunk.alignments;
-        if (this.asPairs) {
-            const alignmentHash = this._pairReads(alignments);
-            const ids = Object.keys(alignmentHash);
-            for (let i = 0; i < ids.length; i++) {
-                const id = ids[i];
-                if (alignmentHash[id].length === 2) {
-                    this._addPairedReads(alignmentHash[id], polyDrawing, args);
-                } else {
-                    this._addSingleRead(alignmentHash[id][0], polyDrawing, args);
-                }
-            }
-        } else {
-            for (let i = 0; i < alignments.length; i++) {
-                this._addSingleRead(alignments[i], polyDrawing, args);
-            }
-        }
     }
 
     // _drawCoverage(svgGroup, chunk, args) {
     #renderCoverage(group, coverage, height, options) {
-        console.log(coverage);
-
-        // let coverageList = chunk.coverage.value;
-        const windowSize = coverage.windowSize;
-
         const start = parseInt(coverage.start);
         const end = parseInt(coverage.end);
         const pixelWidth = (end - start + 1) * options.pixelBase;
-
-        // const middle = args.width / 2;
-        // const length = end - start;
-
-        // const covHeight = args.covHeight;
-
-        // const histogram = [];
         const maximumValue = coverage.stats.max; // Math.max.apply(null, coverageList);
         const points = [];
 
@@ -162,7 +124,7 @@ export default class AlignmentRenderer extends Renderer {
             // const startPoint = args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
 
             (coverage.values || []).forEach((value, index) => {
-                const pos = index * windowSize;
+                const pos = index * coverage.windowSize;
 
                 // if (value !== previousCoverage) {
                 //     if (previousPosition + 1 < index && previousCoverage !== -1) {
