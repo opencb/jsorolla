@@ -390,8 +390,10 @@ export default class AlignmentRenderer extends Renderer {
             });
 
             if (foundRow) {
-                // TODO: Draw the line connecting the reads
-                // polyDrawing[rowY].reads.push(`M${x + width} ${rowY + (height / 2)} H${xPair} H${x + width}`);
+                // Draw the line connecting the reads
+                if (features.length > 1) {
+                    polyDrawing[rowY].reads.push(`M${featuresStart} ${rowY + (height / 2)} H${featuresEnd}`);
+                }
 
                 // Add each feature
                 features.forEach((feature, index) => {
