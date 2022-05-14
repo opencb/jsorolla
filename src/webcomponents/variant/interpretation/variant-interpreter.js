@@ -436,7 +436,7 @@ class VariantInterpreter extends LitElement {
                                         .populationFrequencies="${this._config.populationFrequencies}"
                                         .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
                                         .consequenceTypes="${this._config.consequenceTypes}"
-                                        .config="${this._config}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
                                         @gene="${this.geneSelected}"
                                         @samplechange="${this.onSampleChange}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
