@@ -38,6 +38,61 @@ export default class FormUtils {
         return _updateParams;
     }
 
+    static updateObjectWithObj(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+        // The value it's object too.
+        const childKey = Object.keys(value)[0];
+        const childValue = Object.values(value)[0];
+
+        if (prop) {
+            if (_original?.[field]?.[prop]?.[childKey] !== childValue && childValue !== null) {
+                original[field][prop] = {
+                    ...original[field][prop],
+                    ...value
+                };
+
+                // init new object
+                _updateParams[field] = {
+                    ...updateParams[field],
+                    [prop]: {}
+                };
+
+                _updateParams[field][prop] = {
+                    ..._updateParams[field][prop],
+                    ...value
+                };
+            } else {
+                delete _updateParams[field][prop];
+            }
+        } else {
+
+            if (_original?.[field]?.[childKey] !== childValue && childValue !== null) {
+                original[field] = {
+                    ...original[field],
+                    ...value
+                };
+
+                _updateParams[field] = {
+                    ..._updateParams[field],
+                    ...value
+                };
+            } else {
+                delete _updateParams[field];
+            }
+
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+
     static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -54,6 +109,7 @@ export default class FormUtils {
             };
 
             _updateParams[field] = {
+                ..._updateParams[field],
                 [prop]: value
             };
         } else {
@@ -85,6 +141,7 @@ export default class FormUtils {
                 [prop]: value
             };
         } else {
+            original[param][prop] = _original[param][prop];
             delete _updateParams[field][prop];
         }
 

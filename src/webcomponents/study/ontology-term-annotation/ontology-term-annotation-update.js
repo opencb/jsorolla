@@ -36,9 +36,6 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             ontology: {
                 type: Object
             },
-            child: {
-                type: Boolean
-            },
             ontologyId: {
                 type: String
             },
@@ -61,6 +58,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     firstUpdated(changedProperties) {
+        // To avoid override data
         if (changedProperties.has("ontology")) {
             this.ontologyObserver();
         }
@@ -104,8 +102,8 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     onSendOntology(e) {
         // Send the ontology to the upper component
         e.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
         this.updateParams = {};
+        LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
     }
 
     onClear(e) {

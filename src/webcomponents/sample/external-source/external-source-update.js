@@ -36,9 +36,6 @@ export default class ExternalSourceUpdate extends LitElement {
             source: {
                 type: Object
             },
-            child: {
-                type: Boolean
-            },
             displayConfig: {
                 type: Object
             }
@@ -95,7 +92,7 @@ export default class ExternalSourceUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.source);
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
     }
 
     onSendSource(e) {

@@ -36,9 +36,6 @@ export default class StatusUpdate extends LitElement {
             status: {
                 type: Object
             },
-            child: {
-                type: Boolean
-            },
             displayConfig: {
                 type: Object
             }
@@ -58,17 +55,16 @@ export default class StatusUpdate extends LitElement {
     }
 
     firstUpdated(changedProperties) {
-    // For the "child" or nested form
-    // The child variable must be true to avoid multiple updating of the original values (not UpdateParams) in the parent form.
-        if (changedProperties.has("status") && this.child) {
+        if (changedProperties.has("status")) {
+            console.log("update status ...");
             this.statusObserver();
         }
     }
 
     update(changedProperties) {
-        if (changedProperties.has("status") && !this.child) {
-            this.statusObserver();
-        }
+        // if (changedProperties.has("status") && !this.child) {
+        //     this.statusObserver();
+        // }
 
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -93,8 +89,10 @@ export default class StatusUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        this.status = {...this.status, ...this.updateParams};
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.status);
+        // this.status = {...this.status, ...this.updateParams};
+        // LitUtils.dispatchCustomEvent(this, "fieldChange", this.status);
+
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
     }
 
     onSendStatus(e) {

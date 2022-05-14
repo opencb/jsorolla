@@ -116,14 +116,14 @@ export default class SampleUpdate extends LitElement {
 
     onFieldChange(e, field) {
         e.stopPropagation();
+
         const param = field || e.detail.param;
         switch (param) {
             case "id":
             case "description":
             case "individualId":
             case "somatic":
-            case "status":
-            case "source":
+                // primitive type
                 this.updateParams = FormUtils.updateScalar(
                     this._sample,
                     this.sample,
@@ -131,7 +131,18 @@ export default class SampleUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
+            case "status":
+            case "source":
             case "processing.product":
+                // It's a object
+                // processing.product it's object
+                this.updateParams = FormUtils.updateObjectSpecial(
+                    this._sample,
+                    this.sample,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
+                break;
             case "processing.preparationMethod":
             case "processing.extractionMethod":
             case "processing.labSambpleId":
@@ -142,6 +153,7 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
+                // It's object with props primitive type
                 this.updateParams = FormUtils.updateObjectWithProps(
                     this._sample,
                     this.sample,
@@ -150,6 +162,9 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
+
+        console.log("Param ", param);
+        console.log("updateParams", this.updateParams);
         this.requestUpdate();
     }
 
@@ -165,26 +180,37 @@ export default class SampleUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET"
         };
+        // Testing
+        console.log("Sample submit test", "updateParams ", this.updateParams, "params ", params);
+        this._sample = JSON.parse(JSON.stringify(this.sample));
+        this.updateParams = {};
+        this.isSampleArraysChanged = false;
+        this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            title: "Update Sample",
+            message: "Sample updated correclty"
+        });
 
-        this.opencgaSession.opencgaClient.samples()
-            .update(this.sample.id, this.updateParams, params)
-            .then(res => {
-                // this.sadmple = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
-                this._sample = JSON.parse(JSON.stringify(this.sample));
-                this.updateParams = {};
-                this.isSampleArraysChanged = false;
-                this.requestUpdate();
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Update Sample",
-                    message: "Sample updated correclty"
-                });
-                // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
-                // sessionUpdateRequest
-                // TODO: dispacth to the user the data is saved
-            })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-            });
+
+        // this.opencgaSession.opencgaClient.samples()
+        //     .update(this.sample.id, this.updateParams, params)
+        //     .then(res => {
+        //         // this.sadmple = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
+        //         this._sample = JSON.parse(JSON.stringify(this.sample));
+        //         this.updateParams = {};
+        //         this.isSampleArraysChanged = false;
+        //         this.requestUpdate();
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //             title: "Update Sample",
+        //             message: "Sample updated correclty"
+        //         });
+        //         // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
+        //         // sessionUpdateRequest
+        //         // TODO: dispacth to the user the data is saved
+        //     })
+        //     .catch(err => {
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+        //     });
     }
 
     // display a button to back sample browser.
@@ -253,6 +279,7 @@ export default class SampleUpdate extends LitElement {
                 this.collection = {...this.collection, from: e.detail.value};
                 this.sample = {...this.sample, collection: this.collection};
                 this.updateParams = {...this.updateParams, collection: this.collection};
+                // to know if the array is different and display the message "something changed"
                 this.isSampleArraysChanged = FormUtils.compareObjectArray(
                     this._sample,
                     this.sample,
@@ -385,7 +412,6 @@ export default class SampleUpdate extends LitElement {
                             render: source => html`
                                 <external-source-update
                                     .source=${source}
-                                    .child=${true}
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
@@ -404,7 +430,6 @@ export default class SampleUpdate extends LitElement {
                             render: status => html`
                                 <status-update
                                     .status=${status}
-                                    .child=${true}
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
@@ -436,7 +461,6 @@ export default class SampleUpdate extends LitElement {
                             render: product => html`
                                 <ontology-term-annotation-update
                                     .ontology=${product}
-                                    .child=${true}
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
