@@ -69,6 +69,11 @@ export default class FormUtils {
                 };
             } else {
                 delete _updateParams[field][prop];
+
+                if (UtilsNew.isEmpty(_updateParams[field])) {
+                    delete _updateParams[field];
+                }
+
             }
         } else {
 
@@ -130,7 +135,8 @@ export default class FormUtils {
             ...updateParams
         };
 
-        if (_original?.[field]?.[prop] !== value && value !== null) {
+
+        if (_original?.[field]?.[prop] !== value && value !== null && (_original?.[field]?.[prop] !== undefined || value !== "")) {
             original[field] = {
                 ...original[field],
                 [prop]: value
@@ -141,8 +147,13 @@ export default class FormUtils {
                 [prop]: value
             };
         } else {
-            original[param][prop] = _original[param][prop];
+            // original[param][prop] = _original[param][prop];
             delete _updateParams[field][prop];
+
+            // if the object is entire emtpy well delete it
+            if (UtilsNew.isEmpty(_updateParams[field])) {
+                delete _updateParams[field];
+            }
         }
 
         // We need to create a new 'updateParams' reference to force an update
@@ -202,6 +213,7 @@ export default class FormUtils {
         const [field, prop] = param.split(".");
 
         let hasChanged = false;
+
         // if (UtilsNew.isNotEmpty(values)) {
         if (prop) {
             // Let's find out if the content of the array is different from the '_original' array in the server

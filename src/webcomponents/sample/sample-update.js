@@ -115,7 +115,8 @@ export default class SampleUpdate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        e.stopPropagation();
+
+        // e.stopPropagation();
 
         const param = field || e.detail.param;
         switch (param) {
@@ -136,7 +137,7 @@ export default class SampleUpdate extends LitElement {
             case "processing.product":
                 // It's a object
                 // processing.product it's object
-                this.updateParams = FormUtils.updateObjectSpecial(
+                this.updateParams = FormUtils.updateObjectWithObj(
                     this._sample,
                     this.sample,
                     this.updateParams,
@@ -285,6 +286,7 @@ export default class SampleUpdate extends LitElement {
                     this.sample,
                     e.detail.param,
                     e.detail.value);
+
                 // this.updateParams = FormUtils.updateObjectArraysTest(
                 //     this._sample,
                 //     this.sample,
@@ -301,6 +303,7 @@ export default class SampleUpdate extends LitElement {
                     this.sample,
                     e.detail.param,
                     e.detail.value);
+
                 // this.updateParams = FormUtils.updateObjectArraysTest(
                 //     this._sample,
                 //     this.sample,
@@ -381,11 +384,12 @@ export default class SampleUpdate extends LitElement {
                                     .config="${{multiple: false}}"
                                     @filterChange="${e =>
                                         this.onFieldChange({
-                                        detail: {
-                                            param: "individualId",
-                                            value: e.detail.value
-                                        }
-                                    })}">
+                                            ...e,
+                                            detail: {
+                                                param: "individualId",
+                                                value: e.detail.value
+                                                }
+                                        })}">
                                 </catalog-search-autocomplete>
                             `,
                         }
@@ -595,7 +599,6 @@ export default class SampleUpdate extends LitElement {
                                 <ontology-term-annotation-update
                                     .ontology="${pheno}"
                                     .entity="${"phenotype"}"
-                                    .child=${true}
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonOkText: "Save",

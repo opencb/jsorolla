@@ -92,7 +92,7 @@ export default class StatusUpdate extends LitElement {
         // this.status = {...this.status, ...this.updateParams};
         // LitUtils.dispatchCustomEvent(this, "fieldChange", this.status);
 
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
     }
 
     onSendStatus(e) {

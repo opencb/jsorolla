@@ -92,7 +92,7 @@ export default class ExternalSourceUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
     }
 
     onSendSource(e) {

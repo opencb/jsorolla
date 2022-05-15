@@ -94,7 +94,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams);
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
         // to reflect which field is updating...
         this.requestUpdate();
     }
