@@ -35,14 +35,17 @@ export default class VariantInterpreterReview extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object,
+            },
             clinicalAnalysis: {
-                type: Object
+                type: Object,
             },
             clinicalAnalysisId: {
-                type: String
+                type: String,
             },
-            opencgaSession: {
-                type: Object
+            settings: {
+                type: Object,
             },
         };
     }
@@ -97,7 +100,6 @@ export default class VariantInterpreterReview extends LitElement {
         `;
     }
 
-
     getDefaultConfig() {
         const items = [
             {
@@ -144,14 +146,15 @@ export default class VariantInterpreterReview extends LitElement {
                                         title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
                                     </tool-header>
                                     <variant-interpreter-review-primary
+                                        .opencgaSession="${opencgaSession}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
                                         .active="${active}"
                                         .gridConfig="${{
                                             somatic: true,
                                             variantTypes: ["SNV", "INDEL"],
                                         }}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants}"
-                                        .opencgaSession="${opencgaSession}">
+                                        .settings="${this.settings.browsers["CANCER_SNV"]}">
                                     </variant-interpreter-review-primary>
                                 </div>
                             `;
@@ -178,14 +181,15 @@ export default class VariantInterpreterReview extends LitElement {
                                     title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
                                 </tool-header>
                                 <variant-interpreter-review-primary
-                                    .active="${active}"
+                                    .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .clinicalVariants="${variants}"
+                                    .active="${active}"
                                     .gridConfig="${{
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],
                                     }}"
-                                    .opencgaSession="${opencgaSession}">
+                                    .settings="${this.settings.browsers["CANCER_CNV"]}">
                                 </variant-interpreter-review-primary>
                             </div>
                         `;
@@ -241,14 +245,15 @@ export default class VariantInterpreterReview extends LitElement {
                                         title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
                                     </tool-header>
                                     <variant-interpreter-review-primary
-                                        .active="${active}"
+                                        .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants}"
+                                        .active="${active}"
                                         .gridConfig="${{
                                             somatic: false,
                                             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
                                         }}"
-                                        .opencgaSession="${opencgaSession}">
+                                        .settings="${this.settings.browsers["RD"]}">
                                     </variant-interpreter-review-primary>
                                 </div>
                             `;
