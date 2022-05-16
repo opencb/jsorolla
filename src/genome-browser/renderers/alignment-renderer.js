@@ -30,7 +30,7 @@ export default class AlignmentRenderer extends Renderer {
         const lowQualityReadOpacity = this.getValueFromConfig("lowQualityReadOpacity", [features]);
 
         // Group and render alignments
-        this.#groupReads(features || []).forEach(group => {
+        this.#groupReads(features || [], options).forEach(group => {
             const items = this.#processReads(group, options);
 
             // Render reads
@@ -400,30 +400,39 @@ export default class AlignmentRenderer extends Renderer {
         return info;
     }
 
-    #groupReads(reads) {
-        const readsHash = {};
+    #groupReads(reads, options) {
+        const groups = {};
 
-        reads.forEach(read => {
+        // Filter reads to avoid duplications
+        const nonDuplicatedReads = reads.filter(read => {
+            return !options.renderedFeatures.has(read.id);
+        });
+
+        // Group only non duplicated reads
+        nonDuplicatedReads.forEach(read => {
             const id = read.id;
-            if (!readsHash[id]) {
-                readsHash[id] = [read];
+            if (!groups[id]) {
+                groups[id] = [read];
             } else {
                 const newReadPosition = read.alignment.position.position;
-                const storedReadPosition = readsHash[id][0].alignment.position.position;
+                const storedReadPosition = groups[id][0].alignment.position.position;
 
                 // FIXME: For some reason, the webservice is some times returning the exactly same read more than once.
                 if (newReadPosition !== storedReadPosition) {
                     // Order the alignments to be rendered properly
                     if (newReadPosition > storedReadPosition) {
-                        readsHash[id].push(read);
+                        groups[id].push(read);
                     } else {
-                        readsHash[id].unshift(read);
+                        groups[id].unshift(read);
                     }
                 }
             }
+
+            // Mark this read as rendered
+            options.renderedFeatures.add(read.id);
         });
 
-        return Object.values(readsHash);
+        return Object.values(groups);
     }
 
     #renderDifferences(group, differences, color) {
