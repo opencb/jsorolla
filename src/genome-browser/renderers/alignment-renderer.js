@@ -2,6 +2,7 @@ import Renderer from "./renderer.js";
 import {SVG} from "../../core/svg.js";
 import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
 import GenomeBrowserUtils from "../genome-browser-utils.js";
+import GenomeBrowserConstants from "../genome-browser-constants.js";
 
 export default class AlignmentRenderer extends Renderer {
 
@@ -44,19 +45,6 @@ export default class AlignmentRenderer extends Renderer {
         this.#groupReads(features || []).forEach(group => {
             this.#addReads(group, polyDrawing, options);
         });
-        // if (chunkList.length > 0) {
-        //     for (let i = 0, li = chunkList.length; i < li; i++) {
-        //         this._drawCoverage(bamCoverGroup, chunkList[i], args);
-        //         this._addChunks(chunkList[i], polyDrawing, args);
-        //     }
-        // }
-
-        // if (options.dataType === "features") {
-        // Remove old SVGs
-        // if (args.svgCanvasFeatures.childElementCount > 2) {
-        //     args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
-        //     args.svgCanvasFeatures.removeChild(args.svgCanvasFeatures.firstChild);
-        // }
 
         // Get reads styles
         const readColor = this.getValueFromConfig("readColor", [features]);
@@ -72,11 +60,11 @@ export default class AlignmentRenderer extends Renderer {
             this.#renderReads(readsGroup, polyDrawing[key].lowQualityReads, lowQualityReadColor, lowQualityReadOpacity, options);
 
             // Render differences
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.A, "#009900");
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.T, "#aa0000");
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.C, "#0000ff");
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.G, "#857a00");
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.N, "#888");
+            this.#renderDifferences(readsGroup, polyDrawing[key].differences.A, GenomeBrowserConstants.SEQUENCE_COLORS.A);
+            this.#renderDifferences(readsGroup, polyDrawing[key].differences.T, GenomeBrowserConstants.SEQUENCE_COLORS.T);
+            this.#renderDifferences(readsGroup, polyDrawing[key].differences.C, GenomeBrowserConstants.SEQUENCE_COLORS.C);
+            this.#renderDifferences(readsGroup, polyDrawing[key].differences.G, GenomeBrowserConstants.SEQUENCE_COLORS.G);
+            this.#renderDifferences(readsGroup, polyDrawing[key].differences.N, GenomeBrowserConstants.SEQUENCE_COLORS.N);
             this.#renderDifferences(readsGroup, polyDrawing[key].differences.D, "#000");
 
             if (polyDrawing[key].differences.I.length > 0) {
