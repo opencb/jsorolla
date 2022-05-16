@@ -97,7 +97,6 @@ export default class FormUtils {
         return _updateParams;
     }
 
-
     static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -209,42 +208,60 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    static compareObjectArray(_original, original, param) {
+
+    static isEqualArraysObject(_original, original, param) {
         const [field, prop] = param.split(".");
 
-        let hasChanged = false;
+        const arraysEqual = (a, b) => a.length === b.length && a.every(
+            (o, idx) => UtilsNew.objectCompare(o, b[idx])
+        );
 
-        // if (UtilsNew.isNotEmpty(values)) {
         if (prop) {
-            // Let's find out if the content of the array is different from the '_original' array in the server
-            if (original[field][prop]?.length === _original[field][prop]?.length) {
-                for (const o of original[field][prop]) {
-                    const index = _original[field][prop].findIndex(_o => UtilsNew.objectCompare(o, _o));
-                    if (index > 0) {
-                        hasChanged = true;
-                        break;
-                    }
-                }
+            return arraysEqual(original[field][prop], _original[field][prop]);
+        }
+        return arraysEqual(original[field], _original[field]);
+    }
+
+    static updateArraysObject(_original, original, updateParams, param, value) {
+
+        const [field, prop] = param.split(".");
+        const _updateParams = {
+            ...updateParams,
+        };
+
+        const arraysEqual = (a, b) => a.length === b.length && a.every(
+            (o, idx) => UtilsNew.objectCompare(o, b[idx])
+        );
+
+        if (prop) {
+            if (!arraysEqual(_original[field][prop], value)) {
+                original[field] = {
+                    ...original[field],
+                    [prop]: value
+                };
+
+                _updateParams[field] = {
+                    ..._updateParams[field],
+                    [prop]: value
+                };
             } else {
-                hasChanged = true;
+                original[field][prop] = _original[field][prop];
+                delete _updateParams[field][prop];
+                if (UtilsNew.isEmpty(_updateParams[field])) {
+                    delete _updateParams[field];
+                }
             }
         } else {
-            // Let's find out if the content of the array is different from the '_original' array in the server
-            if (original[field]?.length === _original[field]?.length) {
-                for (const o of original[field]) {
-                    const index = _original[field].findIndex(_o => UtilsNew.objectCompare(o, _o));
-                    if (index > 0) {
-                        hasChanged = true;
-                        break;
-                    }
-                }
+            if (!arraysEqual(_original[field], value)) {
+                original[field] = value;
+                _updateParams[field] = value;
             } else {
-                hasChanged = true;
+                original[field] = _original[field];
+                delete _updateParams[field];
             }
         }
-        // }
 
-        return hasChanged;
+        return _updateParams;
     }
 
     static createObject(object, params, value) {
@@ -273,6 +290,46 @@ export default class FormUtils {
             }
         }
         return data;
+    }
+
+    //  Rodiel 16-05-22 DEPRECATED
+    static compareObjectArray(_original, original, param) {
+        const [field, prop] = param.split(".");
+
+        let hasChanged = false;
+
+        // if (UtilsNew.isNotEmpty(values)) {
+        if (prop) {
+            // Let's find out if the content of the array is different from the '_original' array in the server
+
+            if (original[field][prop]?.length === _original[field][prop]?.length) {
+                for (const o of original[field][prop]) {
+                    const index = _original[field][prop].findIndex(_o => UtilsNew.objectCompare(o, _o));
+                    if (index > 0) {
+                        hasChanged = true;
+                        break;
+                    }
+                }
+            } else {
+                hasChanged = true;
+            }
+        } else {
+            // Let's find out if the content of the array is different from the '_original' array in the server
+            if (original[field]?.length === _original[field]?.length) {
+                for (const o of original[field]) {
+                    const index = _original[field].findIndex(_o => UtilsNew.objectCompare(o, _o));
+                    if (index > 0) {
+                        hasChanged = true;
+                        break;
+                    }
+                }
+            } else {
+                hasChanged = true;
+            }
+        }
+        // }
+
+        return hasChanged;
     }
 
     /**

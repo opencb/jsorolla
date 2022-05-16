@@ -60,7 +60,6 @@ export default class SampleUpdate extends LitElement {
         this.phenotype = {};
         this.annotationSets = {};
         this.updateParams = {};
-        this.isSampleArraysChanged = false;
         this._config = {...this.getDefaultConfig()};
     }
 
@@ -115,9 +114,6 @@ export default class SampleUpdate extends LitElement {
     }
 
     onFieldChange(e, field) {
-
-        // e.stopPropagation();
-
         const param = field || e.detail.param;
         switch (param) {
             case "id":
@@ -163,9 +159,7 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
-
-        console.log("Param ", param);
-        console.log("updateParams", this.updateParams);
+        console.log("updateParams:..", this.updateParams);
         this.requestUpdate();
     }
 
@@ -185,7 +179,6 @@ export default class SampleUpdate extends LitElement {
         console.log("Sample submit test", "updateParams ", this.updateParams, "params ", params);
         this._sample = JSON.parse(JSON.stringify(this.sample));
         this.updateParams = {};
-        this.isSampleArraysChanged = false;
         this.requestUpdate();
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
             title: "Update Sample",
@@ -236,85 +229,22 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
-    static compareObjectArrayTest(_original, original, param) {
-        const [field, prop] = param.split(".");
-
-        let hasChanged = false;
-        // if (UtilsNew.isNotEmpty(values)) {
-        if (prop) {
-            // Let's find out if the content of the array is different from the '_original' array in the server
-            if (original[field][prop]?.length === _original[field][prop]?.length) {
-                for (const o of original[field][prop]) {
-                    const index = _original[field][prop].findIndex(_o => UtilsNew.objectCompare(o, _o));
-                    if (index > 0) {
-                        hasChanged = true;
-                        break;
-                    }
-                }
-            } else {
-                hasChanged = true;
-            }
-        } else {
-            // Let's find out if the content of the array is different from the '_original' array in the server
-            if (original[field]?.length === _original[field]?.length) {
-                for (const o of original[field]) {
-                    const index = _original[field].findIndex(_o => UtilsNew.objectCompare(o, _o));
-                    if (index > 0) {
-                        hasChanged = true;
-                        break;
-                    }
-                }
-            } else {
-                hasChanged = true;
-            }
-        }
-        // }
-
-        return hasChanged;
-    }
-
     onAddOrUpdateItem(e) {
-        // Todo: Check if from and phenotpes has same value than original.
         switch (e.detail.param) {
             case "collection.from":
-                this.collection = {...this.collection, from: e.detail.value};
-                this.sample = {...this.sample, collection: this.collection};
-                this.updateParams = {...this.updateParams, collection: this.collection};
-                // to know if the array is different and display the message "something changed"
-                this.isSampleArraysChanged = FormUtils.compareObjectArray(
-                    this._sample,
-                    this.sample,
-                    e.detail.param,
-                    e.detail.value);
-
-                // this.updateParams = FormUtils.updateObjectArraysTest(
-                //     this._sample,
-                //     this.sample,
-                //     this.updateParams,
-                //     e.detail.param,
-                //     e.detail.value
-                // );
-                break;
             case "phenotypes":
-                this.sample = {...this.sample, phenotypes: e.detail.value};
-                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
-                this.isSampleArraysChanged = FormUtils.compareObjectArray(
+                this.updateParams = FormUtils.updateArraysObject(
                     this._sample,
                     this.sample,
+                    this.updateParams,
                     e.detail.param,
-                    e.detail.value);
-
-                // this.updateParams = FormUtils.updateObjectArraysTest(
-                //     this._sample,
-                //     this.sample,
-                //     this.updateParams,
-                //     e.detail.param,
-                //     e.detail.value
-                // );
+                    e.detail.value
+                );
                 break;
             case "annotationSets":
                 break;
         }
+        console.log("updateParams:..", this.updateParams);
         this.requestUpdate();
     }
 
@@ -354,8 +284,8 @@ export default class SampleUpdate extends LitElement {
                         text: "Some changes have been done in the form. Not saved, changes will be lost",
                         display: {
                             // visible: () => Object.keys(this.updateParams).length > 0,
-                            visible: () => this.isSampleArraysChanged || !UtilsNew.isObjectValuesEmpty(this.updateParams),
                             // visible: () => UtilsNew.hasObjectNotValues(this.updateParams),
+                            visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                             notificationType: "warning",
                         }
                     },
