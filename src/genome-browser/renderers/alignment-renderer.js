@@ -7,22 +7,9 @@ import GenomeBrowserConstants from "../genome-browser-constants.js";
 export default class AlignmentRenderer extends Renderer {
 
     render(data, options) {
-
-        const coverage = data[0] || null; // Coverage data
-        const features = data[1] || []; // Alignments
-
-        // CHECK VISUALIZATON MODE
-        // let viewAsPairs = false;
-        // if (UtilsNew.isNotUndefinedOrNull(response.params.view_as_pairs)) {
-        //     viewAsPairs = true;
-        // }
-        // console.log(`viewAsPairs ${viewAsPairs}`);
-        // if (UtilsNew.isNotUndefinedOrNull(response.params.insert_size_interval)) {
-        //     this.insertSizeMin = response.params.insert_size_interval.split(",")[0];
-        //     this.insertSizeMax = response.params.insert_size_interval.split(",")[1];
-        // }
-        // console.log(`insertSizeMin: ${this.insertSizeMin}, insertSizeMax: ${this.insertSizeMax}`);
-        // // console.log(`insertSizeMax ${insertSizeMax}`);
+        // Get data to render
+        const coverage = data[0] || []; // Coverage data is in the first position
+        const features = data[1] || null; // Alignments data is in the second position (if provided)
 
         // Define the height of the coverage track
         // const covHeight = options.dataType === "features" ? 50 : options.svgCanvasFeatures.parentElement.clientHeight;
@@ -31,19 +18,9 @@ export default class AlignmentRenderer extends Renderer {
         const coverageGroup = SVG.addChild(options.svgCanvasFeatures, "g", {});
         const readsGroup = SVG.addChild(options.svgCanvasFeatures, "g", {});
 
-        // This other object will contain the strings needed to build the whole polyline to draw the different rows of reads
-        const polyDrawing = {};
-
         // Render coverage data
-        if (coverage) {
-            coverage.forEach(coverageItem => {
-                this.#renderCoverage(coverageGroup, coverageItem, coverageHeight, options);
-            });
-        }
-
-        // Group and process features
-        this.#groupReads(features || []).forEach(group => {
-            this.#addReads(group, polyDrawing, options);
+        coverage.forEach(coverageItem => {
+            this.#renderCoverage(coverageGroup, coverageItem, coverageHeight, options);
         });
 
         // Get reads styles
@@ -52,41 +29,47 @@ export default class AlignmentRenderer extends Renderer {
         const lowQualityReadColor = this.getValueFromConfig("lowQualityReadColor", [features]);
         const lowQualityReadOpacity = this.getValueFromConfig("lowQualityReadOpacity", [features]);
 
-        Object.keys(polyDrawing).forEach(key => {
-            // const items = options.renderedArea[key];
+        // Group and render alignments
+        this.#groupReads(features || []).forEach(group => {
+            const items = this.#processReads(group, options);
 
             // Render reads
-            this.#renderReads(readsGroup, polyDrawing[key].reads, readColor, readOpacity, options);
-            this.#renderReads(readsGroup, polyDrawing[key].lowQualityReads, lowQualityReadColor, lowQualityReadOpacity, options);
+            this.#renderReads(readsGroup, items.lowQualityReads, lowQualityReadColor, lowQualityReadOpacity, options);
+            this.#renderReads(readsGroup, items.reads, readColor, readOpacity, options);
 
-            // Render differences
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.A, GenomeBrowserConstants.SEQUENCE_COLORS.A);
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.T, GenomeBrowserConstants.SEQUENCE_COLORS.T);
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.C, GenomeBrowserConstants.SEQUENCE_COLORS.C);
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.G, GenomeBrowserConstants.SEQUENCE_COLORS.G);
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.N, GenomeBrowserConstants.SEQUENCE_COLORS.N);
-            this.#renderDifferences(readsGroup, polyDrawing[key].differences.D, "#000");
-
-            if (polyDrawing[key].differences.I.length > 0) {
-                const text = SVG.addChild(readsGroup, "text", {
-                    y: parseInt(key) + polyDrawing[key].config.height,
-                    class: "ocb-font-ubuntumono ocb-font-size-15",
-                });
-
-                polyDrawing[key].differences["I"].forEach(diff => {
-                    const t = SVG.addChild(text, "tspan", {
-                        x: diff.pos - (diff.size / 2),
-                        // "font-weight": 'bold',
-                        textLength: diff.size,
-                    });
-                    t.textContent = "|";
-                    // $(t).qtip({
-                    //     content: {text: diff.seq, title: "Insertion"},
-                    //     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                    //     style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
-                    // });
+            // Render reads connectors
+            if (items.connectors.length > 0) {
+                SVG.addChild(readsGroup, "path", {
+                    "d": items.connectors.join(" "),
+                    "stroke": "black",
+                    "stroke-width": 0.5,
+                    "fill": "transparent",
                 });
             }
+
+            // Render differences
+            this.#renderDifferences(readsGroup, items.differences.A, GenomeBrowserConstants.SEQUENCE_COLORS.A);
+            this.#renderDifferences(readsGroup, items.differences.T, GenomeBrowserConstants.SEQUENCE_COLORS.T);
+            this.#renderDifferences(readsGroup, items.differences.C, GenomeBrowserConstants.SEQUENCE_COLORS.C);
+            this.#renderDifferences(readsGroup, items.differences.G, GenomeBrowserConstants.SEQUENCE_COLORS.G);
+            this.#renderDifferences(readsGroup, items.differences.N, GenomeBrowserConstants.SEQUENCE_COLORS.N);
+            this.#renderDifferences(readsGroup, items.differences.D, "#000");
+
+            // Render insertions
+            items.differences.I.forEach(diff => {
+                const text = SVG.addChild(readsGroup, "text", {
+                    y: parseInt(items.position) + items.height,
+                    x: diff.pos - (diff.size / 2),
+                    class: "ocb-font-ubuntumono ocb-font-size-15",
+                    // textLength: diff.size,
+                });
+                text.textContent = "|";
+                // $(t).qtip({
+                //     content: {text: diff.seq, title: "Insertion"},
+                //     position: {target: "mouse", adjust: {x: 25, y: 15}},
+                //     style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
+                // });
+            });
         });
     }
 
@@ -286,23 +269,10 @@ export default class AlignmentRenderer extends Renderer {
             }
         }
 
-        // get feature render configuration
-        // const color = this.getValueFromConfig("color", [feature, options.region.chromosome]);
-        // const mateUnmappedFlag = this.getValueFromConfig("mateUnmappedFlag", [feature]);
-
-        // if (this.insertSizeMin != 0 && this.insertSizeMax != 0 && !mateUnmappedFlag) {
-        //     if (Math.abs(feature.inferredInsertSize) > this.insertSizeMax) {
-        //         color = "maroon";
-        //     }
-        //     if (Math.abs(feature.inferredInsertSize) < this.insertSizeMin) {
-        //         color = "navy";
-        //     }
-        // }
-
         return [differences, relativePosition];
     }
 
-    #processDifferencesInRead(differences, polyDrawing, start, height, rowY, options) {
+    #processDifferencesInRead(differences, info, start, height, rowY, options) {
         (differences || []).forEach(diff => {
             const tmpStart = GenomeBrowserUtils.getFeatureX(diff.pos + start, options);
             let tmpEnd = 0;
@@ -311,10 +281,10 @@ export default class AlignmentRenderer extends Renderer {
                 case "M":
                     tmpEnd = tmpStart + options.pixelBase;
                     const rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
-                    polyDrawing[rowY].differences[diff.seq].push(rectangle);
+                    info.differences[diff.seq].push(rectangle);
                     break;
                 case "I":
-                    polyDrawing[rowY].differences[diff.op].push({
+                    info.differences[diff.op].push({
                         ...diff,
                         pos: tmpStart,
                         size: options.pixelBase,
@@ -323,15 +293,15 @@ export default class AlignmentRenderer extends Renderer {
                 case "D":
                     tmpEnd = tmpStart + options.pixelBase * diff.length;
                     const line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
-                    polyDrawing[rowY].differences[diff.op].push(line);
+                    info.differences[diff.op].push(line);
                     break;
                 default:
-                    console.log(`Unexpected difference found: ${diff.op}`);
+                    console.error(`Unexpected difference found: '${diff.op}'`);
             }
         });
     }
 
-    #addReads(features, polyDrawing, options) {
+    #processReads(features, options) {
         const differences = [];
         const starts = [];
         const ends = [];
@@ -339,7 +309,6 @@ export default class AlignmentRenderer extends Renderer {
         features.forEach(feature => {
             const [diffs, length] = this.#analyseRead(feature, options);
             differences.push(diffs);
-            // lengths.push(length);
             starts.push(feature.alignment.position.position);
             ends.push(feature.alignment.position.position + length - 1);
         });
@@ -351,33 +320,31 @@ export default class AlignmentRenderer extends Renderer {
         const height = this.getValueFromConfig("height", [features]);
         const rowHeight = 15;
         let rowY = 70;
-        let readFitted = false;
+        let fitted = false;
+        let info = null; // Stored reads info
 
-        while (!readFitted) {
+        while (!fitted) {
             if (!options.renderedArea[rowY]) {
                 // eslint-disable-next-line no-param-reassign
                 options.renderedArea[rowY] = new FeatureBinarySearchTree();
             }
 
-            if (!polyDrawing[rowY]) {
-                // eslint-disable-next-line no-param-reassign
-                polyDrawing[rowY] = {
-                    reads: [],
-                    lowQualityReads: [],
-                    differences: Object.fromEntries(["A", "T", "C", "G", "N", "I", "D"].map(v => [v, []])),
-                    config: {
-                        height,
-                    },
-                };
-            }
-
             const foundRow = options.renderedArea[rowY].add({
                 start: featuresStart,
                 end: featuresEnd,
-                features: features,
+                // features: features,
             });
 
             if (foundRow) {
+                info = {
+                    position: rowY,
+                    height: height,
+                    reads: [],
+                    lowQualityReads: [],
+                    connectors: [],
+                    differences: Object.fromEntries(["A", "T", "C", "G", "N", "I", "D"].map(v => [v, []])),
+                };
+
                 let lastFeatureEnd = null;
 
                 features.forEach((feature, index) => {
@@ -406,34 +373,36 @@ export default class AlignmentRenderer extends Renderer {
                         ];
                     }
 
-                    if (features[0].alignment.mappingQuality > this.config.minMapQ) {
-                        polyDrawing[rowY].reads.push(points.join(" "));
+                    if (features[0].alignment.mappingQuality > this.config.minMappingQuality) {
+                        info.reads.push(points.join(" "));
                     } else {
-                        polyDrawing[rowY].lowQualityReads.push(points.join(" "));
+                        info.lowQualityReads.push(points.join(" "));
                     }
 
                     // PROCESS differences
                     if (options.regionSize < 1000) {
-                        this.#processDifferencesInRead(differences[index], polyDrawing, starts[index], height, rowY, options);
+                        this.#processDifferencesInRead(differences[index], info, starts[index], height, rowY, options);
                     }
 
                     // Check for rendering a line connecting reads
                     if (lastFeatureEnd && lastFeatureEnd < start) {
-                        polyDrawing[rowY].reads.push(`M${lastFeatureEnd} ${rowY + (height / 2)} H${start}`);
+                        info.connectors.push(`M${lastFeatureEnd} ${rowY + (height / 2)} H${start}`);
                     }
                     lastFeatureEnd = end;
                 });
 
                 // Read fittend
-                readFitted = true;
+                fitted = true;
             }
-            rowY += rowHeight;
+            rowY = rowY + rowHeight;
         }
+
+        return info;
     }
 
     #groupReads(reads) {
         const readsHash = {};
-        // We build a temporal structure for faster retrieval of alignments
+
         reads.forEach(read => {
             const id = read.id;
             if (!readsHash[id]) {
@@ -454,7 +423,6 @@ export default class AlignmentRenderer extends Renderer {
             }
         });
 
-        // Return groups of reads
         return Object.values(readsHash);
     }
 
@@ -472,7 +440,7 @@ export default class AlignmentRenderer extends Renderer {
 
     #renderReads(group, paths, color, opacity) {
         if (paths && paths.length > 0) {
-            const svgChild = SVG.addChild(group, "path", {
+            SVG.addChild(group, "path", {
                 "d": paths.join(" "),
                 "stroke": "black",
                 "stroke-width": 0.5,
@@ -518,14 +486,13 @@ export default class AlignmentRenderer extends Renderer {
 
     getDefaultConfig() {
         return {
-            minMapQ: 20, // Reads with a mapping quality under 20 will have a transparency
+            minMappingQuality: 20, // Reads with a mapping quality under 20 will have a transparency
             // Displayed reads style
             lowQualityReadColor: "darkgrey",
             lowQualityReadOpacity: 0.5,
             readColor: "darkgrey",
             readOpacity: 1,
             height: 10,
-            histogramColor: "grey",
             insertSizeMin: 0,
             insertSizeMax: 0,
             explainFlags: f => {
