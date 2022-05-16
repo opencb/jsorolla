@@ -57,36 +57,25 @@ export default class SampleUpdate extends LitElement {
 
     _init() {
         this.sample = {};
-        this.phenotype = {};
-        this.annotationSets = {};
         this.updateParams = {};
         this._config = {...this.getDefaultConfig()};
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("sample")) {
-            console.log("FirstUpdate...", this);
             this._sample = JSON.parse(JSON.stringify(this.sample));
-            // this.sampleObserver();
         }
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("sample")) {
-        //     console.log("update...", this);
-        //     this.sampleObserver();
-        // }
-
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-
         // it's just work on update or connectedCallback
         // It's working here, it is not necessary put this on connectecCallback.
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -120,8 +109,18 @@ export default class SampleUpdate extends LitElement {
             case "description":
             case "individualId":
             case "somatic":
-                // primitive type
-                this.updateParams = FormUtils.updateScalar(
+            case "processing.preparationMethod":
+            case "processing.extractionMethod":
+            case "processing.labSambpleId":
+            case "processing.quantity":
+            case "processing.date":
+            case "collection.tissue":
+            case "collection.organ":
+            case "collection.quantity":
+            case "collection.method":
+            case "collection.date":
+                // support primitive type and object with primitive type
+                this.updateParams = FormUtils.updateObjectParams(
                     this._sample,
                     this.sample,
                     this.updateParams,
@@ -133,6 +132,7 @@ export default class SampleUpdate extends LitElement {
             case "processing.product":
                 // It's a object
                 // processing.product it's object
+                // object with object
                 this.updateParams = FormUtils.updateObjectWithObj(
                     this._sample,
                     this.sample,
@@ -140,26 +140,8 @@ export default class SampleUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "processing.preparationMethod":
-            case "processing.extractionMethod":
-            case "processing.labSambpleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.tissue":
-            case "collection.organ":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-                // It's object with props primitive type
-                this.updateParams = FormUtils.updateObjectWithProps(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
         }
-        console.log("updateParams:..", this.updateParams);
+        console.log("Testing: ", param, "updateParams", this.updateParams);
         this.requestUpdate();
     }
 
@@ -244,7 +226,6 @@ export default class SampleUpdate extends LitElement {
             case "annotationSets":
                 break;
         }
-        console.log("updateParams:..", this.updateParams);
         this.requestUpdate();
     }
 

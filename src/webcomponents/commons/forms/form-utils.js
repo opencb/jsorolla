@@ -18,6 +18,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 
 export default class FormUtils {
 
+    //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
     static updateScalar(_original, original, updateParams, param, value) {
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
@@ -38,6 +39,34 @@ export default class FormUtils {
         return _updateParams;
     }
 
+    static updateObject(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+        if (_original?.[field]?.[prop] !== value && value !== null) {
+            original[field] = {
+                ...original[field],
+                [prop]: value
+            };
+
+            _updateParams[field] = {
+                ..._updateParams[field],
+                [prop]: value
+            };
+        } else {
+            delete _updateParams[field];
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+    // Update object with Object as props
     static updateObjectWithObj(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
         // Prepare an internal object to store the updateParams.
@@ -97,34 +126,8 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    static updateObject(_original, original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-        if (_original?.[field]?.[prop] !== value && value !== null) {
-            original[field] = {
-                ...original[field],
-                [prop]: value
-            };
-
-            _updateParams[field] = {
-                ..._updateParams[field],
-                [prop]: value
-            };
-        } else {
-            delete _updateParams[field];
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
-    }
-
-    // updateNestedObject, updateMultipleObject... alternative function name.
+    // Rodiel 2022-05-16 DEPRECATED use updateObjectParams
+    // update object with props has primitive type
     static updateObjectWithProps(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -156,6 +159,53 @@ export default class FormUtils {
         }
 
         // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+    // new function: with updateScalar & updateObjectWithProps
+    static updateObjectParams(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+        const isValueDifferent = (_obj, val) => _obj !== val && val !== null;
+
+        // sometimes original object come as value undefined or empty but is not the same.
+        const isNotEmtpy = (_obj, val) => _obj !== undefined || val !== "";
+
+        if (prop) {
+            if (isValueDifferent(_original?.[field]?.[prop], value) && isNotEmtpy(_original?.[field]?.[prop], value)) {
+                original[field] = {
+                    ...original[field],
+                    [prop]: value
+                };
+
+                _updateParams[field] = {
+                    ..._updateParams[field],
+                    [prop]: value
+                };
+            } else {
+                // original[field][prop] = _original[field][prop];
+                delete _updateParams[field][prop];
+
+                if (UtilsNew.isEmpty(_updateParams[field])) {
+                    delete _updateParams[field];
+                }
+            }
+        } else {
+            if (isValueDifferent(_original?.[field], value)) {
+                original[field] = value;
+                _updateParams[field] = value;
+            } else {
+                original[field] =_original[field];
+                delete _updateParams[field];
+            }
+        }
+
         return _updateParams;
     }
 
@@ -208,22 +258,7 @@ export default class FormUtils {
         return _updateParams;
     }
 
-
-    static isEqualArraysObject(_original, original, param) {
-        const [field, prop] = param.split(".");
-
-        const arraysEqual = (a, b) => a.length === b.length && a.every(
-            (o, idx) => UtilsNew.objectCompare(o, b[idx])
-        );
-
-        if (prop) {
-            return arraysEqual(original[field][prop], _original[field][prop]);
-        }
-        return arraysEqual(original[field], _original[field]);
-    }
-
     static updateArraysObject(_original, original, updateParams, param, value) {
-
         const [field, prop] = param.split(".");
         const _updateParams = {
             ...updateParams,
@@ -292,7 +327,7 @@ export default class FormUtils {
         return data;
     }
 
-    //  Rodiel 16-05-22 DEPRECATED
+    //  Rodiel 2022-05-16 DEPRECATED
     static compareObjectArray(_original, original, param) {
         const [field, prop] = param.split(".");
 

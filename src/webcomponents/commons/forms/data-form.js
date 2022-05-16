@@ -1205,8 +1205,8 @@ export default class DataForm extends LitElement {
 
     _onChangeArray(e, field, action, data) {
         let results = {};
-        let _data = data ? data:[];
-        const item = e?.detail?.value;
+        let _data = data ? [...data]:[];
+        const item = {...e?.detail?.value};
         let isRepeat = false;
         switch (action) {
             case "CREATE":
@@ -1216,7 +1216,7 @@ export default class DataForm extends LitElement {
                 break;
             case "UPDATE":
                 // change id for index array.. because the user can change the ID.
-                const indexItem = _data.findIndex(item => item.id === item.id);
+                const indexItem = _data.findIndex(obj => obj.id === item.id);
                 _data[indexItem] = item;
                 results = {param: field, value: _data};
                 const regexPunctuation = /[()+,-.\/:; ?@[\]_{|}]/g;
