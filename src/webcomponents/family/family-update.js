@@ -57,10 +57,13 @@ export default class FamilyUpdate extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    update(changedProperties) {
+    firstUpdated(changedProperties) {
         if (changedProperties.has("family")) {
             this.familyObserver();
         }
+    }
+
+    update(changedProperties) {
 
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
@@ -75,7 +78,7 @@ export default class FamilyUpdate extends LitElement {
 
     familyObserver() {
         if (this.family) {
-            this._family = JSON.parse(JSON.stringify(this.family));
+            this._family = UtilsNew.objectClone(this.family);
         }
     }
 
@@ -110,8 +113,15 @@ export default class FamilyUpdate extends LitElement {
             case "name":
             case "description":
             case "expectedSize":
+                this.updateParams = FormUtils.updateObjectParams(
+                    this._family,
+                    this.family,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
+                break;
             case "status":
-                this.updateParams = FormUtils.updateScalar(
+                this.updateParams = FormUtils.updateObjectWithObj(
                     this._family,
                     this.family,
                     this.updateParams,
@@ -124,7 +134,7 @@ export default class FamilyUpdate extends LitElement {
 
     onClear() {
         this._config = this.getDefaultConfig();
-        this.family = JSON.parse(JSON.stringify(this._family));
+        this.family = UtilsNew.objectClone(this._family);
         this.updateParams = {};
         this.familyId = "";
     }
@@ -138,7 +148,7 @@ export default class FamilyUpdate extends LitElement {
         console.log("Family update", this.updateParams);
         this.opencgaSession.opencgaClient.families().update(this.family.id, this.updateParams, params)
             .then(res => {
-                this._family = JSON.parse(JSON.stringify(this.family));
+                this._family = UtilsNew.objectClone(this.family);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Update Family",
@@ -183,7 +193,7 @@ export default class FamilyUpdate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.updateParams).length > 0,
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                                 notificationType: "warning",
                             }
                         },
@@ -296,7 +306,8 @@ export default class FamilyUpdate extends LitElement {
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
                                         @fieldChange=${e => this.onFieldChange(e, "status")}>
-                                    </status-update>`
+                                    </status-update>
+                                `,
                             }
                         },
                     ]

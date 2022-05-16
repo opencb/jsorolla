@@ -56,20 +56,16 @@ export default class CohortUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this.updateParams = {};
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("cohort")) {
+            this.cohortObserver();
+        }
+    }
 
     update(changedProperties) {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-
-        if (changedProperties.has("cohort")) {
-            this.cohortObserver();
         }
 
         if (changedProperties.has("cohortId")) {
@@ -81,7 +77,7 @@ export default class CohortUpdate extends LitElement {
 
     cohortObserver() {
         if (this.cohort) {
-            this._cohort = JSON.parse(JSON.stringify(this.cohort));
+            this._cohort = UtilsNew.objectClone(this.cohort);
         }
     }
 
@@ -118,12 +114,19 @@ export default class CohortUpdate extends LitElement {
             case "type":
             case "creationDate":
             case "modificationDate":
-            case "status":
-                this.updateParams = FormUtils.updateScalar(
+                this.updateParams = FormUtils.updateObjectParams(
                     this._cohort,
                     this.cohort,
                     this.updateParams,
-                    e.detail.param,
+                    param,
+                    e.detail.value);
+                break;
+            case "status":
+                this.updateParams = FormUtils.updateObjectWithObj(
+                    this._cohort,
+                    this.cohort,
+                    this.updateParams,
+                    param,
                     e.detail.value);
                 break;
         }
@@ -133,28 +136,10 @@ export default class CohortUpdate extends LitElement {
 
     onClear() {
         this._config = this.getDefaultConfig();
-        this.cohort = JSON.parse(JSON.stringify(this._cohort));
+        this.cohort = UtilsNew.objectClone(this._cohort);
         this.updateParams = {};
         this.cohortId = "";
     }
-
-    // onSync(e, type) {
-    //     e.stopPropagation();
-    //     switch (type) {
-    //         case "samples":
-    //             let samples = [];
-    //             if (e.detail.value) {
-    //                 samples = e.detail.value.split(",").map(sample => {
-    //                     return {id: sample};
-    //                 });
-    //             }
-    //             this.cohort = {...this.cohort, samples: e.detail.value};
-    //             break;
-    //         case "annotationSets":
-    //             this.cohort = {...this.cohort, annotationSets: e.detail.value};
-    //             break;
-    //     }
-    // }
 
     onSubmit(e) {
         const params = {
@@ -162,10 +147,9 @@ export default class CohortUpdate extends LitElement {
             samplesAction: "SET",
             annotationSetsAction: "SET",
         };
-        // console.log("id", this.cohort.id, "update", this.updateParams);
         this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
             .then(res => {
-                this._cohort = JSON.parse(JSON.stringify(this.cohort));
+                this._cohort = UtilsNew.objectClone(this.cohort);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Update Cohort",
@@ -192,7 +176,6 @@ export default class CohortUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // title: "Edit",
             icon: "fas fa-edit",
             type: "form",
             display: {
@@ -212,7 +195,7 @@ export default class CohortUpdate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.updateParams).length > 0,
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                                 notificationType: "warning",
                             }
                         },
@@ -224,7 +207,6 @@ export default class CohortUpdate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                // helpMessage: "Created on " + UtilsNew.dateFormatter(this.family.creationDate),
                                 helpMessage: this.cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this.cohort.creationDate):"No creation date",
                                 validation: {
                                 }
@@ -275,7 +257,8 @@ export default class CohortUpdate extends LitElement {
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
                                         @fieldChange=${e => this.onFieldChange(e, "status")}>
-                                    </status-update>`
+                                    </status-update>
+                                `,
                             }
                         },
                         // {

@@ -1225,8 +1225,8 @@ export default class DataForm extends LitElement {
                 break;
             case "REMOVE":
                 // This 'e' is the item to remove from array
-                const removedItem = e;
-                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(item => item.id === removedItem.id));
+                const removedItem = {...e};
+                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(obj => obj.id === removedItem.id));
                 results = {param: field, value: _data};
                 break;
         }

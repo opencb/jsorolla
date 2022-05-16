@@ -71,8 +71,7 @@ export default class SampleUpdate extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-        // it's just work on update or connectedCallback
-        // It's working here, it is not necessary put this on connectecCallback.
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -82,7 +81,7 @@ export default class SampleUpdate extends LitElement {
     sampleObserver() {
         // When updating wee need to keep a private copy of the original object
         if (this.sample) {
-            this._sample = JSON.parse(JSON.stringify(this.sample));
+            this._sample = UtilsNew.objectClone(this.sample);
         }
     }
 
@@ -141,13 +140,12 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
-        console.log("Testing: ", param, "updateParams", this.updateParams);
         this.requestUpdate();
     }
 
     onClear() {
         this._config = this.getDefaultConfig();
-        this.sample = JSON.parse(JSON.stringify(this._sample));
+        this.sample = UtilsNew.objectClone(this._sample);
         this.updateParams = {};
         this.sampleId = "";
     }
@@ -157,36 +155,24 @@ export default class SampleUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET"
         };
-        // Testing
-        console.log("Sample submit test", "updateParams ", this.updateParams, "params ", params);
-        this._sample = JSON.parse(JSON.stringify(this.sample));
-        this.updateParams = {};
-        this.requestUpdate();
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-            title: "Update Sample",
-            message: "Sample updated correclty"
-        });
-
-
-        // this.opencgaSession.opencgaClient.samples()
-        //     .update(this.sample.id, this.updateParams, params)
-        //     .then(res => {
-        //         // this.sadmple = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
-        //         this._sample = JSON.parse(JSON.stringify(this.sample));
-        //         this.updateParams = {};
-        //         this.isSampleArraysChanged = false;
-        //         this.requestUpdate();
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-        //             title: "Update Sample",
-        //             message: "Sample updated correclty"
-        //         });
-        //         // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
-        //         // sessionUpdateRequest
-        //         // TODO: dispacth to the user the data is saved
-        //     })
-        //     .catch(err => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-        //     });
+        this.opencgaSession.opencgaClient.samples()
+            .update(this.sample.id, this.updateParams, params)
+            .then(res => {
+                // this.sadmple = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
+                this._sample = UtilsNew.objectClone(this.sample);
+                this.updateParams = {};
+                this.isSampleArraysChanged = false;
+                this.requestUpdate();
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Update Sample",
+                    message: "Sample updated correclty"
+                });
+                // sessionUpdateRequest
+                // TODO: dispacth to the user the data is saved
+            })
+            .catch(err => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            });
     }
 
     // display a button to back sample browser.
@@ -459,7 +445,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @addItem="${callback}">
-                                </ontology-term-annotation-create>`
+                                </ontology-term-annotation-create>
+                            `,
                         }
                     },
                     {
