@@ -378,12 +378,8 @@ export default class AlignmentRenderer extends Renderer {
             });
 
             if (foundRow) {
-                // Draw the line connecting the reads
-                if (features.length > 1) {
-                    polyDrawing[rowY].reads.push(`M${featuresStart} ${rowY + (height / 2)} H${featuresEnd}`);
-                }
+                let lastFeatureEnd = null;
 
-                // Add each feature
                 features.forEach((feature, index) => {
                     const strand = this.getValueFromConfig("strand", [feature]) || "FORWARD";
                     const start = GenomeBrowserUtils.getFeatureX(starts[index], options);
@@ -420,6 +416,12 @@ export default class AlignmentRenderer extends Renderer {
                     if (options.regionSize < 1000) {
                         this.#processDifferencesInRead(differences[index], polyDrawing, starts[index], height, rowY, options);
                     }
+
+                    // Check for rendering a line connecting reads
+                    if (lastFeatureEnd && lastFeatureEnd < start) {
+                        polyDrawing[rowY].reads.push(`M${lastFeatureEnd} ${rowY + (height / 2)} H${start}`);
+                    }
+                    lastFeatureEnd = end;
                 });
 
                 // Read fittend
