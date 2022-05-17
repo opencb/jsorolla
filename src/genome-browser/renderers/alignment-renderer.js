@@ -9,67 +9,23 @@ export default class AlignmentRenderer extends Renderer {
     render(data, options) {
         // Get data to render
         const coverage = data[0] || []; // Coverage data is in the first position
-        const features = data[1] || null; // Alignments data is in the second position (if provided)
+        const alignments = data[1] || null; // Alignments data is in the second position (if provided)
 
         // Define the height of the coverage track
         // const covHeight = options.dataType === "features" ? 50 : options.svgCanvasFeatures.parentElement.clientHeight;
         const coverageHeight = 50;
 
-        const coverageGroup = SVG.addChild(options.svgCanvasFeatures, "g", {});
-        const readsGroup = SVG.addChild(options.svgCanvasFeatures, "g", {});
+        const coverageParent = SVG.addChild(options.svgCanvasFeatures, "g", {});
+        const alignmentsParent = SVG.addChild(options.svgCanvasFeatures, "g", {});
 
         // Render coverage data
-        coverage.forEach(coverageItem => {
-            this.#renderCoverage(coverageGroup, coverageItem, coverageHeight, options);
+        coverage.forEach(item => {
+            this.#renderCoverage(coverageParent, item, coverageHeight, options);
         });
 
-        // Get reads styles
-        const readColor = this.getValueFromConfig("readColor", [features]);
-        const readOpacity = this.getValueFromConfig("readOpacity", [features]);
-        const lowQualityReadColor = this.getValueFromConfig("lowQualityReadColor", [features]);
-        const lowQualityReadOpacity = this.getValueFromConfig("lowQualityReadOpacity", [features]);
-
         // Group and render alignments
-        this.#groupReads(features || [], options).forEach(group => {
-            const items = this.#processReads(group, options);
-
-            // Render reads
-            this.#renderReads(readsGroup, items.lowQualityReads, lowQualityReadColor, lowQualityReadOpacity, options);
-            this.#renderReads(readsGroup, items.reads, readColor, readOpacity, options);
-
-            // Render reads connectors
-            if (items.connectors.length > 0) {
-                SVG.addChild(readsGroup, "path", {
-                    "d": items.connectors.join(" "),
-                    "stroke": "black",
-                    "stroke-width": 0.5,
-                    "fill": "transparent",
-                });
-            }
-
-            // Render differences
-            this.#renderDifferences(readsGroup, items.differences.A, GenomeBrowserConstants.SEQUENCE_COLORS.A);
-            this.#renderDifferences(readsGroup, items.differences.T, GenomeBrowserConstants.SEQUENCE_COLORS.T);
-            this.#renderDifferences(readsGroup, items.differences.C, GenomeBrowserConstants.SEQUENCE_COLORS.C);
-            this.#renderDifferences(readsGroup, items.differences.G, GenomeBrowserConstants.SEQUENCE_COLORS.G);
-            this.#renderDifferences(readsGroup, items.differences.N, GenomeBrowserConstants.SEQUENCE_COLORS.N);
-            this.#renderDifferences(readsGroup, items.differences.D, "#000");
-
-            // Render insertions
-            items.differences.I.forEach(diff => {
-                const text = SVG.addChild(readsGroup, "text", {
-                    y: parseInt(items.position) + items.height,
-                    x: diff.pos - (diff.size / 2),
-                    class: "ocb-font-ubuntumono ocb-font-size-15",
-                    // textLength: diff.size,
-                });
-                text.textContent = "|";
-                // $(t).qtip({
-                //     content: {text: diff.seq, title: "Insertion"},
-                //     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                //     style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
-                // });
-            });
+        this.#groupAlignments(alignments || [], options).forEach(group => {
+            this.#renderAlignments(alignmentsParent, group, coverageHeight, options);
         });
     }
 
@@ -272,56 +228,66 @@ export default class AlignmentRenderer extends Renderer {
         return [differences, relativePosition];
     }
 
-    #processDifferencesInRead(differences, info, start, height, rowY, options) {
+    #renderDifferences(parent, differences, readStart, readHeight, rowY, options) {
         (differences || []).forEach(diff => {
-            const tmpStart = GenomeBrowserUtils.getFeatureX(diff.pos + start, options);
-            let tmpEnd = 0;
+            const start = GenomeBrowserUtils.getFeatureX(diff.pos + readStart, options);
 
-            switch (diff.op) {
-                case "M":
-                    tmpEnd = tmpStart + options.pixelBase;
-                    const rectangle = `M${tmpStart} ${rowY} V${rowY + height} H${tmpEnd} V${rowY} H${tmpStart}`;
-                    info.differences[diff.seq].push(rectangle);
-                    break;
-                case "I":
-                    info.differences[diff.op].push({
-                        ...diff,
-                        pos: tmpStart,
-                        size: options.pixelBase,
-                    });
-                    break;
-                case "D":
-                    tmpEnd = tmpStart + options.pixelBase * diff.length;
-                    const line = `M${tmpStart} ${rowY + (height / 2)} H${tmpEnd} H${tmpStart}`;
-                    info.differences[diff.op].push(line);
-                    break;
-                default:
-                    console.error(`Unexpected difference found: '${diff.op}'`);
+            if (diff.op === "M") {
+                const end = start + options.pixelBase;
+                const color = GenomeBrowserConstants.SEQUENCE_COLORS[diff.seq];
+                SVG.addChild(parent, "path", {
+                    "d": `M${start} ${rowY} V${rowY + readHeight} H${end} V${rowY} H${start}`,
+                    "stroke": color,
+                    "stroke-width": 0.7,
+                    "fill": color,
+                    "fill-opacity": 0.5,
+                });
+            } else if (diff.op === "I") {
+                const text = SVG.addChild(parent, "text", {
+                    y: rowY + readHeight,
+                    x: start - (options.pixelBase / 2),
+                    class: "ocb-font-ubuntumono ocb-font-size-15",
+                    // textLength: diff.size,
+                });
+                text.textContent = "|";
+                // $(t).qtip({
+                //     content: {text: diff.seq, title: "Insertion"},
+                //     position: {target: "mouse", adjust: {x: 25, y: 15}},
+                //     style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
+                // });
+            } else if (diff.op === "D") {
+                const end = start + options.pixelBase * diff.length;
+                SVG.addChild(parent, "path", {
+                    "d": `M${start} ${rowY + (readHeight / 2)} H${end} H${start}`,
+                    "stroke": "#000",
+                    "stroke-width": 0.7,
+                    "fill": "#000",
+                    "fill-opacity": 0.5,
+                });
             }
         });
     }
 
-    #processReads(features, options) {
+    #renderAlignments(parent, alignments, startHeight, options) {
         const differences = [];
         const starts = [];
         const ends = [];
 
-        features.forEach(feature => {
-            const [diffs, length] = this.#analyseRead(feature, options);
+        alignments.forEach(read => {
+            const [diffs, length] = this.#analyseRead(read, options);
             differences.push(diffs);
-            starts.push(feature.alignment.position.position);
-            ends.push(feature.alignment.position.position + length - 1);
+            starts.push(read.alignment.position.position);
+            ends.push(read.alignment.position.position + length - 1);
         });
 
         // transform to pixel position
-        const featuresStart = GenomeBrowserUtils.getFeatureX(Math.min.apply(null, starts), options);
-        const featuresEnd = GenomeBrowserUtils.getFeatureX(Math.max.apply(null, ends), options);
+        const alignmentStart = GenomeBrowserUtils.getFeatureX(Math.min.apply(null, starts), options);
+        const alignmentEnd = GenomeBrowserUtils.getFeatureX(Math.max.apply(null, ends), options);
 
-        const height = this.getValueFromConfig("height", [features]);
-        const rowHeight = 15;
-        let rowY = 70;
+        const height = this.getValueFromConfig("height", [alignments]);
+        const rowHeight = height + 5;
+        let rowY = startHeight;
         let fitted = false;
-        let info = null; // Stored reads info
 
         while (!fitted) {
             if (!options.renderedArea[rowY]) {
@@ -330,25 +296,16 @@ export default class AlignmentRenderer extends Renderer {
             }
 
             const foundRow = options.renderedArea[rowY].add({
-                start: featuresStart,
-                end: featuresEnd,
-                // features: features,
+                start: alignmentStart,
+                end: alignmentEnd,
             });
 
             if (foundRow) {
-                info = {
-                    position: rowY,
-                    height: height,
-                    reads: [],
-                    lowQualityReads: [],
-                    connectors: [],
-                    differences: Object.fromEntries(["A", "T", "C", "G", "N", "I", "D"].map(v => [v, []])),
-                };
+                let prevAlignmentEnd = null;
+                const connectorsPoints = [];
 
-                let lastFeatureEnd = null;
-
-                features.forEach((feature, index) => {
-                    const strand = this.getValueFromConfig("strand", [feature]) || "FORWARD";
+                alignments.forEach((read, index) => {
+                    const strand = this.getValueFromConfig("strand", [read]) || "FORWARD";
                     const start = GenomeBrowserUtils.getFeatureX(starts[index], options);
                     const end = GenomeBrowserUtils.getFeatureX(ends[index], options);
                     let points = []; // To save read points
@@ -373,34 +330,50 @@ export default class AlignmentRenderer extends Renderer {
                         ];
                     }
 
-                    if (features[0].alignment.mappingQuality > this.config.minMappingQuality) {
-                        info.reads.push(points.join(" "));
-                    } else {
-                        info.lowQualityReads.push(points.join(" "));
-                    }
+                    // Get read attributes
+                    const readColor = this.getValueFromConfig("color", [read, this.config.minMappingQuality]);
+                    const readOpacity = this.getValueFromConfig("opacity", [read, this.minMappingQuality]);
 
-                    // PROCESS differences
+                    // Render this read
+                    const readElement = SVG.addChild(parent, "path", {
+                        "d": points.join(" "),
+                        "stroke": "black",
+                        "stroke-width": 0.5,
+                        "fill": readColor,
+                        "fill-opacity": readOpacity,
+                        "cursor": "pointer",
+                    });
+
+                    // Render differences
                     if (options.regionSize < 1000) {
-                        this.#processDifferencesInRead(differences[index], info, starts[index], height, rowY, options);
+                        this.#renderDifferences(parent, differences[index], starts[index], height, rowY, options);
                     }
 
                     // Check for rendering a line connecting reads
-                    if (lastFeatureEnd && lastFeatureEnd < start) {
-                        info.connectors.push(`M${lastFeatureEnd} ${rowY + (height / 2)} H${start}`);
+                    if (prevAlignmentEnd && prevAlignmentEnd < start) {
+                        connectorsPoints.push(`M${prevAlignmentEnd} ${rowY + (height / 2)} H${start}`);
                     }
-                    lastFeatureEnd = end;
+                    prevAlignmentEnd = end;
                 });
+
+                // Check for rendering connectors points
+                if (connectorsPoints.length > 0) {
+                    SVG.addChild(parent, "path", {
+                        "d": connectorsPoints.join(" "),
+                        "stroke": "black",
+                        "stroke-width": 0.5,
+                        "fill": "transparent",
+                    });
+                }
 
                 // Read fittend
                 fitted = true;
             }
             rowY = rowY + rowHeight;
         }
-
-        return info;
     }
 
-    #groupReads(reads, options) {
+    #groupAlignments(reads, options) {
         const groups = {};
 
         // Filter reads to avoid duplications
@@ -435,72 +408,14 @@ export default class AlignmentRenderer extends Renderer {
         return Object.values(groups);
     }
 
-    #renderDifferences(group, differences, color) {
-        if (differences && differences.length > 0) {
-            SVG.addChild(group, "path", {
-                "d": differences.join(" "),
-                "stroke": color,
-                "stroke-width": 0.7,
-                "fill": color,
-                "fill-opacity": 0.5,
-            });
-        }
-    }
-
-    #renderReads(group, paths, color, opacity) {
-        if (paths && paths.length > 0) {
-            SVG.addChild(group, "path", {
-                "d": paths.join(" "),
-                "stroke": "black",
-                "stroke-width": 0.5,
-                "fill": color,
-                "fill-opacity": opacity,
-                "cursor": "pointer",
-            });
-        }
-
-        // $(svgChild).qtip({
-        //     content: {
-        //         title: "",
-        //         text: "",
-        //     },
-        //     position: { target: "mouse", adjust: { x: 25, y: 15 } },
-        //     style: { width: 300, classes: `${this.toolTipfontClass} ui-tooltip ui-tooltip-shadow` },
-        //     hide: {
-        //         event: "mousedown mouseup mouseleave",
-        //         delay: 30,
-        //         fixed: true,
-        //     },
-        // });
-
-        // let _this = this;
-        // svgChild.onmouseover = function () {
-        //     let position = _this.getFeatureX(args.trackListPanel.mousePosition, args);
-        //     let reads = features.get({ start: position, end: position }).value.features;
-        //     if (reads.length === 1) {
-        //         $(svgChild).qtip("option", "content.text", _this.tooltipText(reads[0]));
-        //         $(svgChild).qtip("option", "content.title", _this.tooltipTitle(reads[0]));
-        //     } else {
-        //         if (position < reads[0]._coordinates[1]) {
-        //             $(svgChild).qtip("option", "content.text", _this.tooltipText(reads[0]));
-        //             $(svgChild).qtip("option", "content.title", _this.tooltipTitle(reads[0]));
-        //         } else if (position > reads[1]._coordinates[0]) {
-        //             $(svgChild).qtip("option", "content.text", _this.tooltipText(reads[1]));
-        //             $(svgChild).qtip("option", "content.title", _this.tooltipTitle(reads[1]));
-        //         }
-        //     }
-        // };
-
-    }
-
     getDefaultConfig() {
         return {
             minMappingQuality: 20, // Reads with a mapping quality under 20 will have a transparency
             // Displayed reads style
-            lowQualityReadColor: "darkgrey",
-            lowQualityReadOpacity: 0.5,
-            readColor: "darkgrey",
-            readOpacity: 1,
+            color: "darkgrey",
+            opacity: (read, minMappingQuality) => {
+                return read.alignment.mappingQuality > minMappingQuality ? 1 : 0.5;
+            },
             height: 10,
             insertSizeMin: 0,
             insertSizeMax: 0,
@@ -568,13 +483,6 @@ export default class AlignmentRenderer extends Renderer {
                 // var style = "background:#FFEF93;font-weight:bold;";
                 return "<div style=\"float:left\">" + one + "</div>" +
                     "<div style=\"float:right\">" + three + "</div>";
-            },
-            color: (f, chr) => {
-                if (f.nextMatePosition.referenceName != chr) {
-                    return "DarkGray";
-                }
-                return f.alignment.position.strand === "POS_STRAND" ? "DarkGray" : "LightGray";
-                /**/
             },
             strokeColor: f => {
                 if (this.mateUnmappedFlag(f)) {
