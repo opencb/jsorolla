@@ -326,4 +326,74 @@ export default class GenomeBrowserUtils {
         return 0;
     }
 
+    //
+    // Alignments utils
+    //
+
+    // Alignment strand parser
+    static alignmentStrandParser(feature) {
+        return feature.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+    }
+
+    // Alignments flags parser
+    static alignmentFlagsParser(feature) {
+        const flags = [];
+        // let summary = "<div style=\"background:#FFEF93;font-weight:bold;margin:0 15px 0 0;\">flags </div>";
+        if (feature.numberReads > 1) {
+            flags.push("read paired");
+        }
+        if (!feature.improperPlacement) {
+            flags.push("read mapped in proper pair");
+        }
+        if (!feature.nextMatePosition) {
+            flags.push("mate unmapped");
+        }
+        if (feature.readNumber === 0) {
+            flags.push("first in pair");
+        }
+        if (feature.readNumber === (feature.numberReads - 1)) {
+            flags.push("second in pair");
+        }
+        if (feature.secondaryAlignment) {
+            flags.push("not primary alignment");
+        }
+        if (feature.failedVendorQualityChecks) {
+            flags.push("read fails platform/vendor quality checks");
+        }
+        if (feature.duplicateFragment) {
+            flags.push("read is PCR or optical duplicate");
+        }
+
+        return flags;
+    }
+
+    // Alignment tooltip title formatter
+    static alignmentTooltipTitleFormatter(feature) {
+        return `Alignment <span class="ok">${feature.id}</span>`;
+    }
+
+    // Alignment tooltip text formatter
+    static alignmentTooltipTextFormatter(feature) {
+        const regionInfo = GenomeBrowserUtils.featureInfoFormatter({
+            start: feature.start,
+            end: feature.end,
+            strand: feature?.alignment?.position?.strand ? GenomeBrowserUtils.alignmentStrandParser(feature) : "NA",
+        });
+        const flags = GenomeBrowserUtils.alignmentFlagsParser(feature);
+        const info = Object.keys(feature.info || {}).map(key => {
+            return `${key} : ${feature.info[key][0]} : ${feature.info[key][1]}`;
+        });
+        return `
+            <div>
+                <div>Cigar: <b>${feature.cigar || "NA"}</b></div>
+                <div Insert Size: <b>${feature.fragmentLength || "-"}</b></div>
+                ${regionInfo}
+                <div>
+                    ${flags.map(f => `<span>${f}</span>`).join("")}
+                </div>
+                ${info.map(item => `<div>${item}</div>`).join("")}
+            </div>
+        `;
+    }
+
 }
