@@ -472,7 +472,7 @@ export default class FeatureTrack {
         // Check if responses is an array (multiple calls) or a single element (single call)
         let data = [];
         if (response && Array.isArray(response)) {
-            data = response.map(res => res.responses[0].results);
+            data = response.map(res => res?.responses?.[0]?.results);
         } else {
             data = response.responses[0].results;
         }
@@ -510,10 +510,7 @@ export default class FeatureTrack {
         return "features";
     }
 
-    // draw(customAdapter, customRenderer) {
     draw() {
-        // const adapter = customAdapter || this.dataAdapter;
-
         this.clean();
         this.#setCanvasConfig();
 
@@ -537,7 +534,6 @@ export default class FeatureTrack {
 
             // Import and draw data
             this.getData(options).then(response => {
-                // this.getDataHandler(response.responses[0].results, options);
                 this.getDataHandler(response, options);
                 this.setLoading(false);
             });
@@ -571,7 +567,6 @@ export default class FeatureTrack {
                     }),
                 };
                 this.getData(options).then(response => {
-                    // return this.getDataHandler(response.responses[0].results, options);
                     return this.getDataHandler(response, options);
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -587,7 +582,6 @@ export default class FeatureTrack {
                     }),
                 };
                 this.getData(options).then(response => {
-                    // return this.getDataHandler(response.responses[0].results, options);
                     return this.getDataHandler(response, options);
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
