@@ -1,5 +1,4 @@
 import FeatureTrack from "./feature-track.js";
-import HistogramRenderer from "../renderers/histogram-renderer.js";
 import AlignmentRenderer from "../renderers/alignment-renderer.js";
 
 export default class OpenCGAAlignmentTrack extends FeatureTrack {
@@ -7,25 +6,23 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
     constructor(config) {
         super(config);
 
-        // Initialize Rendererers
-        this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
         this.renderer = new AlignmentRenderer({
             ...(this.config.renderer || {}),
         });
 
+        this.sampleInfo = null;
         this.alignmentInfo = null;
+        this.fetchedSampleAndAlignmentInfo = false;
     }
 
     // Import sample info
     async #getSampleAndAlignmentInfo() {
-        // this.sampleInfo = await this.config.opencgaClient.samples()
-        //     .info(this.config.sample, {
-        //         study: this.config.opencgaStudy,
-        //         includeIndividual: true,
-        //     })
-        //     .results[0];
+        const sampleResponse = await this.config.opencgaClient.samples()
+            .info(this.config.sample, {
+                study: this.config.opencgaStudy,
+                includeIndividual: true,
+            });
 
-        // Alignment file info
         const alignmentResponse = await this.config.opencgaClient.files()
             .search({
                 study: this.config.opencgaStudy,
@@ -33,12 +30,20 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
                 bioformat: "ALIGNMENT",
                 exclude: "qualityControl,attributes",
             });
-        this.alignmentInfo = alignmentResponse.getResults()[0];
+
+        this.sampleInfo = sampleResponse?.responses?.[0]?.results?.[0] || null;
+        this.alignmentInfo = alignmentResponse?.responses?.[0]?.results?.[0] || null;
+        this.fetchedSampleAndAlignmentInfo = true;
     }
 
     async getData(options) {
-        if (!this.alignmentInfo) {
+        if (!this.fetchedSampleAndAlignmentInfo) {
             await this.#getSampleAndAlignmentInfo();
+        }
+
+        // Check if no alignments file has been found
+        if (!this.alignmentInfo) {
+            return Promise.reject(new Error(`No alignments file found for sample '${this.config.sample}'`));
         }
 
         // Fetch alignments info for the current region
@@ -73,12 +78,8 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
             opencgaClient: null,
             opencgaStudy: "",
             sample: null,
-            // query: null,
-            histogramMinRegionSize: 300000000,
-            histogramInterval: 10000,
-            labelMaxRegionSize: 10000000,
+            alignmentsMaxRegionSize: 25000,
             renderer: {}, // Renderer configuration
-            histogramRenderer: {}, // Histogram renderer configuration
         };
     }
 
