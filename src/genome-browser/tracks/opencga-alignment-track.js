@@ -8,6 +8,7 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
 
         this.renderer = new AlignmentRenderer({
             ...(this.config.renderer || {}),
+            alignmentsMaxRegionSize: this.config.alignmentsMaxRegionSize,
         });
 
         this.sampleInfo = null;
@@ -46,13 +47,18 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
             return Promise.reject(new Error(`No alignments file found for sample '${this.config.sample}'`));
         }
 
-        // Fetch alignments info for the current region
-        const alignmentsRequest = this.config.opencgaClient.alignments().query(this.alignmentInfo.id, {
-            study: this.config.opencgaStudy,
-            limit: 5000,
-            region: options.region.toString(),
-            offset: 0,
-        });
+        let alignmentsRequest = null;
+        // Fetch alignments info only if the current region length is lower than the alignmentsMaxRegionSize value
+        if (options.region.length() < this.config.alignmentsMaxRegionSize) {
+            alignmentsRequest = this.config.opencgaClient.alignments().query(this.alignmentInfo.id, {
+                study: this.config.opencgaStudy,
+                limit: 5000,
+                region: options.region.toString(),
+                offset: 0,
+            });
+        } else {
+            alignmentsRequest = Promise.resolve(null);
+        }
 
         // Fetch coverage data for the current region
         const coverageRequest = this.config.opencgaClient.alignments().queryCoverage(this.alignmentInfo.id, {
@@ -78,7 +84,7 @@ export default class OpenCGAAlignmentTrack extends FeatureTrack {
             opencgaClient: null,
             opencgaStudy: "",
             sample: null,
-            alignmentsMaxRegionSize: 25000,
+            alignmentsMaxRegionSize: 50000,
             renderer: {}, // Renderer configuration
         };
     }
