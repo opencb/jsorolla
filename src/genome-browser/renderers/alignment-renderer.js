@@ -45,40 +45,28 @@ export default class AlignmentRenderer extends Renderer {
 
         if (maximumValue > 0) {
             const maxValueRatio = height / maximumValue;
-            // let previousCoverage = -1;
-            // let previousPosition = -1;
-
-            // const startPoint = args.pixelPosition + middle - ((args.position - start) * args.pixelBase);
+            let prevCoverage = -1;
+            let prevPosition = -1;
 
             (coverage.values || []).forEach((value, index) => {
                 const pos = index * coverage.windowSize;
 
-                // if (value !== previousCoverage) {
-                //     if (previousPosition + 1 < index && previousCoverage !== -1) {
-                //         // We need to add the previous position as well to make a flat line between positions with equal coverage
-                //         // const x = args.pixelPosition + middle - ((args.position - (start + (pos - 1))) * args.pixelBase);
-                //         const x = GenomeBrowserUtils.getFeatureX(start + pos - 1, options);
-                //         const y = height - (previousCoverage * maxValueRatio);
+                if (value !== prevCoverage || index === coverage.values.length - 1) {
+                    if (prevCoverage > -1 && prevPosition + 1 < index) {
+                        // We need to add the previous position as well to make a flat line between positions with equal coverage
+                        const x = GenomeBrowserUtils.getFeatureX(start + prevPosition * coverage.windowSize, options);
+                        const y = height - (prevCoverage * maxValueRatio);
+                        points.push(`${x},${y}`);
+                    }
+                    prevCoverage = value;
+                    prevPosition = index;
 
-                //         points.push(`${x},${y}`);
-                //     }
-                //     previousCoverage = value;
-                //     previousPosition = index;
-
-                // }
-                const x = GenomeBrowserUtils.getFeatureX(start + pos, options);
-                const y = height - (value * maxValueRatio);
-                points.push(`${x},${y}`);
+                    const x = GenomeBrowserUtils.getFeatureX(start + pos, options);
+                    const y = height - (value * maxValueRatio);
+                    points.push(`${x},${y}`);
+                }
             });
-
-            // const x = args.pixelPosition + middle - ((args.position - (start + length + 1)) * args.pixelBase);
-            // const y = covHeight - (coverageList[coverageList.length - 1] * maxValueRatio);
-            // points.push(`${x},${y}`);
         }
-        // } else {
-        //     points.push(`${GenomeBrowserUtils.getFeatureX(start, options)},${height}`);
-        //     points.push(`${GenomeBrowserUtils.getFeatureX(end, options)},${height}`);
-        // }
 
         // Last point
         points.push(`${endPoint},${height}`);
