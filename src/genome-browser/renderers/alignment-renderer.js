@@ -29,76 +29,39 @@ export default class AlignmentRenderer extends Renderer {
         });
     }
 
-    // _drawCoverage(svgGroup, chunk, args) {
-    #renderCoverage(group, coverage, height, options) {
-        const start = parseInt(coverage.start);
-        const end = parseInt(coverage.end);
-        const pixelWidth = (end - start + 1) * options.pixelBase;
-        const maximumValue = coverage.stats.max; // Math.max.apply(null, coverageList);
-        const points = [];
+    #groupAlignments(reads, options) {
+        const groups = {};
 
-        const startPoint = GenomeBrowserUtils.getFeatureX(start, options);
-        const endPoint = GenomeBrowserUtils.getFeatureX(end, options);
-
-        // First starting point
-        points.push(`${startPoint},${height}`);
-
-        if (maximumValue > 0) {
-            const maxValueRatio = height / maximumValue;
-            let prevCoverage = -1;
-            let prevPosition = -1;
-
-            (coverage.values || []).forEach((value, index) => {
-                const pos = index * coverage.windowSize;
-
-                if (value !== prevCoverage || index === coverage.values.length - 1) {
-                    if (prevCoverage > -1 && prevPosition + 1 < index) {
-                        // We need to add the previous position as well to make a flat line between positions with equal coverage
-                        const x = GenomeBrowserUtils.getFeatureX(start + prevPosition * coverage.windowSize, options);
-                        const y = height - (prevCoverage * maxValueRatio);
-                        points.push(`${x},${y}`);
-                    }
-                    prevCoverage = value;
-                    prevPosition = index;
-
-                    const x = GenomeBrowserUtils.getFeatureX(start + pos, options);
-                    const y = height - (value * maxValueRatio);
-                    points.push(`${x},${y}`);
-                }
-            });
-        }
-
-        // Last point
-        points.push(`${endPoint},${height}`);
-
-        SVG.addChild(group, "polyline", {
-            points: points.join(" "),
-            stroke: "lightgrey",
-            fill: "lightgrey",
-            width: pixelWidth,
-            height: height,
-            cursor: "pointer",
+        // Filter reads to avoid duplications
+        const nonDuplicatedReads = reads.filter(read => {
+            return !options.renderedFeatures.has(read.id);
         });
 
-        // $(dummyRect).qtip({
-        //     content: " ",
-        //     position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
-        //     style: { width: true, classes: `${this.toolTipfontClass} ui-tooltip-shadow` },
-        //     show: { delay: 300 },
-        //     hide: { delay: 300 },
-        // });
+        // Group only non duplicated reads
+        nonDuplicatedReads.forEach(read => {
+            const id = read.id;
+            if (!groups[id]) {
+                groups[id] = [read];
+            } else {
+                const newReadPosition = read.alignment.position.position;
+                const storedReadPosition = groups[id][0].alignment.position.position;
 
+                // FIXME: For some reason, the webservice is some times returning the exactly same read more than once.
+                if (newReadPosition !== storedReadPosition) {
+                    // Order the alignments to be rendered properly
+                    if (newReadPosition > storedReadPosition) {
+                        groups[id].push(read);
+                    } else {
+                        groups[id].unshift(read);
+                    }
+                }
+            }
 
-        // args.trackListPanel.on("mousePosition:change", (e) => {
-        //     const pos = Math.floor((e.mousePos - parseInt(start)) / windowSize);
-        //     if (pos < 0 || pos >= coverageList.length) {
-        //         return;
-        //     }
+            // Mark this read as rendered
+            options.renderedFeatures.add(read.id);
+        });
 
-        //     const str = `depth: <span class="ssel">${coverageList[pos]}</span><br>`;
-        //     $(dummyRect).qtip("option", "content.text", str);
-
-        // });
+        return Object.values(groups);
     }
 
     #analyseRead(feature) {
@@ -214,6 +177,77 @@ export default class AlignmentRenderer extends Renderer {
         }
 
         return [differences, relativePosition];
+    }
+
+    #renderCoverage(group, coverage, height, options) {
+        const start = parseInt(coverage.start);
+        const end = parseInt(coverage.end);
+        const pixelWidth = (end - start + 1) * options.pixelBase;
+        const maximumValue = coverage.stats.max; // Math.max.apply(null, coverageList);
+        const points = [];
+
+        const startPoint = GenomeBrowserUtils.getFeatureX(start, options);
+        const endPoint = GenomeBrowserUtils.getFeatureX(end, options);
+
+        // First starting point
+        points.push(`${startPoint},${height}`);
+
+        if (maximumValue > 0) {
+            const maxValueRatio = height / maximumValue;
+            let prevCoverage = -1;
+            let prevPosition = -1;
+
+            (coverage.values || []).forEach((value, index) => {
+                const pos = index * coverage.windowSize;
+
+                if (value !== prevCoverage || index === coverage.values.length - 1) {
+                    if (prevCoverage > -1 && prevPosition + 1 < index) {
+                        // We need to add the previous position as well to make a flat line between positions with equal coverage
+                        const x = GenomeBrowserUtils.getFeatureX(start + prevPosition * coverage.windowSize, options);
+                        const y = height - (prevCoverage * maxValueRatio);
+                        points.push(`${x},${y}`);
+                    }
+                    prevCoverage = value;
+                    prevPosition = index;
+
+                    const x = GenomeBrowserUtils.getFeatureX(start + pos, options);
+                    const y = height - (value * maxValueRatio);
+                    points.push(`${x},${y}`);
+                }
+            });
+        }
+
+        // Last point
+        points.push(`${endPoint},${height}`);
+
+        SVG.addChild(group, "polyline", {
+            points: points.join(" "),
+            stroke: "lightgrey",
+            fill: "lightgrey",
+            width: pixelWidth,
+            height: height,
+            cursor: "pointer",
+        });
+
+        // $(dummyRect).qtip({
+        //     content: " ",
+        //     position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
+        //     style: { width: true, classes: `${this.toolTipfontClass} ui-tooltip-shadow` },
+        //     show: { delay: 300 },
+        //     hide: { delay: 300 },
+        // });
+
+
+        // args.trackListPanel.on("mousePosition:change", (e) => {
+        //     const pos = Math.floor((e.mousePos - parseInt(start)) / windowSize);
+        //     if (pos < 0 || pos >= coverageList.length) {
+        //         return;
+        //     }
+
+        //     const str = `depth: <span class="ssel">${coverageList[pos]}</span><br>`;
+        //     $(dummyRect).qtip("option", "content.text", str);
+
+        // });
     }
 
     #renderDifferences(parent, differences, readStart, readHeight, rowY, options) {
@@ -359,41 +393,6 @@ export default class AlignmentRenderer extends Renderer {
             }
             rowY = rowY + rowHeight;
         }
-    }
-
-    #groupAlignments(reads, options) {
-        const groups = {};
-
-        // Filter reads to avoid duplications
-        const nonDuplicatedReads = reads.filter(read => {
-            return !options.renderedFeatures.has(read.id);
-        });
-
-        // Group only non duplicated reads
-        nonDuplicatedReads.forEach(read => {
-            const id = read.id;
-            if (!groups[id]) {
-                groups[id] = [read];
-            } else {
-                const newReadPosition = read.alignment.position.position;
-                const storedReadPosition = groups[id][0].alignment.position.position;
-
-                // FIXME: For some reason, the webservice is some times returning the exactly same read more than once.
-                if (newReadPosition !== storedReadPosition) {
-                    // Order the alignments to be rendered properly
-                    if (newReadPosition > storedReadPosition) {
-                        groups[id].push(read);
-                    } else {
-                        groups[id].unshift(read);
-                    }
-                }
-            }
-
-            // Mark this read as rendered
-            options.renderedFeatures.add(read.id);
-        });
-
-        return Object.values(groups);
     }
 
     getDefaultConfig() {
