@@ -203,9 +203,9 @@ export default class AlignmentRenderer extends Renderer {
                 if (value !== prevCoverage || index === coverage.values.length - 1) {
                     if (prevCoverage > -1 && prevPosition + 1 < index) {
                         // We need to add the previous position as well to make a flat line between positions with equal coverage
-                        const x = GenomeBrowserUtils.getFeatureX(start + prevPosition * coverage.windowSize, options);
-                        const y = height - (prevCoverage * maxValueRatio);
-                        points.push(`${x},${y}`);
+                        const prevX = GenomeBrowserUtils.getFeatureX(start + prevPosition * coverage.windowSize, options);
+                        const prevY = height - (prevCoverage * maxValueRatio);
+                        points.push(`${prevX},${prevY}`);
                     }
                     prevCoverage = value;
                     prevPosition = index;
