@@ -87,14 +87,14 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     onFieldChange(e) {
         e.stopPropagation();
         // No need to switch(field) since all of them are processed in the same way
-        this.updateParams = FormUtils.updateScalar(
+        this.data = FormUtils.updateScalarParams(
             this._ontology,
             this.ontology,
-            this.updateParams,
+            this.data?.updateParams,
             e.detail.param,
             e.detail.value);
 
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
+        LitUtils.dispatchCustomEvent(this, "fieldChange", {...this.data?.updateParams}, null, null, {bubbles: false, composed: true});
         // to reflect which field is updating...
         this.requestUpdate();
     }
@@ -103,6 +103,8 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         // Send the ontology to the upper component
         e.stopPropagation();
         this.updateParams = {};
+        this.ontology = {...this.data?.original};
+        this.data = {};
         LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
     }
 
@@ -110,6 +112,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         e.stopPropagation();
         this.ontology = JSON.parse(JSON.stringify(this._ontology));
         this.updateParams = {};
+        this.data = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
@@ -118,12 +121,12 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             <data-form
                 .data=${this.ontology}
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams=${this.data?.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${e => this.onSendOntology(e)}">
             </data-form>
-    `;
+        `;
     }
 
     _configOntology(entity) {

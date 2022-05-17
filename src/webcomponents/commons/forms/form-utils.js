@@ -27,7 +27,7 @@ export default class FormUtils {
         };
 
         if (_original?.[param] !== value && value !== null) {
-            original[param] = value;
+            original[param] = value; // This the problem
             _updateParams[param] = value;
         } else {
             // We need to restore the original value in our copy
@@ -38,6 +38,29 @@ export default class FormUtils {
         // We need to create a new 'updateParams' reference to force an update
         return _updateParams;
     }
+
+    static updateScalarParams(_original, original, updateParams, param, value) {
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        // Rodiel 22-05-17: avoid override original data and updateParams. (ontology-term-annotation-update)
+        const _data = {
+            original: {...original},
+            updateParams: {...updateParams}
+        };
+
+        if (_original?.[param] !== value && value !== null) {
+            _data.original[param] = value; // This the problem
+            _data.updateParams[param] = value;
+        } else {
+            // We need to restore the original value in our copy
+            _data.original[param] = _original[param];
+            delete _data.updateParams[param];
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _data;
+    }
+
 
     static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");

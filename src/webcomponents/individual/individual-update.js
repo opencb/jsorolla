@@ -309,8 +309,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 render: sex => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${sex}
-                                        .child="${true}"
+                                        .ontology="${sex}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
@@ -328,8 +327,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 render: ethnicity => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${ethnicity}
-                                        .child="${true}"
+                                        .ontology="${ethnicity}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
@@ -436,8 +434,7 @@ export default class IndividualUpdate extends LitElement {
                                 renderUpdate: (pheno, callback) => {
                                     return html`
                                         <ontology-term-annotation-update
-                                            .ontology=${pheno}
-                                            .child="${true}"
+                                            .ontology="${pheno}"
                                             .entity="${"phenotype"}"
                                             .displayConfig="${{
                                                 defaultLayout: "vertical",
@@ -476,8 +473,7 @@ export default class IndividualUpdate extends LitElement {
                                 collapsedUpdate: true,
                                 renderUpdate: (disorder, callback) => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${disorder}
-                                        .child="${true}"
+                                        .ontology="${disorder}"
                                         .entity="${"disorder"}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
