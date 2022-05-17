@@ -306,7 +306,7 @@ export default class AlignmentRenderer extends Renderer {
         const alignmentStart = GenomeBrowserUtils.getFeatureX(Math.min.apply(null, starts), options);
         const alignmentEnd = GenomeBrowserUtils.getFeatureX(Math.max.apply(null, ends), options);
 
-        const height = this.getValueFromConfig("height", [alignments]);
+        const height = this.getValueFromConfig("height", []);
         const rowHeight = height + 5;
         let rowY = startHeight;
         let fitted = false;
@@ -327,7 +327,7 @@ export default class AlignmentRenderer extends Renderer {
                 const connectorsPoints = [];
 
                 alignments.forEach((read, index) => {
-                    const strand = this.getValueFromConfig("strand", [read]) || "FORWARD";
+                    const strand = this.getValueFromConfig("strand", [read]) || "Forward";
                     const start = GenomeBrowserUtils.getFeatureX(starts[index], options);
                     const end = GenomeBrowserUtils.getFeatureX(ends[index], options);
                     let points = []; // To save read points
@@ -398,97 +398,15 @@ export default class AlignmentRenderer extends Renderer {
     getDefaultConfig() {
         return {
             minMappingQuality: 20, // Reads with a mapping quality under 20 will have a transparency
+            strand: GenomeBrowserUtils.alignmentStrandParser,
             // Displayed reads style
             color: "darkgrey",
             opacity: (read, minMappingQuality) => {
                 return read.alignment.mappingQuality > minMappingQuality ? 1 : 0.5;
             },
             height: 10,
-            insertSizeMin: 0,
-            insertSizeMax: 0,
-            explainFlags: f => {
-                let summary = "<div style=\"background:#FFEF93;font-weight:bold;margin:0 15px 0 0;\">flags </div>";
-                if (f.numberReads > 1) {
-                    summary += "read paired<br>";
-                }
-                if (!f.improperPlacement) {
-                    summary += "read mapped in proper pair<br>";
-                }
-                if (typeof f.nextMatePosition === "undefined") {
-                    summary += "mate unmapped<br>";
-                }
-                if (f.readNumber === 0) {
-                    summary += "first in pair<br>";
-                }
-                if (f.readNumber === (f.numberReads - 1)) {
-                    summary += "second in pair<br>";
-                }
-                if (f.secondaryAlignment) {
-                    summary += "not primary alignment<br>";
-                }
-                if (f.failedVendorQualityChecks) {
-                    summary += "read fails platform/vendor quality checks<br>";
-                }
-                if (f.duplicateFragment) {
-                    summary += "read is PCR or optical duplicate<br>";
-                }
-                return summary;
-            },
-            label: f => {
-                return "Alignment  " + f.fragmentName + ":" + f.alignment.position.position + "-" + (f.alignment.position.position + f.alignedSequence.length - 1);
-            },
-            tooltipTitle: f => {
-                return "Alignment" + " - <span class=\"ok\">" + f.id + "</span>";
-            },
-            tooltipText: f => {
-                f.strand = this.strand(f);
-
-                const strand = (f.strand != null) ? f.strand : "NA";
-                const region = `
-                    start-end:&nbsp;<span style="font-weight: bold">${f.start}-${f.end} (${strand})</span><br>
-                    length:&nbsp;
-                        <span style="font-weight: bold; color:#005fdb">
-                            ${(f.end - f.start + 1).toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")}
-                        </span>
-                    <br>
-                `;
-                const one =
-                    "cigar:&nbsp;<span class=\"ssel\">" + f.cigar + "</span><br>" +
-                    "insert size:&nbsp;<span class=\"ssel\">" + f.fragmentLength + "</span><br>" +
-                    region + "<br>" +
-                    // this.explainFlags(f.flags);
-                    this.explainFlags(f);
-
-                let three = "<div style=\"background:#FFEF93;font-weight:bold;\">attributes</div>";
-                Object.keys(f.info || {}).forEach(key => {
-                    three += key + " : " + f.info[key][0] + " : " + f.info[key][1] + "<br>";
-                });
-                // delete f.attributes["BQ"];//for now because is too long
-                // for (var key in f.attributes) {
-                //     three += key + ":" + f.attributes[key] + "<br>";
-                // }
-                // var style = "background:#FFEF93;font-weight:bold;";
-                return "<div style=\"float:left\">" + one + "</div>" +
-                    "<div style=\"float:right\">" + three + "</div>";
-            },
-            strokeColor: f => {
-                if (this.mateUnmappedFlag(f)) {
-                    return "tomato";
-                }
-                return f.alignment.position.strand === "POS_STRAND" ? "LightGray" : "DarkGray";
-            },
-            strand: f => {
-                return f.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
-            },
-            readPairedFlag: f => {
-                return (parseInt(f.flags) & (0x1)) == 0 ? false : true;
-            },
-            firstOfPairFlag: f => {
-                return (parseInt(f.flags) & (0x40)) == 0 ? false : true;
-            },
-            mateUnmappedFlag: f => {
-                return f.nextMatePosition === undefined;
-            },
+            tooltipTitle: GenomeBrowserUtils.alignmentTooltipTitleFormatter,
+            tooltipText: GenomeBrowserUtils.alignmentTooltipTextFormatter,
         };
     }
 
