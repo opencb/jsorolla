@@ -338,7 +338,6 @@ export default class GenomeBrowserUtils {
     // Alignments flags parser
     static alignmentFlagsParser(feature) {
         const flags = [];
-        // let summary = "<div style=\"background:#FFEF93;font-weight:bold;margin:0 15px 0 0;\">flags </div>";
         if (feature.numberReads > 1) {
             flags.push("read paired");
         }
@@ -383,6 +382,7 @@ export default class GenomeBrowserUtils {
         const info = Object.keys(feature.info || {}).map(key => {
             return `${key} : ${feature.info[key][0]} : ${feature.info[key][1]}`;
         });
+
         return `
             <div>
                 <div>Cigar: <b>${feature.cigar || "NA"}</b></div>
