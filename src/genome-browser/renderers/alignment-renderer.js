@@ -357,7 +357,7 @@ export default class AlignmentRenderer extends Renderer {
 
                     // Get read attributes
                     const readColor = this.getValueFromConfig("color", [read, this.config.minMappingQuality]);
-                    const readOpacity = this.getValueFromConfig("opacity", [read, this.minMappingQuality]);
+                    const readOpacity = this.getValueFromConfig("opacity", [read, this.config.minMappingQuality]);
 
                     // Render this read
                     const readElement = SVG.addChild(parent, "path", {
