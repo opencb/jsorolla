@@ -12,8 +12,9 @@ export default class AlignmentRenderer extends Renderer {
         const alignments = data[1] || null; // Alignments data is in the second position (if provided)
 
         // Define the height of the coverage track
-        // const covHeight = options.dataType === "features" ? 50 : options.svgCanvasFeatures.parentElement.clientHeight;
-        const coverageHeight = 50;
+        const regionSize = options.requestedRegion.end - options.requestedRegion.start + 1;
+        const parentHeight = options.svgCanvasFeatures.parentElement.clientHeight;
+        const coverageHeight = regionSize < this.config.alignmentsMaxRegionSize ? 50 : parentHeight;
 
         const coverageParent = SVG.addChild(options.svgCanvasFeatures, "g", {});
         const alignmentsParent = SVG.addChild(options.svgCanvasFeatures, "g", {});
@@ -24,9 +25,11 @@ export default class AlignmentRenderer extends Renderer {
         });
 
         // Group and render alignments
-        this.#groupAlignments(alignments || [], options).forEach(group => {
-            this.#renderAlignments(alignmentsParent, group, coverageHeight, options);
-        });
+        if (alignments && regionSize < this.config.alignmentsMaxRegionSize) {
+            this.#groupAlignments(alignments, options).forEach(group => {
+                this.#renderAlignments(alignmentsParent, group, coverageHeight, options);
+            });
+        }
     }
 
     #groupAlignments(reads, options) {
@@ -308,7 +311,7 @@ export default class AlignmentRenderer extends Renderer {
 
         const height = this.getValueFromConfig("height", []);
         const rowHeight = height + 5;
-        let rowY = startHeight;
+        let rowY = startHeight + 10;
         let fitted = false;
 
         while (!fitted) {
@@ -397,6 +400,7 @@ export default class AlignmentRenderer extends Renderer {
 
     getDefaultConfig() {
         return {
+            alignmentsMaxRegionSize: 50000,
             minMappingQuality: 20, // Reads with a mapping quality under 20 will have a transparency
             strand: GenomeBrowserUtils.alignmentStrandParser,
             // Displayed reads style
