@@ -135,7 +135,7 @@ export default class SampleView extends LitElement {
 
         return html`
             <data-form
-                .data=${this.sample}
+                .data="${this.sample}"
                 .config="${this._config}">
             </data-form>
         `;
