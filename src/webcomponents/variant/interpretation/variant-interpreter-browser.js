@@ -293,55 +293,55 @@ class VariantInterpreterBrowser extends LitElement {
                         });
                     }
                 }
-
-                // Append genome browser
-                items.push({
-                    id: "genome-browser",
-                    name: "Genome Browser (Experimental)",
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <genome-browser
-                            .opencgaSession="${opencgaSession}"
-                            .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
-                            .active="${active}"
-                            .config="${{
-                                cellBaseClient: this.cellbaseClient,
-                            }}"
-                            .tracks="${[
-                                {
-                                    type: "gene-overview",
-                                    overview: true,
-                                    config: {},
-                                },
-                                {
-                                    type: "sequence",
-                                    config: {},
-                                },
-                                {
-                                    type: "gene",
-                                    config: {},
-                                },
-                                {
-                                    type: "opencga-variant",
-                                    config: {
-                                        title: "Variants",
-                                        query: {
-                                            sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                                        },
-                                        height: 120,
-                                    },
-                                },
-                                {
-                                    type: "opencga-alignment",
-                                    config: {
-                                        title: `Alignments - ${clinicalAnalysis.proband.samples[0].id}`,
-                                        sample: clinicalAnalysis.proband.samples[0].id,
-                                    },
-                                },
-                            ]}">
-                        </genome-browser>
-                    `,
-                });
             }
+
+            // Append genome browser
+            items.push({
+                id: "genome-browser",
+                name: "Genome Browser (Experimental)",
+                render: (clinicalAnalysis, active, opencgaSession) => html`
+                    <genome-browser
+                        .opencgaSession="${opencgaSession}"
+                        .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
+                        .active="${active}"
+                        .config="${{
+                            cellBaseClient: this.cellbaseClient,
+                        }}"
+                        .tracks="${[
+                            {
+                                type: "gene-overview",
+                                overview: true,
+                                config: {},
+                            },
+                            {
+                                type: "sequence",
+                                config: {},
+                            },
+                            {
+                                type: "gene",
+                                config: {},
+                            },
+                            {
+                                type: "opencga-variant",
+                                config: {
+                                    title: "Variants",
+                                    query: {
+                                        sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                                    },
+                                    height: 120,
+                                },
+                            },
+                            {
+                                type: "opencga-alignment",
+                                config: {
+                                    title: `Alignments - ${clinicalAnalysis.proband.samples[0].id}`,
+                                    sample: clinicalAnalysis.proband.samples[0].id,
+                                },
+                            },
+                        ]}">
+                    </genome-browser>
+                `,
+            });
         }
 
         // Return tabs configuration
