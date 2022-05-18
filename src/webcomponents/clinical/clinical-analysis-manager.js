@@ -260,6 +260,38 @@ export default class ClinicalAnalysisManager {
             });
     }
 
+    lockInterpretation(interpretationId, callback) {
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {locked: true}, {
+            study: this.opencgaSession.study.fqn
+        })
+            .then(() => {
+                // Notify interpretation saved
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Interpretation '${interpretationId}' Locked.`,
+                });
+                callback(this.clinicalAnalysis);
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    unLockInterpretation(interpretationId, callback) {
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {locked: false}, {
+            study: this.opencgaSession.study.fqn
+        })
+            .then(() => {
+                // Notify interpretation saved
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Interpretation '${interpretationId}' Unlocked.`,
+                });
+                callback(this.clinicalAnalysis);
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
     updateVariant(variant, interpretation, callback) {
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretation.id, {primaryFindings: [variant]}, {
             study: this.opencgaSession.study.fqn,

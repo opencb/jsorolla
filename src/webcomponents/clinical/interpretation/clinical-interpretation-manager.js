@@ -126,11 +126,14 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     renderInterpretation(interpretation, primary) {
+        const interpretationTitle = interpretation.locked?
+            html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
+            html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
         return html`
             <div style="display:flex;padding-bottom:4px;">
                 <div style="margin-right:auto;">
                     <h5 style="font-weight: bold">
-                        Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}
+                        ${interpretationTitle}
                     </h5>
                 </div>
                 <div class="${classMap({primary: primary})}">
@@ -164,6 +167,8 @@ export default class ClinicalInterpretationManager extends LitElement {
                                         Restore previous version
                                     </a>
                                 </li>
+                                <!-- Action Lock/Unlock -->
+                                ${this.renderLockAction(interpretation)}
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a
@@ -185,6 +190,8 @@ export default class ClinicalInterpretationManager extends LitElement {
                                         <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
                                     </a>
                                 </li>
+                                <!-- Action Lock/Unlock -->
+                                ${this.renderLockAction(interpretation)}
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a
@@ -235,6 +242,20 @@ export default class ClinicalInterpretationManager extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
         });
+    }
+
+    renderLockAction(interpretation) {
+        return html`
+            <li>
+                <a
+                    class="btn force-text-left"
+                    data-action="${interpretation.locked ? "unlock":"lock"}"
+                    data-interpretation-id="${interpretation.id}"
+                    @click="${this.onActionClick}">
+                    <i class="fas ${interpretation.locked ? "fa-unlock":"fa-lock"} icon-padding" aria-hidden="true"></i> ${interpretation.locked ? "Unlock": "Lock"}
+                </a>
+            </li>
+        `;
     }
 
     _initTableColumns() {
@@ -297,6 +318,12 @@ export default class ClinicalInterpretationManager extends LitElement {
                 break;
             case "delete":
                 this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
+                break;
+            case "lock":
+                this.clinicalAnalysisManager.lockInterpretation(interpretationId, interpretationCallback);
+                break;
+            case "unlock":
+                this.clinicalAnalysisManager.unLockInterpretation(interpretationId, interpretationCallback);
                 break;
         }
     }
