@@ -145,7 +145,6 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     onFieldChange(e) {
-        console.log(e.detail);
         switch (e.detail.param) {
             case "locked":
             case "panelLock":
@@ -448,28 +447,32 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "panelLock",
                             type: "toggle-switch",
                             display: {
-                                helpMessage: "All existing interpretations must have the same panels to enable Panel Lock",
+                                helpMessage: "All existing interpretations must contain at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
                                 disabled: clinicalAnalysis => {
                                     if (clinicalAnalysis?.locked) {
                                         return true;
                                     }
 
-                                    const interpretations = [clinicalAnalysis.interpretation, ...clinicalAnalysis.secondaryInterpretations];
-                                    for (const interpretation of interpretations) {
-                                        if (clinicalAnalysis.panels?.length !== interpretation?.panels?.length) {
+                                    const interpretations = [
+                                        clinicalAnalysis.interpretation,
+                                        ...clinicalAnalysis.secondaryInterpretations,
+                                    ];
+
+                                    return interpretations.some(interpretation => {
+                                        // Josemi 20220518 NOTE: interpretations should contain at least one panel from the clinical analysis
+                                        // to enable the disease panels lock switch
+                                        if (!interpretation.panels || interpretation.panels.length < 1) {
                                             return true;
                                         }
-                                        for (const interpretationPanel of interpretation.panels) {
-                                            const index = clinicalAnalysis?.panels?.findIndex(p => p.id === interpretationPanel.id);
-                                            if (index === -1) {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                    return false;
-                                    // return !!clinicalAnalysis?.locked;
+
+                                        // We only need to find ONE panel in the interpretation that is not in the case panels for disabling
+                                        // the disease panels lock
+                                        return interpretation.panels.some(panel => {
+                                            return clinicalAnalysis?.panels?.findIndex(p => p.id === panel.id) === -1;
+                                        });
+                                    });
                                 },
-                            }
+                            },
                         },
                         {
                             title: "Flags",
