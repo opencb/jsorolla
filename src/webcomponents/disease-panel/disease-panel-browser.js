@@ -160,6 +160,16 @@ export default class DiseasePanelBrowser extends LitElement {
                                 resource: "DISEASE_PANEL"
                             },
                             {
+                                id: "sources",
+                                name: "Source",
+                                placeholder: "genes-census...",
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
+                                field: "source.name",
+                                resource: "DISEASE_PANEL"
+                            },
+                            {
                                 id: "tags",
                                 name: "Tags",
                                 description: "",
