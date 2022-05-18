@@ -463,6 +463,11 @@ export default class FeatureTrack {
         this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
     }
 
+    // Error handler: each track should implement it's own error handler
+    errorHandler(error) {
+        console.error(error);
+    }
+
     // Generic get data method (to be implemented in each track)
     getData(options) {
         return this.dataAdapter.getData(options);
@@ -533,10 +538,15 @@ export default class FeatureTrack {
             };
 
             // Import and draw data
-            this.getData(options).then(response => {
-                this.getDataHandler(response, options);
-                this.setLoading(false);
-            });
+            this.getData(options)
+                .then(response => {
+                    this.getDataHandler(response, options);
+                    this.setLoading(false);
+                })
+                .catch(error => {
+                    this.errorHandler(error);
+                    this.setLoading(false);
+                });
         }
 
         this.updateHeight();
@@ -566,9 +576,10 @@ export default class FeatureTrack {
                         end: this.svgCanvasLeftLimit,
                     }),
                 };
-                this.getData(options).then(response => {
-                    return this.getDataHandler(response, options);
-                });
+                this.getData(options)
+                    .then(response => this.getDataHandler(response, options))
+                    .catch(error => this.errorHandler(error));
+
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
 
@@ -581,9 +592,10 @@ export default class FeatureTrack {
                         end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset),
                     }),
                 };
-                this.getData(options).then(response => {
-                    return this.getDataHandler(response, options);
-                });
+                this.getData(options)
+                    .then(response => this.getDataHandler(response, options))
+                    .catch(error => this.errorHandler(error));
+
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
         }
