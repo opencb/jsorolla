@@ -366,6 +366,15 @@ export default class GenomeBrowserUtils {
         return flags;
     }
 
+    // Alignment flag formatter
+    static alignmentFlagFormatter(flag) {
+        return `
+            <div style="white-space:nowrap;margin-right:4px;margin-bottom:2px;background-color:#cfe2ff;padding:2px 4px;border-radius:4px;">
+                <b>${flag.replace(/\s/g, "_")}</b>
+            </div>
+        `;
+    }
+
     // Alignment tooltip title formatter
     static alignmentTooltipTitleFormatter(feature) {
         return `Alignment <span class="ok">${feature.id}</span>`;
@@ -385,12 +394,14 @@ export default class GenomeBrowserUtils {
 
         return `
             <div>
-                <div>Cigar: <b>${feature.cigar || "NA"}</b></div>
-                <div Insert Size: <b>${feature.fragmentLength || "-"}</b></div>
+                ${flags.length > 0 ? `
+                    <div style="display:flex;flex-wrap:wrap;margin-bottom:4px;">
+                        ${flags.map(f => GenomeBrowserUtils.alignmentFlagFormatter(f)).join("")}
+                    </div>
+                ` : ""}
                 ${regionInfo}
-                <div>
-                    ${flags.map(f => `<span>${f}</span>`).join("")}
-                </div>
+                <div>Cigar: <b>${feature.cigar || "NA"}</b></div>
+                <div>Insert Size: <b>${feature.fragmentLength || "-"}</b></div>
                 ${info.map(item => `<div>${item}</div>`).join("")}
             </div>
         `;
