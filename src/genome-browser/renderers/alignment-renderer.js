@@ -10,6 +10,7 @@ export default class AlignmentRenderer extends Renderer {
         // Get data to render
         const coverage = data[0] || []; // Coverage data is in the first position
         const alignments = data[1] || null; // Alignments data is in the second position (if provided)
+        console.log(alignments[0]);
 
         // Define the height of the coverage track
         const regionSize = options.requestedRegion.end - options.requestedRegion.start + 1;
@@ -369,12 +370,30 @@ export default class AlignmentRenderer extends Renderer {
                         "cursor": "pointer",
                     });
 
+                    // Display read tooltip
+                    $(readElement).qtip({
+                        content: {
+                            title: this.getValueFromConfig("tooltipTitle", [read]),
+                            text: this.getValueFromConfig("tooltipText", [read]),
+                        },
+                        position: {
+                            viewport: $(window),
+                            target: "mouse",
+                            adjust: {x: 25, y: 15},
+                        },
+                        style: {
+                            width: true,
+                            classes: `${this.config.toolTipfontClass} ui-tooltip ui-tooltip-shadow`,
+                        },
+                    });
+
                     // Render differences
                     if (options.regionSize < 1000) {
                         this.#renderDifferences(parent, differences[index], starts[index], height, rowY, options);
                     }
 
                     // Check for rendering a line connecting reads
+                    // NOTE: the second condition is to avoud drawing the connector in overlapped reads
                     if (prevAlignmentEnd && prevAlignmentEnd < start) {
                         connectorsPoints.push(`M${prevAlignmentEnd} ${rowY + (height / 2)} H${start}`);
                     }
