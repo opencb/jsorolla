@@ -457,21 +457,20 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         clinicalAnalysis.interpretation,
                                         ...clinicalAnalysis.secondaryInterpretations,
                                     ];
-                                    for (const interpretation of interpretations) {
+
+                                    return interpretations.some(interpretation => {
                                         // Josemi 20220518 NOTE: interpretations should contain at least one panel from the clinical analysis
                                         // to enable the disease panels lock switch
                                         if (!interpretation.panels || interpretation.panels.length < 1) {
                                             return true;
                                         }
-                                        for (const interpretationPanel of interpretation.panels) {
-                                            const index = clinicalAnalysis?.panels?.findIndex(p => p.id === interpretationPanel.id);
-                                            if (index === -1) {
-                                                return true;
-                                            }
-                                        }
-                                    }
 
-                                    return false;
+                                        // We only need to find ONE panel in the interpretation that is not in the case panels for disabling
+                                        // the disease panels lock
+                                        return interpretation.panels.some(panel => {
+                                            return clinicalAnalysis?.panels?.findIndex(p => p.id === panel.id) === -1;
+                                        });
+                                    });
                                 },
                             },
                         },
