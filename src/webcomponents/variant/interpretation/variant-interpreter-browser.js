@@ -298,7 +298,7 @@ class VariantInterpreterBrowser extends LitElement {
             // Append genome browser
             items.push({
                 id: "genome-browser",
-                name: "Genome Browser (Experimental)",
+                name: "Genome Browser (Beta)",
                 render: (clinicalAnalysis, active, opencgaSession) => html`
                     <genome-browser
                         .opencgaSession="${opencgaSession}"
@@ -331,13 +331,13 @@ class VariantInterpreterBrowser extends LitElement {
                                     height: 120,
                                 },
                             },
-                            {
+                            ...(clinicalAnalysis.proband?.samples || []).map(sample => ({
                                 type: "opencga-alignment",
                                 config: {
-                                    title: `Alignments - ${clinicalAnalysis.proband.samples[0].id}`,
-                                    sample: clinicalAnalysis.proband.samples[0].id,
+                                    title: `Alignments - ${sample.id}`,
+                                    sample: sample.id,
                                 },
-                            },
+                            })),
                         ]}">
                     </genome-browser>
                 `,
