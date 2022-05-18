@@ -116,7 +116,7 @@ export default class FamilyCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.family}
+                .data="${this.family}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -141,7 +141,6 @@ export default class FamilyCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "",
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
@@ -240,7 +239,7 @@ export default class FamilyCreate extends LitElement {
                                             width: 12,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
                                     </status-create>`
                             }
                         },

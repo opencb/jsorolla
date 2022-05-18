@@ -123,7 +123,7 @@ export default class IndividualView extends LitElement {
 
         return html`
             <data-form
-                .data=${this.individual}
+                .data="${this.individual}"
                 .config="${this._config}">
             </data-form>
         `;

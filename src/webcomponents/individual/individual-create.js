@@ -114,7 +114,7 @@ export default class IndividualCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.individual}
+                .data="${this.individual}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
@@ -145,7 +145,6 @@ export default class IndividualCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "",
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
@@ -410,7 +409,7 @@ export default class IndividualCreate extends LitElement {
                                 collapsedUpdate: true,
                                 renderUpdate: (pheno, callback) => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${pheno}
+                                        .ontology="${pheno}"
                                         .entity="${"phenotype"}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
@@ -479,7 +478,7 @@ export default class IndividualCreate extends LitElement {
                                 collapsedUpdate: true,
                                 renderUpdate: (disorder, callback) => html`
                                     <ontology-term-annotation-update
-                                        .ontology=${disorder}
+                                        .ontology="${disorder}"
                                         .entity="${"disorder"}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",

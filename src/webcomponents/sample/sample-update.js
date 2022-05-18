@@ -219,9 +219,9 @@ export default class SampleUpdate extends LitElement {
         return html`
             ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
             <data-form
-                .data=${this.sample}
+                .data="${this.sample}"
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
@@ -246,12 +246,9 @@ export default class SampleUpdate extends LitElement {
                 title: "General Information",
                 elements: [
                     {
-                        title: "",
                         type: "notification",
                         text: "Some changes have been done in the form. Not saved, changes will be lost",
                         display: {
-                            // visible: () => Object.keys(this.updateParams).length > 0,
-                            // visible: () => UtilsNew.hasObjectNotValues(this.updateParams),
                             visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                             notificationType: "warning",
                         }
@@ -312,7 +309,7 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: source => html`
                                 <external-source-update
-                                    .source=${source}
+                                    .source="${source}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
@@ -330,7 +327,7 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: status => html`
                                 <status-update
-                                    .status=${status}
+                                    .status="${status}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
@@ -361,7 +358,7 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: product => html`
                                 <ontology-term-annotation-update
-                                    .ontology=${product}
+                                    .ontology="${product}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,

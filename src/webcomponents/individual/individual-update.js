@@ -215,7 +215,6 @@ export default class IndividualUpdate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "",
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
@@ -255,10 +254,10 @@ export default class IndividualUpdate extends LitElement {
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
-                                        .config=${{
+                                        .config="${{
                                             // This is the default value, but it is safe to leave it
                                             multiple: false,
-                                        }}
+                                        }}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
                                                 detail: {

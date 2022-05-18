@@ -56,16 +56,11 @@ export default class StatusUpdate extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("status")) {
-            console.log("update status ...");
             this.statusObserver();
         }
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("status") && !this.child) {
-        //     this.statusObserver();
-        // }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
@@ -89,9 +84,6 @@ export default class StatusUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        // this.status = {...this.status, ...this.updateParams};
-        // LitUtils.dispatchCustomEvent(this, "fieldChange", this.status);
-
         LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
     }
 
@@ -112,9 +104,9 @@ export default class StatusUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.status}
+                .data="${this.status}"
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${e => this.onSendStatus(e)}">
@@ -135,7 +127,6 @@ export default class StatusUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "add short id",
-                                // disabled: true,
                             }
                         },
                         {

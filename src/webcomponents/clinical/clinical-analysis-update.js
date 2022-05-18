@@ -248,11 +248,10 @@ class ClinicalAnalysisUpdate extends LitElement {
                 {
                     elements: [
                         {
-                            title: "",
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.updateParams).length > 0,
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                                 notificationType: "warning",
                             }
                         }

@@ -170,7 +170,7 @@ export default class FamilyView extends LitElement {
 
         return html`
             <data-form
-                .data=${this.family}
+                .data="${this.family}"
                 .config="${this._config}">
             </data-form>`;
     }

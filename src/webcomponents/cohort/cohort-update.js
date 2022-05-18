@@ -164,11 +164,11 @@ export default class CohortUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.cohort}
+                .data="${this.cohort}"
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear=${this.onClear}
+                @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
         `;
@@ -191,7 +191,6 @@ export default class CohortUpdate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "",
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
@@ -223,10 +222,10 @@ export default class CohortUpdate extends LitElement {
                                         samples;
                                     return html `
                                         <catalog-search-autocomplete
-                                            .value=${sampleIds}
+                                            .value="${sampleIds}"
                                             .resource="${"SAMPLE"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config=${{multiple: false}}
+                                            .config="${{multiple: false}}"
                                             @filterChange="${e => this.onFieldChange(e, "samples.id")}">
                                         </catalog-search-autocomplete>
                                     `;
@@ -249,14 +248,14 @@ export default class CohortUpdate extends LitElement {
                             display: {
                                 render: status => html`
                                     <status-update
-                                        .status=${status}
+                                        .status="${status}"
                                         .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
                                             width: 12,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
                                     </status-update>
                                 `,
                             }

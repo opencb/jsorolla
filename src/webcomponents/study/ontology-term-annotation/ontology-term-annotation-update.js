@@ -119,9 +119,9 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.ontology}
+                .data="${this.ontology}"
                 .config="${this._config}"
-                .updateParams=${this.data?.updateParams}
+                .updateParams="${this.data?.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${e => this.onSendOntology(e)}">

@@ -203,7 +203,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "",
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {

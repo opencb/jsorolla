@@ -94,7 +94,7 @@ export default class StatusCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.status}
+                .data="${this.status}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClearForm}"

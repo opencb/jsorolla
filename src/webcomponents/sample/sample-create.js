@@ -174,7 +174,7 @@ export default class SampleCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.sample}
+                .data="${this.sample}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
@@ -196,7 +196,6 @@ export default class SampleCreate extends LitElement {
                 title: "General Information",
                 elements: [
                     {
-                        title: "",
                         type: "notification",
                         text: "Some changes have been done in the form. Not saved, changes will be lost",
                         display: {
@@ -259,14 +258,14 @@ export default class SampleCreate extends LitElement {
                         display: {
                             render: source => html`
                                 <external-source-create
-                                    .source=${source}
+                                    .source="${source}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
+                                    @fieldChange="${e => this.onFieldChange(e, "source")}">
                                 </external-source-create>`
                         }
                     },
@@ -277,14 +276,14 @@ export default class SampleCreate extends LitElement {
                         display: {
                             render: status => html`
                                 <status-create
-                                    .status=${status}
+                                    .status="${status}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                    @fieldChange="${e => this.onFieldChange(e, "status")}">
                                 </status-create>`
                         }
                     },
@@ -300,13 +299,13 @@ export default class SampleCreate extends LitElement {
                         display: {
                             render: product => html`
                                 <ontology-term-annotation-create
-                                    .ontology=${product}
+                                    .ontology="${product}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}>
+                                    @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
                                 </ontology-term-annotation-create>`
                         }
                     },
@@ -438,7 +437,7 @@ export default class SampleCreate extends LitElement {
                             collapsedUpdate: true,
                             renderUpdate: (pheno, callback) => html`
                                 <ontology-term-annotation-update
-                                    .ontology=${pheno}
+                                    .ontology="${pheno}"
                                     .entity="${"phenotype"}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
