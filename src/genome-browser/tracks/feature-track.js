@@ -99,9 +99,8 @@ export default class FeatureTrack {
                         </span>
                     </div>
                 </div>
-                <div id="${this.prefix}Content">
-                    <div id="${this.prefix}Error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
-                </div>
+                <div id="${this.prefix}Error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
+                <div id="${this.prefix}Content"></div>
                 <div id="${this.prefix}Resize" class="ocb-track-resize"></div>
             </div>
         `);
@@ -476,6 +475,7 @@ export default class FeatureTrack {
         this.error.style.display = "block";
         this.error.textContent = error?.message || error || "Something went wrong...";
         this.main.style.display = "none";
+        this.content.style.display = "none";
         this.content.style.height = ""; // Reset content height
     }
 
