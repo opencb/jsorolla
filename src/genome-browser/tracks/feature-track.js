@@ -473,7 +473,7 @@ export default class FeatureTrack {
 
         // Display error div and add error message
         this.error.style.display = "block";
-        this.error.textContent = error?.message || error || "Something went wrong...";
+        this.error.textContent = error?.message || error?.events?.[0].message || error || "Something went wrong...";
         this.main.style.display = "none";
         this.content.style.display = "none";
         this.content.style.height = ""; // Reset content height
