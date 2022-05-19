@@ -167,7 +167,7 @@ const CATALOG_NAVBAR_MENU = {
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
-    version: "v2.2.1-dev",
+    version: "v2.2.1",
     logo: "img/iva-white.svg",
     companyLogo: "",
     logoAlt: "img/iva.svg",
