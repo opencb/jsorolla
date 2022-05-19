@@ -256,6 +256,14 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+                                notificationType: "warning",
+                            }
+                        },
+                        {
                             title: "Interpretation ID",
                             field: "id",
                             type: "input-text",

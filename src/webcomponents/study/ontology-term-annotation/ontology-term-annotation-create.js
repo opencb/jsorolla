@@ -100,7 +100,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.ontology}
+                .data="${this.ontology}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClearForm}"

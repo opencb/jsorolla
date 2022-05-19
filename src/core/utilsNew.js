@@ -1,4 +1,3 @@
-// import {NotificationQueue} from "./NotificationQueue.js";
 
 export default class UtilsNew {
 
@@ -240,8 +239,6 @@ export default class UtilsNew {
         switch (statusId) {
             case "PENDING":
             case "QUEUED":
-            case "REGISTERING":
-            case "UNREGISTERED":
                 return `<span class="text-primary"><i class="far fa-clock"></i> ${statusId}${description}</span>`;
             case "RUNNING":
                 return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${statusId}${description}</span>`;
@@ -399,6 +396,18 @@ export default class UtilsNew {
         } else {
             return false;
         }
+    }
+
+    static isObjectValuesEmpty(obj) {
+
+        return Object.values(obj).every(val => {
+
+            if (val !== null && (typeof val === "object" || Array.isArray(val))) {
+                return UtilsNew.isObjectValuesEmpty(val);
+            }
+
+            return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
+        });
     }
 
 

@@ -25,6 +25,7 @@ import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-update.js";
 import "./external-source/external-source-update.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -56,34 +57,31 @@ export default class SampleUpdate extends LitElement {
 
     _init() {
         this.sample = {};
-        this.phenotype = {};
-        this.annotationSets = {};
         this.updateParams = {};
         this._config = {...this.getDefaultConfig()};
     }
 
-    update(changedProperties) {
+    firstUpdated(changedProperties) {
         if (changedProperties.has("sample")) {
-            this.sampleObserver();
+            this._sample = JSON.parse(JSON.stringify(this.sample));
         }
+    }
 
+    update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
 
-        // it's just work on update or connectedCallback
-        // It's working here, it is not necessary put this on connectecCallback.
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     sampleObserver() {
         // When updating wee need to keep a private copy of the original object
         if (this.sample) {
-            this._sample = JSON.parse(JSON.stringify(this.sample));
+            this._sample = UtilsNew.objectClone(this.sample);
         }
     }
 
@@ -104,23 +102,12 @@ export default class SampleUpdate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
             case "id":
             case "description":
             case "individualId":
             case "somatic":
-            case "status":
-            case "source":
-                this.updateParams = FormUtils.updateScalar(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "processing.product":
             case "processing.preparationMethod":
             case "processing.extractionMethod":
             case "processing.labSambpleId":
@@ -131,7 +118,21 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                this.updateParams = FormUtils.updateObjectWithProps(
+                // support primitive type and object with primitive type
+                this.updateParams = FormUtils.updateObjectParams(
+                    this._sample,
+                    this.sample,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
+                break;
+            case "status":
+            case "source":
+            case "processing.product":
+                // It's a object
+                // processing.product it's object
+                // object with object
+                this.updateParams = FormUtils.updateObjectWithObj(
                     this._sample,
                     this.sample,
                     this.updateParams,
@@ -144,7 +145,7 @@ export default class SampleUpdate extends LitElement {
 
     onClear() {
         this._config = this.getDefaultConfig();
-        this.sample = JSON.parse(JSON.stringify(this._sample));
+        this.sample = UtilsNew.objectClone(this._sample);
         this.updateParams = {};
         this.sampleId = "";
     }
@@ -154,25 +155,23 @@ export default class SampleUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET"
         };
-
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updateParams, params)
             .then(res => {
-                // this.sample = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
-                this._sample = JSON.parse(JSON.stringify(this.sample));
+                // this.sadmple = {...res.responses[0].results[0], attributes: this.sample.attributes}; // To keep OPENCGA_INDIVIDUAL
+                this._sample = UtilsNew.objectClone(this.sample);
                 this.updateParams = {};
+                this.isSampleArraysChanged = false;
+                this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Update Sample",
                     message: "Sample updated correclty"
                 });
-                // FormUtils.showAlert("Update Sample", "Sample updated correctly", "success");
                 // sessionUpdateRequest
                 // TODO: dispacth to the user the data is saved
             })
             .catch(err => {
-                // console.error(err);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                // FormUtils.showAlert("Update Sample", "Sample not updated correctly", "error");
             });
     }
 
@@ -201,13 +200,14 @@ export default class SampleUpdate extends LitElement {
     onAddOrUpdateItem(e) {
         switch (e.detail.param) {
             case "collection.from":
-                this.collection = {...this.collection, from: e.detail.value};
-                this.sample = {...this.sample, collection: this.collection};
-                this.updateParams = {...this.updateParams, collection: this.collection};
-                break;
             case "phenotypes":
-                this.sample = {...this.sample, phenotypes: e.detail.value};
-                this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._sample,
+                    this.sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
                 break;
             case "annotationSets":
                 break;
@@ -219,9 +219,9 @@ export default class SampleUpdate extends LitElement {
         return html`
             ${this._config?.display?.showBtnSampleBrowser? this.onShowBtnSampleBrowser(): nothing}
             <data-form
-                .data=${this.sample}
+                .data="${this.sample}"
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
@@ -243,8 +243,16 @@ export default class SampleUpdate extends LitElement {
                 buttonOkText: "Update"
             },
             sections: [{
-                title: "Sample General Information",
+                title: "General Information",
                 elements: [
+                    {
+                        type: "notification",
+                        text: "Some changes have been done in the form. Not saved, changes will be lost",
+                        display: {
+                            visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+                            notificationType: "warning",
+                        }
+                    },
                     {
                         title: "Sample ID",
                         field: "id",
@@ -262,19 +270,22 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             placeholder: "e.g. Homo sapiens, ...",
                             render: individualId => html`
-                                <individual-id-autocomplete
+                                <catalog-search-autocomplete
                                     .value="${individualId}"
-                                    .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
+                                    .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config=${{multiple: false}}
+                                    .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
+                                    .config="${{multiple: false}}"
                                     @filterChange="${e =>
                                         this.onFieldChange({
+                                            ...e,
                                             detail: {
                                                 param: "individualId",
                                                 value: e.detail.value
-                                            }
+                                                }
                                         })}">
-                                </individual-id-autocomplete>`
+                                </catalog-search-autocomplete>
+                            `,
                         }
                     },
                     {
@@ -298,15 +309,15 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: source => html`
                                 <external-source-update
-                                    .source=${source}
+                                    .source="${source}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
-                                        width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "source")}>
-                                </external-source-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "source")}">
+                                </external-source-update>
+                            `,
                         }
                     },
                     {
@@ -316,15 +327,15 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: status => html`
                                 <status-update
-                                    .status=${status}
+                                    .status="${status}"
                                     .displayConfig="${{
                                         defaultLayout: "vertical",
                                         buttonsVisible: false,
-                                        width: 12,
                                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                     }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "status")}>
-                                </status-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "status")}">
+                                </status-update>
+                            `,
                         }
                     },
                     // {
@@ -347,14 +358,15 @@ export default class SampleUpdate extends LitElement {
                         display: {
                             render: product => html`
                                 <ontology-term-annotation-update
-                                    .ontology=${product}
+                                    .ontology="${product}"
                                     .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonsVisible: false,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                    @fieldChange=${e => this.onFieldChange(e, "processing.product")}
-                                ></ontology-term-annotation-update>`
+                                    @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
+                                </ontology-term-annotation-update>
+                            `,
                         }
                     },
                     {
@@ -430,7 +442,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @addItem="${callback}">
-                                </ontology-term-annotation-create>`
+                                </ontology-term-annotation-create>
+                            `,
                         }
                     },
                     {
@@ -487,7 +500,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @updateItem="${callback}">
-                                </ontology-term-annotation-update>`,
+                                </ontology-term-annotation-update>
+                            `,
                             renderCreate: (pheno, callback) => html`
                                 <label>Create new item</label>
                                 <ontology-term-annotation-create
@@ -498,7 +512,8 @@ export default class SampleUpdate extends LitElement {
                                             buttonClearText: "",
                                         }}"
                                     @addItem="${callback}">
-                                </ontology-term-annotation-create>`
+                                </ontology-term-annotation-create>
+                            `,
                         }
                     },
                 ]

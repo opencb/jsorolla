@@ -283,7 +283,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types"
                     },
-                    complexFields: ["sample", "fileData"],
+                    complexFields: [
+                        {id: "sample", separator: ";"},
+                        {id: "fileData", separator: ","},
+                    ],
                     hiddenFields: [],
                     lockedFields: lockedFields,
                 },
@@ -316,9 +319,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "variant-file",
                                 title: "VCF File Filter",
-                                visible: () => this.indexedFiles?.length > 1,
+                                visible: () => this.files?.length > 1,
                                 params: {
-                                    files: this.indexedFiles
+                                    files: this.files,
                                 },
                                 tooltip: tooltips.vcfFile,
                             },

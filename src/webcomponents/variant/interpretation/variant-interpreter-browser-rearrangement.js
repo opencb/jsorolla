@@ -131,38 +131,53 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             }
 
             this.callerToFile = {};
-            // 4. 'fileData' query param: fetch non SV files and set init query
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
-                .then(fileResponse => {
-                    this.files = fileResponse.responses[0].results;
-                    // Prepare a map from caller to File
-                    this.callerToFile = {};
-                    for (const file of this.files) {
-                        if (file.software?.name) {
-                            const softwareName = file.software.name.toLowerCase();
-                            this.callerToFile[softwareName] = file;
-                        }
-                    }
+            if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                // Somatic callers with the right Variant Type and with defined INFO filters
+                const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                    .filter(vc => vc.somatic === this.somatic)
+                    .filter(vc => vc.types.includes("BREAKEND"))
+                    .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
-                    // Init the default caller INFO filters
+                // Files matching the selected Variant Callers
+                this.files = this.clinicalAnalysis.files
+                    .filter(file => file.format.toUpperCase() === "VCF")
+                    .filter(file =>
+                        variantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
+
+                if (this.files?.length > 0) {
                     const fileDataFilters = [];
-                    for (const caller of this._config.filter.callers) {
-                        if (this.callerToFile[caller.id]) {
-                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                    variantCallers.forEach(vc => {
+                        const filtersWithDefaultValues = vc.dataFilters
+                            .filter(filter => !filter.source || filter.source === "FILE")
+                            .filter(filter => !!filter.defaultValue)
+                            .map(filter => {
+                                // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                            });
+
+                        // Only add this file to the filter if we have at least one default value
+                        if (filtersWithDefaultValues.length > 0) {
+                            // We need to find the file for that caller
+                            const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                            if (fileId) {
+                                fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
+                            }
                         }
-                    }
+                    });
 
-                    this.query = {
-                        ...this.query,
-                        fileData: fileDataFilters.join(",")
-                    };
+                    // Update query with default 'fileData' parameters
+                    this.query.fileData = fileDataFilters.join(",");
+                } else {
+                    this.files = this.clinicalAnalysis.files
+                        .filter(file => file.format.toUpperCase() === "VCF");
+                }
+            } else {
+                this.files = this.clinicalAnalysis.files
+                    .filter(file => file.format.toUpperCase() === "VCF");
+            }
 
-                    // NOTE: We need to update the _config to update the dynamic VCF caller filters
-                    this._config = this.getDefaultConfig();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching sample: ", response);
-                });
+            // Create _config again since getDefaultConfig() uses this.files
+            this._config = this.getDefaultConfig();
 
 
             // Add filter to Active Filter's menu
@@ -190,6 +205,16 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     query: this.query
                 }
             );
+
+            // Add 'file' filter if 'fileData' exists
+            if (this.files) {
+                const fileNames = this.files.map(f => f.name).join(",");
+                for (const filter of _activeFilterFilters) {
+                    if (filter.query?.fileData && !filter.query?.file) {
+                        filter.query.file = fileNames;
+                    }
+                }
+            }
 
             // Set active filters
             this._config.filter.activeFilters.filters = _activeFilterFilters;
@@ -255,7 +280,10 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types"
                     },
-                    complexFields: ["sample", "fileData"],
+                    complexFields: [
+                        {id: "sample", separator: ";"},
+                        {id: "fileData", separator: ","},
+                    ],
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
@@ -265,6 +293,26 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         title: "Genomic",
                         collapsed: false,
                         filters: [
+                            {
+                                id: "variant-file",
+                                title: "VCF File Filter",
+                                visible: () => this.files?.length > 1,
+                                params: {
+                                    files: this.files
+                                },
+                                tooltip: tooltips.vcfFile,
+                            },
+                            {
+                                id: "variant-file-info-filter",
+                                title: "Variant Caller File Filter",
+                                visible: () => this.files?.length > 0,
+                                // visible: () => !!this.query.fileData,
+                                params: {
+                                    files: this.files,
+                                    opencgaSession: this.opencgaSession
+                                },
+                                tooltip: tooltips.variantCallerFile,
+                            },
                             {
                                 id: "region",
                                 title: "Genomic Location",

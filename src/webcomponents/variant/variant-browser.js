@@ -34,6 +34,7 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
 
+import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
 
@@ -75,7 +76,10 @@ export default class VariantBrowser extends LitElement {
             },
             settings: {
                 type: Object
-            }
+            },
+            cellbaseClient: {
+                type: Object,
+            },
         };
     }
 
@@ -92,6 +96,7 @@ export default class VariantBrowser extends LitElement {
         this.results = [];
         this._showInitMessage = true;
 
+        this.searchActive = true;
         this.facetActive = true;
         this.query = {};
         this.preparedQuery = {};
@@ -99,13 +104,14 @@ export default class VariantBrowser extends LitElement {
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
         this.errorState = false;
+        this.variant = null;
 
-        this.activeTab = {};
+        this.activeTab = "table-tab";
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -131,7 +137,10 @@ export default class VariantBrowser extends LitElement {
             return;
         }
         // merge filters
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
@@ -143,7 +152,10 @@ export default class VariantBrowser extends LitElement {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
         if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+            this._config.filter.result.grid.toolbar = {
+                ...this._config.filter.result.grid.toolbar,
+                ...this.settings.table.toolbar,
+            };
         }
 
         // Apply user configuration
@@ -193,10 +205,8 @@ export default class VariantBrowser extends LitElement {
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.detail = {};
-            } else {
-                // console.error("same queries")
+                this.searchActive = false; // Disable search button
             }
-            // this.requestUpdate();
         }
     }
 
@@ -211,20 +221,16 @@ export default class VariantBrowser extends LitElement {
                 // FIXME rename fields to field
                 fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
-            this._changeView("facet-tab");
+            this.changeView("facet-tab");
         } else {
             this.facetQuery = null;
         }
     }
 
     notifySearch(query) {
-        this.dispatchEvent(new CustomEvent("querySearch", {
-            detail: {
-                query: query
-            },
-            bubbles: true,
-            composed: true
-        }));
+        LitUtils.dispatchCustomEvent(this, "querySearch", null, {
+            query: query
+        });
     }
 
     async onRun() {
@@ -248,21 +254,8 @@ export default class VariantBrowser extends LitElement {
         }*/
     }
 
-    onClickPill(e) {
-        this._changeView(e.currentTarget.dataset.id);
-    }
-
-    _changeView(tabId) {
-        $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) {
-            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
-                this.activeTab[tab] = false;
-            }
-        }
-        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).addClass("active");
-        this.activeTab[tabId] = true;
+    changeView(id) {
+        this.activeTab = id;
         this.requestUpdate();
     }
 
@@ -312,6 +305,10 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onQueryComplete() {
+        this.searchActive = true;
+        this.requestUpdate();
+    }
 
     onClickRow(e) {
         this.detail = {...this.detail, [e.detail.resource]: e.detail.data};
@@ -320,7 +317,9 @@ export default class VariantBrowser extends LitElement {
 
     onSampleChange(e) {
         this.samples = e.detail.samples;
-        this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
+        LitUtils.dispatchCustomEvent(this, "sampleChange", undefined, {
+            samples: this.samples,
+        });
     }
 
     onSelectVariant(e) {
@@ -679,7 +678,34 @@ export default class VariantBrowser extends LitElement {
                         ]
                     }
                 ]
-            }
+            },
+            genomeBrowser: {
+                config: {
+                    cellBaseClient: this.cellbaseClient,
+                },
+                tracks: [
+                    {
+                        type: "gene-overview",
+                        overview: true,
+                        config: {},
+                    },
+                    {
+                        type: "sequence",
+                        config: {},
+                    },
+                    {
+                        type: "gene",
+                        config: {},
+                    },
+                    {
+                        type: "opencga-variant",
+                        config: {
+                            title: "Variants",
+                            height: 120,
+                        },
+                    },
+                ],
+            },
         };
     }
 
@@ -700,8 +726,9 @@ export default class VariantBrowser extends LitElement {
                 <div class="col-md-2 left-menu">
 
                     <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText}
+                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
 
@@ -740,17 +767,28 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div>
-                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                            <div class="btn-group" role="group" style="margin-left: 0px">
-                                <button type="button" class="btn btn-success active ripple content-pills" @click="${this.onClickPill}" data-id="table-tab">
-                                    <i class="fa fa-table icon-padding" aria-hidden="true"></i> Table Result
-                                </button>
-                                <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="facet-tab">
-                                    <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i> Aggregation Stats
-                                </button>
-                            </div>
-                        </div>
+                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
+                            @click="${() => this.changeView("table-tab")}">
+                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
+                            <strong>Table Result</strong>
+                        </button>
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
+                            @click="${() => this.changeView("facet-tab")}">
+                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
+                            <strong>Aggregation Stats</strong>
+                        </button>
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
+                            @click="${() => this.changeView("genome-tab")}">
+                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
+                            <strong>Genome Browser</strong>
+                        </button>
                     </div>
 
                     <div>
@@ -773,7 +811,7 @@ export default class VariantBrowser extends LitElement {
                         </opencga-active-filters>
 
                         <div class="main-view">
-                            <div id="table-tab" class="content-tab active">
+                            <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
                                 <variant-browser-grid
                                     .opencgaSession="${this.opencgaSession}"
                                     .query="${this.executedQuery}"
@@ -783,6 +821,7 @@ export default class VariantBrowser extends LitElement {
                                     .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                     .config="${this._config.filter.result.grid}"
+                                    @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
                                     @gridconfigsave="${this.onGridConfigSave}">
                                 </variant-browser-grid>
@@ -796,15 +835,27 @@ export default class VariantBrowser extends LitElement {
                                 </variant-browser-detail>
                             </div>
 
-                            <div id="facet-tab" class="content-tab">
+                            <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
                                 <opencb-facet-results
                                     resource="VARIANT"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab["facet-tab"]}"
+                                    .active="${this.activeTab === "facet-tab"}"
                                     .query="${this.facetQuery}"
                                     .data="${this.facetResults}"
                                     .error="${this.errorState}">
                                 </opencb-facet-results>
+                            </div>
+
+                            <div id="genome-tab" class="${`content-tab ${this.activeTab === "genome-tab" ? "active" : ""}`}">
+                                ${this.variant ? html`
+                                    <genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .region="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.activeTab === "genome-tab"}">
+                                    </genome-browser>
+                                ` : null}
                             </div>
                         </div>
                     </div>

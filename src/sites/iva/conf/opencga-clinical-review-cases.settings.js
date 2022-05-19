@@ -1,3 +1,5 @@
+// Josemi NOTE 2022-05-02
+// DEPRECATED: use clinical-analysis-portal.settings.js instead
 const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
     menu: {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.

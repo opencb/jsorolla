@@ -122,7 +122,6 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
-
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }

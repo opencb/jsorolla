@@ -26,7 +26,6 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
-import "../../clinical/interpretation/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -437,7 +436,7 @@ class VariantInterpreter extends LitElement {
                                         .populationFrequencies="${this._config.populationFrequencies}"
                                         .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
                                         .consequenceTypes="${this._config.consequenceTypes}"
-                                        .config="${this._config}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
                                         @gene="${this.geneSelected}"
                                         @samplechange="${this.onSampleChange}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">

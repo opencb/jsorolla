@@ -191,12 +191,10 @@ export default class VariantBrowserGrid extends LitElement {
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then(res => {
-                            params.success(res);
-                        })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(res => params.success(res))
+                        .catch(e => params.error(e))
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
                         });
                 },
                 responseHandler: response => {
@@ -527,7 +525,7 @@ export default class VariantBrowserGrid extends LitElement {
                 }
 
                 // FIXME CellBase v5 uses 1000G while v4 uses 1kG_phase3, remove this in v2.3
-                if (this.populationFrequencies.studies[j].id === "1000G" && this.opencgaSession.project.internal.cellbase.version === "v4") {
+                if (this.populationFrequencies.studies[j].id === "1000G" && this.opencgaSession.project?.cellbase?.version === "v4") {
                     this.populationFrequencies.studies[j].id = "1kG_phase3";
                 }
 

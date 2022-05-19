@@ -18,6 +18,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
+import "./cohort-grid.js";
+import "./cohort-detail.js";
 
 export default class CohortBrowser extends LitElement {
 
@@ -80,12 +82,12 @@ export default class CohortBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-                <opencga-browser
-                    resource="COHORT"
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.query}"
-                    .config="${this._config}">
-                </opencga-browser>` : "";
+            <opencga-browser
+                resource="COHORT"
+                .opencgaSession="${this.opencgaSession}"
+                .query="${this.query}"
+                .config="${this._config}">
+            </opencga-browser>` : "";
     }
 
     getDefaultConfig() {
@@ -97,12 +99,35 @@ export default class CohortBrowser extends LitElement {
                     id: "table-tab",
                     name: "Table result",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    render: params => html `
+                        <cohort-grid
+                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
+                            .search="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
+                            .active="${true}"
+                            @selectrow="${e => params.onClickRow(e, "cohort")}">
+                        </cohort-grid>
+                        <cohort-detail
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.filter.detail}"
+                            .cohortId="${params.detail.cohort?.id}">
+                        </cohort-detail>`
                 },
                 {
                     id: "facet-tab",
                     name: "Aggregation stats",
-                    icon: "fas fa-chart-bar"
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <opencb-facet-results
+                            resource="${params.resource}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .active="${params.active}"
+                            .query="${params.facetQuery}"
+                            .data="${params.facetResults}">
+                        </opencb-facet-results>`
                 }/*
                 {
                     id: "comparator-tab",
@@ -122,7 +147,7 @@ export default class CohortBrowser extends LitElement {
                                 id: "id",
                                 name: "ID",
                                 type: "string",
-                                placeholder: "LP-1234,LP-2345...",
+                                placeholder: "Start typing...",
                                 description: ""
                             },
                             {
@@ -180,7 +205,8 @@ export default class CohortBrowser extends LitElement {
                                     <cohort-view
                                         .opencgaSession="${opencgaSession}"
                                         .cohort="${cohort}">
-                                    </cohort-view>`;
+                                    </cohort-view>
+                                `;
                             }
                         },
                         {
@@ -203,7 +229,11 @@ export default class CohortBrowser extends LitElement {
                             mode: "development",
                             render: (cohort, active, opencgaSession) => {
                                 return html`
-                                    <json-viewer .data="${cohort}" .active="${active}"></json-viewer>`;
+                                    <json-viewer
+                                        .data="${cohort}"
+                                        .active="${active}">
+                                    </json-viewer>
+                                `;
                             }
                         }
                     ]
@@ -211,6 +241,12 @@ export default class CohortBrowser extends LitElement {
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "numSamples[0..10]:1"],
+                render: params => html `
+                    <facet-filter
+                        .config="${params.config.aggregation}"
+                        .selectedFacet="${params.selectedFacet}"
+                        @facetQueryChange="${params.onFacetQueryChange}">
+                    </facet-filter>`,
                 result: {
                     numColumns: 2
                 },

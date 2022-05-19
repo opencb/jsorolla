@@ -21,6 +21,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/status/status-create.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class CohortCreate extends LitElement {
@@ -118,10 +119,10 @@ export default class CohortCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.cohort}
+                .data="${this.cohort}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear=${this.onClear}
+                @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
         `;
@@ -141,8 +142,16 @@ export default class CohortCreate extends LitElement {
             },
             sections: [
                 {
-                    title: "Cohort General Information",
+                    title: "General Information",
                     elements: [
+                        {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.cohort).length > 0,
+                                notificationType: "warning",
+                            }
+                        },
                         {
                             title: "Cohort ID",
                             field: "id",
@@ -160,11 +169,13 @@ export default class CohortCreate extends LitElement {
                             type: "custom",
                             display: {
                                 render: samples => html `
-                                <sample-id-autocomplete
-                                    .value=${samples?.map(sample => sample.id).join(",")}
-                                    .opencgaSession=${this.opencgaSession}
+                                <catalog-search-autocomplete
+                                    .value="${samples?.map(sample => sample.id).join(",")}"
+                                    .resource="${"SAMPLE"}"
+                                    .opencgaSession="${this.opencgaSession}"
                                     @filterChange="${e => this.onFieldChange(e, "samples")}">
-                                </sample-id-autocomplete>`
+                                </catalog-search-autocomplete>
+                                `
                             }
                         },
                         {
@@ -189,7 +200,7 @@ export default class CohortCreate extends LitElement {
                                             width: 12,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
                                     </status-create>`
                             }
                         },

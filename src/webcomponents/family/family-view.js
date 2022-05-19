@@ -170,7 +170,7 @@ export default class FamilyView extends LitElement {
 
         return html`
             <data-form
-                .data=${this.family}
+                .data="${this.family}"
                 .config="${this._config}">
             </data-form>`;
     }
@@ -199,12 +199,13 @@ export default class FamilyView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html `
-                                    <family-id-autocomplete
+                                    <catalog-search-autocomplete
                                         .value="${this.family?.id}"
+                                        .resource="${"FAMILY"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </family-id-autocomplete>
+                                    </catalog-search-autocomplete>
                                 `,
                             }
                         }

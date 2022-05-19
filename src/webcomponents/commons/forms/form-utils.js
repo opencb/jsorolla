@@ -18,6 +18,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 
 export default class FormUtils {
 
+    //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
     static updateScalar(_original, original, updateParams, param, value) {
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
@@ -26,7 +27,7 @@ export default class FormUtils {
         };
 
         if (_original?.[param] !== value && value !== null) {
-            original[param] = value;
+            original[param] = value; // This the problem
             _updateParams[param] = value;
         } else {
             // We need to restore the original value in our copy
@@ -38,34 +39,29 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    static updateObject(_original, original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-
+    static updateScalarParams(_original, original, updateParams, param, value) {
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
+        // Rodiel 22-05-17: avoid override original data and updateParams. (ontology-term-annotation-update)
+        const _data = {
+            original: {...original},
+            updateParams: {...updateParams}
         };
 
-        if (_original?.[field]?.[prop] !== value && value !== null) {
-            original[field] = {
-                ...original[field],
-                [prop]: value
-            };
-
-            _updateParams[field] = {
-                [prop]: value
-            };
+        if (_original?.[param] !== value && value !== null) {
+            _data.original[param] = value; // This the problem
+            _data.updateParams[param] = value;
         } else {
-            delete _updateParams[field];
+            // We need to restore the original value in our copy
+            _data.original[param] = _original[param];
+            delete _data.updateParams[param];
         }
 
         // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
+        return _data;
     }
 
-    // updateNestedObject, updateMultipleObject... alternative function name.
-    static updateObjectWithProps(_original, original, updateParams, param, value) {
+    static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
         // Prepare an internal object to store the updateParams.
@@ -85,10 +81,153 @@ export default class FormUtils {
                 [prop]: value
             };
         } else {
-            delete _updateParams[field][prop];
+            delete _updateParams[field];
         }
 
         // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+    // Update object with Object as props
+    static updateObjectWithObj(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+        // The value it's object too.
+        const childKey = Object.keys(value)[0];
+        const childValue = Object.values(value)[0];
+
+        if (prop) {
+            if (_original?.[field]?.[prop]?.[childKey] !== childValue && childValue !== null) {
+                original[field][prop] = {
+                    ...original[field][prop],
+                    ...value
+                };
+
+                // init new object
+                _updateParams[field] = {
+                    ...updateParams[field],
+                    [prop]: {}
+                };
+
+                _updateParams[field][prop] = {
+                    ..._updateParams[field][prop],
+                    ...value
+                };
+            } else {
+                delete _updateParams[field][prop];
+
+                if (UtilsNew.isEmpty(_updateParams[field])) {
+                    delete _updateParams[field];
+                }
+
+            }
+        } else {
+
+            if (_original?.[field]?.[childKey] !== childValue && childValue !== null) {
+                original[field] = {
+                    ...original[field],
+                    ...value
+                };
+
+                _updateParams[field] = {
+                    ..._updateParams[field],
+                    ...value
+                };
+            } else {
+                delete _updateParams[field];
+            }
+
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+    // Rodiel 2022-05-16 DEPRECATED use updateObjectParams
+    // update object with props has primitive type
+    static updateObjectWithProps(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+
+        if (_original?.[field]?.[prop] !== value && value !== null && (_original?.[field]?.[prop] !== undefined || value !== "")) {
+            original[field] = {
+                ...original[field],
+                [prop]: value
+            };
+
+            _updateParams[field] = {
+                ..._updateParams[field],
+                [prop]: value
+            };
+        } else {
+            // original[param][prop] = _original[param][prop];
+            delete _updateParams[field][prop];
+
+            // if the object is entire emtpy well delete it
+            if (UtilsNew.isEmpty(_updateParams[field])) {
+                delete _updateParams[field];
+            }
+        }
+
+        // We need to create a new 'updateParams' reference to force an update
+        return _updateParams;
+    }
+
+    // new function: with updateScalar & updateObjectWithProps
+    static updateObjectParams(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+
+        // Prepare an internal object to store the updateParams.
+        // NOTE: it is important to create a new object reference to force a new render()
+        const _updateParams = {
+            ...updateParams
+        };
+
+        const isValueDifferent = (_obj, val) => _obj !== val && val !== null;
+
+        // sometimes original object come as value undefined or empty but is not the same.
+        const isNotEmtpy = (_obj, val) => _obj !== undefined || val !== "";
+
+        if (prop) {
+            if (isValueDifferent(_original?.[field]?.[prop], value) && isNotEmtpy(_original?.[field]?.[prop], value)) {
+                original[field] = {
+                    ...original[field],
+                    [prop]: value
+                };
+
+                _updateParams[field] = {
+                    ..._updateParams[field],
+                    [prop]: value
+                };
+            } else {
+                // original[field][prop] = _original[field][prop];
+                delete _updateParams[field][prop];
+
+                if (UtilsNew.isEmpty(_updateParams[field])) {
+                    delete _updateParams[field];
+                }
+            }
+        } else {
+            if (isValueDifferent(_original?.[field], value)) {
+                original[field] = value;
+                _updateParams[field] = value;
+            } else {
+                original[field] =_original[field];
+                delete _updateParams[field];
+            }
+        }
+
         return _updateParams;
     }
 
@@ -136,6 +275,47 @@ export default class FormUtils {
         // Delete updateParams field if nothing has changed
         if (!hasChanged) {
             delete _updateParams[field];
+        }
+
+        return _updateParams;
+    }
+
+    static updateArraysObject(_original, original, updateParams, param, value) {
+        const [field, prop] = param.split(".");
+        const _updateParams = {
+            ...updateParams,
+        };
+
+        const arraysEqual = (a, b) => a.length === b.length && a.every(
+            (o, idx) => UtilsNew.objectCompare(o, b[idx])
+        );
+
+        if (prop) {
+            if (!arraysEqual(_original[field][prop], value)) {
+                original[field] = {
+                    ...original[field],
+                    [prop]: value
+                };
+
+                _updateParams[field] = {
+                    ..._updateParams[field],
+                    [prop]: value
+                };
+            } else {
+                original[field][prop] = _original[field][prop];
+                delete _updateParams[field][prop];
+                if (UtilsNew.isEmpty(_updateParams[field])) {
+                    delete _updateParams[field];
+                }
+            }
+        } else {
+            if (!arraysEqual(_original[field], value)) {
+                original[field] = value;
+                _updateParams[field] = value;
+            } else {
+                original[field] = _original[field];
+                delete _updateParams[field];
+            }
         }
 
         return _updateParams;

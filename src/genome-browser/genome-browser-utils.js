@@ -85,6 +85,23 @@ export default class GenomeBrowserUtils {
         return GenomeBrowserConstants.GENOTYPES_COLORS["others"];
     }
 
+    // Get individual sex icon
+    static getIndividualSexIcon(value) {
+        switch (value.toUpperCase()) {
+            case "MALE":
+                return "fa-mars";
+            case "FEMALE":
+                return "fa-venus";
+            default:
+                return "fa-genderless";
+        }
+    }
+
+    // Get individual sex color
+    static getIndividualSexColor() {
+        return "#333333";
+    }
+
     //
     // Feature utils
     //
@@ -167,7 +184,7 @@ export default class GenomeBrowserUtils {
     }
 
     // Sample genotype tooltip title formatter
-    static sampleGenotypeTooltipTitleFormatter(feature, sample) {
+    static sampleGenotypeTooltipTitleFormatter() {
         return "";
     }
 
@@ -261,6 +278,52 @@ export default class GenomeBrowserUtils {
                 ${exonInfo}
             </div>
         `;
+    }
+
+    //
+    // Lollipops utils
+    //
+
+    // Lollipop shape formatter
+    static lollipopShapeFormatter(feature, parent, x, y, width, color) {
+        const type = feature.type || "";
+        const half = width / 2;
+        switch (type.toUpperCase()) {
+            case "SNV":
+                return SVG.addChild(parent, "circle", {
+                    "cx": x,
+                    "cy": y,
+                    "r": half,
+                    "fill": color,
+                });
+            case "INDEL":
+                return SVG.addChild(parent, "path", {
+                    "d": `M${x},${y+half} L${x-half},${y-half} L${x+half},${y-half} Z`,
+                    "fill": color,
+                    "stroke-width": "0px",
+                });
+            default:
+                return SVG.addChild(parent, "path", {
+                    "d": `M${x},${y-half} L${x-half},${y} L${x},${y+half} L${x+half},${y} Z`,
+                    "fill": color,
+                    "stroke-width": "0px",
+                });
+        }
+    }
+
+    // Lollipop width
+    static lollipopWidthFormatter(feature) {
+        if (feature.studies) {
+            // We will get only the first study in this list
+            if (feature.studies[0]?.stats) {
+                // Get only the stat item with the cohortId === "ALL"
+                const item = feature.studies[0].stats.find(stat => stat.cohortId === "ALL");
+                if (item) {
+                    return item.altAlleleFreq || 0;
+                }
+            }
+        }
+        return 0;
     }
 
 }

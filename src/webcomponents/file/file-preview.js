@@ -98,7 +98,10 @@ export default class FilePreview extends LitElement {
 
     fileIdsObserver() {
         if (this.opencgaSession && this.fileIds) {
-            this.opencgaSession.opencgaClient.files().info(this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(","), {study: this.opencgaSession.study.fqn, concurrent: true})
+            const ids = this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(",");
+            this.opencgaSession.opencgaClient.files().info(ids, {
+                study: this.opencgaSession.study.fqn,
+            })
                 .then(response => {
                     this.files = response.responses[0].results;
                 })
@@ -118,7 +121,7 @@ export default class FilePreview extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn,
             includeIndividual: true,
-            lines: 200
+            lines: 200,
         };
 
         this.filesWithContent = this.files.map(file => {
@@ -132,7 +135,7 @@ export default class FilePreview extends LitElement {
                 case "UNKNOWN":
                 case "TAB_SEPARATED_VALUES":
                     fileWithContent.contentType = "text";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, {...params, concurrent: true})
+                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
                         .then(response => {
                             const {format, content} = response.getResult(0);
                             this.format = format;
@@ -147,7 +150,7 @@ export default class FilePreview extends LitElement {
                     break;
                 case "JSON":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, {...params, concurrent: true})
+                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
                         .then(response => {
                             const {content} = response.getResult(0);
                             try {
@@ -165,7 +168,7 @@ export default class FilePreview extends LitElement {
                     break;
                 case "BAM":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().info(fileWithContent.id, {study: this.opencgaSession.study.fqn, concurrent: true})
+                    this.opencgaSession.opencgaClient.files().info(fileWithContent.id, {study: this.opencgaSession.study.fqn})
                         .then(response => {
                             const {attributes} = response.getResult(0);
                             fileWithContent.content = attributes?.alignmentHeader ?? {content: "No content"};
@@ -174,7 +177,7 @@ export default class FilePreview extends LitElement {
                     break;
                 case "IMAGE":
                     fileWithContent.contentType = "image";
-                    this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn, concurrent: true})
+                    this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn})
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
                             this.requestUpdate();
@@ -188,10 +191,6 @@ export default class FilePreview extends LitElement {
                     fileWithContent.content = "Format not recognized: " + fileWithContent.format;
             }
         }
-    }
-
-    getDefaultConfig() {
-        return {};
     }
 
     render() {
@@ -220,35 +219,35 @@ export default class FilePreview extends LitElement {
                     ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
                         <div style="margin: 25px 0 5px 0">
                             <label>
-                                <span>${fileWithContent.name}</span> <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                <span>${fileWithContent.name}</span>
+                                <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
                             </label>
                         </div>
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "text" ? html`
                             <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "image" ? html`
                             <image-viewer
                                 .data="${fileWithContent.content}">
                             </image-viewer>
-                        ` : null
-                        }
+                        ` : null}
                         ${fileWithContent.contentType === "json" ? html`
                             <json-viewer
                                 .data="${fileWithContent.content}">
                             </json-viewer>
-                        ` : null
-                        }
-                    `) : null
-                    }
+                        ` : null}
+                    `) : null}
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }

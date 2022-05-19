@@ -1,4 +1,4 @@
-name: "Main Workflow for JSorolla"
+name: "Main development workflow"
 
 on:
   push:
@@ -26,17 +26,3 @@ jobs:
       SSH_SWDEV_IP: ${{ secrets.SSH_SWDEV_IP }}
       SSH_SWDEV_USER: ${{ secrets.SSH_SWDEV_USER }}
       SSH_SWDEV_PASSWORD: ${{ secrets.SSH_SWDEV_PASSWORD }}
-
-#  notify:
-#    name: Notify private repository
-#    runs-on: ubuntu-20.04
-#    needs: build
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Invoke workflow in a private repo
-#        uses: benc-uk/workflow-dispatch@v1
-#        with:
-#          workflow: Docker publish
-#          ref: ${{ github.event.push.head.ref }}
-#          repo: ${{ secrets.JSOROLLA_PRIVATE_REPO }}
-#          token: ${{ secrets.ZG_PERSONAL_TOKEN }}

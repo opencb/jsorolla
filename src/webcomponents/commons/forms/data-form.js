@@ -514,7 +514,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <div class="col-md-${titleWidth}">
-                            <label class="control-label ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0px; text-align:${titleAlign};${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         </div>
@@ -534,7 +534,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="control-label ${titleClassName}" style="${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0px; ${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         ` : null}
@@ -729,7 +729,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <label style="font-weight: normal;margin: 0">
+            <label style="padding-top: 0px; font-weight: normal;margin: 0">
                 <input
                     type="checkbox"
                     class="${this._prefix}FilterCheckbox"
@@ -1205,8 +1205,8 @@ export default class DataForm extends LitElement {
 
     _onChangeArray(e, field, action, data) {
         let results = {};
-        let _data = data ? data:[];
-        const item = e?.detail?.value;
+        let _data = data ? [...data]:[];
+        const item = {...e?.detail?.value};
         let isRepeat = false;
         switch (action) {
             case "CREATE":
@@ -1215,17 +1215,18 @@ export default class DataForm extends LitElement {
                     results = {param: field, value: [..._data, item]};
                 break;
             case "UPDATE":
-                const indexItem = _data.findIndex(item => item.id === item.id);
+                // change id for index array.. because the user can change the ID.
+                const indexItem = _data.findIndex(obj => obj.id === item.id);
                 _data[indexItem] = item;
                 results = {param: field, value: _data};
-                const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
+                const regexPunctuation = /[()+,-.\/:; ?@[\]_{|}]/g;
                 const collapseTarget =`${field}${item?.id}Collapse`;
-                $(`#${collapseTarget.replace(regex, "")}`).collapse("hide");
+                $(`#${collapseTarget.replace(regexPunctuation, "")}`).collapse("hide");
                 break;
             case "REMOVE":
                 // This 'e' is the item to remove from array
-                const removedItem = e;
-                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(item => item.id === removedItem.id));
+                const removedItem = {...e};
+                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(obj => obj.id === removedItem.id));
                 results = {param: field, value: _data};
                 break;
         }

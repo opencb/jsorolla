@@ -19,7 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
 
@@ -135,7 +135,7 @@ export default class SampleView extends LitElement {
 
         return html`
             <data-form
-                .data=${this.sample}
+                .data="${this.sample}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -165,12 +165,13 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <sample-id-autocomplete
+                                    <catalog-search-autocomplete
                                         .value="${this.sample?.id}"
+                                        .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{multiple: false}}
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </sample-id-autocomplete>
+                                    </catalog-search-autocomplete>
                                 `,
                             }
                         }

@@ -205,6 +205,11 @@ export default class BioinfoUtils {
         return `https://panelapp.genomicsengland.co.uk/panels/${panelAppId}/`;
     }
 
+    static getOboLink(ontologyId) {
+        const ontologyShort = ontologyId.replace(":", "_");
+        return `http://purl.obolibrary.org/obo/${ontologyShort}`;
+    }
+
     static getHpoLink(hpoTerm) {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }

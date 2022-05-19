@@ -20,7 +20,6 @@ import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/sample-id-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
 

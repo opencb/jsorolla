@@ -11,12 +11,12 @@ export default class GeneRenderer extends Renderer {
         (features || []).forEach((feature, index) => {
 
             // Prevent rendering a feature twice
-            if (options.renderedFeatures.has(feature.id)) {
-                return;
+            if (options.renderedFeatures) {
+                if (options.renderedFeatures.has(feature.id)) {
+                    return;
+                }
+                options.renderedFeatures.add(feature.id);
             }
-
-            // Add this feature to the list of rendered features
-            options.renderedFeatures.add(feature.id);
 
             const geneColor = this.getValueFromConfig("geneColor", [feature]);
             const geneLabel = this.getValueFromConfig("geneLabel", [feature]);

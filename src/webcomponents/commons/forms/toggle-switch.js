@@ -120,7 +120,9 @@ export default class ToggleSwitch extends LitElement {
 
         // Fetch and reset buttons status
         const buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
-        buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
+        Array.from(buttons).forEach(button => {
+            button.classList.remove(...activeClasses, ...inactiveClasses, "active");
+        });
         let onIndex = 0;
         let offIndex = 1;
         if (buttons[0].dataset.id === "OFF") {

@@ -20,7 +20,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../sample/sample-browser-filter.js";
 
 
 export default class VariantSampleSelector extends LitElement {
