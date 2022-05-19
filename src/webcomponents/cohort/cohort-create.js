@@ -119,10 +119,10 @@ export default class CohortCreate extends LitElement {
     render() {
         return html`
             <data-form
-                .data=${this.cohort}
+                .data="${this.cohort}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear=${this.onClear}
+                @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
         `;
@@ -145,6 +145,14 @@ export default class CohortCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.cohort).length > 0,
+                                notificationType: "warning",
+                            }
+                        },
+                        {
                             title: "Cohort ID",
                             field: "id",
                             type: "input-text",
@@ -162,7 +170,7 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 render: samples => html `
                                 <catalog-search-autocomplete
-                                    .value=${samples?.map(sample => sample.id).join(",")}
+                                    .value="${samples?.map(sample => sample.id).join(",")}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     @filterChange="${e => this.onFieldChange(e, "samples")}">
@@ -192,7 +200,7 @@ export default class CohortCreate extends LitElement {
                                             width: 12,
                                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
                                         }}"
-                                        @fieldChange=${e => this.onFieldChange(e, "status")}>
+                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
                                     </status-create>`
                             }
                         },

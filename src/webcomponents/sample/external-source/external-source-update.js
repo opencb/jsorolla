@@ -55,15 +55,25 @@ export default class ExternalSourceUpdate extends LitElement {
     }
 
     update(changedProperties) {
+        /*
         if (changedProperties.has("source")) {
-            this.sourceObserver();
-        }
+        *     console.log("update...", this);
+        *     this.sourceObserver();
+        * }
+        */
 
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
+    }
+
+    firstUpdated(_changedProperties) {
+        // Child it's not necessary
+        if (_changedProperties.has("source")) {
+            this.sourceObserver();
+        }
     }
 
     sourceObserver() {
@@ -82,8 +92,7 @@ export default class ExternalSourceUpdate extends LitElement {
             e.detail.param,
             e.detail.value);
 
-        this.source = {...this.source, ...this.updateParams};
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.source);
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
     }
 
     onSendSource(e) {
