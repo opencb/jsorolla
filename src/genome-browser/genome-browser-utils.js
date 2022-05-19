@@ -402,9 +402,34 @@ export default class GenomeBrowserUtils {
                 ${regionInfo}
                 <div>Cigar: <b>${feature.cigar || "NA"}</b></div>
                 <div>Insert Size: <b>${feature.fragmentLength || "-"}</b></div>
+                <div>Mapping Quality: <b>${feature.alignment.mappingQuality || "0"}</b></div>
                 ${info.map(item => `<div>${item}</div>`).join("")}
             </div>
         `;
+    }
+
+    // Alignment color formatter
+    static alignmentColorFormatter(read, pairedReads) {
+        // Check for not paired read
+        if (read.numberReads === 1 || !read.nextMatePosition) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.not_paired;
+        }
+        // Check if is a translocation
+        if (read.nextMatePosition.referenceName !== read.alignment.position.referenceName) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.translocation;
+        }
+        const fragmentStart = Math.min.apply(null, pairedReads.map(r => r.end));
+        const fragmentEnd = Math.max.apply(null, pairedReads.map(r => r.start));
+        // Check for possible deletion
+        if (fragmentEnd < fragmentStart) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.possible_deletion;
+        }
+        // Check for possible insertion
+        if (fragmentEnd - fragmentStart + 1 > 500) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.possible_insertion;
+        }
+        // Default color
+        return GenomeBrowserConstants.ALIGNMENTS_COLORS.default;
     }
 
 }
