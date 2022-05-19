@@ -134,4 +134,11 @@ export default class GenomeBrowserConstants {
         "others": "black",
     };
 
+    // Alignments colors
+    static ALIGNMENTS_COLORS = {
+        "default": "#6c757d",
+        "possible_deletion": "#dc3545",
+        "possible_insertion": "#0d6efd",
+    };
+
 }
