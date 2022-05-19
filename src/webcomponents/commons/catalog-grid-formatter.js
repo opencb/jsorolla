@@ -95,7 +95,7 @@ export default class CatalogGridFormatter {
                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                     panelHtml += `
                         <div style="margin: 5px 0px">
-                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}/" target="_blank">
+                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                             </a>
                         </div>`;
