@@ -18,13 +18,13 @@ import {login, checkResults, getResult, Facet, changePage, dateFilterCheck, anno
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("8 - Individual Browser", () => {
+context("9. Individual Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("8.1 - query", () => {
+    it("9.1 - query", () => {
         cy.get("a[data-id=individual]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Individual Browser");
 
@@ -63,7 +63,7 @@ context("8 - Individual Browser", () => {
 
     });
 
-    it("8.2 - aggregated query", () => {
+    it("9.2 - aggregated query", () => {
         cy.get("a[data-id=individual]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
 

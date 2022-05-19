@@ -44,14 +44,14 @@ export class RestClient {
 
         request.onerror = function (event) {
             // console.log(event)
-            console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
+            console.error(`REST-Client: an error occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
             }
         };
 
         request.ontimeout = function (event) {
-            console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
+            console.error(`REST-Client: a timeout occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
             }
@@ -69,7 +69,10 @@ export class RestClient {
     call(url, options, k) {
         let method = "GET";
         let async = true;
-        // const key = RestClient.hash(k || "RandomString");
+
+        // k is false iff there is concurrent=true param in the call
+        const key = k ? RestClient.hash(k) : null;
+
         let dataResponse = null;
 
         const eventFire = new CustomEvent("request", {
@@ -93,26 +96,25 @@ export class RestClient {
         // Creating the promise
         return new Promise((resolve, reject) => {
 
-            // let key = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}`;
             const request = new XMLHttpRequest();
 
-            // Josemi 2022-01-28 NOTE: disabled requests registry until due to issues with images until we found a better solution
-            // Related issue: https://github.com/opencb/jsorolla/issues/380
-            // if (this.requests[key]) {
-            //     // pending prev request
-            //     this.requests[key] = {...this.requests[key], pending: true};
-
-            // } else {
-            //     // pending false as there is no prev request
-            //     this.requests[key] = {pending: false, request, url, key};
-            // }
+            // k is false iff there is concurrent=true param in the call
+            if (key) {
+                if (this.requests[key]) {
+                    // pending prev request
+                    this.requests[key] = {...this.requests[key], pending: true};
+                } else {
+                    // pending false as there is no prev request
+                    this.requests[key] = {pending: false, request, url, key};
+                }
+            }
 
             request.onload = event => {
                 // console.log("on load EVENT", event);
                 // console.log("on load URL", url);
 
                 // request is fulfilled
-                // delete this.requests[key];
+                delete this.requests[key];
 
                 if (request.status === 200) {
 
@@ -157,15 +159,15 @@ export class RestClient {
             };
 
             request.onerror = function (event) {
-                console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
+                console.error(`REST-Client: an error occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
-                reject(Error(`CellBaseClient: an error occurred when calling to '${url}'`));
+                reject(Error(`REST-Client: an error occurred when calling to '${url}'`));
             };
 
             request.ontimeout = function (event) {
-                console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
+                console.error(`REST-Client: a timeout occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
@@ -199,18 +201,17 @@ export class RestClient {
                 request.send();
             }
 
-            // if (this.requests[key]) {
-            //     // console.log("FULL LIST", Object.entries(this.requests))
-            //     // console.log("this.requests[key]", this.requests[key]);
-
-            //     if (this.requests[key].pending) {
-            //         console.warn("aborting request", this.requests[key].url);
-            //         this.requests[key].request.abort();
-            //         delete this.requests[key];
-            //     } else {
-            //         // not aborting
-            //     }
-            // }
+            if (this.requests[key]) {
+                // console.log("FULL LIST", Object.entries(this.requests))
+                // console.log("this.requests[key]", this.requests[key]);
+                if (this.requests[key].pending) {
+                    console.warn("aborting request", this.requests[key].url);
+                    this.requests[key].request.abort();
+                    delete this.requests[key];
+                } else {
+                    // not aborting
+                }
+            }
 
         });
     }

@@ -237,7 +237,7 @@ export default class CohortGrid extends LitElement {
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             includeIndividual: true,
             skipCount: true,
             include: "id,creationDate,status,type,samples"

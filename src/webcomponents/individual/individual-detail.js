@@ -73,6 +73,8 @@ export default class IndividualDetail extends LitElement {
                 .catch(restResponse => {
                     console.error(restResponse);
                 });
+        } else {
+            this.individual = null;
         }
     }
 

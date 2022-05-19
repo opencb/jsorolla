@@ -849,7 +849,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         const filters = {
             study: this.opencgaSession.study.fqn,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             count: false,
             includeSampleId: "true",
             ...this.query

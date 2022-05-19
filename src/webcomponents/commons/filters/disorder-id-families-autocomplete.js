@@ -17,8 +17,8 @@
 import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 
-
-export default class PhenotypeNameAutocomplete extends LitElement {
+// Nacho 20-04-2022 - DEPRECATED: use new disorder-autocomplete now.
+export default class DisorderIdFamiliesAutocomplete extends LitElement {
 
     createRenderRoot() {
         return this;
@@ -43,14 +43,6 @@ export default class PhenotypeNameAutocomplete extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    endpoint(resource) {
-        return {
-            INDIVIDUAL: this.opencgaSession.opencgaClient.individuals(),
-            SAMPLE: this.opencgaSession.opencgaClient.samples(),
-            FAMILY: this.opencgaSession.opencgaClient.families(),
-        }[resource] || this.opencgaSession.opencgaClient.samples();
-    }
-
     onFilterChange(key, value) {
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -66,24 +58,24 @@ export default class PhenotypeNameAutocomplete extends LitElement {
             /* fields: item => ({
                 name: item
             }),*/
-            // direct select2 configuration
-            select2Config: {
-                // enables free tokenisation as phenotypes field actually perform a full-text search (while the autocomplete works in IDs only)
-                tags: true
-            },
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
-                const phenotypes = params?.data?.term ? {phenotypes: "~/" + params?.data?.term + "/i"} : null;
+                const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
                     skip: (page - 1) * this._config.limit,
-                    // include: "id,proband",
-                    ...phenotypes
+                    ...disorders
                 };
-                this.endpoint(this._config.resource).distinct("phenotypes.name", filters)
-                    .then(response => success(response))
+                this.opencgaSession.opencgaClient.families().distinct("disorders.id", filters)
+                    .then(response => {
+                        // TODO filtering clientside in all filters that use distinct endpoints
+                        // const r = response.getResults().filter(r => r.toLowerCase().startsWith(params?.data?.term?.toLowerCase() ?? ""));
+                        // response.responses[0].results = r;
+                        // response.responses[0].numMatches = r.length
+                        success(response);
+                    })
                     .catch(error => failure(error));
             },
         };
@@ -102,4 +94,4 @@ export default class PhenotypeNameAutocomplete extends LitElement {
 
 }
 
-customElements.define("phenotype-name-autocomplete", PhenotypeNameAutocomplete);
+customElements.define("disorder-id-families-autocomplete", DisorderIdFamiliesAutocomplete);

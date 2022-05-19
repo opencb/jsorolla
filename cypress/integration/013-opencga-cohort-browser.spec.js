@@ -18,13 +18,13 @@ import {checkResults, login, getResult, Facet, changePage, dateFilterCheck, anno
 import {TIMEOUT} from "../plugins/constants.js";
 
 
-context("11 - Cohort Browser", () => {
+context("13. Cohort Browser", () => {
     before(() => {
         login();
         goTo("iva");
     });
 
-    it("11.1 - query", () => {
+    it("13.1 - query", () => {
         cy.get("a[data-id=cohort]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Cohort Browser");
         checkResults("opencga-cohort-grid");
@@ -48,7 +48,7 @@ context("11 - Cohort Browser", () => {
 
     });
 
-    it("11.2 - aggregated query", () => {
+    it("13.2 - aggregated query", () => {
         cy.get("a[data-id=cohort]").click({force: true});
 
         cy.get("a[href='#facet_tab']").click({force: true});

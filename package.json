@@ -1,6 +1,6 @@
 {
   "name": "jsorolla",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "JSorolla is a JavaScript bioinformatic library for data analysis and genomics visualization",
   "repository": {
     "type": "git",
@@ -51,7 +51,6 @@
     "bootstrap": "3.3.6",
     "bootstrap-3-typeahead": "^4.0.2",
     "bootstrap-colorpicker": "2.3.6",
-    "bootstrap-notify": "git://github.com/mouse0270/bootstrap-notify.git#master",
     "bootstrap-select": "^1.13.18",
     "bootstrap-table": "^1.18.3",
     "bootstrap-treeview": "git@github.com:jonmiles/bootstrap-treeview.git#develop",
@@ -89,6 +88,7 @@
     "@babel/runtime": "^7.15.4",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
+    "@rollup/plugin-replace": "^4.0.0",
     "@web/rollup-plugin-html": "^1.10.1",
     "babel-eslint": "^10.0.3",
     "core-js": "^3.17.2",
@@ -119,7 +119,6 @@
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-eslint": "^7.0.0",
     "rollup-plugin-minify-html-literals": "^1.2.6",
-    "rollup-plugin-summary": "^1.3.0",
     "rollup-plugin-terser": "^7.0.2",
     "uglify-es": "~3.1.9",
     "uglify-js": "^3.14.2",

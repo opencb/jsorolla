@@ -20,7 +20,7 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/filters/disorder-id-autocomplete.js";
+import "../commons/filters/disorder-autocomplete.js";
 import "../commons/filters/phenotype-name-autocomplete.js";
 import "../commons/filters/ethnicity-autocomplete.js";
 import "../commons/forms/date-filter.js";
@@ -150,49 +150,79 @@ export default class IndividualBrowserFilter extends LitElement {
             case "father":
             case "mother":
                 content = html`
-                    <individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
+                    <individual-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"
+                    ></individual-id-autocomplete>`;
                 break;
             case "samples":
                 content = html`
-                    <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
+                    <sample-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </sample-id-autocomplete>`;
                 break;
             case "disorders":
                 content = html`
-                    <disorder-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                              @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-autocomplete>`;
+                    <disorder-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .resource=${"INDIVIDUAL"}
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </disorder-autocomplete>
+                `;
                 break;
             case "phenotypes":
                 content = html`
-                    <phenotype-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                               @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-name-autocomplete>`;
+                    <phenotype-name-autocomplete
+                        .config="${{...subsection, resource: "INDIVIDUAL"}}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </phenotype-name-autocomplete>`;
                 break;
             case "ethnicity":
                 content = html`
-                    <ethnicity-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
-                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></ethnicity-autocomplete>`;
+                    <ethnicity-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </ethnicity-autocomplete>`;
                 break;
             case "sex":
             case "karyotypicSex":
             case "affectationStatus":
             case "lifeStatus":
                 content = html`
-                    <select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}"
-                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                    <select-field-filter
+                        ?multiple="${subsection.multiple}"
+                        .data="${subsection.allowedValues}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-field-filter>`;
                 break;
             case "annotations":
                 content = html`
-                    <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                     resource="INDIVIDUAL"
-                                                     .config="${this.annotationFilterConfig}"
-                                                     .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                     @annotationChange="${this.onAnnotationChange}">
+                    <opencga-annotation-filter-modal
+                        .opencgaSession="${this.opencgaSession}"
+                        resource="INDIVIDUAL"
+                        .config="${this.annotationFilterConfig}"
+                        .selectedVariablesText="${this.preparedQuery.annotation}"
+                        @annotationChange="${this.onAnnotationChange}">
                     </opencga-annotation-filter-modal>`;
                 break;
             case "date":
                 content = html`
-                    <date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                    <date-filter
+                        .creationDate="${this.preparedQuery.creationDate}"
+                        @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                    </date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

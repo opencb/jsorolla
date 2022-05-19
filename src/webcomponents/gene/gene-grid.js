@@ -83,7 +83,7 @@ export default class GeneGrid extends LitElement {
         this.toolbarConfig = {
             ...this.config?.toolbar,
             resource: "DISEASE_PANEL",
-            // buttons: ["columns", "download"],
+            buttons: ["columns", "download"],
             columns: this._getDefaultColumns()
         };
         this.renderTable();
@@ -208,16 +208,18 @@ export default class GeneGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPageChange: (page, size) => {
-            //     const result = this.gridCommons.onPageChange(page, size);
-            //     this.from = result.from || this.from;
-            //     this.to = result.to || this.to;
-            // },
+            onPageChange: (page, size) => {
+                const result = this.gridCommons.onPageChange(page, size);
+                this.from = result.from || this.from;
+                this.to = result.to || this.to;
+            },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -336,7 +338,7 @@ export default class GeneGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn,
             ...this.query,
-            limit: 1000,
+            limit: e.detail?.exportLimit ?? 1000,
             skip: 0,
             count: false,
         };
@@ -349,7 +351,7 @@ export default class GeneGrid extends LitElement {
                     if (e.detail.option.toUpperCase() === "tab") {
                         const fields = ["id", "individualId", "fileIds", "collection.method", "processing.preparationMethod", "somatic", "creationDate"];
                         const data = UtilsNew.toTableString(results, fields);
-                        UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                        UtilsNew.downloadData(data, "genes_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }

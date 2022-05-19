@@ -233,6 +233,9 @@ class IvaApp extends LitElement {
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
 
+        // Get version from env variable
+        this.version = process.env.VERSION;
+
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
@@ -1471,7 +1474,12 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["sampleVariantStatsBrowser"] ? html`
                     <div class="content" id="sampleVariantStatsBrowser">
-                        <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-variant-stats-browser>
+                        <sample-variant-stats-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .sampleId="${this.sampleId}"
+                            .active="${true}"
+                            .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
+                        </sample-variant-stats-browser>
                     </div>
                 ` : null}
 
@@ -1601,7 +1609,10 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents.account ? html`
                     <div class="content" id="account">
-                        <user-profile .opencgaSession="${this.opencgaSession}"></user-profile>
+                        <user-profile
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${USER_PROFILE_SETTINGS}">
+                        </user-profile>
                     </div>
                 ` : null}
 
@@ -1701,8 +1712,9 @@ class IvaApp extends LitElement {
             </div>
 
             <custom-footer
-                .host=${this.host}
-                .config=${this.config}>
+                .version="${this.version}"
+                .host="${this.host}"
+                .config="${this.config}">
             </custom-footer>
         `;
     }
