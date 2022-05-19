@@ -99,7 +99,9 @@ export default class FeatureTrack {
                         </span>
                     </div>
                 </div>
-                <div id="${this.prefix}Content"></div>
+                <div id="${this.prefix}Content">
+                    <div id="${this.prefix}Error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
+                </div>
                 <div id="${this.prefix}Resize" class="ocb-track-resize"></div>
             </div>
         `);
@@ -117,6 +119,9 @@ export default class FeatureTrack {
         this.titleDown = this.div.querySelector(`span#${this.prefix}TitleDown`);
         this.titleExternalLink = this.div.querySelector(`span#${this.prefix}TitleExternalLink`);
         this.titleLoading = this.div.querySelector(`span#${this.prefix}TitleLoading`);
+
+        // Error message wrapper
+        this.error = this.div.querySelector(`div#${this.prefix}Error`);
 
         // Main content wrapper
         this.content = this.div.querySelector(`div#${this.prefix}Content`);
@@ -463,9 +468,15 @@ export default class FeatureTrack {
         this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
     }
 
-    // Error handler: each track should implement it's own error handler
+    // Error handler: each track can implement it's own error handler
     errorHandler(error) {
         console.error(error);
+
+        // Display error div and add error message
+        this.error.style.display = "block";
+        this.error.textContent = error?.message || error || "Something went wrong...";
+        this.main.style.display = "none";
+        this.content.style.height = ""; // Reset content height
     }
 
     // Generic get data method (to be implemented in each track)
