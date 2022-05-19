@@ -244,9 +244,9 @@ export default class AlignmentRenderer extends Renderer {
                 SVG.addChild(parent, "path", {
                     "d": `M${start} ${rowY} V${rowY + readHeight} H${end} V${rowY} H${start}`,
                     "stroke": color,
-                    "stroke-width": 0.7,
+                    "stroke-width": 0.9,
                     "fill": color,
-                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.2 : 0.7,
+                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.3 : 0.7,
                 });
             } else if (diff.op === "I") {
                 const text = SVG.addChild(parent, "text", {
@@ -332,7 +332,7 @@ export default class AlignmentRenderer extends Renderer {
                     }
 
                     // Get read attributes
-                    const readColor = this.getValueFromConfig("color", [read, this.config.minMappingQuality]);
+                    const readColor = this.getValueFromConfig("color", [read, alignments, this.config.minMappingQuality]);
                     const readOpacity = this.getValueFromConfig("opacity", [read, this.config.minMappingQuality]);
 
                     // Render this read
@@ -354,7 +354,7 @@ export default class AlignmentRenderer extends Renderer {
                         position: {
                             viewport: $(window),
                             target: "mouse",
-                            adjust: {x: 25, y: 15},
+                            adjust: {x: 10, y: 10},
                         },
                         style: {
                             width: true,
@@ -397,10 +397,9 @@ export default class AlignmentRenderer extends Renderer {
             alignmentsMaxRegionSize: 50000,
             minMappingQuality: 20, // Reads with a mapping quality under 20 will have a transparency
             strand: GenomeBrowserUtils.alignmentStrandParser,
-            // Displayed reads style
-            color: "darkgrey",
+            color: GenomeBrowserUtils.alignmentColorFormatter,
             opacity: (read, minMappingQuality) => {
-                return read.alignment.mappingQuality > minMappingQuality ? 1 : 0.5;
+                return read.alignment.mappingQuality > minMappingQuality ? 0.7 : 0.3;
             },
             height: 10,
             tooltipTitle: GenomeBrowserUtils.alignmentTooltipTitleFormatter,
