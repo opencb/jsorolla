@@ -10,7 +10,6 @@ export default class AlignmentRenderer extends Renderer {
         // Get data to render
         const coverage = data[0] || []; // Coverage data is in the first position
         const alignments = data[1] || null; // Alignments data is in the second position (if provided)
-        console.log(alignments[0]);
 
         // Define the height of the coverage track
         const regionSize = options.requestedRegion.end - options.requestedRegion.start + 1;
@@ -167,6 +166,7 @@ export default class AlignmentRenderer extends Renderer {
                         differences.push({
                             pos: position - offset,
                             seq: feature.alignedSequence[position],
+                            quality: feature.alignedQuality?.[position] || 0,
                             op: "M",
                             length: 1,
                         });
@@ -232,26 +232,6 @@ export default class AlignmentRenderer extends Renderer {
             height: height,
             cursor: "pointer",
         });
-
-        // $(dummyRect).qtip({
-        //     content: " ",
-        //     position: { target: "mouse", adjust: { x: 15, y: 0 }, viewport: $(window), effect: false },
-        //     style: { width: true, classes: `${this.toolTipfontClass} ui-tooltip-shadow` },
-        //     show: { delay: 300 },
-        //     hide: { delay: 300 },
-        // });
-
-
-        // args.trackListPanel.on("mousePosition:change", (e) => {
-        //     const pos = Math.floor((e.mousePos - parseInt(start)) / windowSize);
-        //     if (pos < 0 || pos >= coverageList.length) {
-        //         return;
-        //     }
-
-        //     const str = `depth: <span class="ssel">${coverageList[pos]}</span><br>`;
-        //     $(dummyRect).qtip("option", "content.text", str);
-
-        // });
     }
 
     #renderDifferences(parent, differences, readStart, readHeight, rowY, options) {
@@ -266,7 +246,7 @@ export default class AlignmentRenderer extends Renderer {
                     "stroke": color,
                     "stroke-width": 0.7,
                     "fill": color,
-                    "fill-opacity": 0.5,
+                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.2 : 0.7,
                 });
             } else if (diff.op === "I") {
                 const text = SVG.addChild(parent, "text", {
@@ -276,11 +256,6 @@ export default class AlignmentRenderer extends Renderer {
                     // textLength: diff.size,
                 });
                 text.textContent = "|";
-                // $(t).qtip({
-                //     content: {text: diff.seq, title: "Insertion"},
-                //     position: {target: "mouse", adjust: {x: 25, y: 15}},
-                //     style: {classes: `${this.toolTipfontClass} qtip-dark qtip-shadow`},
-                // });
             } else if (diff.op === "D") {
                 const end = start + options.pixelBase * diff.length;
                 SVG.addChild(parent, "path", {
