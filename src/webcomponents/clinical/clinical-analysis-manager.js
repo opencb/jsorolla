@@ -260,14 +260,6 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    lockInterpretation(interpretationId, callback) {
-        this.#updateInterpretation(interpretationId, {locked: true}, `Interpretation '${interpretationId}' Locked.`, callback);
-    }
-
-    unLockInterpretation(interpretationId, callback) {
-        this.#updateInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
-    }
-
     #updateInterpretation(interpretationId, params, message, callback) {
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, params, {
             study: this.opencgaSession.study.fqn
@@ -282,6 +274,14 @@ export default class ClinicalAnalysisManager {
             .catch(response => {
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
+    }
+
+    lockInterpretation(interpretationId, callback) {
+        this.#updateInterpretation(interpretationId, {locked: true}, `Interpretation '${interpretationId}' Locked.`, callback);
+    }
+
+    unLockInterpretation(interpretationId, callback) {
+        this.#updateInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
     }
 
     updateVariant(variant, interpretation, callback) {
