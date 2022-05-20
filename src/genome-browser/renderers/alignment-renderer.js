@@ -333,7 +333,7 @@ export default class AlignmentRenderer extends Renderer {
 
                     // Get read attributes
                     const readColor = this.getValueFromConfig("color", [read, alignments, this.config.minMappingQuality]);
-                    const readOpacity = this.getValueFromConfig("opacity", [read, this.config.minMappingQuality]);
+                    const readOpacity = this.getValueFromConfig("opacity", [read, alignments, this.config.minMappingQuality]);
 
                     // Render this read
                     const readElement = SVG.addChild(parent, "path", {
@@ -396,12 +396,10 @@ export default class AlignmentRenderer extends Renderer {
         return {
             alignmentsMaxRegionSize: 50000,
             minMappingQuality: 20, // Reads with a mapping quality under 20 will have a transparency
+            height: 10,
             strand: GenomeBrowserUtils.alignmentStrandParser,
             color: GenomeBrowserUtils.alignmentColorFormatter,
-            opacity: (read, minMappingQuality) => {
-                return read.alignment.mappingQuality > minMappingQuality ? 0.7 : 0.3;
-            },
-            height: 10,
+            opacity: GenomeBrowserUtils.alignmentOpacityFormatter,
             tooltipTitle: GenomeBrowserUtils.alignmentTooltipTitleFormatter,
             tooltipText: GenomeBrowserUtils.alignmentTooltipTextFormatter,
         };
