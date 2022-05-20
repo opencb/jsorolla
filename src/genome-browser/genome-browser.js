@@ -72,19 +72,15 @@ export default class GenomeBrowser {
     #initDom() {
         // Generate GB template
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="ocb-gv ocb-box-vertical">
-                <div id="${this.prefix}Navigation" class="ocb-gv-navigation"></div>
-                <div class="ocb-gv-center">
-                    <div id="${this.prefix}LeftSide" class="ocb-gv-left-side"></div>
-                    <div id="${this.prefix}RightSide" class="ocb-gv-right-side"></div>
-                    <div id="${this.prefix}Karyotype" class="ocb-gv-karyotype"></div>
-                    <div id="${this.prefix}Chromosome" class="ocb-gv-chromosome"></div>
-                    <div class="ocb-gv-tracklist-target">
-                        <div id="${this.prefix}Region" class="ocb-gv-overview"></div>
-                        <div id="${this.prefix}Tracks" class="ocb-gv-detailed"></div>
-                    </div>
-                </div>
-                <div id="${this.prefix}Status" class="ocb-gv-status"></div>
+            <div id="${this.prefix}" class="panel panel-default">
+                <div id="${this.prefix}Navigation" class="panel-heading"></div>
+                <ul class="list-group">
+                    <li id="${this.prefix}Karyotype" class="list-group-item"></li>
+                    <li id="${this.prefix}Chromosome" class="list-group-item"></li>
+                    <li id="${this.prefix}Region" class="list-group-item"></li>
+                    <li id="${this.prefix}Tracks" class="list-group-item"></li>
+                </ul>
+                <div id="${this.prefix}Status" class="panel-footer"></div>
             </div>
         `);
 
@@ -92,15 +88,11 @@ export default class GenomeBrowser {
         this.navigationbarDiv = this.div.querySelector(`div#${this.prefix}Navigation`);
         this.statusbarDiv = this.div.querySelector(`div#${this.prefix}Status`);
 
-        // TODO: check if we really need the left and right sidebar components
-        this.leftSidebarDiv = this.div.querySelector(`div#${this.prefix}LeftSide`);
-        this.rightSidebarDiv = this.div.querySelector(`div#${this.prefix}RightSide`);
+        this.karyotypeDiv = this.div.querySelector(`li#${this.prefix}Karyotype`);
+        this.chromosomeDiv = this.div.querySelector(`li#${this.prefix}Chromosome`);
 
-        this.karyotypeDiv = this.div.querySelector(`div#${this.prefix}Karyotype`);
-        this.chromosomeDiv = this.div.querySelector(`div#${this.prefix}Chromosome`);
-
-        this.regionDiv = this.div.querySelector(`div#${this.prefix}Region`);
-        this.tracksDiv = this.div.querySelector(`div#${this.prefix}Tracks`);
+        this.regionDiv = this.div.querySelector(`li#${this.prefix}Region`);
+        this.tracksDiv = this.div.querySelector(`li#${this.prefix}Tracks`);
 
         // Append to target element
         this.target.appendChild(this.div);
