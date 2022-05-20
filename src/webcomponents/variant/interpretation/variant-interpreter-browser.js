@@ -293,48 +293,55 @@ class VariantInterpreterBrowser extends LitElement {
                         });
                     }
                 }
-
-                // Append genome browser
-                items.push({
-                    id: "genome-browser",
-                    name: "Genome Browser (Experimental)",
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <genome-browser
-                            .opencgaSession="${opencgaSession}"
-                            .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
-                            .active="${active}"
-                            .config="${{
-                                cellBaseClient: this.cellbaseClient,
-                            }}"
-                            .tracks="${[
-                                {
-                                    type: "gene-overview",
-                                    overview: true,
-                                    config: {},
-                                },
-                                {
-                                    type: "sequence",
-                                    config: {},
-                                },
-                                {
-                                    type: "gene",
-                                    config: {},
-                                },
-                                {
-                                    type: "opencga-variant",
-                                    config: {
-                                        title: "Variants",
-                                        query: {
-                                            sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                                        },
-                                        height: 120,
-                                    },
-                                },
-                            ]}">
-                        </genome-browser>
-                    `,
-                });
             }
+
+            // Append genome browser
+            items.push({
+                id: "genome-browser",
+                name: "Genome Browser (Beta)",
+                render: (clinicalAnalysis, active, opencgaSession) => html`
+                    <genome-browser
+                        .opencgaSession="${opencgaSession}"
+                        .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
+                        .active="${active}"
+                        .config="${{
+                            cellBaseClient: this.cellbaseClient,
+                        }}"
+                        .tracks="${[
+                            {
+                                type: "gene-overview",
+                                overview: true,
+                                config: {},
+                            },
+                            {
+                                type: "sequence",
+                                config: {},
+                            },
+                            {
+                                type: "gene",
+                                config: {},
+                            },
+                            {
+                                type: "opencga-variant",
+                                config: {
+                                    title: "Variants",
+                                    query: {
+                                        sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                                    },
+                                    height: 120,
+                                },
+                            },
+                            ...(clinicalAnalysis.proband?.samples || []).map(sample => ({
+                                type: "opencga-alignment",
+                                config: {
+                                    title: `Alignments - ${sample.id}`,
+                                    sample: sample.id,
+                                },
+                            })),
+                        ]}">
+                    </genome-browser>
+                `,
+            });
         }
 
         // Return tabs configuration
