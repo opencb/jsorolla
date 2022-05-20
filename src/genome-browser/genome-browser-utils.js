@@ -434,7 +434,7 @@ export default class GenomeBrowserUtils {
 
     // Alignment opacity formatter
     static alignmentOpacityFormatter(read, pairedReads, minMappingQuality) {
-        return read.alignment.mappingQuality > minMappingQuality ? 0.7 : 0.3;
+        return read.alignment.mappingQuality > minMappingQuality ? 0.6 : 0.2;
     }
 
 }

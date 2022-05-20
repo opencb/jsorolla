@@ -246,7 +246,7 @@ export default class AlignmentRenderer extends Renderer {
                     "stroke": color,
                     "stroke-width": 1,
                     "fill": color,
-                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.4 : 0.8,
+                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.2 : 0.8,
                 });
             } else if (diff.op === "I") {
                 const text = SVG.addChild(parent, "text", {
