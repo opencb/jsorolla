@@ -125,7 +125,7 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    updateInterpretation(comment, callback) {
+    updateInterpretationVariants(comment, callback) {
         if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
             // console.log("Nothing to do");
             return;
@@ -261,29 +261,21 @@ export default class ClinicalAnalysisManager {
     }
 
     lockInterpretation(interpretationId, callback) {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {locked: true}, {
-            study: this.opencgaSession.study.fqn
-        })
-            .then(() => {
-                // Notify interpretation saved
-                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Interpretation '${interpretationId}' Locked.`,
-                });
-                callback(this.clinicalAnalysis);
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
-            });
+        this.#updateLockInterpretation(interpretationId, {locked: true}, `Interpretation '${interpretationId}' Locked.`, callback);
     }
 
     unLockInterpretation(interpretationId, callback) {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {locked: false}, {
+        this.#updateLockInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
+    }
+
+    #updateLockInterpretation(interpretationId, params, message, callback) {
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, params, {
             study: this.opencgaSession.study.fqn
         })
             .then(() => {
                 // Notify interpretation saved
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Interpretation '${interpretationId}' Unlocked.`,
+                    message: message,
                 });
                 callback(this.clinicalAnalysis);
             })

@@ -227,7 +227,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
 
         const comment = e.detail.comment;
-        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+        this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
             LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                 clinicalAnalysis: this.clinicalAnalysis,
             }, null, {bubbles: true, composed: true});
@@ -358,7 +358,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 <div class="col-md-2">
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
-                            <i class="fa fa-search" aria-hidden="true"></i> 
+                            <i class="fa fa-search" aria-hidden="true"></i>
                             <strong>${this._config.filter?.searchButtonText || "Search"}</strong>
                         </button>
                     </div>

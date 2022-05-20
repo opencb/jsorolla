@@ -174,7 +174,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
 
         const comment = e.detail.comment;
-        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+        this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
             LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                 clinicalAnalysis: this.clinicalAnalysis,
             }, null, {bubbles: true, composed: true});

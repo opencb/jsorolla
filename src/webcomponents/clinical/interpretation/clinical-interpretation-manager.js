@@ -126,7 +126,10 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     renderInterpretation(interpretation, primary) {
-        const interpretationTitle = interpretation.locked?
+        const interpretationLockAction = interpretation.locked ?
+            this.renderItemAction(interpretation.id, "unlock", "fa-unlock", "Unlock") :
+            this.renderItemAction(interpretation.id, "lock", "fa-lock", "Lock");
+        const interpretationTitle = interpretation.locked ?
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
         return html`
@@ -168,51 +171,16 @@ export default class ClinicalInterpretationManager extends LitElement {
                                     </a>
                                 </li>
                                 <!-- Action Lock/Unlock -->
-                                ${this.renderLockAction(interpretation)}
+                                ${interpretationLockAction}
                                 <li role="separator" class="divider"></li>
-                                <li>
-                                    <a
-                                        class="btn force-text-left"
-                                        data-action="clear"
-                                        data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
-                                        Clear
-                                    </a>
-                                </li>
+                                ${this.renderItemAction(interpretation.id, "clear", "fa-eraser", "Clear")}
                             ` : html`
-                                <li>
-                                    <a
-                                        class="btn force-text-left"
-                                        data-action="setAsPrimary"
-                                        data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                        <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
-                                    </a>
-                                </li>
+                                ${this.renderItemAction(interpretation.id, "setAsPrimary", "fa-map-marker", "Set as primary")}
                                 <!-- Action Lock/Unlock -->
-                                ${this.renderLockAction(interpretation)}
+                                ${interpretationLockAction}
                                 <li role="separator" class="divider"></li>
-                                <li>
-                                    <a
-                                        class="btn force-text-left"
-                                        data-action="clear"
-                                        data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
-                                        Clear
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        class="btn force-text-left"
-                                        data-action="delete"
-                                        data-interpretation-id="${interpretation.id}"
-                                        @click="${this.onActionClick}">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i>
-                                        Delete
-                                    </a>
-                                </li>
+                                ${this.renderItemAction(interpretation.id, "clear", "fa-eraser", "Clear")}
+                                ${this.renderItemAction(interpretation.id, "delete", "fa-trash", "Delete")}
                             `}
                         </ul>
                     </div>
@@ -244,15 +212,15 @@ export default class ClinicalInterpretationManager extends LitElement {
         });
     }
 
-    renderLockAction(interpretation) {
+    renderItemAction(interpretationId, action, icon, name) {
         return html`
             <li>
                 <a
                     class="btn force-text-left"
-                    data-action="${interpretation.locked ? "unlock":"lock"}"
-                    data-interpretation-id="${interpretation.id}"
+                    data-action="${action}"
+                    data-interpretation-id="${interpretationId}"
                     @click="${this.onActionClick}">
-                    <i class="fas ${interpretation.locked ? "fa-unlock":"fa-lock"} icon-padding" aria-hidden="true"></i> ${interpretation.locked ? "Unlock": "Lock"}
+                    <i class="fas ${icon} icon-padding" aria-hidden="true"></i> ${name}
                 </a>
             </li>
         `;
