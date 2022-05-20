@@ -244,9 +244,9 @@ export default class AlignmentRenderer extends Renderer {
                 SVG.addChild(parent, "path", {
                     "d": `M${start} ${rowY} V${rowY + readHeight} H${end} V${rowY} H${start}`,
                     "stroke": color,
-                    "stroke-width": 0.9,
+                    "stroke-width": 1,
                     "fill": color,
-                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.3 : 0.7,
+                    "fill-opacity": diff.quality < this.config.minMappingQuality ? 0.4 : 0.8,
                 });
             } else if (diff.op === "I") {
                 const text = SVG.addChild(parent, "text", {
@@ -362,11 +362,6 @@ export default class AlignmentRenderer extends Renderer {
                         },
                     });
 
-                    // Render differences
-                    if (options.regionSize < 1000) {
-                        this.#renderDifferences(parent, differences[index], starts[index], height, rowY, options);
-                    }
-
                     // Check for rendering a line connecting reads
                     // NOTE: the second condition is to avoud drawing the connector in overlapped reads
                     if (prevAlignmentEnd && prevAlignmentEnd < start) {
@@ -374,6 +369,13 @@ export default class AlignmentRenderer extends Renderer {
                     }
                     prevAlignmentEnd = end;
                 });
+
+                // Render differences
+                if (options.regionSize < 1000) {
+                    differences.forEach((diff, index) => {
+                        this.#renderDifferences(parent, diff, starts[index], height, rowY, options);
+                    });
+                }
 
                 // Check for rendering connectors points
                 if (connectorsPoints.length > 0) {
