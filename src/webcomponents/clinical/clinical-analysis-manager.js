@@ -261,14 +261,14 @@ export default class ClinicalAnalysisManager {
     }
 
     lockInterpretation(interpretationId, callback) {
-        this.#updateLockInterpretation(interpretationId, {locked: true}, `Interpretation '${interpretationId}' Locked.`, callback);
+        this.#updateInterpretation(interpretationId, {locked: true}, `Interpretation '${interpretationId}' Locked.`, callback);
     }
 
     unLockInterpretation(interpretationId, callback) {
-        this.#updateLockInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
+        this.#updateInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
     }
 
-    #updateLockInterpretation(interpretationId, params, message, callback) {
+    #updateInterpretation(interpretationId, params, message, callback) {
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, params, {
             study: this.opencgaSession.study.fqn
         })
