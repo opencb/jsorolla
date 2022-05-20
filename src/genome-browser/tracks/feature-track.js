@@ -99,6 +99,7 @@ export default class FeatureTrack {
                         </span>
                     </div>
                 </div>
+                <div id="${this.prefix}Error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
                 <div id="${this.prefix}Content"></div>
                 <div id="${this.prefix}Resize" class="ocb-track-resize"></div>
             </div>
@@ -117,6 +118,9 @@ export default class FeatureTrack {
         this.titleDown = this.div.querySelector(`span#${this.prefix}TitleDown`);
         this.titleExternalLink = this.div.querySelector(`span#${this.prefix}TitleExternalLink`);
         this.titleLoading = this.div.querySelector(`span#${this.prefix}TitleLoading`);
+
+        // Error message wrapper
+        this.error = this.div.querySelector(`div#${this.prefix}Error`);
 
         // Main content wrapper
         this.content = this.div.querySelector(`div#${this.prefix}Content`);
@@ -463,14 +467,33 @@ export default class FeatureTrack {
         this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
     }
 
+    // Error handler: each track can implement it's own error handler
+    errorHandler(error) {
+        console.error(error);
+
+        // Display error div and add error message
+        this.error.style.display = "block";
+        this.error.textContent = error?.message || error?.events?.[0].message || error || "Something went wrong...";
+        this.main.style.display = "none";
+        this.content.style.display = "none";
+        this.content.style.height = ""; // Reset content height
+    }
+
     // Generic get data method (to be implemented in each track)
     getData(options) {
         return this.dataAdapter.getData(options);
     }
 
-    getDataHandler(data, request) {
-        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
+    getDataHandler(response, request) {
+        // Check if responses is an array (multiple calls) or a single element (single call)
+        let data = [];
+        if (response && Array.isArray(response)) {
+            data = response.map(res => res?.responses?.[0]?.results);
+        } else {
+            data = response.responses[0].results;
+        }
 
+        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
         renderer.render(data, {
             // cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -503,10 +526,7 @@ export default class FeatureTrack {
         return "features";
     }
 
-    // draw(customAdapter, customRenderer) {
     draw() {
-        // const adapter = customAdapter || this.dataAdapter;
-
         this.clean();
         this.#setCanvasConfig();
 
@@ -529,10 +549,15 @@ export default class FeatureTrack {
             };
 
             // Import and draw data
-            this.getData(options).then(response => {
-                this.getDataHandler(response.responses[0].results, options);
-                this.setLoading(false);
-            });
+            this.getData(options)
+                .then(response => {
+                    this.getDataHandler(response, options);
+                    this.setLoading(false);
+                })
+                .catch(error => {
+                    this.errorHandler(error);
+                    this.setLoading(false);
+                });
         }
 
         this.updateHeight();
@@ -562,9 +587,10 @@ export default class FeatureTrack {
                         end: this.svgCanvasLeftLimit,
                     }),
                 };
-                this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results, options);
-                });
+                this.getData(options)
+                    .then(response => this.getDataHandler(response, options))
+                    .catch(error => this.errorHandler(error));
+
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
 
@@ -577,9 +603,10 @@ export default class FeatureTrack {
                         end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset),
                     }),
                 };
-                this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results, options);
-                });
+                this.getData(options)
+                    .then(response => this.getDataHandler(response, options))
+                    .catch(error => this.errorHandler(error));
+
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
         }

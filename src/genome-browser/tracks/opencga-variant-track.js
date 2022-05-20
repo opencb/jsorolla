@@ -73,7 +73,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
                 ${this.sampleNames.map(name => {
                     const info = this.samplesInfo.get(name);
-                    const sampleColor = info.disorders.length > 0 ? "#CC0000" : "inherit";
+                    const sampleColor = info.disorders?.length > 0 ? "#CC0000" : "inherit";
                     const sampleSexIcon = GenomeBrowserUtils.getIndividualSexIcon(info.sex);
                     const sampleSexColor = GenomeBrowserUtils.getIndividualSexColor(info.sex);
                     return `

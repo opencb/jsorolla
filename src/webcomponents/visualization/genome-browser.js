@@ -9,6 +9,7 @@ import GeneTrack from "../../genome-browser/tracks/gene-track.js";
 import SequenceTrack from "../../genome-browser/tracks/sequence-track.js";
 import VariantTrack from "../../genome-browser/tracks/variant-track.js";
 import OpenCGAVariantTrack from "../../genome-browser/tracks/opencga-variant-track.js";
+import OpenCGAAlignmentTrack from "../../genome-browser/tracks/opencga-alignment-track.js";
 
 
 export default class GenomeBrowserComponent extends LitElement {
@@ -160,6 +161,12 @@ export default class GenomeBrowserComponent extends LitElement {
                     });
                 case "opencga-variant":
                     return new OpenCGAVariantTrack({
+                        opencgaClient: this.opencgaSession.opencgaClient,
+                        opencgaStudy: this.opencgaSession.study.fqn,
+                        ...track.config,
+                    });
+                case "opencga-alignment":
+                    return new OpenCGAAlignmentTrack({
                         opencgaClient: this.opencgaSession.opencgaClient,
                         opencgaStudy: this.opencgaSession.study.fqn,
                         ...track.config,
