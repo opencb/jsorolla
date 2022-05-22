@@ -7,6 +7,10 @@ on:
         required: true
       DOCKER_HUB_PASSWORD:
         required: true
+      DOCKER_ORGANISATION:
+        required: true
+      DOCKER_IMAGES_JSOROLLA:
+        required: true
 
 jobs:
   docker-jsorolla-workflow:
