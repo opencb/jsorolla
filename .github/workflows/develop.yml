@@ -16,9 +16,11 @@ jobs:
     secrets:
       DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      DOCKER_ORGANISATION: ${{ secrets.DOCKER_ORGANISATION }}
 
   deploy:
     needs: build
+    if: github.repository == "opencb/jsorolla"
     uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
     with:
       version: ${{ needs.build.outputs.version }}
