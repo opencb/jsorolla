@@ -7,7 +7,11 @@ on:
         required: true
       DOCKER_HUB_PASSWORD:
         required: true
-  
+      DOCKER_ORGANISATION:
+        required: true
+      DOCKER_IMAGES_JSOROLLA:
+        required: true
+
 jobs:
   docker-jsorolla-workflow:
     name: Publish JSorolla Docker
@@ -22,5 +26,4 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      - run: python3 ./docker/docker-build.py push --images app
-
+      - run: python3 ./docker/docker-build.py push --organisation ${{ secrets.DOCKER_ORGANISATION }} --images ${{ secrets.DOCKER_IMAGES_JSOROLLA }}
