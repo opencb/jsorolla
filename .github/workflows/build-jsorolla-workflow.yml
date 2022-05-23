@@ -16,12 +16,12 @@ jobs:
     steps:
       - name: "Checkout JSorolla"
         uses: actions/checkout@v2
-      - name: "Checkout private custom sites repo inside JSorolla"
-        uses: actions/checkout@v2
-        if: ${{ github.repository != 'opencb/jsorolla' }}
-        with:
-          repository: ${{ secrets.JSOROLLA_CUSTOM_SITES_REPOSITORY }}
-          path: custom-sites
+#      - name: "Checkout private custom sites repo inside JSorolla"
+#        uses: actions/checkout@v2
+#        if: ${{ github.repository != 'opencb/jsorolla' }}
+#        with:
+#          repository: ${{ secrets.JSOROLLA_CUSTOM_SITES_REPOSITORY }}
+#          path: custom-sites
       - uses: actions/setup-node@v2
         with:
           node-version: "16"
