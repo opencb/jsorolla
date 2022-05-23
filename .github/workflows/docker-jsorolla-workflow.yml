@@ -17,7 +17,14 @@ jobs:
     name: Publish JSorolla Docker
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - name: "Checkout JSorolla"
+        uses: actions/checkout@v2
+      - name: "Checkout private custom sites repo inside JSorolla"
+        uses: actions/checkout@v2
+        if: ${{ github.repository != 'opencb/jsorolla' }}
+        with:
+          repository: ${{ secrets.JSOROLLA_CUSTOM_SITES_REPOSITORY }}
+          path: custom-sites
       - uses: actions/download-artifact@v2
         with:
           name: jsorolla-build
