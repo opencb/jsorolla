@@ -34,35 +34,35 @@ export default class NavigationBar {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="ocb-gv-navigation-bar unselectable">
-                <div id="${this.prefix}LeftSideButton" title="Restore previous region" style="margin-right:5px;" class="ocb-ctrl">
+            <div id="${this.prefix}" style="display:flex;flex-wrap:wrap;gap:4px;">
+                <button id="${this.prefix}LeftSideButton" title="Restore previous region" class="btn btn-default btn-sm">
                     <i class="fa fa-bars"></i>
-                </div>
-                <div id="${this.prefix}RestoreDefaultRegionButton" class="ocb-ctrl">
+                </button>
+                <button id="${this.prefix}RestoreDefaultRegionButton" class="btn btn-default btn-sm">
                     <i class="fa fa-redo"></i>
-                </div>
-                <div title="Region history" class="ocb-dropdown" style="margin-left: 5px">
-                    <div id="${this.prefix}RegionHistoryButton" class="ocb-ctrl" tabindex="-1">
+                </button>
+                <div title="Region history" class="dropdown" style="display:inline-block;">
+                    <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-history"></i>
-                        <i class="fa fa-caret-down"></i>
-                    </div>
-                    <ul id="${this.prefix}RegionHistoryMenu"></ul>
+                        <span class="caret"></span>
+                    </button>
+                    <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu" aria-labelledby="${this.prefix}RegionHistoryButton"></ul>
                 </div>
-                <div title="Species menu" class="ocb-dropdown" style="margin-left: 5px">
+                <div title="Species menu" class="ocb-dropdown" style="display:none;">
                     <div id="${this.prefix}SpeciesButton" class="ocb-ctrl" tabindex="-1">
                         <span id="${this.prefix}SpeciesText"></span>
                         <i class="fa fa-caret-down"></i>
                     </div>
                     <ul id="${this.prefix}SpeciesMenu"></ul>
                 </div>
-                <div title="Chromosomes menu" class="ocb-dropdown" style="margin-left: 5px">
-                    <div id="${this.prefix}ChromosomesButton" class="ocb-ctrl" tabindex="-1">
+                <div title="Chromosomes menu" class="dropdown" style="display:inline-block;">
+                    <div id="${this.prefix}ChromosomesButton" class="btn btn-default btn-sm dropdown-toggle">
                         <span id="${this.prefix}ChromosomesText"></span>
-                        <i class="fa fa-caret-down"></i>
+                        <span class="caret"></span>
                     </div>
-                    <ul id="${this.prefix}ChromosomesMenu" style="height: 200px; overflow-y: auto;"></ul>
+                    <ul id="${this.prefix}ChromosomesMenu" class="dropdown-menu"></ul>
                 </div>
-                <div style="margin-left:5px;float:left;">
+                <div class="btn-group" style="display:none;">
                     <label title="Toggle karyotype panel" class="ocb-ctrl" id="${this.prefix}KaryotypeButtonLabel">
                         <input id="${this.prefix}KaryotypeButton" type="checkbox" />
                         <span style="border-right:none">
@@ -82,72 +82,84 @@ export default class NavigationBar {
                         </span>
                     </label>
                 </div>
-
                 <!-- Zoom control -->
-                <div id="${this.prefix}ZoomControl" style="float:left;">
-                    <div title="Minimum window size" id="${this.prefix}ZoomMinButton" class="ocb-ctrl" style="">Min</div>
-                    <div title="Decrease window size" id="${this.prefix}ZoomOutButton" class="ocb-ctrl">
-                        <span class="fa fa-minus"></span>
+                <div title="Minimum window size" id="${this.prefix}ZoomMinButton" class="btn btn-default btn-sm" style="">
+                    <span>Min</span>
+                </div>
+                <div title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
+                    <span class="fa fa-search-minus"></span>
+                </div>
+                <div class="" style="display:inline-block;">
+                    <div class="" style="padding-top:7px;padding-bottom:7px;">
+                        <input type="range" />
                     </div>
-                    <div id="${this.prefix}ProgressBarCont" class="ocb-zoom-bar">
-                        <div id="${this.prefix}ProgressBarBack" class="back"></div>
-                        <div id="${this.prefix}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
-                        <div id="${this.prefix}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
-                    </div>
-                    <div title="Increase window size" id="${this.prefix}ZoomInButton" class="ocb-ctrl" style="border-right:none;">
-                        <span class="fa fa-plus"></span>
-                    </div>
-                    <div title="Maximum window size" id="${this.prefix}ZoomMaxButton" class="ocb-ctrl">Max</div>
+                </div>
+                <div id="${this.prefix}ProgressBarCont" class="ocb-zoom-bar" style="display:none;">
+                    <div id="${this.prefix}ProgressBarBack" class="back"></div>
+                    <div id="${this.prefix}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
+                    <div id="${this.prefix}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
+                </div>
+                <div title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
+                    <span class="fa fa-search-plus"></span>
+                </div>
+                <div title="Maximum window size" id="${this.prefix}ZoomMaxButton" class="btn btn-default btn-sm">
+                    <span>Max</span>
+                </div>
+                <div title="Window size (Nucleotides)" id="${this.prefix}WindowSizeControl" style="display:none;">
+                    <input id="${this.prefix}WindowSizeField" class="form-control input-sm" type="text" style="width:70px;" />
                 </div>
 
-                <div title="Window size (Nucleotides)" id="${this.prefix}WindowSizeControl" style="float:left;margin-left:5px;">
-                    <input id="${this.prefix}WindowSizeField" class="ocb-ctrl" type="text" style="width:70px;" />
+                <div title="Position" class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px!important;">
+                    <input
+                        type="text"
+                        id="${this.prefix}RegionField"
+                        class="form-control input-sm"
+                        placeholder="1:10000-20000"
+                        style="width:170px;display:inline-block;" 
+                    />
+                    <span class="input-group-btn" style="display:inline-block;">
+                        <button id="${this.prefix}GoButton" class="btn btn-default btn-sm">
+                            <strong>Go!</strong>
+                        </button>
+                    </span>
                 </div>
 
-                <div title="Position" id="${this.prefix}PositionControl" style="float:left;margin-left:5px">
-                    <input id="${this.prefix}RegionField" class="ocb-ctrl" placeholder="1:10000-20000" type="text" style="width:170px;">
-                    <div id="${this.prefix}GoButton" class="ocb-ctrl" style="border-left: none;">Go!</div>
-                </div>
-
-                <div id="${this.prefix}MoveControl" style="float:left;font-size:18px;">
-                    <div id="${this.prefix}MoveFurtherLeftButton" class="ocb-ctrl" style="border-right:none;margin-left:5px;">
+                <div class="btn-group" style="display:inline-block">
+                    <div id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-double-left"></i>
                     </div>
-                    <div id="${this.prefix}MoveLeftButton" class="ocb-ctrl" style="border-right:none;">
+                    <div id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-left"></i>
                     </div>
-                    <div id="${this.prefix}MoveRightButton" class="ocb-ctrl" style="border-right:none;">
+                    <div id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-right"></i>
                     </div>
-                    <div id="${this.prefix}MoveFurtherRightButton" class="ocb-ctrl">
+                    <div id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-double-right"></i>
                     </div>
                 </div>
 
-                <label class="ocb-ctrl">
-                    <input type="checkbox" id="${this.prefix}AutoheightButton" />
-                    <span style="margin-left:5px;font-size:18px;">
-                        <i class="fa fa-compress"></i>
-                    </span>
-                </label>
+                <!-- To tix -->
+                <div class="btn btn-default btn-sm">
+                    <input type="checkbox" id="${this.prefix}AutoheightButton" style="display:none;" />
+                    <i class="fa fa-compress"></i>
+                </div>
 
-                <div id="${this.prefix}SearchControl" style="float:left;">
+                <div class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px!important;">
                     <input
                         type="text"
                         id="${this.prefix}SearchField"
                         list="${this.prefix}SearchDataList"
-                        class="ocb-ctrl"
+                        class="form-control input-sm"
                         placeholder="gene"
-                        style="width:90px;margin-left:5px;"
+                        style="display:inline-block;max-width:90px;"
                     />
                     <datalist id="${this.prefix}SearchDataList"></datalist>
-                    <div id="${this.prefix}SearchButton" class="ocb-ctrl" style="border-left:none;">
-                        <i class="fa fa-search"></i>
-                    </div>
-                </div>
-
-                <div style="float:right;margin-right:10px;" id="${this.prefix}MenuButton" class="ocb-ctrl">
-                    <i class="fa fa-navicon"></i> Configure
+                    <span class="input-group-btn" style="display:inline-block;">
+                        <button id="${this.prefix}SearchButton" class="btn btn-default btn-sm">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
                 </div>
             </div>
         `);
@@ -161,7 +173,6 @@ export default class NavigationBar {
 
         this.elements.leftSideButton = this.div.querySelector(`div#${this.prefix}LeftSideButton`);
         this.elements.restoreDefaultRegionButton = this.div.querySelector(`div#${this.prefix}RestoreDefaultRegionButton`);
-        this.elements.menuButton = this.div.querySelector(`div#${this.prefix}MenuButton`);
 
         this.elements.chromosomesText = this.div.querySelector(`span#${this.prefix}ChromosomesText`);
         this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.prefix}ChromosomesMenu`);
@@ -176,7 +187,7 @@ export default class NavigationBar {
         this.elements.progressBar = this.div.querySelector(`div#${this.prefix}ProgressBar`);
 
         this.elements.regionField = this.div.querySelector(`input#${this.prefix}RegionField`);
-        this.elements.goButton = this.div.querySelector(`div#${this.prefix}GoButton`);
+        this.elements.goButton = this.div.querySelector(`button#${this.prefix}GoButton`);
 
         this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.prefix}RegionHistoryMenu`);
         this.elements.regionHistoryButton = this.div.querySelector(`div#${this.prefix}RegionHistoryButton`);
@@ -222,12 +233,12 @@ export default class NavigationBar {
 
     // Initialize events
     #initEvents() {
-        this.elements.menuButton.addEventListener("click", event => {
-            this.trigger("menuButton:click", {
-                clickEvent: event,
-                sender: {},
-            });
-        });
+        // this.elements.menuButton.addEventListener("click", event => {
+        //     this.trigger("menuButton:click", {
+        //         clickEvent: event,
+        //         sender: {},
+        //     });
+        // });
 
         this.elements.leftSideButton.addEventListener("click", event => {
             this.trigger("leftSideButton:click", {
