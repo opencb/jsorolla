@@ -11,6 +11,8 @@ on:
         required: true
       DOCKER_IMAGES_JSOROLLA:
         required: true
+      JSOROLLA_CUSTOM_SITES_REPOSITORY:
+        required: true
 
 jobs:
   docker-jsorolla-workflow:
