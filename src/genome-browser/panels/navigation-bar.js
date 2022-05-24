@@ -1,7 +1,6 @@
 import Region from "../../core/bioinfo/region.js";
 import UtilsNew from "../../core/utilsNew.js";
 
-
 export default class NavigationBar {
 
     constructor(target, config) {
@@ -23,7 +22,6 @@ export default class NavigationBar {
         this.zoom = this.config.zoom || 50;
 
         this.elements = {};
-        this.currentChromosomesList = [];
         this.zoomChanging = false;
         this.regionChanging = false;
         this.quickSearchDataset = {};
@@ -48,25 +46,16 @@ export default class NavigationBar {
                 </div>
                 
                 <!-- Panels buttons -->
-                <div class="btn-group" style="display:none;">
-                    <label title="Toggle karyotype panel" class="ocb-ctrl" id="${this.prefix}KaryotypeButtonLabel">
-                        <input id="${this.prefix}KaryotypeButton" type="checkbox" />
-                        <span style="border-right:none">
-                            <span class="ocb-icon ocb-icon-karyotype"></span>
-                        </span>
-                    </label>
-                    <label title="Toggle chromosome panel" class="ocb-ctrl" id="${this.prefix}ChromosomeButtonLabel">
-                        <input id="${this.prefix}ChromosomeButton" type="checkbox" />
-                        <span style="border-right:none">
-                            <span class="ocb-icon ocb-icon-chromosome"></span>
-                        </span>
-                    </label>
-                    <label title="Toggle overview panel" class="ocb-ctrl" id="${this.prefix}RegionButtonLabel">
-                        <input id="${this.prefix}RegionButton" type="checkbox" />
-                        <span>
-                            <span class="ocb-icon ocb-icon-region"></span>
-                        </span>
-                    </label>
+                <div class="btn-group" style="display:inline-block;">
+                    <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm">
+                        <span class="gb-icon gb-icon-karyotype" style="display:block;width:16px;height:18px;"></span>
+                    </button>
+                    <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm">
+                        <span class="gb-icon gb-icon-chromosome" style="display:block;width:16px;height:18px;"></span>
+                    </button>
+                    <button title="Toggle overview panel" id="${this.prefix}RegionButton" class="btn btn-default btn-sm">
+                        <span class="gb-icon gb-icon-region" style="display:block;width:16px;height:18px;"></span>
+                    </button>
                 </div>
 
                 <!-- Zoom control -->
@@ -153,10 +142,10 @@ export default class NavigationBar {
 
         this.div = template.querySelector(`div#${this.prefix}`);
 
-        // Initialize elements
-        this.elements.karyotypeButton = this.div.querySelector(`input#${this.prefix}KaryotypeButton`);
-        this.elements.chromosomeButton = this.div.querySelector(`input#${this.prefix}ChromosomeButton`);
-        this.elements.regionButton = this.div.querySelector(`input#${this.prefix}RegionButton`);
+        // Panels buttons
+        this.elements.karyotypeButton = this.div.querySelector(`button#${this.prefix}KaryotypeButton`);
+        this.elements.chromosomeButton = this.div.querySelector(`button#${this.prefix}ChromosomeButton`);
+        this.elements.regionButton = this.div.querySelector(`button#${this.prefix}RegionButton`);
 
         // Zooming controls
         this.elements.zoomRange = this.div.querySelector(`input#${this.prefix}ZoomRange`);
@@ -192,9 +181,20 @@ export default class NavigationBar {
         this.elements.speciesMenu = this.div.querySelector(`ul#${this.prefix}SpeciesMenu`);
         this.elements.speciesText = this.div.querySelector(`span#${this.prefix}SpeciesText`);
 
-        this.elements.karyotypeButton.checked = !this.config.karyotypePanelConfig?.hidden;
-        this.elements.chromosomeButton.checked = !this.config.chromosomePanelConfig?.hidden;
-        this.elements.regionButton.checked = !this.config.regionPanelConfig?.hidden;
+        // Mark as active the karyotype panel button
+        if (this.config.karyotypePanelVisible) {
+            this.elements.karyotypeButton.classList.add("active");
+        }
+
+        // Mark as active the chromosome panel button
+        if (this.config.chromosomePanelVisible) {
+            this.elements.chromosomeButton.classList.add("active");
+        }
+
+        // Mark as active the region panel button
+        if (this.config.regionPanelVisible) {
+            this.elements.regionButton.classList.add("active");
+        }
 
         this.target.appendChild(this.div);
     }
@@ -210,24 +210,10 @@ export default class NavigationBar {
 
         this.#addRegionHistoryMenuItem(this.region);
 
-        this.elements.karyotypeButton.addEventListener("click", event => {
-            this.trigger("karyotype-button:change", {
-                selected: event.target.checked,
-                sender: this,
-            });
-        });
-        this.elements.chromosomeButton.addEventListener("click", event => {
-            this.trigger("chromosome-button:change", {
-                selected: event.target.checked,
-                sender: this,
-            });
-        });
-        this.elements.regionButton.addEventListener("click", event => {
-            this.trigger("region-button:change", {
-                selected: event.target.checked,
-                sender: this,
-            });
-        });
+        // Toggle panels
+        this.elements.karyotypeButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.karyotypeButton, "karyotype"));
+        this.elements.chromosomeButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.chromosomeButton, "chromosome"));
+        this.elements.regionButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.regionButton, "region"));
 
         // Zooming events
         this.elements.zoomOutButton.addEventListener("click", () => this.#handleZoomOutButton());
@@ -335,6 +321,15 @@ export default class NavigationBar {
         // Nothing to do
     }
 
+    // Toggle panel visibility
+    #handlePanelToggle(target, panelName) {
+        target.classList.toggle("active"); // Toggle the active class
+
+        this.trigger(`${panelName}-button:change`, {
+            selected: target.classList.contains("active"),
+        });
+    }
+
     #addRegionHistoryMenuItem(region) {
         const menuEntry = document.createElement("li");
         menuEntry.textContent = region.toString();
@@ -421,13 +416,6 @@ export default class NavigationBar {
         });
     }
 
-    setVisible(obj) {
-        const els = this.elements;
-        Object.keys(obj).forEach(key => {
-            obj[key] ? els[key].classList.remove("hidden") : els[key].classList.add("hidden");
-        });
-    }
-
     setRegion(region, zoom) {
         this.region.load(region);
         if (zoom) {
@@ -439,12 +427,7 @@ export default class NavigationBar {
 
     moveRegion(region) {
         this.region.load(region);
-        this.elements.chromosomesText.textContent = this.region.chromosome;
         this.elements.regionInput.value = this.region.toString();
-    }
-
-    setWidth(width) {
-        this.width = width;
     }
 
     #triggerRegionChange(event) {
@@ -472,31 +455,12 @@ export default class NavigationBar {
     // Get default config for navigation bar
     getDefaultConfig() {
         return {
-            increment: 3,
-            componentsConfig: {
-                menuButton: false,
-                leftSideButton: false,
-                restoreDefaultRegionButton: true,
-                regionHistoryButton: true,
-                speciesButton: true,
-                chromosomesButton: true,
-                karyotypeButtonLabel: true,
-                chromosomeButtonLabel: true,
-                regionButtonLabel: true,
-                zoomControl: true,
-                windowSizeControl: true,
-                positionControl: true,
-                moveControl: true,
-                autoheightButton: true,
-                compactButton: true,
-                searchControl: true
-            },
+            karyotypePanelVisible: true,
+            chromosomePanelVisible: true,
+            regionPanelVisible: true,
             region: null,
             quickSearchDisplayKey: "name",
             zoom: 50,
-            width: 1,
-            svgCanvasWidthOffset: 0,
-            availableSpecies: [],
         };
     }
 
