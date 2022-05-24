@@ -35,7 +35,8 @@ export default class NavigationBar {
     #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="display:flex;flex-wrap:wrap;gap:4px;">
-                <button id="${this.prefix}RestoreDefaultRegionButton" class="btn btn-default btn-sm">
+                <!-- Region history -->
+                <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
                     <i class="fa fa-redo"></i>
                 </button>
                 <div title="Region history" class="dropdown" style="display:inline-block;">
@@ -45,20 +46,8 @@ export default class NavigationBar {
                     </button>
                     <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
                 </div>
-                <div title="Species menu" class="ocb-dropdown" style="display:none;">
-                    <div id="${this.prefix}SpeciesButton" class="ocb-ctrl" tabindex="-1">
-                        <span id="${this.prefix}SpeciesText"></span>
-                        <i class="fa fa-caret-down"></i>
-                    </div>
-                    <ul id="${this.prefix}SpeciesMenu"></ul>
-                </div>
-                <div title="Chromosomes menu" class="dropdown" style="display:none;">
-                    <div id="${this.prefix}ChromosomesButton" class="btn btn-default btn-sm dropdown-toggle">
-                        <span id="${this.prefix}ChromosomesText"></span>
-                        <span class="caret"></span>
-                    </div>
-                    <ul id="${this.prefix}ChromosomesMenu" class="dropdown-menu"></ul>
-                </div>
+                
+                <!-- Panels buttons -->
                 <div class="btn-group" style="display:none;">
                     <label title="Toggle karyotype panel" class="ocb-ctrl" id="${this.prefix}KaryotypeButtonLabel">
                         <input id="${this.prefix}KaryotypeButton" type="checkbox" />
@@ -142,6 +131,7 @@ export default class NavigationBar {
                     <i class="fa fa-compress"></i>
                 </button>
 
+                <!-- Gene search -->
                 <div class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px!important;">
                     <input
                         type="text"
@@ -168,11 +158,6 @@ export default class NavigationBar {
         this.elements.chromosomeButton = this.div.querySelector(`input#${this.prefix}ChromosomeButton`);
         this.elements.regionButton = this.div.querySelector(`input#${this.prefix}RegionButton`);
 
-        this.elements.restoreDefaultRegionButton = this.div.querySelector(`button#${this.prefix}RestoreDefaultRegionButton`);
-
-        this.elements.chromosomesText = this.div.querySelector(`span#${this.prefix}ChromosomesText`);
-        this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.prefix}ChromosomesMenu`);
-
         // Zooming controls
         this.elements.zoomRange = this.div.querySelector(`input#${this.prefix}ZoomRange`);
         this.elements.zoomOutButton = this.div.querySelector(`button#${this.prefix}ZoomOutButton`);
@@ -186,6 +171,8 @@ export default class NavigationBar {
         this.elements.regionInput = this.div.querySelector(`input#${this.prefix}RegionInput`);
         this.elements.regionSubmit = this.div.querySelector(`button#${this.prefix}RegionSubmit`);
 
+        // Region history buttons
+        this.elements.regionHistoryRestore = this.div.querySelector(`button#${this.prefix}RegionHistoryRestore`);
         this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.prefix}RegionHistoryMenu`);
         this.elements.regionHistoryButton = this.div.querySelector(`div#${this.prefix}RegionHistoryButton`);
 
@@ -205,21 +192,6 @@ export default class NavigationBar {
         this.elements.speciesMenu = this.div.querySelector(`ul#${this.prefix}SpeciesMenu`);
         this.elements.speciesText = this.div.querySelector(`span#${this.prefix}SpeciesText`);
 
-        // let els = this.div.querySelectorAll('[id]');
-        // for (let i = 0; i < els.length; i++) {
-        //     let elid = els[i].getAttribute('id');
-        //     if (elid) {
-        //         this.els[elid] = els[i];
-        //     }
-        // }
-
-        // Hide components using config.componentsConfig field
-        // for (let key in this.componentsConfig) {
-        //     if (!this.componentsConfig[key]) {
-        //         this.els[key].classList.add('hidden');
-        //     }
-        // }
-
         this.elements.karyotypeButton.checked = !this.config.karyotypePanelConfig?.hidden;
         this.elements.chromosomeButton.checked = !this.config.chromosomePanelConfig?.hidden;
         this.elements.regionButton.checked = !this.config.regionPanelConfig?.hidden;
@@ -229,7 +201,7 @@ export default class NavigationBar {
 
     // Initialize events
     #initEvents() {
-        this.elements.restoreDefaultRegionButton.addEventListener("click", event => {
+        this.elements.regionHistoryRestore.addEventListener("click", event => {
             this.trigger("restoreDefaultRegion:click", {
                 clickEvent: event,
                 sender: {},
@@ -237,11 +209,6 @@ export default class NavigationBar {
         });
 
         this.#addRegionHistoryMenuItem(this.region);
-        this.#setChromosomeMenu();
-        this.#setSpeciesMenu();
-
-        this.elements.chromosomesText.textContent = this.region.chromosome;
-        this.elements.speciesText.textContent = this.config.species?.scientificName || "-";
 
         this.elements.karyotypeButton.addEventListener("click", event => {
             this.trigger("karyotype-button:change", {
@@ -401,68 +368,6 @@ export default class NavigationBar {
         }
     }
 
-    #setChromosomeMenu() {
-
-        while (this.elements.chromosomesMenu.firstChild) {
-            this.elements.chromosomesMenu.removeChild(this.elements.chromosomesMenu.firstChild);
-        }
-
-        this.currentChromosomesList = Object.keys(this.config.species?.chromosomes || {}).map(name => {
-            // const chr = this.confif.species.chromosomes[name];
-            const menuEntry = document.createElement("li");
-            menuEntry.textContent = name;
-            menuEntry.addEventListener("click", event => {
-                return this.#triggerRegionChange({
-                    region: new Region({
-                        chromosome: event.target.textContent,
-                        start: this.region.start,
-                        end: this.region.end,
-                    }),
-                    sender: this,
-                });
-            });
-            this.elements.chromosomesMenu.appendChild(menuEntry);
-
-            return name;
-        });
-    }
-
-    #setSpeciesMenu() {
-        const createSpeciesEntry = (species, parent) => {
-            const menuEntry = document.createElement("li");
-            menuEntry.textContent = `${species.scientificName} (${species.assembly.name})`;
-            menuEntry.addEventListener("click", () => {
-                this.trigger("species:change", {
-                    species: species,
-                    sender: this,
-                });
-            });
-
-            // Append specie
-            parent.appendChild(menuEntry);
-        };
-
-        const createTaxonomy = taxonomy => {
-            const menuEntry = document.createElement("li");
-            const menuList = document.createElement("ul");
-            menuEntry.setAttribute("data-sub", true);
-            menuEntry.textContent = taxonomy;
-            menuEntry.appendChild(menuList);
-
-            this.elements.speciesMenu.appendChild(menuEntry);
-
-            return menuList;
-        };
-
-        // Generate species list
-        Object.keys(this.config.availableSpecies || {}).forEach(taxonomyName => {
-            const taxonomyList = createTaxonomy(taxonomyName);
-            this.config.availableSpecies[taxonomyName].forEach(species => {
-                createSpeciesEntry(species, taxonomyList);
-            });
-        });
-    }
-
     #checkRegion(value) {
         const region = new Region(value);
         if (!region.parse(value) || region.start < 0 || region.end < 0 || this.currentChromosomesList.indexOf(region.chromosome) === -1) {
@@ -538,12 +443,6 @@ export default class NavigationBar {
         this.elements.regionInput.value = this.region.toString();
     }
 
-    setSpecies(species) {
-        this.species = species;
-        this.elements.speciesText.textContent = this.species.scientificName;
-        this.#setChromosomeMenu();
-    }
-
     setWidth(width) {
         this.width = width;
     }
@@ -570,14 +469,9 @@ export default class NavigationBar {
         this.elements.zoomRange.value = this.zoom;
     }
 
-    setCellBaseHost(host) {
-        this.cellBaseHost = host;
-    }
-
     // Get default config for navigation bar
     getDefaultConfig() {
         return {
-            species: "Homo sapiens",
             increment: 3,
             componentsConfig: {
                 menuButton: false,
