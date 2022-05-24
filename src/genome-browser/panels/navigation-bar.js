@@ -336,16 +336,18 @@ export default class NavigationBar {
     }
 
     #addRegionHistoryMenuItem(region) {
-        const menuEntry = document.createElement("li");
-        menuEntry.textContent = region.toString();
-        menuEntry.addEventListener("click", event => {
+        const template = UtilsNew.renderHTML(`
+            <li><a href="">${region.toString()}</a></li>
+        `);
+        const entry = template.querySelector("li");
+        entry.addEventListener("click", event => {
             this.#triggerRegionChange({
                 region: new Region(event.target.textContent),
                 sender: this,
             });
         });
 
-        this.elements.regionHistoryMenu.appendChild(menuEntry);
+        this.elements.regionHistoryMenu.appendChild(entry);
     }
 
     #setQuickSearchMenu(query) {
