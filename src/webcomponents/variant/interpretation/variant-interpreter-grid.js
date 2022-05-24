@@ -322,9 +322,6 @@ export default class VariantInterpreterGrid extends LitElement {
                                 })),
                             };
                         });
-                        for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
-                            this.checkedVariants.set(variant.id, variant);
-                        }
                     }
 
                     return result.response;
