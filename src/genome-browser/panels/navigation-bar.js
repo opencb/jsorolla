@@ -35,18 +35,15 @@ export default class NavigationBar {
     #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="display:flex;flex-wrap:wrap;gap:4px;">
-                <button id="${this.prefix}LeftSideButton" title="Restore previous region" class="btn btn-default btn-sm">
-                    <i class="fa fa-bars"></i>
-                </button>
                 <button id="${this.prefix}RestoreDefaultRegionButton" class="btn btn-default btn-sm">
                     <i class="fa fa-redo"></i>
                 </button>
                 <div title="Region history" class="dropdown" style="display:inline-block;">
-                    <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-history"></i>
                         <span class="caret"></span>
                     </button>
-                    <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu" aria-labelledby="${this.prefix}RegionHistoryButton"></ul>
+                    <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
                 </div>
                 <div title="Species menu" class="ocb-dropdown" style="display:none;">
                     <div id="${this.prefix}SpeciesButton" class="ocb-ctrl" tabindex="-1">
@@ -55,7 +52,7 @@ export default class NavigationBar {
                     </div>
                     <ul id="${this.prefix}SpeciesMenu"></ul>
                 </div>
-                <div title="Chromosomes menu" class="dropdown" style="display:inline-block;">
+                <div title="Chromosomes menu" class="dropdown" style="display:none;">
                     <div id="${this.prefix}ChromosomesButton" class="btn btn-default btn-sm dropdown-toggle">
                         <span id="${this.prefix}ChromosomesText"></span>
                         <span class="caret"></span>
@@ -82,13 +79,14 @@ export default class NavigationBar {
                         </span>
                     </label>
                 </div>
+
                 <!-- Zoom control -->
-                <div title="Minimum window size" id="${this.prefix}ZoomMinButton" class="btn btn-default btn-sm" style="">
+                <button title="Minimum window size" id="${this.prefix}ZoomMinButton" class="btn btn-default btn-sm" style="display:none;">
                     <span>Min</span>
-                </div>
-                <div title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
+                </button>
+                <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
                     <span class="fa fa-search-minus"></span>
-                </div>
+                </button>
                 <div class="" style="display:inline-block;">
                     <div class="" style="padding-top:7px;padding-bottom:7px;">
                         <input type="range" />
@@ -99,17 +97,15 @@ export default class NavigationBar {
                     <div id="${this.prefix}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
                     <div id="${this.prefix}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
                 </div>
-                <div title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
+                <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
                     <span class="fa fa-search-plus"></span>
-                </div>
-                <div title="Maximum window size" id="${this.prefix}ZoomMaxButton" class="btn btn-default btn-sm">
+                </button>
+                <button title="Maximum window size" id="${this.prefix}ZoomMaxButton" class="btn btn-default btn-sm" style="display:none;">
                     <span>Max</span>
-                </div>
-                <div title="Window size (Nucleotides)" id="${this.prefix}WindowSizeControl" style="display:none;">
-                    <input id="${this.prefix}WindowSizeField" class="form-control input-sm" type="text" style="width:70px;" />
-                </div>
+                </button>
 
-                <div title="Position" class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px!important;">
+                <!-- Region input -->
+                <div title="Position" class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px;">
                     <input
                         type="text"
                         id="${this.prefix}RegionField"
@@ -124,26 +120,27 @@ export default class NavigationBar {
                     </span>
                 </div>
 
+                <!-- Region controls -->
                 <div class="btn-group" style="display:inline-block">
-                    <div id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
+                    <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-double-left"></i>
-                    </div>
-                    <div id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
+                    </button>
+                    <button id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-left"></i>
-                    </div>
-                    <div id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
+                    </button>
+                    <button id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-right"></i>
-                    </div>
-                    <div id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
+                    </button>
+                    <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-double-right"></i>
-                    </div>
+                    </button>
                 </div>
 
                 <!-- To tix -->
-                <div class="btn btn-default btn-sm">
+                <button class="btn btn-default btn-sm">
                     <input type="checkbox" id="${this.prefix}AutoheightButton" style="display:none;" />
                     <i class="fa fa-compress"></i>
-                </div>
+                </button>
 
                 <div class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px!important;">
                     <input
@@ -171,16 +168,16 @@ export default class NavigationBar {
         this.elements.chromosomeButton = this.div.querySelector(`input#${this.prefix}ChromosomeButton`);
         this.elements.regionButton = this.div.querySelector(`input#${this.prefix}RegionButton`);
 
-        this.elements.leftSideButton = this.div.querySelector(`div#${this.prefix}LeftSideButton`);
-        this.elements.restoreDefaultRegionButton = this.div.querySelector(`div#${this.prefix}RestoreDefaultRegionButton`);
+        this.elements.restoreDefaultRegionButton = this.div.querySelector(`button#${this.prefix}RestoreDefaultRegionButton`);
 
         this.elements.chromosomesText = this.div.querySelector(`span#${this.prefix}ChromosomesText`);
         this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.prefix}ChromosomesMenu`);
 
-        this.elements.zoomOutButton = this.div.querySelector(`div#${this.prefix}ZoomOutButton`);
-        this.elements.zoomInButton = this.div.querySelector(`div#${this.prefix}ZoomInButton`);
-        this.elements.zoomMaxButton = this.div.querySelector(`div#${this.prefix}ZoomMaxButton`);
-        this.elements.zoomMinButton = this.div.querySelector(`div#${this.prefix}ZoomMinButton`);
+        // Zooming controls
+        this.elements.zoomOutButton = this.div.querySelector(`button#${this.prefix}ZoomOutButton`);
+        this.elements.zoomInButton = this.div.querySelector(`button#${this.prefix}ZoomInButton`);
+        // this.elements.zoomMaxButton = this.div.querySelector(`div#${this.prefix}ZoomMaxButton`);
+        // this.elements.zoomMinButton = this.div.querySelector(`div#${this.prefix}ZoomMinButton`);
 
         this.elements.progressBarCont = this.div.querySelector(`div#${this.prefix}ProgressBarCont`);
         this.elements.progressBarBall = this.div.querySelector(`div#${this.prefix}ProgressBarBall`);
@@ -192,22 +189,23 @@ export default class NavigationBar {
         this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.prefix}RegionHistoryMenu`);
         this.elements.regionHistoryButton = this.div.querySelector(`div#${this.prefix}RegionHistoryButton`);
 
-        this.elements.moveFurtherLeftButton = this.div.querySelector(`div#${this.prefix}MoveFurtherLeftButton`);
-        this.elements.moveFurtherRightButton = this.div.querySelector(`div#${this.prefix}MoveFurtherRightButton`);
-        this.elements.moveLeftButton = this.div.querySelector(`div#${this.prefix}MoveLeftButton`);
-        this.elements.moveRightButton = this.div.querySelector(`div#${this.prefix}MoveRightButton`);
+        // Position controls
+        this.elements.moveFurtherLeftButton = this.div.querySelector(`button#${this.prefix}MoveFurtherLeftButton`);
+        this.elements.moveFurtherRightButton = this.div.querySelector(`button#${this.prefix}MoveFurtherRightButton`);
+        this.elements.moveLeftButton = this.div.querySelector(`button#${this.prefix}MoveLeftButton`);
+        this.elements.moveRightButton = this.div.querySelector(`button#${this.prefix}MoveRightButton`);
 
         this.elements.autoheightButton = this.div.querySelector(`input#${this.prefix}AutoheightButton`);
 
         this.elements.searchField = this.div.querySelector(`input#${this.prefix}SearchField`);
-        this.elements.searchButton = this.div.querySelector(`div#${this.prefix}SearchButton`);
+        this.elements.searchButton = this.div.querySelector(`button#${this.prefix}SearchButton`);
         this.elements.searchDataList = this.div.querySelector(`datalist#${this.prefix}SearchDataList`);
 
         this.elements.speciesButton = this.div.querySelector(`div#${this.prefix}SpeciesButton`);
         this.elements.speciesMenu = this.div.querySelector(`ul#${this.prefix}SpeciesMenu`);
         this.elements.speciesText = this.div.querySelector(`span#${this.prefix}SpeciesText`);
 
-        this.elements.windowSizeField = this.div.querySelector(`input#${this.prefix}WindowSizeField`);
+        // this.elements.windowSizeField = this.div.querySelector(`input#${this.prefix}WindowSizeField`);
 
         // let els = this.div.querySelectorAll('[id]');
         // for (let i = 0; i < els.length; i++) {
@@ -233,20 +231,6 @@ export default class NavigationBar {
 
     // Initialize events
     #initEvents() {
-        // this.elements.menuButton.addEventListener("click", event => {
-        //     this.trigger("menuButton:click", {
-        //         clickEvent: event,
-        //         sender: {},
-        //     });
-        // });
-
-        this.elements.leftSideButton.addEventListener("click", event => {
-            this.trigger("leftSideButton:click", {
-                clickEvent: event,
-                sender: {},
-            });
-        });
-
         this.elements.restoreDefaultRegionButton.addEventListener("click", event => {
             this.trigger("restoreDefaultRegion:click", {
                 clickEvent: event,
@@ -283,8 +267,8 @@ export default class NavigationBar {
         // Zooming events
         this.elements.zoomOutButton.addEventListener("click", () => this.#handleZoomOutButton());
         this.elements.zoomInButton.addEventListener("click", () => this.#handleZoomInButton());
-        this.elements.zoomMaxButton.addEventListener("click", () => this.#handleZoomSlider(100));
-        this.elements.zoomMinButton.addEventListener("click", () => this.#handleZoomSlider(0));
+        // this.elements.zoomMaxButton.addEventListener("click", () => this.#handleZoomSlider(100));
+        // this.elements.zoomMinButton.addEventListener("click", () => this.#handleZoomSlider(0));
 
         const zoomBarMove = event => {
             const width = window.getComputedStyle(this.elements.progressBarCont).width;
@@ -377,27 +361,27 @@ export default class NavigationBar {
             }
         });
 
-        this.elements.windowSizeField.value = this.region.length();
-        this.elements.windowSizeField.addEventListener("keyup", event => {
-            const value = event.target.value || "";
-            if ((/^([0-9])+$/).test(value)) {
-                event.target.classList.remove("error");
-                if (event.which === 13) {
-                    const regionSize = parseInt(value);
-                    const haflRegionSize = Math.floor(regionSize / 2);
-                    this.#triggerRegionChange({
-                        region: new Region({
-                            chromosome: this.region.chromosome,
-                            start: this.region.center() - haflRegionSize,
-                            end: this.region.center() + haflRegionSize,
-                        }),
-                        sender: this,
-                    });
-                }
-            } else {
-                event.target.classList.add("error");
-            }
-        });
+        // this.elements.windowSizeField.value = this.region.length();
+        // this.elements.windowSizeField.addEventListener("keyup", event => {
+        //     const value = event.target.value || "";
+        //     if ((/^([0-9])+$/).test(value)) {
+        //         event.target.classList.remove("error");
+        //         if (event.which === 13) {
+        //             const regionSize = parseInt(value);
+        //             const haflRegionSize = Math.floor(regionSize / 2);
+        //             this.#triggerRegionChange({
+        //                 region: new Region({
+        //                     chromosome: this.region.chromosome,
+        //                     start: this.region.center() - haflRegionSize,
+        //                     end: this.region.center() + haflRegionSize,
+        //                 }),
+        //                 sender: this,
+        //             });
+        //         }
+        //     } else {
+        //         event.target.classList.add("error");
+        //     }
+        // });
     }
 
     draw() {
@@ -601,7 +585,7 @@ export default class NavigationBar {
     updateRegionControls() {
         this.elements.chromosomesText.textContent = this.region.chromosome;
         this.elements.regionField.value = this.region.toString();
-        this.elements.windowSizeField.value = this.region.length();
+        // this.elements.windowSizeField.value = this.region.length();
         this.elements.regionField.classList.remove("error");
         this.elements.progressBar.style.width = this.zoom + "%";
         this.elements.progressBarBall.style.left = this.zoom + "%";
