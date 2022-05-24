@@ -78,24 +78,27 @@ export default class NavigationBar {
                 </button>
 
                 <!-- Window size input -->
-                <div title="Window size (Nucleotides)" style="display:inline-block">
-                    <input id="${this.prefix}WindowSize" class="form-control input-sm" style="max-width:70px;" />
+                <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
+                    <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
+                    <span class="input-group-addon">bp</span>
                 </div>
 
                 <!-- Region input -->
-                <div title="Position" class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px;">
-                    <input
-                        type="text"
-                        id="${this.prefix}RegionInput"
-                        class="form-control input-sm"
-                        placeholder="1:10000-20000"
-                        style="width:170px;display:inline-block;" 
-                    />
-                    <span class="input-group-btn" style="display:inline-block;">
-                        <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
-                            <strong>Go!</strong>
-                        </button>
-                    </span>
+                <div id="${this.prefix}RegionForm" title="Position" class="form-group" style="margin:0px;">
+                    <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
+                        <input
+                            type="text"
+                            id="${this.prefix}RegionInput"
+                            class="form-control input-sm"
+                            placeholder="1:10000-20000"
+                            style="width:170px;display:inline-block;" 
+                        />
+                        <span class="input-group-btn">
+                            <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
+                                <strong>Go!</strong>
+                            </button>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Region controls -->
@@ -155,8 +158,10 @@ export default class NavigationBar {
         // this.elements.zoomMinButton = this.div.querySelector(`div#${this.prefix}ZoomMinButton`);
 
         // Window size
-        this.elements.windowSize = this.div.querySelector(`input#${this.prefix}WindowSize`);
+        this.elements.windowSizeForm = this.div.querySelector(`div#${this.prefix}WindowSizeForm`);
+        this.elements.windowSizeInput = this.div.querySelector(`input#${this.prefix}WindowSizeInput`);
 
+        this.elements.regionForm = this.div.querySelector(`div#${this.prefix}RegionForm`);
         this.elements.regionInput = this.div.querySelector(`input#${this.prefix}RegionInput`);
         this.elements.regionSubmit = this.div.querySelector(`button#${this.prefix}RegionSubmit`);
 
@@ -294,8 +299,8 @@ export default class NavigationBar {
             }
         });
 
-        this.elements.windowSize.value = this.region.length();
-        this.elements.windowSize.addEventListener("keyup", event => {
+        this.elements.windowSizeInput.value = this.region.length();
+        this.elements.windowSizeInput.addEventListener("keyup", event => {
             const value = event.target.value || "";
             if ((/^([0-9])+$/).test(value)) {
                 event.target.classList.remove("error");
@@ -365,11 +370,11 @@ export default class NavigationBar {
 
     #checkRegion(value) {
         const region = new Region(value);
-        if (!region.parse(value) || region.start < 0 || region.end < 0 || this.currentChromosomesList.indexOf(region.chromosome) === -1) {
-            this.elements.regionInput.classList.add("error");
+        if (!region.parse(value) || region.start < 0 || region.end < 0) {
+            this.elements.regionForm.classList.add("has-error");
             return false;
         } else {
-            this.elements.regionInput.classList.remove("error");
+            this.elements.regionForm.classList.remove("has-error");
             return true;
         }
     }
@@ -445,10 +450,9 @@ export default class NavigationBar {
     }
 
     updateRegionControls() {
-        // this.elements.chromosomesText.textContent = this.region.chromosome;
         this.elements.regionInput.value = this.region.toString();
-        this.elements.windowSize.value = this.region.length();
-        this.elements.regionInput.classList.remove("error");
+        this.elements.windowSizeInput.value = this.region.length();
+        this.elements.regionForm.classList.remove("has-error");
         this.elements.zoomRange.value = this.zoom;
     }
 
