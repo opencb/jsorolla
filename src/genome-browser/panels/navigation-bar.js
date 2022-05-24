@@ -89,13 +89,8 @@ export default class NavigationBar {
                 </button>
                 <div class="" style="display:inline-block;">
                     <div class="" style="padding-top:7px;padding-bottom:7px;">
-                        <input type="range" />
+                        <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
                     </div>
-                </div>
-                <div id="${this.prefix}ProgressBarCont" class="ocb-zoom-bar" style="display:none;">
-                    <div id="${this.prefix}ProgressBarBack" class="back"></div>
-                    <div id="${this.prefix}ProgressBar" class="rect" style="width:${this.zoom}%"></div>
-                    <div id="${this.prefix}ProgressBarBall" class="ball" style="left:${this.zoom}%"></div>
                 </div>
                 <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
                     <span class="fa fa-search-plus"></span>
@@ -104,17 +99,22 @@ export default class NavigationBar {
                     <span>Max</span>
                 </button>
 
+                <!-- Window size input -->
+                <div title="Window size (Nucleotides)" style="display:inline-block">
+                    <input id="${this.prefix}WindowSize" class="form-control input-sm" style="max-width:70px;" />
+                </div>
+
                 <!-- Region input -->
                 <div title="Position" class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px;">
                     <input
                         type="text"
-                        id="${this.prefix}RegionField"
+                        id="${this.prefix}RegionInput"
                         class="form-control input-sm"
                         placeholder="1:10000-20000"
                         style="width:170px;display:inline-block;" 
                     />
                     <span class="input-group-btn" style="display:inline-block;">
-                        <button id="${this.prefix}GoButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
                             <strong>Go!</strong>
                         </button>
                     </span>
@@ -174,17 +174,17 @@ export default class NavigationBar {
         this.elements.chromosomesMenu = this.div.querySelector(`ul#${this.prefix}ChromosomesMenu`);
 
         // Zooming controls
+        this.elements.zoomRange = this.div.querySelector(`input#${this.prefix}ZoomRange`);
         this.elements.zoomOutButton = this.div.querySelector(`button#${this.prefix}ZoomOutButton`);
         this.elements.zoomInButton = this.div.querySelector(`button#${this.prefix}ZoomInButton`);
         // this.elements.zoomMaxButton = this.div.querySelector(`div#${this.prefix}ZoomMaxButton`);
         // this.elements.zoomMinButton = this.div.querySelector(`div#${this.prefix}ZoomMinButton`);
 
-        this.elements.progressBarCont = this.div.querySelector(`div#${this.prefix}ProgressBarCont`);
-        this.elements.progressBarBall = this.div.querySelector(`div#${this.prefix}ProgressBarBall`);
-        this.elements.progressBar = this.div.querySelector(`div#${this.prefix}ProgressBar`);
+        // Window size
+        this.elements.windowSize = this.div.querySelector(`input#${this.prefix}WindowSize`);
 
-        this.elements.regionField = this.div.querySelector(`input#${this.prefix}RegionField`);
-        this.elements.goButton = this.div.querySelector(`button#${this.prefix}GoButton`);
+        this.elements.regionInput = this.div.querySelector(`input#${this.prefix}RegionInput`);
+        this.elements.regionSubmit = this.div.querySelector(`button#${this.prefix}RegionSubmit`);
 
         this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.prefix}RegionHistoryMenu`);
         this.elements.regionHistoryButton = this.div.querySelector(`div#${this.prefix}RegionHistoryButton`);
@@ -204,8 +204,6 @@ export default class NavigationBar {
         this.elements.speciesButton = this.div.querySelector(`div#${this.prefix}SpeciesButton`);
         this.elements.speciesMenu = this.div.querySelector(`ul#${this.prefix}SpeciesMenu`);
         this.elements.speciesText = this.div.querySelector(`span#${this.prefix}SpeciesText`);
-
-        // this.elements.windowSizeField = this.div.querySelector(`input#${this.prefix}WindowSizeField`);
 
         // let els = this.div.querySelectorAll('[id]');
         // for (let i = 0; i < els.length; i++) {
@@ -269,34 +267,16 @@ export default class NavigationBar {
         this.elements.zoomInButton.addEventListener("click", () => this.#handleZoomInButton());
         // this.elements.zoomMaxButton.addEventListener("click", () => this.#handleZoomSlider(100));
         // this.elements.zoomMinButton.addEventListener("click", () => this.#handleZoomSlider(0));
-
-        const zoomBarMove = event => {
-            const width = window.getComputedStyle(this.elements.progressBarCont).width;
-            const left = this.elements.progressBarCont.getBoundingClientRect().left;
-            const zoom = 100 / parseInt(width) * (event.clientX - left);
-            if (zoom > 0 && zoom < 100) {
-                this.elements.progressBarBall.style.left = `${zoom}%`;
+        this.elements.zoomRange.value = this.zoom;
+        this.elements.zoomRange.addEventListener("change", e => {
+            const value = parseInt(e.target.value);
+            if (this.zoom !== value) {
+                this.#handleZoomSlider(value);
             }
-        };
-
-        this.elements.progressBarCont.addEventListener("click", event => {
-            const width = window.getComputedStyle(this.elements.progressBarCont).width;
-            const left = this.elements.progressBarCont.getBoundingClientRect().left;
-            const zoom = 100 / parseInt(width) * (event.clientX - left);
-            this.#handleZoomSlider(zoom);
-
-            this.elements.progressBarCont.removeEventListener("mousemove", zoomBarMove);
-        });
-        this.elements.progressBarBall.addEventListener("mousedown", () => {
-            this.elements.progressBarCont.addEventListener("mousemove", zoomBarMove);
-        });
-        this.elements.progressBarBall.addEventListener("mouseleave", () => {
-            this.elements.progressBarCont.removeEventListener("mousemove", zoomBarMove);
-            this.elements.progressBarBall.style.left = `${this.zoom}%`;
         });
 
-        this.elements.regionField.value = this.region.toString();
-        this.elements.regionField.addEventListener("keyup", event => {
+        this.elements.regionInput.value = this.region.toString();
+        this.elements.regionInput.addEventListener("keyup", event => {
             const value = event.target.value;
             if (value && this.#checkRegion(value) && event.which === 13) {
                 this.#triggerRegionChange({
@@ -305,8 +285,8 @@ export default class NavigationBar {
                 });
             }
         });
-        this.elements.goButton.addEventListener("click", event => {
-            const value = this.elements.regionField.value;
+        this.elements.regionSubmit.addEventListener("click", event => {
+            const value = this.elements.regionInput.value;
             if (this.#checkRegion(value)) {
                 this.#triggerRegionChange({
                     region: new Region(value),
@@ -361,27 +341,27 @@ export default class NavigationBar {
             }
         });
 
-        // this.elements.windowSizeField.value = this.region.length();
-        // this.elements.windowSizeField.addEventListener("keyup", event => {
-        //     const value = event.target.value || "";
-        //     if ((/^([0-9])+$/).test(value)) {
-        //         event.target.classList.remove("error");
-        //         if (event.which === 13) {
-        //             const regionSize = parseInt(value);
-        //             const haflRegionSize = Math.floor(regionSize / 2);
-        //             this.#triggerRegionChange({
-        //                 region: new Region({
-        //                     chromosome: this.region.chromosome,
-        //                     start: this.region.center() - haflRegionSize,
-        //                     end: this.region.center() + haflRegionSize,
-        //                 }),
-        //                 sender: this,
-        //             });
-        //         }
-        //     } else {
-        //         event.target.classList.add("error");
-        //     }
-        // });
+        this.elements.windowSize.value = this.region.length();
+        this.elements.windowSize.addEventListener("keyup", event => {
+            const value = event.target.value || "";
+            if ((/^([0-9])+$/).test(value)) {
+                event.target.classList.remove("error");
+                if (event.which === 13) {
+                    const regionSize = parseInt(value);
+                    const haflRegionSize = Math.floor(regionSize / 2);
+                    this.#triggerRegionChange({
+                        region: new Region({
+                            chromosome: this.region.chromosome,
+                            start: this.region.center() - haflRegionSize,
+                            end: this.region.center() + haflRegionSize,
+                        }),
+                        sender: this,
+                    });
+                }
+            } else {
+                event.target.classList.add("error");
+            }
+        });
     }
 
     draw() {
@@ -486,10 +466,10 @@ export default class NavigationBar {
     #checkRegion(value) {
         const region = new Region(value);
         if (!region.parse(value) || region.start < 0 || region.end < 0 || this.currentChromosomesList.indexOf(region.chromosome) === -1) {
-            this.elements.regionField.classList.add("error");
+            this.elements.regionInput.classList.add("error");
             return false;
         } else {
-            this.elements.regionField.classList.remove("error");
+            this.elements.regionInput.classList.remove("error");
             return true;
         }
     }
@@ -526,7 +506,7 @@ export default class NavigationBar {
 
         this.region.start -= disp;
         this.region.end -= disp;
-        this.elements.regionField.value = this.region.toString();
+        this.elements.regionInput.value = this.region.toString();
 
         // Trigger region move
         this.trigger("region:move", {
@@ -555,7 +535,7 @@ export default class NavigationBar {
     moveRegion(region) {
         this.region.load(region);
         this.elements.chromosomesText.textContent = this.region.chromosome;
-        this.elements.regionField.value = this.region.toString();
+        this.elements.regionInput.value = this.region.toString();
     }
 
     setSpecies(species) {
@@ -583,12 +563,11 @@ export default class NavigationBar {
     }
 
     updateRegionControls() {
-        this.elements.chromosomesText.textContent = this.region.chromosome;
-        this.elements.regionField.value = this.region.toString();
-        // this.elements.windowSizeField.value = this.region.length();
-        this.elements.regionField.classList.remove("error");
-        this.elements.progressBar.style.width = this.zoom + "%";
-        this.elements.progressBarBall.style.left = this.zoom + "%";
+        // this.elements.chromosomesText.textContent = this.region.chromosome;
+        this.elements.regionInput.value = this.region.toString();
+        this.elements.windowSize.value = this.region.length();
+        this.elements.regionInput.classList.remove("error");
+        this.elements.zoomRange.value = this.zoom;
     }
 
     setCellBaseHost(host) {
