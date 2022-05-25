@@ -124,7 +124,7 @@ export default class NavigationBar {
                 </button>
 
                 <!-- Gene search -->
-                <div class="input-group input-group-sm" style="display:inline-block;margin-bottom:0px!important;">
+                <div class="input-group input-group-sm" style="margin-bottom:0px!important;">
                     <input
                         type="text"
                         id="${this.prefix}SearchField"
@@ -154,8 +154,6 @@ export default class NavigationBar {
         this.elements.zoomRange = this.div.querySelector(`input#${this.prefix}ZoomRange`);
         this.elements.zoomOutButton = this.div.querySelector(`button#${this.prefix}ZoomOutButton`);
         this.elements.zoomInButton = this.div.querySelector(`button#${this.prefix}ZoomInButton`);
-        // this.elements.zoomMaxButton = this.div.querySelector(`div#${this.prefix}ZoomMaxButton`);
-        // this.elements.zoomMinButton = this.div.querySelector(`div#${this.prefix}ZoomMinButton`);
 
         // Window size
         this.elements.windowSizeForm = this.div.querySelector(`div#${this.prefix}WindowSizeForm`);
@@ -178,13 +176,10 @@ export default class NavigationBar {
 
         this.elements.autoheightButton = this.div.querySelector(`input#${this.prefix}AutoheightButton`);
 
+        // Gene search elements
         this.elements.searchField = this.div.querySelector(`input#${this.prefix}SearchField`);
         this.elements.searchButton = this.div.querySelector(`button#${this.prefix}SearchButton`);
         this.elements.searchDataList = this.div.querySelector(`datalist#${this.prefix}SearchDataList`);
-
-        this.elements.speciesButton = this.div.querySelector(`div#${this.prefix}SpeciesButton`);
-        this.elements.speciesMenu = this.div.querySelector(`ul#${this.prefix}SpeciesMenu`);
-        this.elements.speciesText = this.div.querySelector(`span#${this.prefix}SpeciesText`);
 
         // Mark as active the karyotype panel button
         if (this.config.karyotypePanelVisible) {
@@ -223,8 +218,6 @@ export default class NavigationBar {
         // Zooming events
         this.elements.zoomOutButton.addEventListener("click", () => this.#handleZoomOutButton());
         this.elements.zoomInButton.addEventListener("click", () => this.#handleZoomInButton());
-        // this.elements.zoomMaxButton.addEventListener("click", () => this.#handleZoomSlider(100));
-        // this.elements.zoomMinButton.addEventListener("click", () => this.#handleZoomSlider(0));
         this.elements.zoomRange.value = this.zoom;
         this.elements.zoomRange.addEventListener("change", e => {
             const value = parseInt(e.target.value);
@@ -322,10 +315,6 @@ export default class NavigationBar {
         });
     }
 
-    draw() {
-        // Nothing to do
-    }
-
     // Toggle panel visibility
     #handlePanelToggle(target, panelName) {
         target.classList.toggle("active"); // Toggle the active class
@@ -352,6 +341,7 @@ export default class NavigationBar {
 
     #setQuickSearchMenu(query) {
         if (typeof this.config.quickSearchResultFn === "function") {
+            // Clear all elements in the datalist
             while (this.elements.searchDataList.firstChild) {
                 this.elements.searchDataList.removeChild(this.elements.searchDataList.firstChild);
             }
@@ -365,8 +355,6 @@ export default class NavigationBar {
                     this.quickSearchDataset[item.name] = item;
                 });
             });
-        } else {
-            console.warn("the quickSearchResultFn function is not valid");
         }
     }
 
@@ -423,20 +411,6 @@ export default class NavigationBar {
         });
     }
 
-    setRegion(region, zoom) {
-        this.region.load(region);
-        if (zoom) {
-            this.zoom = 5 * (Math.round(zoom / 5));
-        }
-        this.updateRegionControls();
-        this.#addRegionHistoryMenuItem(region);
-    }
-
-    moveRegion(region) {
-        this.region.load(region);
-        this.elements.regionInput.value = this.region.toString();
-    }
-
     #triggerRegionChange(event) {
         if (!this.regionChanging) {
             this.regionChanging = true;
@@ -447,15 +421,33 @@ export default class NavigationBar {
                 this.regionChanging = false;
             }, 700);
         } else {
-            this.updateRegionControls();
+            this.#updateRegionControls();
         }
     }
 
-    updateRegionControls() {
+    #updateRegionControls() {
         this.elements.regionInput.value = this.region.toString();
         this.elements.windowSizeInput.value = this.region.length();
         this.elements.regionForm.classList.remove("has-error");
         this.elements.zoomRange.value = this.zoom;
+    }
+
+    draw() {
+        // Nothing to do
+    }
+
+    setRegion(region, zoom) {
+        this.region.load(region);
+        if (zoom) {
+            this.zoom = 5 * (Math.round(zoom / 5));
+        }
+        this.#updateRegionControls();
+        this.#addRegionHistoryMenuItem(region);
+    }
+
+    moveRegion(region) {
+        this.region.load(region);
+        this.elements.regionInput.value = this.region.toString();
     }
 
     // Get default config for navigation bar
@@ -466,6 +458,7 @@ export default class NavigationBar {
             regionPanelVisible: true,
             region: null,
             quickSearchDisplayKey: "name",
+            quickSearchResultFn: null,
             zoom: 50,
         };
     }
