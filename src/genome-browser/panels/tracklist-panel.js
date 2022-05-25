@@ -53,24 +53,21 @@ export default class TrackListPanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="ocb-gv-tracklist">
-                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.prefix}WindowSize" class="ocb-gv-tracklist-windowsize"></div>
-                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
-                        <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
-                    </div>
-                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" class="">
+                <div id="${this.prefix}Title" style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}TitleText" style="font-weight:bold;width:150px;">
                         ${this.config?.title || ""}
                     </div>
+                    <div id="${this.prefix}WindowSize" class="small text-muted" style="font-weight:bold;"></div>
+                    <div id="${this.prefix}Collapse" align="right" style="width:150px;">
+                        <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
+                    </div>
                 </div>
-                <div id="${this.prefix}TLHeader" class="unselectable">
-                    <div id="${this.prefix}Position"class="ocb-gv-tracklist-position">
-                        <div id="${this.prefix}PositionLeft" class="ocb-gv-tracklist-position-left"></div>
-                        <div id="${this.prefix}PositionMid" class="ocb-gv-tracklist-position-mid">
-                            <div id="${this.prefix}PositionNucleotid" class="ocb-gv-tracklist-position-mid-nt"></div>
-                            <div id="${this.prefix}PositionMidPos" class="ocb-gv-tracklist-position-mid-pos"></div>
-                        </div>
-                        <div id="${this.prefix}PositionRight" class="ocb-gv-tracklist-position-right"></div>
+                <div id="${this.prefix}TLHeader" class="unselectable" style="margin-top:8px;">
+                    <div id="${this.prefix}Position" class="small text-primary" style="display:flex;justify-content:space-between;">
+                        <div id="${this.prefix}PositionLeft"></div>
+                        <div id="${this.prefix}PositionCenter"></div>
+                        <div id="${this.prefix}PositionRight"></div>
                     </div>
                 </div>
                 <div id="${this.prefix}TLPanel" style="position:relative;width:100%;">
@@ -97,8 +94,7 @@ export default class TrackListPanel {
         this.tlTracksDiv = this.div.querySelector(`div#${this.prefix}TLTracks`);
 
         this.positionLeftDiv = this.div.querySelector(`div#${this.prefix}PositionLeft`);
-        this.positionNucleotidDiv = this.div.querySelector(`div#${this.prefix}PositionNucleotid`);
-        this.positionMidPosDiv = this.div.querySelector(`div#${this.prefix}PositionMidPos`);
+        this.positionMidPosDiv = this.div.querySelector(`div#${this.prefix}PositionCenter`);
         this.positionRightDiv = this.div.querySelector(`div#${this.prefix}PositionRight`);
 
         // Apply center line styles
@@ -159,7 +155,8 @@ export default class TrackListPanel {
             // Apply right region styles
             this.regionOverviewBoxRight.style.zIndex = 0;
             this.regionOverviewBoxRight.style.position = "absolute";
-            this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
+            // this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
+            this.regionOverviewBoxRight.style.right = "0px";
             this.regionOverviewBoxRight.style.top = "0px";
             this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
             this.regionOverviewBoxRight.style.height = "calc(100% - 8px)";
@@ -206,31 +203,6 @@ export default class TrackListPanel {
             this.mouseLine.style.visibility = "hidden";
         });
 
-        // $(this.tlTracksDiv).dblclick(function (event) {
-        //     if (!_this.regionChanging) {
-        //         _this.regionChanging = true;
-        //         /**/
-        //         /**/
-        //         /**/
-        //         let halfLength = _this.region.length() / 2;
-        //         let mouseRegion = new Region({
-        //             chromosome: _this.region.chromosome,
-        //             start: _this.mousePosition - halfLength,
-        //             end: _this.mousePosition + halfLength
-        //         });
-        //         _this.trigger("region:change", {
-        //             region: mouseRegion,
-        //             sender: _this
-        //         });
-        //         /**/
-        //         /**/
-        //         /**/
-        //         setTimeout(function () {
-        //             _this.regionChanging = false;
-        //         }, 700);
-        //     }
-        // });
-
         let downX, moveX;
         let lastX = 0;
 
@@ -263,7 +235,6 @@ export default class TrackListPanel {
         };
 
         this.tlTracksDiv.addEventListener("mousedown", event => {
-            // $("html").addClass("unselectable");
             this.mouseLine.style.visibility = "hidden";
 
             let mouseState = event.which;
@@ -302,12 +273,9 @@ export default class TrackListPanel {
         });
 
         this.tlTracksDiv.addEventListener("mouseup", event => {
-            // $("html").removeClass("unselectable");
-
             this.tlTracksDiv.style.cursor = "default";
             this.mouseLine.style.visibility = "visible";
 
-            // $(this.tlTracksDiv).off("mousemove");
             this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
 
             let mouseState = event.which;
@@ -355,13 +323,10 @@ export default class TrackListPanel {
 
         this.tlTracksDiv.addEventListener("mouseleave", () => {
             this.tlTracksDiv.style.cursor = "default";
-            // this.mouseLine.style.visibility = "hidden";
-
-            // $(this.tlTracksDiv).off("mousemove");
-            this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
-            // $("body").off("keydown.genomeViewer");
-
             this.selBox.style.visibility = "hidden";
+
+            this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
+
             downX = null;
             moveX = null;
         });
@@ -417,12 +382,12 @@ export default class TrackListPanel {
     }
 
     show() {
-        this.div.style.display = "block";
+        this.target.style.display = "block";
         this.hidden = false;
     }
 
     hide() {
-        this.div.style.display = "none";
+        this.target.style.display = "none";
         this.hidden = true;
     }
 
@@ -452,17 +417,12 @@ export default class TrackListPanel {
         this.collapsed = true;
     }
 
-    // Toggle content
     toggleContent() {
         this.collapsed ? this.showContent() : this.hideContent();
     }
 
-    setHeight() {
-    }
-
     setWidth(width) {
-        // console.log(`trackListPanel setWidth ------> ${width}`);
-        this.width = width - 18;
+        this.width = width - 30;
 
         // Update track elements position
         this.centerLine.style.left = `${this.width / 2}px`;
@@ -484,15 +444,7 @@ export default class TrackListPanel {
         this.trigger("trackRegion:move", event);
     }
 
-    setSpecies(species) {
-        this.species = species;
-        this.tracks.forEach(track => track.setSpecies(this.species));
-    }
-
     setRegion(region) {
-        // console.log(`trackListPanel setRegion region ------> ${region}`);
-        // console.log(`trackListPanel setRegion width ------> ${this.width}`);
-
         const center = this.width / 2;
         this.region.load(region);
         this.visualRegion.load(region);
@@ -509,7 +461,6 @@ export default class TrackListPanel {
             const regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
 
             this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
-            this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
             this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
         }
 
@@ -523,14 +474,10 @@ export default class TrackListPanel {
             sender: this,
         });
 
-        this.positionNucleotidDiv.textContent = ""; // remove base char, will be drawn later if needed
-
         this.status = "rendering";
     }
 
     draw() {
-        // this.targetDiv.appendChild(this.div);
-
         this.trigger("track:draw", {
             sender: this,
         });
@@ -573,23 +520,9 @@ export default class TrackListPanel {
         const insertPosition = length - 1;
         this.tracksIndex[track.prefix] = insertPosition;
 
-        // if (!track.dataAdapter.host) {
-        //     // eslint-disable-next-line no-param-reassign
-        //     track.dataAdapter.host = this.config.cellBaseHost;
-        // }
-
-        // if (!track.dataAdapter.version) {
-        //     // eslint-disable-next-line no-param-reassign
-        //     track.dataAdapter.version = this.config.cellBaseVersion;
-        // }
-
         track.setPixelBase(this.pixelBase);
         track.setRegion(this.visualRegion);
         track.setWidth(this.width);
-        // track.setSpecies(this.species);
-
-        // track.set("trackListPanel", this);
-        // console.log(track);
 
         // Track must be initialized after we have created
         // de DIV element in order to create the elements in the DOM
@@ -602,8 +535,6 @@ export default class TrackListPanel {
 
         // Track region change listener
         this.on("trackRegion:change", event => {
-            // console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
-            // console.log(`trackListPanel trackRegion:change width ------> ${this.width}`);
             track.setWidth(this.width);
             track.setPixelBase(this.pixelBase);
             track.setRegion(event.region);
@@ -833,9 +764,6 @@ export default class TrackListPanel {
         if (!this.containsTrack((track))) {
             return false;
         }
-
-        // const y = $(track.div).position().top;
-        // $(this.tlTracksDiv).scrollTop(y);
     }
 
     hideTrack(track) {
@@ -855,9 +783,7 @@ export default class TrackListPanel {
     }
 
     #setPixelBase() {
-        this.pixelBase = this.width / this.region.length();
-        this.pixelBase = this.pixelBase / this.config.zoomMultiplier;
-        this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
+        this.pixelBase = (this.width / this.region.length()) / this.config.zoomMultiplier;
     }
 
     #setTextPosition() {
@@ -884,45 +810,8 @@ export default class TrackListPanel {
         return null;
     }
 
-    getSequenceTrack() {
-        return this.tracks.find(track => track?.renderer instanceof SequenceRenderer);
-    }
-
     getMousePosition(position) {
-        return position > 0 ? this.getSequenceNucleotid(position) : "";
-    }
-
-    getSequenceNucleotid(position) {
-        const seqTrack = this.getSequenceTrack();
-        if (seqTrack) {
-            const element = seqTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
-            return element?.textContent || "";
-        }
-        return "";
-    }
-
-    setNucleotidPosition(position) {
-        const base = this.getSequenceNucleotid(position);
-        this.positionNucleotidDiv.style.color = GenomeBrowserConstants.SEQUENCE_COLORS[base];
-        this.positionNucleotidDiv.textContent = base;
-    }
-
-    // setCellBaseHost(host) {
-    //     this.cellBaseHost = host;
-    //     for (let i = 0; i < this.tracks.length; i++) {
-    //         const track = this.tracks[i];
-    //         if (track.dataAdapter instanceof CellBaseAdapter) {
-    //             track.dataAdapter.setHost(this.cellBaseHost);
-    //         }
-    //     }
-    // }
-
-    deleteTracksCache() {
-        this.tracks.forEach(track => {
-            if (track.dataAdapter.deleteCache) {
-                track.dataAdapter.deleteCache();
-            }
-        });
+        return ""; // position > 0 ? this.getSequenceNucleotid(position) : "";
     }
 
     getDefaultConfig() {
