@@ -104,7 +104,7 @@ export default class TrackListPanel {
         this.centerLine.style.left = `${this.width / 2}px`;
         this.centerLine.style.top = "0px";
         this.centerLine.style.width = `${Math.floor(this.pixelBase)}px`; // this.pixelBase + 1
-        this.centerLine.style.height = "calc(100% - 8px)"; // 100%
+        this.centerLine.style.height = "100%";
         this.centerLine.style.opacity = 0.5;
         this.centerLine.style.border = "1px solid orangered";
         this.centerLine.style.backgroundColor = "orange";
@@ -116,7 +116,7 @@ export default class TrackListPanel {
         this.mouseLine.style.left = "0px";
         this.mouseLine.style.top = "0px";
         this.mouseLine.style.width = `${Math.floor(this.pixelBase)}px`;
-        this.mouseLine.style.height = "calc(100% - 8px)";
+        this.mouseLine.style.height = "100%";
         this.mouseLine.style.border = "1px solid gray";
         this.mouseLine.style.opacity = 0.7;
         this.mouseLine.style.visibility = "hidden";
@@ -147,7 +147,7 @@ export default class TrackListPanel {
             this.regionOverviewBoxLeft.style.left = "1px";
             this.regionOverviewBoxLeft.style.top = "0px";
             this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
-            this.regionOverviewBoxLeft.style.height = "calc(100% - 8px)";
+            this.regionOverviewBoxLeft.style.height = "100%";
             this.regionOverviewBoxLeft.style.opacity = 0.5;
             this.regionOverviewBoxLeft.style.backgroundColor = "lightgray";
             this.regionOverviewBoxLeft.style.display = "block";
@@ -159,7 +159,7 @@ export default class TrackListPanel {
             this.regionOverviewBoxRight.style.right = "0px";
             this.regionOverviewBoxRight.style.top = "0px";
             this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
-            this.regionOverviewBoxRight.style.height = "calc(100% - 8px)";
+            this.regionOverviewBoxRight.style.height = "100%";
             this.regionOverviewBoxRight.style.opacity = 0.5;
             this.regionOverviewBoxRight.style.backgroundColor = "lightgray";
             this.regionOverviewBoxRight.style.display = "block";
