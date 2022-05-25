@@ -19,6 +19,7 @@ import "./variant-interpreter-review-primary.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../clinical/interpretation/clinical-interpretation-editor.js";
 import "../../commons/view/detail-tabs.js";
+import "../../clinical/interpretation/clinical-interpretation-review.js";
 
 
 export default class VariantInterpreterReview extends LitElement {
@@ -105,7 +106,7 @@ export default class VariantInterpreterReview extends LitElement {
             {
                 id: "general-info",
                 name: "General Info",
-                active: true,
+                active: false,
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
                         <div class="col-md-10 col-md-offset-1">
@@ -118,6 +119,25 @@ export default class VariantInterpreterReview extends LitElement {
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}">
                             </clinical-interpretation-editor>
+                        </div>
+                    `;
+                }
+            },
+            {
+                id: "report-review",
+                name: "Report Test",
+                active: true,
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <clinical-interpretation-review
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-interpretation-review>
                         </div>
                     `;
                 }
