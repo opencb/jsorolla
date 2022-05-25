@@ -25,6 +25,7 @@ export default class NavigationBar {
         this.zoomChanging = false;
         this.regionChanging = false;
         this.quickSearchDataset = {};
+        this.quickSearchLastQuery = "";
 
         this.#initDom();
         this.#initEvents();
@@ -123,10 +124,10 @@ export default class NavigationBar {
                 </button>
 
                 <!-- Gene search -->
-                <div class="input-group input-group-sm" style="margin-bottom:0px!important;">
+                <div id="${this.prefix}SearchForm" class="input-group input-group-sm" style="margin:0px!important;">
                     <input
                         type="text"
-                        id="${this.prefix}SearchField"
+                        id="${this.prefix}SearchInput"
                         list="${this.prefix}SearchDataList"
                         class="form-control input-sm"
                         placeholder="gene"
@@ -177,7 +178,8 @@ export default class NavigationBar {
         this.elements.autoheightButton = this.div.querySelector(`button#${this.prefix}AutoheightButton`);
 
         // Gene search elements
-        this.elements.searchField = this.div.querySelector(`input#${this.prefix}SearchField`);
+        this.elements.searchForm = this.div.querySelector(`div#${this.prefix}SearchForm`);
+        this.elements.searchInput = this.div.querySelector(`input#${this.prefix}SearchInput`);
         this.elements.searchButton = this.div.querySelector(`button#${this.prefix}SearchButton`);
         this.elements.searchDataList = this.div.querySelector(`datalist#${this.prefix}SearchDataList`);
 
@@ -227,70 +229,26 @@ export default class NavigationBar {
         });
 
         this.elements.regionInput.value = this.region.toString();
-        this.elements.regionInput.addEventListener("keyup", event => {
-            const value = event.target.value;
-            if (value && this.#checkRegion(value) && event.which === 13) {
-                this.#triggerRegionChange({
-                    region: new Region(value),
-                    sender: event.target,
-                });
-            }
-        });
-        this.elements.regionSubmit.addEventListener("click", event => {
-            const value = this.elements.regionInput.value;
-            if (this.#checkRegion(value)) {
-                this.#triggerRegionChange({
-                    region: new Region(value),
-                    sender: event.target,
-                });
-            }
-        });
+        this.elements.regionSubmit.addEventListener("click", () => this.#regionSubmit());
+        this.elements.regionInput.addEventListener("keyup", event => event.which === 13 && this.#regionSubmit());
 
         this.elements.moveFurtherLeftButton.addEventListener("click", () => this.#handleMoveRegion(10));
         this.elements.moveFurtherRightButton.addEventListener("click", () => this.#handleMoveRegion(-10));
-
         this.elements.moveLeftButton.addEventListener("click", () => this.#handleMoveRegion(1));
         this.elements.moveRightButton.addEventListener("click", () => this.#handleMoveRegion(-1));
 
-        this.elements.autoheightButton.addEventListener("click", () => {
-            this.elements.autoheightButton.classList.toggle("active");
+        this.elements.autoheightButton.addEventListener("click", () => this.#handleAutoHeightToggle());
 
-            this.trigger("autoHeight-button:change", {
-                selected: this.elements.autoheightButton.classList.contains("active"),
-                sender: this,
-            });
-        });
-
-        let lastQuery = "";
-        this.elements.searchField.addEventListener("keyup", event => {
-            event.target.classList.remove("error");
-            const query = event.target.value || "";
-            if (query.length > 2 && lastQuery !== query && event.which !== 13) {
+        this.elements.searchButton.addEventListener("click", () => this.#quickSearchSubmit());
+        this.elements.searchInput.addEventListener("keyup", event => {
+            this.elements.searchInput.classList.remove("has-error");
+            const query = this.elements.searchInput.value || "";
+            if (query.length > 2 && this.quickSearchLastQuery !== query && event.which !== 13) {
                 this.#setQuickSearchMenu(query);
-                lastQuery = query;
+                this.quickSearchLastQuery = query;
             }
             if (event.which === 13) {
-                if (query && this.quickSearchDataset[query]) {
-                    this.trigger("quickSearch:select", {
-                        item: this.quickSearchDataset[query],
-                        sender: this,
-                    });
-                } else {
-                    event.target.classList.add("error");
-                }
-            }
-        });
-
-        this.elements.searchButton.addEventListener("click", () => {
-            this.elements.searchField.classList.remove("error");
-            const query = this.elements.searchField.value || "";
-            if (query && this.quickSearchDataset[query]) {
-                this.trigger("quickSearch:go", {
-                    item: this.quickSearchDataset[query],
-                    sender: this,
-                });
-            } else {
-                this.elements.searchField.classList.add("error");
+                this.#quickSearchSubmit();
             }
         });
 
@@ -323,6 +281,15 @@ export default class NavigationBar {
 
         this.trigger(`${panelName}-button:change`, {
             selected: target.classList.contains("active"),
+        });
+    }
+
+    #handleAutoHeightToggle() {
+        this.elements.autoheightButton.classList.toggle("active");
+
+        this.trigger("autoHeight-button:change", {
+            selected: this.elements.autoheightButton.classList.contains("active"),
+            sender: this,
         });
     }
 
@@ -360,15 +327,37 @@ export default class NavigationBar {
         }
     }
 
+    #quickSearchSubmit() {
+        const query = this.elements.searchInput.value || "";
+        this.elements.searchForm.classList.remove("has-error");
+
+        if (query && this.quickSearchDataset[query]) {
+            this.trigger("quickSearch:go", {
+                item: this.quickSearchDataset[query],
+                sender: this,
+            });
+        } else {
+            this.elements.searchForm.classList.add("has-error");
+        }
+    }
+
+    #regionSubmit() {
+        const value = this.elements.regionInput.value;
+        this.elements.regionForm.classList.remove("has-error");
+
+        if (value && this.#checkRegion(value)) {
+            this.#triggerRegionChange({
+                region: new Region(value),
+                sender: event.target,
+            });
+        } else {
+            this.elements.regionForm.classList.add("has-error");
+        }
+    }
+
     #checkRegion(value) {
         const region = new Region(value);
-        if (!region.parse(value) || region.start < 0 || region.end < 0) {
-            this.elements.regionForm.classList.add("has-error");
-            return false;
-        } else {
-            this.elements.regionForm.classList.remove("has-error");
-            return true;
-        }
+        return region.parse(value) && region.start >= 0 && region.end >= 0;
     }
 
     #handleZoomSlider(value) {
