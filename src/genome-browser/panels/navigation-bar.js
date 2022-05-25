@@ -117,9 +117,8 @@ export default class NavigationBar {
                     </button>
                 </div>
 
-                <!-- To tix -->
-                <button class="btn btn-default btn-sm">
-                    <input type="checkbox" id="${this.prefix}AutoheightButton" style="display:none;" />
+                <!-- Autoheight -->
+                <button id="${this.prefix}AutoheightButton" class="btn btn-default btn-sm">
                     <i class="fa fa-compress"></i>
                 </button>
 
@@ -174,7 +173,8 @@ export default class NavigationBar {
         this.elements.moveLeftButton = this.div.querySelector(`button#${this.prefix}MoveLeftButton`);
         this.elements.moveRightButton = this.div.querySelector(`button#${this.prefix}MoveRightButton`);
 
-        this.elements.autoheightButton = this.div.querySelector(`input#${this.prefix}AutoheightButton`);
+        // Autoheight button
+        this.elements.autoheightButton = this.div.querySelector(`button#${this.prefix}AutoheightButton`);
 
         // Gene search elements
         this.elements.searchField = this.div.querySelector(`input#${this.prefix}SearchField`);
@@ -252,9 +252,11 @@ export default class NavigationBar {
         this.elements.moveLeftButton.addEventListener("click", () => this.#handleMoveRegion(1));
         this.elements.moveRightButton.addEventListener("click", () => this.#handleMoveRegion(-1));
 
-        this.elements.autoheightButton.addEventListener("click", event => {
+        this.elements.autoheightButton.addEventListener("click", () => {
+            this.elements.autoheightButton.classList.toggle("active");
+
             this.trigger("autoHeight-button:change", {
-                selected: event.target.checked,
+                selected: this.elements.autoheightButton.classList.contains("active"),
                 sender: this,
             });
         });
