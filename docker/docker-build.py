@@ -159,10 +159,6 @@ elif args.images == "all":
     if not os.path.isdir('custom-sites'):
         error("Custom sites folder does not exist (required if images is set to 'all')")
     # Get all folders in 'custom-sites'
-    arr = os.listdir('.')
-    print(arr)
-    arr = os.listdir('custom-sites')
-    print(arr)
     images = [d for d in os.listdir("custom-sites") if os.path.isdir(os.path.join("custom-sites", d)) and not d.startswith(".")]
 else:
     images = args.images.split(",")
