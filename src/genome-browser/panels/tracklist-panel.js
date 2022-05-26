@@ -569,7 +569,7 @@ export default class TrackListPanel {
         }
 
         // Remove from tracks list and from DOM
-        this.tracks.filter(t => t.prefix !== track.prefix);
+        this.tracks = this.tracks.filter(t => t.prefix !== track.prefix);
         this.tlTracksDiv.removeChild(this.tracks.div);
 
         // delete listeners
