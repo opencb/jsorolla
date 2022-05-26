@@ -638,8 +638,8 @@ export default class GenomeBrowser {
     }
 
     toggleAutoHeight(bool) {
-        this.trackListPanel.toggleAutoHeight(bool);
-        this.overviewTrackListPanel.toggleAutoHeight(bool);
+        this.trackListPanel.toggleTracksAutoHeight(bool);
+        this.overviewTrackListPanel.toggleTracksAutoHeight(bool);
     }
 
     updateHeight() {
