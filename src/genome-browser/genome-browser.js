@@ -132,7 +132,7 @@ export default class GenomeBrowser {
     // Initialize events
     #initEvents() {
         // Register document/window event listeners
-        window.addEventListener("resize", this.#handleResize);
+        window.addEventListener("resize", this.#resizeHandler);
 
         this.on("region:change region:move", event => {
             if (event.sender !== this) {
@@ -153,15 +153,8 @@ export default class GenomeBrowser {
         }
 
         // Remove all event listeners
-        window.removeEventListener("resize", this.#handleResize);
+        window.removeEventListener("resize", this.#resizeHandler);
         this.off();
-    }
-
-    #handleResize = () => {
-        this.width = this.target.offsetWidth - this.config.padding;
-        this.trigger("width:change", {
-            width: this.width,
-        });
     }
 
     // Get chromosomes from CellBase
@@ -396,6 +389,7 @@ export default class GenomeBrowser {
     //
     // Private helpers
     //
+
     #checkAndSetNewChromosomeRegion(region) {
         if (this.chromosomes && this.chromosomes[region.chromosome]) {
             const chr = this.chromosomes[region.chromosome];
@@ -412,8 +406,7 @@ export default class GenomeBrowser {
 
     #parseRegion(initialRegion) {
         const region = new Region(initialRegion);
-        const width = this.getSVGCanvasWidth();
-        const minLength = Math.floor(width / 10);
+        const minLength = Math.floor(this.width / this.config.minNtPixels);
 
         // Check region size
         if (region.length() < minLength) {
@@ -427,9 +420,8 @@ export default class GenomeBrowser {
     }
 
     #calculateRegionByZoom(zoom) {
-        const minNtPixels = 10; // 10 is the minimum pixels per nt
         const chr = this.chromosomes[this.region.chromosome];
-        const minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
+        const minRegionLength = this.width / this.config.minNtPixels;
         const zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
         const regionLength = minRegionLength * (Math.pow(zoomLevelMultiplier, 100 - zoom)); // invert   100 - zoom
         const centerPosition = this.region.center();
@@ -442,15 +434,14 @@ export default class GenomeBrowser {
     }
 
     #calculateZoomByRegion(region) {
-        const minNtPixels = 10; // 10 is the minimum pixels per nt
-        const minRegionLength = this.getSVGCanvasWidth() / minNtPixels;
+        const minRegionLength = this.width / this.config.minNtPixels;
+        const regionLength = region.length();
 
         let zoomLevelMultiplier = 0.01;
         if (this.chromosomes && this.chromosomes[region.chromosome]) {
             const chr = this.chromosomes[region.chromosome];
             zoomLevelMultiplier = Math.pow(chr.size / minRegionLength, 0.01); // 0.01 = 1/100  100 zoom levels
         }
-        const regionLength = region.length();
 
         const zoom = Math.log(regionLength / minRegionLength) / Math.log(zoomLevelMultiplier);
         return 100 - Math.round(zoom);
@@ -469,6 +460,21 @@ export default class GenomeBrowser {
     //
     // EVENT METHODS
     //
+
+    #resizeHandler = () => {
+        this.width = this.target.offsetWidth - this.config.padding;
+
+        // Trigger width change event
+        this.trigger("width:change", {
+            width: this.width,
+        });
+
+        // Check if we should update the current displayed region
+        const newRegion = this.#parseRegion(this.region);
+        if (!this.region.equals(newRegion)) {
+            this.#regionChangeHandler({region: newRegion});
+        }
+    }
 
     #regionChangeHandler(event) {
         if (this.#checkChangingRegion()) {
@@ -597,36 +603,6 @@ export default class GenomeBrowser {
         this.trigger("region:move", {region: this.region, disp: -disp, sender: this});
     }
 
-    // TODO: use events instead of calling the setWidth method of each panel
-    setWidth(width) {
-        const newRegion = new Region(this.region);
-        const newLength = width * this.region.length() / this.width;
-        const centerPosition = this.region.center();
-        const aux = Math.ceil((newLength / 2) - 1);
-        newRegion.start = Math.floor(centerPosition - aux);
-        newRegion.end = Math.floor(centerPosition + aux);
-
-        this.width = width;
-
-        if (this.overviewTrackListPanel) {
-            this.overviewTrackListPanel.setWidth(width);
-        }
-        if (this.trackListPanel) {
-            this.trackListPanel.setWidth(width);
-        }
-        if (this.chromosomePanel) {
-            this.chromosomePanel.setWidth(width);
-        }
-        if (this.karyotypePanel) {
-            this.karyotypePanel.setWidth(width);
-        }
-        if (this.navigationBar) {
-            this.navigationBar.setWidth(width);
-        }
-
-        this.#regionChangeHandler({region: newRegion});
-    }
-
     setZoom(zoom) {
         this.zoom = Math.min(100, Math.max(0, zoom));
         this.region.load(this.#calculateRegionByZoom(zoom));
@@ -635,10 +611,6 @@ export default class GenomeBrowser {
 
     increaseZoom(increment) {
         this.setZoom(this.zoom + increment);
-    }
-
-    getSVGCanvasWidth() {
-        return this.width - this.config.trackPanelScrollWidth - this.sidePanelWidth;
     }
 
     mark(args) {
@@ -805,6 +777,8 @@ export default class GenomeBrowser {
             resizable: true,
             region: null,
             padding: 30,
+
+            minNtPixels: 10, // 10 is the minimum pixels per nt
 
             // CellBase configuration
             cellBaseClient: null,
