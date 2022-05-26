@@ -20,6 +20,7 @@ export default class NavigationBar {
         this.prefix = UtilsNew.randomString(8);
         this.region = new Region(this.config.region);
         this.zoom = this.config.zoom || 50;
+        this.width = this.config.width;
 
         this.elements = {};
         this.zoomChanging = false;
@@ -386,8 +387,7 @@ export default class NavigationBar {
     }
 
     #handleMoveRegion(positions) {
-        // const pixelBase = (this.width - this.svgCanvasWidthOffset) / this.region.length();
-        const pixelBase = (this.config.width - this.config.svgCanvasWidthOffset) / this.region.length();
+        const pixelBase = this.width / this.region.length();
         const disp = Math.round((positions * 10) / pixelBase);
 
         this.region.start -= disp;
@@ -423,8 +423,8 @@ export default class NavigationBar {
         this.elements.zoomRange.value = this.zoom;
     }
 
-    draw() {
-        // Nothing to do
+    setWidth(width) {
+        this.width = width;
     }
 
     setRegion(region, zoom) {
@@ -451,6 +451,7 @@ export default class NavigationBar {
             quickSearchDisplayKey: "name",
             quickSearchResultFn: null,
             zoom: 50,
+            width: 100,
         };
     }
 
