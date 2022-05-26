@@ -122,25 +122,6 @@ export default class VariantInterpreterReview extends LitElement {
                         </div>
                     `;
                 }
-            },
-            {
-                id: "report-review",
-                name: "Report Test",
-                active: true,
-                render: (clinicalAnalysis, active, opencgaSession) => {
-                    return html`
-                        <div class="col-md-10 col-md-offset-1">
-                            <tool-header
-                                class="bg-white"
-                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <clinical-interpretation-review
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </clinical-interpretation-review>
-                        </div>
-                    `;
-                }
             }
         ];
 

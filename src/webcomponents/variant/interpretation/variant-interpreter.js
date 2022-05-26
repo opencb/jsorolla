@@ -271,6 +271,53 @@ class VariantInterpreter extends LitElement {
             `;
         }
 
+        // Note: this a temporal
+        const configReportTabs = {
+            display: {
+                align: "center",
+            },
+            items: [
+                {
+                    id: "variantReport",
+                    name: "Variant Report",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <variant-interpreter-report
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </variant-interpreter-report>
+                        </div>
+                    `;
+                    }
+                },
+                {
+                    id: "caseReport",
+                    name: "Case Report Review",
+                    active: true,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <clinical-interpretation-review
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-interpretation-review>
+                        </div>
+                    `;
+                    }
+                }
+            ]
+        };
+
         return html`
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis?.id ? html`
@@ -445,11 +492,17 @@ class VariantInterpreter extends LitElement {
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                                <div id="${this._prefix}report" class="col-md-10 col-md-offset-1 clinical-portal-content">
-                                    <variant-interpreter-report
+                            <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
+                                <div id="${this._prefix}report" >
+                                    <!-- <variant-interpreter-report
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                         .opencgaSession="${this.opencgaSession}">
-                                    </variant-interpreter-report>
+                                    </variant-interpreter-report> -->
+                                    <detail-tabs
+                                        .data="${this.clinicalAnalysis}"
+                                        .config="${configReportTabs}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </detail-tabs>
                                 </div>
                             ` : null}
                         ` : null}

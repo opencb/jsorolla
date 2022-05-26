@@ -94,7 +94,7 @@ export default class ClinicalInterpretationView extends LitElement {
                     active: true,
                     render: data => html`
                         <data-form
-                            .data="${this.clinicalAnalysis?.interpretation}"
+                            .data="${data?.interpretation}"
                             .config="${this._config}">
                         </data-form>
                     `
@@ -126,6 +126,7 @@ export default class ClinicalInterpretationView extends LitElement {
 
         return html`
             <detail-tabs
+                .data="${this.clinicalAnalysis}"
                 .config="${this.#renderInterpretationTabs()}"
                 .mode="${DetailTabs.PILLS_MODE}"
                 .opencgaSession="${this.opencgaSession}">
@@ -183,9 +184,85 @@ export default class ClinicalInterpretationView extends LitElement {
                     id: "commentView",
                     title: "Comments",
                     display: {
-                        style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
+                        // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
                     },
-                    elements: []
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => html `
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <div>
+                                                <span class="panel-title">User 1</span>
+                                                <span class="pull-right">13 Jan 2022</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                            when an unknown printer took a galley of type and scrambled it to make a type
+                                            specimen book. It has survived not only five centuries, but also the leap into
+                                            electronic typesetting, remaining essentially unchanged. It was popularised in
+                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                                            and more recently with desktop publishing software like Aldus PageMaker including
+                                            versions of Lorem Ipsum.
+                                        <div>
+                                            <span class="label label-warning">Variants</span>
+                                            <span class="label label-danger">Cancer</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <div>
+                                                <span class="panel-title">User 2</span>
+                                                <span class="pull-right">13 Jan 2022</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                            when an unknown printer took a galley of type and scrambled it to make a type
+                                            specimen book. It has survived not only five centuries, but also the leap into
+                                            electronic typesetting, remaining essentially unchanged. It was popularised in
+                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                                            and more recently with desktop publishing software like Aldus PageMaker including
+                                            versions of Lorem Ipsum.
+                                        <div>
+                                            <span class="label label-warning">Variants</span>
+                                            <span class="label label-danger">Cancer</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <div>
+                                                <span class="panel-title">User 3</span>
+                                                <span class="pull-right">13 Jan 2022</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                            when an unknown printer took a galley of type and scrambled it to make a type
+                                            specimen book. It has survived not only five centuries, but also the leap into
+                                            electronic typesetting, remaining essentially unchanged. It was popularised in
+                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                                            and more recently with desktop publishing software like Aldus PageMaker including
+                                            versions of Lorem Ipsum.
+                                        <div>
+                                            <span class="label label-warning">Variants</span>
+                                            <span class="label label-warning">Gene</span>
+                                            <span class="label label-info">Others</span>
+
+                                        </div>
+                                        </div>
+                                    </div>
+                                `
+                            }
+                        }
+                    ]
                 },
                 {
                     id: "variantView",

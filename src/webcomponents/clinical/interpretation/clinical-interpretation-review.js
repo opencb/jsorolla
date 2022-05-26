@@ -220,17 +220,41 @@ export default class ClinicalInterpretationReview extends LitElement {
                     id: "reportVariant",
                     title: "Reported Variants",
                     display: {
-                        style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
+                        // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
                     },
-                    elements: []
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`Comming Soon`
+                            }
+                        },
+                    ]
                 },
                 {
                     id: "reportConclusion",
                     title: "Conclusion",
                     display: {
-                        style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
+                        // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
                     },
-                    elements: []
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    return data?.discussion ? html`<p>${data.discussion}</p>` : "No Conclusion";
+                                }
+                            }
+                        },
+                        {
+                            field: "conclusion",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Please write a conclusion..."
+                            }
+                        },
+                    ]
                 },
             ]
 
