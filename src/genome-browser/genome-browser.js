@@ -28,8 +28,9 @@ export default class GenomeBrowser {
     async #init() {
         this.prefix = UtilsNew.randomString(8);
         this.version = "Powered by <a target=\"_blank\" href=\"http://www.opencb.org/\">OpenCB</a>";
-        this.width = this.config.width || 1;
-        this.height = this.config.height || 1;
+
+        this.width = this.target.offsetWidth - this.config.padding;
+        this.height = 100;
 
         // Initialize CellBase client
         if (this.config.cellBaseClient) {
@@ -130,18 +131,12 @@ export default class GenomeBrowser {
 
     // Initialize events
     #initEvents() {
+        // Register document/window event listeners
+        window.addEventListener("resize", this.#handleResize);
+
         this.on("region:change region:move", event => {
             if (event.sender !== this) {
                 this.region.load(event.region);
-            }
-        });
-        this.on("width:change", event => {
-            if (event.sender !== this) {
-                this.width = event.width;
-                this.div.style.width = event.width;
-                this.target.style.width = event.width;
-                // $(this.div).width(event.width);
-                // $(this.targetDiv).width(event.width);
             }
         });
     }
@@ -156,13 +151,22 @@ export default class GenomeBrowser {
         while (this.target.firstChild) {
             this.target.removeChild(this.target.firstChild);
         }
+
+        // Remove all event listeners
+        window.removeEventListener("resize", this.#handleResize);
         this.off();
+    }
+
+    #handleResize = () => {
+        this.width = this.target.offsetWidth - this.config.padding;
+        this.trigger("width:change", {
+            width: this.width,
+        });
     }
 
     // Get chromosomes from CellBase
     #getChromosomes() {
         // Check if chromosomes has been provided in configuration
-        // TODO: what if we have changed the specie in the navigation-bar?
         if (this.config.chromosomes?.length > 0) {
             return Promise.resolve(this.config.chromosomes);
         }
@@ -226,17 +230,6 @@ export default class GenomeBrowser {
         navigationBar.on("region-button:change", event => {
             event.selected ? this.overviewTrackListPanel.show() : this.overviewTrackListPanel.hide();
         });
-        navigationBar.on("fullscreen:click", () => {
-            // TODO: move this to a separate function called toggleFullScreen
-            if (this.fullscreen) {
-                $(this.div).css({width: "auto"});
-                Utils.cancelFullscreen(); // no need to pass the dom object;
-            } else {
-                $(this.div).css({width: screen.width});
-                Utils.launchFullScreen(this.div);
-            }
-            this.fullscreen = !this.fullscreen; // Change fullscreen
-        });
         navigationBar.on("restoreDefaultRegion:click", event => {
             this.#regionChangeHandler({...event, region: this.defaultRegion});
         });
@@ -254,7 +247,6 @@ export default class GenomeBrowser {
                 navigationBar.moveRegion(event.region);
             }
         });
-        this.on("width:change", event => navigationBar.setWidth(event.width));
         this.on("draw", () => navigationBar.draw());
 
         return navigationBar;
@@ -265,7 +257,7 @@ export default class GenomeBrowser {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
-            width: this.width - this.sidePanelWidth,
+            width: this.width,
             height: 125,
             species: this.config.species,
             title: "Karyotype",
@@ -281,9 +273,7 @@ export default class GenomeBrowser {
 
         // Listen to GB events
         this.on("region:change region:move", event => karyotypePanel.setRegion(event.region));
-        this.on("width:change", event => karyotypePanel.setWidth(event.width - this.sidePanelWidth));
-
-        // Draw karyotype panel
+        this.on("width:change", event => karyotypePanel.setWidth(event.width));
         this.on("draw", () => karyotypePanel.draw());
 
         return karyotypePanel;
@@ -295,7 +285,7 @@ export default class GenomeBrowser {
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
             autoRender: true,
-            width: this.width - this.sidePanelWidth,
+            width: this.width,
             height: 65,
             species: this.config.species,
             title: "Chromosome",
@@ -310,9 +300,7 @@ export default class GenomeBrowser {
 
         // Listen to GB events
         this.on("region:change region:move", event => chromosomePanel.setRegion(event.region));
-        this.on("width:change", event => chromosomePanel.setWidth(event.width - this.sidePanelWidth));
-
-        // Render chromosome panel
+        this.on("width:change", event => chromosomePanel.setWidth(event.width));
         this.on("draw", () => chromosomePanel.draw());
 
         return chromosomePanel;
@@ -323,7 +311,7 @@ export default class GenomeBrowser {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
-            width: this.width - this.sidePanelWidth,
+            width: this.width,
             zoomMultiplier: this.config.overviewZoomMultiplier,
             title: "Region overview",
             showRegionOverviewBox: true,
@@ -347,9 +335,7 @@ export default class GenomeBrowser {
                 trackListPanel.moveRegion(event);
             }
         });
-        this.on("width:change", event => trackListPanel.setWidth(event.width - this.sidePanelWidth));
-
-        // Draw track list panel
+        this.on("width:change", event => trackListPanel.setWidth(event.width));
         this.on("draw", () => trackListPanel.draw());
 
         return trackListPanel;
@@ -360,7 +346,7 @@ export default class GenomeBrowser {
             cellBaseClient: this.cellBaseClient,
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
-            width: this.width - this.sidePanelWidth,
+            width: this.width,
             title: this.config.trackListTitle,
             region: this.region,
             species: this.config.species,
@@ -382,10 +368,8 @@ export default class GenomeBrowser {
                 trackListPanel.moveRegion(event);
             }
         });
-        this.on("width:change", event => trackListPanel.setWidth(event.width - this.sidePanelWidth));
+        this.on("width:change", event => trackListPanel.setWidth(event.width));
         this.on("feature:highlight", event => trackListPanel.highlight(event));
-
-        // Draw tracklist
         this.on("draw", () => trackListPanel.draw());
 
         return trackListPanel;
@@ -820,18 +804,12 @@ export default class GenomeBrowser {
             // General configuration
             resizable: true,
             region: null,
-            width: 1,
-            height: 1,
+            padding: 30,
 
             // CellBase configuration
             cellBaseClient: null,
             cellBaseHost: null,
             cellBaseVersion: null,
-
-            // TO REVIEW
-            sidePanel: false,
-            trackListTitle: "Detailed information",
-            trackPanelScrollWidth: 18,
 
             drawStatusBar: true,
             drawNavigationBar: true,
