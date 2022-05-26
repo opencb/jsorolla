@@ -190,23 +190,12 @@ export default class GenomeBrowser {
             region: new Region(feature),
         });
 
-        // TODO: fix configuration values
         const navigationBar = new NavigationBar(target, {
-            cellBaseClient: this.cellBaseClient,
-            cellBaseHost: this.config.cellBaseHost,
-            cellBaseVersion: this.config.cellBaseVersion,
-            availableSpecies: this.config.availableSpecies,
-            species: this.config.species,
-            region: this.region,
             width: this.width,
-            svgCanvasWidthOffset: this.config.trackPanelScrollWidth + this.sidePanelWidth,
+            region: this.region,
             zoom: this.zoom,
             quickSearchResultFn: quickSearchResultFn,
             quickSearchDisplayKey: this.config.quickSearchDisplayKey,
-            componentsConfig: this.config.navigationBarConfig.componentsConfig,
-            karyotypePanelConfig: this.config.karyotypePanelConfig,
-            chromosomePanelConfig: this.config.chromosomePanelConfig,
-            regionPanelConfig: this.config.regionPanelConfig,
         });
 
         // Register event listeners
@@ -234,13 +223,13 @@ export default class GenomeBrowser {
         navigationBar.on("quickSearch:go", event => goToFeature(event.item));
 
         // Listen to events in GB
+        this.on("width:change", event => navigationBar.setWidth(event.width));
         this.on("region:change", event => navigationBar.setRegion(event.region, this.zoom));
         this.on("region:move", event => {
             if (event.sender != navigationBar) {
                 navigationBar.moveRegion(event.region);
             }
         });
-        this.on("draw", () => navigationBar.draw());
 
         return navigationBar;
     }
@@ -638,30 +627,11 @@ export default class GenomeBrowser {
         this.trigger("feature:highlight", args);
     }
 
-    // TODO: use native alternatives instead of jquery
-    getRightSidePanelId() {
-        return $(this.rightSidebarDiv).attr("id");
-    }
-
-    getLeftSidePanelId() {
-        return $(this.leftSidebarDiv).attr("id");
-    }
-
-    getNavigationPanelId() {
-        return $(this.navigationbarDiv).attr("id");
-    }
-
-    getStatusPanelId() {
-        return $(this.statusbarDiv).attr("id");
-    }
-
     setNavigationBar(navigationBar) {
         this.navigationBar = Object.assign(navigationBar, {
-            availableSpecies: this.availableSpecies,
             species: this.species,
             region: this.region,
             width: this.width,
-            svgCanvasWidthOffset: this.trackPanelScrollWidth + this.sidePanelWidth,
         });
         // TODO: this must be improved
         navigationBar.render(this.getNavigationPanelId());
@@ -787,7 +757,6 @@ export default class GenomeBrowser {
 
             drawStatusBar: true,
             drawNavigationBar: true,
-            navigationBarConfig: {},
             drawKaryotypePanel: true,
             drawChromosomePanel: true,
             drawOverviewTrackListPanel: true,
