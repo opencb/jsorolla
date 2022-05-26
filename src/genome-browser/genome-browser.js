@@ -329,7 +329,7 @@ export default class GenomeBrowser {
             cellBaseHost: this.config.cellBaseHost,
             cellBaseVersion: this.config.cellBaseVersion,
             width: this.width,
-            title: this.config.trackListTitle,
+            title: "Detailed information",
             region: this.region,
             species: this.config.species,
             hidden: this.config.regionPanelConfig.hidden,
