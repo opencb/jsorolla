@@ -33,7 +33,7 @@ export default class TrackListPanel {
 
         // set new region object
         this.region = new Region(this.config.region);
-        this.width = this.config.width - 18;
+        this.width = this.config.width;
         this.height = this.config.height;
         this.status;
 
@@ -422,7 +422,7 @@ export default class TrackListPanel {
     }
 
     setWidth(width) {
-        this.width = width - 30;
+        this.width = width;
 
         // Update track elements position
         this.centerLine.style.left = `${this.width / 2}px`;
