@@ -361,13 +361,11 @@ export default class GenomeBrowser {
         const statusBar = new StatusBar(target, {
             autoRender: true,
             region: this.region,
-            width: this.width,
             version: this.version,
         });
 
         // Listen to events in GB
         this.on("region:change", event => statusBar.setRegion(event));
-        this.on("draw", () => statusBar.draw());
 
         // Listen to events in tracklistPanel
         this.trackListPanel.on("mousePosition:change", event => statusBar.setMousePosition(event));
