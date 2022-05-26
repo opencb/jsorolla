@@ -304,9 +304,16 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "creationDate":
                     content = html`
                         <date-filter
-                            .creationDate="${this.preparedQuery.creationDate}"
+                            .filterDate="${this.preparedQuery.creationDate}"
                             @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                        </date-filter>
+                        </date-filter>`;
+                    break;
+                case "dueDate":
+                    content = html`
+                    <date-filter
+                        .filterDate="${this.preparedQuery.dueDate}"
+                        @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
+                    </date-filter>
                     `;
                     break;
                 default:

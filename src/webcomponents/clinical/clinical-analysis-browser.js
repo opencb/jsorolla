@@ -198,8 +198,13 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "date",
-                                name: "Date",
+                                id: "creationDate",
+                                name: "Creation Date",
+                                description: ""
+                            },
+                            {
+                                id: "dueDate",
+                                name: "Due Date",
                                 description: ""
                             }
                         ]
