@@ -9,6 +9,7 @@ export default class FeatureTrack {
         // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
+        this.target = null;
         this.prefix = UtilsNew.randomString(8);
         this.config = {
             ...this.getDefaultConfig(),
@@ -196,36 +197,15 @@ export default class FeatureTrack {
                 document.body.classList.remove("unselectable");
                 document.body.removeEventListener("mousemove", handleResizeMove);
             });
-
-            // TODO: review this event
-            // $(contentDiv).closest(".trackListPanels").mouseup(function(event) {
-            //     _this.updateHeight();
-            // });
         }
     }
 
-    // TODO: review this method
-    initializeDom(target) {
-        // Moun element
-        target.appendChild(this.div);
+    render(target) {
+        this.target = target;
+        this.target.appendChild(this.div);
 
         this.updateHeight();
-        // this.renderer.init();
-    }
-
-    // TODO: review this method
-    render(target) {
-        this.initializeDom(target);
-
         this.#setCanvasConfig();
-    }
-
-    get(attr) {
-        return this[attr];
-    }
-
-    set(attr, value) {
-        this[attr] = value;
     }
 
     hide() {
