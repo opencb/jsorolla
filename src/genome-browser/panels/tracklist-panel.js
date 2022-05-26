@@ -1,6 +1,6 @@
 import Region from "../../core/bioinfo/region.js";
 import UtilsNew from "../../core/utilsNew.js";
-import SequenceRenderer from "../renderers/sequence-renderer.js";
+import SequenceTrack from "../tracks/sequence-track.js";
 
 export default class TrackListPanel {
 
@@ -20,11 +20,10 @@ export default class TrackListPanel {
     #init() {
         this.prefix = UtilsNew.randomString(8);
         this.collapsed = false;
-        this.collapsible = false;
         this.hidden = false;
 
         this.tracks = [];
-        this.tracksIndex = {};
+        this.sequenceTrack = null;
 
         this.parentLayout;
         this.mousePosition;
@@ -194,7 +193,7 @@ export default class TrackListPanel {
             this.trigger("mousePosition:change", {
                 mousePos: this.mousePosition,
                 chromosome: this.region.chromosome,
-                base: this.getMousePosition(this.mousePosition),
+                base: this.#getSequenceNucleotid(this.mousePosition),
             });
         });
 
@@ -380,6 +379,44 @@ export default class TrackListPanel {
 
     }
 
+    draw() {
+        this.trigger("track:draw", {
+            sender: this,
+        });
+    }
+
+    #checkAllTrackStatus(status) {
+        return this.tracks.every(track => track.status === status);
+    }
+
+    #setPixelBase() {
+        this.pixelBase = (this.width / this.region.length()) / this.config.zoomMultiplier;
+    }
+
+    #setTextPosition() {
+        const centerPosition = this.region.center();
+        const baseLength = parseInt(this.width / this.pixelBase); // for zoom 100
+        const aux = Math.ceil((baseLength / 2) - 1);
+
+        this.visualRegion.start = Math.floor(centerPosition - aux);
+        this.visualRegion.end = Math.floor(centerPosition + aux);
+
+        this.positionMidPosDiv.textContent = centerPosition;
+        this.positionLeftDiv.textContent = this.visualRegion.start;
+        this.positionRightDiv.textContent = this.visualRegion.end;
+        this.windowSize = `Window size: ${this.visualRegion.length()} nts`;
+        this.windowSizeDiv.textContent = this.windowSize;
+    }
+
+    #getSequenceNucleotid(position) {
+        if (position > 0 && this.sequenceTrack) {
+            const el = this.sequenceTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
+            return el?.textContent || "";
+        }
+
+        return "";
+    }
+
     show() {
         this.target.style.display = "block";
         this.hidden = false;
@@ -426,8 +463,7 @@ export default class TrackListPanel {
         // Update track elements position
         this.centerLine.style.left = `${this.width / 2}px`;
 
-        // Emit resize event
-        this.trigger("resize", {
+        this.trigger("width:change", {
             width: this.width,
         });
     }
@@ -476,159 +512,55 @@ export default class TrackListPanel {
         this.status = "rendering";
     }
 
-    draw() {
-        this.trigger("track:draw", {
-            sender: this,
-        });
-    }
-
-    #checkAllTrackStatus(status) {
-        return this.tracks.every(track => track.status === status);
-    }
-
     checkTracksReady() {
         return this.#checkAllTrackStatus("ready");
     }
 
     addTrack(track) {
-        // TODO: this should be removed, this method only accepts one track
-        (Array.isArray(track) ? track : [track]).forEach(t => this.#registerTrack(t));
-        // this.#registerTrack(track);
-    }
-
-    addTracks(tracks) {
-        tracks.forEach(track => this.#registerTrack(track));
-    }
-
-    #registerTrack(track) {
         if (!this.rendered) {
             console.log(`${this.prefix} is not rendered yet`);
             return;
         }
 
-        if (!track) {
+        // Check if this track already exists
+        if (!track || this.containsTrack(track)) {
             return false;
         }
 
-        // Check if already exists
-        if (this.containsTrack(track)) {
-            return false;
-        }
-
-        const length = this.tracks.push(track);
-        const insertPosition = length - 1;
-        this.tracksIndex[track.prefix] = insertPosition;
+        this.tracks.push(track);
 
         track.setPixelBase(this.pixelBase);
         track.setRegion(this.visualRegion);
         track.setWidth(this.width);
+        track.render(this.tlTracksDiv);
 
-        // Track must be initialized after we have created
-        // de DIV element in order to create the elements in the DOM
-        if (!track.rendered) {
-            track.render(this.tlTracksDiv);
-        }
-
-        // Track resize
-        this.on("resize", event => track.setWidth(event.width));
-
-        // Track region change listener
+        // List to tracklist events
+        this.on("width:change", event => track.setWidth(event.width));
         this.on("trackRegion:change", event => {
             track.setWidth(this.width);
             track.setPixelBase(this.pixelBase);
             track.setRegion(event.region);
             track.draw();
         });
-
-        // Track region move
         this.on("trackRegion:move", event => {
             track.setRegion(event.region);
             track.setPixelBase(this.pixelBase);
             track.move(event.disp);
         });
-
-        // TODO: review this
-        // // Track region highlight
-        // this.on("trackFeature:highlight", event => {
-        //     const attrName = event.attrName || "feature_id";
-        //     if (event.attrValue) {
-        //         const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
-
-        //         attrItems.forEach(key => {
-        //             const queryStr = `${attrName}~=${event.attrValue[key]}`;
-        //             const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
-
-        //             Array.from(groups).forEach(item => {
-        //                 let animation = $(this).find("animate");
-        //                 if (animation.length == 0) {
-        //                     animation = SVG.addChild(this, "animate", {
-        //                         "attributeName": "opacity",
-        //                         "attributeType": "XML",
-        //                         // "begin": "indefinite",
-        //                         "from": "0.0",
-        //                         "to": "1",
-        //                         "begin": "0s",
-        //                         "dur": "0.5s",
-        //                         "repeatCount": "5"
-        //                     });
-        //                 } else {
-        //                     animation = animation[0];
-        //                 }
-        //                 let y = $(group).find("rect").attr("y");
-        //                 $(track.svgdiv).scrollTop(y);
-        //                 animation.beginElement();
-        //             });
-        //         });
-        //     }
-        // });
-
-        track.on("track:close", event => this.removeTrack(event.sender));
-        track.on("track:up", event => this.#reallocateAbove(event.sender));
-        track.on("track:down", event => this.#reallocateUnder(event.sender));
+        // track.on("track:up", event => this.#reallocateAbove(event.sender));
+        // track.on("track:down", event => this.#reallocateUnder(event.sender));
 
         // Draw track
         this.on("track:draw", () => track.draw());
 
-        // this.on('trackSpecies:change', track.get('trackSpecies:change'));
-        // this.on("trackRegion:change", track.get("trackRegion:change"));
-        // this.on("trackRegion:move", track.get("trackRegion:move"));
-        // this.on("trackFeature:highlight", track.get("trackFeature:highlight"));
+        // Check if this track is an instance of the sequence track
+        if (track instanceof SequenceTrack) {
+            this.sequenceTrack = track; // Save reference to sequence track
+        }
     }
 
-    toggleAutoHeight(bool) {
-        this.tracks.forEach(track => track.toggleAutoHeight(bool));
-    }
-
-    updateHeight() {
-        this.tracks.forEach(track => track.updateHeight(true));
-    }
-
-    containsTrack(track) {
-        return typeof this.tracksIndex[track.prefix] !== "undefined";
-    }
-
-    getTrackIndex(track) {
-        return this.tracksIndex[track.prefix];
-    }
-
-    // update index with correct index after splice
-    #updateTracksIndex() {
-        this.tracks.forEach((track, index) => {
-            this.tracksIndex[track.id] = index;
-        });
-    }
-
-    refreshTracksDom() {
-        this.tracks.forEach(track => {
-            // TODO: do not use jquery
-            $(track.div).detach();
-            $(this.tlTracksDiv).append(track.div);
-        });
-
-        // Trigger tracks refresh event
-        this.trigger("tracks:refresh", {
-            sender: this,
-        });
+    addTracks(tracks) {
+        (tracks || []).forEach(track => this.addTrack(track));
     }
 
     removeTrack(track) {
@@ -636,200 +568,45 @@ export default class TrackListPanel {
             return false;
         }
 
-        // first hide the track
-        this.hideTrack(track);
-        track.remove();
-
-        const index = this.getTrackIndex(track);
-        // remove track from list and hash data
-        this.tracks.splice(index, 1)[0];
-        delete this.tracksIndex[track.id];
-        this.#updateTracksIndex();
-
-        // eslint-disable-next-line no-param-reassign
-        track.rendered = false;
+        // Remove from tracks list and from DOM
+        this.tracks.filter(t => t.prefix !== track.prefix);
+        this.tlTracksDiv.removeChild(this.tracks.div);
 
         // delete listeners
-
-        track.off("track:close");
         track.off("track:up");
         track.off("track:down");
 
-
-        this.off("track:draw", track.get("track:draw"));
-        // this.off('trackSpecies:change', track.get('trackSpecies:change'));
-        this.off("trackRegion:change", track.get("trackRegion:change"));
-        this.off("trackRegion:move", track.get("trackRegion:move"));
-        // this.off('trackWidth:change', track.set('trackWidth:change'));
-        this.off("trackFeature:highlight", track.get("trackFeature:highlight"));
-
-        this.refreshTracksDom();
-        return track;
-    }
-
-    restoreTrack(track, index) {
-        if (this.containsTrack((track))) {
-            return false;
-        }
-
-        this.addTrack(track);
-        if (typeof index !== "undefined") {
-            this.setTrackIndex(track, index);
-        }
-        track.show();
-        this.refreshTracksDom();
-    }
-
-
-    // This routine is called when track order is modified
-    #reallocateAbove(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        const index = this.getTrackIndex(track);
-        // console.log(`${index} wants to move up`);
-        if (index > 0) {
-            const aboveTrack = this.tracks[index - 1];
-            const underTrack = this.tracks[index];
-
-            this.tracks[index] = aboveTrack;
-            this.tracks[index - 1] = underTrack;
-            this.tracksIndex[aboveTrack.id] = index;
-            this.tracksIndex[underTrack.id] = index - 1;
-            this.refreshTracksDom();
-            // } else {
-            //     console.log("is at top");
-        }
-    }
-
-    // This routine is called when track order is modified
-    #reallocateUnder(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        const index = this.getTrackIndex(track);
-        // console.log(`${i} wants to move down`);
-        if (index + 1 < this.tracks.length) {
-            const aboveTrack = this.tracks[index];
-            const underTrack = this.tracks[index + 1];
-
-            this.tracks[index] = underTrack;
-            this.tracks[index + 1] = aboveTrack;
-            this.tracksIndex[underTrack.id] = index;
-            this.tracksIndex[aboveTrack.id] = index + 1;
-            this.refreshTracksDom();
-            // } else {
-            // console.log("is at bottom");
-        }
-    }
-
-    setTrackIndex(track, newIndex) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        const oldIndex = this.getTrackIndex(track);
-
-        // remove track from old index
-        this.tracks.splice(oldIndex, 1)[0];
-
-        // add track at new Index
-        this.tracks.splice(newIndex, 0, track);
-
-        this._updateTracksIndex();
-
-        // update track div positions
-        this.refreshTracksDom();
-    }
-
-    swapTracks(t1, t2) {
-        if (!this.containsTrack(t1) || !this.containsTrack(t2)) {
-            return false;
-        }
-
-        const oldIndex1 = this.getTrackIndex(t1);
-        const oldIndex2 = this.getTrackIndex(t2);
-
-        this.tracks[oldIndex1] = t2;
-        this.tracks[oldIndex2] = t1;
-        this.tracksIndex[t1.id] = oldIndex2;
-        this.tracksIndex[t2.id] = oldIndex1;
-        this.refreshTracksDom();
-    }
-
-    scrollToTrack(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
+        // this.off("track:draw", track.get("track:draw"));
+        // this.off("trackRegion:change", track.get("trackRegion:change"));
+        // this.off("trackRegion:move", track.get("trackRegion:move"));
+        // this.off("trackFeature:highlight", track.get("trackFeature:highlight"));
     }
 
     hideTrack(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
         track.hide();
-        this.refreshTracksDom();
     }
 
     showTrack(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
         track.show();
-        this.refreshTracksDom();
     }
 
-    #setPixelBase() {
-        this.pixelBase = (this.width / this.region.length()) / this.config.zoomMultiplier;
+    toggleTracksAutoHeight(bool) {
+        this.tracks.forEach(track => track.toggleAutoHeight(bool));
     }
 
-    #setTextPosition() {
-        const centerPosition = this.region.center();
-        const baseLength = parseInt(this.width / this.pixelBase); // for zoom 100
-        const aux = Math.ceil((baseLength / 2) - 1);
-
-        this.visualRegion.start = Math.floor(centerPosition - aux);
-        this.visualRegion.end = Math.floor(centerPosition + aux);
-
-        this.positionMidPosDiv.textContent = centerPosition;
-        this.positionLeftDiv.textContent = this.visualRegion.start;
-        this.positionRightDiv.textContent = this.visualRegion.end;
-        this.windowSize = `Window size: ${this.visualRegion.length()} nts`;
-        this.windowSizeDiv.textContent = this.windowSize;
+    updateTracksHeight() {
+        this.tracks.forEach(track => track.updateHeight(true));
     }
 
-    getTrackById(trackId) {
-        if (this.tracksIndex[trackId]) {
-            const index = this.tracksIndex[trackId];
-            return this.tracks[index];
-        }
-
-        return null;
-    }
-
-    #getSequenceTrack() {
-        return this.tracks.find(track => track?.renderer instanceof SequenceRenderer);
-    }
-
-    #getSequenceNucleotid(position) {
-        const seqTrack = this.#getSequenceTrack();
-        if (seqTrack) {
-            const element = seqTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
-            return element?.textContent || "";
-        }
-        return "";
-    }
-
-    getMousePosition(position) {
-        return position > 0 ? this.#getSequenceNucleotid(position) : "";
+    containsTrack(track) {
+        return this.tracks.findIndex(t => t.prefix === track.prefix) !== -1;
     }
 
     getDefaultConfig() {
         return {
             width: 0,
             height: 0,
+            title: "",
             region: null,
             collapsed: false,
             collapsible: false,
