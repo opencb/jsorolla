@@ -511,7 +511,6 @@ export default class ChromosomePanel {
         return {
             width: 600,
             height: 75,
-            hidden: false,
             collapsible: true,
             collapsed: false,
             offset: 20, // Internally used

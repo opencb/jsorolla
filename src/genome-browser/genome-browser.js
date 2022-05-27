@@ -103,22 +103,22 @@ export default class GenomeBrowser {
 
     #initPanels() {
         // Create Navigation Bar
-        if (this.config.drawNavigationBar) {
+        if (this.config.navigationPanelVisible) {
             this.navigationBar = this.#createNavigationBar(this.navigationbarDiv);
         }
 
         // Create karyotype Panel
-        if (this.config.drawKaryotypePanel) {
+        if (this.config.karyotypePanelVisible) {
             this.karyotypePanel = this.#createKaryotypePanel(this.karyotypeDiv);
         }
 
         // Create Chromosome panel
-        if (this.config.drawChromosomePanel) {
+        if (this.config.chromosomePanelVisible) {
             this.chromosomePanel = this.#createChromosomePanel(this.chromosomeDiv);
         }
 
         // Create overview track list panel
-        if (this.config.drawOverviewTrackListPanel) {
+        if (this.config.overviewPanelVisible) {
             this.overviewTrackListPanel = this.#createOverviewTrackListPanel(this.regionDiv);
         }
 
@@ -126,7 +126,7 @@ export default class GenomeBrowser {
         this.trackListPanel = this.#createTrackListPanel(this.tracksDiv);
 
         // Create status bar
-        if (this.config.drawStatusBar) {
+        if (this.config.statusPanelVisible) {
             this.statusBar = this.#createStatusBar(this.statusbarDiv);
         }
     }
@@ -178,7 +178,7 @@ export default class GenomeBrowser {
     }
 
     #createNavigationBar(target) {
-        let quickSearchResultFn = this.config.quickSearchResultFn;
+        let quickSearchResultFn = this.config.navigationPanelQuickSearchResultFn;
         if (typeof quickSearchResultFn !== "function") {
             quickSearchResultFn = query => {
                 return this.cellBaseClient.get("feature", "gene", query, "startsWith", {
@@ -197,7 +197,10 @@ export default class GenomeBrowser {
             region: this.region,
             zoom: this.zoom,
             quickSearchResultFn: quickSearchResultFn,
-            quickSearchDisplayKey: this.config.quickSearchDisplayKey,
+            quickSearchDisplayKey: this.config.navigationPanelQuickSearchDisplayKey,
+            karyotypePanelVisible: this.config.karyotypePanelVisible,
+            chromosomePanelVisible: this.config.chromosomePanelVisible,
+            overviewPanelVisible: this.config.overviewPanelVisible,
         });
 
         // Register event listeners
@@ -211,7 +214,7 @@ export default class GenomeBrowser {
         navigationBar.on("chromosome-button:change", event => {
             event.selected ? this.chromosomePanel.show() : this.chromosomePanel.hide();
         });
-        navigationBar.on("region-button:change", event => {
+        navigationBar.on("overview-button:change", event => {
             event.selected ? this.overviewTrackListPanel.show() : this.overviewTrackListPanel.hide();
         });
         navigationBar.on("restoreDefaultRegion:click", event => {
@@ -242,9 +245,8 @@ export default class GenomeBrowser {
             height: 125,
             title: "Karyotype",
             chromosomes: this.chromosomesList,
-            collapsed: this.config.karyotypePanelConfig.collapsed,
-            collapsible: this.config.karyotypePanelConfig.collapsible,
-            hidden: this.config.karyotypePanelConfig.hidden,
+            collapsed: this.config.karyotypePanelCollapsed,
+            collapsible: this.config.karyotypePanelCollapsible,
             region: this.region,
         });
 
@@ -265,9 +267,8 @@ export default class GenomeBrowser {
             height: 65,
             title: "Chromosome",
             chromosomes: this.chromosomesList,
-            collapsed: this.config.chromosomePanelConfig.collapsed,
-            collapsible: this.config.chromosomePanelConfig.collapsible,
-            hidden: this.config.chromosomePanelConfig.hidden,
+            collapsed: this.config.chromosomePanelCollapsed,
+            collapsible: this.config.chromosomePanelCollapsible,
             region: this.region,
         });
 
@@ -284,16 +285,13 @@ export default class GenomeBrowser {
 
     #createOverviewTrackListPanel(target) {
         const trackListPanel = new TrackListPanel(target, {
-            cellBaseClient: this.cellBaseClient,
-            cellBaseHost: this.config.cellBaseHost,
-            cellBaseVersion: this.config.cellBaseVersion,
             width: this.width,
-            zoomMultiplier: this.config.overviewZoomMultiplier,
             title: "Region overview",
-            showRegionOverviewBox: true,
-            collapsible: this.config.regionPanelConfig?.collapsible,
+            zoomMultiplier: this.config.overviewPanelZoomMultiplier,
+            collapsible: this.config.overviewPanelCollapsible,
+            collapsed: this.config.overviewPanelCollapsed,
             region: this.region,
-            species: this.config.species,
+            showRegionOverviewBox: true,
         });
 
         // Register overview track list event listeners
@@ -319,14 +317,9 @@ export default class GenomeBrowser {
 
     #createTrackListPanel(target) {
         const trackListPanel = new TrackListPanel(target, {
-            cellBaseClient: this.cellBaseClient,
-            cellBaseHost: this.config.cellBaseHost,
-            cellBaseVersion: this.config.cellBaseVersion,
             width: this.width,
             title: "Detailed information",
             region: this.region,
-            species: this.config.species,
-            hidden: this.config.regionPanelConfig.hidden,
         });
 
         // Register event listeners
@@ -739,7 +732,6 @@ export default class GenomeBrowser {
             resizable: true,
             region: null,
             padding: 30,
-
             minNtPixels: 10, // 10 is the minimum pixels per nt
 
             // CellBase configuration
@@ -747,30 +739,29 @@ export default class GenomeBrowser {
             cellBaseHost: null,
             cellBaseVersion: null,
 
-            drawStatusBar: true,
-            drawNavigationBar: true,
-            drawKaryotypePanel: true,
-            drawChromosomePanel: true,
-            drawOverviewTrackListPanel: true,
-            overviewZoomMultiplier: 8,
-            karyotypePanelConfig: {
-                hidden: false,
-                collapsed: false,
-                collapsible: true,
-            },
-            chromosomePanelConfig: {
-                hidden: false,
-                collapsed: false,
-                collapsible: true,
-            },
-            regionPanelConfig: {
-                hidden: false,
-                collapsed: false,
-                collapsible: true,
-            },
+            // Navigation panel configuration
+            navigationPanelVisible: true,
+            navigationPanelQuickSearchResultFn: null,
+            navigationPanelQuickSearchDisplayKey: "name",
 
-            quickSearchResultFn: null,
-            quickSearchDisplayKey: "name",
+            // Status panel configuration
+            statusPanelVisible: true,
+
+            // Karyotype panel configuration
+            karyotypePanelVisible: true,
+            karyotypePanelCollasible: true,
+            karyotypePanelCollapsed: false,
+
+            // Chromosome panel configuration
+            chromosomePanelVisible: true,
+            chromosomePanelCollapsible: true,
+            chromosomePanelCollapsed: false,
+
+            // Overview panel configuration
+            overviewPanelVisible: true,
+            overviewPanelCollapsible: true,
+            overviewPanelCollapsed: false,
+            overviewPanelZoomMultiplier: 8,
 
             species: [],
             availableSpecies: [],

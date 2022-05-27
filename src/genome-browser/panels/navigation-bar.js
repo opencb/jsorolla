@@ -48,14 +48,14 @@ export default class NavigationBar {
                 </div>
                 
                 <!-- Panels buttons -->
-                <div class="btn-group" style="display:inline-block;">
-                    <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm">
+                <div id="${this.prefix}PanelButtons" class="btn-group" style="display:inline-block;">
+                    <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm active">
                         <span class="gb-icon gb-icon-karyotype" style="display:block;width:16px;height:18px;"></span>
                     </button>
-                    <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm">
+                    <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm active">
                         <span class="gb-icon gb-icon-chromosome" style="display:block;width:16px;height:18px;"></span>
                     </button>
-                    <button title="Toggle overview panel" id="${this.prefix}RegionButton" class="btn btn-default btn-sm">
+                    <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-default btn-sm active">
                         <span class="gb-icon gb-icon-region" style="display:block;width:16px;height:18px;"></span>
                     </button>
                 </div>
@@ -147,9 +147,10 @@ export default class NavigationBar {
         this.div = template.querySelector(`div#${this.prefix}`);
 
         // Panels buttons
+        this.elements.panelButtons = this.div.querySelector(`div${this.prefix}PanelButtons`);
         this.elements.karyotypeButton = this.div.querySelector(`button#${this.prefix}KaryotypeButton`);
         this.elements.chromosomeButton = this.div.querySelector(`button#${this.prefix}ChromosomeButton`);
-        this.elements.regionButton = this.div.querySelector(`button#${this.prefix}RegionButton`);
+        this.elements.overviewButton = this.div.querySelector(`button#${this.prefix}OverviewButton`);
 
         // Zooming controls
         this.elements.zoomRange = this.div.querySelector(`input#${this.prefix}ZoomRange`);
@@ -184,19 +185,21 @@ export default class NavigationBar {
         this.elements.searchButton = this.div.querySelector(`button#${this.prefix}SearchButton`);
         this.elements.searchDataList = this.div.querySelector(`datalist#${this.prefix}SearchDataList`);
 
-        // Mark as active the karyotype panel button
-        if (this.config.karyotypePanelVisible) {
-            this.elements.karyotypeButton.classList.add("active");
-        }
+        // Hide panel buttons
+        if (!this.config.karyotypePanelVisible && !this.config.chromosomePanelVisible && !this.overviewPanelVisible) {
+            this.elements.panelButtons.style.display = "none";
+        } else {
+            if (!this.config.karyotypePanelVisible) {
+                this.elements.karyotypeButton.style.display = "none";
+            }
 
-        // Mark as active the chromosome panel button
-        if (this.config.chromosomePanelVisible) {
-            this.elements.chromosomeButton.classList.add("active");
-        }
+            if (!this.config.chromosomePanelVisible) {
+                this.elements.chromosomeButton.style.display = "none";
+            }
 
-        // Mark as active the region panel button
-        if (this.config.regionPanelVisible) {
-            this.elements.regionButton.classList.add("active");
+            if (!this.config.overviewPanelVisible) {
+                this.elements.overviewButton.style.display = "none";
+            }
         }
 
         this.target.appendChild(this.div);
@@ -216,7 +219,7 @@ export default class NavigationBar {
         // Toggle panels
         this.elements.karyotypeButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.karyotypeButton, "karyotype"));
         this.elements.chromosomeButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.chromosomeButton, "chromosome"));
-        this.elements.regionButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.regionButton, "region"));
+        this.elements.overviewButton.addEventListener("click", () => this.#handlePanelToggle(this.elements.overviewButton, "overview"));
 
         // Zooming events
         this.elements.zoomOutButton.addEventListener("click", () => this.#handleZoomOutButton());
@@ -446,7 +449,7 @@ export default class NavigationBar {
         return {
             karyotypePanelVisible: true,
             chromosomePanelVisible: true,
-            regionPanelVisible: true,
+            overviewPanelVisible: true,
             region: null,
             quickSearchDisplayKey: "name",
             quickSearchResultFn: null,

@@ -321,7 +321,6 @@ export default class KaryotypePanel {
             height: 75,
             collapsed: false,
             collapsible: true,
-            hidden: false,
             region: null,
             title: "Karyotype",
             chromosomes: [],
