@@ -87,55 +87,6 @@ export default class KaryotypePanel {
         });
     }
 
-    show() {
-        this.div.style.display = "block";
-        this.hidden = false;
-    }
-
-    hide() {
-        this.div.style.display = "none";
-        this.hidden = true;
-    }
-
-    setVisible(bool) {
-        bool ? this.show() : this.hide();
-    }
-
-    showContent() {
-        this.content.style.display = "block";
-        this.collapseDiv.classList.remove("active");
-        this.collapseIcon.classList.remove("fa-plus");
-        this.collapseIcon.classList.add("fa-minus");
-        this.collapsed = false;
-    }
-
-    hideContent() {
-        this.content.style.display = "none";
-        this.collapseDiv.classList.add("active");
-        this.collapseIcon.classList.remove("fa-minus");
-        this.collapseIcon.classList.add("fa-plus");
-        this.collapsed = true;
-    }
-
-    toggleContent() {
-        this.collapsed ? this.showContent() : this.hideContent();
-    }
-
-    setTitle(title) {
-        this.titleText.textContent = title;
-    }
-
-    setWidth(width) {
-        this.width = width;
-        this.svg.setAttribute("width", width);
-
-        this.draw();
-    }
-
-    clean() {
-        GenomeBrowserUtils.cleanDOMElement(this.svg);
-    }
-
     draw() {
         this.clean();
 
@@ -165,8 +116,6 @@ export default class KaryotypePanel {
 
             // Register click event listener
             group.addEventListener("click", event => {
-                // const chrClicked = this.getAttribute("chr");
-
                 const offsetY = (event.pageY - $(this.svg).offset().top);
                 const clickPosition = parseInt((offsetY - this.chrOffsetY[chromosome.name]) / this.pixelBase);
 
@@ -275,13 +224,62 @@ export default class KaryotypePanel {
         this.positionBox.setAttribute("y2", pointerPosition);
     }
 
-    updateRegionControls() {
-        this.#recalculatePositionBox(this.region);
+    show() {
+        this.div.style.display = "block";
+        this.hidden = false;
+    }
+
+    hide() {
+        this.div.style.display = "none";
+        this.hidden = true;
+    }
+
+    setVisible(bool) {
+        bool ? this.show() : this.hide();
+    }
+
+    showContent() {
+        this.content.style.display = "block";
+        this.collapseDiv.classList.remove("active");
+        this.collapseIcon.classList.remove("fa-plus");
+        this.collapseIcon.classList.add("fa-minus");
+        this.collapsed = false;
+    }
+
+    hideContent() {
+        this.content.style.display = "none";
+        this.collapseDiv.classList.add("active");
+        this.collapseIcon.classList.remove("fa-minus");
+        this.collapseIcon.classList.add("fa-plus");
+        this.collapsed = true;
+    }
+
+    toggleContent() {
+        this.collapsed ? this.showContent() : this.hideContent();
+    }
+
+    clean() {
+        GenomeBrowserUtils.cleanDOMElement(this.svg);
+    }
+
+    setTitle(title) {
+        this.titleText.textContent = title;
+    }
+
+    setWidth(width) {
+        this.width = width;
+        this.svg.setAttribute("width", width);
+
+        this.draw();
     }
 
     setRegion(region) {
         this.region.load(region);
-        this.updateRegionControls();
+        this.#recalculatePositionBox(this.region);
+    }
+
+    updateRegionControls() {
+        this.#recalculatePositionBox(this.region);
     }
 
     addMark() {
