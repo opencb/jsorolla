@@ -51,18 +51,11 @@ export default class GenomeBrowser {
         this.chromosomes = await this.#getChromosomes();
         this.chromosomesList = GenomeBrowserUtils.sortChromosomes(Object.values(this.chromosomes));
 
-        this.sidePanelWidth = this.config.sidePanel ? 25 : 0;
-
         this.region = this.#parseRegion(this.config.region);
         this.defaultRegion = new Region(this.region);
 
         this.zoom = this.#calculateZoomByRegion(this.region);
-        this.#updateSpecies(this.config.species);
-
-        this.fullscreen = false;
-        this.resizing = false;
-
-        this.changingRegion = false;
+        this.species = this.config.species;
 
         this.#initDom();
         this.#initPanels();
@@ -207,7 +200,6 @@ export default class GenomeBrowser {
         navigationBar.on("region:change", event => this.#regionChangeHandler(event));
         navigationBar.on("region:move", event => this.#regionMoveHandler(event));
         navigationBar.on("zoom:change", event => this.#zoomChangeHandler(event));
-        navigationBar.on("species:change", event => this.#speciesChangeHandler(event));
         navigationBar.on("karyotype-button:change", event => {
             event.selected ? this.karyotypePanel.show() : this.karyotypePanel.hide();
         });
@@ -481,93 +473,11 @@ export default class GenomeBrowser {
         this.setRegion(this.region);
     }
 
-    #speciesChangeHandler(event) {
-        this.trigger("species:change", event);
-        this.#updateSpecies(event.species);
-
-        const args = {
-            category: "feature",
-            subcategory: "gene",
-            resource: "first",
-            species: event.species,
-            params: {
-                include: "chromosome,start,end",
-            },
-        };
-
-        this.cellBaseClient.getOldWay(args)
-            .then(response =>{
-                const firstGeneRegion = response.response[0].result[0];
-                const region = new Region(firstGeneRegion);
-                this.setRegion(region);
-            })
-            .catch(e => {
-                console.error(e);
-                console.error("Cellbase host not available. Genome-browser.js fail. _speciesChangeHandler");
-            });
-    }
-
-    // TODO: register event listeners in panels instead of doing this
-    #updateSpecies(species) {
-        this.species = species;
-        // this.chromosomes = this.getChromosomes();
-        this.species.chromosomes = this.chromosomes;
-
-        if (this.overviewTrackListPanel) {
-            this.overviewTrackListPanel.setSpecies(species);
-        }
-        if (this.trackListPanel) {
-            this.trackListPanel.setSpecies(species);
-        }
-        if (this.chromosomePanel) {
-            this.chromosomePanel.setSpecies(species);
-        }
-        if (this.karyotypePanel) {
-            this.karyotypePanel.setSpecies(species);
-        }
-        if (this.navigationBar) {
-            this.navigationBar.setSpecies(species);
-        }
-    }
-
-    #getSpeciesByTaxonomy(taxonomyCode) {
-        // find species object
-        // let speciesObject = null;
-        if (taxonomyCode) {
-            for (let i = 0; i < this.availableSpecies.items.length; i++) {
-                for (let j = 0; j < this.availableSpecies.items[i].items.length; j++) {
-                    const species = this.availableSpecies.items[i].items[j];
-                    const taxonomy = Utils.getSpeciesCode(species.scientificName);
-                    if (taxonomy === taxonomyCode) {
-                        // speciesObject = species;
-                        // break;
-                        return species;
-                    }
-                }
-            }
-        }
-        // return speciesObject;
-        return null;
-    }
-
     //
     // API METHODS
     //
 
-    setSpeciesByTaxonomy(taxonomyCode) {
-        const species = this.#getSpeciesByTaxonomy(taxonomyCode);
-        if (species !== null) {
-            this.#speciesChangeHandler({species: species});
-        } else {
-            console.log("Species taxonomy not found on availableSpecies.");
-        }
-    }
-
     setRegion(region, taxonomy) {
-        if (taxonomy) {
-            const species = this.#getSpeciesByTaxonomy(taxonomy);
-            this.#updateSpecies(species);
-        }
         return this.#regionChangeHandler({region: new Region(region)});
     }
 
@@ -612,16 +522,6 @@ export default class GenomeBrowser {
         this.trigger("feature:highlight", args);
     }
 
-    setNavigationBar(navigationBar) {
-        this.navigationBar = Object.assign(navigationBar, {
-            species: this.species,
-            region: this.region,
-            width: this.width,
-        });
-        // TODO: this must be improved
-        navigationBar.render(this.getNavigationPanelId());
-    }
-
     toggleAutoHeight(bool) {
         this.trackListPanel.toggleTracksAutoHeight(bool);
         this.overviewTrackListPanel.toggleTracksAutoHeight(bool);
@@ -630,14 +530,6 @@ export default class GenomeBrowser {
     updateHeight() {
         this.trackListPanel.updateHeight();
         this.overviewTrackListPanel.updateHeight();
-    }
-
-    setSpeciesVisible(bool) {
-        this.navigationBar.setSpeciesVisible(bool);
-    }
-
-    setChromosomesVisible(bool) {
-        this.navigationBar.setChromosomeMenuVisible(bool);
     }
 
     setKaryotypePanelVisible(bool) {
@@ -653,18 +545,6 @@ export default class GenomeBrowser {
     setRegionOverviewPanelVisible(bool) {
         this.overviewTrackListPanel.setVisible(bool);
         this.navigationBar.setVisible({"region": bool});
-    }
-
-    setRegionTextBoxVisible(bool) {
-        this.navigationBar.setRegionTextBoxVisible(bool);
-    }
-
-    setSearchVisible(bool) {
-        this.navigationBar.setSearchVisible(bool);
-    }
-
-    setFullScreenVisible(bool) {
-        this.navigationBar.setFullScreenButtonVisible(bool);
     }
 
     // Track management
@@ -684,24 +564,8 @@ export default class GenomeBrowser {
         this.trackListPanel.addTracks(tracks);
     }
 
-    getTrackById(trackId) {
-        return this.trackListPanel.getTrackById(trackId);
-    }
-
     removeTrack(track) {
         return this.trackListPanel.removeTrack(track);
-    }
-
-    restoreTrack(track, index) {
-        return this.trackListPanel.restoreTrack(track, index);
-    }
-
-    setTrackIndex(track, newIndex) {
-        return this.trackListPanel.setTrackIndex(track, newIndex);
-    }
-
-    scrollToTrack(track) {
-        return this.trackListPanel.scrollToTrack(track);
     }
 
     showTrack(track) {
@@ -714,15 +578,6 @@ export default class GenomeBrowser {
 
     containsTrack(track) {
         return this.trackListPanel.containsTrack(track);
-    }
-
-    containsTrackById(trackId) {
-        return !!this.getTrackById(trackId);
-    }
-
-    deleteTracksCache() {
-        this.overviewTrackListPanel.deleteTracksCache();
-        this.trackListPanel.deleteTracksCache();
     }
 
     // Get default configuration for GenomeBrowser
@@ -763,8 +618,8 @@ export default class GenomeBrowser {
             overviewPanelCollapsed: false,
             overviewPanelZoomMultiplier: 8,
 
+            // Species and chromosomes data
             species: [],
-            availableSpecies: [],
             chromosomes: null,
         };
     }
