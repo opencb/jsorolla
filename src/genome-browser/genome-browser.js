@@ -246,7 +246,6 @@ export default class GenomeBrowser {
             collapsible: this.config.karyotypePanelConfig.collapsible,
             hidden: this.config.karyotypePanelConfig.hidden,
             region: this.region,
-            autoRender: true,
         });
 
         // Register event listeners
@@ -262,14 +261,10 @@ export default class GenomeBrowser {
 
     #createChromosomePanel(target) {
         const chromosomePanel = new ChromosomePanel(target, {
-            cellBaseClient: this.cellBaseClient,
-            cellBaseHost: this.config.cellBaseHost,
-            cellBaseVersion: this.config.cellBaseVersion,
-            autoRender: true,
             width: this.width,
             height: 65,
-            species: this.config.species,
             title: "Chromosome",
+            chromosomes: this.chromosomesList,
             collapsed: this.config.chromosomePanelConfig.collapsed,
             collapsible: this.config.chromosomePanelConfig.collapsible,
             hidden: this.config.chromosomePanelConfig.hidden,
