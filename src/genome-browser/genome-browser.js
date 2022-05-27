@@ -7,6 +7,7 @@ import NavigationBar from "./panels/navigation-bar.js";
 import KaryotypePanel from "./panels/karyotype-panel.js";
 import ChromosomePanel from "./panels/chromosome-panel.js";
 import StatusBar from "./panels/status-bar.js";
+import GenomeBrowserUtils from "./genome-browser-utils.js";
 
 
 export default class GenomeBrowser {
@@ -48,6 +49,7 @@ export default class GenomeBrowser {
 
         // Import chromosomes data
         this.chromosomes = await this.#getChromosomes();
+        this.chromosomesList = GenomeBrowserUtils.sortChromosomes(Object.values(this.chromosomes));
 
         this.sidePanelWidth = this.config.sidePanel ? 25 : 0;
 
@@ -236,13 +238,10 @@ export default class GenomeBrowser {
 
     #createKaryotypePanel(target) {
         const karyotypePanel = new KaryotypePanel(target, {
-            cellBaseClient: this.cellBaseClient,
-            cellBaseHost: this.config.cellBaseHost,
-            cellBaseVersion: this.config.cellBaseVersion,
             width: this.width,
             height: 125,
-            species: this.config.species,
             title: "Karyotype",
+            chromosomes: this.chromosomesList,
             collapsed: this.config.karyotypePanelConfig.collapsed,
             collapsible: this.config.karyotypePanelConfig.collapsible,
             hidden: this.config.karyotypePanelConfig.hidden,
