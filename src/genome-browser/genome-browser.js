@@ -477,14 +477,20 @@ export default class GenomeBrowser {
     // API METHODS
     //
 
-    setRegion(region, taxonomy) {
-        return this.#regionChangeHandler({region: new Region(region)});
+    setRegion(region) {
+        return this.#regionChangeHandler({
+            region: new Region(region),
+        });
     }
 
     moveRegion(disp) {
         this.region.start += disp;
         this.region.end += disp;
-        this.trigger("region:move", {region: this.region, disp: -disp, sender: this});
+        this.trigger("region:move", {
+            region: this.region,
+            disp: -disp,
+            sender: this,
+        });
     }
 
     setZoom(zoom) {
