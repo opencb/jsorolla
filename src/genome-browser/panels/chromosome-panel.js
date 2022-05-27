@@ -2,6 +2,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import Region from "../../core/bioinfo/region.js";
 import {SVG} from "../../core/svg.js";
 import GenomeBrowserConstants from "../genome-browser-constants.js";
+import GenomeBrowserUtils from "../genome-browser-utils.js";
 
 export default class ChromosomePanel {
 
@@ -21,7 +22,6 @@ export default class ChromosomePanel {
     #init() {
         this.prefix = UtilsNew.randomString(8);
         this.pixelBase = 0;
-        this.species = this.config.species;
         this.width = this.config.width;
         this.height = this.config.height;
         this.collapsed = this.config.collapsed;
@@ -29,8 +29,8 @@ export default class ChromosomePanel {
 
         this.region = new Region(this.config.region);
 
-        this.lastChromosome = "";
-        this.data = null;
+        this.chromosome = null;
+        this.chromosomeLength = 0;
         this.status = "";
 
         this.regionChanging = false;
@@ -264,52 +264,31 @@ export default class ChromosomePanel {
     setWidth(width) {
         this.width = width;
         this.svg.setAttribute("width", width);
-
-
-        if (this.data) {
-            this.clean();
-            this.#drawSvg(this.data);
-        }
-    }
-
-    setSpecies(species) {
-        this.lastSpecies = this.species;
-        this.species = species;
+        this.draw();
     }
 
     clean() {
-        // TODO: add dom utility to clear a DOM element
-        $(this.svg).empty();
+        GenomeBrowserUtils.cleanDOMElement(this.svg);
     }
 
     draw() {
         this.clean();
-        this.rendered = false;
 
-        this.config.cellBaseClient.get("genomic", "chromosome", this.region.chromosome, "info")
-            .then(data => {
-                this.data = data.response[0].result[0].chromosomes[0];
-                this.data.cytobands.sort((a, b) => a.start - b.start);
-                this.#drawSvg(this.data);
+        if (!this.chromosome || this.chromosome.name !== this.region.chromosome) {
+            this.chromosome = this.config.chromosomes.find(chromosome => {
+                return chromosome.name === this.region.chromosome;
             });
-
-        this.lastChromosome = this.region.chromosome;
-
-        if (this.collapsed) {
-            this.hideContent();
+            this.chromosomeLength = this.chromosome.size;
+            this.pixelBase = (this.width - 40) / this.chromosomeLength;
         }
-    }
 
-    #drawSvg(chromosome) {
         const offset = this.config.offset;
         const group = SVG.addChild(this.svg, "g", {
             cursor: "pointer",
         });
-        this.chromosomeLength = chromosome.size;
-        this.pixelBase = (this.width - 40) / this.chromosomeLength;
 
         // Draw chromosome
-        const backrect = SVG.addChild(group, "rect", {
+        SVG.addChild(group, "rect", {
             x: offset,
             y: 39,
             width: this.width - 40 + 1,
@@ -319,7 +298,7 @@ export default class ChromosomePanel {
 
         const cytobandsByStain = {};
         let textDrawingOffset = offset;
-        (chromosome.cytobands || []).forEach(rawCytoband => {
+        (this.chromosome.cytobands || []).forEach(rawCytoband => {
             const cytoband = {
                 ...rawCytoband,
                 pixelStart: rawCytoband.start * this.pixelBase,
@@ -390,13 +369,9 @@ export default class ChromosomePanel {
         }
 
         // Resize elements and events
-        // let status = "";
-        this.status = "setRegion"; // Reset global status
+        this.status = "setRegion";
         const centerPosition = this.region.center();
         const pointerPosition = (centerPosition * this.pixelBase) + offset;
-        // this.svg.addEventListener("mousedown", () => {
-        //     this.status = "setRegion";
-        // });
 
         // selection box, will appear when selection is detected
         this.selBox = SVG.addChild(this.svg, "rect", {
@@ -433,7 +408,6 @@ export default class ChromosomePanel {
             opacity: 0.5,
             fill: "transparent",
             cursor: "ew-resize",
-            // visibility: "hidden",
         });
         this.resizeLeft.addEventListener("mousedown", () => {
             this.status = "resizePositionBoxLeft";
@@ -447,29 +421,10 @@ export default class ChromosomePanel {
             opacity: 0.5,
             fill: "transparent",
             cursor: "ew-resize",
-            // visibility: "hidden",
         });
         this.resizeRight.addEventListener("mousedown", () => {
             this.status = "resizePositionBoxRight";
         });
-
-        // $(this.positionBox).off('mouseenter');
-        // $(this.positionBox).off('mouseleave');
-
-        // positionGroup.addEventListener("mouseenter", () => {
-        //     this.#recalculateResizeControls();
-        //     this.#showResizeControls();
-        // });
-        // positionGroup.addEventListener("mouseleave", () => {
-        //     this.#hideResizeControls();
-        // });
-
-        // Remove event listeners
-        // $(this.svg).off('contextmenu');
-        // $(this.svg).off('mousedown');
-        // $(this.svg).off('mouseup');
-        // $(this.svg).off('mousemove');
-        // $(this.svg).off('mouseleave');
 
         this.rendered = true;
     }
@@ -543,18 +498,13 @@ export default class ChromosomePanel {
     }
 
     setRegion(region) {
-        // console.log('region modified chromosome')
         this.region.load(region);
 
-        if (this.lastChromosome != this.region.chromosome) {
+        if (!this.chromosome || this.chromosome.name != this.region.chromosome) {
             this.draw();
         }
 
         this.updateRegionControls();
-    }
-
-    setCellBaseHost(host) {
-        this.cellBaseHost = host;
     }
 
     getDefaultConfig() {
@@ -565,6 +515,7 @@ export default class ChromosomePanel {
             collapsible: true,
             collapsed: false,
             offset: 20, // Internally used
+            chromosomes: [],
         };
     }
 
