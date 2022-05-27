@@ -47,16 +47,16 @@ export default class KaryotypePanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="unselectable">
-                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" style="user-select:none;">
+                <div id="${this.prefix}Title" style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}TitleText" style="font-weight:bold;">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                    <div id="${this.prefix}Collapse">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
-                <div id="${this.prefix}Content" style="display:block;"></div>
+                <div id="${this.prefix}Content" style="display:block;margin-top:8px;"></div>
             </div>
         `);
 
@@ -106,7 +106,7 @@ export default class KaryotypePanel {
     }
 
     showContent() {
-        this.content.style.display = "inline";
+        this.content.style.display = "block";
         this.collapseDiv.classList.remove("active");
         this.collapseIcon.classList.remove("fa-plus");
         this.collapseIcon.classList.add("fa-minus");
