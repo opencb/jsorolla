@@ -200,8 +200,114 @@ export default class ClinicalInterpretationReview extends LitElement {
                     ]
                 },
                 {
+                    id: "panelView",
+                    title: "Panel",
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
+                                        html`
+                                            <disease-panel-grid
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .diseasePanels="${data?.panels}">
+                                            </disease-panel-grid>
+                                        `:"Panel Not Found";
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "commentView",
+                    title: "Comments",
+                    display: {
+                        // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => html `
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <div>
+                                                <span class="panel-title">User 1</span>
+                                                <span class="pull-right">13 Jan 2022</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                            when an unknown printer took a galley of type and scrambled it to make a type
+                                            specimen book. It has survived not only five centuries, but also the leap into
+                                            electronic typesetting, remaining essentially unchanged. It was popularised in
+                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                                            and more recently with desktop publishing software like Aldus PageMaker including
+                                            versions of Lorem Ipsum.
+                                        <div>
+                                            <span class="label label-warning">Variants</span>
+                                            <span class="label label-danger">Cancer</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <div>
+                                                <span class="panel-title">User 2</span>
+                                                <span class="pull-right">13 Jan 2022</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                            when an unknown printer took a galley of type and scrambled it to make a type
+                                            specimen book. It has survived not only five centuries, but also the leap into
+                                            electronic typesetting, remaining essentially unchanged. It was popularised in
+                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                                            and more recently with desktop publishing software like Aldus PageMaker including
+                                            versions of Lorem Ipsum.
+                                        <div>
+                                            <span class="label label-warning">Variants</span>
+                                            <span class="label label-danger">Cancer</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <div>
+                                                <span class="panel-title">User 3</span>
+                                                <span class="pull-right">13 Jan 2022</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                                            when an unknown printer took a galley of type and scrambled it to make a type
+                                            specimen book. It has survived not only five centuries, but also the leap into
+                                            electronic typesetting, remaining essentially unchanged. It was popularised in
+                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                                            and more recently with desktop publishing software like Aldus PageMaker including
+                                            versions of Lorem Ipsum.
+                                        <div>
+                                            <span class="label label-warning">Variants</span>
+                                            <span class="label label-warning">Gene</span>
+                                            <span class="label label-info">Others</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                `
+                            }
+                        }
+                    ]
+                },
+                {
                     id: "interpretationSummary",
                     title: "Interpretation Info",
+                    display: {
+                        style: "margin-left:20px"
+                    },
                     elements: [
                         {
                             type: "custom",
@@ -232,30 +338,70 @@ export default class ClinicalInterpretationReview extends LitElement {
                     ]
                 },
                 {
-                    id: "reportConclusion",
-                    title: "Conclusion",
-                    display: {
-                        // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
-                    },
+                    id: "final-summary",
+                    title: "4. Final Summary",
                     elements: [
                         {
-                            type: "custom",
-                            display: {
-                                render: data => {
-                                    return data?.discussion ? html`<p>${data.discussion}</p>` : "No Conclusion";
-                                }
-                            }
+                            title: "Case Status",
+                            field: "status.id",
+                            type: "select",
+                            allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
+                            required: true,
                         },
                         {
-                            field: "conclusion",
+                            title: "Discussion",
                             type: "input-text",
+                            field: "discussion",
+                            defaultValue: "",
                             display: {
-                                rows: 3,
-                                placeholder: "Please write a conclusion..."
-                            }
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Analysed by",
+                            field: "analyst.name",
+                        },
+                        {
+                            title: "Signed off by",
+                            type: "input-text",
+                            field: "report.signedBy",
+                            defaultValue: "",
+                        },
+                        {
+                            title: "Date",
+                            type: "input-date",
+                            field: "date",
+                            display: {
+                                disabled: false,
+                            },
                         },
                     ]
                 },
+                // {
+                //     id: "reportConclusion",
+                //     title: "Conclusion",
+                //     display: {
+                //         // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
+                //     },
+                //     elements: [
+                //         {
+                //             type: "custom",
+                //             display: {
+                //                 render: data => {
+                //                     return data?.discussion ? html`<p>${data.discussion}</p>` : "No Conclusion";
+                //                 }
+                //             }
+                //         },
+                //         {
+                //             field: "conclusion",
+                //             type: "input-text",
+                //             display: {
+                //                 rows: 3,
+                //                 placeholder: "Please write a conclusion..."
+                //             }
+                //         },
+                //     ]
+                // },
             ]
 
         });

@@ -280,7 +280,8 @@ export default class ClinicalInterpretationView extends LitElement {
                                             <variant-interpreter-grid
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${data?.primaryFindings}">
+                                                .clinicalVariants="${data?.primaryFindings}"
+                                                .config=${{showExport: true}}>
                                             </variant-interpreter-grid>
                                         `:"Variants Not Found";
                                 }
