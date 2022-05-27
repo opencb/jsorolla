@@ -278,9 +278,10 @@ export default class ClinicalInterpretationView extends LitElement {
                                     return !data.primaryFindings || UtilsNew.isNotEmptyArray(data?.primaryFindings) ?
                                         html`
                                             <variant-interpreter-grid
-                                                .opencgaSession="${this.opencgaSession}"
+                                                review
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                 .clinicalVariants="${data?.primaryFindings}"
+                                                .opencgaSession="${this.opencgaSession}"
                                                 .config=${
                                                     {
                                                         showExport: true,

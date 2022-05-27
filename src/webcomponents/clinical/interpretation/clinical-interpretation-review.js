@@ -94,7 +94,7 @@ export default class ClinicalInterpretationReview extends LitElement {
         return Types.dataFormConfig({
             // title: "Case Report",
             display: {
-                width: 8,
+                width: 10,
                 buttonsVisible: false
             },
             sections: [
@@ -332,9 +332,27 @@ export default class ClinicalInterpretationReview extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: () => html`Comming Soon`
+                                render: data => {
+                                    const variantsReviewed = data?.interpretation?.primaryFindings?.filter(
+                                        variant => variant?.status === "REVIEWED");
+                                    return variantsReviewed || UtilsNew.isNotEmptyArray(variantsReviewed) ?
+                                        html`
+                                            <variant-interpreter-grid
+                                                review
+                                                .clinicalAnalysis=${this.clinicalAnalysis}
+                                                .clinicalVariants="${variantsReviewed}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config=${
+                                                    {
+                                                        showExport: true,
+                                                        showSettings: false
+                                                    }
+                                                }>
+                                            </variant-interpreter-grid>
+                                        `:"Variants Not Found";
+                                }
                             }
-                        },
+                        }
                     ]
                 },
                 {
