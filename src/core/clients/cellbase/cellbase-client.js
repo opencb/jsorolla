@@ -72,7 +72,7 @@ export class CellBaseClient {
             })
             .catch(e => {
                 console.error(e);
-                globalEvent("signingInError", {value: "Cellbase host not available."});
+                // globalEvent("signingInError", {value: "Cellbase host not available."});
                 globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
             });
     }
