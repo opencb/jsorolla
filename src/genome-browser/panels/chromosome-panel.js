@@ -42,15 +42,16 @@ export default class ChromosomePanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="unselectable">
-                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" style="user-select:none;">
+                <div id="${this.prefix}Title"  style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}TitleText" style="font-weight:bold;">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                    <div id="${this.prefix}Collapse">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
+                <div id="${this.prefix}Content" style="display:block;margin-top:8px;"></div>
             </div>
         `);
 
@@ -60,11 +61,15 @@ export default class ChromosomePanel {
         this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
+        // Main content
+        this.content = this.div.querySelector(`div#${this.prefix}Content`);
+
         // Initialize SVG element
-        this.svg = SVG.init(this.div, {
+        this.svg = SVG.init(this.content, {
             "width": this.width,
             "height": this.height,
         });
+
         this.positionBox = null;
         this.selBox = null;
 
@@ -237,7 +242,7 @@ export default class ChromosomePanel {
     }
 
     showContent() {
-        this.svg.style.display = "inline";
+        this.content.style.display = "block";
         this.collapseDiv.classList.remove("active");
         this.collapseIcon.classList.remove("fa-plus");
         this.collapseIcon.classList.add("fa-minus");
@@ -245,7 +250,7 @@ export default class ChromosomePanel {
     }
 
     hideContent() {
-        this.svg.style.display = "none";
+        this.content.style.display = "none";
         this.collapseDiv.classList.add("active");
         this.collapseIcon.classList.remove("fa-minus");
         this.collapseIcon.classList.add("fa-plus");
