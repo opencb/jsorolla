@@ -227,50 +227,6 @@ export default class ChromosomePanel {
         });
     }
 
-    show() {
-        this.div.style.display = "block";
-        this.hidden = false;
-    }
-
-    hide() {
-        this.div.style.display = "none";
-        this.hidden = true;
-    }
-
-    setVisible(bool) {
-        bool ? this.show() : this.hide();
-    }
-
-    showContent() {
-        this.content.style.display = "block";
-        this.collapseDiv.classList.remove("active");
-        this.collapseIcon.classList.remove("fa-plus");
-        this.collapseIcon.classList.add("fa-minus");
-        this.collapsed = false;
-    }
-
-    hideContent() {
-        this.content.style.display = "none";
-        this.collapseDiv.classList.add("active");
-        this.collapseIcon.classList.remove("fa-minus");
-        this.collapseIcon.classList.add("fa-plus");
-        this.collapsed = true;
-    }
-
-    setTitle(title) {
-        this.titleText.textContent = title;
-    }
-
-    setWidth(width) {
-        this.width = width;
-        this.svg.setAttribute("width", width);
-        this.draw();
-    }
-
-    clean() {
-        GenomeBrowserUtils.cleanDOMElement(this.svg);
-    }
-
     draw() {
         this.clean();
 
@@ -485,16 +441,49 @@ export default class ChromosomePanel {
 
     #limitRegionToChromosome(region) {
         // eslint-disable-next-line no-param-reassign
-        region.start = (region.start < 1) ? 1 : region.start;
+        region.start = Math.max(1, region.start);
         // eslint-disable-next-line no-param-reassign
-        region.end = (region.end > this.chromosomeLength) ? this.chromosomeLength : region.end;
+        region.end = Math.min(region.end, this.chromosomeLength);
     }
 
-    updateRegionControls() {
-        this.selBox.setAttribute("width", 0);
-        this.selBox.setAttribute("height", 0);
-        this.#recalculatePositionBox(this.region);
-        this.#recalculateResizeControls();
+    show() {
+        this.div.style.display = "block";
+        this.hidden = false;
+    }
+
+    hide() {
+        this.div.style.display = "none";
+        this.hidden = true;
+    }
+
+    setVisible(bool) {
+        bool ? this.show() : this.hide();
+    }
+
+    showContent() {
+        this.content.style.display = "block";
+        this.collapseDiv.classList.remove("active");
+        this.collapseIcon.classList.remove("fa-plus");
+        this.collapseIcon.classList.add("fa-minus");
+        this.collapsed = false;
+    }
+
+    hideContent() {
+        this.content.style.display = "none";
+        this.collapseDiv.classList.add("active");
+        this.collapseIcon.classList.remove("fa-minus");
+        this.collapseIcon.classList.add("fa-plus");
+        this.collapsed = true;
+    }
+
+    setTitle(title) {
+        this.titleText.textContent = title;
+    }
+
+    setWidth(width) {
+        this.width = width;
+        this.svg.setAttribute("width", width);
+        this.draw();
     }
 
     setRegion(region) {
@@ -505,6 +494,17 @@ export default class ChromosomePanel {
         }
 
         this.updateRegionControls();
+    }
+
+    clean() {
+        GenomeBrowserUtils.cleanDOMElement(this.svg);
+    }
+
+    updateRegionControls() {
+        this.selBox.setAttribute("width", 0);
+        this.selBox.setAttribute("height", 0);
+        this.#recalculatePositionBox(this.region);
+        this.#recalculateResizeControls();
     }
 
     getDefaultConfig() {
