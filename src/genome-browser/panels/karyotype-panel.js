@@ -225,12 +225,12 @@ export default class KaryotypePanel {
     }
 
     show() {
-        this.div.style.display = "block";
+        this.target.style.display = "block";
         this.hidden = false;
     }
 
     hide() {
-        this.div.style.display = "none";
+        this.target.style.display = "none";
         this.hidden = true;
     }
 
