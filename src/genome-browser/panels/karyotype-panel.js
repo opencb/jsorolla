@@ -2,6 +2,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import Region from "../../core/bioinfo/region.js";
 import {SVG} from "../../core/svg.js";
 import GenomeBrowserConstants from "../genome-browser-constants.js";
+import GenomeBrowserUtils from "../genome-browser-utils.js";
 
 
 export default class KaryotypePanel {
@@ -30,11 +31,6 @@ export default class KaryotypePanel {
 
         // set own region object
         this.region = new Region(this.config.region);
-
-        this.species = this.config.species;
-        this.lastSpecies = this.config.species;
-
-        this.chromosomeList = [];
 
         this.regionChanging = false;
         this.rendered = false;
@@ -133,68 +129,28 @@ export default class KaryotypePanel {
         this.width = width;
         this.svg.setAttribute("width", width);
 
-
-        if (typeof this.chromosomeList !== "undefined") {
-            this.clean();
-            this.#drawSvg(this.chromosomeList, this.data2);
-        }
-    }
-
-    setSpecies(species) {
-        this.lastSpecies = this.species;
-        this.species = species;
+        this.draw();
     }
 
     clean() {
-        // TODO: add dom utility to clear a DOM element
-        $(this.svg).empty();
+        GenomeBrowserUtils.cleanDOMElement(this.svg);
     }
 
     draw() {
         this.clean();
 
-        // TODO: move to utils?
-        const sortfunction = (a, b) => {
-            let IsNumber = true;
-            for (let i = 0; i < a.name.length && IsNumber == true; i++) {
-                if (isNaN(a.name[i])) {
-                    IsNumber = false;
-                }
-            }
-            if (!IsNumber) return 1;
-            return (a.name - b.name);
-        };
-
-        // Import chromosomes from cellbase
-        this.config.cellBaseClient.get("genomic", "chromosome", undefined, "search")
-            .then(data => {
-                this.chromosomeList = UtilsNew.removeDuplicates(data.response[0].result[0].chromosomes, "name");
-                this.chromosomeList.sort(sortfunction);
-                this.#drawSvg(this.chromosomeList);
-            });
-
-        if (this.collapsed) {
-            this.hideContent();
-        }
-    }
-
-    #drawSvg(chromosomeList) {
         let x = 20;
-        const xOffset = this.width / chromosomeList.length;
+        const xOffset = this.width / this.config.chromosomes.length;
         const yMargin = 2;
-
-        let biggerChr = 0;
-        chromosomeList.forEach(chromosome => {
-            if (chromosome.size > biggerChr) {
-                biggerChr = chromosome.size;
-            }
-        });
+        const biggerChr = this.config.chromosomes.reduce((maxSize, chromosome) => {
+            return Math.max(maxSize, chromosome.size);
+        }, 0);
 
         this.pixelBase = (this.height - 10) / biggerChr;
         this.chrOffsetY = {};
         this.chrOffsetX = {};
 
-        chromosomeList.forEach((chromosome, index) => {
+        this.config.chromosomes.forEach((chromosome, index) => {
             const chrSize = chromosome.size * this.pixelBase;
             let y = yMargin + (biggerChr * this.pixelBase) - chrSize;
             this.chrOffsetY[chromosome.name] = y;
@@ -325,21 +281,9 @@ export default class KaryotypePanel {
 
     setRegion(region) {
         this.region.load(region);
-        let needDraw = false;
-
-        if (this.lastSpecies != this.species) {
-            needDraw = true;
-            this.lastSpecies = this.species;
-        }
-        if (needDraw) {
-            this.draw();
-        }
-
         this.updateRegionControls();
     }
 
-
-    // addMark(item) {
     addMark() {
         const mark = () => {
             if (this.region.chromosome != null && this.region.start != null) {
@@ -369,13 +313,12 @@ export default class KaryotypePanel {
     }
 
     unmark() {
-        $(this.markGroup).empty();
+        GenomeBrowserUtils.cleanDOMElement(this.markGroup);
     }
 
     // Get default configuration for karyotype panel
     getDefaultConfig() {
         return {
-            species: [],
             width: 600,
             height: 75,
             collapsed: false,
@@ -383,6 +326,7 @@ export default class KaryotypePanel {
             hidden: false,
             region: null,
             title: "Karyotype",
+            chromosomes: [],
         };
     }
 
