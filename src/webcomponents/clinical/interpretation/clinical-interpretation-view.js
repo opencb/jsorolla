@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -281,7 +281,12 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                 .clinicalVariants="${data?.primaryFindings}"
-                                                .config=${{showExport: true}}>
+                                                .config=${
+                                                    {
+                                                        showExport: true,
+                                                        showSettings: false
+                                                    }
+                                                }>
                                             </variant-interpreter-grid>
                                         `:"Variants Not Found";
                                 }

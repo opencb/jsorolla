@@ -1267,14 +1267,17 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     getRightToolbar() {
-        return [
-            {
-                render: () => html`
+        if (this._config?.showSettings) {
+            return [
+                {
+                    render: () => html`
                     <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                         <i class="fas fa-cog icon-padding"></i> Settings ...
                     </button>`
-            }
-        ];
+                }
+            ];
+        }
+        return [];
     }
 
     render() {
@@ -1388,6 +1391,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showExport: false,
             detailView: true,
             showReview: true,
+            showSettings: true,
             showSelectCheckbox: false,
             showActions: true,
             showType: true,
