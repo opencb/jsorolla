@@ -61,6 +61,7 @@ export default class RestEndpoint extends LitElement {
         this.paramsTypeToHtml = {
             "string": "input-text",
             "integer": "input-text",
+            "int": "input-text",
             "boolean": "checkbox",
             "enum": "select",
             "object": "input-text",
@@ -92,10 +93,13 @@ export default class RestEndpoint extends LitElement {
             const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
-            for (const parameter of this.endpoint.parameters) {
 
+            // 1. Split params in body and query/path params
+            for (const parameter of this.endpoint.parameters) {
+                this.data = {
+                    body: {}
+                };
                 if (parameter.param === "body") {
-                    this.data = {body: {}};
 
                     // Generate Body Form
                     if (UtilsNew.hasProp(parameter, "data")) {
@@ -147,8 +151,7 @@ export default class RestEndpoint extends LitElement {
                             }
                         }
                     }
-                } else {
-                    // this.data[parameter.name] = parameter.defaultValue || "";
+                } else { // Parameter IS NOT body
                     this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
                         name: parameter.name,
@@ -163,7 +166,6 @@ export default class RestEndpoint extends LitElement {
                         },
                     };
 
-
                     if (parameter.param === "path") {
                         pathElements.push(element);
                     } else {
@@ -176,6 +178,7 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
+            // 2. Sort and move 'study/ to first position
             const pathElementSorted = this.#sortArray(pathElements);
             const queryElementSorted = this.#sortArray(queryElements)
                 .sort((a, b) => {
@@ -192,24 +195,41 @@ export default class RestEndpoint extends LitElement {
                     this.isAdministrator() ? elements :
                         this.disabledElements(elements);
 
-
+            // 3.
             this.form = {
+                // title: "Input Parameters",
                 type: "form",
                 display: {
                     width: "12",
                     labelWidth: "3",
+                    // titleHeader: "h3",
                     defaultLayout: "horizontal",
                     buttonClearText: "Clear",
                     buttonOkText: "Try it out!",
                     buttonsVisible: this.isNotEndPointAdmin() ? true : this.isAdministrator()
                 },
-                sections: this.#notificationSection(this.endpoint?.notes)
+                // sections: this.#notificationSection(this.endpoint?.notes)
+                sections: []
             };
 
             if (fieldElements.length > 0) {
+                // Check if there are 'notes' to display
+                if (this.endpoint?.notes) {
+                    this.form.sections.push({
+                        elements: [
+                            {
+                                type: "notification",
+                                text: this.endpoint?.notes,
+                                display: {
+                                    notificationType: "info",
+                                },
+                            }
+                        ]
+                    });
+                }
                 this.form.sections.push(
                     {
-                        title: "Parameters",
+                        title: "Path and Query Params",
                         display: {
                             titleHeader: "h4",
                             style: "margin-left: 20px",
@@ -219,40 +239,46 @@ export default class RestEndpoint extends LitElement {
                 );
             }
 
-            if (bodyElements.length > 0) {
-                const bodyElementsT =
-                    this.isNotEndPointAdmin() ? bodyElements :
-                        this.isAdministrator() ? bodyElements:
-                            this.disabledElements(bodyElements);
+            // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
+            // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
+            if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
+                if (bodyElements.length >= 0) {
+                    const bodyElementsT =
+                        this.isNotEndPointAdmin() ? bodyElements :
+                            this.isAdministrator() ? bodyElements:
+                                this.disabledElements(bodyElements);
 
-                this.form.sections.push({
-                    title: "Body",
-                    display: {
-                        titleHeader: "h4",
-                        style: "margin-left: 20px"
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                render: () => html`
+                    this.form.sections.push({
+                        title: "Body",
+                        display: {
+                            titleHeader: "h4",
+                            style: "margin-left: 20px"
+                        },
+                        elements: [
+                            {
+                                type: "custom",
+                                display: {
+                                    render: () => html`
                                         <detail-tabs
                                             .config="${this.getTabsConfig(bodyElementsT)}"
                                             .mode="${DetailTabs.PILLS_MODE}">
                                         </detail-tabs>
                                     `
+                                }
                             }
-                        }
-                    ]
-                });
+                        ]
+                    });
+                }
             }
 
+            // 5.
             if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
             this._data = this.data;
         } else {
+            // No parameters found
             this.form = Types.dataFormConfig({
                 type: "form",
                 display: {
@@ -262,15 +288,19 @@ export default class RestEndpoint extends LitElement {
                     defaultLayout: "horizontal",
                     buttonsVisible: this.isNotEndPointAdmin() ? true: this.isAdministrator()
                 },
-                sections: [{
-                    elements: [{
-                        type: "notification",
-                        text: "No parameters...",
-                        display: {
-                            notificationType: "info",
-                        },
-                    }]
-                }]
+                sections: [
+                    {
+                        elements: [
+                            {
+                                type: "notification",
+                                text: "No parameters...",
+                                display: {
+                                    notificationType: "info",
+                                },
+                            }
+                        ]
+                    }
+                ]
             });
         }
         this.requestUpdate();
@@ -333,20 +363,20 @@ export default class RestEndpoint extends LitElement {
         return _elements;
     }
 
-    #notificationSection(notes) {
-        if (notes) {
-            return [{
-                elements: [{
-                    type: "notification",
-                    text: notes,
-                    display: {
-                        notificationType: "info",
-                    },
-                }]
-            }];
-        }
-        return [];
-    }
+    // #notificationSection(notes) {
+    //     if (notes) {
+    //         return [{
+    //             elements: [{
+    //                 type: "notification",
+    //                 text: notes,
+    //                 display: {
+    //                     notificationType: "info",
+    //                 },
+    //             }]
+    //         }];
+    //     }
+    //     return [];
+    // }
 
     #setDataBody(body, params) {
         const paramType = params.type?.toLowerCase();
@@ -541,11 +571,10 @@ export default class RestEndpoint extends LitElement {
     renderResponseClass(responseClass) {
         return responseClass.includes("opencga") || responseClass.includes("biodata") ? html `
             <a target="_blank" href="${this.getUrlLinkModelClass(this.endpoint.responseClass)}">${this.endpoint.responseClass}</a>
-            ` : html `${this.endpoint.responseClass}`;
+        ` : html `${this.endpoint.responseClass}`;
     }
 
     getTabsConfig(elements) {
-
         const configForm = {
             buttonsVisible: false,
             display: {
@@ -596,7 +625,7 @@ export default class RestEndpoint extends LitElement {
                     active: true,
                     render: () => {
                         return html`
-                        <!-- Body Forms -->
+                            <!-- Body Forms -->
                             <data-form
                                 .data="${this.data}"
                                 .config="${configForm}"
@@ -604,7 +633,7 @@ export default class RestEndpoint extends LitElement {
                                 @clear="${this.onClear}"
                                 @submit="${this.onSubmit}">
                             </data-form>
-                    `;
+                        `;
                     }
                 },
                 {
@@ -613,7 +642,7 @@ export default class RestEndpoint extends LitElement {
                     icon: "",
                     render: () => {
                         return html`
-                        <!-- Body Json -->
+                            <!-- Body Json -->
                             <data-form
                                 .data="${this.dataJson}"
                                 .config="${configJson}"
@@ -621,7 +650,7 @@ export default class RestEndpoint extends LitElement {
                                 @clear="${this.onClear}"
                                 @submit="${this.onSubmit}">
                             </data-form>
-                    `;
+                        `;
                     }
                 }
             ]
@@ -649,7 +678,7 @@ export default class RestEndpoint extends LitElement {
 
                     <!-- Response Section-->
                     <div style="padding: 5px 10px">
-                        <h3>Response</h3>
+                        <h3>Response Type</h3>
                         <div>
                             <div>Type: ${this.endpoint.response} (Source code: ${this.renderResponseClass(this.endpoint.responseClass)})</div>
                         </div>
@@ -657,11 +686,7 @@ export default class RestEndpoint extends LitElement {
 
                     <!-- Parameters Section-->
                     <div style="padding: 5px 10px">
-                        <!-- <h3>Parameters</h3> -->
-                        <!-- <blockquote>
-                            <p>\${this.endpoint?.notes}</p>
-                        </blockquote> -->
-
+                        <h3>Input Parameters</h3>
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"
@@ -685,7 +710,6 @@ export default class RestEndpoint extends LitElement {
                                     .config="${this.form}">
                                 </json-viewer>
                             `}
-
                         </div>
                     </div>
                 </div>
