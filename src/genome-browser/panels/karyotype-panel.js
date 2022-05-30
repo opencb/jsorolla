@@ -35,6 +35,8 @@ export default class KaryotypePanel {
         this.regionChanging = false;
         this.rendered = false;
 
+        this.elements = {};
+
         this.#initDom();
         this.#initEvents();
 
@@ -44,11 +46,11 @@ export default class KaryotypePanel {
     #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="user-select:none;">
-                <div id="${this.prefix}Title" style="display:flex;justify-content:space-between;">
-                    <div id="${this.prefix}TitleText" style="font-weight:bold;">
+                <div style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse">
+                    <div id="${this.prefix}Collapse" style="cursor:pointer;">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
@@ -57,9 +59,8 @@ export default class KaryotypePanel {
         `);
 
         this.div = template.querySelector(`div#${this.prefix}`);
-        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.title = this.div.querySelector(`div#${this.prefix}Title`);
+        this.collapse = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
         // Main content
@@ -82,9 +83,8 @@ export default class KaryotypePanel {
     }
 
     #initEvents() {
-        this.titleDiv.addEventListener("click", () => {
-            this.toggleContent();
-        });
+        this.title.addEventListener("click", () => this.toggleContent());
+        this.collapse.addEventListener("click", () => this.toggleContent());
     }
 
     draw() {
@@ -240,7 +240,7 @@ export default class KaryotypePanel {
 
     showContent() {
         this.content.style.display = "block";
-        this.collapseDiv.classList.remove("active");
+        this.collapse.classList.remove("active");
         this.collapseIcon.classList.remove("fa-plus");
         this.collapseIcon.classList.add("fa-minus");
         this.collapsed = false;
@@ -248,7 +248,7 @@ export default class KaryotypePanel {
 
     hideContent() {
         this.content.style.display = "none";
-        this.collapseDiv.classList.add("active");
+        this.collapse.classList.add("active");
         this.collapseIcon.classList.remove("fa-minus");
         this.collapseIcon.classList.add("fa-plus");
         this.collapsed = true;
@@ -263,7 +263,7 @@ export default class KaryotypePanel {
     }
 
     setTitle(title) {
-        this.titleText.textContent = title;
+        this.title.textContent = title;
     }
 
     setWidth(width) {
