@@ -52,12 +52,12 @@ export default class TrackListPanel {
     #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" class="">
-                <div id="${this.prefix}Title" style="display:flex;justify-content:space-between;">
-                    <div id="${this.prefix}TitleText" style="font-weight:bold;width:150px;">
+                <div style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;width:150px;cursor:pointer;">
                         ${this.config?.title || ""}
                     </div>
                     <div id="${this.prefix}WindowSize" class="small text-muted" style="font-weight:bold;"></div>
-                    <div id="${this.prefix}Collapse" align="right" style="width:150px;">
+                    <div id="${this.prefix}Collapse" align="right" style="width:150px;cursor:pointer;">
                         <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
                     </div>
                 </div>
@@ -82,9 +82,8 @@ export default class TrackListPanel {
         this.div = template.querySelector(`div#${this.prefix}`);
 
         this.windowSizeDiv = this.div.querySelector(`div#${this.prefix}WindowSize`);
-        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.title = this.div.querySelector(`div#${this.prefix}Title`);
+        this.collapse = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
         this.tlHeaderDiv = this.div.querySelector(`div#${this.prefix}TLHeader`);
@@ -169,7 +168,8 @@ export default class TrackListPanel {
     // Register events
     #initEvents() {
         // Show or hide tracks list panel content
-        this.titleDiv.addEventListener("click", () => this.toggleContent());
+        this.title.addEventListener("click", () => this.toggleContent());
+        this.collapse.addEventListener("click", () => this.toggleContent());
 
         this.div.addEventListener("mouseenter", () => {
             this.mouseLine.style.visibility = "visible";
@@ -432,13 +432,13 @@ export default class TrackListPanel {
     }
 
     setTitle(title) {
-        this.titleText.textContent = title || "";
+        this.title.textContent = title || "";
     }
 
     showContent() {
         this.tlHeaderDiv.style.display = "block";
         this.tlPanelDiv.style.display = "block";
-        this.collapseDiv.classList.remove("active");
+        this.collapse.classList.remove("active");
         this.collapseIcon.classList.remove("fa-plus");
         this.collapseIcon.classList.add("fa-minus");
         this.collapsed = false;
@@ -447,7 +447,7 @@ export default class TrackListPanel {
     hideContent() {
         this.tlHeaderDiv.style.display = "none";
         this.tlPanelDiv.style.display = "none";
-        this.collapseDiv.classList.add("active");
+        this.collapse.classList.add("active");
         this.collapseIcon.classList.add("fa-plus");
         this.collapseIcon.classList.remove("fa-minus");
         this.collapsed = true;
