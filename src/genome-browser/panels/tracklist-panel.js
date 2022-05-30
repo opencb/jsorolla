@@ -152,7 +152,6 @@ export default class TrackListPanel {
             // Apply right region styles
             this.regionOverviewBoxRight.style.zIndex = 0;
             this.regionOverviewBoxRight.style.position = "absolute";
-            // this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
             this.regionOverviewBoxRight.style.right = "0px";
             this.regionOverviewBoxRight.style.top = "0px";
             this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
@@ -575,11 +574,6 @@ export default class TrackListPanel {
         // delete listeners
         track.off("track:up");
         track.off("track:down");
-
-        // this.off("track:draw", track.get("track:draw"));
-        // this.off("trackRegion:change", track.get("trackRegion:change"));
-        // this.off("trackRegion:move", track.get("trackRegion:move"));
-        // this.off("trackFeature:highlight", track.get("trackFeature:highlight"));
     }
 
     hideTrack(track) {
