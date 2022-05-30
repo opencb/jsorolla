@@ -162,7 +162,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             {
                                 id: "sources",
                                 name: "Source",
-                                placeholder: "genes-census...",
+                                placeholder: "cosmic...",
                                 description: "",
                                 multiple: true,
                                 freeTag: true,

@@ -100,7 +100,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "tool": "tool.id",
             "genes": "genes.id",
             "categories": "categories.name",
-            "sources": "source.name",
+            "sources": "source.author",
             "tags": "tags"
         };
     }
