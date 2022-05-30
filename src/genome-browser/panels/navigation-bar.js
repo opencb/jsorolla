@@ -82,7 +82,7 @@ export default class NavigationBar {
                 <!-- Window size input -->
                 <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
                     <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
-                    <span class="input-group-addon">bp</span>
+                    <span class="input-group-addon">nts</span>
                 </div>
 
                 <!-- Region input -->
