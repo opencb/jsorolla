@@ -43,11 +43,11 @@ export default class ChromosomePanel {
     #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="user-select:none;">
-                <div id="${this.prefix}Title"  style="display:flex;justify-content:space-between;">
-                    <div id="${this.prefix}TitleText" style="font-weight:bold;">
+                <div style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse">
+                    <div id="${this.prefix}Collapse" style="cursor:pointer;">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
@@ -56,9 +56,8 @@ export default class ChromosomePanel {
         `);
 
         this.div = template.querySelector(`div#${this.prefix}`);
-        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.title = this.div.querySelector(`div#${this.prefix}Title`);
+        this.collapse = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
         // Main content
@@ -81,7 +80,8 @@ export default class ChromosomePanel {
             this.collapsed ? this.showContent() : this.hideContent();
         };
 
-        this.titleDiv.addEventListener("click", handleToggle);
+        this.title.addEventListener("click", handleToggle);
+        this.collapse.addEventListener("click", handleToggle);
 
         // Prevent browser context menu
         this.svg.addEventListener("contextmenu", event => {
@@ -462,7 +462,7 @@ export default class ChromosomePanel {
 
     showContent() {
         this.content.style.display = "block";
-        this.collapseDiv.classList.remove("active");
+        this.collapse.classList.remove("active");
         this.collapseIcon.classList.remove("fa-plus");
         this.collapseIcon.classList.add("fa-minus");
         this.collapsed = false;
@@ -470,14 +470,14 @@ export default class ChromosomePanel {
 
     hideContent() {
         this.content.style.display = "none";
-        this.collapseDiv.classList.add("active");
+        this.collapse.classList.add("active");
         this.collapseIcon.classList.remove("fa-minus");
         this.collapseIcon.classList.add("fa-plus");
         this.collapsed = true;
     }
 
     setTitle(title) {
-        this.titleText.textContent = title;
+        this.title.textContent = title;
     }
 
     setWidth(width) {
