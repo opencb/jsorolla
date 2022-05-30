@@ -400,7 +400,7 @@ h3.page-title {
 }
 
 .panel-default > .panel-heading {
-    background: none;
+    /* background: none; */
 }
 
 .panel-default > .panel-heading + .panel-collapse > .panel-body {
