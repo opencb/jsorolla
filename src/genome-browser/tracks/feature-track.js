@@ -56,8 +56,8 @@ export default class FeatureTrack {
     #initDom() {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="border-top:1px solid #ddd;">
-                <div id="${this.prefix}Title" style="display:flex;padding:8px 0px;user-select:none;">
-                    <div id="${this.prefix}TitleText" class="small" style="font-weight:bold;padding:0px 2px;">
+                <div style="display:flex;padding:8px 0px;user-select:none;">
+                    <div id="${this.prefix}Title" class="small" style="font-weight:bold;padding:0px 2px;">
                         ${this.config.title || ""}
                     </div>
                     <div id="${this.prefix}TitleHistogram" class="text-muted" style="display:none;font-size:12px;">
@@ -84,7 +84,7 @@ export default class FeatureTrack {
                         <i class="fas fa-spinner fa-spin"></i>
                     </div>
                     <!-- Track toggle element -->
-                    <div id="${this.prefix}TitleToggle" style="margin-left:auto;font-size:12px;">
+                    <div id="${this.prefix}TitleToggle" style="margin-left:auto;font-size:12px;cursor:pointer;">
                         <i id="${this.prefix}TitleToggleIcon"class="fas fa-minus"></i>
                     </div>
                 </div>
@@ -99,7 +99,6 @@ export default class FeatureTrack {
         this.div = template.querySelector(`div#${this.prefix}`);
 
         this.title = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
         this.titleHistogram = this.div.querySelector(`div#${this.prefix}TitleHistogram`);
         this.titleToggle = this.div.querySelector(`div#${this.prefix}TitleToggle`);
         this.titleToggleIcon = this.div.querySelector(`i#${this.prefix}TitleToggleIcon`);
