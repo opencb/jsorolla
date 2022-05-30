@@ -352,7 +352,7 @@ export default class NavigationBar {
         if (value && this.#checkRegion(value)) {
             this.#triggerRegionChange({
                 region: new Region(value),
-                sender: event.target,
+                sender: this,
             });
         } else {
             this.elements.regionForm.classList.add("has-error");
