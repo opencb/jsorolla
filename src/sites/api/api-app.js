@@ -93,6 +93,10 @@ class ApiApp extends LitElement {
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
 
+        // Get version from env variable
+        // eslint-disable-next-line no-undef
+        this.version = process.env.VERSION;
+
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
@@ -667,6 +671,7 @@ class ApiApp extends LitElement {
             <!-- Navbar -->
             <custom-navbar
                 .app=${this.app}
+                .version="${this.version}"
                 .loggedIn=${this.isLoggedIn()}
                 .opencgaSession=${this.opencgaSession}
                 .config=${this.config}
@@ -739,6 +744,8 @@ class ApiApp extends LitElement {
             </div>
 
             <custom-footer
+                appName="API"
+                .version="${this.version}"
                 .host=${this.host}
                 .config=${this.config}>
             </custom-footer>
