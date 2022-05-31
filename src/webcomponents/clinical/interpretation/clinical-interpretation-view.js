@@ -18,6 +18,8 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import Types from "../../commons/types.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import "../../variant/interpretation/variant-interpreter-grid.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-view.js";
@@ -27,7 +29,7 @@ export default class ClinicalInterpretationView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -54,10 +56,14 @@ export default class ClinicalInterpretationView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.interpretation = {};
         this._config = this.getDefaultConfig();
+    }
 
+    connectedCallback() {
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        super.connectedCallback();
     }
 
     update(changedProperties) {
@@ -67,8 +73,22 @@ export default class ClinicalInterpretationView extends LitElement {
         super.update(changedProperties);
     }
 
+    onUpdateVariant(e) {
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            this.clinicalAnalysisManager.updateSingleVariant(row);
+        });
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+            clinicalAnalysis: this.clinicalAnalysis,
+        }, null, {bubbles: true, composed: true});
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
+
     interpretationObserver() {
         // console.log("this is a clinicalAnalysis", this.clinicalAnalysis);
+
     }
 
     #renderInterpretationTabs() {
@@ -142,7 +162,6 @@ export default class ClinicalInterpretationView extends LitElement {
             },
             sections: [
                 {
-                    // title: "Interpretation Info",
                     display: {
                         // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
                     },
@@ -176,7 +195,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .diseasePanels="${data?.panels}">
                                             </disease-panel-grid>
-                                        `:"Panel Not Found";
+                                        `: "No panel data to display";
                                 }
                             }
                         },
@@ -191,74 +210,10 @@ export default class ClinicalInterpretationView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => html `
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <div>
-                                                <span class="panel-title">User 1</span>
-                                                <span class="pull-right">13 Jan 2022</span>
-                                            </div>
-                                        </div>
-                                        <div class="panel-body">
-                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                            when an unknown printer took a galley of type and scrambled it to make a type
-                                            specimen book. It has survived not only five centuries, but also the leap into
-                                            electronic typesetting, remaining essentially unchanged. It was popularised in
-                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                                            and more recently with desktop publishing software like Aldus PageMaker including
-                                            versions of Lorem Ipsum.
-                                        <div>
-                                            <span class="label label-warning">Variants</span>
-                                            <span class="label label-danger">Cancer</span>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <div>
-                                                <span class="panel-title">User 2</span>
-                                                <span class="pull-right">13 Jan 2022</span>
-                                            </div>
-                                        </div>
-                                        <div class="panel-body">
-                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                            when an unknown printer took a galley of type and scrambled it to make a type
-                                            specimen book. It has survived not only five centuries, but also the leap into
-                                            electronic typesetting, remaining essentially unchanged. It was popularised in
-                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                                            and more recently with desktop publishing software like Aldus PageMaker including
-                                            versions of Lorem Ipsum.
-                                        <div>
-                                            <span class="label label-warning">Variants</span>
-                                            <span class="label label-danger">Cancer</span>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <div>
-                                                <span class="panel-title">User 3</span>
-                                                <span class="pull-right">13 Jan 2022</span>
-                                            </div>
-                                        </div>
-                                        <div class="panel-body">
-                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                            when an unknown printer took a galley of type and scrambled it to make a type
-                                            specimen book. It has survived not only five centuries, but also the leap into
-                                            electronic typesetting, remaining essentially unchanged. It was popularised in
-                                            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                                            and more recently with desktop publishing software like Aldus PageMaker including
-                                            versions of Lorem Ipsum.
-                                        <div>
-                                            <span class="label label-warning">Variants</span>
-                                            <span class="label label-warning">Gene</span>
-                                            <span class="label label-info">Others</span>
-
-                                        </div>
-                                        </div>
-                                    </div>
+                                    <clinical-analysis-comment-editor
+                                        .comments="${data?.comments}"
+                                        @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
                                 `
                             }
                         },
@@ -280,6 +235,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                 .clinicalVariants="${data?.primaryFindings}"
                                                 .opencgaSession="${this.opencgaSession}"
+                                                @updaterow="${e => this.onUpdateVariant(e)}"
                                                 .config=${
                                                     {
                                                         showExport: true,
@@ -293,142 +249,6 @@ export default class ClinicalInterpretationView extends LitElement {
                         }
                     ]
                 },
-                // {
-                //     id: "panelView",
-                //     title: "Panel",
-                //     elements: [
-                //         {
-                //             type: "custom",
-                //             display: {
-                //                 render: data => {
-                //                     return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
-                //                         html`
-                //                             <disease-panel-grid
-                //                                 .opencgaSession="${this.opencgaSession}"
-                //                                 .diseasePanels="${data?.panels}">
-                //                             </disease-panel-grid>
-                //                         `:"Panel Not Found";
-                //                 }
-                //             }
-                //         },
-
-                //     ]
-                // },
-                // {
-                //     id: "commentView",
-                //     title: "Comments",
-                //     display: {
-                //         // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
-                //     },
-                //     elements: [
-                //         {
-                //             type: "custom",
-                //             display: {
-                //                 render: data => html `
-                //                     <div class="panel panel-info">
-                //                         <div class="panel-heading">
-                //                             <div>
-                //                                 <span class="panel-title">User 1</span>
-                //                                 <span class="pull-right">13 Jan 2022</span>
-                //                             </div>
-                //                         </div>
-                //                         <div class="panel-body">
-                //                             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                //                             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                //                             when an unknown printer took a galley of type and scrambled it to make a type
-                //                             specimen book. It has survived not only five centuries, but also the leap into
-                //                             electronic typesetting, remaining essentially unchanged. It was popularised in
-                //                             the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                //                             and more recently with desktop publishing software like Aldus PageMaker including
-                //                             versions of Lorem Ipsum.
-                //                         <div>
-                //                             <span class="label label-warning">Variants</span>
-                //                             <span class="label label-danger">Cancer</span>
-                //                         </div>
-                //                         </div>
-                //                     </div>
-                //                     <div class="panel panel-info">
-                //                         <div class="panel-heading">
-                //                             <div>
-                //                                 <span class="panel-title">User 2</span>
-                //                                 <span class="pull-right">13 Jan 2022</span>
-                //                             </div>
-                //                         </div>
-                //                         <div class="panel-body">
-                //                             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                //                             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                //                             when an unknown printer took a galley of type and scrambled it to make a type
-                //                             specimen book. It has survived not only five centuries, but also the leap into
-                //                             electronic typesetting, remaining essentially unchanged. It was popularised in
-                //                             the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                //                             and more recently with desktop publishing software like Aldus PageMaker including
-                //                             versions of Lorem Ipsum.
-                //                         <div>
-                //                             <span class="label label-warning">Variants</span>
-                //                             <span class="label label-danger">Cancer</span>
-                //                         </div>
-                //                         </div>
-                //                     </div>
-                //                     <div class="panel panel-info">
-                //                         <div class="panel-heading">
-                //                             <div>
-                //                                 <span class="panel-title">User 3</span>
-                //                                 <span class="pull-right">13 Jan 2022</span>
-                //                             </div>
-                //                         </div>
-                //                         <div class="panel-body">
-                //                             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                //                             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                //                             when an unknown printer took a galley of type and scrambled it to make a type
-                //                             specimen book. It has survived not only five centuries, but also the leap into
-                //                             electronic typesetting, remaining essentially unchanged. It was popularised in
-                //                             the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                //                             and more recently with desktop publishing software like Aldus PageMaker including
-                //                             versions of Lorem Ipsum.
-                //                         <div>
-                //                             <span class="label label-warning">Variants</span>
-                //                             <span class="label label-warning">Gene</span>
-                //                             <span class="label label-info">Others</span>
-
-                //                         </div>
-                //                         </div>
-                //                     </div>
-                //                 `
-                //             }
-                //         }
-                //     ]
-                // },
-                // {
-                //     id: "variantView",
-                //     title: "Variant",
-                //     display: {
-                //         // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
-                //     },
-                //     elements: [
-                //         {
-                //             type: "custom",
-                //             display: {
-                //                 render: data => {
-                //                     return !data.primaryFindings || UtilsNew.isNotEmptyArray(data?.primaryFindings) ?
-                //                         html`
-                //                             <variant-interpreter-grid
-                //                                 review
-                //                                 .clinicalAnalysis=${this.clinicalAnalysis}
-                //                                 .clinicalVariants="${data?.primaryFindings}"
-                //                                 .opencgaSession="${this.opencgaSession}"
-                //                                 .config=${
-                //                                     {
-                //                                         showExport: true,
-                //                                         showSettings: false
-                //                                     }
-                //                                 }>
-                //                             </variant-interpreter-grid>
-                //                         `:"Variants Not Found";
-                //                 }
-                //             }
-                //         }
-                //     ]
-                // },
             ]
 
         });

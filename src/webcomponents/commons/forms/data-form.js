@@ -1482,8 +1482,9 @@ export default class DataForm extends LitElement {
         // Check for pills style
         if (type === "pills") {
             return html`
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                         <ul class="nav nav-pills nav-stacked">
                             ${this._getVisibleSections().map((section, index) => {
                                 const active = index === this.activeSection;
@@ -1501,6 +1502,7 @@ export default class DataForm extends LitElement {
                         ${this.renderData()}
                     </div>
                 </div>
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
             `;
         }
 

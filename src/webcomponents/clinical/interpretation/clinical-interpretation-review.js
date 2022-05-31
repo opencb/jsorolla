@@ -19,6 +19,8 @@ import UtilsNew from "../../../core/utilsNew.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import Types from "../../commons/types.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import "../../variant/interpretation/variant-interpreter-grid.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-view.js";
@@ -57,7 +59,11 @@ export default class ClinicalInterpretationReview extends LitElement {
     _init() {
         this.interpretation = {};
         this._config = this.getDefaultConfig();
+    }
 
+    connectedCallback() {
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        super.connectedCallback();
     }
 
     update(changedProperties) {
@@ -67,8 +73,38 @@ export default class ClinicalInterpretationReview extends LitElement {
         super.update(changedProperties);
     }
 
+    onCommentChange(e) {
+        // TODO: Save comment internal
+        this.commentsUpdate = e.detail;
+    }
+
     interpretationObserver() {
         // console.log("this is a clinicalAnalysis", this.clinicalAnalysis);
+    }
+
+    onFieldChange(e, field) {
+        // TODO: final summary
+        console.log("onFieldChange", e);
+    }
+
+    onClinicalAnalysisUpdate(e) {
+        console.log("Clinical Analysis Update", e.detail.clinicalAnalysis);
+        this.clinicalAnalysis = e.detail.clinicalAnalysis;
+    }
+
+    onSaveVariants(e) {
+        const comment = e.detail.comment;
+        this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
+            this.requestUpdate();
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            }, null, {bubbles: true, composed: true});
+        });
+        this._config = this.getDefaultConfig();
+    }
+
+    onSubmit(e) {
+        // this.onSaveVariants(e);
     }
 
     render() {
@@ -86,18 +122,17 @@ export default class ClinicalInterpretationReview extends LitElement {
         return html`
             <data-form
                 .data="${this.clinicalAnalysis}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @submit=${e => this.onSubmit(e)}>
             </data-form>`;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // title: "Case Report",
             type: "pills",
             display: {
-                // width: 10,
-                // pillsLeftColumnClass
-                buttonsVisible: false
+                pillsLeftColumnClass: "col-md-2",
+                buttonsVisible: true
             },
             sections: [
                 {
@@ -224,7 +259,7 @@ export default class ClinicalInterpretationReview extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .diseasePanels="${data?.panels}">
                                             </disease-panel-grid>
-                                        `:"Panel Not Found";
+                                        `:"No panel data to display";
                                 }
                             }
                         },
@@ -238,182 +273,16 @@ export default class ClinicalInterpretationReview extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: data => html `
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading">
-                                                    <div>
-                                                        <span class="panel-title">User 1</span>
-                                                        <span class="pull-right">13 Jan 2022</span>
-                                                    </div>
-                                                </div>
-                                                <div class="panel-body">
-                                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                                    when an unknown printer took a galley of type and scrambled it to make a type
-                                                    specimen book. It has survived not only five centuries, but also the leap into
-                                                    electronic typesetting, remaining essentially unchanged. It was popularised in
-                                                    the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                                                    and more recently with desktop publishing software like Aldus PageMaker including
-                                                    versions of Lorem Ipsum.
-                                                <div>
-                                                    <span class="label label-warning">Variants</span>
-                                                    <span class="label label-danger">Cancer</span>
-                                                </div>
-                                                </div>
-                                            </div>
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading">
-                                                    <div>
-                                                        <span class="panel-title">User 2</span>
-                                                        <span class="pull-right">13 Jan 2022</span>
-                                                    </div>
-                                                </div>
-                                                <div class="panel-body">
-                                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                                    when an unknown printer took a galley of type and scrambled it to make a type
-                                                    specimen book. It has survived not only five centuries, but also the leap into
-                                                    electronic typesetting, remaining essentially unchanged. It was popularised in
-                                                    the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                                                    and more recently with desktop publishing software like Aldus PageMaker including
-                                                    versions of Lorem Ipsum.
-                                                <div>
-                                                    <span class="label label-warning">Variants</span>
-                                                    <span class="label label-danger">Cancer</span>
-                                                </div>
-                                                </div>
-                                            </div>
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading">
-                                                    <div>
-                                                        <span class="panel-title">User 3</span>
-                                                        <span class="pull-right">13 Jan 2022</span>
-                                                    </div>
-                                                </div>
-                                                <div class="panel-body">
-                                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                                    when an unknown printer took a galley of type and scrambled it to make a type
-                                                    specimen book. It has survived not only five centuries, but also the leap into
-                                                    electronic typesetting, remaining essentially unchanged. It was popularised in
-                                                    the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                                                    and more recently with desktop publishing software like Aldus PageMaker including
-                                                    versions of Lorem Ipsum.
-                                                <div>
-                                                    <span class="label label-warning">Variants</span>
-                                                    <span class="label label-warning">Gene</span>
-                                                    <span class="label label-info">Others</span>
-                                                </div>
-                                                </div>
-                                            </div>
-                                        `
+                                render: data => html`
+                                    <clinical-analysis-comment-editor
+                                        .comments="${data?.comments}"
+                                        @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
+                                    `
                             }
                         },
                     ]
                 },
-                // {
-                //     id: "panelView",
-                //     title: "Panel",
-                //     elements: [
-                //         {
-                //             type: "custom",
-                //             display: {
-                //                 render: data => {
-                //                     return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
-                //                         html`
-                //                             <disease-panel-grid
-                //                                 .opencgaSession="${this.opencgaSession}"
-                //                                 .diseasePanels="${data?.panels}">
-                //                             </disease-panel-grid>
-                //                         `:"Panel Not Found";
-                //                 }
-                //             }
-                //         }
-                //     ]
-                // },
-                // {
-                //     id: "commentView",
-                //     title: "Comments",
-                //     display: {
-                //         // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
-                //     },
-                //     elements: [
-                //         {
-                //             type: "custom",
-                //             display: {
-                //                 render: data => html `
-                //                     <div class="panel panel-info">
-                //                         <div class="panel-heading">
-                //                             <div>
-                //                                 <span class="panel-title">User 1</span>
-                //                                 <span class="pull-right">13 Jan 2022</span>
-                //                             </div>
-                //                         </div>
-                //                         <div class="panel-body">
-                //                             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                //                             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                //                             when an unknown printer took a galley of type and scrambled it to make a type
-                //                             specimen book. It has survived not only five centuries, but also the leap into
-                //                             electronic typesetting, remaining essentially unchanged. It was popularised in
-                //                             the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                //                             and more recently with desktop publishing software like Aldus PageMaker including
-                //                             versions of Lorem Ipsum.
-                //                         <div>
-                //                             <span class="label label-warning">Variants</span>
-                //                             <span class="label label-danger">Cancer</span>
-                //                         </div>
-                //                         </div>
-                //                     </div>
-                //                     <div class="panel panel-info">
-                //                         <div class="panel-heading">
-                //                             <div>
-                //                                 <span class="panel-title">User 2</span>
-                //                                 <span class="pull-right">13 Jan 2022</span>
-                //                             </div>
-                //                         </div>
-                //                         <div class="panel-body">
-                //                             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                //                             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                //                             when an unknown printer took a galley of type and scrambled it to make a type
-                //                             specimen book. It has survived not only five centuries, but also the leap into
-                //                             electronic typesetting, remaining essentially unchanged. It was popularised in
-                //                             the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                //                             and more recently with desktop publishing software like Aldus PageMaker including
-                //                             versions of Lorem Ipsum.
-                //                         <div>
-                //                             <span class="label label-warning">Variants</span>
-                //                             <span class="label label-danger">Cancer</span>
-                //                         </div>
-                //                         </div>
-                //                     </div>
-                //                     <div class="panel panel-info">
-                //                         <div class="panel-heading">
-                //                             <div>
-                //                                 <span class="panel-title">User 3</span>
-                //                                 <span class="pull-right">13 Jan 2022</span>
-                //                             </div>
-                //                         </div>
-                //                         <div class="panel-body">
-                //                             Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                //                             Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                //                             when an unknown printer took a galley of type and scrambled it to make a type
-                //                             specimen book. It has survived not only five centuries, but also the leap into
-                //                             electronic typesetting, remaining essentially unchanged. It was popularised in
-                //                             the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                //                             and more recently with desktop publishing software like Aldus PageMaker including
-                //                             versions of Lorem Ipsum.
-                //                         <div>
-                //                             <span class="label label-warning">Variants</span>
-                //                             <span class="label label-warning">Gene</span>
-                //                             <span class="label label-info">Others</span>
-                //                         </div>
-                //                         </div>
-                //                     </div>
-                //                 `
-                //             }
-                //         }
-                //     ]
-                // },
                 {
                     id: "interpretationSummary",
                     title: "Interpretation Info",
@@ -435,7 +304,9 @@ export default class ClinicalInterpretationReview extends LitElement {
                                 render: data => html`
                                     <clinical-interpretation-view
                                         .clinicalAnalysis="${data}"
-                                        .opencgaSession="${this.opencgaSession}">
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @clinicalAnalysisUpdate=${this.onClinicalAnalysisUpdate}
+                                        >
                                     </clinical-interpretation-view>
                                 `
                             }
@@ -461,14 +332,14 @@ export default class ClinicalInterpretationReview extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const variantsReviewed = data?.interpretation?.primaryFindings?.filter(
-                                        variant => variant?.status === "REVIEWED");
-                                    return variantsReviewed || UtilsNew.isNotEmptyArray(variantsReviewed) ?
+                                    const variantsReported = data?.interpretation?.primaryFindings?.filter(
+                                        variant => variant?.status === "REPORTED");
+                                    return UtilsNew.isNotEmptyArray(variantsReported) ?
                                         html`
                                             <variant-interpreter-grid
                                                 review
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${variantsReviewed}"
+                                                .clinicalVariants="${variantsReported}"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .config=${
                                                     {
@@ -477,7 +348,7 @@ export default class ClinicalInterpretationReview extends LitElement {
                                                     }
                                                 }>
                                             </variant-interpreter-grid>
-                                        `:"Variants Not Found";
+                                        `:"Reported Variants not found";
                                 }
                             }
                         }
@@ -503,7 +374,7 @@ export default class ClinicalInterpretationReview extends LitElement {
                             field: "status.id",
                             type: "select",
                             allowedValues: ["REVIEW", "CLOSED", "DISCARDED"],
-                            required: true,
+                            // required: true,
                         },
                         {
                             title: "Discussion",
@@ -534,33 +405,7 @@ export default class ClinicalInterpretationReview extends LitElement {
                         },
                     ]
                 },
-                // {
-                //     id: "reportConclusion",
-                //     title: "Conclusion",
-                //     display: {
-                //         // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
-                //     },
-                //     elements: [
-                //         {
-                //             type: "custom",
-                //             display: {
-                //                 render: data => {
-                //                     return data?.discussion ? html`<p>${data.discussion}</p>` : "No Conclusion";
-                //                 }
-                //             }
-                //         },
-                //         {
-                //             field: "conclusion",
-                //             type: "input-text",
-                //             display: {
-                //                 rows: 3,
-                //                 placeholder: "Please write a conclusion..."
-                //             }
-                //         },
-                //     ]
-                // },
             ]
-
         });
     }
 
