@@ -166,7 +166,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "Select the Gene Set to be displayed",
                             display: {
                                 containerStyle: "margin: 5px 5px 5px 0px",
-                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version.startsWith("v5")
+                                visible: () => this.opencgaSession?.project?.cellbase?.version.startsWith("v5")
                             }
                         },
                         {
@@ -175,7 +175,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "Ensembl",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version.startsWith("v5")
+                                visible: () => this.opencgaSession?.project?.cellbase?.version.startsWith("v5")
                             }
                         },
                         {
@@ -184,7 +184,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             text: "RefSeq",
                             display: {
                                 containerStyle: "margin: 10px 5px",
-                                visible: () => this.opencgaSession?.project?.internal?.cellbase?.version.startsWith("v5")
+                                visible: () => this.opencgaSession?.project?.cellbase?.version.startsWith("v5")
                             }
                         },
                         {
