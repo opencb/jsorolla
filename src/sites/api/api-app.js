@@ -670,15 +670,15 @@ class ApiApp extends LitElement {
 
             <!-- Navbar -->
             <custom-navbar
-                .app=${this.app}
+                .app="${this.app}"
                 .version="${this.version}"
-                .loggedIn=${this.isLoggedIn()}
-                .opencgaSession=${this.opencgaSession}
-                .config=${this.config}
-                @logout=${e => this.logout()}
-                @changeTool=${e => this.changeTool(e.detail.value)}
-                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-                @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
+                .loggedIn="${this.isLoggedIn()}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this.config}"
+                @logout="${() => this.logout()}"
+                @changeTool="${e => this.changeTool(e.detail.value)}"
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
                 @route="${this.route}">
             </custom-navbar>
             <!-- End of navigation bar -->
