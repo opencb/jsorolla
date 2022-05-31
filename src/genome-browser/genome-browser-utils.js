@@ -34,6 +34,29 @@ export default class GenomeBrowserUtils {
     }
 
     //
+    // Common utils
+    //
+
+    // Clean an element
+    static cleanDOMElement(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+    }
+
+    // Sort chromosomes
+    static sortChromosomes(chromosomes) {
+        return chromosomes.sort((a, b) => {
+            let isNumber = true;
+            for (let i = 0; i < a.name.length && isNumber; i++) {
+                isNumber = !isNaN(a.name[i]);
+            }
+
+            return !isNumber ? 1 : a.name - b.name;
+        });
+    }
+
+    //
     // Renderer utils
     //
 
