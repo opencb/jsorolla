@@ -233,6 +233,7 @@ class IvaApp extends LitElement {
         this.config = _config;
 
         // Get version from env variable
+        // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
 
         // Initially we load the SUIte config
@@ -1055,6 +1056,7 @@ class IvaApp extends LitElement {
             <!-- Navbar -->
             <custom-navbar
                 .app=${this.app}
+                .version="${this.version}"
                 .loggedIn=${this.isLoggedIn()}
                 .opencgaSession=${this.opencgaSession}
                 .config=${this.config}
