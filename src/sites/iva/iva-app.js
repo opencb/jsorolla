@@ -1050,8 +1050,8 @@ class IvaApp extends LitElement {
                 .config="${this.config}"
                 .loggedIn="${this.isLoggedIn()}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
-            ></custom-sidebar>
+                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
+            </custom-sidebar>
 
             <!-- Navbar -->
             <custom-navbar
@@ -1060,7 +1060,7 @@ class IvaApp extends LitElement {
                 .loggedIn="${this.isLoggedIn()}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.config}"
-                @logout="${e => this.logout()}"
+                @logout="${() => this.logout()}"
                 @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
