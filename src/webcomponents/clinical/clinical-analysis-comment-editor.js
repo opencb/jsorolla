@@ -165,7 +165,8 @@ class ClinicalAnalysisCommentEditor extends LitElement {
             comment.tags ? comment.tags.push("STARRED") : comment.tags = ["STARRED"];
         }
 
-        this.commentStatus[comment.date] = "UPDATED";
+        // NOTE: This active edit mode comment.
+        // this.commentStatus[comment.date] = "UPDATED"; //
         this.requestUpdate();
         this.notify();
     }
@@ -222,10 +223,10 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         return {
             add: true,
             styles: {
-                NONE: "border-left: 2px solid #0c2f4c",
-                ADD: "border-left: 2px solid green",
-                UPDATED: "border-left: 2px solid darkorange",
-                DELETED: "border-left: 2px solid red; color: grey"
+                NONE: "border-left: 2px solid #0c2f4c; padding-left:2px",
+                ADD: "border-left: 2px solid green; padding-left:2px",
+                UPDATED: "border-left: 2px solid darkorange; padding-left:2px",
+                DELETED: "border-left: 2px solid red; color: grey; padding-left:2px"
             }
         };
     }
@@ -245,20 +246,52 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
         return html`
             ${this.comments?.filter(c => c.date)?.map(comment => html`
-                <div style="${this._config.styles[this.commentStatus[comment.date]]}; margin: 15px 0px">
-                    <div style="margin: 5px 10px">
-                        <span style="font-weight: bold">${comment.author}</span>
-                        <span style="color: darkgrey; margin: 0px 10px">${UtilsNew.dateFormatter(comment.date)}</span>
-                        <div style="float: right">
-                            ${comment.tags && comment.tags.includes("STARRED") ? html`
-                                <span style="color: darkgoldenrod" @click="${e => this.onStarClick(comment, "REMOVE", e)}">
-                                    <i class="fas fa-star"></i>
-                                </span>
-                            ` : html`
-                                <span @click="${e => this.onStarClick(comment, "ADD", e)}">
-                                    <i class="far fa-star"></i>
-                                </span>
-                            `}
+            <!-- ${this._config.styles[this.commentStatus[comment.date]]};  -->
+                <div style="margin: 15px 0px">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div>
+                                <span style="font-weight:bold;">${comment.author}</span><span style="color: darkgrey; margin: 0px 10px">${UtilsNew.dateFormatter(comment.date)}</span>
+                                <div class="pull-right">
+                                        ${comment.tags && comment.tags.includes("STARRED") ? html`
+                                            <span style="color: darkgoldenrod; padding: 2px" @click="${e => this.onStarClick(comment, "REMOVE", e)}">
+                                                <i class="fas fa-star"></i>
+                                            </span>
+                                        ` : html`
+                                            <span style="padding: 2px" @click="${e => this.onStarClick(comment, "ADD", e)}">
+                                                <i class="far fa-star"></i>
+                                            </span>
+                                        `}
+                                        ${!this.disabled ? html`
+                                        <span>
+                                            <a style="color: black; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "UPDATED", false, e)}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </span>
+                                        <span>
+                                            <a style="color: black; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "DELETED", true, e)}">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </span>
+                                            ${this.commentStatus[comment.date] === "UPDATED" || this.commentStatus[comment.date] === "DELETED"? html`
+                                                <span>
+                                                    <a style="color: darkgrey; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "NONE", true, e)}">
+                                                        <i class="fas fa-times"></i>
+                                                    </a>
+                                                </span>
+                                            ` : null}
+                                        ` : null}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            ${comment.message}"
+                        <div>
+                            <br/>
+                            ${comment.tags?.filter(t => t !== "STARRED").map(tag => html`
+                                <span class="label label-info" style="font-size: 95%">${tag}</span>
+                            `)}
+                        </div>
                         </div>
                     </div>
                     <div style="margin: 5px 10px">
@@ -278,15 +311,15 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                 </text-field-filter>
                             </div>
                         ` : html`
-                            <div style="margin: 10px 0px">${comment.message}</div>
-                            <div style="margin: 10px 0px">
+                            <!-- <div style="margin: 10px 0px">${comment.message}</div> -->
+                            <!-- <div style="margin: 10px 0px">
                                 ${comment.tags?.filter(t => t !== "STARRED").map(tag => html`
                                     <span class="label label-info" style="font-size: 95%">${tag}</span>
                                 `)}
-                            </div>
+                            </div> -->
                         `}
                     </div>
-                    ${!this.disabled ? html`
+                    <!-- ${!this.disabled ? html`
                         <div style="margin: 5px 10px">
                             <span>
                                 <a style="color: darkgrey; cursor: pointer" @click="${e => this.onActionClick(comment, "UPDATED", false, e)}">Edit</a>
@@ -302,16 +335,17 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                 </span>
                             ` : null}
                         </div>
-                    ` : null}
+                    ` : null} -->
                 </div>
             `)}
 
             ${this._config.add ? html`
-                <div style="${this.commentStatus["ADD"] === "ADD" ? this._config.styles.ADD : this._config.styles.NONE}; margin: 15px 0px">
-                    <div style="margin: 5px 10px">
+            <!-- ${this.commentStatus["ADD"] === "ADD" ? this._config.styles.ADD : this._config.styles.NONE} -->
+                <div style="margin: 15px 0px">
+                    <div style="margin-bottom: 5px">
                         <span style="font-weight: bold">New comment</span>
                     </div>
-                    <div style="margin: 5px 10px">
+                    <div style="margin-bottom:5px">
                         <text-field-filter
                             .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment ?.message) : ""}"
                             ?disabled="${this.disabled}"
@@ -319,7 +353,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                             @filterChange="${e => this.onAddChange("message", e)}">
                         </text-field-filter>
                     </div>
-                    <div style="margin: 5px 10px">
+                    <div style="margin-bottom:5px">
                         <text-field-filter
                             .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment?.tags.join(" ")) : ""}"
                             ?disabled="${this.disabled}"
