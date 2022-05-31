@@ -1047,25 +1047,25 @@ class IvaApp extends LitElement {
 
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             <custom-sidebar
-                .config=${this.config}
-                .loggedIn=${this.isLoggedIn()}
-                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
+                .config="${this.config}"
+                .loggedIn="${this.isLoggedIn()}"
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
             ></custom-sidebar>
 
             <!-- Navbar -->
             <custom-navbar
-                .app=${this.app}
+                .app="${this.app}"
                 .version="${this.version}"
-                .loggedIn=${this.isLoggedIn()}
-                .opencgaSession=${this.opencgaSession}
-                .config=${this.config}
-                @logout=${e => this.logout()}
-                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
-                @changeTool=${e => this.changeTool(e.detail.value)}
-                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-                @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
-                @jobSelected=${e => this.onJobSelected(e)}
+                .loggedIn="${this.isLoggedIn()}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this.config}"
+                @logout="${e => this.logout()}"
+                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
+                @changeTool="${e => this.changeTool(e.detail.value)}"
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
+                @jobSelected="${e => this.onJobSelected(e)}"
                 @route="${this.route}">
             </custom-navbar>
 
