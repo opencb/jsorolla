@@ -21,6 +21,7 @@ import Types from "../../commons/types.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import "../../variant/interpretation/variant-interpreter-grid.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-view.js";
@@ -29,7 +30,7 @@ export default class ClinicalInterpretationReview extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -56,8 +57,9 @@ export default class ClinicalInterpretationReview extends LitElement {
         };
     }
 
-    _init() {
-        this.interpretation = {};
+    #init() {
+        this.updateParams = {};
+        this._clinicalAnalysis = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -83,8 +85,20 @@ export default class ClinicalInterpretationReview extends LitElement {
     }
 
     onFieldChange(e, field) {
-        // TODO: final summary
-        console.log("onFieldChange", e);
+        const param = field || e.detail.param;
+        switch (param) {
+            case "discussion":
+            case "date":
+            case "status.id":
+            case "report.signedBy":
+                this.updateParams = FormUtils.updateObjectParams(
+                    this._clinicalAnalysis,
+                    this.clinicalAnalysis,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
+                break;
+        }
     }
 
     onClinicalAnalysisUpdate(e) {
@@ -105,6 +119,7 @@ export default class ClinicalInterpretationReview extends LitElement {
 
     onSubmit(e) {
         // this.onSaveVariants(e);
+        console.log("updateParams: ", this.updateParams);
     }
 
     render() {
@@ -123,6 +138,7 @@ export default class ClinicalInterpretationReview extends LitElement {
             <data-form
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
             </data-form>`;
     }
