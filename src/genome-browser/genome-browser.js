@@ -193,6 +193,8 @@ export default class GenomeBrowser {
             karyotypePanelVisible: this.config.karyotypePanelVisible,
             chromosomePanelVisible: this.config.chromosomePanelVisible,
             overviewPanelVisible: this.config.overviewPanelVisible,
+            featuresOfInterest: this.config.featuresOfInterest || [],
+            featuresOfInterestTitle: this.config.featuresOfInterestTitle,
         });
 
         // Register event listeners
@@ -626,6 +628,10 @@ export default class GenomeBrowser {
             // Species and chromosomes data
             species: [],
             chromosomes: null,
+
+            // Features of interest
+            featuresOfInterest: [],
+            featuresOfInterestTitle: "Features of Interest",
         };
     }
 
