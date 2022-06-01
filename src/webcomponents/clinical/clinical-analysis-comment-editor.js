@@ -49,7 +49,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.commentStatus = {};
         this.updateParams = {};
-        this.newComment = {};
+        this.newComment = {message: "", tags: []};
         this.commentEditIndex = {};
         if (!this.comments) {
             this.comments = [];
@@ -195,7 +195,11 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         this.notify();
     }
 
-
+    onClearComment() {
+        this.newComment = {message: "", tags: []};
+        delete this.commentStatus["ADD"];
+        this.requestUpdate();
+    }
     onAddDelete(e) {
         // Delete the new ADDED comment
         this.comments.splice(this.comments.length - 1, 1);
@@ -394,16 +398,18 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     </div>
                     <div style="margin-bottom:5px">
                     <!-- Change value -->
-                        <text-field-filter
-                            .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment ?.message) : ""}"
+                    <!-- .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment ?.message) : ""}"     -->
+                    <text-field-filter
+                            .value="${this.newComment?.message}"
                             ?disabled="${this.disabled}"
                             placeholder="Add comment..." .rows=${2}
                             @filterChange="${e => this.onFieldAddChange("message", e)}">
                         </text-field-filter>
                     </div>
                     <div style="margin-bottom:5px">
+                    <!-- .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment?.tags.join(" ")) : ""}" -->
                         <text-field-filter
-                            .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment?.tags.join(" ")) : ""}"
+                            .value="${this.newComment?.tags?.join(" ")}"
                             ?disabled="${this.disabled}"
                             placeholder="Add tags..." .rows=${1}
                             @filterChange="${e => this.onFieldAddChange("tags", e)}">
@@ -411,7 +417,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     </div>
                     ${this.commentStatus["ADD"] === "ADD" ? html`
                         <div style="display:flex; justify-content:flex-end">
-                            <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onAddDelete(e)}">Cancel</button>
+                            <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onClearComment(e)}">Cancel</button>
                             <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onAddComment()}">Add Comment</button>
                         </div>
                     ` : null}
