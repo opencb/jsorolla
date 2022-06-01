@@ -85,6 +85,15 @@ export default class NavigationBar {
                     <span class="input-group-addon">nts</span>
                 </div>
 
+                <!-- Features of interest -->
+                <div id="${this.prefix}FeaturesOfInterest" class="dropdown" style="display:none;">
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                        ${this.config.featuresOfInterestTitle}
+                        <span class="caret"></span>
+                    </button>
+                    <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
+                </div>
+
                 <!-- Region input -->
                 <div id="${this.prefix}RegionForm" title="Position" class="form-group" style="margin:0px;">
                     <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
@@ -141,6 +150,7 @@ export default class NavigationBar {
                         </button>
                     </span>
                 </div>
+
             </div>
         `);
 
@@ -185,6 +195,10 @@ export default class NavigationBar {
         this.elements.searchButton = this.div.querySelector(`button#${this.prefix}SearchButton`);
         this.elements.searchDataList = this.div.querySelector(`datalist#${this.prefix}SearchDataList`);
 
+        // Features of interest elements
+        this.elements.featuresOfInterest = this.div.querySelector(`div#${this.prefix}FeaturesOfInterest`);
+        this.elements.featuresOfInterestMenu = this.div.querySelector(`ul#${this.prefix}FeaturesOfInterestMenu`);
+
         // Hide panel buttons
         if (!this.config.karyotypePanelVisible && !this.config.chromosomePanelVisible && !this.overviewPanelVisible) {
             this.elements.panelButtons.style.display = "none";
@@ -200,6 +214,11 @@ export default class NavigationBar {
             if (!this.config.overviewPanelVisible) {
                 this.elements.overviewButton.style.display = "none";
             }
+        }
+
+        // Fill features of interest dropdown
+        if (this.config.featuresOfInterest.length > 0) {
+            this.#fillFeaturesOfInterestDropdown();
         }
 
         this.target.appendChild(this.div);
@@ -426,6 +445,43 @@ export default class NavigationBar {
         this.elements.zoomRange.value = this.zoom;
     }
 
+    #fillFeaturesOfInterestDropdown() {
+        this.elements.featuresOfInterest.style.display = "block";
+        this.config.featuresOfInterest.forEach(item => {
+            const itemTemplate = UtilsNew.renderHTML(`
+                <li class="dropdown-submenu">
+                    <a style="display:flex;align-items:center;">
+                        <span style="padding-right:8px;">${item.name}</span>
+                        <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
+                    </a>
+                    <ul class="dropdown-menu"></ul>
+                </li>
+            `);
+            const itemEntry = itemTemplate.querySelector("li");
+
+            item.features.forEach(feature => {
+                const featureRegion = new Region(feature);
+                const featureTemplate = UtilsNew.renderHTML(`
+                    <li data-region="${featureRegion.toString()}">
+                        <a>${feature.name || feature.id || featureRegion.toString()}</a>
+                    </li>
+                `);
+                const featureEntry = featureTemplate.querySelector("li");
+                featureEntry.querySelector("a").addEventListener("click", event => {
+                    event.preventDefault();
+                    this.#triggerRegionChange({
+                        region: featureRegion,
+                        sender: this,
+                    });
+                });
+
+                itemEntry.querySelector("ul").appendChild(featureEntry);
+            });
+
+            this.elements.featuresOfInterestMenu.appendChild(itemEntry);
+        });
+    }
+
     setWidth(width) {
         this.width = width;
     }
@@ -455,6 +511,8 @@ export default class NavigationBar {
             quickSearchResultFn: null,
             zoom: 50,
             width: 100,
+            featuresOfInterest: [],
+            featuresOfInterestTitle: "Features of Interest",
         };
     }
 
