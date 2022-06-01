@@ -314,47 +314,49 @@ class VariantInterpreterBrowser extends LitElement {
                     }
 
                     return html`
-                        <genome-browser
-                            .opencgaSession="${opencgaSession}"
-                            .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
-                            .active="${active}"
-                            .config="${{
-                                cellBaseClient: this.cellbaseClient,
-                                featuresOfInterest: featuresOfInterest,
-                            }}"
-                            .tracks="${[
-                                {
-                                    type: "gene-overview",
-                                    overview: true,
-                                    config: {},
-                                },
-                                {
-                                    type: "sequence",
-                                    config: {},
-                                },
-                                {
-                                    type: "gene",
-                                    config: {},
-                                },
-                                {
-                                    type: "opencga-variant",
-                                    config: {
-                                        title: "Variants",
-                                        query: {
-                                            sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                        <div style="margin-top:16px;">
+                            <genome-browser
+                                .opencgaSession="${opencgaSession}"
+                                .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
+                                .active="${active}"
+                                .config="${{
+                                    cellBaseClient: this.cellbaseClient,
+                                    featuresOfInterest: featuresOfInterest,
+                                }}"
+                                .tracks="${[
+                                    {
+                                        type: "gene-overview",
+                                        overview: true,
+                                        config: {},
+                                    },
+                                    {
+                                        type: "sequence",
+                                        config: {},
+                                    },
+                                    {
+                                        type: "gene",
+                                        config: {},
+                                    },
+                                    {
+                                        type: "opencga-variant",
+                                        config: {
+                                            title: "Variants",
+                                            query: {
+                                                sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                                            },
+                                            height: 120,
                                         },
-                                        height: 120,
                                     },
-                                },
-                                ...(clinicalAnalysis.proband?.samples || []).map(sample => ({
-                                    type: "opencga-alignment",
-                                    config: {
-                                        title: `Alignments - ${sample.id}`,
-                                        sample: sample.id,
-                                    },
-                                })),
-                            ]}">
-                        </genome-browser>
+                                    ...(clinicalAnalysis.proband?.samples || []).map(sample => ({
+                                        type: "opencga-alignment",
+                                        config: {
+                                            title: `Alignments - ${sample.id}`,
+                                            sample: sample.id,
+                                        },
+                                    })),
+                                ]}">
+                            </genome-browser>
+                        </div>
                     `;
                 },
             });
