@@ -41,6 +41,8 @@
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
 
+        import featuresOfInterest from "./examples/features-of-interest.js";
+
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
         const params = new URLSearchParams(window.location.search);
@@ -70,14 +72,7 @@
                 region: region,
                 species: species,
                 resizable: true,
-                karyotypePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
-                chromosomePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
+                featuresOfInterest: featuresOfInterest,
             });
 
             // When GB is ready add tracks and draw

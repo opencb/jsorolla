@@ -38,10 +38,11 @@
         import GenomeBrowserConstants from "../genome-browser-constants.js";
         import GenomeBrowserUtils from "../genome-browser-utils.js";
         import GeneTrack from "../tracks/gene-track.js";
-        // import SnpTrack from "../tracks/snp-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
         import OpenCGAVariantTrack from "../tracks/opencga-variant-track.js"
+
+        import featuresOfInterest from "./examples/features-of-interest.js";
         
         // This is the parent element where GenomeBrowser will be rendered
         const parent = document.getElementById("application");
@@ -95,14 +96,7 @@
                 region: region,
                 species: species,
                 resizable: true,
-                karyotypePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
-                chromosomePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
+                featuresOfInterest: featuresOfInterest,
             });
 
             // When GB is ready add tracks and draw
@@ -150,7 +144,6 @@
                     }),
                 ]);
 
-                // genomeBrowser.addTrack(tracks);
                 genomeBrowser.draw();
             });
         }
