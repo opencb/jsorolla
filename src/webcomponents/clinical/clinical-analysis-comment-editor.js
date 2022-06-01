@@ -24,7 +24,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -39,16 +39,18 @@ class ClinicalAnalysisCommentEditor extends LitElement {
             disabled: {
                 type: Boolean,
             },
+            opencgaSession: {
+                type: Object
+            },
             config: {
                 type: Object,
             },
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.commentStatus = {};
-        this.updateParams = {};
         this.newComment = {message: "", tags: []};
         this.commentEditIndex = {};
         if (!this.comments) {
@@ -71,11 +73,9 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         if (changedProperties.has("comments")) {
             this.commentsObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -101,6 +101,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     [comment.date]: false
                 };
             });
+            this.newComment = {message: "", tags: []};
 
             // Init the status with status NONE
             // this.commentStatus = Object.fromEntries(this.comments.map(comment => {
@@ -127,44 +128,30 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     value,
                 );
         }
+
+        // Only one new Comment allowed, it is added at the end of the comments array. No date is set for the new comment.
+        // If last element contains a 'date' then we need to add a new comment.
+        if (this.comments[this.comments.length - 1]?.date) {
+            this.comments.push({
+                message: "",
+                tags: []
+            });
+        }
+
+        // Add the new comment to the list
+        this.comments[this.comments.length - 1] = this.newComment;
+
         if (this.newComment?.message || this.newComments?.tags) {
             this.commentStatus["ADD"] = "ADD";
         } else {
+            this.comments.pop();
             delete this.commentStatus["ADD"];
         }
         this.requestUpdate();
-    }
-
-    onEditChange(comment, field, e) {
-        // Store the comment being UPDATED
-        const editIndex = this.comments.findIndex(c => c.date === comment.date);
-        if (field === "message") {
-            this.comments[editIndex].message = e.detail.value;
-        } else {
-            this.comments[editIndex].tags = e.detail.value?.split(" ") ?? [];
-        }
-    }
-
-    onAddComment() {
-        this.newComment.date = Date.now().toString; // Test
-        this.comments = [
-            ...this.comments,
-            this.newComment
-        ];
-        this.commentStatus["ADD"] = "ADD";
-        this.newComment = {};
-        // TODO: Clear input after add new comment
-        this.requestUpdate();
-        // this.notify();
-    }
-
-    onUpdateComment(comment) {
-        this.requestUpdate();
-        this.commentEditIndex[comment.date] = !this.commentEditIndex[comment.date];
         this.notify();
     }
 
-
+    // Rodiel 01-06-22 NOTE: replace by onFieldAddChange
     onAddChange(field, e) {
         // When cancel a comments with onAddDelete it's remove the entire object so the comment item haven't the properties message and tags..
         if (!this.comments[this.comments.length - 1]) {
@@ -195,11 +182,27 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         this.notify();
     }
 
-    onClearComment() {
+    onEditChange(comment, field, e) {
+        // Store the comment being UPDATED
+        const editIndex = this.comments.findIndex(c => c.date === comment.date);
+        if (field === "message") {
+            this.comments[editIndex].message = e.detail.value;
+        } else {
+            this.comments[editIndex].tags = e.detail.value?.split(" ") ?? [];
+        }
+        this.requestUpdate();
+        this.notify();
+    }
+
+    onClearNewComment() {
         this.newComment = {message: "", tags: []};
+        this.comments.pop();
         delete this.commentStatus["ADD"];
         this.requestUpdate();
+        this.notify();
     }
+
+    // Rodiel 01-06-22 NOTE: replace by onClearNewComment
     onAddDelete(e) {
         // Delete the new ADDED comment
         this.comments.splice(this.comments.length - 1, 1);
@@ -222,6 +225,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         if (status === "UPDATED" || status === "NONE") {
             this.commentEditIndex[comment.date] = !this.commentEditIndex[comment.date];
         }
+
         this.requestUpdate();
         this.notify();
     }
@@ -239,7 +243,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
             comment.tags ? comment.tags.push("STARRED") : comment.tags = ["STARRED"];
         }
 
-        this.commentStatus[comment.date] = "UPDATED"; //
+        this.commentStatus[comment.date] = "UPDATED";
         this.requestUpdate();
         this.notify();
     }
@@ -306,21 +310,60 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
     render() {
 
-        // if (!this.comments) {
-        //     return html`
-        //         <div>
-        //             <h3><i class="fas fa-lock"></i> No available comments</h3>
-        //         </div>`;
-        // }
-        let lastComment = {};
-        if (this.comments?.length) {
-            lastComment = this.comments[this.comments.length - 1] || null;
-        }
+        const isOwnComment = comment => this.opencgaSession?.user?.id === comment.author;
+        const renderActions = comment => html`
+            <div class="pull-right">
+                ${comment.tags && comment.tags.includes("STARRED") ? html`
+                    <span style="color: darkgoldenrod; padding: 2px" @click="${e => this.onStarClick(comment, "REMOVE", e)}">
+                        <i class="fas fa-star"></i>
+                    </span>` :
+                    html`
+                    <span style="color: black; padding: 2px" @click="${e => this.onStarClick(comment, "ADD", e)}">
+                        <i class="far fa-star"></i>
+                    </span>
+                `}
+                ${!this.disabled ? html`
+                <span>
+                    <a style="color: black; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "UPDATED", false, e)}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </span>
+                <span>
+                    <a style="color: black; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "DELETED", true, e)}">
+                        <i class="${this.commentStatus[comment.date] !== "DELETED"? "far fa-trash-alt" : "fas fa-trash-restore"}"></i>
+                    </a>
+                </span>
+                ` : null}
+            </div>`;
+        const renderDisabledActions = comment => html`
+                <div class="pull-right">
+                    ${comment.tags && comment.tags.includes("STARRED") ? html`
+                        <span style="color: gray; padding: 2px; cursor: not-allowed;" >
+                            <i class="fas fa-star"></i>
+                        </span>` :
+                        html`
+                        <span style="color: gray; padding: 2px; cursor: not-allowed;">
+                            <i class="far fa-star"></i>
+                        </span>
+                    `}
+                    ${!this.disabled ? html`
+                    <span>
+                        <a style="color: gray; cursor: not-allowed; padding: 2px">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </span>
+                    <span>
+                        <a style="color: gray; cursor: not-allowed; padding: 2px">
+                            <i class="${this.commentStatus[comment.date] !== "DELETED"? "far fa-trash-alt" : "fas fa-trash-restore"}"></i>
+                        </a>
+                    </span>
+                    ` : null}
+                </div>`;
 
         return html`
             ${this.comments?.filter(c => c.date)?.map(comment => html`
                 <div style="margin: 15px 0px">
-                    <div class="panel panel-default">
+                    <div class="panel ${this.commentStatus[comment.date] !== "DELETED" ? "panel-default" : "panel-danger"}">
                         <div class="panel-heading">
                             <div>
                                 <span style="font-weight:bold;">
@@ -330,75 +373,47 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                     ${UtilsNew.dateFormatter(comment.date)}
                                 </span>
                                 ${this.commentStatus[comment.date] === "DELETED" ? html`<span class="label label-danger">Remove</span>`: null}
-                                <div class="pull-right">
-                                        ${comment.tags && comment.tags.includes("STARRED") ? html`
-                                            <span style="color: darkgoldenrod; padding: 2px" @click="${e => this.onStarClick(comment, "REMOVE", e)}">
-                                                <i class="fas fa-star"></i>
-                                            </span>
-                                        ` : html`
-                                            <span style="padding: 2px" @click="${e => this.onStarClick(comment, "ADD", e)}">
-                                                <i class="far fa-star"></i>
-                                            </span>
-                                        `}
-                                        ${!this.disabled ? html`
-                                        <span>
-                                            <a style="color: black; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "UPDATED", false, e)}">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        </span>
-                                        <span>
-                                            <a style="color: black; cursor: pointer; padding: 2px" @click="${e => this.onActionClick(comment, "DELETED", true, e)}">
-                                                <i class="${this.commentStatus[comment.date] !== "DELETED"? "far fa-trash-alt" : "fas fa-trash-restore"}"></i>
-                                            </a>
-                                        </span>
-                                        ` : null}
-                                </div>
+                                ${isOwnComment(comment)? renderActions(comment):renderDisabledActions(comment)}
                             </div>
                         </div>
                         <div class="panel-body">
-                            ${comment.message}
-                        <div>
-                            <br/>
-                            ${comment.tags?.filter(t => t !== "STARRED").map(tag => html`
-                                <span class="label label-info" style="font-size: 95%">${tag}</span>
-                            `)}
+                            ${this.commentEditIndex[comment.date] ? html`
+                                <div>
+                                    <text-field-filter
+                                        .value="${comment.message}"
+                                        .rows="${2}"
+                                        @filterChange="${e => this.onEditChange(comment, "message", e)}">
+                                    </text-field-filter>
+                                </div>
+                                <div style="margin: 6px 0px">
+                                    <text-field-filter
+                                        .value="${comment.tags?.filter(t => t !== "STARRED").join(" ")}"
+                                        .rows="${1}"
+                                        @filterChange="${e => this.onEditChange(comment, "tags", e)}">
+                                    </text-field-filter>
+                                </div>
+                                <div style="display:flex; justify-content:flex-end; display:none">
+                                    <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
+                                    <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onUpdateComment(comment)}">Update Comment</button>
+                                </div>`:
+                                html `
+                                    ${comment.message}
+                                    <div>
+                                        <br/>
+                                        ${comment.tags?.filter(t => t !== "STARRED").map(tag => html`
+                                            <span class="label label-info" style="font-size: 95%">${tag}</span>
+                                        `)}
+                                    </div>`}
                         </div>
-                        </div>
-                    </div>
-                    <div style="margin: 5px 10px">
-                        ${this.commentEditIndex[comment.date] ? html`
-                            <div style="margin: 10px 0px">
-                                <text-field-filter
-                                    .value="${comment.message}"
-                                    .rows="${2}"
-                                    @filterChange="${e => this.onEditChange(comment, "message", e)}">
-                                </text-field-filter>
-                            </div>
-                            <div style="margin: 4px 0px">
-                                <text-field-filter
-                                    .value="${comment.tags?.filter(t => t !== "STARRED").join(" ")}"
-                                    .rows="${1}"
-                                    @filterChange="${e => this.onEditChange(comment, "tags", e)}">
-                                </text-field-filter>
-                            </div>
-                            <div style="display:flex; justify-content:flex-end">
-                                <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
-                                <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onUpdateComment(comment)}">Update Comment</button>
-                            </div>
-                        ` : null}
                     </div>
                 </div>
             `)}
-
             ${this._config.add ? html`
-            <!-- ${this.commentStatus["ADD"] === "ADD" ? this._config.styles.ADD : this._config.styles.NONE} -->
                 <div style="margin: 15px 0px">
                     <div style="margin-bottom: 5px">
                         <span style="font-weight: bold">New comment</span>
                     </div>
                     <div style="margin-bottom:5px">
-                    <!-- Change value -->
-                    <!-- .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment ?.message) : ""}"     -->
                     <text-field-filter
                             .value="${this.newComment?.message}"
                             ?disabled="${this.disabled}"
@@ -407,7 +422,6 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                         </text-field-filter>
                     </div>
                     <div style="margin-bottom:5px">
-                    <!-- .value="${this.comments?.length ? (lastComment?.date ? "" : lastComment?.tags.join(" ")) : ""}" -->
                         <text-field-filter
                             .value="${this.newComment?.tags?.join(" ")}"
                             ?disabled="${this.disabled}"
@@ -416,9 +430,8 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                         </text-field-filter>
                     </div>
                     ${this.commentStatus["ADD"] === "ADD" ? html`
-                        <div style="display:flex; justify-content:flex-end">
-                            <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onClearComment(e)}">Cancel</button>
-                            <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onAddComment()}">Add Comment</button>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onClearNewComment(e)}">Cancel</button>
                         </div>
                     ` : null}
                 </div>

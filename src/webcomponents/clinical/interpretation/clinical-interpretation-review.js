@@ -291,6 +291,7 @@ export default class ClinicalInterpretationReview extends LitElement {
                             display: {
                                 render: data => html`
                                     <clinical-analysis-comment-editor
+                                        .opencgaSession="${this.opencgaSession}"
                                         .comments="${data?.comments}"
                                         @commentChange="${e => this.onCommentChange(e)}">
                                     </clinical-analysis-comment-editor>
