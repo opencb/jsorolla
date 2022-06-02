@@ -460,7 +460,7 @@ export default class NavigationBar {
                             <span style="padding-right:8px;">${item.name}</span>
                             <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
                         </a>
-                        <ul class="dropdown-menu"></ul>
+                        <ul class="dropdown-menu" style="max-height:300px;overflow:auto;"></ul>
                     </li>
                 `);
                 const itemEntry = itemTemplate.querySelector("li");
