@@ -305,12 +305,30 @@ class VariantInterpreterBrowser extends LitElement {
                     if (clinicalAnalysis.interpretation?.primaryFindings.length > 0) {
                         featuresOfInterest.push({
                             name: "Primary Findings",
-                            features: clinicalAnalysis.interpretation.primaryFindings.map(feature => ({
-                                id: feature.id,
-                                chromosome: feature.chromosome,
-                                start: feature.start,
-                                end: feature.end,
-                            })),
+                            features: clinicalAnalysis.interpretation.primaryFindings.map(feature => {
+                                const genes = Array.from(new Set(feature.annotation.consequenceTypes.filter(ct => !!ct.geneName).map(ct => ct.geneName)));
+                                return {
+                                    id: feature.id,
+                                    chromosome: feature.chromosome,
+                                    start: feature.start,
+                                    end: feature.end ?? (feature.start + 1),
+                                    name: `
+                                        <div>${feature.id} (${feature.type})</div>
+                                        ${feature.annotation.displayConsequenceType ? `
+                                            <div class="small text-primary">
+                                                <strong>${feature.annotation.displayConsequenceType}</strong>
+                                            </div>
+                                        ` : ""}
+                                        ${genes.length > 0 ? `
+                                            <div class="small text-muted">${genes.join(", ")}</div>
+                                        ` : ""}
+                                    `,
+                                };
+                            }),
+                            display: {
+                                visible: true,
+                                color: "red",
+                            },
                         });
                     }
 
@@ -321,7 +339,6 @@ class VariantInterpreterBrowser extends LitElement {
 
                     const assembly = opencgaSession.project.organism?.assembly;
                     clinicalAnalysis.interpretation.panels.forEach(panel => {
-                        console.log(panel);
                         featuresOfInterest.push({
                             name: panel.name,
                             features: panel.genes
@@ -332,15 +349,22 @@ class VariantInterpreterBrowser extends LitElement {
                                     } else {
                                         const region = new Region(coordinates.location);
                                         return {
-                                            name: gene.name,
                                             chromosome: region.chromosome,
                                             start: region.start,
                                             end: region.end,
+                                            name: `
+                                                <div>${gene.name}</div>
+                                                <div class="small text-muted">${region.toString()}</div>
+                                            `,
                                         };
                                     }
                                 })
                                 .filter(gene => !!gene)
                                 .sort((a, b) => a.name < b.name ? -1 : +1),
+                            display: {
+                                visible: true,
+                                color: "green",
+                            },
                         });
                     });
 
