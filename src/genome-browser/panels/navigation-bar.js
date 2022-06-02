@@ -448,37 +448,44 @@ export default class NavigationBar {
     #fillFeaturesOfInterestDropdown() {
         this.elements.featuresOfInterest.style.display = "block";
         this.config.featuresOfInterest.forEach(item => {
-            const itemTemplate = UtilsNew.renderHTML(`
-                <li class="dropdown-submenu">
-                    <a style="display:flex;align-items:center;">
-                        <span style="padding-right:8px;">${item.name}</span>
-                        <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
-                    </a>
-                    <ul class="dropdown-menu"></ul>
-                </li>
-            `);
-            const itemEntry = itemTemplate.querySelector("li");
-
-            item.features.forEach(feature => {
-                const featureRegion = new Region(feature);
-                const featureTemplate = UtilsNew.renderHTML(`
-                    <li data-region="${featureRegion.toString()}">
-                        <a>${feature.name || feature.id || featureRegion.toString()}</a>
+            if (item.separator) {
+                const itemTemplate = UtilsNew.renderHTML(`
+                    <li class="divider"></li>
+                `);
+                this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
+            } else if (item.features && item.name) {
+                const itemTemplate = UtilsNew.renderHTML(`
+                    <li class="dropdown-submenu">
+                        <a style="display:flex;align-items:center;">
+                            <span style="padding-right:8px;">${item.name}</span>
+                            <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
+                        </a>
+                        <ul class="dropdown-menu"></ul>
                     </li>
                 `);
-                const featureEntry = featureTemplate.querySelector("li");
-                featureEntry.querySelector("a").addEventListener("click", event => {
-                    event.preventDefault();
-                    this.#triggerRegionChange({
-                        region: featureRegion,
-                        sender: this,
+                const itemEntry = itemTemplate.querySelector("li");
+
+                item.features.forEach(feature => {
+                    const featureRegion = new Region(feature);
+                    const featureTemplate = UtilsNew.renderHTML(`
+                        <li data-region="${featureRegion.toString()}">
+                            <a>${feature.name || feature.id || featureRegion.toString()}</a>
+                        </li>
+                    `);
+                    const featureEntry = featureTemplate.querySelector("li");
+                    featureEntry.querySelector("a").addEventListener("click", event => {
+                        event.preventDefault();
+                        this.#triggerRegionChange({
+                            region: featureRegion,
+                            sender: this,
+                        });
                     });
+
+                    itemEntry.querySelector("ul").appendChild(featureEntry);
                 });
 
-                itemEntry.querySelector("ul").appendChild(featureEntry);
-            });
-
-            this.elements.featuresOfInterestMenu.appendChild(itemEntry);
+                this.elements.featuresOfInterestMenu.appendChild(itemEntry);
+            }
         });
     }
 
