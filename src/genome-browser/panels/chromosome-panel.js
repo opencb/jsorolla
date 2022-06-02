@@ -230,6 +230,11 @@ export default class ChromosomePanel {
     draw() {
         this.clean();
 
+        // to prevent negative values, we require a width size of at least 500px for drawing the chromosome.
+        if (this.width < this.config.minWidth) {
+            return;
+        }
+
         if (!this.chromosome || this.chromosome.name !== this.region.chromosome) {
             this.chromosome = this.config.chromosomes.find(chromosome => {
                 return chromosome.name === this.region.chromosome;
@@ -323,6 +328,35 @@ export default class ChromosomePanel {
                 fill: GenomeBrowserConstants.CYTOBANDS_COLORS["acen"] || "",
             });
         }
+
+        // Render features of interest
+        this.config.featuresOfInterest.forEach(item => {
+            if (item.display?.visible) {
+                item.features.forEach(feature => {
+                    if (feature.chromosome === this.chromosome.name) {
+                        const featureWidth = Math.max(1, this.pixelBase * Math.abs(feature.end - feature.start));
+                        const featureX = offset + Math.min(feature.start, feature.end) * this.pixelBase;
+
+                        // Display region rectangle
+                        SVG.addChild(group, "rect", {
+                            x: featureX,
+                            y: 39,
+                            width: featureWidth,
+                            height: 22,
+                            fill: item.display?.color || "red",
+                            opacity: 0.5,
+                        });
+
+                        // Display triangle at the right side of the chromosome
+                        SVG.addChild(group, "path", {
+                            d: `M${featureX + featureWidth / 2},62 l5,5 l-10,0 z`,
+                            fill: item.display?.color || "red",
+                            opacity: 0.6,
+                        });
+                    }
+                });
+            }
+        });
 
         // Resize elements and events
         this.status = "setRegion";
@@ -510,11 +544,13 @@ export default class ChromosomePanel {
     getDefaultConfig() {
         return {
             width: 600,
-            height: 75,
+            minWidth: 500,
+            height: 85,
             collapsible: true,
             collapsed: false,
             offset: 20, // Internally used
             chromosomes: [],
+            featuresOfInterest: [],
         };
     }
 
