@@ -131,7 +131,9 @@ export default class ClinicalInterpretationReview extends LitElement {
 
     // Update comments case
     updateOrDeleteCaseComments(notify) {
+
         const promiseCaseComments = [];
+
         if (this.caseCommentsUpdate?.updated?.length > 0) {
             promiseCaseComments.push(this.opencgaSession.opencgaClient.clinical()
                 .update(this.clinicalAnalysis.id, {comments: this.caseCommentsUpdate.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn}));
@@ -297,15 +299,15 @@ export default class ClinicalInterpretationReview extends LitElement {
 
 
     onSubmitAll() {
-        const promiseSubmit = [];
+        let promiseSubmit = [];
 
         // Update case
-        // if (this.caseCommentsUpdate || this.caseUpdateParams) {
+        // if (UtilsNew.isNotEmpty(this.caseCommentsUpdate) || UtilsNew.isNotEmpty(this.caseUpdateParams)) {
         //     promiseSubmit = [...promiseSubmit, ...this.onSubmitCase()];
         // }
 
         // Update Interpretation
-        // if (this.interpretationCommentsUpdate || this.intrepretationUpdateParams) {
+        // if (UtilsNew.isNotEmpty(this.interpretationCommentsUpdate) || UtilsNew.isNotEmpty(this.intrepretationUpdateParams)) {
         //     promiseSubmit = [...promiseSubmit, ...this.onSubmitInterpretation()];
         // }
 
@@ -313,6 +315,7 @@ export default class ClinicalInterpretationReview extends LitElement {
         if (this.updateVariants && UtilsNew.isEmpty(promiseSubmit)) {
             this.updateVariants = false;
             this.onSaveIntrepretationVariant(false);
+            this.postUpdate();
         }
 
         // if (UtilsNew.isNotEmpty(promiseSubmit)) {
@@ -350,7 +353,8 @@ export default class ClinicalInterpretationReview extends LitElement {
             type: "pills",
             display: {
                 pillsLeftColumnClass: "col-md-2",
-                buttonsVisible: true
+                buttonsVisible: true,
+                buttonOkText: "Save"
             },
             sections: [
                 {
