@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
@@ -312,6 +313,36 @@ class VariantInterpreterBrowser extends LitElement {
                             })),
                         });
                     }
+
+                    // Display a separator if there are also panels to display
+                    if (featuresOfInterest.length > 0 && clinicalAnalysis.interpretation.panels.length > 0) {
+                        featuresOfInterest.push({separator: true});
+                    }
+
+                    const assembly = opencgaSession.project.organism?.assembly;
+                    clinicalAnalysis.interpretation.panels.forEach(panel => {
+                        console.log(panel);
+                        featuresOfInterest.push({
+                            name: panel.name,
+                            features: panel.genes
+                                .map(gene => {
+                                    const coordinates = gene.coordinates.find(c => c.assembly === assembly);
+                                    if (!coordinates) {
+                                        return null;
+                                    } else {
+                                        const region = new Region(coordinates.location);
+                                        return {
+                                            name: gene.name,
+                                            chromosome: region.chromosome,
+                                            start: region.start,
+                                            end: region.end,
+                                        };
+                                    }
+                                })
+                                .filter(gene => !!gene)
+                                .sort((a, b) => a.name < b.name ? -1 : +1),
+                        });
+                    });
 
                     return html`
                         <div style="margin-top:16px;">
