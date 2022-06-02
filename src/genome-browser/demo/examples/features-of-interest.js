@@ -15,6 +15,9 @@ export default [
         }
     },
     {
+        separator: true,
+    },
+    {
         name: "My genes of interest",
         features: [
             {
