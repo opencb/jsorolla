@@ -80,7 +80,6 @@ export default class ClinicalInterpretationView extends LitElement {
     }
 
     #renderInterpretationTabs() {
-        const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
         const renderInterpretation = interpretation => html`
             <data-form
                 .data="${interpretation}"
@@ -91,7 +90,7 @@ export default class ClinicalInterpretationView extends LitElement {
         const secondaryInterpretations = this.clinicalAnalysis?.secondaryInterpretations.map(interpretation =>
             ({
                 id: interpretation.id,
-                name: html`${isLocked(interpretation)} ${interpretation?.id}`,
+                name: interpretation.id,
                 render: data => renderInterpretation(interpretation)
             })
         );
@@ -99,7 +98,7 @@ export default class ClinicalInterpretationView extends LitElement {
             items: [
                 {
                     id: "interpretationView",
-                    name: html`${isLocked(this.clinicalAnalysis.interpretation)} ${this.clinicalAnalysis.interpretation?.id} (Primary)`,
+                    name: `${this.clinicalAnalysis.interpretation.id} (Primary)`,
                     active: true,
                     render: data => html`
                         <data-form
@@ -159,7 +158,11 @@ export default class ClinicalInterpretationView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
+                                    const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
                                     return html`
+                                            <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
+                                                <span>${isLocked(data)} Interpretation Info</span>
+                                            </div>
                                             <clinical-interpretation-summary
                                                 .interpretation="${data}">
                                             </clinical-interpretation-summary>

@@ -361,10 +361,15 @@ export default class ClinicalInterpretationReview extends LitElement {
                     },
                     elements: [
                         {
-                            text: "Case Info",
-                            type: "title",
+                            type: "custom",
                             display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
+                                render: data => {
+                                    const isLocked = data => data.locked? html`<i class="fas fa-lock"></i>`:"";
+                                    return html `
+                                        <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
+                                            <span>${isLocked(data)} Case Info</span>
+                                        </div>`;
+                                }
                             },
                         },
                         {
@@ -508,13 +513,13 @@ export default class ClinicalInterpretationReview extends LitElement {
                         titleStyle: "display:none"
                     },
                     elements: [
-                        {
-                            text: "Interpretation Info",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
+                        // {
+                        //     text: "Interpretation Info",
+                        //     type: "title",
+                        //     display: {
+                        //         textStyle: "font-size:24px;font-weight: bold;",
+                        //     },
+                        // },
                         {
                             type: "custom",
                             display: {
