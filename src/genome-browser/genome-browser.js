@@ -258,12 +258,12 @@ export default class GenomeBrowser {
     #createChromosomePanel(target) {
         const chromosomePanel = new ChromosomePanel(target, {
             width: this.width,
-            height: 65,
             title: "Chromosome",
             chromosomes: this.chromosomesList,
             collapsed: this.config.chromosomePanelCollapsed,
             collapsible: this.config.chromosomePanelCollapsible,
             region: this.region,
+            featuresOfInterest: this.config.featuresOfInterest,
         });
 
         // Register chromosome panel event listeners
