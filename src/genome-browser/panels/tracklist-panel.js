@@ -1,7 +1,6 @@
 import Region from "../../core/bioinfo/region.js";
 import UtilsNew from "../../core/utilsNew.js";
-import SequenceRenderer from "../renderers/sequence-renderer.js";
-import GenomeBrowserConstants from "../genome-browser-constants.js";
+import SequenceTrack from "../tracks/sequence-track.js";
 
 export default class TrackListPanel {
 
@@ -21,11 +20,10 @@ export default class TrackListPanel {
     #init() {
         this.prefix = UtilsNew.randomString(8);
         this.collapsed = false;
-        this.collapsible = false;
         this.hidden = false;
 
         this.tracks = [];
-        this.tracksIndex = {};
+        this.sequenceTrack = null;
 
         this.parentLayout;
         this.mousePosition;
@@ -33,7 +31,7 @@ export default class TrackListPanel {
 
         // set new region object
         this.region = new Region(this.config.region);
-        this.width = this.config.width - 18;
+        this.width = this.config.width;
         this.height = this.config.height;
         this.status;
 
@@ -53,24 +51,21 @@ export default class TrackListPanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="ocb-gv-tracklist">
-                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.prefix}WindowSize" class="ocb-gv-tracklist-windowsize"></div>
-                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
-                        <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
-                    </div>
-                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" class="">
+                <div style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;width:150px;cursor:pointer;">
                         ${this.config?.title || ""}
                     </div>
+                    <div id="${this.prefix}WindowSize" class="small text-muted" style="font-weight:bold;"></div>
+                    <div id="${this.prefix}Collapse" align="right" style="width:150px;cursor:pointer;">
+                        <span id="${this.prefix}CollapseIcon" class="fas fa-minus"></span>
+                    </div>
                 </div>
-                <div id="${this.prefix}TLHeader" class="unselectable">
-                    <div id="${this.prefix}Position"class="ocb-gv-tracklist-position">
-                        <div id="${this.prefix}PositionLeft" class="ocb-gv-tracklist-position-left"></div>
-                        <div id="${this.prefix}PositionMid" class="ocb-gv-tracklist-position-mid">
-                            <div id="${this.prefix}PositionNucleotid" class="ocb-gv-tracklist-position-mid-nt"></div>
-                            <div id="${this.prefix}PositionMidPos" class="ocb-gv-tracklist-position-mid-pos"></div>
-                        </div>
-                        <div id="${this.prefix}PositionRight" class="ocb-gv-tracklist-position-right"></div>
+                <div id="${this.prefix}TLHeader" class="unselectable" style="margin-top:8px;">
+                    <div id="${this.prefix}Position" class="small text-primary" style="display:flex;justify-content:space-between;">
+                        <div id="${this.prefix}PositionLeft"></div>
+                        <div id="${this.prefix}PositionCenter"></div>
+                        <div id="${this.prefix}PositionRight"></div>
                     </div>
                 </div>
                 <div id="${this.prefix}TLPanel" style="position:relative;width:100%;">
@@ -87,9 +82,8 @@ export default class TrackListPanel {
         this.div = template.querySelector(`div#${this.prefix}`);
 
         this.windowSizeDiv = this.div.querySelector(`div#${this.prefix}WindowSize`);
-        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.title = this.div.querySelector(`div#${this.prefix}Title`);
+        this.collapse = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
         this.tlHeaderDiv = this.div.querySelector(`div#${this.prefix}TLHeader`);
@@ -97,8 +91,7 @@ export default class TrackListPanel {
         this.tlTracksDiv = this.div.querySelector(`div#${this.prefix}TLTracks`);
 
         this.positionLeftDiv = this.div.querySelector(`div#${this.prefix}PositionLeft`);
-        this.positionNucleotidDiv = this.div.querySelector(`div#${this.prefix}PositionNucleotid`);
-        this.positionMidPosDiv = this.div.querySelector(`div#${this.prefix}PositionMidPos`);
+        this.positionMidPosDiv = this.div.querySelector(`div#${this.prefix}PositionCenter`);
         this.positionRightDiv = this.div.querySelector(`div#${this.prefix}PositionRight`);
 
         // Apply center line styles
@@ -108,7 +101,7 @@ export default class TrackListPanel {
         this.centerLine.style.left = `${this.width / 2}px`;
         this.centerLine.style.top = "0px";
         this.centerLine.style.width = `${Math.floor(this.pixelBase)}px`; // this.pixelBase + 1
-        this.centerLine.style.height = "calc(100% - 8px)"; // 100%
+        this.centerLine.style.height = "100%";
         this.centerLine.style.opacity = 0.5;
         this.centerLine.style.border = "1px solid orangered";
         this.centerLine.style.backgroundColor = "orange";
@@ -120,7 +113,7 @@ export default class TrackListPanel {
         this.mouseLine.style.left = "0px";
         this.mouseLine.style.top = "0px";
         this.mouseLine.style.width = `${Math.floor(this.pixelBase)}px`;
-        this.mouseLine.style.height = "calc(100% - 8px)";
+        this.mouseLine.style.height = "100%";
         this.mouseLine.style.border = "1px solid gray";
         this.mouseLine.style.opacity = 0.7;
         this.mouseLine.style.visibility = "hidden";
@@ -151,7 +144,7 @@ export default class TrackListPanel {
             this.regionOverviewBoxLeft.style.left = "1px";
             this.regionOverviewBoxLeft.style.top = "0px";
             this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
-            this.regionOverviewBoxLeft.style.height = "calc(100% - 8px)";
+            this.regionOverviewBoxLeft.style.height = "100%";
             this.regionOverviewBoxLeft.style.opacity = 0.5;
             this.regionOverviewBoxLeft.style.backgroundColor = "lightgray";
             this.regionOverviewBoxLeft.style.display = "block";
@@ -159,10 +152,10 @@ export default class TrackListPanel {
             // Apply right region styles
             this.regionOverviewBoxRight.style.zIndex = 0;
             this.regionOverviewBoxRight.style.position = "absolute";
-            this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
+            this.regionOverviewBoxRight.style.right = "0px";
             this.regionOverviewBoxRight.style.top = "0px";
             this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
-            this.regionOverviewBoxRight.style.height = "calc(100% - 8px)";
+            this.regionOverviewBoxRight.style.height = "100%";
             this.regionOverviewBoxRight.style.opacity = 0.5;
             this.regionOverviewBoxRight.style.backgroundColor = "lightgray";
             this.regionOverviewBoxRight.style.display = "block";
@@ -174,7 +167,8 @@ export default class TrackListPanel {
     // Register events
     #initEvents() {
         // Show or hide tracks list panel content
-        this.titleDiv.addEventListener("click", () => this.toggleContent());
+        this.title.addEventListener("click", () => this.toggleContent());
+        this.collapse.addEventListener("click", () => this.toggleContent());
 
         this.div.addEventListener("mouseenter", () => {
             this.mouseLine.style.visibility = "visible";
@@ -198,38 +192,13 @@ export default class TrackListPanel {
             this.trigger("mousePosition:change", {
                 mousePos: this.mousePosition,
                 chromosome: this.region.chromosome,
-                base: this.getMousePosition(this.mousePosition),
+                base: this.#getSequenceNucleotid(this.mousePosition),
             });
         });
 
         this.div.addEventListener("mouseleave", () => {
             this.mouseLine.style.visibility = "hidden";
         });
-
-        // $(this.tlTracksDiv).dblclick(function (event) {
-        //     if (!_this.regionChanging) {
-        //         _this.regionChanging = true;
-        //         /**/
-        //         /**/
-        //         /**/
-        //         let halfLength = _this.region.length() / 2;
-        //         let mouseRegion = new Region({
-        //             chromosome: _this.region.chromosome,
-        //             start: _this.mousePosition - halfLength,
-        //             end: _this.mousePosition + halfLength
-        //         });
-        //         _this.trigger("region:change", {
-        //             region: mouseRegion,
-        //             sender: _this
-        //         });
-        //         /**/
-        //         /**/
-        //         /**/
-        //         setTimeout(function () {
-        //             _this.regionChanging = false;
-        //         }, 700);
-        //     }
-        // });
 
         let downX, moveX;
         let lastX = 0;
@@ -263,7 +232,6 @@ export default class TrackListPanel {
         };
 
         this.tlTracksDiv.addEventListener("mousedown", event => {
-            // $("html").addClass("unselectable");
             this.mouseLine.style.visibility = "hidden";
 
             let mouseState = event.which;
@@ -302,12 +270,9 @@ export default class TrackListPanel {
         });
 
         this.tlTracksDiv.addEventListener("mouseup", event => {
-            // $("html").removeClass("unselectable");
-
             this.tlTracksDiv.style.cursor = "default";
             this.mouseLine.style.visibility = "visible";
 
-            // $(this.tlTracksDiv).off("mousemove");
             this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
 
             let mouseState = event.which;
@@ -355,13 +320,10 @@ export default class TrackListPanel {
 
         this.tlTracksDiv.addEventListener("mouseleave", () => {
             this.tlTracksDiv.style.cursor = "default";
-            // this.mouseLine.style.visibility = "hidden";
-
-            // $(this.tlTracksDiv).off("mousemove");
-            this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
-            // $("body").off("keydown.genomeViewer");
-
             this.selBox.style.visibility = "hidden";
+
+            this.tlTracksDiv.removeEventListener("mousemove", handleTracksMouseMove);
+
             downX = null;
             moveX = null;
         });
@@ -416,121 +378,7 @@ export default class TrackListPanel {
 
     }
 
-    show() {
-        this.div.style.display = "block";
-        this.hidden = false;
-    }
-
-    hide() {
-        this.div.style.display = "none";
-        this.hidden = true;
-    }
-
-    setVisible(visible) {
-        visible ? this.show() : this.hide();
-    }
-
-    setTitle(title) {
-        this.titleText.textContent = title || "";
-    }
-
-    showContent() {
-        this.tlHeaderDiv.style.display = "block";
-        this.tlPanelDiv.style.display = "block";
-        this.collapseDiv.classList.remove("active");
-        this.collapseIcon.classList.remove("fa-plus");
-        this.collapseIcon.classList.add("fa-minus");
-        this.collapsed = false;
-    }
-
-    hideContent() {
-        this.tlHeaderDiv.style.display = "none";
-        this.tlPanelDiv.style.display = "none";
-        this.collapseDiv.classList.add("active");
-        this.collapseIcon.classList.add("fa-plus");
-        this.collapseIcon.classList.remove("fa-minus");
-        this.collapsed = true;
-    }
-
-    // Toggle content
-    toggleContent() {
-        this.collapsed ? this.showContent() : this.hideContent();
-    }
-
-    setHeight() {
-    }
-
-    setWidth(width) {
-        // console.log(`trackListPanel setWidth ------> ${width}`);
-        this.width = width - 18;
-
-        // Update track elements position
-        this.centerLine.style.left = `${this.width / 2}px`;
-
-        // Emit resize event
-        this.trigger("resize", {
-            width: this.width,
-        });
-    }
-
-    highlight(event) {
-        this.trigger("trackFeature:highlight", event);
-    }
-
-    moveRegion(event) {
-        this.region.load(event.region);
-        this.visualRegion.load(event.region);
-        this.#setTextPosition();
-        this.trigger("trackRegion:move", event);
-    }
-
-    setSpecies(species) {
-        this.species = species;
-        this.tracks.forEach(track => track.setSpecies(this.species));
-    }
-
-    setRegion(region) {
-        // console.log(`trackListPanel setRegion region ------> ${region}`);
-        // console.log(`trackListPanel setRegion width ------> ${this.width}`);
-
-        const center = this.width / 2;
-        this.region.load(region);
-        this.visualRegion.load(region);
-        this.#setPixelBase();
-
-        this.centerLine.style.left = center - 1;
-        this.centerLine.style.width = `${this.pixelBase}px`;
-        this.mouseLine.style.width = `${this.pixelBase}px`;
-
-        this.#setTextPosition();
-
-        if (this.config.showRegionOverviewBox) {
-            const regionOverviewBoxWidth = this.region.length() * this.pixelBase;
-            const regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
-
-            this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
-            this.regionOverviewBoxRight.style.left = `${regionOverviewDarkBoxWidth + regionOverviewBoxWidth}px`;
-            this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
-        }
-
-        // Trigger events
-        this.trigger("window:size", {
-            windowSize: this.windowSize,
-        });
-
-        this.trigger("trackRegion:change", {
-            region: this.visualRegion,
-            sender: this,
-        });
-
-        this.positionNucleotidDiv.textContent = ""; // remove base char, will be drawn later if needed
-
-        this.status = "rendering";
-    }
-
     draw() {
-        // this.targetDiv.appendChild(this.div);
-
         this.trigger("track:draw", {
             sender: this,
         });
@@ -540,324 +388,8 @@ export default class TrackListPanel {
         return this.tracks.every(track => track.status === status);
     }
 
-    checkTracksReady() {
-        return this.#checkAllTrackStatus("ready");
-    }
-
-    addTrack(track) {
-        // TODO: this should be removed, this method only accepts one track
-        (Array.isArray(track) ? track : [track]).forEach(t => this.#registerTrack(t));
-        // this.#registerTrack(track);
-    }
-
-    addTracks(tracks) {
-        tracks.forEach(track => this.#registerTrack(track));
-    }
-
-    #registerTrack(track) {
-        if (!this.rendered) {
-            console.log(`${this.prefix} is not rendered yet`);
-            return;
-        }
-
-        if (!track) {
-            return false;
-        }
-
-        // Check if already exists
-        if (this.containsTrack(track)) {
-            return false;
-        }
-
-        const length = this.tracks.push(track);
-        const insertPosition = length - 1;
-        this.tracksIndex[track.prefix] = insertPosition;
-
-        // if (!track.dataAdapter.host) {
-        //     // eslint-disable-next-line no-param-reassign
-        //     track.dataAdapter.host = this.config.cellBaseHost;
-        // }
-
-        // if (!track.dataAdapter.version) {
-        //     // eslint-disable-next-line no-param-reassign
-        //     track.dataAdapter.version = this.config.cellBaseVersion;
-        // }
-
-        track.setPixelBase(this.pixelBase);
-        track.setRegion(this.visualRegion);
-        track.setWidth(this.width);
-        // track.setSpecies(this.species);
-
-        // track.set("trackListPanel", this);
-        // console.log(track);
-
-        // Track must be initialized after we have created
-        // de DIV element in order to create the elements in the DOM
-        if (!track.rendered) {
-            track.render(this.tlTracksDiv);
-        }
-
-        // Track resize
-        this.on("resize", event => track.setWidth(event.width));
-
-        // Track region change listener
-        this.on("trackRegion:change", event => {
-            // console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
-            // console.log(`trackListPanel trackRegion:change width ------> ${this.width}`);
-            track.setWidth(this.width);
-            track.setPixelBase(this.pixelBase);
-            track.setRegion(event.region);
-            track.draw();
-        });
-
-        // Track region move
-        this.on("trackRegion:move", event => {
-            track.setRegion(event.region);
-            track.setPixelBase(this.pixelBase);
-            track.move(event.disp);
-        });
-
-        // TODO: review this
-        // // Track region highlight
-        // this.on("trackFeature:highlight", event => {
-        //     const attrName = event.attrName || "feature_id";
-        //     if (event.attrValue) {
-        //         const attrItems = Array.isArray(event.attrValue) ? event.attrValue : [event.attrValue];
-
-        //         attrItems.forEach(key => {
-        //             const queryStr = `${attrName}~=${event.attrValue[key]}`;
-        //             const groups = track.svgdiv.querySelectorAll(`g[${queryStr}]`);
-
-        //             Array.from(groups).forEach(item => {
-        //                 let animation = $(this).find("animate");
-        //                 if (animation.length == 0) {
-        //                     animation = SVG.addChild(this, "animate", {
-        //                         "attributeName": "opacity",
-        //                         "attributeType": "XML",
-        //                         // "begin": "indefinite",
-        //                         "from": "0.0",
-        //                         "to": "1",
-        //                         "begin": "0s",
-        //                         "dur": "0.5s",
-        //                         "repeatCount": "5"
-        //                     });
-        //                 } else {
-        //                     animation = animation[0];
-        //                 }
-        //                 let y = $(group).find("rect").attr("y");
-        //                 $(track.svgdiv).scrollTop(y);
-        //                 animation.beginElement();
-        //             });
-        //         });
-        //     }
-        // });
-
-        track.on("track:close", event => this.removeTrack(event.sender));
-        track.on("track:up", event => this.#reallocateAbove(event.sender));
-        track.on("track:down", event => this.#reallocateUnder(event.sender));
-
-        // Draw track
-        this.on("track:draw", () => track.draw());
-
-        // this.on('trackSpecies:change', track.get('trackSpecies:change'));
-        // this.on("trackRegion:change", track.get("trackRegion:change"));
-        // this.on("trackRegion:move", track.get("trackRegion:move"));
-        // this.on("trackFeature:highlight", track.get("trackFeature:highlight"));
-    }
-
-    toggleAutoHeight(bool) {
-        this.tracks.forEach(track => track.toggleAutoHeight(bool));
-    }
-
-    updateHeight() {
-        this.tracks.forEach(track => track.updateHeight(true));
-    }
-
-    containsTrack(track) {
-        return typeof this.tracksIndex[track.prefix] !== "undefined";
-    }
-
-    getTrackIndex(track) {
-        return this.tracksIndex[track.prefix];
-    }
-
-    // update index with correct index after splice
-    #updateTracksIndex() {
-        this.tracks.forEach((track, index) => {
-            this.tracksIndex[track.id] = index;
-        });
-    }
-
-    refreshTracksDom() {
-        this.tracks.forEach(track => {
-            // TODO: do not use jquery
-            $(track.div).detach();
-            $(this.tlTracksDiv).append(track.div);
-        });
-
-        // Trigger tracks refresh event
-        this.trigger("tracks:refresh", {
-            sender: this,
-        });
-    }
-
-    removeTrack(track) {
-        if (!this.containsTrack(track)) {
-            return false;
-        }
-
-        // first hide the track
-        this.hideTrack(track);
-        track.remove();
-
-        const index = this.getTrackIndex(track);
-        // remove track from list and hash data
-        this.tracks.splice(index, 1)[0];
-        delete this.tracksIndex[track.id];
-        this.#updateTracksIndex();
-
-        // eslint-disable-next-line no-param-reassign
-        track.rendered = false;
-
-        // delete listeners
-
-        track.off("track:close");
-        track.off("track:up");
-        track.off("track:down");
-
-
-        this.off("track:draw", track.get("track:draw"));
-        // this.off('trackSpecies:change', track.get('trackSpecies:change'));
-        this.off("trackRegion:change", track.get("trackRegion:change"));
-        this.off("trackRegion:move", track.get("trackRegion:move"));
-        // this.off('trackWidth:change', track.set('trackWidth:change'));
-        this.off("trackFeature:highlight", track.get("trackFeature:highlight"));
-
-        this.refreshTracksDom();
-        return track;
-    }
-
-    restoreTrack(track, index) {
-        if (this.containsTrack((track))) {
-            return false;
-        }
-
-        this.addTrack(track);
-        if (typeof index !== "undefined") {
-            this.setTrackIndex(track, index);
-        }
-        track.show();
-        this.refreshTracksDom();
-    }
-
-
-    // This routine is called when track order is modified
-    #reallocateAbove(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        const index = this.getTrackIndex(track);
-        // console.log(`${index} wants to move up`);
-        if (index > 0) {
-            const aboveTrack = this.tracks[index - 1];
-            const underTrack = this.tracks[index];
-
-            this.tracks[index] = aboveTrack;
-            this.tracks[index - 1] = underTrack;
-            this.tracksIndex[aboveTrack.id] = index;
-            this.tracksIndex[underTrack.id] = index - 1;
-            this.refreshTracksDom();
-            // } else {
-            //     console.log("is at top");
-        }
-    }
-
-    // This routine is called when track order is modified
-    #reallocateUnder(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        const index = this.getTrackIndex(track);
-        // console.log(`${i} wants to move down`);
-        if (index + 1 < this.tracks.length) {
-            const aboveTrack = this.tracks[index];
-            const underTrack = this.tracks[index + 1];
-
-            this.tracks[index] = underTrack;
-            this.tracks[index + 1] = aboveTrack;
-            this.tracksIndex[underTrack.id] = index;
-            this.tracksIndex[aboveTrack.id] = index + 1;
-            this.refreshTracksDom();
-            // } else {
-            // console.log("is at bottom");
-        }
-    }
-
-    setTrackIndex(track, newIndex) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        const oldIndex = this.getTrackIndex(track);
-
-        // remove track from old index
-        this.tracks.splice(oldIndex, 1)[0];
-
-        // add track at new Index
-        this.tracks.splice(newIndex, 0, track);
-
-        this._updateTracksIndex();
-
-        // update track div positions
-        this.refreshTracksDom();
-    }
-
-    swapTracks(t1, t2) {
-        if (!this.containsTrack(t1) || !this.containsTrack(t2)) {
-            return false;
-        }
-
-        const oldIndex1 = this.getTrackIndex(t1);
-        const oldIndex2 = this.getTrackIndex(t2);
-
-        this.tracks[oldIndex1] = t2;
-        this.tracks[oldIndex2] = t1;
-        this.tracksIndex[t1.id] = oldIndex2;
-        this.tracksIndex[t2.id] = oldIndex1;
-        this.refreshTracksDom();
-    }
-
-    scrollToTrack(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-
-        // const y = $(track.div).position().top;
-        // $(this.tlTracksDiv).scrollTop(y);
-    }
-
-    hideTrack(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-        track.hide();
-        this.refreshTracksDom();
-    }
-
-    showTrack(track) {
-        if (!this.containsTrack((track))) {
-            return false;
-        }
-        track.show();
-        this.refreshTracksDom();
-    }
-
     #setPixelBase() {
-        this.pixelBase = this.width / this.region.length();
-        this.pixelBase = this.pixelBase / this.config.zoomMultiplier;
-        this.halfVirtualBase = (this.width * 3 / 2) / this.pixelBase;
+        this.pixelBase = (this.width / this.region.length()) / this.config.zoomMultiplier;
     }
 
     #setTextPosition() {
@@ -875,60 +407,200 @@ export default class TrackListPanel {
         this.windowSizeDiv.textContent = this.windowSize;
     }
 
-    getTrackById(trackId) {
-        if (this.tracksIndex[trackId]) {
-            const index = this.tracksIndex[trackId];
-            return this.tracks[index];
+    #getSequenceNucleotid(position) {
+        if (position > 0 && this.sequenceTrack) {
+            const el = this.sequenceTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
+            return el?.textContent || "";
         }
 
-        return null;
-    }
-
-    getSequenceTrack() {
-        return this.tracks.find(track => track?.renderer instanceof SequenceRenderer);
-    }
-
-    getMousePosition(position) {
-        return position > 0 ? this.getSequenceNucleotid(position) : "";
-    }
-
-    getSequenceNucleotid(position) {
-        const seqTrack = this.getSequenceTrack();
-        if (seqTrack) {
-            const element = seqTrack.svgCanvasFeatures.querySelector(`text[data-pos="${position}"]`);
-            return element?.textContent || "";
-        }
         return "";
     }
 
-    setNucleotidPosition(position) {
-        const base = this.getSequenceNucleotid(position);
-        this.positionNucleotidDiv.style.color = GenomeBrowserConstants.SEQUENCE_COLORS[base];
-        this.positionNucleotidDiv.textContent = base;
+    show() {
+        this.target.style.display = "block";
+        this.hidden = false;
     }
 
-    // setCellBaseHost(host) {
-    //     this.cellBaseHost = host;
-    //     for (let i = 0; i < this.tracks.length; i++) {
-    //         const track = this.tracks[i];
-    //         if (track.dataAdapter instanceof CellBaseAdapter) {
-    //             track.dataAdapter.setHost(this.cellBaseHost);
-    //         }
-    //     }
-    // }
+    hide() {
+        this.target.style.display = "none";
+        this.hidden = true;
+    }
 
-    deleteTracksCache() {
-        this.tracks.forEach(track => {
-            if (track.dataAdapter.deleteCache) {
-                track.dataAdapter.deleteCache();
-            }
+    setVisible(visible) {
+        visible ? this.show() : this.hide();
+    }
+
+    setTitle(title) {
+        this.title.textContent = title || "";
+    }
+
+    showContent() {
+        this.tlHeaderDiv.style.display = "block";
+        this.tlPanelDiv.style.display = "block";
+        this.collapse.classList.remove("active");
+        this.collapseIcon.classList.remove("fa-plus");
+        this.collapseIcon.classList.add("fa-minus");
+        this.collapsed = false;
+    }
+
+    hideContent() {
+        this.tlHeaderDiv.style.display = "none";
+        this.tlPanelDiv.style.display = "none";
+        this.collapse.classList.add("active");
+        this.collapseIcon.classList.add("fa-plus");
+        this.collapseIcon.classList.remove("fa-minus");
+        this.collapsed = true;
+    }
+
+    toggleContent() {
+        this.collapsed ? this.showContent() : this.hideContent();
+    }
+
+    setWidth(width) {
+        this.width = width;
+
+        // Update track elements position
+        this.centerLine.style.left = `${this.width / 2}px`;
+
+        this.trigger("width:change", {
+            width: this.width,
         });
+    }
+
+    highlight(event) {
+        this.trigger("trackFeature:highlight", event);
+    }
+
+    moveRegion(event) {
+        this.region.load(event.region);
+        this.visualRegion.load(event.region);
+        this.#setTextPosition();
+        this.trigger("trackRegion:move", event);
+    }
+
+    setRegion(region) {
+        const center = this.width / 2;
+        this.region.load(region);
+        this.visualRegion.load(region);
+        this.#setPixelBase();
+
+        this.centerLine.style.left = center - 1;
+        this.centerLine.style.width = `${this.pixelBase}px`;
+        this.mouseLine.style.width = `${this.pixelBase}px`;
+
+        this.#setTextPosition();
+
+        if (this.config.showRegionOverviewBox) {
+            const regionOverviewBoxWidth = this.region.length() * this.pixelBase;
+            const regionOverviewDarkBoxWidth = (this.width - regionOverviewBoxWidth) / 2;
+
+            this.regionOverviewBoxLeft.style.width = `${regionOverviewDarkBoxWidth}px`;
+            this.regionOverviewBoxRight.style.width = `${regionOverviewDarkBoxWidth}px`;
+        }
+
+        // Trigger events
+        this.trigger("window:size", {
+            windowSize: this.windowSize,
+        });
+
+        this.trigger("trackRegion:change", {
+            region: this.visualRegion,
+            sender: this,
+        });
+
+        this.status = "rendering";
+    }
+
+    checkTracksReady() {
+        return this.#checkAllTrackStatus("ready");
+    }
+
+    addTrack(track) {
+        if (!this.rendered) {
+            console.log(`${this.prefix} is not rendered yet`);
+            return;
+        }
+
+        // Check if this track already exists
+        if (!track || this.containsTrack(track)) {
+            return false;
+        }
+
+        this.tracks.push(track);
+
+        track.setPixelBase(this.pixelBase);
+        track.setRegion(this.visualRegion);
+        track.setWidth(this.width);
+        track.render(this.tlTracksDiv);
+
+        // List to tracklist events
+        this.on("width:change", event => track.setWidth(event.width));
+        this.on("trackRegion:change", event => {
+            track.setWidth(this.width);
+            track.setPixelBase(this.pixelBase);
+            track.setRegion(event.region);
+            track.draw();
+        });
+        this.on("trackRegion:move", event => {
+            track.setRegion(event.region);
+            track.setPixelBase(this.pixelBase);
+            track.move(event.disp);
+        });
+        // track.on("track:up", event => this.#reallocateAbove(event.sender));
+        // track.on("track:down", event => this.#reallocateUnder(event.sender));
+
+        // Draw track
+        this.on("track:draw", () => track.draw());
+
+        // Check if this track is an instance of the sequence track
+        if (track instanceof SequenceTrack) {
+            this.sequenceTrack = track; // Save reference to sequence track
+        }
+    }
+
+    addTracks(tracks) {
+        (tracks || []).forEach(track => this.addTrack(track));
+    }
+
+    removeTrack(track) {
+        if (!this.containsTrack(track)) {
+            return false;
+        }
+
+        // Remove from tracks list and from DOM
+        this.tracks = this.tracks.filter(t => t.prefix !== track.prefix);
+        this.tlTracksDiv.removeChild(this.tracks.div);
+
+        // delete listeners
+        track.off("track:up");
+        track.off("track:down");
+    }
+
+    hideTrack(track) {
+        track.hide();
+    }
+
+    showTrack(track) {
+        track.show();
+    }
+
+    toggleTracksAutoHeight(bool) {
+        this.tracks.forEach(track => track.toggleAutoHeight(bool));
+    }
+
+    updateTracksHeight() {
+        this.tracks.forEach(track => track.updateHeight(true));
+    }
+
+    containsTrack(track) {
+        return this.tracks.findIndex(t => t.prefix === track.prefix) !== -1;
     }
 
     getDefaultConfig() {
         return {
             width: 0,
             height: 0,
+            title: "",
             region: null,
             collapsed: false,
             collapsible: false,

@@ -26,11 +26,11 @@ export default class StatusBar {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="ocb-gb-status-bar">
-                <div class="ocb-gv-status-left">
+            <div id="${this.prefix}" class="small" style="display:flex;">
+                <div>
                     ${this.config.version}
                 </div>
-                <div class="ocb-gv-status-right">
+                <div style="margin-left:auto;">
                     <span id="${this.prefix}PositionBase" style="margin-right:4px"></span>
                     <span id="${this.prefix}PositionRegion"></span>
                 </div>
@@ -42,10 +42,6 @@ export default class StatusBar {
         this.mousePositionRegion = this.div.querySelector(`span#${this.prefix}PositionRegion`);
 
         this.target.appendChild(this.div);
-    }
-
-    draw() {
-        // Nothing to do
     }
 
     setRegion(event) {
@@ -60,7 +56,6 @@ export default class StatusBar {
         this.mousePositionRegion.textContent = `${this.region.chromosome}:${event.mousePos}`;
     }
 
-    // Get default status bar config
     getDefaultConfig() {
         return {
             region: null,
