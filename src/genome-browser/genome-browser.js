@@ -241,6 +241,7 @@ export default class GenomeBrowser {
             collapsed: this.config.karyotypePanelCollapsed,
             collapsible: this.config.karyotypePanelCollapsible,
             region: this.region,
+            featuresOfInterest: this.config.featuresOfInterest,
         });
 
         // Register event listeners
