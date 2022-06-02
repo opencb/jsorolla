@@ -73,18 +73,6 @@ export default class ClinicalInterpretationView extends LitElement {
         super.update(changedProperties);
     }
 
-    onUpdateVariant(e) {
-        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
-        rows.forEach(row => {
-            this.clinicalAnalysisManager.updateSingleVariant(row);
-        });
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            clinicalAnalysis: this.clinicalAnalysis,
-        }, null, {bubbles: true, composed: true});
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
-    }
-
 
     interpretationObserver() {
         // console.log("this is a clinicalAnalysis", this.clinicalAnalysis);
@@ -179,7 +167,7 @@ export default class ClinicalInterpretationView extends LitElement {
                             }
                         },
                         {
-                            text: "Panels",
+                            text: "Interpretation Panels",
                             type: "title",
                             display: {
                                 textStyle: "font-size:24px;font-weight: bold;",
@@ -200,7 +188,7 @@ export default class ClinicalInterpretationView extends LitElement {
                             }
                         },
                         {
-                            text: "Comments",
+                            text: "Interpretation Comments",
                             type: "title",
                             display: {
                                 textStyle: "font-size:24px;font-weight: bold;",
