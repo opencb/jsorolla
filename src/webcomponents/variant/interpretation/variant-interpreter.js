@@ -308,7 +308,7 @@ class VariantInterpreter extends LitElement {
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
                             <clinical-interpretation-review
-                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}">
                             </clinical-interpretation-review>

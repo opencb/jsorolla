@@ -80,6 +80,7 @@ export default class ClinicalInterpretationView extends LitElement {
     }
 
     #renderInterpretationTabs() {
+        const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
         const renderInterpretation = interpretation => html`
             <data-form
                 .data="${interpretation}"
@@ -90,7 +91,7 @@ export default class ClinicalInterpretationView extends LitElement {
         const secondaryInterpretations = this.clinicalAnalysis?.secondaryInterpretations.map(interpretation =>
             ({
                 id: interpretation.id,
-                name: interpretation.id,
+                name: html`${isLocked(interpretation)} ${interpretation?.id}`,
                 render: data => renderInterpretation(interpretation)
             })
         );
@@ -98,7 +99,7 @@ export default class ClinicalInterpretationView extends LitElement {
             items: [
                 {
                     id: "interpretationView",
-                    name: `${this.clinicalAnalysis?.interpretation?.id} (Primary)`,
+                    name: html`${isLocked(this.clinicalAnalysis.interpretation)} ${this.clinicalAnalysis.interpretation?.id} (Primary)`,
                     active: true,
                     render: data => html`
                         <data-form
@@ -224,7 +225,6 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                 .clinicalVariants="${data?.primaryFindings}"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                @updaterow="${e => this.onUpdateVariant(e)}"
                                                 .config=${
                                                     {
                                                         showExport: true,
