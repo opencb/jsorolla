@@ -3,7 +3,7 @@ name: "Main development workflow"
 on:
   pull_request:
     branches:
-      - "TASK-*"
+      - "develop"
     types:
       - closed
 
