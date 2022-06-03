@@ -788,6 +788,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             </div>`;
                     },
                     align: "center",
+                    visible: this._config?.showActions,
                     events: {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
@@ -874,9 +875,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => {
                         const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
                         return `
+                        ${this._config?.showEditReview ? `
                             <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
                                 <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
-                            </button>
+                            </button>`: ""
+                        }
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
                             ` : ""
@@ -1394,6 +1397,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showSettings: true,
             showSelectCheckbox: false,
             showActions: true,
+            showEditReview: true,
             showType: true,
             multiSelection: false,
             nucleotideGenotype: true,

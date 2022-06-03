@@ -111,10 +111,10 @@ export default class ClinicalInterpretationReview extends LitElement {
             case "date":
             case "status.id":
             case "report.signedBy":
-                this.updateParams = FormUtils.updateObjectParams(
+                this.caseUpdateParams = FormUtils.updateObjectParams(
                     this._clinicalAnalysis,
                     this.clinicalAnalysis,
-                    this.updateParams,
+                    this.caseUpdateParams,
                     param,
                     e.detail.value);
                 break;
@@ -163,8 +163,10 @@ export default class ClinicalInterpretationReview extends LitElement {
 
     // Update interpretation comments
     updateOrDeleteInterpretationComments(notify) {
-        const clinicalAnalysisId = this.interpretation.clinicalAnalysisId;
-        const interpretationId = this.interpretation.id;
+        // const clinicalAnalysisId = this.interpretation.clinicalAnalysisId;
+        // const interpretationId = this.interpretation.id;
+        const clinicalAnalysisId = this.clinicalAnalysis.id;
+        const interpretationId = this.clinicalAnalysis.interpretation.id;
         const promiseInterpretationComments = [];
 
         if (this.interpretationCommentsUpdate?.updated?.length > 0) {
@@ -271,8 +273,10 @@ export default class ClinicalInterpretationReview extends LitElement {
 
     // Update Interpretation
     onSubmitInterpretation() {
-        const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
-        const id = this.interpretation.id;
+        // const clinicalAnalysis = this.interpretation.clinicalAnalysisId;
+        // const id = this.interpretation.id;
+        const clinicalAnalysis = this.clinicalAnalysis.id;
+        const id = this.clinicalAnalysis.interpretation.id;
 
         if (this.interpretationCommentsUpdate) {
             if (this.interpretationCommentsUpdate.added?.length > 0) {
@@ -300,16 +304,17 @@ export default class ClinicalInterpretationReview extends LitElement {
 
     onSubmitAll() {
         let promiseSubmit = [];
+        debugger;
 
         // Update case
-        // if (UtilsNew.isNotEmpty(this.caseCommentsUpdate) || UtilsNew.isNotEmpty(this.caseUpdateParams)) {
-        //     promiseSubmit = [...promiseSubmit, ...this.onSubmitCase()];
-        // }
+        if (UtilsNew.isNotEmpty(this.caseCommentsUpdate) || UtilsNew.isNotEmpty(this.caseUpdateParams)) {
+            promiseSubmit = [...promiseSubmit, ...this.onSubmitCase()];
+        }
 
         // Update Interpretation
-        // if (UtilsNew.isNotEmpty(this.interpretationCommentsUpdate) || UtilsNew.isNotEmpty(this.intrepretationUpdateParams)) {
-        //     promiseSubmit = [...promiseSubmit, ...this.onSubmitInterpretation()];
-        // }
+        if (UtilsNew.isNotEmpty(this.interpretationCommentsUpdate) || UtilsNew.isNotEmpty(this.intrepretationUpdateParams)) {
+            promiseSubmit = [...promiseSubmit, ...this.onSubmitInterpretation()];
+        }
 
         // update interpretations status variants
         if (this.updateVariants && UtilsNew.isEmpty(promiseSubmit)) {
@@ -318,13 +323,16 @@ export default class ClinicalInterpretationReview extends LitElement {
             this.postUpdate();
         }
 
-        // if (UtilsNew.isNotEmpty(promiseSubmit)) {
-        //     this.onSaveIntrepretationVariant(false);
-        //     Promise.all(promiseSubmit)
-        //         .then(response => this.postUpdate())
-        //         .catch(response => NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response));
-        //     this.requestUpdate();
-        // }
+        if (UtilsNew.isNotEmpty(promiseSubmit)) {
+            if (this.updateVariants) {
+                this.updateVariants = false;
+                this.onSaveIntrepretationVariant(false);
+            }
+            Promise.all(promiseSubmit)
+                .then(response => this.postUpdate())
+                .catch(response => NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response));
+            this.requestUpdate();
+        }
     }
 
     render() {
@@ -503,6 +511,7 @@ export default class ClinicalInterpretationReview extends LitElement {
                                     <clinical-analysis-comment-editor
                                         .opencgaSession="${this.opencgaSession}"
                                         .comments="${data?.comments}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
                                         @commentChange="${e => this.onCaseCommentChange(e)}">
                                     </clinical-analysis-comment-editor>
                                     `
@@ -569,11 +578,13 @@ export default class ClinicalInterpretationReview extends LitElement {
                                                 .config=${
                                                     {
                                                         showExport: true,
-                                                        showSettings: false
+                                                        showSettings: false,
+                                                        showActions: false,
+                                                        showEditReview: false,
                                                     }
                                                 }>
                                             </variant-interpreter-grid>
-                                        `:"Reported Variants not found";
+                                        `:"No reported variants to display";
                                 }
                             }
                         }

@@ -204,8 +204,8 @@ export default class ClinicalInterpretationView extends LitElement {
                                 render: data => html `
                                     <clinical-analysis-comment-editor
                                         .opencgaSession="${this.opencgaSession}"
-                                        .comments="${data?.comments}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
+                                        .disabled="${!!this.clinicalAnalysis?.interpretation?.locked}"
+                                        .comments="${data?.comments}">
                                     </clinical-analysis-comment-editor>
                                 `
                             }
@@ -235,7 +235,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                     }
                                                 }>
                                             </variant-interpreter-grid>
-                                        `:"Variants Not Found";
+                                        `:"No variants data to display";
                                 }
                             }
                         }
