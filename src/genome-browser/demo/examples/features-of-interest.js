@@ -1,5 +1,9 @@
 export default [
     {
+        name: "First group",
+        category: true,
+    },
+    {
         name: "Primary Findings",
         features: [
             {
