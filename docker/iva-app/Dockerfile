@@ -26,6 +26,8 @@ COPY    ./build/iva                 /usr/local/apache2/htdocs/iva
 COPY    ./${SITE}/iva/conf          /usr/local/apache2/htdocs/iva/conf/
 COPY    ./${SITE}/iva/img           /usr/local/apache2/htdocs/iva/img/
 
+RUN true
+
 ## API
 COPY    ./build/api                 /usr/local/apache2/htdocs/api
 COPY    ./${SITE}/api/conf          /usr/local/apache2/htdocs/api/conf/
