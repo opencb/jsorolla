@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div style="max-width:1400px;margin-left:auto;margin-right:auto;">
         <h1 style="font-weight:bold;">Genome Browser Demo</h1>
         <hr>
         <div id="application"></div>
@@ -40,6 +40,8 @@
         import VariantTrack from "../tracks/variant-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
+
+        import featuresOfInterest from "./examples/features-of-interest.js";
 
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
@@ -70,14 +72,7 @@
                 region: region,
                 species: species,
                 resizable: true,
-                karyotypePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
-                chromosomePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
+                featuresOfInterest: featuresOfInterest,
             });
 
             // When GB is ready add tracks and draw
