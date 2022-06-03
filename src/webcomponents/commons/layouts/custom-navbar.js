@@ -32,14 +32,17 @@ export default class CustomNavBar extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             loggedIn: {
                 type: Boolean
             },
             app: {
                 type: Object
             },
-            opencgaSession: {
-                type: Object
+            version: {
+                type: String,
             },
             config: {
                 type: Object
@@ -187,14 +190,14 @@ export default class CustomNavBar extends LitElement {
                             <!-- Application logo provided -->
                             ${this.app?.logo ? html`
                                 <img src="${this.app?.logo}" alt="logo">
-                                <b><sup>${this.config.version}</sup></b>
+                                <b><sup>${this.config.version || this.version}</sup></b>
                             ` : null}
                             <!-- No application logo provided -->
                             ${!this.app?.logo && this.app?.name ? html`
                                 <span style="color:white;font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
-                                <b><sup>${this.config.version}</sup></b>
+                                <b><sup>${this.config.version || this.version}</sup></b>
                             `: null}
                         </a>
                     </div>
