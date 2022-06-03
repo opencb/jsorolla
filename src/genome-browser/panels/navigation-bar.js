@@ -455,13 +455,18 @@ export default class NavigationBar {
                 this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
             } else if (item.category && item.name) {
                 const itemTemplate = UtilsNew.renderHTML(`
-                    <li class="dropdown-header">${item.name}</li>
+                    <li class="dropdown-header">
+                        <strong>${item.name}</strong>
+                    </li>
                 `);
                 this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
             } else if (item.features && item.name) {
                 const itemTemplate = UtilsNew.renderHTML(`
                     <li class="dropdown-submenu">
                         <a style="display:flex;align-items:center;">
+                            ${item.display?.color ? `
+                                <div style="background-color:${item.display.color};width:1rem;height:1rem;border-radius:999px;margin-right:8px;"></div>
+                            ` : ""}
                             <span style="padding-right:8px;">${item.name}</span>
                             <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
                         </a>
