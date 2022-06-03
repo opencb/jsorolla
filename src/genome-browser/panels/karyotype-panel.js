@@ -196,7 +196,7 @@ export default class KaryotypePanel {
 
                             // Display triangle at the right side of the chromosome
                             SVG.addChild(group, "path", {
-                                d: `M${x + this.config.chromosomeWidth + 2},${featureY + featureHeight / 2} l3,-3 l0,6 z`,
+                                d: `M${x + this.config.chromosomeWidth + 4},${featureY + featureHeight / 2} l5,-5 l0,10 z`,
                                 fill: item.display?.color || "red",
                                 opacity: 1.0,
                             });
