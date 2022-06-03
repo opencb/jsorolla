@@ -12,6 +12,7 @@ jobs:
   docker:
     needs: build
     uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
+#    if: ${{ github.repository != 'opencb/jsorolla' }}
     with:
       docker_tag: ${{ github.ref_name }}
     secrets:
