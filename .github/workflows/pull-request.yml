@@ -1,0 +1,15 @@
+name: "Main development workflow"
+
+on:
+  pull_request:
+    branches:
+      - "TASK-*"
+    types:
+      - closed
+
+jobs:
+  docker-delete:
+    name: Delete TASK docker image
+    runs-on: ubuntu-20.04
+    steps:
+      - run: ./docker/docker-build.py delete --organisation ${{ secrets.DOCKER_HUB_ORGANISATION }} --image app --tag ${{ github.ref_name }} --username ${{ secrets.DOCKER_HUB_USER }} --password ${{ secrets.DOCKER_HUB_PASSWORD }}
