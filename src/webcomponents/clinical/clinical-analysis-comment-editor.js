@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../commons/forms/form-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 class ClinicalAnalysisCommentEditor extends LitElement {
 
@@ -222,8 +223,12 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         // Set new status and refresh
         this.commentStatus[comment.date] = this.commentStatus[comment.date] === "DELETED" ? "NONE" : status;
 
-        if (status === "UPDATED" || status === "NONE") {
-            this.commentEditIndex[comment.date] = !this.commentEditIndex[comment.date];
+        if (status === "NONE") {
+            this.commentEditIndex[comment.date] = false;
+        }
+
+        if (status === "UPDATED") {
+            this.commentEditIndex[comment.date] = true;
         }
 
         this.requestUpdate();
@@ -285,15 +290,22 @@ class ClinicalAnalysisCommentEditor extends LitElement {
             }
         });
 
-        this.dispatchEvent(new CustomEvent("commentChange", {
-            detail: {
-                value: this.comments,
-                newComments: newComments,
-                added: addedComments,
-                updated: updatedComments,
-                deleted: deletedComments,
-            },
-        }));
+        // this.dispatchEvent(new CustomEvent("commentChange", {
+        //     detail: {
+        //         value: this.comments,
+        //         newComments: newComments,
+        //         added: addedComments,
+        //         updated: updatedComments,
+        //         deleted: deletedComments,
+        //     },
+        // }));
+
+        LitUtils.dispatchCustomEvent(this, "commentChange", this.comments, {
+            newComments: newComments,
+            added: addedComments,
+            updated: updatedComments,
+            deleted: deletedComments,
+        });
     }
 
     getDefaultConfig() {
@@ -309,7 +321,10 @@ class ClinicalAnalysisCommentEditor extends LitElement {
     }
 
     render() {
-
+        const statusCommentPanel = {
+            DELETED: "panel-danger",
+            UPDATED: "panel-warning",
+        };
         const isOwnComment = comment => this.opencgaSession?.user?.id === comment.author;
         const renderActions = comment => html`
             <div class="pull-right">
@@ -363,7 +378,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         return html`
             ${this.comments?.filter(c => c.date)?.map(comment => html`
                 <div style="margin: 15px 0px">
-                    <div class="panel ${this.commentStatus[comment.date] !== "DELETED" ? "panel-default" : "panel-danger"}">
+                    <div class="panel ${statusCommentPanel[this.commentStatus[comment.date]] || "panel-default"}" >
                         <div class="panel-heading">
                             <div>
                                 <span style="font-weight:bold;">
@@ -392,9 +407,9 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                         @filterChange="${e => this.onEditChange(comment, "tags", e)}">
                                     </text-field-filter>
                                 </div>
-                                <div style="display:flex; justify-content:flex-end; display:none">
+                                <div style="display:flex; justify-content:flex-end;">
                                     <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
-                                    <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onUpdateComment(comment)}">Update Comment</button>
+                                    <!-- <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onUpdateComment(comment)}">Update Comment</button> -->
                                 </div>`:
                                 html `
                                     ${comment.message}
