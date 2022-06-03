@@ -453,6 +453,11 @@ export default class NavigationBar {
                     <li class="divider"></li>
                 `);
                 this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
+            } else if (item.category && item.name) {
+                const itemTemplate = UtilsNew.renderHTML(`
+                    <li class="dropdown-header">${item.name}</li>
+                `);
+                this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
             } else if (item.features && item.name) {
                 const itemTemplate = UtilsNew.renderHTML(`
                     <li class="dropdown-submenu">
