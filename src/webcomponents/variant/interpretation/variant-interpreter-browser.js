@@ -302,7 +302,53 @@ class VariantInterpreterBrowser extends LitElement {
                 name: "Genome Browser (Beta)",
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     const featuresOfInterest = [];
+                    if (clinicalAnalysis.interpretation.panels.length > 0) {
+                        featuresOfInterest.push({
+                            name: "Panels of the interpretation",
+                            category: true,
+                        });
+
+                        const colors = ["green", "blue", "darkorange", "blueviolet", "sienna", "indigo", "salmon"];
+                        const assembly = opencgaSession.project.organism?.assembly;
+                        clinicalAnalysis.interpretation.panels.forEach((panel, index) => {
+                            featuresOfInterest.push({
+                                name: panel.name,
+                                features: panel.genes
+                                    .map(gene => {
+                                        const coordinates = gene.coordinates.find(c => c.assembly === assembly);
+                                        if (!coordinates) {
+                                            return null;
+                                        } else {
+                                            const region = new Region(coordinates.location);
+                                            return {
+                                                chromosome: region.chromosome,
+                                                start: region.start,
+                                                end: region.end,
+                                                name: `
+                                                    <div>${gene.name}</div>
+                                                    <div class="small text-muted">${region.toString()}</div>
+                                                `,
+                                            };
+                                        }
+                                    })
+                                    .filter(gene => !!gene)
+                                    .sort((a, b) => a.name < b.name ? -1 : +1),
+                                display: {
+                                    visible: true,
+                                    color: colors[index % colors.length],
+                                },
+                            });
+                        });
+                    }
+
                     if (clinicalAnalysis.interpretation?.primaryFindings.length > 0) {
+                        if (featuresOfInterest.length > 0) {
+                            featuresOfInterest.push({separator: true});
+                        }
+                        featuresOfInterest.push({
+                            name: "Variants",
+                            category: true,
+                        });
                         featuresOfInterest.push({
                             name: "Primary Findings",
                             features: clinicalAnalysis.interpretation.primaryFindings.map(feature => {
@@ -313,15 +359,17 @@ class VariantInterpreterBrowser extends LitElement {
                                     start: feature.start,
                                     end: feature.end ?? (feature.start + 1),
                                     name: `
-                                        <div>${feature.id} (${feature.type})</div>
-                                        ${feature.annotation.displayConsequenceType ? `
-                                            <div class="small text-primary">
-                                                <strong>${feature.annotation.displayConsequenceType}</strong>
-                                            </div>
-                                        ` : ""}
-                                        ${genes.length > 0 ? `
-                                            <div class="small text-muted">${genes.join(", ")}</div>
-                                        ` : ""}
+                                        <div style="padding-top:4px;padding-bottom:4px;">
+                                            <div>${feature.id} (${feature.type})</div>
+                                            ${feature.annotation.displayConsequenceType ? `
+                                                <div class="small text-primary">
+                                                    <strong>${feature.annotation.displayConsequenceType}</strong>
+                                                </div>
+                                            ` : ""}
+                                            ${genes.length > 0 ? `
+                                                <div class="small text-muted">${genes.join(", ")}</div>
+                                            ` : ""}
+                                        </div>
                                     `,
                                 };
                             }),
@@ -331,42 +379,6 @@ class VariantInterpreterBrowser extends LitElement {
                             },
                         });
                     }
-
-                    // Display a separator if there are also panels to display
-                    if (featuresOfInterest.length > 0 && clinicalAnalysis.interpretation.panels.length > 0) {
-                        featuresOfInterest.push({separator: true});
-                    }
-
-                    const assembly = opencgaSession.project.organism?.assembly;
-                    clinicalAnalysis.interpretation.panels.forEach(panel => {
-                        featuresOfInterest.push({
-                            name: panel.name,
-                            features: panel.genes
-                                .map(gene => {
-                                    const coordinates = gene.coordinates.find(c => c.assembly === assembly);
-                                    if (!coordinates) {
-                                        return null;
-                                    } else {
-                                        const region = new Region(coordinates.location);
-                                        return {
-                                            chromosome: region.chromosome,
-                                            start: region.start,
-                                            end: region.end,
-                                            name: `
-                                                <div>${gene.name}</div>
-                                                <div class="small text-muted">${region.toString()}</div>
-                                            `,
-                                        };
-                                    }
-                                })
-                                .filter(gene => !!gene)
-                                .sort((a, b) => a.name < b.name ? -1 : +1),
-                            display: {
-                                visible: true,
-                                color: "green",
-                            },
-                        });
-                    });
 
                     return html`
                         <div style="margin-top:16px;">
