@@ -349,7 +349,7 @@ export default class ChromosomePanel {
 
                         // Display triangle at the right side of the chromosome
                         SVG.addChild(group, "path", {
-                            d: `M${featureX + featureWidth / 2},62 l5,5 l-10,0 z`,
+                            d: `M${featureX + featureWidth / 2},62 l6,6 l-12,0 z`,
                             fill: item.display?.color || "red",
                             opacity: 0.6,
                         });
