@@ -22,7 +22,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
