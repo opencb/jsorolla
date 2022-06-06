@@ -19,3 +19,17 @@
 .gb-icon-resize {
     background-image: url(../../styles/img/ocb-grab-track-resize.png) !important;
 }
+
+/* Hack for displaying nested dropdowns */
+.dropdown-submenu {
+    position: relative;
+}
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}

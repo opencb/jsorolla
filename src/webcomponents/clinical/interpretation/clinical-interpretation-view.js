@@ -203,6 +203,7 @@ export default class ClinicalInterpretationView extends LitElement {
                             display: {
                                 render: data => html `
                                     <clinical-analysis-comment-editor
+                                        .id=${data?.id}
                                         .opencgaSession="${this.opencgaSession}"
                                         .disabled="${!!this.clinicalAnalysis?.interpretation?.locked}"
                                         .comments="${data?.comments}">

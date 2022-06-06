@@ -193,6 +193,8 @@ export default class GenomeBrowser {
             karyotypePanelVisible: this.config.karyotypePanelVisible,
             chromosomePanelVisible: this.config.chromosomePanelVisible,
             overviewPanelVisible: this.config.overviewPanelVisible,
+            featuresOfInterest: this.config.featuresOfInterest || [],
+            featuresOfInterestTitle: this.config.featuresOfInterestTitle,
         });
 
         // Register event listeners
@@ -239,6 +241,7 @@ export default class GenomeBrowser {
             collapsed: this.config.karyotypePanelCollapsed,
             collapsible: this.config.karyotypePanelCollapsible,
             region: this.region,
+            featuresOfInterest: this.config.featuresOfInterest,
         });
 
         // Register event listeners
@@ -255,12 +258,12 @@ export default class GenomeBrowser {
     #createChromosomePanel(target) {
         const chromosomePanel = new ChromosomePanel(target, {
             width: this.width,
-            height: 65,
             title: "Chromosome",
             chromosomes: this.chromosomesList,
             collapsed: this.config.chromosomePanelCollapsed,
             collapsible: this.config.chromosomePanelCollapsible,
             region: this.region,
+            featuresOfInterest: this.config.featuresOfInterest,
         });
 
         // Register chromosome panel event listeners
@@ -626,6 +629,10 @@ export default class GenomeBrowser {
             // Species and chromosomes data
             species: [],
             chromosomes: null,
+
+            // Features of interest
+            featuresOfInterest: [],
+            featuresOfInterestTitle: "Features of Interest",
         };
     }
 

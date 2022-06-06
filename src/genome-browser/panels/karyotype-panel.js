@@ -90,6 +90,11 @@ export default class KaryotypePanel {
     draw() {
         this.clean();
 
+        // to prevent negative values, we require a width size of at least 500px for drawing the karyotype.
+        if (this.width < this.config.minWidth) {
+            return;
+        }
+
         let x = 20;
         const xOffset = this.width / this.config.chromosomes.length;
         const yMargin = 2;
@@ -130,7 +135,7 @@ export default class KaryotypePanel {
             });
 
             (chromosome.cytobands || []).forEach(cytoband => {
-                const width = 13;
+                const width = this.config.chromosomeWidth;
                 const height = this.pixelBase * (cytoband.end - cytoband.start);
                 // const color = this.colors[cytoband.stain] || "purple";
                 const color = GenomeBrowserConstants.CYTOBANDS_COLORS[cytoband.stain] || "purple";
@@ -168,6 +173,36 @@ export default class KaryotypePanel {
                 }
 
                 y += height;
+            });
+
+            // Display features of interest
+            // const featuresGroup = SVG.addChild(group, "g", {});
+            this.config.featuresOfInterest.forEach(item => {
+                if (item.display?.visible) {
+                    item.features.forEach(feature => {
+                        if (feature.chromosome === chromosome.name) {
+                            const featureHeight = Math.max(1, this.pixelBase * Math.abs(feature.end - feature.start));
+                            const featureY = yMargin + (biggerChr * this.pixelBase) - chrSize + Math.min(feature.start, feature.end) * this.pixelBase;
+
+                            // Display region rectangle
+                            SVG.addChild(group, "rect", {
+                                x: x,
+                                y: featureY,
+                                width: this.config.chromosomeWidth,
+                                height: featureHeight,
+                                fill: item.display?.color || "red",
+                                opacity: 0.5,
+                            });
+
+                            // Display triangle at the right side of the chromosome
+                            SVG.addChild(group, "path", {
+                                d: `M${x + this.config.chromosomeWidth + 4},${featureY + featureHeight / 2} l5,-5 l0,10 z`,
+                                fill: item.display?.color || "red",
+                                opacity: 1.0,
+                            });
+                        }
+                    });
+                }
             });
 
             // Generate chromosome name
@@ -267,8 +302,8 @@ export default class KaryotypePanel {
     }
 
     setWidth(width) {
-        this.width = width;
-        this.svg.setAttribute("width", width);
+        this.width = Math.max(0, width);
+        this.svg.setAttribute("width", this.width);
 
         this.draw();
     }
@@ -318,12 +353,15 @@ export default class KaryotypePanel {
     getDefaultConfig() {
         return {
             width: 600,
+            minWidth: 500,
             height: 75,
             collapsed: false,
             collapsible: true,
             region: null,
             title: "Karyotype",
             chromosomes: [],
+            chromosomeWidth: 12,
+            featuresOfInterest: [],
         };
     }
 
