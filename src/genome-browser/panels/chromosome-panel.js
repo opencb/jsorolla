@@ -241,6 +241,7 @@ export default class ChromosomePanel {
             });
             this.chromosomeLength = this.chromosome.size;
             this.pixelBase = (this.width - 40) / this.chromosomeLength;
+            this.setTitle(`Chromosome ${this.chromosome.name.replace("chr", "")}`);
         }
 
         const offset = this.config.offset;
