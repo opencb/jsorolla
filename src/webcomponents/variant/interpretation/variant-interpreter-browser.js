@@ -418,7 +418,8 @@ class VariantInterpreterBrowser extends LitElement {
                                             query: {
                                                 sample: samples.join(","),
                                             },
-                                            height: 120,
+                                            height: 66 + 40 * samples.length,
+                                            resizable: false,
                                         },
                                     },
                                     ...(clinicalAnalysis.proband?.samples || []).map(sample => ({
