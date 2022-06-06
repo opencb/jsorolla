@@ -529,7 +529,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         showExport: false,
                         detailView: true,
                         showReview: true,
-                        showActions: false,
+                        showActions: true,
                         showSelectCheckbox: true,
                         multiSelection: false,
                         nucleotideGenotype: true,
