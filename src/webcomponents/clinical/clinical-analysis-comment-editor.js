@@ -34,6 +34,9 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
     static get properties() {
         return {
+            id: {
+                type: String,
+            },
             comments: {
                 type: Array,
             },
@@ -132,7 +135,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
         // Only one new Comment allowed, it is added at the end of the comments array. No date is set for the new comment.
         // If last element contains a 'date' then we need to add a new comment.
-        if (this.comments[this.comments.length - 1]?.date) {
+        if (UtilsNew.isEmptyArray(this.comments) || this.comments[this.comments.length - 1]?.date) {
             this.comments.push({
                 message: "",
                 tags: []
@@ -141,7 +144,6 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
         // Add the new comment to the list
         this.comments[this.comments.length - 1] = this.newComment;
-
         if (this.newComment?.message || this.newComments?.tags) {
             this.commentStatus["ADD"] = "ADD";
         } else {
@@ -301,6 +303,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
         // }));
 
         LitUtils.dispatchCustomEvent(this, "commentChange", this.comments, {
+            id: this?.id,
             newComments: newComments,
             added: addedComments,
             updated: updatedComments,
