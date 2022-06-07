@@ -209,14 +209,14 @@ export default class GenomeBrowserUtils {
         if (samples && samples.length > 0 && feature.studies && feature.studies.length > 0) {
             const dpIndex = feature.studies[0].sampleDataKeys?.findIndex(v => v.toUpperCase() === "DP");
             const samplesInfo = `
-                <div style="height:1px;margin-bottom:4px;margin-top:8px;background-color:#eaeaea;"></div>
+                <div style="margin-bottom:4px;margin-top:4px;">Samples:</div>
                 <table style="width:100%;">
                     <thead>
                         <tr>
-                            <th style="padding:4px;"></th>
-                            <th style="padding:4px;">GT</th>
-                            <th style="padding:4px;">DP</th>
-                            <th style="padding:4px;">FILTER</th>
+                            <th style=""></th>
+                            <th style="padding-left:4px;">GT</th>
+                            <th style="padding-left:4px;">DP</th>
+                            <th style="padding-left:4px;">FILTER</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -225,10 +225,10 @@ export default class GenomeBrowserUtils {
                             const file = typeof sample?.fileIndex === "number" ? feature.studies[0].files?.[sample.fileIndex] : null;
                             return `
                                 <tr>
-                                    <td style="padding:4px;"><strong>${name}</strong></td>
-                                    <td style="padding:4px;text-align:center;">${sample?.data?.[0] || "-"}</td>
-                                    <td style="padding:4px;text-align:center;">${sample?.data?.[dpIndex] || "-"}</td>
-                                    <td style="padding:4px;text-align:center;">${file ? file?.data?.["FILTER"] : "-"}</td>
+                                    <td style=""><strong>${name}</strong></td>
+                                    <td style="padding-left:4px;text-align:center;">${sample?.data?.[0] || "-"}</td>
+                                    <td style="padding-left:4px;text-align:center;">${sample?.data?.[dpIndex] || "-"}</td>
+                                    <td style="padding-left:4px;text-align:center;">${file ? file?.data?.["FILTER"] : "-"}</td>
                                 </tr>
                             `;
                         }).join("")}
