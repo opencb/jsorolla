@@ -115,6 +115,7 @@ export default class VariantRenderer extends Renderer {
                     position: {
                         viewport: window,
                         target: "mouse",
+                        adjust: {x: 10, y: 10},
                     },
                     style: {
                         width: true,
