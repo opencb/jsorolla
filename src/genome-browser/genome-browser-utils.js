@@ -213,10 +213,10 @@ export default class GenomeBrowserUtils {
                 <table style="width:100%;">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>GT</th>
-                            <th>DP</th>
-                            <th>FILTER</th>
+                            <th style="padding:4px;"></th>
+                            <th style="padding:4px;">GT</th>
+                            <th style="padding:4px;">DP</th>
+                            <th style="padding:4px;">FILTER</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -225,10 +225,10 @@ export default class GenomeBrowserUtils {
                             const file = typeof sample?.fileIndex === "number" ? feature.studies[0].files?.[sample.fileIndex] : null;
                             return `
                                 <tr>
-                                    <td><strong>${name}</strong></td>
-                                    <td>${sample?.data?.[0] || "-"}</td>
-                                    <td>${sample?.data?.[dpIndex] || "-"}</td>
-                                    <td>${file ? file?.data?.["FILTER"] : "-"}</td>
+                                    <td style="padding:4px;"><strong>${name}</strong></td>
+                                    <td style="padding:4px;text-align:center;">${sample?.data?.[0] || "-"}</td>
+                                    <td style="padding:4px;text-align:center;">${sample?.data?.[dpIndex] || "-"}</td>
+                                    <td style="padding:4px;text-align:center;">${file ? file?.data?.["FILTER"] : "-"}</td>
                                 </tr>
                             `;
                         }).join("")}
