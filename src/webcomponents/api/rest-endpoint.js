@@ -88,6 +88,18 @@ export default class RestEndpoint extends LitElement {
 
     endpointObserver() {
         this.result = "";
+
+        const isPrimitiveOrEnum = dataParameter => (!dataParameter.innerParam && !dataParameter.complex) || dataParameter.type === "enum";
+        const isObject = dataParameter => dataParameter.complex === false && dataParameter.innerParam === true;
+        const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
+
+        // const bodyElementsFiltered = this.endpoint.parameters
+        //     .filter(parameter => parameter.param === "body" && parameter.data);
+        //     // .filter(param => UtilsNew.hasProp(param, "data"));
+
+        // const dataElement = bodyElementsFiltered.map(element => element.data);
+        // console.log("bodyElements", bodyElementsFiltered);
+
         if (this.endpoint?.parameters?.length > 0) {
             const queryElements = [];
             const filterElements = [];
@@ -99,58 +111,56 @@ export default class RestEndpoint extends LitElement {
                 this.data = {
                     body: {}
                 };
-                if (parameter.param === "body") {
+
+                if (parameter.param === "body" && UtilsNew.isNotEmpty(parameter?.data)) {
 
                     // Generate Body Form
-                    if (UtilsNew.hasProp(parameter, "data")) {
+                    // UtilsNew.isNotEmpty(data)
+                    // if (UtilsNew.hasProp(parameter, "data")) {
+                    // if (UtilsNew.isNotEmpty(parameter?.data)) {
 
-                        for (const dataParameter of parameter.data) {
-                            const paramType = dataParameter.type?.toLowerCase();
+                    for (const dataParameter of parameter.data) {
+                        const paramType = dataParameter.type?.toLowerCase();
 
-                            // this.data.body[dataParameter.name] =
-                            //     UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
-                            //         dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
+                        // TODO: Rename 'setDataBody' function
+                        this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
 
-                            // TODO: Rename 'setDataBody' function
-                            this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
+                        if (this.paramsTypeToHtml[paramType]) {
 
-                            if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType)) {
-
-                                // Primitive type or Enum
-                                if ((!dataParameter.innerParam && !dataParameter.complex) || dataParameter.type === "enum") {
-                                    bodyElements.push(
-                                        {
-                                            name: dataParameter.name,
-                                            field: "body." + dataParameter.name,
-                                            type: this.passwordKeys.includes(dataParameter.name) ?"input-password":this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                            allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: this.getDefaultValue(dataParameter),
-                                            required: !!dataParameter.required,
-                                            display: {
-                                                helpMessage: parameter.description
-                                            }
+                            if (isPrimitiveOrEnum(dataParameter)) {
+                                bodyElements.push(
+                                    {
+                                        name: dataParameter.name,
+                                        field: "body." + dataParameter.name,
+                                        type: this.passwordKeys.includes(dataParameter.name) ?"input-password":this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
+                                        allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
+                                        defaultValue: this.getDefaultValue(dataParameter),
+                                        required: !!dataParameter.required,
+                                        display: {
+                                            helpMessage: parameter.description
                                         }
-                                    );
-                                }
-                                // For Objects
-                                if (dataParameter.complex === false && dataParameter.innerParam === true) {
-                                    bodyElements.push(
-                                        {
-                                            name: `${dataParameter.parentParamName}.${dataParameter.name}`,
-                                            field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
-                                            type: this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                            allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: this.getDefaultValue(dataParameter),
-                                            required: !!dataParameter.required,
-                                            display: {
-                                                helpMessage: dataParameter.description
-                                            }
+                                    }
+                                );
+                            }
+
+                            if (isObject(dataParameter)) {
+                                bodyElements.push(
+                                    {
+                                        name: `${dataParameter.parentParamName}.${dataParameter.name}`,
+                                        field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
+                                        type: this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
+                                        allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
+                                        defaultValue: this.getDefaultValue(dataParameter),
+                                        required: !!dataParameter.required,
+                                        display: {
+                                            helpMessage: dataParameter.description
                                         }
-                                    );
-                                }
+                                    }
+                                );
                             }
                         }
                     }
+                    // }
                 } else { // Parameter IS NOT body
                     this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
@@ -190,10 +200,7 @@ export default class RestEndpoint extends LitElement {
                 });
             const filterElementSorted = this.#sortArray(filterElements);
             const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
-            const fieldElements =
-                this.isNotEndPointAdmin() ? elements :
-                    this.isAdministrator() ? elements :
-                        this.disabledElements(elements);
+            const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator ? elements : this.disabledElements(elements);
 
             // 3.
             this.form = {
@@ -208,7 +215,6 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     buttonsVisible: this.isNotEndPointAdmin() ? true : this.isAdministrator()
                 },
-                // sections: this.#notificationSection(this.endpoint?.notes)
                 sections: []
             };
 
@@ -227,6 +233,7 @@ export default class RestEndpoint extends LitElement {
                         ]
                     });
                 }
+
                 this.form.sections.push(
                     {
                         title: "Path and Query Params",
@@ -242,37 +249,32 @@ export default class RestEndpoint extends LitElement {
             // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
             // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
             if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
-                if (bodyElements.length >= 0) {
-                    const bodyElementsT =
-                        this.isNotEndPointAdmin() ? bodyElements :
-                            this.isAdministrator() ? bodyElements:
-                                this.disabledElements(bodyElements);
-
-                    this.form.sections.push({
-                        title: "Body",
-                        display: {
-                            titleHeader: "h4",
-                            style: "margin-left: 20px"
-                        },
-                        elements: [
-                            {
-                                type: "custom",
-                                display: {
-                                    render: () => html`
+                const bodyElementsT = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
+                this.form.sections.push({
+                    title: "Body",
+                    display: {
+                        titleHeader: "h4",
+                        style: "margin-left: 20px"
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`
                                         <detail-tabs
                                             .config="${this.getTabsConfig(bodyElementsT)}"
                                             .mode="${DetailTabs.PILLS_MODE}">
                                         </detail-tabs>
                                     `
-                                }
                             }
-                        ]
-                    });
-                }
+                        }
+                    ]
+                });
+
             }
 
-            // 5.
-            if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
+            // 5. If the user is logged in, it will show the current study.
+            if (hasStudyField(fieldElements)) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
@@ -286,7 +288,8 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    buttonsVisible: this.isNotEndPointAdmin() ? true: this.isAdministrator()
+                    // buttonsVisible: this.isNotEndPointAdmin() ? true: this.isAdministrator()
+                    buttonsVisible: this.isNotEndPointAdmin() || this.isAdministrator()
                 },
                 sections: [
                     {
@@ -328,11 +331,7 @@ export default class RestEndpoint extends LitElement {
     }
 
     disabledElements(elements) {
-
-        return elements.map(element => {
-            const obj = {...element, display: {disabled: true}};
-            return obj;
-        });
+        return elements.map(element => ({...element, display: {disabled: true}}));
     }
 
     #sortArray(elements) {
@@ -362,21 +361,6 @@ export default class RestEndpoint extends LitElement {
 
         return _elements;
     }
-
-    // #notificationSection(notes) {
-    //     if (notes) {
-    //         return [{
-    //             elements: [{
-    //                 type: "notification",
-    //                 text: notes,
-    //                 display: {
-    //                     notificationType: "info",
-    //                 },
-    //             }]
-    //         }];
-    //     }
-    //     return [];
-    // }
 
     #setDataBody(body, params) {
         const paramType = params.type?.toLowerCase();
@@ -616,44 +600,51 @@ export default class RestEndpoint extends LitElement {
             }]
         };
 
-        return {
-            items: [
-                {
-                    id: "form",
-                    name: "Form",
-                    icon: "fab fa-wpforms",
-                    active: true,
-                    render: () => {
-                        return html`
-                            <!-- Body Forms -->
-                            <data-form
-                                .data="${this.data}"
-                                .config="${configForm}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${this.onClear}"
-                                @submit="${this.onSubmit}">
-                            </data-form>
-                        `;
-                    }
-                },
-                {
-                    id: "json",
-                    name: "JSON",
-                    icon: "",
-                    render: () => {
-                        return html`
-                            <!-- Body Json -->
-                            <data-form
-                                .data="${this.dataJson}"
-                                .config="${configJson}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${this.onClear}"
-                                @submit="${this.onSubmit}">
-                            </data-form>
-                        `;
-                    }
+        const items = [];
+
+        if (elements.length > 0) {
+            items.push({
+                id: "form",
+                name: "Form",
+                icon: "fab fa-wpforms",
+                active: true,
+                render: () => {
+                    return html`
+                        <!-- Body Forms -->
+                        <data-form
+                            .data="${this.data}"
+                            .config="${configForm}"
+                            @fieldChange="${e => this.onFormFieldChange(e)}"
+                            @clear="${this.onClear}"
+                            @submit="${this.onSubmit}">
+                        </data-form>
+                    `;
                 }
-            ]
+            });
+        }
+
+        if (this.dataJson) {
+            items.push({
+                id: "json",
+                name: "JSON",
+                icon: "",
+                render: () => {
+                    return html`
+                    <!-- Body Json -->
+                    <data-form
+                        .data="${this.dataJson}"
+                        .config="${configJson}"
+                        @fieldChange="${e => this.onFormFieldChange(e)}"
+                        @clear="${this.onClear}"
+                        @submit="${this.onSubmit}">
+                    </data-form>
+                `;
+                }
+            });
+        }
+
+        return {
+            items: [...items]
         };
     }
 
