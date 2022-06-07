@@ -202,8 +202,43 @@ export default class GenomeBrowserUtils {
     }
 
     // Variant tooltip text formatter
-    static variantTooltipTextFormatter(feature) {
-        return GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+    static variantTooltipTextFormatter(feature, samples) {
+        let info = GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+
+        // Check for samples
+        if (samples && samples.length > 0 && feature.studies && feature.studies.length > 0) {
+            const dpIndex = feature.studies[0].sampleDataKeys?.findIndex(v => v.toUpperCase() === "DP");
+            const samplesInfo = `
+                <div style="height:1px;margin-bottom:4px;margin-top:8px;background-color:#eaeaea;"></div>
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>GT</th>
+                            <th>DP</th>
+                            <th>FILTER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${samples.map((name, index) => {
+                            const sample = feature.studies[0].samples?.[index];
+                            const file = typeof sample?.fileIndex === "number" ? feature.studies[0].files?.[sample.fileIndex] : null;
+                            return `
+                                <tr>
+                                    <td><strong>${name}</strong></td>
+                                    <td>${sample?.data?.[0] || "-"}</td>
+                                    <td>${sample?.data?.[dpIndex] || "-"}</td>
+                                    <td>${file ? file?.data?.["FILTER"] : "-"}</td>
+                                </tr>
+                            `;
+                        }).join("")}
+                    </tbody>
+                </table>
+            `;
+            info = info + samplesInfo;
+        }
+
+        return info;
     }
 
     // Sample genotype tooltip title formatter
