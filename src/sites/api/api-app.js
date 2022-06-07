@@ -93,6 +93,10 @@ class ApiApp extends LitElement {
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
 
+        // Get version from env variable
+        // eslint-disable-next-line no-undef
+        this.version = process.env.VERSION;
+
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
@@ -666,14 +670,15 @@ class ApiApp extends LitElement {
 
             <!-- Navbar -->
             <custom-navbar
-                .app=${this.app}
-                .loggedIn=${this.isLoggedIn()}
-                .opencgaSession=${this.opencgaSession}
-                .config=${this.config}
-                @logout=${e => this.logout()}
-                @changeTool=${e => this.changeTool(e.detail.value)}
-                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-                @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
+                .app="${this.app}"
+                .version="${this.version}"
+                .loggedIn="${this.isLoggedIn()}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this.config}"
+                @logout="${() => this.logout()}"
+                @changeTool="${e => this.changeTool(e.detail.value)}"
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
                 @route="${this.route}">
             </custom-navbar>
             <!-- End of navigation bar -->
@@ -739,6 +744,8 @@ class ApiApp extends LitElement {
             </div>
 
             <custom-footer
+                appName="API"
+                .version="${this.version}"
                 .host=${this.host}
                 .config=${this.config}>
             </custom-footer>
