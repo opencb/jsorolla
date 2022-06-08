@@ -95,8 +95,6 @@ export default class RestEndpoint extends LitElement {
 
         // const bodyElementsFiltered = this.endpoint.parameters
         //     .filter(parameter => parameter.param === "body" && parameter.data);
-        //     // .filter(param => UtilsNew.hasProp(param, "data"));
-
         // const dataElement = bodyElementsFiltered.map(element => element.data);
         // console.log("bodyElements", bodyElementsFiltered);
 
@@ -122,11 +120,13 @@ export default class RestEndpoint extends LitElement {
                     for (const dataParameter of parameter.data) {
                         const paramType = dataParameter.type?.toLowerCase();
 
-                        // TODO: Rename 'setDataBody' function
+                        // Prepare data for form
                         this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
 
+                        //
                         if (this.paramsTypeToHtml[paramType]) {
 
+                            // Prepare input element
                             if (isPrimitiveOrEnum(dataParameter)) {
                                 bodyElements.push(
                                     {
@@ -189,27 +189,32 @@ export default class RestEndpoint extends LitElement {
             }
 
             // 2. Sort and move 'study/ to first position
+            const byStudy = (a, b) => {
+                if (a.name === "study") {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            };
             const pathElementSorted = this.#sortArray(pathElements);
-            const queryElementSorted = this.#sortArray(queryElements)
-                .sort((a, b) => {
-                    if (a.name === "study") {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                });
+            const queryElementSorted = this.#sortArray(queryElements).sort(byStudy);
+            // .sort((a, b) => {
+            //     if (a.name === "study") {
+            //         return -1;
+            //     } else {
+            //         return 1;
+            //     }
+            // });
             const filterElementSorted = this.#sortArray(filterElements);
             const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
             const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator ? elements : this.disabledElements(elements);
 
-            // 3.
+            // 3. init Form
             this.form = {
-                // title: "Input Parameters",
                 type: "form",
                 display: {
                     width: "12",
                     labelWidth: "3",
-                    // titleHeader: "h3",
                     defaultLayout: "horizontal",
                     buttonClearText: "Clear",
                     buttonOkText: "Try it out!",
@@ -218,6 +223,7 @@ export default class RestEndpoint extends LitElement {
                 sections: []
             };
 
+            // Add Elemenets to the form
             if (fieldElements.length > 0) {
                 // Check if there are 'notes' to display
                 if (this.endpoint?.notes) {
@@ -249,7 +255,7 @@ export default class RestEndpoint extends LitElement {
             // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
             // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
             if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
-                const bodyElementsT = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
+                const bodyElementsForm = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
                 this.form.sections.push({
                     title: "Body",
                     display: {
@@ -262,7 +268,7 @@ export default class RestEndpoint extends LitElement {
                             display: {
                                 render: () => html`
                                         <detail-tabs
-                                            .config="${this.getTabsConfig(bodyElementsT)}"
+                                            .config="${this.getTabsConfig(bodyElementsForm)}"
                                             .mode="${DetailTabs.PILLS_MODE}">
                                         </detail-tabs>
                                     `
@@ -270,14 +276,16 @@ export default class RestEndpoint extends LitElement {
                         }
                     ]
                 });
-
             }
 
             // 5. If the user is logged in, it will show the current study.
             if (hasStudyField(fieldElements)) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
+
+            // 6. Get data.body to JSON.
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
+
             this._data = this.data;
         } else {
             // No parameters found
@@ -367,7 +375,8 @@ export default class RestEndpoint extends LitElement {
         const _body = body;
 
         // Basic Type
-        if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType) && !params.innerParam) {
+        //  UtilsNew.hasProp(this.paramsTypeToHtml, paramType)
+        if (this.paramsTypeToHtml[paramType] && !params.innerParam) {
             _body[params.name] = params.value || "";
         }
 
@@ -381,14 +390,13 @@ export default class RestEndpoint extends LitElement {
         }
 
         return _body;
-        // body[params.name] = UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
-        //     params.defaultValue || "" : params?.type === "List" ? [] : {};
     }
 
 
     onFormFieldChange(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
+
         if (param === "body") {
             this.dataJson = {...this.dataJson, body: e.detail.value};
             try {
@@ -402,8 +410,7 @@ export default class RestEndpoint extends LitElement {
                 return false;
             }
         } else {
-            // if (param.split(".").length > 2) {
-            // If the form has nested object
+            // If it contains more than a dot or If the form has nested object
             // ex. body.field.pro -> sample: body.source.name
             if ((param.match(/\./g)||[]).length > 1) {
                 // For param type Object
@@ -541,8 +548,8 @@ export default class RestEndpoint extends LitElement {
         if (responseClass.includes("avro")) {
             const response = responseClass.split(".");
             const className = response[response.length - 1].replace(";", "");
-            const modelClassName = className => {
-                return className.charAt(0).toLowerCase() + className.slice(1);
+            const modelClassName = name => {
+                return name.charAt(0).toLowerCase() + name.slice(1);
             };
             return `https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/${modelClassName(className)}.avdl`;
         }
@@ -570,9 +577,7 @@ export default class RestEndpoint extends LitElement {
                 },
                 elements: [...elements]
             }]
-
         };
-
 
         const configJson = {
             display: {
