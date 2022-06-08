@@ -19,6 +19,9 @@ import "../../commons/forms/select-token-filter.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+// FIXME remove in CellBase v5
+import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
+
 
 export default class OntologyAutocompleteFilter extends LitElement {
 
@@ -84,7 +87,14 @@ export default class OntologyAutocompleteFilter extends LitElement {
                             source: this._config.ontologyFilter
                         };
                         try {
-                            const fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
+                            // FIXME to support old cellbase v4
+                            let fetchGoOntologies;
+                            if (this.cellbaseClient?._config?.version === "v4") {
+                                const cellbaseClient = new CellBaseClient({host: "https://ws.opencb.org/cellbase-5.0.0/", version: "v5"});
+                                fetchGoOntologies = await cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
+                            } else {
+                                fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
+                            }
                             const results = fetchGoOntologies.responses[0].results;
                             const data = results.map(ontology => ({name: ontology.name, id: ontology.id}));
                             success(data);
