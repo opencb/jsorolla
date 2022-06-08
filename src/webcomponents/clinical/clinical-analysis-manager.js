@@ -125,7 +125,7 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    updateInterpretation(comment, callback) {
+    updateInterpretationVariants(comment, callback) {
         if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
             // console.log("Nothing to do");
             return;
@@ -258,6 +258,30 @@ export default class ClinicalAnalysisManager {
                 // console.error("An error occurred deleting an interpretation: ", restResponse);
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
+    }
+
+    #updateInterpretation(interpretationId, params, message, callback) {
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, params, {
+            study: this.opencgaSession.study.fqn
+        })
+            .then(() => {
+                // Notify interpretation saved
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: message,
+                });
+                callback(this.clinicalAnalysis);
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    lockInterpretation(interpretationId, callback) {
+        this.#updateInterpretation(interpretationId, {locked: true}, `Interpretation '${interpretationId}' Locked.`, callback);
+    }
+
+    unLockInterpretation(interpretationId, callback) {
+        this.#updateInterpretation(interpretationId, {locked: false}, `Interpretation '${interpretationId}' Unlocked.`, callback);
     }
 
     updateVariant(variant, interpretation, callback) {

@@ -46,7 +46,6 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     _init() {
-        // this.ontology = {};
         this.displayConfigDefault = {
             buttonsAlign: "right",
             buttonClearText: "Clear",
@@ -58,10 +57,19 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    update(changedProperties) {
+    firstUpdated(changedProperties) {
+        // To avoid override data
         if (changedProperties.has("ontology")) {
             this.ontologyObserver();
         }
+    }
+
+    update(changedProperties) {
+        /*
+        *    if (changedProperties.has("ontology")) {
+        *        this.ontologyObserver();
+        *    }
+        */
 
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -79,21 +87,24 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     onFieldChange(e) {
         e.stopPropagation();
         // No need to switch(field) since all of them are processed in the same way
-        this.updateParams = FormUtils.updateScalar(
+        this.data = FormUtils.updateScalarParams(
             this._ontology,
             this.ontology,
-            this.updateParams,
+            this.data?.updateParams,
             e.detail.param,
             e.detail.value);
 
-        this.ontology = {...this.ontology, ...this.updateParams};
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
+        LitUtils.dispatchCustomEvent(this, "fieldChange", {...this.data?.updateParams}, null, null, {bubbles: false, composed: true});
+        // to reflect which field is updating...
+        this.requestUpdate();
     }
 
     onSendOntology(e) {
         // Send the ontology to the upper component
         e.stopPropagation();
         this.updateParams = {};
+        this.ontology = {...this.data?.original};
+        this.data = {};
         LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
     }
 
@@ -101,20 +112,21 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         e.stopPropagation();
         this.ontology = JSON.parse(JSON.stringify(this._ontology));
         this.updateParams = {};
+        this.data = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {
         return html`
             <data-form
-                .data=${this.ontology}
+                .data="${this.ontology}"
                 .config="${this._config}"
-                .updateParams=${this.updateParams}
+                .updateParams="${this.data?.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${e => this.onSendOntology(e)}">
             </data-form>
-    `;
+        `;
     }
 
     _configOntology(entity) {

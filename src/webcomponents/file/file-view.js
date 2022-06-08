@@ -96,7 +96,7 @@ export default class FileView extends LitElement {
 
         return html`
             <data-form
-                .data=${this.file}
+                .data="${this.file}"
                 .config="${this.config}">
             </data-form>
         `;
@@ -206,7 +206,7 @@ export default class FileView extends LitElement {
                                 render: file => html`
                                     <file-preview
                                         .file="${file}"
-                                        .opencgaSession=${this.opencgaSession}
+                                        .opencgaSession="${this.opencgaSession}"
                                         .active="${true}">
                                     </file-preview>
                                 `,

@@ -24,6 +24,9 @@ export default class CustomFooter extends LitElement {
 
     static get properties() {
         return {
+            appName: {
+                type: String,
+            },
             version: {
                 type: String,
             },
@@ -42,7 +45,7 @@ export default class CustomFooter extends LitElement {
                 <div class="container">
                     <img style="height: 25px;" src="${this.config?.footerLogo}" alt="logo">
                     <p class="footer-item">
-                        IVA <sup>${this.version || this.config?.version}</sup>
+                        ${this.appName || "IVA"} <sup>${this.version || this.config?.version}</sup>
                     </p>
                     <p class="footer-item">
                         OpenCGA

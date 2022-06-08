@@ -63,6 +63,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             mode: {
                 type: String
             },
+            toolId: {
+                type: String,
+            },
             settings: {
                 type: Object,
             },
@@ -123,6 +126,14 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             };
         }
 
+        // Check for user configuration
+        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
+            this._config.result.grid = {
+                ...this._config.result.grid,
+                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+            };
+        }
+
         // Add copy.execute functions
         if (this._config.result.grid?.copies?.length > 0) {
             this._config.result.grid?.copies.forEach(copy => {
@@ -174,7 +185,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
 
         const comment = e.detail.comment;
-        this.clinicalAnalysisManager.updateInterpretation(comment, () => {
+        this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
             LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                 clinicalAnalysis: this.clinicalAnalysis,
             }, null, {bubbles: true, composed: true});

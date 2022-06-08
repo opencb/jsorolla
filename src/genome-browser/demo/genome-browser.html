@@ -5,53 +5,29 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Genome Browser demo</title>
 
-    <script type="text/javascript" src="../genome-browser.config.js"></script>
+    <link rel="stylesheet" href="../genome-browser-styles.css">
 
+    <link rel="stylesheet" href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
-    <link rel="stylesheet" href="../../../styles/css/global.css">
     <link rel="stylesheet" href="../../../styles/css/style.css">
     <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
     <link rel="stylesheet" href="../../../styles/css/magic-check.css">
 
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
-    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/cookies-js/dist/cookies.js"></script>
     <script type="text/javascript" src="../../../node_modules/crypto-js/crypto-js.js"></script>
-
-    <style type="text/css">
-        html {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body {
-            margin: 0px;
-        }
-
-        #application {
-            box-sizing: border-box;
-            margin: 0 auto;
-            width: 1500px;
-            border: 1px solid lightgray;
-        }
-
-        #title {
-            margin: 20px auto;
-            width: 1500px;
-            font-size: 35px;
-            color: gray;
-        }
-    </style>
 </head>
-
-<body class="ocb">
-    <div id="title">Genome Browser</div>
-    <div id="application"></div>
+<body>
+    <div style="max-width:1400px;margin-left:auto;margin-right:auto;">
+        <h1 style="font-weight:bold;">Genome Browser Demo</h1>
+        <hr>
+        <div id="application"></div>
+    </div>
 
     <script type="module">
         import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
@@ -64,6 +40,8 @@
         import VariantTrack from "../tracks/variant-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
         import GeneOverviewTrack from "../tracks/gene-overview-track.js";
+
+        import featuresOfInterest from "./examples/features-of-interest.js";
 
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
@@ -92,17 +70,9 @@
                 cellBaseVersion: cellBaseConfig.version,
                 width: parent.getBoundingClientRect().width,
                 region: region,
-                availableSpecies: availableSpecies,
                 species: species,
                 resizable: true,
-                karyotypePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
-                chromosomePanelConfig: {
-                    collapsed: false,
-                    collapsible: true
-                },
+                featuresOfInterest: featuresOfInterest,
             });
 
             // When GB is ready add tracks and draw
@@ -140,7 +110,5 @@
             });
 
     </script>
-
 </body>
-
 </html>

@@ -1,4 +1,3 @@
-// import {NotificationQueue} from "./NotificationQueue.js";
 
 export default class UtilsNew {
 
@@ -397,6 +396,18 @@ export default class UtilsNew {
         } else {
             return false;
         }
+    }
+
+    static isObjectValuesEmpty(obj) {
+
+        return Object.values(obj).every(val => {
+
+            if (val !== null && (typeof val === "object" || Array.isArray(val))) {
+                return UtilsNew.isObjectValuesEmpty(val);
+            }
+
+            return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
+        });
     }
 
 

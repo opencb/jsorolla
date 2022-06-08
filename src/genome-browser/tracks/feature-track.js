@@ -9,6 +9,7 @@ export default class FeatureTrack {
         // eslint-disable-next-line no-undef
         Object.assign(this, Backbone.Events);
 
+        this.target = null;
         this.prefix = UtilsNew.randomString(8);
         this.config = {
             ...this.getDefaultConfig(),
@@ -29,11 +30,6 @@ export default class FeatureTrack {
 
         this.fontClass = "ocb-font-roboto ocb-font-size-14";
 
-        // TODO: review if we need this
-        // if (this.renderer != null) {
-        //     this.renderer.track = this;
-        // }
-
         this.svgCanvasWidth = 500000;
         this.svgCanvasOffset;
 
@@ -47,14 +43,6 @@ export default class FeatureTrack {
 
         this.renderedArea = {}; // used for renders to store binary trees
         this.renderedFeatures = new Set(); // used to prevent rendering features twice
-        // this.chunksDisplayed = {}; // used to avoid painting multiple times features contained in more than 1 chunk
-
-        // save default render reference;
-        // this.defaultRenderer = this.renderer;
-        // this.renderer = this.renderer;
-
-        // this.histogramRenderer = new HistogramRenderer(this.config.histogramRenderer);
-        // this.histogramRendererName = "HistogramRenderer";
 
         this.dataType = "features";
         this.featureType = "Feature"; // This only have the old class feature track
@@ -67,56 +55,62 @@ export default class FeatureTrack {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="ocb-gv-track unselectable">
-                <div id="${this.prefix}Title" class="ocb-gv-track-title" style="padding:4px;">
-                    <div class="ocb-gv-title-el">
-                        <span id="${this.prefix}TitleText" class="ocb-gv-track-title-text">
-                            ${this.config.title || ""}
-                        </span>
-                        <span id="${this.prefix}TitleHistogram" class="ocb-gv-track-title-histogram" style="display:none;">
-                            &nbsp;<i class="fas fa-signal"></i>
-                        </span>
-                        <span id="${this.prefix}TitleToggle" class="ocb-gv-track-title-toggle">
-                            <i id="${this.prefix}TitleToggleIcon"class="fas fa-minus"></i>
-                        </span>
-                        <span id="${this.prefix}TitleDown" class="ocb-gv-track-title-down">
-                            <i class="fas fa-chevron-down"></i>
-                        </span>
-                        <span id="${this.prefix}TitleUp" class="ocb-gv-track-title-up">
-                            <i class="fas fa-chevron-up"></i>
-                        </span>
-                        <span id="${this.prefix}TitleSettings" class="ocb-gv-track-title-settings" style="display:none;">
-                            <i class="fas fa-cog"></i>
-                        </span>
-                        <span id="${this.prefix}TitleClose" class="ocb-gv-track-title-close" style="display:none;">
-                            <i class="fas fa-times"></i>
-                        </span>
-                        <span id="${this.prefix}TitleExternalLink" class="ocb-gv-track-title-external-link" style="display:none;">
-                            <i class="fas fa-external-link"></i>
-                        </span>
-                        <span id="${this.prefix}TitleLoading" class="ocb-gv-track-title-loading" style="display:none;">
-                            <i class="fas fa-spinner fa-spin"></i> Loading...
-                        </span>
+            <div id="${this.prefix}" style="border-top:1px solid #ddd;">
+                <div style="display:flex;padding:8px 0px;user-select:none;">
+                    <div id="${this.prefix}Title" class="small" style="font-weight:bold;padding:0px 2px;">
+                        ${this.config.title || ""}
+                    </div>
+                    <div id="${this.prefix}TitleHistogram" class="text-muted" style="display:none;font-size:12px;">
+                        &nbsp;<i class="fas fa-signal"></i>
+                    </div>
+                    <!-- Temporally disabled elements -->
+                    <span id="${this.prefix}TitleDown" style="display:none;">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                    <span id="${this.prefix}TitleUp" style="display:none;">
+                        <i class="fas fa-chevron-up"></i>
+                    </span>
+                    <span id="${this.prefix}TitleSettings" class="" style="display:none;">
+                        <i class="fas fa-cog"></i>
+                    </span>
+                    <span id="${this.prefix}TitleClose" class="" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </span>
+                    <span id="${this.prefix}TitleExternalLink" class="" style="display:none;">
+                        <i class="fas fa-external-link"></i>
+                    </span>
+                    <!-- Loading element -->
+                    <div id="${this.prefix}TitleLoading" class="text-danger" style="display:none;margin-left:8px;font-size:12px;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <!-- Track toggle element -->
+                    <div id="${this.prefix}TitleToggle" style="margin-left:auto;font-size:12px;cursor:pointer;">
+                        <i id="${this.prefix}TitleToggleIcon"class="fas fa-minus"></i>
                     </div>
                 </div>
-                <div id="${this.prefix}Content"></div>
-                <div id="${this.prefix}Resize" class="ocb-track-resize"></div>
+                <div id="${this.prefix}Error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
+                <div id="${this.prefix}Content" style="user-select:none;"></div>
+                <div id="${this.prefix}Resize" style="display:flex;justify-content:center;cursor:n-resize;padding:4px;">
+                    <span class="gb-icon gb-icon-resize" style="width:20px;height:4px;padding:4px;"></span>
+                </div>
             </div>
         `);
 
         this.div = template.querySelector(`div#${this.prefix}`);
 
         this.title = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`span#${this.prefix}TitleText`);
-        this.titleHistogram = this.div.querySelector(`span#${this.prefix}TitleHistogram`);
-        this.titleToggle = this.div.querySelector(`span#${this.prefix}TitleToggle`);
+        this.titleHistogram = this.div.querySelector(`div#${this.prefix}TitleHistogram`);
+        this.titleToggle = this.div.querySelector(`div#${this.prefix}TitleToggle`);
         this.titleToggleIcon = this.div.querySelector(`i#${this.prefix}TitleToggleIcon`);
-        this.titleSettings = this.div.querySelector(`span#${this.prefix}TitleLoading`);
+        this.titleSettings = this.div.querySelector(`span#${this.prefix}TitleSettings`);
         this.titleClose = this.div.querySelector(`span#${this.prefix}TitleClose`);
         this.titleUp = this.div.querySelector(`span#${this.prefix}TitleUp`);
         this.titleDown = this.div.querySelector(`span#${this.prefix}TitleDown`);
         this.titleExternalLink = this.div.querySelector(`span#${this.prefix}TitleExternalLink`);
-        this.titleLoading = this.div.querySelector(`span#${this.prefix}TitleLoading`);
+        this.titleLoading = this.div.querySelector(`div#${this.prefix}TitleLoading`);
+
+        // Error message wrapper
+        this.error = this.div.querySelector(`div#${this.prefix}Error`);
 
         // Main content wrapper
         this.content = this.div.querySelector(`div#${this.prefix}Content`);
@@ -202,36 +196,15 @@ export default class FeatureTrack {
                 document.body.classList.remove("unselectable");
                 document.body.removeEventListener("mousemove", handleResizeMove);
             });
-
-            // TODO: review this event
-            // $(contentDiv).closest(".trackListPanels").mouseup(function(event) {
-            //     _this.updateHeight();
-            // });
         }
     }
 
-    // TODO: review this method
-    initializeDom(target) {
-        // Moun element
-        target.appendChild(this.div);
+    render(target) {
+        this.target = target;
+        this.target.appendChild(this.div);
 
         this.updateHeight();
-        // this.renderer.init();
-    }
-
-    // TODO: review this method
-    render(target) {
-        this.initializeDom(target);
-
         this.#setCanvasConfig();
-    }
-
-    get(attr) {
-        return this[attr];
-    }
-
-    set(attr, value) {
-        this[attr] = value;
     }
 
     hide() {
@@ -463,14 +436,33 @@ export default class FeatureTrack {
         this.svgCanvasRightLimit = this.region.start + this.svgCanvasOffset * 2;
     }
 
+    // Error handler: each track can implement it's own error handler
+    errorHandler(error) {
+        console.error(error);
+
+        // Display error div and add error message
+        this.error.style.display = "block";
+        this.error.textContent = error?.message || error?.events?.[0].message || error || "Something went wrong...";
+        this.main.style.display = "none";
+        this.content.style.display = "none";
+        this.content.style.height = ""; // Reset content height
+    }
+
     // Generic get data method (to be implemented in each track)
     getData(options) {
         return this.dataAdapter.getData(options);
     }
 
-    getDataHandler(data, request) {
-        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
+    getDataHandler(response, request) {
+        // Check if responses is an array (multiple calls) or a single element (single call)
+        let data = [];
+        if (response && Array.isArray(response)) {
+            data = response.map(res => res?.responses?.[0]?.results);
+        } else {
+            data = response.responses[0].results;
+        }
 
+        const renderer = this.dataType === "histogram" ? this.histogramRenderer : this.renderer;
         renderer.render(data, {
             // cacheItems: event.items,
             svgCanvasFeatures: this.svgCanvasFeatures,
@@ -503,10 +495,7 @@ export default class FeatureTrack {
         return "features";
     }
 
-    // draw(customAdapter, customRenderer) {
     draw() {
-        // const adapter = customAdapter || this.dataAdapter;
-
         this.clean();
         this.#setCanvasConfig();
 
@@ -529,10 +518,15 @@ export default class FeatureTrack {
             };
 
             // Import and draw data
-            this.getData(options).then(response => {
-                this.getDataHandler(response.responses[0].results, options);
-                this.setLoading(false);
-            });
+            this.getData(options)
+                .then(response => {
+                    this.getDataHandler(response, options);
+                    this.setLoading(false);
+                })
+                .catch(error => {
+                    this.errorHandler(error);
+                    this.setLoading(false);
+                });
         }
 
         this.updateHeight();
@@ -562,9 +556,10 @@ export default class FeatureTrack {
                         end: this.svgCanvasLeftLimit,
                     }),
                 };
-                this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results, options);
-                });
+                this.getData(options)
+                    .then(response => this.getDataHandler(response, options))
+                    .catch(error => this.errorHandler(error));
+
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
 
@@ -577,9 +572,10 @@ export default class FeatureTrack {
                         end: parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset),
                     }),
                 };
-                this.getData(options).then(response => {
-                    return this.getDataHandler(response.responses[0].results, options);
-                });
+                this.getData(options)
+                    .then(response => this.getDataHandler(response, options))
+                    .catch(error => this.errorHandler(error));
+
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
         }

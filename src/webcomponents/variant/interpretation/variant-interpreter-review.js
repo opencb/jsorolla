@@ -150,6 +150,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants}"
                                         .active="${active}"
+                                        .toolId="${"variantInterpreterCancerSNV"}"
                                         .gridConfig="${{
                                             somatic: true,
                                             variantTypes: ["SNV", "INDEL"],
@@ -185,6 +186,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .clinicalVariants="${variants}"
                                     .active="${active}"
+                                    .toolId="${"variantInterpreterCancerCNV"}"
                                     .gridConfig="${{
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],
@@ -249,6 +251,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants}"
                                         .active="${active}"
+                                        .toolId="${"variantInterpreterRD"}"
                                         .gridConfig="${{
                                             somatic: false,
                                             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
