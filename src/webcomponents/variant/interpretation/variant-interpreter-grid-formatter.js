@@ -562,7 +562,7 @@ export default class VariantInterpreterGridFormatter {
             if (ca.type === "FAMILY") {
                 // we need to find the sex of each member of the family
                 const individual = ca.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
-                sex = individual.sex;
+                sex = UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex;
             } else {
                 sex = ca?.proband?.sex !== "UNKOWN" ? ca.proband.sex : "";
             }

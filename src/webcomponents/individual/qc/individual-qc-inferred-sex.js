@@ -153,15 +153,16 @@ export default class IndividualQcInferredSex extends LitElement {
                     <tbody>
                         ${this.individuals.map(individual => {
                             const inferredSex = individual?.qualityControl?.inferredSexReports[0];
+                            const hasSameSex = individual.karyotypicSex === inferredSex?.inferredKaryotypicSex;
                             return html`
                                 <tr>
                                     <td>
                                         <label>${individual.id}</label>
                                     </td>
                                     <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
-                                    <td>${individual.sex}</td>
+                                    <td>${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex}</td>
                                     <td>
-                                        <span style="color: ${!inferredSex || individual.karyotypicSex === inferredSex?.inferredKaryotypicSex ? "black" : "red"}">
+                                        <span style="color: ${!inferredSex || hasSameSex ? "black" : "red"}">
                                             ${individual.karyotypicSex}
                                         </span>
                                     </td>
@@ -169,7 +170,7 @@ export default class IndividualQcInferredSex extends LitElement {
                                         <td>${inferredSex.values.ratioX.toFixed(4)}</td>
                                         <td>${inferredSex.values.ratioY.toFixed(4)}</td>
                                         <td>
-                                            <span style="color: ${individual.karyotypicSex === inferredSex.inferredKaryotypicSex ? "black" : "red"}">
+                                            <span style="color: ${hasSameSex ? "black" : "red"}">
                                                 ${inferredSex.inferredKaryotypicSex || "-"}
                                             </span>
                                         </td>

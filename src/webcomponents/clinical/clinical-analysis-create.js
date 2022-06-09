@@ -551,7 +551,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             render: individual => html`
                                                 <div style="font-weight: bold">${individual.id}</div>
                                                 <div class="help-block">
-                                                    ${individual.sex?.id || individual.sex || "Not specified"} (${individual.karyotypicSex || "Not specified"})
+                                                    ${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex} (${individual.karyotypicSex || "Not specified"})
                                                 </div>
                                             `,
                                         },
