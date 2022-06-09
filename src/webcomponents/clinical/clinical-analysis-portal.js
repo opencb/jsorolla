@@ -70,7 +70,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                 .rhs="${this.renderToolbarButtons()}">
             </tool-header>
             <div style="margin-top:32px;margin-bottom:24px;">
-                <h2 style="font-weight:bold;margin-top:0px;margin-bottom:0px;">Case Explorer</h2>
+                <h2 style="font-weight:bold;">Case Explorer</h2>
             </div>
             <clinical-analysis-browser
                 .opencgaSession="${this.opencgaSession}"
