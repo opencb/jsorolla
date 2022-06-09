@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "./clinical-analysis-browser.js";
+import "../commons/tool-header.js";
 
 export default class ClinicalAnalysisPortal extends LitElement {
 
@@ -34,6 +35,24 @@ export default class ClinicalAnalysisPortal extends LitElement {
         };
     }
 
+    renderToolbarButtons() {
+        return html`
+            <div>
+                <button class="btn btn-info active">
+                    <strong>Case Explorer</strong>
+                </button>
+                <button class="btn btn-info">
+                    Disease Panel Explorer
+                </button>
+
+                <button class="btn btn-default" style="margin-left:16px;">
+                    <i class="fas fa-plus icon-padding"></i>
+                    <strong>New Case</strong>
+                </button>
+            </div> 
+        `;
+    }
+
     render() {
         if (!this.opencgaSession) {
             return html`
@@ -45,6 +64,14 @@ export default class ClinicalAnalysisPortal extends LitElement {
         }
 
         return html`
+            <tool-header
+                .title="${this.settings?.title || "Case Portal"}"
+                .icon="${this.settings?.icon || ""}"
+                .rhs="${this.renderToolbarButtons()}">
+            </tool-header>
+            <div style="margin-top:32px;margin-bottom:24px;">
+                <h2 style="font-weight:bold;margin-top:0px;margin-bottom:0px;">Case Explorer</h2>
+            </div>
             <clinical-analysis-browser
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}">
