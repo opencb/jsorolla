@@ -25,10 +25,13 @@ export default class NotificationManager {
 
         // Append notification parent to document
         document.body.appendChild(this.parent);
+
+        this.confirmationDiv = document.createElement("div");
+        document.body.appendChild(this.confirmationDiv);
     }
 
     // Display a notification alert
-    show(options) {
+    showNotification(options) {
         const type = (options.type || "info").toLowerCase();
         const alertClass = options.display?.alertClassName || this.config.display.alertClassName[type];
         const buttonClass = options.display?.buttonClassName || this.config.display.buttonClassName[type];
@@ -110,7 +113,7 @@ export default class NotificationManager {
 
     // Alias to create a success notification
     success(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "success",
             display: {
                 showIcon: true,
@@ -124,7 +127,7 @@ export default class NotificationManager {
 
     // Alias to create an info notification
     info(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "info",
             display: {
                 showIcon: true,
@@ -138,7 +141,7 @@ export default class NotificationManager {
 
     // Alias to create a warning notification
     warning(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "warning",
             display: {
                 showIcon: true,
@@ -152,7 +155,7 @@ export default class NotificationManager {
 
     // Alias to create an error notification
     error(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "error",
             display: {
                 showIcon: true,
@@ -170,9 +173,49 @@ export default class NotificationManager {
         });
     }
 
+    // Alias to create an error notification
+    showConfirmation(options) {
+        const type = (options.type || "info").toLowerCase();
+        const alertClass = options.display?.alertClassName || this.config.display.alertClassName[type];
+        const buttonClass = options.display?.buttonClassName || this.config.display.buttonClassName[type];
+
+        // Generate notification element
+        const element = UtilsNew.renderHTML(`
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">${options.title}</h4>
+                        </div>
+                        <div class="modal-body">
+                            ${options.message}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default cancel" data-dismiss="modal">${options.buttons?.cancel?.text || "Close"}</button>
+                            <button type="button" class="btn btn-primary ok" data-dismiss="modal">${options.buttons?.ok?.text || "OK"}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        if (options.cancel) {
+            element.querySelector("button.cancel").addEventListener("click", () => options.cancel());
+        }
+        if (options.ok) {
+            element.querySelector("button.ok").addEventListener("click", () => options.ok());
+        }
+
+        // Append notification
+        this.confirmationDiv.appendChild(element);
+
+        $('#myModal').modal('show');
+    }
+
     // Register response error listener
     // This will handle all response errors from OpenCGA and display a notification if needed
-    showResponse(response) {
+    response(response) {
         // Display error response events
         if (response?.getEvents?.("ERROR")?.length) {
             response.getEvents("ERROR").forEach(error => {
