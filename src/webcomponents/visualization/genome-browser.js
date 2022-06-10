@@ -59,7 +59,7 @@ export default class GenomeBrowserComponent extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession" || changedProperties.has("config") || changedProperties.has("tracks"))) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("tracks")) {
             this.opencgaSessionOrConfigObserver();
         }
 
