@@ -63,10 +63,10 @@ export default class ClinicalAnalysisPortal extends LitElement {
                     @click="${() => this.#onViewChange("panel")}">
                     <strong>Disease Panel Explorer</strong>
                 </button>
-                <button class="btn btn-default" style="margin-left:16px;">
+                <a href="#clinical-analysis-create/" type="button" class="btn btn-default" style="margin-left:16px;">
                     <i class="fas fa-plus icon-padding"></i>
                     <strong>New Case</strong>
-                </button>
+                </a>
             </div> 
         `;
     }
