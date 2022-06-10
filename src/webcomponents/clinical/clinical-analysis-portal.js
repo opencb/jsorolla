@@ -71,6 +71,14 @@ export default class ClinicalAnalysisPortal extends LitElement {
         `;
     }
 
+    renderViewTitle(title) {
+        return html`
+            <div style="margin-top:32px;margin-bottom:24px;">
+                <h2 style="font-weight:bold;">${title}</h2>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession) {
             return html`
@@ -89,9 +97,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
             </tool-header>
             <div class="tab-content">
                 <div role="tabpanel" class="${`tab-pane ${this.currentView === "case" ? "active" : ""}`}">
-                    <div style="margin-top:32px;margin-bottom:24px;">
-                        <h2 style="font-weight:bold;">Case Explorer</h2>
-                    </div>
+                    ${this.renderViewTitle("Case Explorer")}
                     <clinical-analysis-browser
                         .opencgaSession="${this.opencgaSession}"
                         .settings="${this.settings}"
@@ -101,9 +107,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                     </clinical-analysis-browser>
                 </div>
                 <div role="tabpanel" class="${`tab-pane ${this.currentView === "panel" ? "active" : ""}`}">
-                    <div style="margin-top:32px;margin-bottom:24px;">
-                        <h2 style="font-weight:bold;">Disease Panel Explorer</h2>
-                    </div>
+                    ${this.renderViewTitle("Disease Panel Explorer")}
                     <disease-panel-browser
                         .opencgaSession="${this.opencgaSession}"
                         .config="${{
