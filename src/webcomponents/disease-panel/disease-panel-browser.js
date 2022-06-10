@@ -209,7 +209,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             id: "disease-panel-view",
                             name: "Summary",
                             active: true,
-                            render: (diseasePanel, active, opencgaSession) => html`
+                            render: (diseasePanel, _active, opencgaSession) => html`
                                 <disease-panel-summary
                                     .diseasePanel="${diseasePanel}"
                                     .opencgaSession="${opencgaSession}">
@@ -219,7 +219,7 @@ export default class DiseasePanelBrowser extends LitElement {
                         {
                             id: "disease-panel-genes",
                             name: "Genes",
-                            render: (diseasePanel, active, opencgaSession) => html`
+                            render: (diseasePanel, _active, opencgaSession) => html`
                                 <gene-grid
                                     .genePanels="${diseasePanel.genes}"
                                     .opencgaSession=${opencgaSession}>
@@ -229,18 +229,18 @@ export default class DiseasePanelBrowser extends LitElement {
                         {
                             id: "disease-panel-regions",
                             name: "Regions",
-                            render: (diseasePanel, active, opencgaSession) => construction,
+                            render: () => construction,
                         },
                         {
                             id: "disease-panel-variants",
                             name: "Variants",
-                            render: (diseasePanel, active, opencgaSession) => construction,
+                            render: () => construction,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (diseasePanel, active, opencgaSession) => html`
+                            render: (diseasePanel, active) => html`
                                 <json-viewer
                                     .data="${diseasePanel}"
                                     .active="${active}">
