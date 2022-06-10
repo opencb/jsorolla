@@ -16,9 +16,15 @@
 
 import {LitElement, html} from "lit";
 import "./clinical-analysis-browser.js";
+import "../disease-panel/disease-panel-browser.js";
 import "../commons/tool-header.js";
 
 export default class ClinicalAnalysisPortal extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -35,16 +41,28 @@ export default class ClinicalAnalysisPortal extends LitElement {
         };
     }
 
+    #init() {
+        this.currentView = "case";
+    }
+
+    #onViewChange(newView) {
+        this.currentView = newView;
+        this.requestUpdate();
+    }
+
     renderToolbarButtons() {
         return html`
             <div>
-                <button class="btn btn-info active">
+                <button
+                    class="${`btn btn-info ${this.currentView === "case" ? "active" : ""}`}"
+                    @click="${() => this.#onViewChange("case")}">
                     <strong>Case Explorer</strong>
                 </button>
-                <button class="btn btn-info">
-                    Disease Panel Explorer
+                <button
+                    class="${`btn btn-info ${this.currentView === "panel" ? "active" : ""}`}"
+                    @click="${() => this.#onViewChange("panel")}">
+                    <strong>Disease Panel Explorer</strong>
                 </button>
-
                 <button class="btn btn-default" style="margin-left:16px;">
                     <i class="fas fa-plus icon-padding"></i>
                     <strong>New Case</strong>
@@ -69,13 +87,31 @@ export default class ClinicalAnalysisPortal extends LitElement {
                 .icon="${this.settings?.icon || ""}"
                 .rhs="${this.renderToolbarButtons()}">
             </tool-header>
-            <div style="margin-top:32px;margin-bottom:24px;">
-                <h2 style="font-weight:bold;">Case Explorer</h2>
+            <div class="tab-content">
+                <div role="tabpanel" class="${`tab-pane ${this.currentView === "case" ? "active" : ""}`}">
+                    <div style="margin-top:32px;margin-bottom:24px;">
+                        <h2 style="font-weight:bold;">Case Explorer</h2>
+                    </div>
+                    <clinical-analysis-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .settings="${this.settings}"
+                        .config="${{
+                            showHeader: false,
+                        }}">
+                    </clinical-analysis-browser>
+                </div>
+                <div role="tabpanel" class="${`tab-pane ${this.currentView === "panel" ? "active" : ""}`}">
+                    <div style="margin-top:32px;margin-bottom:24px;">
+                        <h2 style="font-weight:bold;">Disease Panel Explorer</h2>
+                    </div>
+                    <disease-panel-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${{
+                            showHeader: false,
+                        }}">
+                    </disease-panel-browser>
+                </div>
             </div>
-            <clinical-analysis-browser
-                .opencgaSession="${this.opencgaSession}"
-                .settings="${this.settings}">
-            </clinical-analysis-browser>
         `;
     }
 
