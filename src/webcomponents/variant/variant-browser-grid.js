@@ -225,21 +225,6 @@ export default class VariantBrowserGrid extends LitElement {
                 onClickRow: (row, selectedElement, field) => {
                     // console.log(row)
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                        title: "Save Variant",
-                        message: "Are you sure you want to save variant?",
-                        buttons: {
-                            cancel: {
-                                text: "Ni se te ocurra"
-                            },
-                            ok: {
-                                text: "Tirale"
-                            }
-                        },
-                        ok: () => {
-                            console.log("siiiiii");
-                        }
-                    });
                 },
                 onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
