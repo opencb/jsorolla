@@ -24,6 +24,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -192,6 +193,42 @@ export default class VariantBrowserGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => {
+                            // FIXME A quick temporary fix -> TASK-947
+                            if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
+                                let found = false;
+                                const variants = res.responses[0].results;
+                                for (const variant of variants) {
+                                    for (const ct of variant.annotation.consequenceTypes) {
+                                        if (ct.transcriptFlags || ct.transcriptAnnotationFlags) {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!found) {
+                                    this.cellbaseClient = new CellBaseClient({
+                                        host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
+                                        // host: "https://ws.opencb.org/cellbase-4.8.2",
+                                        version: "v4",
+                                        species: "hsapiens",
+                                    });
+                                    const variantIds = variants.map(v => v.id);
+                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"})
+                                        .then(response => {
+                                            const annotatedVariants = response.responses;
+                                            for (let i = 0; i < variants.length; i++) {
+                                                for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
+                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptFlags;
+                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptFlags;
+                                                }
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.log(error);
+                                        });
+                                }
+                            }
+
                             params.success(res);
                         })
                         .catch(e => {
@@ -527,7 +564,8 @@ export default class VariantBrowserGrid extends LitElement {
                 }
 
                 // FIXME CellBase v5 uses 1000G while v4 uses 1kG_phase3, remove this in v2.3
-                if (this.populationFrequencies.studies[j].id === "1000G" && this.opencgaSession.project.internal.cellbase.version === "v4") {
+                if (this.populationFrequencies.studies[j].id === "1000G" &&
+                    (this.opencgaSession.project?.cellbase?.version === "v4" || this.opencgaSession.project?.internal?.cellbase?.version === "v4")) {
                     this.populationFrequencies.studies[j].id = "1kG_phase3";
                 }
 
@@ -902,7 +940,7 @@ export default class VariantBrowserGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
