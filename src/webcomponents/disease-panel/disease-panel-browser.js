@@ -37,41 +37,56 @@ export default class DiseasePanelBrowser extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             cellbaseClient: {
-                type: Object
+                type: Object,
             },
             query: {
-                type: Object
+                type: Object,
             },
             settings: {
-                type: Object
-            }
+                type: Object,
+            },
+            config: {
+                type: Object,
+            },
         };
     }
 
     _init() {
-        this.config = this.getDefautlConfig();
+        this._config = this.getDefautlConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
         super.update(changedProperties);
     }
 
     settingsObserver() {
-        this.config = {...this.getDefautlConfig()};
+        this._config = {
+            ...this.getDefautlConfig(),
+            ...(this.config || {}),
+        };
+
         if (this.settings?.menu) {
-            this.config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
+
         if (this.settings?.table) {
-            this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.settings.table,
+            };
         }
+
         if (this.settings?.table?.toolbar) {
-            this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+            this._config.filter.result.grid.toolbar = {
+                ...this._config.filter.result.grid.toolbar,
+                ...this.settings.table.toolbar,
+            };
         }
     }
 
@@ -82,7 +97,7 @@ export default class DiseasePanelBrowser extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
-                .config="${this.config}">
+                .config="${this._config}">
             </opencga-browser>
         `;
     }
@@ -194,49 +209,46 @@ export default class DiseasePanelBrowser extends LitElement {
                             id: "disease-panel-view",
                             name: "Summary",
                             active: true,
-                            render: (diseasePanel, active, opencgaSession) => {
-                                return html`
-                                    <disease-panel-summary
-                                        .diseasePanel="${diseasePanel}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </disease-panel-summary>`;
-                            }
+                            render: (diseasePanel, active, opencgaSession) => html`
+                                <disease-panel-summary
+                                    .diseasePanel="${diseasePanel}"
+                                    .opencgaSession="${opencgaSession}">
+                                </disease-panel-summary>
+                            `,
                         },
                         {
                             id: "disease-panel-genes",
                             name: "Genes",
-                            render: (diseasePanel, active, opencgaSession) => {
-                                return html`
-                                    <gene-grid
-                                        .genePanels="${diseasePanel.genes}"
-                                        .opencgaSession=${opencgaSession}>
-                                    </gene-grid>`;
-                            }
+                            render: (diseasePanel, active, opencgaSession) => html`
+                                <gene-grid
+                                    .genePanels="${diseasePanel.genes}"
+                                    .opencgaSession=${opencgaSession}>
+                                </gene-grid>
+                            `,
                         },
                         {
                             id: "disease-panel-regions",
                             name: "Regions",
-                            render: (diseasePanel, active, opencgaSession) => construction
+                            render: (diseasePanel, active, opencgaSession) => construction,
                         },
                         {
                             id: "disease-panel-variants",
                             name: "Variants",
-                            render: (diseasePanel, active, opencgaSession) => construction
+                            render: (diseasePanel, active, opencgaSession) => construction,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (diseasePanel, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer
-                                        .data="${diseasePanel}"
-                                        .active="${active}">
-                                    </json-viewer>`;
-                            }
-                        }
-                    ]
-                }
+                            render: (diseasePanel, active, opencgaSession) => html`
+                                <json-viewer
+                                    .data="${diseasePanel}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
+                        },
+                    ],
+                },
             },
         };
     }
