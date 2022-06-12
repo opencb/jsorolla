@@ -218,8 +218,8 @@ export default class VariantBrowserGrid extends LitElement {
                                             const annotatedVariants = response.responses;
                                             for (let i = 0; i < variants.length; i++) {
                                                 for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptFlags;
-                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptFlags;
+                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptAnnotationFlags;
+                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptAnnotationFlags;
                                                 }
                                             }
                                         })
