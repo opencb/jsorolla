@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "./clinical-analysis-browser.js";
+import "./clinical-analysis-create.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../commons/tool-header.js";
 
@@ -42,7 +43,8 @@ export default class ClinicalAnalysisPortal extends LitElement {
     }
 
     #init() {
-        this.currentView = "case";
+        this._config = this.getDefaultConfig();
+        this.currentView = this._config.views[0].id;
     }
 
     #onViewChange(newView) {
@@ -53,20 +55,16 @@ export default class ClinicalAnalysisPortal extends LitElement {
     renderToolbarButtons() {
         return html`
             <div>
-                <button
-                    class="${`btn btn-info ${this.currentView === "case" ? "active" : ""}`}"
-                    @click="${() => this.#onViewChange("case")}">
-                    <strong>Case Explorer</strong>
-                </button>
-                <button
-                    class="${`btn btn-info ${this.currentView === "panel" ? "active" : ""}`}"
-                    @click="${() => this.#onViewChange("panel")}">
-                    <strong>Disease Panel Explorer</strong>
-                </button>
-                <a href="#clinical-analysis-create/" type="button" class="btn btn-default" style="margin-left:16px;">
-                    <i class="fas fa-plus icon-padding"></i>
-                    <strong>New Case</strong>
-                </a>
+                ${this._config.views.map(view => html`
+                    <button
+                        class="${`btn btn-default ${this.currentView === view.id ? "active" : ""}`}"
+                        @click="${() => this.#onViewChange(view.id)}">
+                        ${view.icon ? html`
+                            <i class="${`fas ${view.icon} icon-padding`}"></i>
+                        ` : null}
+                        <strong>${view.name}</strong>
+                    </button>
+                `)}
             </div> 
         `;
     }
@@ -96,7 +94,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                 .rhs="${this.renderToolbarButtons()}">
             </tool-header>
             <div class="tab-content">
-                <div role="tabpanel" class="${`tab-pane ${this.currentView === "case" ? "active" : ""}`}">
+                <div role="tabpanel" class="${`tab-pane ${this.currentView === "case-explorer" ? "active" : ""}`}">
                     ${this.renderViewTitle("Case Explorer")}
                     <clinical-analysis-browser
                         .opencgaSession="${this.opencgaSession}"
@@ -106,7 +104,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         }}">
                     </clinical-analysis-browser>
                 </div>
-                <div role="tabpanel" class="${`tab-pane ${this.currentView === "panel" ? "active" : ""}`}">
+                <div role="tabpanel" class="${`tab-pane ${this.currentView === "panel-explorer" ? "active" : ""}`}">
                     ${this.renderViewTitle("Disease Panel Explorer")}
                     <disease-panel-browser
                         .opencgaSession="${this.opencgaSession}"
@@ -115,8 +113,38 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         }}">
                     </disease-panel-browser>
                 </div>
+                <div role="tabpanel" class="${`tab-pane ${this.currentView === "case-create" ? "active" : ""}`}">
+                    <div class="content container">
+                        ${this.renderViewTitle("New Case")}
+                        <clinical-analysis-create
+                            .opencgaSession="${this.opencgaSession}">
+                        </clinical-analysis-create>
+                    </div>
+                </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            views: [
+                {
+                    id: "case-explorer",
+                    name: "Case Explorer",
+                    icon: "",
+                },
+                {
+                    id: "panel-explorer",
+                    name: "Disease Panel Explorer",
+                    icon: "",
+                },
+                {
+                    id: "case-create",
+                    name: "New Case",
+                    icon: "fa-plus",
+                },
+            ],
+        };
     }
 
 }
