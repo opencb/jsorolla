@@ -94,33 +94,12 @@ export default class ClinicalAnalysisPortal extends LitElement {
                 .rhs="${this.renderToolbarButtons()}">
             </tool-header>
             <div class="tab-content">
-                <div role="tabpanel" class="${`tab-pane ${this.currentView === "case-explorer" ? "active" : ""}`}">
-                    ${this.renderViewTitle("Case Explorer")}
-                    <clinical-analysis-browser
-                        .opencgaSession="${this.opencgaSession}"
-                        .settings="${this.settings}"
-                        .config="${{
-                            showHeader: false,
-                        }}">
-                    </clinical-analysis-browser>
-                </div>
-                <div role="tabpanel" class="${`tab-pane ${this.currentView === "panel-explorer" ? "active" : ""}`}">
-                    ${this.renderViewTitle("Disease Panel Explorer")}
-                    <disease-panel-browser
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${{
-                            showHeader: false,
-                        }}">
-                    </disease-panel-browser>
-                </div>
-                <div role="tabpanel" class="${`tab-pane ${this.currentView === "case-create" ? "active" : ""}`}">
-                    <div class="content container">
-                        ${this.renderViewTitle("New Case")}
-                        <clinical-analysis-create
-                            .opencgaSession="${this.opencgaSession}">
-                        </clinical-analysis-create>
+                ${this._config.views.map(view => html`
+                    <div role="tabpanel" class="${`tab-pane ${this.currentView === view.id ? "active" : ""}`}">
+                        ${view.display?.titleVisible ? this.renderViewTitle(view.name) : null}
+                        ${view.render()}
                     </div>
-                </div>
+                `)}
             </div>
         `;
     }
@@ -131,17 +110,51 @@ export default class ClinicalAnalysisPortal extends LitElement {
                 {
                     id: "case-explorer",
                     name: "Case Explorer",
-                    icon: "",
+                    icon: "fa-window-restore",
+                    display: {
+                        titleVisible: true,
+                    },
+                    render: () => html`
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings}"
+                            .config="${{
+                                showHeader: false,
+                            }}">
+                        </clinical-analysis-browser>
+                    `,
                 },
                 {
                     id: "panel-explorer",
                     name: "Disease Panel Explorer",
-                    icon: "",
+                    icon: "fa-search-plus",
+                    display: {
+                        titleVisible: true,
+                    },
+                    render: () => html`
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{
+                                showHeader: false,
+                            }}">
+                        </disease-panel-browser>
+                    `,
                 },
                 {
                     id: "case-create",
                     name: "New Case",
                     icon: "fa-plus",
+                    display: {
+                        titleVisible: false,
+                    },
+                    render: () => html`
+                        <div class="content container">
+                            ${this.renderViewTitle("New Case")}
+                            <clinical-analysis-create
+                                .opencgaSession="${this.opencgaSession}">
+                            </clinical-analysis-create>
+                        </div>
+                    `,
                 },
             ],
         };
