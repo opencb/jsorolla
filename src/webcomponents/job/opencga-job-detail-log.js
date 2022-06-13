@@ -132,7 +132,7 @@ export default class OpencgaJobDetailLog extends LitElement {
         const command = params.command || this._config.command;
         // const offset = params.offset || 0;
         // console.log("request ", "command", command, "params", params, "offset", offset, "append", append);
-        if (!statusWithoutLogs?.includes(job?.internal?.status.id?.toUpperCase())) {
+        if (!statusWithoutLogs?.includes(job?.internal?.status?.id?.toUpperCase())) {
             this.opencgaSession.opencgaClient.jobs()[command + "Log"](job.id, {
                 study: this.opencgaSession.study.fqn,
                 lines: this._config.lines,
