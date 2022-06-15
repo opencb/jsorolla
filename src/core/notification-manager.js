@@ -3,11 +3,11 @@ import UtilsNew from "./utilsNew.js";
 export default class NotificationManager {
 
     constructor(config) {
-        this._init(config);
+        this.#init(config);
     }
 
     // Initialize the notification manager
-    _init(config) {
+    #init(config) {
         this.config = {...this.getDefaultConfig(), ...config};
 
         // Initialize notifications parent
@@ -173,46 +173,6 @@ export default class NotificationManager {
         });
     }
 
-    // Alias to create an error notification
-    showConfirmation(options) {
-        const type = (options.type || "info").toLowerCase();
-        const alertClass = options.display?.alertClassName || this.config.display.alertClassName[type];
-        const buttonClass = options.display?.buttonClassName || this.config.display.buttonClassName[type];
-
-        // Generate notification element
-        const element = UtilsNew.renderHTML(`
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="myModalLabel">${options.title}</h4>
-                        </div>
-                        <div class="modal-body">
-                            ${options.message}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default cancel" data-dismiss="modal">${options.buttons?.cancel?.text || "Close"}</button>
-                            <button type="button" class="btn btn-primary ok" data-dismiss="modal">${options.buttons?.ok?.text || "OK"}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `);
-
-        if (options.cancel) {
-            element.querySelector("button.cancel").addEventListener("click", () => options.cancel());
-        }
-        if (options.ok) {
-            element.querySelector("button.ok").addEventListener("click", () => options.ok());
-        }
-
-        // Append notification
-        this.confirmationDiv.appendChild(element);
-
-        $('#myModal').modal('show');
-    }
-
     // Register response error listener
     // This will handle all response errors from OpenCGA and display a notification if needed
     response(response) {
@@ -234,6 +194,64 @@ export default class NotificationManager {
         if (response instanceof Error) {
             this.error(response.name, response.message);
         }
+    }
+
+    // Show a confirmation dialog
+    showConfirmation(options) {
+        const element = UtilsNew.renderHTML(`
+            <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">${options.title}</h4>
+                        </div>
+                        <div class="modal-body">
+                            ${options.message}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default cancel" data-dismiss="modal">
+                                ${options.display?.cancelButtonText || "Cancel"}
+                            </button>
+                            <button type="button" class="btn btn-primary ok" data-dismiss="modal">
+                                ${options.display?.okButtonText || "OK"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).querySelector("div.modal");
+
+        // Method to remove the confirmation element
+        const removeConfirmation = () => {
+            this.confirmationDiv.contains(element) && this.confirmationDiv.removeChild(element);
+        };
+
+        // Register cancel listeners
+        [element.querySelector("button.cancel"), element.querySelector("button.close")].forEach(el => {
+            el.addEventListener("click", () => {
+                removeConfirmation();
+
+                if (typeof options.cancel === "function") {
+                    options.cancel();
+                }
+            });
+        });
+
+        // Register submit listener
+        element.querySelector("button.ok").addEventListener("click", () => {
+            removeConfirmation();
+
+            if (typeof options.ok === "function") {
+                options.ok();
+            }
+        });
+
+        // Append confirmation and display modal
+        this.confirmationDiv.appendChild(element);
+        $(element).modal("show");
     }
 
     // Get default config for the notification manager
