@@ -38,7 +38,7 @@ export default class NotificationManager {
 
         // Generate notification element
         const element = UtilsNew.renderHTML(`
-            <div class="${alertClass} animated fadeInDown" style="display:flex;animation-duration:0.5s!important;">
+            <div class="alert ${alertClass} animated fadeInDown" style="display:flex;animation-duration:0.5s!important;">
                 ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
                         <span class="${options.icon || this.config.icons[type]}"></span>
@@ -267,10 +267,10 @@ export default class NotificationManager {
                 width: "600px",
                 messageMaxHeight: "200px",
                 alertClassName: {
-                    error: "alert alert-danger",
-                    info: "alert alert-info",
-                    success: "alert alert-success",
-                    warning: "alert alert-warning",
+                    error: "alert-danger",
+                    info: "alert-info",
+                    success: "alert-success",
+                    warning: "alert-warning",
                 },
                 buttonClassName: {
                     error: "btn btn-danger",
