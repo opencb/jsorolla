@@ -258,16 +258,8 @@ export default class SignatureView extends LitElement {
             return;
         }
 
-        const scores = this.signature.fitting.scores.map(score => {
-            if (this._config?.mutationalSignature?.[score.signatureId]) {
-                score.label = `
-                    <a target="_blank" href='https://signal.mutationalsignatures.com/explore/referenceCancerSignature/${this._config.mutationalSignature[score.signatureId]}'>
-                        ${score.signatureId}
-                        <i class="fas fa-external-link"></i>
-                    </a>`;
-            }
-            return score;
-        });
+        const self = this;
+        const scores = this.signature.fitting.scores;
 
         $(`#${this._prefix}SignatureFittingPlot`).highcharts({
             chart: {
@@ -283,6 +275,20 @@ export default class SignatureView extends LitElement {
             },
             xAxis: {
                 categories: scores.map(score => score.label || score.signatureId),
+                labels: {
+                    formatter: function () {
+                        if (this.value && self._config?.mutationalSignature?.[this.value]) {
+                            const id = self._config?.mutationalSignature?.[this.value];
+                            return `
+                                <a href="${self._config.mutationalSignatureUrl}${id}" style="color:#337ab7;cursor:pointer;">
+                                    ${this.value}
+                                </a>
+                            `;
+                        } else {
+                            return this.value;
+                        }
+                    },
+                },
             },
             yAxis: {
                 min: 0,
@@ -292,8 +298,16 @@ export default class SignatureView extends LitElement {
                 data: scores.map(score => score.value),
                 name: "Value",
             }]
+        }, chart => {
+            // Allow opening the link to Signal in another window
+            // See TASK-1068
+            Array.from(chart.container.querySelectorAll("a")).forEach(link => {
+                link.addEventListener("click", event => {
+                    event.preventDefault();
+                    window.open(link.getAttribute("href"), "_blank");
+                });
+            });
         });
-
     }
 
     render() {
@@ -303,6 +317,7 @@ export default class SignatureView extends LitElement {
 
         return html`
             <div style="height: ${this._config.height}px">
+                <i data-fa-symbol="external-link" class="fas fa-fw fa-external-link"></i>
                 ${this.signature && this.plots ? html`
 
                     ${this.plots.includes("counts") ? html `
@@ -327,6 +342,7 @@ export default class SignatureView extends LitElement {
         return {
             // width: null, width is always 100% of the visible container
             height: 320,
+            mutationalSignatureUrl: "https://signal.mutationalsignatures.com/explore/referenceCancerSignature/",
             mutationalSignature: {
                 "RefSig R2": "1",
                 "RefSig R9": "2",
