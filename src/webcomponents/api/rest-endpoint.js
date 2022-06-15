@@ -21,6 +21,7 @@ import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import Types from "../commons/types.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
 
 
@@ -127,6 +128,7 @@ export default class RestEndpoint extends LitElement {
                         if (this.paramsTypeToHtml[paramType]) {
 
                             // Prepare input element
+                            // Here you only enter the data allowed by these conditions.
                             if (isPrimitiveOrEnum(dataParameter)) {
                                 bodyElements.push(
                                     {
@@ -143,6 +145,7 @@ export default class RestEndpoint extends LitElement {
                                 );
                             }
 
+                            // Here you only enter the data allowed by these conditions.
                             if (isObject(dataParameter)) {
                                 bodyElements.push(
                                     {
@@ -565,6 +568,32 @@ export default class RestEndpoint extends LitElement {
         ` : html `${this.endpoint.responseClass}`;
     }
 
+    openModal(e) {
+        $(`#${this._prefix}export-modal`, this).modal("show");
+    }
+
+    onExport(e) {
+        // simply forwarding from opencga-export to grid components
+        this.dispatchEvent(new CustomEvent("export", {
+            detail: {
+                ...e.detail
+            }
+        }));
+    }
+
+    // not used as changes to exportFields is not propagated outside opencga-export anymore (exportFields is now sent on click on download button via `export` event)
+    onChangeExportField(e) {
+        // simply forwarding from opencga-export to grid components
+        LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
+    }
+
+    onViewModel() {
+        this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
+        this.requestUpdate();
+        console.log("data", this.dataJson);
+    }
+
+
     getTabsConfig(elements) {
         const configForm = {
             buttonsVisible: false,
@@ -636,6 +665,11 @@ export default class RestEndpoint extends LitElement {
                 render: () => {
                     return html`
                     <!-- Body Json -->
+                    <div class="pull-right" style="margin-bottom: 6px" @click=${() => this.onViewModel()}>
+                        <button type="button" class="btn btn-primary" >
+                            Model
+                        </button>
+                    </div>
                     <data-form
                         .data="${this.dataJson}"
                         .config="${configJson}"
@@ -682,7 +716,12 @@ export default class RestEndpoint extends LitElement {
 
                     <!-- Parameters Section-->
                     <div style="padding: 5px 10px">
-                        <h3>Input Parameters</h3>
+                            <h3 style="display:inline-block;">Input Parameters</h3>
+                            ${this.endpoint.method === "GET" ?html`
+                                <button style="margin-left:8px;margin-bottom:8px"  type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                </button>
+                            `:null}
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"
@@ -706,6 +745,32 @@ export default class RestEndpoint extends LitElement {
                                     .config="${this.form}">
                                 </json-viewer>
                             `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        ${this._config?.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Export</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-export
+                                .config="${
+                                    {
+                                        resource: "API",
+                                        exportTabs: ["link", "code"]
+                                    }
+                                }"
+                                .query="${this.data}"
+                                .endpoint="${this.endpoint}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @export="${this.onExport}"
+                                @changeExportField="${this.onChangeExportField}">
+                        </opencga-export>
                         </div>
                     </div>
                 </div>
