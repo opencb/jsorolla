@@ -347,17 +347,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
     onActionClick(e, _, row) {
         const {action} = e.currentTarget.dataset;
         if (action === "delete") {
-            // TODO we need to remove SWAL soon.
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, delete it!"
-            }).then(result => {
-                if (result.value) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: `Delete case '${row.id}'`,
+                message: `Are you sure you want to delete case <b>'${row.id}'</b>?`,
+                display: {
+                    okButtonText: "Yes, delete it",
+                },
+                ok: () => {
                     const clinicalAnalysisId = row.id;
                     this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
                         study: this.opencgaSession.study.fqn,
@@ -375,7 +371,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
-                }
+                },
             });
         }
 
