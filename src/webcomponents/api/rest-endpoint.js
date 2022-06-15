@@ -69,7 +69,7 @@ export default class RestEndpoint extends LitElement {
         };
         this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
         this.passwordKeys = ["password", "newPassword"];
-        // Type not support by the moment..
+        // Type not support by the moment
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
 
@@ -192,22 +192,9 @@ export default class RestEndpoint extends LitElement {
             }
 
             // 2. Sort and move 'study/ to first position
-            const byStudy = (a, b) => {
-                if (a.name === "study") {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            };
+            const byStudy = (a, b) => a.name === "study" ? -1 : 1;
             const pathElementSorted = this.#sortArray(pathElements);
             const queryElementSorted = this.#sortArray(queryElements).sort(byStudy);
-            // .sort((a, b) => {
-            //     if (a.name === "study") {
-            //         return -1;
-            //     } else {
-            //         return 1;
-            //     }
-            // });
             const filterElementSorted = this.#sortArray(filterElements);
             const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
             const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator ? elements : this.disabledElements(elements);
@@ -438,7 +425,6 @@ export default class RestEndpoint extends LitElement {
     }
 
     onSubmit() {
-
         let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
         if (this.endpoint.method === "GET") {
             url += "sid=" + this.opencgaSession.opencgaClient._config.token;
@@ -473,24 +459,36 @@ export default class RestEndpoint extends LitElement {
                     this.requestUpdate();
                 });
         }
-
         if (this.endpoint.method === "POST") {
             url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
             url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+            this.endpoint.parameters
+                .filter(parameter => parameter.param === "path")
+                .forEach(parameter => {
+                    url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+                });
+
+            const data = UtilsNew.objectClone(this.data?.body);
+
+            // Remove props with empty values
+            Object.keys(this.data?.body).forEach(prop => {
+                if (data[prop] == "" && data[prop]?.length == 0) {
+                    delete data[prop];
+                }
+            });
 
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: this.data?.body,
+                data: data,
                 method: "POST"
             };
-
             this.restClient.call(url, _options)
                 .then(response => {
                     this.data.body = {};
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: "New Item",
-                        message: "Data created correctly"
+                        // title: "New Item",
+                        message: "Endpoint successfully executed"
                     });
                 })
                 .catch(response => {
@@ -665,11 +663,11 @@ export default class RestEndpoint extends LitElement {
                 render: () => {
                     return html`
                     <!-- Body Json -->
-                    <div class="pull-right" style="margin-bottom: 6px" @click=${() => this.onViewModel()}>
+                    <!-- <div class="pull-right" style="margin-bottom: 6px" @click=${() => this.onViewModel()}>
                         <button type="button" class="btn btn-primary" >
                             Model
                         </button>
-                    </div>
+                    </div> -->
                     <data-form
                         .data="${this.dataJson}"
                         .config="${configJson}"
@@ -717,11 +715,11 @@ export default class RestEndpoint extends LitElement {
                     <!-- Parameters Section-->
                     <div style="padding: 5px 10px">
                             <h3 style="display:inline-block;">Input Parameters</h3>
-                            ${this.endpoint.method === "GET" ?html`
+                            <!-- ${this.endpoint.method === "GET" ?html`
                                 <button style="margin-left:8px;margin-bottom:8px"  type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
                                     <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
                                 </button>
-                            `:null}
+                            `:null} -->
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"
