@@ -21,6 +21,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/text-field-filter.js";
 import "./annotation-create.js";
 import "./annotation-update.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class AnnotationSetUpdate extends LitElement {
 
@@ -96,25 +97,20 @@ export default class AnnotationSetUpdate extends LitElement {
 
     onRemoveAnnotationSet(e, item) {
         e.stopPropagation();
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Remove annotation set",
+            message: "Are you sure? You won't be able to revert this.",
+            display: {
+                okButtonText: "Yes, delete it!",
+            },
+            ok: () => {
                 this.annotationSets = this.annotationSets.filter(annotationSet => annotationSet !== item);
                 LitUtils.dispatchCustomEvent(this, "changeAnnotationSets", this.annotationSets);
-                Swal.fire(
-                    "Deleted!",
-                    "The annotationSet has been deleted.",
-                    "success"
-                );
-            }
+
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "The annotationSet has been deleted.",
+                });
+            },
         });
     }
 

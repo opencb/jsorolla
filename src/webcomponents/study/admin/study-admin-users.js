@@ -347,11 +347,9 @@ export default class StudyAdminUsers extends LitElement {
                     composed: true
                 }));
 
-                Swal.fire(
-                    "Use Add",
-                    "User added correctly.",
-                    "success"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "User added.",
+                });
             })
             .catch(err => {
                 console.error(err);
@@ -372,31 +370,26 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     onRemoveUserTest(e, row) {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: `Remove user '${row.id}'`,
+            message: `Are you sure you want to remove user <b>'${row.id}'</b>?`,
+            display: {
+                okButtonText: "Yes, remove user",
+            },
+            ok: () => {
                 this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [row.id]}, {action: "REMOVE"})
-                    .then(res => {
+                    .then(() => {
                         this.requestUpdate();
                         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
                         this.requestUpdate();
-                        Swal.fire(
-                            "User Removed",
-                            "User removed correctly.",
-                            "success"
-                        );
+
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: "User removed",
+                        });
                     }).catch(err => {
                         console.error(err);
                     });
-            }
+            },
         });
     }
 
@@ -419,11 +412,9 @@ export default class StudyAdminUsers extends LitElement {
                     composed: true
                 }));
 
-                Swal.fire(
-                    "User Removed",
-                    "User removed correctly.",
-                    "success"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "User removed",
+                });
             })
             .catch(err => {
                 console.error(err);
@@ -447,21 +438,18 @@ export default class StudyAdminUsers extends LitElement {
                 this.requestUpdate();
                 // this.notifyStudyUpdateRequest();
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
-                Swal.fire(
-                    "Group Add",
-                    "Group created correctly.",
-                    "success"
-                );
-            })
-            .catch(err => {
-                console.error(err);
-                params.error(err);
 
-                Swal.fire(
-                    "Group Add",
-                    err,
-                    "error"
-                );
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Group created",
+                });
+            })
+            .catch(error => {
+                console.error(error);
+                params.error(error);
+
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                    message: `Error creating group: ${error.message || error}`,
+                });
             });
     }
 

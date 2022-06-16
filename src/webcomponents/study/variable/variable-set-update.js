@@ -231,26 +231,18 @@ export default class VariableSetUpdate extends LitElement {
         e.stopPropagation();
     }
 
-    onClear(e) {
-        console.log("Clear Form");
-        Swal.fire({
-            title: "Are you sure to clear?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then(result => {
-            if (result.isConfirmed) {
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear variable set",
+            message: "Are you sure to clear?",
+            ok: () => {
                 this.variableSet = {};
                 this.requestUpdate();
-                Swal.fire(
-                    "Cleaned!",
-                    "The fields has been cleaned.",
-                    "success"
-                );
-            }
+
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "The fields has been cleaned.",
+                });
+            },
         });
     }
 
