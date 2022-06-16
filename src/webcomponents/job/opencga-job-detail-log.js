@@ -121,6 +121,7 @@ export default class OpencgaJobDetailLog extends LitElement {
     }
 
     async fetchContent(job, params = {}, append = false) {
+        const statusWithoutLogs = ["PENDING", "ABORTED", "RUNNING"];
         if (!append) {
             this.content = "";
         }
@@ -131,39 +132,44 @@ export default class OpencgaJobDetailLog extends LitElement {
         const command = params.command || this._config.command;
         // const offset = params.offset || 0;
         // console.log("request ", "command", command, "params", params, "offset", offset, "append", append);
-
-        this.opencgaSession.opencgaClient.jobs()[command + "Log"](job.id, {
-            study: this.opencgaSession.study.fqn,
-            lines: this._config.lines,
-            type: this._config.type,
-            offset: params.offset || 0,
-            ...params
-        }).then(restResponse => {
-            const result = restResponse.getResult(0);
-            if (result.content) {
+        if (!statusWithoutLogs?.includes(job?.internal?.status?.id?.toUpperCase())) {
+            this.opencgaSession.opencgaClient.jobs()[command + "Log"](job.id, {
+                study: this.opencgaSession.study.fqn,
+                lines: this._config.lines,
+                type: this._config.type,
+                offset: params.offset || 0,
+                ...params
+            }).then(restResponse => {
+                const result = restResponse.getResult(0);
+                if (result.content) {
                 // if command=tail this is the first tail call (the subsequents will be head)
-                if (command === "tail") {
-                    this.contentOffset = result.offset;
-                }
-                // append is true only in case of tail command (it has been kept as separate param to quickly have one-shot Tail call button (not live), just in case)
-                if (append) {
-                    if (this.contentOffset !== result.offset) {
-                        this.content = this.content + result.content;
+                    if (command === "tail") {
                         this.contentOffset = result.offset;
                     }
+                    // append is true only in case of tail command (it has been kept as separate param to quickly have one-shot Tail call button (not live), just in case)
+                    if (append) {
+                        if (this.contentOffset !== result.offset) {
+                            this.content = this.content + result.content;
+                            this.contentOffset = result.offset;
+                        }
+                    } else {
+                        this.content = result.content + "\n";
+                    }
                 } else {
-                    this.content = result.content + "\n";
-                }
-            } else {
                 // this.content = "No content";
-            }
-        }).catch(response => {
-            this.content = "An error occurred while fetching log.\n";
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-        }).finally(() => {
+                }
+            }).catch(response => {
+                this.content = "An error occurred while fetching log.\n";
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            }).finally(() => {
+                this.loading = false;
+                this.requestUpdate();
+            });
+        } else {
+            this.content = `Job is ${job?.internal?.status?.id}\n`;
             this.loading = false;
             this.requestUpdate();
-        });
+        }
     }
 
     onScroll(e) {
