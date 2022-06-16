@@ -440,7 +440,7 @@ export default class RestEndpoint extends LitElement {
 
     onSubmit() {
         let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
-        if (this.endpoint.method === "GET") {
+        if (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") {
             url += "sid=" + this.opencgaSession.opencgaClient._config.token;
 
             // Replace PATH params
@@ -461,7 +461,7 @@ export default class RestEndpoint extends LitElement {
             this.isLoading = true;
             this.requestUpdate();
 
-            this.restClient.call(url, {})
+            this.restClient.call(url, {method: this.endpoint.method})
                 .then(response => {
                     this.result = response.responses[0];
                 })
@@ -516,46 +516,6 @@ export default class RestEndpoint extends LitElement {
                 });
         }
 
-        if (this.endpoint.method === "DELETE") {
-
-            url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
-            url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
-            this.endpoint.parameters
-                .filter(parameter => parameter.param === "path")
-                .forEach(parameter => {
-                    url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
-                });
-
-            const data = UtilsNew.objectClone(this.data?.body);
-
-            // Remove props with empty values
-            Object.keys(this.data?.body).forEach(prop => {
-                if (data[prop] == "" && data[prop]?.length == 0) {
-                    delete data[prop];
-                }
-            });
-
-            const _options = {
-                sid: this.opencgaSession.opencgaClient._config.token,
-                token: this.opencgaSession.opencgaClient._config.token,
-                data: data,
-                method: "DELETE"
-            };
-            this.restClient.call(url, _options)
-                .then(response => {
-                    this.data.body = {};
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        message: "Endpoint successfully executed"
-                    });
-                })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                    this.requestUpdate();
-                });
-        }
     }
 
     getJsonDataForm() {
