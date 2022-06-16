@@ -78,6 +78,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.toolbarConfig = {
             ...this._config.toolbar,
             newButtonLink: "#clinical-analysis-create/",
+            showCreate: false,
             columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
         this.renderTable();

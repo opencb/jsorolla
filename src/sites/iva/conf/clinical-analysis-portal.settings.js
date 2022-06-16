@@ -23,7 +23,7 @@ const CLINICAL_ANALYSIS_PORTAL_SETTINGS = {
         // merge criterium: spread operator
         toolbar: {
             showColumns: true,
-            showCreate: true,
+            showCreate: false,
             showExport: false,
             showDownload: true,
             // columns list for the dropdown will be added in grid components based on settings.table.columns
