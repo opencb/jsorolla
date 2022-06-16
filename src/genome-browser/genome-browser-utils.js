@@ -202,8 +202,43 @@ export default class GenomeBrowserUtils {
     }
 
     // Variant tooltip text formatter
-    static variantTooltipTextFormatter(feature) {
-        return GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+    static variantTooltipTextFormatter(feature, samples) {
+        let info = GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+
+        // Check for samples
+        if (samples && samples.length > 0 && feature.studies && feature.studies.length > 0) {
+            const dpIndex = feature.studies[0].sampleDataKeys?.findIndex(v => v.toUpperCase() === "DP");
+            const samplesInfo = `
+                <div style="margin-bottom:4px;margin-top:4px;">Samples:</div>
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th style=""></th>
+                            <th style="padding-left:4px;">GT</th>
+                            <th style="padding-left:4px;">DP</th>
+                            <th style="padding-left:4px;">FILTER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${samples.map((name, index) => {
+                            const sample = feature.studies[0].samples?.[index];
+                            const file = typeof sample?.fileIndex === "number" ? feature.studies[0].files?.[sample.fileIndex] : null;
+                            return `
+                                <tr>
+                                    <td style=""><strong>${name}</strong></td>
+                                    <td style="padding-left:4px;text-align:center;">${sample?.data?.[0] || "-"}</td>
+                                    <td style="padding-left:4px;text-align:center;">${sample?.data?.[dpIndex] || "-"}</td>
+                                    <td style="padding-left:4px;text-align:center;">${file ? file?.data?.["FILTER"] : "-"}</td>
+                                </tr>
+                            `;
+                        }).join("")}
+                    </tbody>
+                </table>
+            `;
+            info = info + samplesInfo;
+        }
+
+        return info;
     }
 
     // Sample genotype tooltip title formatter

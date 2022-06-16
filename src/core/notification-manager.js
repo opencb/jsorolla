@@ -3,11 +3,11 @@ import UtilsNew from "./utilsNew.js";
 export default class NotificationManager {
 
     constructor(config) {
-        this._init(config);
+        this.#init(config);
     }
 
     // Initialize the notification manager
-    _init(config) {
+    #init(config) {
         this.config = {...this.getDefaultConfig(), ...config};
 
         // Initialize notifications parent
@@ -25,17 +25,20 @@ export default class NotificationManager {
 
         // Append notification parent to document
         document.body.appendChild(this.parent);
+
+        this.confirmationDiv = document.createElement("div");
+        document.body.appendChild(this.confirmationDiv);
     }
 
     // Display a notification alert
-    show(options) {
+    showNotification(options) {
         const type = (options.type || "info").toLowerCase();
         const alertClass = options.display?.alertClassName || this.config.display.alertClassName[type];
         const buttonClass = options.display?.buttonClassName || this.config.display.buttonClassName[type];
 
         // Generate notification element
         const element = UtilsNew.renderHTML(`
-            <div class="${alertClass} animated fadeInDown" style="display:flex;animation-duration:0.5s!important;">
+            <div class="alert ${alertClass} animated fadeInDown" style="display:flex;animation-duration:0.5s!important;">
                 ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
                         <span class="${options.icon || this.config.icons[type]}"></span>
@@ -110,7 +113,7 @@ export default class NotificationManager {
 
     // Alias to create a success notification
     success(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "success",
             display: {
                 showIcon: true,
@@ -124,7 +127,7 @@ export default class NotificationManager {
 
     // Alias to create an info notification
     info(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "info",
             display: {
                 showIcon: true,
@@ -138,7 +141,7 @@ export default class NotificationManager {
 
     // Alias to create a warning notification
     warning(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "warning",
             display: {
                 showIcon: true,
@@ -152,7 +155,7 @@ export default class NotificationManager {
 
     // Alias to create an error notification
     error(title, message) {
-        return this.show({
+        return this.showNotification({
             type: "error",
             display: {
                 showIcon: true,
@@ -172,7 +175,7 @@ export default class NotificationManager {
 
     // Register response error listener
     // This will handle all response errors from OpenCGA and display a notification if needed
-    showResponse(response) {
+    response(response) {
         // Display error response events
         if (response?.getEvents?.("ERROR")?.length) {
             response.getEvents("ERROR").forEach(error => {
@@ -193,6 +196,64 @@ export default class NotificationManager {
         }
     }
 
+    // Show a confirmation dialog
+    showConfirmation(options) {
+        const element = UtilsNew.renderHTML(`
+            <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">${options.title}</h4>
+                        </div>
+                        <div class="modal-body">
+                            ${options.message}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default cancel" data-dismiss="modal">
+                                ${options.display?.cancelButtonText || "Cancel"}
+                            </button>
+                            <button type="button" class="btn btn-primary ok" data-dismiss="modal">
+                                ${options.display?.okButtonText || "OK"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).querySelector("div.modal");
+
+        // Method to remove the confirmation element
+        const removeConfirmation = () => {
+            this.confirmationDiv.contains(element) && this.confirmationDiv.removeChild(element);
+        };
+
+        // Register cancel listeners
+        [element.querySelector("button.cancel"), element.querySelector("button.close")].forEach(el => {
+            el.addEventListener("click", () => {
+                removeConfirmation();
+
+                if (typeof options.cancel === "function") {
+                    options.cancel();
+                }
+            });
+        });
+
+        // Register submit listener
+        element.querySelector("button.ok").addEventListener("click", () => {
+            removeConfirmation();
+
+            if (typeof options.ok === "function") {
+                options.ok();
+            }
+        });
+
+        // Append confirmation and display modal
+        this.confirmationDiv.appendChild(element);
+        $(element).modal("show");
+    }
+
     // Get default config for the notification manager
     getDefaultConfig() {
         return {
@@ -206,10 +267,10 @@ export default class NotificationManager {
                 width: "600px",
                 messageMaxHeight: "200px",
                 alertClassName: {
-                    error: "alert alert-danger",
-                    info: "alert alert-info",
-                    success: "alert alert-success",
-                    warning: "alert alert-warning",
+                    error: "alert-danger",
+                    info: "alert-info",
+                    success: "alert-success",
+                    warning: "alert-warning",
                 },
                 buttonClassName: {
                     error: "btn btn-danger",

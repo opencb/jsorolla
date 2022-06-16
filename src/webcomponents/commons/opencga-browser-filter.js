@@ -100,6 +100,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "tool": "tool.id",
             "genes": "genes.id",
             "categories": "categories.name",
+            "source": "source.name",
             "tags": "tags"
         };
     }
@@ -211,6 +212,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "categories":
                 case "genes":
                 case "tags":
+                case "source":
                     content = html`
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
@@ -304,9 +306,17 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "creationDate":
                     content = html`
                         <date-filter
-                            .creationDate="${this.preparedQuery.creationDate}"
+                            .filterDate="${this.preparedQuery.creationDate}"
                             @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
                         </date-filter>
+                    `;
+                    break;
+                case "dueDate":
+                    content = html`
+                    <date-filter
+                        .filterDate="${this.preparedQuery.dueDate}"
+                        @filterChange="${e => this.onFilterChange("dueDate", e.detail.value)}">
+                    </date-filter>
                     `;
                     break;
                 default:

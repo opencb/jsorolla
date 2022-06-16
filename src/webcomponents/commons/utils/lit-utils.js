@@ -38,12 +38,19 @@ export default class LitUtils {
     */
     static dispatchCustomEvent(self, id, value, other = null, error = null, options = {bubbles: true, composed: true}) {
         const event = {
-            detail: {
-                value: value,
-                ...other
-            },
+            detail: {},
             ...options
         };
+
+        if (value !== null && typeof value !== "undefined") {
+            event.detail.value = value;
+        }
+        if (other) {
+            event.detail = {
+                ...event.detail,
+                ...other,
+            };
+        }
 
         if (error) {
             event.status = {

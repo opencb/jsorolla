@@ -32,7 +32,7 @@ export default class DateFilter extends LitElement {
 
     static get properties() {
         return {
-            creationDate: {
+            filterDate: {
                 type: String
             },
             config: {
@@ -61,8 +61,8 @@ export default class DateFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("creationDate")) {
-            this.creationDateObserver();
+        if (changedProperties.has("filterDate")) {
+            this.filterDateObserver();
         }
         if (changedProperties.has("config")) {
             this.configObserver();
@@ -73,16 +73,16 @@ export default class DateFilter extends LitElement {
 
     }
 
-    creationDateObserver() {
-        if (this.creationDate) {
-            const recent = this.creationDate.match(/(>=)(\d{4})(\d{2})(\d{2})/);
-            const [range, y1, m1, d1, y2, m2, d2] = this.creationDate.match(/(\d{4})?(\d{2})?(\d{2})?-?(\d{4})?(\d{2})?(\d{2})?/);
+    filterDateObserver() {
+        if (this.filterDate) {
+            const recent = this.filterDate.match(/(>=)(\d{4})(\d{2})(\d{2})/);
+            const [range, y1, m1, d1, y2, m2, d2] = this.filterDate.match(/(\d{4})?(\d{2})?(\d{2})?-?(\d{4})?(\d{2})?(\d{2})?/);
             if (recent) {
                 this.activeTab = "recent";
                 const [,, y, m, d] = recent;
                 const now = moment();
-                const creationDate = moment([y, m - 1, d]);
-                this.selectedRecentDays = now.diff(creationDate, "days");
+                const filterDate = moment([y, m - 1, d]);
+                this.selectedRecentDays = now.diff(filterDate, "days");
             }
 
             if (y2 || m2 || d2) {
