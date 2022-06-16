@@ -301,6 +301,13 @@ class VariantInterpreterBrowser extends LitElement {
                 id: "genome-browser",
                 name: "Genome Browser (Beta)",
                 render: (clinicalAnalysis, active, opencgaSession) => {
+                    let samples = [];
+                    if (clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+                        samples = clinicalAnalysis.family?.members?.map(m => m.samples[0].id) || [];
+                    } else {
+                        samples = clinicalAnalysis.proband.samples.map(s => s.id);
+                    }
+
                     const featuresOfInterest = [];
                     if (clinicalAnalysis.interpretation.panels.length > 0) {
                         featuresOfInterest.push({
@@ -409,9 +416,10 @@ class VariantInterpreterBrowser extends LitElement {
                                         config: {
                                             title: "Variants",
                                             query: {
-                                                sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                                                sample: samples.join(","),
                                             },
-                                            height: 120,
+                                            height: 66 + 40 * samples.length,
+                                            resizable: false,
                                         },
                                     },
                                     ...(clinicalAnalysis.proband?.samples || []).map(sample => ({
