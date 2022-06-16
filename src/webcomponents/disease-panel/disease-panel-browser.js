@@ -160,6 +160,16 @@ export default class DiseasePanelBrowser extends LitElement {
                                 resource: "DISEASE_PANEL"
                             },
                             {
+                                id: "source",
+                                name: "Source",
+                                placeholder: "Amelogenesis...",
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
+                                field: "source.name",
+                                resource: "DISEASE_PANEL"
+                            },
+                            {
                                 id: "tags",
                                 name: "Tags",
                                 description: "",

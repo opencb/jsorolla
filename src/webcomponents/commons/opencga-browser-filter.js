@@ -100,6 +100,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "tool": "tool.id",
             "genes": "genes.id",
             "categories": "categories.name",
+            "source": "source.name",
             "tags": "tags"
         };
     }
@@ -211,6 +212,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "categories":
                 case "genes":
                 case "tags":
+                case "source":
                     content = html`
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
