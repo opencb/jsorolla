@@ -68,7 +68,21 @@ export default class RestEndpoint extends LitElement {
             "object": "input-text",
         };
         this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
-        this.passwordKeys = ["password", "newPassword"];
+        // this.passwordKeys = ["password", "newPassword"];
+        // this.dateKeys = ["creationDate", "modificationDate"];
+        // includes(dataParameter.name) ? "input-password"
+        this.specialTypeKeys = inputType => {
+            const passwordKeys = ["password", "newPassword"];
+            const dateKeys = ["creationDate", "modificationDate", "dateOfBirth"];
+            if (passwordKeys.includes(inputType)) {
+                return "input-password";
+            }
+
+            if (dateKeys.includes(inputType)) {
+                return "input-date";
+            }
+            return false;
+        };
         // Type not support by the moment
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
@@ -134,7 +148,7 @@ export default class RestEndpoint extends LitElement {
                                     {
                                         name: dataParameter.name,
                                         field: "body." + dataParameter.name,
-                                        type: this.passwordKeys.includes(dataParameter.name) ?"input-password":this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
+                                        type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
                                         allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
                                         defaultValue: this.getDefaultValue(dataParameter),
                                         required: !!dataParameter.required,
@@ -151,7 +165,7 @@ export default class RestEndpoint extends LitElement {
                                     {
                                         name: `${dataParameter.parentParamName}.${dataParameter.name}`,
                                         field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
-                                        type: this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
+                                        type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
                                         allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
                                         defaultValue: this.getDefaultValue(dataParameter),
                                         required: !!dataParameter.required,
@@ -164,12 +178,12 @@ export default class RestEndpoint extends LitElement {
                         }
                     }
                     // }
-                } else { // Parameter IS NOT body
+                } else { // Parameter IS NOT body, Path and Query Params
                     this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
                         name: parameter.name,
                         field: parameter.name,
-                        type: this.paramsTypeToHtml[parameter.type],
+                        type: this.specialTypeKeys(parameter.name) || this.paramsTypeToHtml[parameter.type],
                         allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
                         defaultValue: this.getDefaultValue(parameter),
                         required: !!parameter.required,
@@ -459,7 +473,9 @@ export default class RestEndpoint extends LitElement {
                     this.requestUpdate();
                 });
         }
+
         if (this.endpoint.method === "POST") {
+
             url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
             url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
             this.endpoint.parameters
@@ -488,6 +504,47 @@ export default class RestEndpoint extends LitElement {
                     this.data.body = {};
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         // title: "New Item",
+                        message: "Endpoint successfully executed"
+                    });
+                })
+                .catch(response => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.requestUpdate();
+                });
+        }
+
+        if (this.endpoint.method === "DELETE") {
+
+            url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
+            url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+            this.endpoint.parameters
+                .filter(parameter => parameter.param === "path")
+                .forEach(parameter => {
+                    url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+                });
+
+            const data = UtilsNew.objectClone(this.data?.body);
+
+            // Remove props with empty values
+            Object.keys(this.data?.body).forEach(prop => {
+                if (data[prop] == "" && data[prop]?.length == 0) {
+                    delete data[prop];
+                }
+            });
+
+            const _options = {
+                sid: this.opencgaSession.opencgaClient._config.token,
+                token: this.opencgaSession.opencgaClient._config.token,
+                data: data,
+                method: "DELETE"
+            };
+            this.restClient.call(url, _options)
+                .then(response => {
+                    this.data.body = {};
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         message: "Endpoint successfully executed"
                     });
                 })
