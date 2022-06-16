@@ -55,6 +55,7 @@ export default class GenomeBrowserComponent extends LitElement {
         this.tracks = [];
         this.config = this.getDefaultConfig();
 
+        this.defaultRegion = "13:32996311-32996450";
         this.prevRegion = null;
     }
 
@@ -103,6 +104,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
     initGenomeBrowser() {
         const parent = this.querySelector(`div#${this._prefix}GenomeBrowser`);
+        const initialRegion = this.region || this.defaultRegion;
         const config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -110,7 +112,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
         this.genomeBrowser = new GenomeBrowser(parent, {
             width: parent.getBoundingClientRect().width || 100,
-            region: new Region(this.region),
+            region: new Region(initialRegion),
             resizable: true,
             ...config,
         });
@@ -123,7 +125,7 @@ export default class GenomeBrowserComponent extends LitElement {
         });
 
         // Save current region
-        this.prevRegion = new Region(this.region).toString();
+        this.prevRegion = new Region(initialRegion).toString();
     }
 
     // Get only overview tracks
