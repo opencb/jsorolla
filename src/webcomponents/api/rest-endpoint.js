@@ -73,7 +73,7 @@ export default class RestEndpoint extends LitElement {
         // includes(dataParameter.name) ? "input-password"
         this.specialTypeKeys = inputType => {
             const passwordKeys = ["password", "newPassword"];
-            const dateKeys = ["creationDate", "modificationDate", "dateOfBirth"];
+            const dateKeys = ["creationDate", "modificationDate", "dateOfBirth", "date"];
             if (passwordKeys.includes(inputType)) {
                 return "input-password";
             }
@@ -104,8 +104,8 @@ export default class RestEndpoint extends LitElement {
     endpointObserver() {
         this.result = "";
 
-        const isPrimitiveOrEnum = dataParameter => (!dataParameter.innerParam && !dataParameter.complex) || dataParameter.type === "enum";
-        const isObject = dataParameter => dataParameter.complex === false && dataParameter.innerParam === true;
+        const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
+        const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data) && dataParameter.type !== "List";
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
 
         // const bodyElementsFiltered = this.endpoint.parameters
@@ -125,60 +125,57 @@ export default class RestEndpoint extends LitElement {
                     body: {}
                 };
 
-                if (parameter.param === "body" && UtilsNew.isNotEmpty(parameter?.data)) {
-
-                    // Generate Body Form
-                    // UtilsNew.isNotEmpty(data)
-                    // if (UtilsNew.hasProp(parameter, "data")) {
-                    // if (UtilsNew.isNotEmpty(parameter?.data)) {
+                if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
 
                     for (const dataParameter of parameter.data) {
                         const paramType = dataParameter.type?.toLowerCase();
 
-                        // Prepare data for form
+                        // Prepare data, Use for sync between form and json
                         this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
 
-                        //
-                        if (this.paramsTypeToHtml[paramType]) {
-
-                            // Prepare input element
-                            // Here you only enter the data allowed by these conditions.
-                            if (isPrimitiveOrEnum(dataParameter)) {
-                                bodyElements.push(
-                                    {
-                                        name: dataParameter.name,
-                                        field: "body." + dataParameter.name,
-                                        type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                        allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                        defaultValue: this.getDefaultValue(dataParameter),
-                                        required: !!dataParameter.required,
-                                        display: {
-                                            helpMessage: parameter.description
-                                        }
+                        // Generate Body Form
+                        // Prepare input element
+                        // Here you only enter the data allowed by these conditions.
+                        if (isPrimitiveOrEnum(dataParameter) && this.paramsTypeToHtml[paramType]) {
+                            bodyElements.push(
+                                {
+                                    name: dataParameter.name,
+                                    field: "body." + dataParameter.name,
+                                    type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
+                                    allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
+                                    defaultValue: this.getDefaultValue(dataParameter),
+                                    required: !!dataParameter.required,
+                                    display: {
+                                        helpMessage: parameter.description
                                     }
-                                );
-                            }
+                                }
+                            );
+                        }
 
-                            // Here you only enter the data allowed by these conditions.
-                            if (isObject(dataParameter)) {
-                                bodyElements.push(
-                                    {
-                                        name: `${dataParameter.parentParamName}.${dataParameter.name}`,
-                                        field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
-                                        type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                        allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                        defaultValue: this.getDefaultValue(dataParameter),
-                                        required: !!dataParameter.required,
-                                        display: {
-                                            helpMessage: dataParameter.description
+                        // It's an object contain props data which contains elements
+                        if (isObject(dataParameter)) {
+                            for (const param of dataParameter.data) {
+                                // Basic Type Elements
+                                if (this.paramsTypeToHtml[param?.type?.toLowerCase()]) {
+                                    bodyElements.push(
+                                        {
+                                            name: `${param.parentName}.${param.name}`,
+                                            field: `body.${param.parentName}.${param.name}`,
+                                            type: this.specialTypeKeys(param.name) || this.paramsTypeToHtml[param.type?.toLowerCase()],
+                                            allowedValues: param.allowedValues?.split(/[\s,]+/) || "",
+                                            defaultValue: this.getDefaultValue(param),
+                                            required: !!param.required,
+                                            display: {
+                                                helpMessage: param.description
+                                            }
                                         }
-                                    }
-                                );
+                                    );
+                                }
                             }
                         }
                     }
-                    // }
-                } else { // Parameter IS NOT body, Path and Query Params
+                } else { // Parameter IS NOT body,
+                    //  Path and Query Params
                     this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
                         name: parameter.name,
@@ -206,14 +203,14 @@ export default class RestEndpoint extends LitElement {
             }
 
             // 2. Sort and move 'study/ to first position
-            const byStudy = (a, b) => a.name === "study" ? -1 : 1;
+            const byStudy = elm => elm.name === "study" ? -1 : 1;
             const pathElementSorted = this.#sortArray(pathElements);
             const queryElementSorted = this.#sortArray(queryElements).sort(byStudy);
             const filterElementSorted = this.#sortArray(filterElements);
             const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
             const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator ? elements : this.disabledElements(elements);
 
-            // 3. init Form
+            // 3. Init Form
             this.form = {
                 type: "form",
                 display: {
@@ -290,9 +287,9 @@ export default class RestEndpoint extends LitElement {
             // 6. Get data.body to JSON.
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
 
-            this._data = this.data;
+            this._data = UtilsNew.objectClone(this.data);
         } else {
-            // No parameters found
+            // If parameters no found
             this.form = Types.dataFormConfig({
                 type: "form",
                 display: {
@@ -300,7 +297,6 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    // buttonsVisible: this.isNotEndPointAdmin() ? true: this.isAdministrator()
                     buttonsVisible: this.isNotEndPointAdmin() || this.isAdministrator()
                 },
                 sections: [
@@ -375,12 +371,14 @@ export default class RestEndpoint extends LitElement {
     }
 
     #setDataBody(body, params) {
-        const paramType = params.type?.toLowerCase();
         const _body = body;
+        const paramValueByType = {
+            map: {},
+            list: [],
+        };
 
         // Basic Type
-        //  UtilsNew.hasProp(this.paramsTypeToHtml, paramType)
-        if (this.paramsTypeToHtml[paramType] && !params.innerParam) {
+        if (this.paramsTypeToHtml[params.type?.toLowerCase()]) {
             _body[params.name] = params.value || "";
         }
 
@@ -389,8 +387,18 @@ export default class RestEndpoint extends LitElement {
         }
 
         // Support object nested as 2nd Level
-        if (params.innerParam && !params.complex) {
-            _body[params.parentParamName] = {..._body[params.parentParamName], [params.name]: params.defaultValue || ""};
+        if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type !== "List") {
+            params.data.forEach(param => {
+                _body[param.parentName] = {..._body[param.parentName], [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""};
+            });
+        }
+
+        if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type === "List") {
+            let paramData = {};
+            params.data.forEach(param => {
+                paramData = {...paramData, [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""};
+            });
+            _body[params.name] = [paramData];
         }
 
         return _body;
@@ -433,7 +441,7 @@ export default class RestEndpoint extends LitElement {
         if (this.opencgaSession?.study && this.data?.study) {
             this.data = {study: this.opencgaSession.study.fqn};
         } else {
-            this.data = this._data;
+            this.data = UtilsNew.objectClone(this._data);
         }
         this.requestUpdate();
     }
@@ -503,7 +511,6 @@ export default class RestEndpoint extends LitElement {
                 .then(response => {
                     this.data.body = {};
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        // title: "New Item",
                         message: "Endpoint successfully executed"
                     });
                 })
@@ -680,7 +687,7 @@ export default class RestEndpoint extends LitElement {
                 render: () => {
                     return html`
                     <!-- Body Json -->
-                    <!-- <div class="pull-right" style="margin-bottom: 6px" @click=${() => this.onViewModel()}>
+                    <!-- <div class="pull-right" style="margin-bottom: 6px" @click=\${() => this.onViewModel()}>
                         <button type="button" class="btn btn-primary" >
                             Model
                         </button>
