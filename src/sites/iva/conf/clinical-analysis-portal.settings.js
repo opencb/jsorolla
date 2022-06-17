@@ -5,7 +5,7 @@ const CLINICAL_ANALYSIS_PORTAL_SETTINGS = {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
             {
-                filters: ["id", "family", "proband", "sample", "status", "priority", "type", "date"],
+                filters: ["id", "family", "proband", "sample", "status", "priority", "type", "creationDate", "dueDate"],
             },
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
@@ -23,7 +23,7 @@ const CLINICAL_ANALYSIS_PORTAL_SETTINGS = {
         // merge criterium: spread operator
         toolbar: {
             showColumns: true,
-            showCreate: true,
+            showCreate: false,
             showExport: false,
             showDownload: true,
             // columns list for the dropdown will be added in grid components based on settings.table.columns

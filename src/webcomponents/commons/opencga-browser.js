@@ -67,6 +67,7 @@ export default class OpencgaBrowser extends LitElement {
 
     #init() {
         this._prefix = "facet" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
 
         this.query = {};
         this.preparedQuery = {};
@@ -141,8 +142,13 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     configObserver() {
-        if (this.config?.views) {
-            const defaultActiveView = this.config.views.find(view => view.active);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        if (this._config?.views) {
+            const defaultActiveView = this._config.views.find(view => view.active);
             if (defaultActiveView) {
                 this.activeView = defaultActiveView.id;
             }
@@ -191,7 +197,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onQueryFilterChange(e) {
-        // console.log("onQueryFilterChange")
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -248,15 +253,15 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderView() {
-        if (!this.config.views) {
+        if (!this._config.views) {
             return html`No view has been configured`;
         }
 
-        return this.config.views.map(view => html`
+        return this._config.views.map(view => html`
             <div id="${view.id}" class="content-tab ${this.activeView === view.id ? "active" : ""}">
                 ${view.render({
                     opencgaSession: this.opencgaSession,
-                    config: this.config,
+                    config: this._config,
                     executedQuery: this.executedQuery,
                     detail: this.detail,
                     resource: this.resource,
@@ -271,13 +276,13 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderfilter() {
-        if (this.config.filter.render) {
+        if (this._config.filter.render) {
             // TODO can this be deleted?
             return html`
                 <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                    ${this.config.filter.render({
+                    ${this._config.filter.render({
                         opencgaSession: this.opencgaSession,
-                        config: this.config,
+                        config: this._config,
                         query: this.query,
                         onQueryFilterChange: this.onQueryFilterChange,
                         onQueryFilterSearch: this.onQueryFilterSearch,
@@ -292,7 +297,7 @@ export default class OpencgaBrowser extends LitElement {
                         .resource="${this.resource}"
                         .opencgaSession="${this.opencgaSession}"
                         .cellbaseClient="${this.cellbaseClient}"
-                        .config="${this.config.filter}"
+                        .config="${this._config.filter}"
                         @queryChange="${this.onQueryFilterChange}"
                         @querySearch="${this.onQueryFilterSearch}">
                     </opencga-browser-filter>
@@ -302,14 +307,14 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderAggregation() {
-        if (typeof this.config?.aggregation?.render !== "function") {
+        if (typeof this._config?.aggregation?.render !== "function") {
             return html`${nothing}`;
         }
 
         return html `
             <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                ${this.config.aggregation.render({
-                    config: this.config,
+                ${this._config.aggregation.render({
+                    config: this._config,
                     selectedFacet: this.selectedFacet,
                     onFacetQueryChange: this.onFacetQueryChange,
                 })}
@@ -320,7 +325,7 @@ export default class OpencgaBrowser extends LitElement {
     renderButtonViews() {
         return html `
             <div class="content-pills" role="toolbar" aria-label="toolbar">
-                ${(this.config.views || []).map(view => html`
+                ${(this._config.views || []).map(view => html`
                     <button
                         type="button"
                         class="btn btn-success ${this.activeView === view.id ? "active" : ""}"
@@ -345,23 +350,25 @@ export default class OpencgaBrowser extends LitElement {
         }
 
         return html`
-            <tool-header
-                .title="${this.config.title}"
-                .icon="${this.config.icon}">
-            </tool-header>
+            ${this._config.showHeader ? html`
+                <tool-header
+                    .title="${this._config.title}"
+                    .icon="${this._config.icon}">
+                </tool-header>
+            ` : null}
             <div class="row">
                 <div class="col-md-2">
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
-                            <strong>${this.config.searchButtonText || "Search"}</strong>
+                            <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                         <li role="presentation" class="active">
                             <a href="#filters_tab" aria-controls="filter" role="tab" data-toggle="tab">Filters</a>
                         </li>
-                        ${this.config.aggregation ? html`
+                        ${this._config.aggregation ? html`
                             <li role="presentation">
                                 <a href="#facet_tab" aria-controls="aggregation" role="tab" data-toggle="tab">Aggregation</a>
                             </li>
@@ -385,8 +392,8 @@ export default class OpencgaBrowser extends LitElement {
                             .facetQuery="${this.preparedFacetQueryFormatted}"
                             .executedFacetQuery="${this.executedFacetQueryFormatted}"
                             .alias="${this.activeFilterAlias}"
-                            .config="${this.config.activeFilters}"
-                            .filters="${this.config.filter.examples}"
+                            .config="${this._config.activeFilters}"
+                            .filters="${this._config.filter.examples}"
                             @activeFilterChange="${this.onActiveFilterChange}"
                             @activeFilterClear="${this.onActiveFilterClear}"
                             @activeFacetChange="${this.onActiveFacetChange}"
@@ -402,6 +409,13 @@ export default class OpencgaBrowser extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            showHeader: true,
+            searchButtonText: "Search",
+        };
     }
 
 }

@@ -16,8 +16,16 @@
 
 import {LitElement, html} from "lit";
 import "./clinical-analysis-browser.js";
+import "./clinical-analysis-create.js";
+import "../disease-panel/disease-panel-browser.js";
+import "../commons/tool-header.js";
 
 export default class ClinicalAnalysisPortal extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -34,6 +42,41 @@ export default class ClinicalAnalysisPortal extends LitElement {
         };
     }
 
+    #init() {
+        this._config = this.getDefaultConfig();
+        this.currentView = this._config.views[0].id;
+    }
+
+    #onViewChange(newView) {
+        this.currentView = newView;
+        this.requestUpdate();
+    }
+
+    renderToolbarButtons() {
+        return html`
+            <div>
+                ${this._config.views.map(view => html`
+                    <button
+                        class="${`btn btn-default ${this.currentView === view.id ? "active" : ""}`}"
+                        @click="${() => this.#onViewChange(view.id)}">
+                        ${view.icon ? html`
+                            <i class="${`fas ${view.icon} icon-padding`}"></i>
+                        ` : null}
+                        <strong>${view.name}</strong>
+                    </button>
+                `)}
+            </div> 
+        `;
+    }
+
+    renderViewTitle(title) {
+        return html`
+            <div style="margin-top:32px;margin-bottom:24px;">
+                <h2 style="font-weight:bold;">${title}</h2>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession) {
             return html`
@@ -45,11 +88,76 @@ export default class ClinicalAnalysisPortal extends LitElement {
         }
 
         return html`
-            <clinical-analysis-browser
-                .opencgaSession="${this.opencgaSession}"
-                .settings="${this.settings}">
-            </clinical-analysis-browser>
+            <tool-header
+                .title="${this.settings?.title || "Case Portal"}"
+                .icon="${this.settings?.icon || ""}"
+                .rhs="${this.renderToolbarButtons()}">
+            </tool-header>
+            <div class="tab-content">
+                ${this._config.views.map(view => html`
+                    <div role="tabpanel" class="${`tab-pane ${this.currentView === view.id ? "active" : ""}`}">
+                        ${view.display?.titleVisible ? this.renderViewTitle(view.name) : null}
+                        ${view.render()}
+                    </div>
+                `)}
+            </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            views: [
+                {
+                    id: "case-explorer",
+                    name: "Case Explorer",
+                    icon: "fa-window-restore",
+                    display: {
+                        titleVisible: true,
+                    },
+                    render: () => html`
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this.settings}"
+                            .config="${{
+                                showHeader: false,
+                            }}">
+                        </clinical-analysis-browser>
+                    `,
+                },
+                {
+                    id: "panel-explorer",
+                    name: "Disease Panel Explorer",
+                    icon: "fa-search-plus",
+                    display: {
+                        titleVisible: true,
+                    },
+                    render: () => html`
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{
+                                showHeader: false,
+                            }}">
+                        </disease-panel-browser>
+                    `,
+                },
+                {
+                    id: "case-create",
+                    name: "New Case",
+                    icon: "fa-plus",
+                    display: {
+                        titleVisible: false,
+                    },
+                    render: () => html`
+                        <div class="content container">
+                            ${this.renderViewTitle("New Case")}
+                            <clinical-analysis-create
+                                .opencgaSession="${this.opencgaSession}">
+                            </clinical-analysis-create>
+                        </div>
+                    `,
+                },
+            ],
+        };
     }
 
 }

@@ -84,7 +84,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
             analyst: {
                 id: this.opencgaSession?.user?.id
             },
-            // dueDate: moment().format("YYYYMMDDHHmmss"),
             _users: this._users,
             comments: []
         };
@@ -247,6 +246,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     onClear() {
         this.initClinicalAnalysis();
+        // This reset all date elements such as dueDate, check TASK-340
+        Array.from(this.querySelectorAll('input[type="date"]')).forEach(el => el.value = "");
         this.requestUpdate();
     }
 
@@ -551,7 +552,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             render: individual => html`
                                                 <div style="font-weight: bold">${individual.id}</div>
                                                 <div class="help-block">
-                                                    ${individual.sex?.id || individual.sex || "Not specified"} (${individual.karyotypicSex || "Not specified"})
+                                                    ${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex} (${individual.karyotypicSex || "Not specified"})
                                                 </div>
                                             `,
                                         },
@@ -713,16 +714,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "dueDate",
                             type: "input-date",
                         },
-                        // {
-                        //     title: "Comment",
-                        //     field: "comments",
-                        //     type: "input-text",
-                        //     defaultValue: "",
-                        //     display: {
-                        //         rows: 2,
-                        //         placeholder: "Initial comment...",
-                        //     },
-                        //
                         {
                             title: "Comments",
                             field: "comments",

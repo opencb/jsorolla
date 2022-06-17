@@ -22,6 +22,8 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import "../filters/clinical-priority-filter.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
+// Rodiel 2022-06-22 NOTE: DEPRECATED
+// Use clinical-analysis-create & clinical-analysis-update
 export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
     constructor() {

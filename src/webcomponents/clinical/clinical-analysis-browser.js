@@ -37,30 +37,29 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             query: {
-                type: Object
+                type: Object,
             },
             settings: {
-                type: Object
-            }
+                type: Object,
+            },
+            config: {
+                type: Object,
+            },
         };
     }
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
         this._config = this.getDefaultConfig();
     }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
 
@@ -71,7 +70,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         const defaultConfig = this.getDefaultConfig();
         this._config = {
             ...defaultConfig,
-            ...this.settings,
+            ...(this.settings || {}),
+            ...(this.config || {})
         };
 
         // merge filter list, canned filters, detail tabs
@@ -198,8 +198,13 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "date",
-                                name: "Date",
+                                id: "creationDate",
+                                name: "Creation Date",
+                                description: ""
+                            },
+                            {
+                                id: "dueDate",
+                                name: "Due Date",
                                 description: ""
                             }
                         ]
