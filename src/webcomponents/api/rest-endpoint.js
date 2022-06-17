@@ -53,6 +53,7 @@ export default class RestEndpoint extends LitElement {
         this.data = {};
         this._data = {};
         this.dataJson = {};
+        this.dataForm = {body: {}};
         this.form = {};
         this.methodColor = {
             "GET": "blue",
@@ -409,6 +410,7 @@ export default class RestEndpoint extends LitElement {
         e.stopPropagation();
         const param = field || e.detail.param;
 
+        // For Json input: param is called body
         if (param === "body") {
             this.dataJson = {...this.dataJson, body: e.detail.value};
             try {
@@ -419,17 +421,20 @@ export default class RestEndpoint extends LitElement {
                     }
                 });
             } catch (error) {
+                // json parse errors may arise at the time of writing to the json field.
                 return false;
             }
         } else {
             // If it contains more than a dot or If the form has nested object
-            // ex. body.field.pro -> sample: body.source.name
+            // ex. body.field.prop -> sample: body.source.name
             if ((param.match(/\./g)||[]).length > 1) {
                 // For param type Object
                 const paramBody = param.replace("body.", "");
                 this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
+                this.dataForm.body = {...FormUtils.createObject(this.dataForm.body, paramBody, e.detail.value)};
             } else {
                 this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
+                this.dataForm = {...FormUtils.createObject(this.dataForm, param, e.detail.value)};
             }
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
         }
@@ -491,21 +496,13 @@ export default class RestEndpoint extends LitElement {
                     url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
                 });
 
-            const data = UtilsNew.objectClone(this.data?.body);
-                debugger
-            // Remove props with empty values
-            Object.keys(this.data?.body).forEach(prop => {
-                if (data[prop] == "" && data[prop]?.length == 0) {
-                    delete data[prop];
-                }
-            });
-
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: data,
+                data: this.dataForm?.body,
                 method: "POST"
             };
+
             this.restClient.call(url, _options)
                 .then(response => {
                     this.data.body = {};
