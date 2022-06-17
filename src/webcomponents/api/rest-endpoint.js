@@ -468,7 +468,6 @@ export default class RestEndpoint extends LitElement {
 
             this.isLoading = true;
             this.requestUpdate();
-
             this.restClient.call(url, {method: this.endpoint.method})
                 .then(response => {
                     this.result = response.responses[0];
@@ -493,7 +492,7 @@ export default class RestEndpoint extends LitElement {
                 });
 
             const data = UtilsNew.objectClone(this.data?.body);
-
+                debugger
             // Remove props with empty values
             Object.keys(this.data?.body).forEach(prop => {
                 if (data[prop] == "" && data[prop]?.length == 0) {
@@ -515,7 +514,14 @@ export default class RestEndpoint extends LitElement {
                     });
                 })
                 .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    // Sometimes response is an instance of an String
+                    if (typeof(response) == "string") {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                            message: response
+                        });
+                    } else {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    }
                 })
                 .finally(() => {
                     this.isLoading = false;

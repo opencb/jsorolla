@@ -88,7 +88,7 @@ export default class RestApi extends LitElement {
         // Experimental dynamic height
         const endpointPanel = document.querySelector("#rest-endpoint-panel");
         const endpointList = document.getElementById("rest-list");
-        endpointList.style.maxHeight = endpointPanel?.clientHeight > 800? endpointPanel?.clientHeight + "px": "800px";
+        endpointList.style.maxHeight = endpointPanel?.clientHeight > 1000? endpointPanel?.clientHeight + "px": "1000px";
 
     }
 
