@@ -454,6 +454,11 @@ export default class FeatureTrack {
     }
 
     getDataHandler(response, request) {
+        // Display content and hide error message
+        this.main.style.display = "block";
+        this.content.style.display = "block";
+        this.error.style.display = "none";
+
         // Check if responses is an array (multiple calls) or a single element (single call)
         let data = [];
         if (response && Array.isArray(response)) {

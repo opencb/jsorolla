@@ -114,25 +114,17 @@ export default class VariableSetCreate extends LitElement {
     // }
 
 
-    onClear(e) {
-        Swal.fire({
-            title: "Are you sure to clear?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear variable set",
+            message: "Are you sure to clear?",
+            ok: () => {
                 this.variableSet = {};
                 this.requestUpdate();
-                Swal.fire(
-                    "Cleaned!",
-                    "The fields has been cleaned.",
-                    "success"
-                );
+
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "The fields has been cleaned.",
+                });
             }
         });
     }
@@ -170,20 +162,16 @@ export default class VariableSetCreate extends LitElement {
         }
     }
 
-    onSubmit(e) {
-        Swal.fire({
-            title: "Are you sure to create?",
-            text: "You won't be able to modify this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, save it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
+    onSubmit() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Create new variable set",
+            message: "Are you sure to create?",
+            dispatch: {
+                okButtonText: "Yes, save it!",
+            },
+            ok: () => {
                 this.saveData();
-            }
+            },
         });
     }
 
