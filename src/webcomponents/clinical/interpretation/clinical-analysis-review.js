@@ -26,7 +26,7 @@ import "../../variant/interpretation/variant-interpreter-grid.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-view.js";
 
-export default class ClinicalInterpretationReview extends LitElement {
+export default class ClinicalAnalysisReview extends LitElement {
 
     constructor() {
         super();
@@ -548,5 +548,5 @@ export default class ClinicalInterpretationReview extends LitElement {
 
 }
 
-customElements.define("clinical-interpretation-review", ClinicalInterpretationReview);
+customElements.define("clinical-analysis-review", ClinicalAnalysisReview);
 

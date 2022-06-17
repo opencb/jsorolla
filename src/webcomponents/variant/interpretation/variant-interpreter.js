@@ -307,11 +307,11 @@ class VariantInterpreter extends LitElement {
                                 class="bg-white"
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
-                            <clinical-interpretation-review
+                            <clinical-analysis-review
                                 @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}">
-                            </clinical-interpretation-review>
+                            </clinical-analysis-review>
                         </div>
                     `;
                     }
