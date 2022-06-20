@@ -166,6 +166,17 @@ export default class SignatureView extends LitElement {
             },
         };
 
+        const groups = {
+            "clustered": {
+                bgColor: "#000",
+                textColor: "#fff",
+            },
+            "non-clustered": {
+                bgColor: "#f0f0f0",
+                textColor: "#000",
+            },
+        };
+
         counts.forEach(count => {
             if (count) {
                 if (this.mode === "SBS") {
@@ -184,10 +195,51 @@ export default class SignatureView extends LitElement {
 
             const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
             let lastWidth = 0;
+            let lastGroup = null;
+            let lastGroupWidth = 0;
 
             Object.keys(dataset).forEach(k => {
                 if (dataset[k].data.length === 0) {
                     return null;
+                }
+
+                // Display group
+                if (dataset[k].group && lastGroup !== dataset[k].group) {
+                    const group = dataset[k].group;
+                    const groupLength = Object.values(dataset).reduce((sum, item) => {
+                        return item.group === group ? sum + item.data.length : sum;
+                    }, 0);
+                    const groupWidth = groupLength * (chart.plotWidth / totalLength);
+                    const groupHeight = 20;
+                    const groupPosition = 10;
+
+                    // Render group background
+                    chart.renderer
+                        .rect(chart.plotLeft + lastGroupWidth, groupPosition, groupWidth, groupHeight, 0)
+                        .attr({
+                            fill: groups[group].bgColor,
+                            zIndex: 2,
+                        })
+                        .addClass("rect")
+                        .add();
+
+                    // Render group label
+                    chart.renderer
+                        .text(group, chart.plotLeft + lastGroupWidth + groupWidth / 2, groupPosition + groupHeight / 2)
+                        .css({
+                            color: groups[group].textColor,
+                            fontSize: "13px",
+                        })
+                        .attr({
+                            "dominant-baseline": "middle",
+                            "text-anchor": "middle",
+                            "zIndex": 3,
+                        })
+                        .addClass("rect-label")
+                        .add();
+
+                    lastGroup = group;
+                    lastGroupWidth = lastGroupWidth + groupWidth;
                 }
 
                 const width = dataset[k].data.length * (chart.plotWidth / totalLength);
