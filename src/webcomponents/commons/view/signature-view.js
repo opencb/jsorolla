@@ -190,8 +190,8 @@ export default class SignatureView extends LitElement {
         });
 
         const addRects = function (chart) {
-            $(".rect", this).remove();
-            $(".rect-label", this).remove();
+            $(".rect", chart.renderTo).remove();
+            $(".rect-label", chart.renderTo).remove();
 
             const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
             const top = mode.toUpperCase() === "SBS" ? 0 : chart.plotTop + chart.plotHeight;
