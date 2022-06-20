@@ -167,8 +167,10 @@ export default class SignatureView extends LitElement {
             $(".rect-label", this).remove();
             let lastStart = 0;
             Object.keys(dataset).forEach(k => {
-                // console.log("chart.categories", chart.xAxis)
-                // console.log("k", dataset[k].data.length)
+                if (dataset[k].data.length === 0) {
+                    return null;
+                }
+
                 const xAxis = chart.xAxis[0];
                 chart.renderer.rect(xAxis.toPixels(lastStart), 30, xAxis.toPixels(dataset[k].data.length) - xAxis.toPixels(1), 10, 0)
                     .attr({
