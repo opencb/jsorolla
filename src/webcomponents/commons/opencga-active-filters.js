@@ -359,16 +359,10 @@ export default class OpencgaActiveFilters extends LitElement {
                         options: {}
                     };
 
-                    Swal.fire({
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
                         title: "Are you sure?",
-                        text: "A Filter with the same name is already present. You are going to overwrite it.",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "Yes"
-                    }).then(result => {
-                        if (result.value) {
+                        message: "A Filter with the same name is already present. You are going to overwrite it.",
+                        ok: () => {
                             this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                                 .then(response => {
                                     if (response?.getEvents?.("ERROR")?.length) {
@@ -391,7 +385,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 }).catch(response => {
                                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                                 });
-                        }
+                        },
                     });
 
                 } else {
@@ -474,16 +468,10 @@ export default class OpencgaActiveFilters extends LitElement {
 
     serverFilterDelete(e) {
         const {filterId} = e.currentTarget.dataset;
-        Swal.fire({
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: "Are you sure?",
-            text: "The filter will be deleted. The operation cannot be reverted.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes"
-        }).then(result => {
-            if (result.value) {
+            message: "The filter will be deleted. The operation cannot be reverted.",
+            ok: () => {
                 const data = {
                     id: filterId,
                     resource: this.resource,
@@ -500,7 +488,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
-            }
+            },
         });
     }
 

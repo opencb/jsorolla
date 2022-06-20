@@ -210,7 +210,6 @@ export default class VariantBrowserGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => {
-                    // console.log(row)
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
                 },
                 onDblClickRow: (row, element, field) => {
@@ -900,7 +899,7 @@ export default class VariantBrowserGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">

@@ -78,6 +78,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.toolbarConfig = {
             ...this._config.toolbar,
             newButtonLink: "#clinical-analysis-create/",
+            showCreate: false,
             columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
         this.renderTable();
@@ -347,17 +348,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
     onActionClick(e, _, row) {
         const {action} = e.currentTarget.dataset;
         if (action === "delete") {
-            // TODO we need to remove SWAL soon.
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, delete it!"
-            }).then(result => {
-                if (result.value) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: `Delete case '${row.id}'`,
+                message: `Are you sure you want to delete case <b>'${row.id}'</b>?`,
+                display: {
+                    okButtonText: "Yes, delete it",
+                },
+                ok: () => {
                     const clinicalAnalysisId = row.id;
                     this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
                         study: this.opencgaSession.study.fqn,
@@ -375,7 +372,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
-                }
+                },
             });
         }
 
@@ -600,6 +597,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
 
+                    const isOwnOrIsLocked = row.locked || this.opencgaSession?.user?.id !== row.analyst?.id ? "disabled" : "";
+
                     // Generate actions dropdown
                     return `
                         <div class="dropdown" align="center">
@@ -632,7 +631,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                     </li>
                                     <!-- Delete the case -->
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                        <a href="javascript: void 0" class="${isOwnOrIsLocked} btn force-text-left" data-action="delete">
                                             <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                         </a>
                                     </li>

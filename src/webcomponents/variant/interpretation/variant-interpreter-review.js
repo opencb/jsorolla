@@ -19,7 +19,7 @@ import "./variant-interpreter-review-primary.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../clinical/interpretation/clinical-interpretation-editor.js";
 import "../../commons/view/detail-tabs.js";
-import "../../clinical/interpretation/clinical-interpretation-review.js";
+import "../../clinical/interpretation/clinical-analysis-review";
 
 
 export default class VariantInterpreterReview extends LitElement {
