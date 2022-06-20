@@ -194,6 +194,7 @@ export default class SignatureView extends LitElement {
             $(".rect-label", this).remove();
 
             const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
+            const top = mode.toUpperCase() === "SBS" ? 0 : chart.plotTop + chart.plotHeight;
             let lastWidth = 0;
             let lastGroup = null;
             let lastGroupWidth = 0;
@@ -211,7 +212,7 @@ export default class SignatureView extends LitElement {
                     }, 0);
                     const groupWidth = groupLength * (chart.plotWidth / totalLength);
                     const groupHeight = 20;
-                    const groupPosition = 10;
+                    const groupPosition = top + 22;
 
                     // Render group background
                     chart.renderer
@@ -244,7 +245,8 @@ export default class SignatureView extends LitElement {
 
                 const width = dataset[k].data.length * (chart.plotWidth / totalLength);
                 const height = 20;
-                const position = 30;
+                const position = top + 2;
+
                 chart.renderer
                     .rect(chart.plotLeft + lastWidth, position, width, height, 0)
                     .attr({
@@ -285,7 +287,7 @@ export default class SignatureView extends LitElement {
                         addRects(this);
                     }
                 },
-                marginTop: 70
+                marginTop: this.mode.toUpperCase() === "SBS" ? 30 : 10,
             },
             credits: {
                 enabled: false
@@ -320,7 +322,8 @@ export default class SignatureView extends LitElement {
                         }
                         // const {pair, letter} = substitutionClass(this.value);
                         // return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
-                    }
+                    },
+                    y: this.mode.toUpperCase() === "SBS" ? 10 : 50,
                 }
             },
             colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
