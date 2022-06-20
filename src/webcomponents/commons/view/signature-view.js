@@ -74,6 +74,7 @@ export default class SignatureView extends LitElement {
             return;
         }
 
+        const mode = this.mode;
         const counts = this.signature.counts;
         const categories = counts.map(point => point?.context);
         const data = counts.map(point => point?.total);
@@ -115,38 +116,53 @@ export default class SignatureView extends LitElement {
                 color: "#edc8c5",
                 data: []
             },
-
             "clustered_del": {
                 color: "#31bef0",
-                data: []
+                data: [],
+                label: "del",
+                group: "clustered",
             },
             "clustered_tds": {
                 color: "#000000",
-                data: []
+                data: [],
+                label: "tds",
+                group: "clustered",
             },
             "clustered_inv": {
                 color: "#e62725",
-                data: []
+                data: [],
+                label: "inv",
+                group: "clustered",
             },
             "clustered_trans": {
                 color: "#cbcacb",
-                data: []
+                data: [],
+                label: "tr",
+                group: "clustered",
             },
             "non-clustered_del": {
                 color: "#31bef0",
-                data: []
+                data: [],
+                label: "del",
+                group: "non-clustered",
             },
             "non-clustered_tds": {
                 color: "#000000",
-                data: []
+                data: [],
+                label: "tds",
+                group: "non-clustered",
             },
             "non-clustered_inv": {
                 color: "#e62725",
-                data: []
+                data: [],
+                label: "inv",
+                group: "non-clustered",
             },
             "non-clustered_trans": {
                 color: "#cbcacb",
-                data: []
+                data: [],
+                label: "tr",
+                group: "non-clustered",
             },
         };
 
@@ -165,34 +181,42 @@ export default class SignatureView extends LitElement {
         const addRects = function (chart) {
             $(".rect", this).remove();
             $(".rect-label", this).remove();
-            let lastStart = 0;
+
+            const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
+            let lastWidth = 0;
+
             Object.keys(dataset).forEach(k => {
                 if (dataset[k].data.length === 0) {
                     return null;
                 }
 
-                const xAxis = chart.xAxis[0];
-                chart.renderer.rect(xAxis.toPixels(lastStart), 30, xAxis.toPixels(dataset[k].data.length) - xAxis.toPixels(1), 10, 0)
+                const width = dataset[k].data.length * (chart.plotWidth / totalLength);
+                const height = 20;
+                const position = 30;
+                chart.renderer
+                    .rect(chart.plotLeft + lastWidth, position, width, height, 0)
                     .attr({
                         fill: dataset[k].color,
                         zIndex: 2
-                    }).addClass("rect")
+                    })
+                    .addClass("rect")
                     .add();
 
-                // for some reason toPixels(lastStart + dataset[k].data.length / 2) isn't centered
-                chart.renderer.label(k, xAxis.toPixels(lastStart - 4 + dataset[k].data.length / 2), 0, "")
+                chart.renderer
+                    .text(dataset[k].label || k, chart.plotLeft + lastWidth + width / 2, position + height / 2)
                     .css({
-                        color: "#000",
-                        fontSize: "13px"
+                        color: "#fff",
+                        fontSize: "13px",
                     })
                     .attr({
-                        padding: 8,
-                        r: 5,
-                        zIndex: 3
-                    }).addClass("rect-label")
+                        "dominant-baseline": "middle",
+                        "text-anchor": "middle",
+                        "zIndex": 3,
+                    })
+                    .addClass("rect-label")
                     .add();
 
-                lastStart += dataset[k].data.length;
+                lastWidth = lastWidth + width;
             });
         };
 
