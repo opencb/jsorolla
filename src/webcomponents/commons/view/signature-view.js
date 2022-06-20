@@ -74,7 +74,7 @@ export default class SignatureView extends LitElement {
             return;
         }
 
-        const mode = this.mode;
+        const mode = this.mode.toUpperCase();
         const counts = this.signature.counts;
         const categories = counts.map(point => point?.context);
         const data = counts.map(point => point?.total);
@@ -194,14 +194,14 @@ export default class SignatureView extends LitElement {
             $(".rect-label", chart.renderTo).remove();
 
             const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
-            const top = mode.toUpperCase() === "SBS" ? 0 : chart.plotTop + chart.plotHeight;
+            const top = mode === "SBS" ? 50 : chart.plotTop + chart.plotHeight;
             let lastWidth = 0;
             let lastGroup = null;
             let lastGroupWidth = 0;
 
             Object.keys(dataset).forEach(k => {
                 if (dataset[k].data.length === 0) {
-                    return null;
+                    return;
                 }
 
                 // Display group
@@ -275,7 +275,9 @@ export default class SignatureView extends LitElement {
         };
 
         $(`#${this._prefix}SignatureCountsPlot`).highcharts({
-            title: "title",
+            title: {
+                text: `${counts.reduce((c, s) => c + s.total, 0)} ${mode === "SBS" ? "Substitutions" : "Rearrangements"}`,
+            },
             chart: {
                 height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
                 type: "column",
@@ -287,7 +289,7 @@ export default class SignatureView extends LitElement {
                         addRects(this);
                     }
                 },
-                marginTop: this.mode.toUpperCase() === "SBS" ? 30 : 10,
+                marginTop: mode === "SBS" ? 80 : 50,
             },
             credits: {
                 enabled: false
@@ -310,14 +312,14 @@ export default class SignatureView extends LitElement {
                 labels: {
                     rotation: -90,
                     formatter: data => {
-                        if (this.mode === "SBS") {
+                        if (mode === "SBS") {
                             const {pair, letter} = substitutionClass(data.value);
                             return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         } else {
                             return data.value.split("_")[2];
                         }
                     },
-                    y: this.mode.toUpperCase() === "SBS" ? 10 : 50,
+                    y: mode === "SBS" ? 10 : 50,
                 }
             },
             colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
@@ -396,9 +398,6 @@ export default class SignatureView extends LitElement {
                 ${this.signature && this.plots ? html`
 
                     ${this.plots.includes("counts") ? html `
-                        <div style="margin: 10px">
-                            <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
-                        </div>
                         <div id="${this._prefix}SignatureCountsPlot"></div>
                     ` : null}
 
