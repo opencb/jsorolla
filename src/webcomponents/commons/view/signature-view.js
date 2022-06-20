@@ -317,11 +317,8 @@ export default class SignatureView extends LitElement {
                             const {pair, letter} = substitutionClass(data.value);
                             return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         } else {
-                            const {pair, letter} = rearragementClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
+                            return data.value.split("_")[2];
                         }
-                        // const {pair, letter} = substitutionClass(this.value);
-                        // return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
                     },
                     y: this.mode.toUpperCase() === "SBS" ? 10 : 50,
                 }
