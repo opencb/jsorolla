@@ -394,7 +394,7 @@ export default class SignatureView extends LitElement {
         }
 
         return html`
-            <div style="height: ${this._config.height}px">
+            <div>
                 <i data-fa-symbol="external-link" class="fas fa-fw fa-external-link"></i>
                 ${this.signature && this.plots ? html`
 
