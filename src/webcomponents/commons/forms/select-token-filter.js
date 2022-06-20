@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../forms/file-upload.js";
 
 /**
@@ -177,13 +178,14 @@ export default class SelectTokenFilter extends LitElement {
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
         const selection = this.select.select2("data").map(el => el.id).join(",");
-        console.log("filterChange", selection);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: selection
-            }
-        });
-        this.dispatchEvent(event);
+        // console.log("filterChange", selection);
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection);
+        // const event = new CustomEvent("filterChange", {
+        //     detail: {
+        //         value: selection
+        //     }
+        // });
+        // this.dispatchEvent(event);
     }
 
     toggleFileUpload(e) {
