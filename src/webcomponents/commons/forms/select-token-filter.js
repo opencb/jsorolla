@@ -63,8 +63,9 @@ export default class SelectTokenFilter extends LitElement {
         this.select.select2({
             tags: this._config.freeTag === true,
             multiple: this._config.multiple ?? true,
-            width: "style",
-            allowClear: true,
+            // https://select2.org/appearance#container-width
+            width: this._config.width ?? "style",
+            allowClear: this._config.allowClear ?? true,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             ajax: {
@@ -104,7 +105,7 @@ export default class SelectTokenFilter extends LitElement {
             templateSelection: item => {
                 return item.id ?? item.text;
             },
-            ...this._config.select2Config
+            ...this._config
         })
             .on("select2:select", e => {
                 this.filterChange(e);
