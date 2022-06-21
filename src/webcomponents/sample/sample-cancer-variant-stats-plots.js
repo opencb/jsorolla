@@ -258,9 +258,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                 <div style="padding-top: 20px">
                                     <h2>Rearrangements Stats</h2>
                                     <div class="">
-                                        <h3>${this.aggregationStatsResults?.[0].count} rearrangements</h3>
                                         <simple-chart
-                                            title="Type"
+                                            .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
                                             xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
