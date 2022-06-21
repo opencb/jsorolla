@@ -407,18 +407,6 @@ export default class RestEndpoint extends LitElement {
         return _body;
     }
 
-    #jsonToObject() {
-        let jsonObject = {};
-        try {
-            jsonObject = JSON.parse(this.dataJson.body);
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: error
-            });
-        }
-        return jsonObject;
-    }
-
     onChangeJsonField(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
@@ -453,11 +441,11 @@ export default class RestEndpoint extends LitElement {
             this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
             this.dataForm = {...FormUtils.createObject(this.dataForm, param, e.detail.value)};
         }
-        this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
         this.requestUpdate();
     }
 
-    onClear() {
+    onClear(e) {
+        e.stopPropagation();
         this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
         this.dataForm = {};
         this.data = UtilsNew.objectClone(this._data);
@@ -502,49 +490,56 @@ export default class RestEndpoint extends LitElement {
                 url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
             });
 
-        const _options = {
-            sid: this.opencgaSession.opencgaClient._config.token,
-            token: this.opencgaSession.opencgaClient._config.token,
-            data: isForm? this.dataForm?.body : this.#jsonToObject(),
-            method: "POST"
-        };
+        try {
+            const _options = {
+                sid: this.opencgaSession.opencgaClient._config.token,
+                token: this.opencgaSession.opencgaClient._config.token,
+                data: isForm? this.dataForm?.body : JSON.parse(this.dataJson.body),
+                method: "POST"
+            };
 
-        this.isLoading = true;
-        this.requestUpdate();
-        this.restClient.call(url, _options)
-            .then(response => {
-                this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
-                this.dataForm = {};
-                this.data = UtilsNew.objectClone(this._data);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "Endpoint successfully executed"
-                });
-            })
-            .catch(response => {
-                // Sometimes response is an instance of an String
-                if (typeof response == "string") {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                        message: response
+            this.isLoading = true;
+            this.requestUpdate();
+            this.restClient.call(url, _options)
+                .then(response => {
+                    this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
+                    this.dataForm = {};
+                    this.data = UtilsNew.objectClone(this._data);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        message: "Endpoint successfully executed"
                     });
-                } else {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                }
-                console.error(response);
-            })
-            .finally(() => {
-                this.isLoading = false;
-                this.requestUpdate();
+                })
+                .catch(response => {
+                    // Sometimes response is an instance of an String
+                    if (typeof response == "string") {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                            message: response
+                        });
+                    } else {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    }
+                    console.error(response);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.requestUpdate();
+                });
+
+        } catch (e) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: e
             });
+            console.error(e);
+        }
+
     }
 
     onSubmitJson(e) {
-        console.log("onSubmitJson");
         e.stopPropagation(); // avoid call parent component
         LitUtils.dispatchCustomEvent(this, "submit", false);
     }
 
     onSubmitForm(e) {
-        console.log(this, "onSubmitForm");
         e.stopPropagation(); // avoid call parent component
         LitUtils.dispatchCustomEvent(this, "submit", true);
     }
@@ -559,7 +554,7 @@ export default class RestEndpoint extends LitElement {
         }
 
         if (this.endpoint.method === "POST") {
-            this.#postEndpoint(url, e.detail);
+            this.#postEndpoint(url, e.detail.value);
         }
     }
 
@@ -659,7 +654,7 @@ export default class RestEndpoint extends LitElement {
                             disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
                             rows: 10,
                             help: {
-                                text: "json data model"
+                                text: "Must be a valid json, please remove empty fields if you don't need them."
                             }
                         }
                     }
@@ -682,7 +677,7 @@ export default class RestEndpoint extends LitElement {
                             .data="${this.dataForm}"
                             .config="${configForm}"
                             @fieldChange="${e => this.onFormFieldChange(e)}"
-                            @clear="${this.onClear}"
+                            @clear="${e => this.onClear(e)}"
                             @submit="${this.onSubmitForm}">
                         </data-form>
                     `;
@@ -707,7 +702,7 @@ export default class RestEndpoint extends LitElement {
                         .data="${this.dataJson}"
                         .config="${configJson}"
                         @fieldChange="${e => this.onChangeJsonField(e)}"
-                        @clear="${this.onClear}"
+                        @clear="${e => this.onClear(e)}"
                         @submit="${this.onSubmitJson}">
                     </data-form>
                 `;
