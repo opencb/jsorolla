@@ -241,6 +241,12 @@ export default class SimpleChart extends LitElement {
         });
     }
 
+    render() {
+        return html`
+            <div id="${this._prefix}chart"></div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             chart: {
@@ -257,12 +263,6 @@ export default class SimpleChart extends LitElement {
                 plotBorderWidth: 1
             },
         };
-    }
-
-    render() {
-        return html`
-            <div id="${this._prefix}chart"></div>
-        `;
     }
 
 }
