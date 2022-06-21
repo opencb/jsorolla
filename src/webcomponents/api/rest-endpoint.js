@@ -220,7 +220,7 @@ export default class RestEndpoint extends LitElement {
                     defaultLayout: "horizontal",
                     buttonClearText: "Clear",
                     buttonOkText: "Try it out!",
-                    buttonsVisible: this.isNotEndPointAdmin() || this.isAdministrator()
+                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (this.isNotEndPointAdmin() || this.isAdministrator())
                 },
                 sections: []
             };
@@ -298,7 +298,7 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    buttonsVisible: this.isNotEndPointAdmin() || this.isAdministrator(),
+                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (this.isNotEndPointAdmin() || this.isAdministrator()),
                 },
                 sections: [
                     {
@@ -407,6 +407,18 @@ export default class RestEndpoint extends LitElement {
         return _body;
     }
 
+    #jsonToObject() {
+        let jsonObject = {};
+        try {
+            jsonObject = JSON.parse(this.dataJson.body);
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: error
+            });
+        }
+        return jsonObject;
+    }
+
     onChangeJsonField(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
@@ -415,11 +427,11 @@ export default class RestEndpoint extends LitElement {
             this.dataJson = {...this.dataJson, body: e.detail.value};
             try {
                 const dataObject = JSON.parse(e.detail.value);
-                Object.keys(dataObject).forEach(key => {
-                    if (key in this.data.body) {
-                        this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
-                    }
-                });
+                // Object.keys(dataObject).forEach(key => {
+                //     if (key in this.data.body) {
+                //         this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
+                //     }
+                // });
             } catch (error) {
             // json parse errors may arise at the time of writing to the json field.
                 return false;
@@ -482,7 +494,7 @@ export default class RestEndpoint extends LitElement {
             });
     }
 
-    #postEndpoint(url) {
+    #postEndpoint(url, isForm) {
         url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
         this.endpoint.parameters
             .filter(parameter => parameter.param === "path")
@@ -493,7 +505,7 @@ export default class RestEndpoint extends LitElement {
         const _options = {
             sid: this.opencgaSession.opencgaClient._config.token,
             token: this.opencgaSession.opencgaClient._config.token,
-            data: this.dataForm?.body,
+            data: isForm? this.dataForm?.body : this.#jsonToObject(),
             method: "POST"
         };
 
@@ -517,6 +529,7 @@ export default class RestEndpoint extends LitElement {
                 } else {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 }
+                console.error(response);
             })
             .finally(() => {
                 this.isLoading = false;
@@ -524,7 +537,19 @@ export default class RestEndpoint extends LitElement {
             });
     }
 
-    onSubmit() {
+    onSubmitJson(e) {
+        console.log("onSubmitJson");
+        e.stopPropagation(); // avoid call parent component
+        LitUtils.dispatchCustomEvent(this, "submit", false);
+    }
+
+    onSubmitForm(e) {
+        console.log(this, "onSubmitForm");
+        e.stopPropagation(); // avoid call parent component
+        LitUtils.dispatchCustomEvent(this, "submit", true);
+    }
+
+    onSubmit(e) {
         let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
         url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
 
@@ -534,7 +559,7 @@ export default class RestEndpoint extends LitElement {
         }
 
         if (this.endpoint.method === "POST") {
-            this.#postEndpoint(url);
+            this.#postEndpoint(url, e.detail);
         }
     }
 
@@ -600,7 +625,10 @@ export default class RestEndpoint extends LitElement {
     getTabsConfig(elements) {
         const configForm = {
             display: {
-                buttonsVisible: false
+                buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!",
+
             },
             sections: [{
                 display: {
@@ -612,7 +640,9 @@ export default class RestEndpoint extends LitElement {
 
         const configJson = {
             display: {
-                buttonsVisible: false
+                buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!",
             },
             sections: [{
                 display: {
@@ -652,7 +682,8 @@ export default class RestEndpoint extends LitElement {
                             .data="${this.dataForm}"
                             .config="${configForm}"
                             @fieldChange="${e => this.onFormFieldChange(e)}"
-                            @clear="${this.onClear}">
+                            @clear="${this.onClear}"
+                            @submit="${this.onSubmitForm}">
                         </data-form>
                     `;
                 }
@@ -676,7 +707,8 @@ export default class RestEndpoint extends LitElement {
                         .data="${this.dataJson}"
                         .config="${configJson}"
                         @fieldChange="${e => this.onChangeJsonField(e)}"
-                        @clear="${this.onClear}">
+                        @clear="${this.onClear}"
+                        @submit="${this.onSubmitJson}">
                     </data-form>
                 `;
                 }
