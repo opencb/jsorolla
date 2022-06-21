@@ -21,7 +21,7 @@ import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
-import "./variant-interpreter-report.js";
+import "./case-steiner-report.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
@@ -271,31 +271,15 @@ class VariantInterpreter extends LitElement {
             `;
         }
 
+        // TODO Rodiel, check if a custom component exists.
+        // this.settings
+
         // Note: this a temporal
         const configReportTabs = {
             display: {
                 align: "center",
             },
             items: [
-                {
-                    id: "variantReport",
-                    name: "Variant Report",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                        <div class="col-md-10 col-md-offset-1">
-                            <tool-header
-                                class="bg-white"
-                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <variant-interpreter-report
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </variant-interpreter-report>
-                        </div>
-                    `;
-                    }
-                },
                 {
                     id: "caseReport",
                     name: "Case Report Review",
@@ -315,7 +299,26 @@ class VariantInterpreter extends LitElement {
                         </div>
                     `;
                     }
-                }
+                },
+                {
+                    id: "variantReport",
+                    name: "Variant Report",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <case-steiner-report
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </case-steiner-report>
+                        </div>
+                    `;
+                    }
+                },
             ]
         };
 
