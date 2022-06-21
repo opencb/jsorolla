@@ -55,6 +55,9 @@ export default class SimpleChart extends LitElement {
             showButtons: {
                 type: Boolean,
             },
+            colors: {
+                type: Object,
+            },
             config: {
                 // This must be a valid Highcharts configuration object
                 type: Object,
@@ -68,6 +71,7 @@ export default class SimpleChart extends LitElement {
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
         this.type = "column";
+        this.colors = {};
     }
 
     updated(changedProperties) {
@@ -140,6 +144,7 @@ export default class SimpleChart extends LitElement {
                 // TODO Proper fix after facet-result-view refactor.
                 // Most of the variant stats are Maps with a single datapoint, in other cases we need an array (facets)
                 data: Array.isArray(data) ? data : [data],
+                color: this.colors[name] ? this.colors[name] : undefined,
             })),
             credits: {
                 enabled: false
@@ -191,6 +196,7 @@ export default class SimpleChart extends LitElement {
                 // TODO Proper fix after facet-result-view refactor.
                 // Most of the variant stats are Maps with a single datapoint, in other cases we need an array (facets)
                 data: Array.isArray(data) ? data : [data],
+                color: this.colors[name] ? this.colors[name] : undefined,
             })),
             credits: {
                 enabled: false,
