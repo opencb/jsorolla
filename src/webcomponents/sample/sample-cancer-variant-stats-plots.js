@@ -243,6 +243,13 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.deletionTypeStats}"
+                                            .colors="${{
+                                                "Complex": "#bebebe",
+                                                "Insertion": "#006400",
+                                                "Deletion-other": "#cd2626",
+                                                "Deletion-repeat": "#ff3030",
+                                                "Deletion-microhomology": "#8b1a1a",
+                                            }}"
                                             .config="${this.facetConfig}"
                                             ?active="${true}">
                                         </simple-chart>
@@ -257,6 +264,12 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
+                                            .colors="${{
+                                                "DUPLICATION": "#006400",
+                                                "DELETION": "#ee6a50",
+                                                "INVERSION": "#1c86ee",
+                                                "TRANSLOCATION": "#595959",
+                                            }}"
                                             .config="${this.facetConfig}"
                                             ?active="${true}">
                                         </simple-chart>
