@@ -32,33 +32,33 @@ export default class SimpleChart extends LitElement {
     static get properties() {
         return {
             active: {
-                type: Boolean
+                type: Boolean,
             },
             type: {
-                type: String
+                type: String,
             },
             title: {
-                type: String
+                type: String,
             },
             subtitle: {
-                type: String
+                type: String,
             },
             data: {
-                type: Object
+                type: Object,
             },
             xAxisTitle: {
-                type: String
+                type: String,
             },
             yAxisTitle: {
-                type: String
+                type: String,
             },
             showButtons: {
-                type: Boolean
+                type: Boolean,
             },
             config: {
-                // This is must be a valid Highcharts configuration object
-                type: Object
-            }
+                // This must be a valid Highcharts configuration object
+                type: Object,
+            },
         };
     }
 
@@ -70,15 +70,12 @@ export default class SimpleChart extends LitElement {
         this.type = "column";
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         if (changedProperties.has("type") || changedProperties.has("data") || changedProperties.has("config")) {
