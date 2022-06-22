@@ -15,16 +15,16 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import Types from "../../commons/types.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "../clinical-analysis-summary.js";
-import "../../variant/interpretation/variant-interpreter-grid.js";
-import "../../disease-panel/disease-panel-grid.js";
-import "./clinical-interpretation-view.js";
+import UtilsNew from "../../core/utilsNew.js";
+import Types from "../commons/types.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import ClinicalAnalysisManager from "./clinical-analysis-manager.js";
+import FormUtils from "../commons/forms/form-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+import "./clinical-analysis-summary.js";
+import "../variant/interpretation/variant-interpreter-grid.js";
+import "../disease-panel/disease-panel-grid.js";
+import "./interpretation/clinical-interpretation-view.js";
 
 export default class ClinicalAnalysisReview extends LitElement {
 
