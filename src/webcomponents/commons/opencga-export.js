@@ -36,6 +36,9 @@ export default class OpencgaExport extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            endpoint: {
+                type: Object
+            },
             query: {
                 type: Object
             },
@@ -99,9 +102,9 @@ export default class OpencgaExport extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
             if (this.config?.resource) {
                 document.querySelectorAll("code").forEach(block => {
-                    // hljs.highlightBlock(block);
-                });
+                //     // hljs.highlightBlock(block);
 
+                });
                 new ClipboardJS(".clipboard-button");
             }
             if (this.config.gridColumns) {
@@ -174,57 +177,123 @@ export default class OpencgaExport extends LitElement {
 
     }
 
+    buildUrl(auth=true) {
+        let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
+        if (auth) {
+            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
+        }
+        // Replace PATH params
+        url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "path")
+            .forEach(parameter => {
+                url = url.replace(`{${parameter.name}}`, this.query[parameter.name]);
+            });
+
+        // Add QUERY params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "query" && this.query[parameter.name])
+            .forEach(parameter => {
+                url += `&${parameter.name}=${this.query[parameter.name]}`;
+            });
+
+        return url;
+
+    }
+
+    buildCurl() {
+        return `curl -X GET --header "Accept: application/json" --header "Authorization: \
+        Bearer ${this.opencgaSession.token}" "${this.buildUrl(false)}"`;
+    }
+
+    buildWget() {
+        const currentDate = new Date();
+        return `wget -O ${this.endpoint.path.split("/").at(-1)}_${currentDate.getTime()}.json "${this.buildUrl()}"`;
+    }
+
     generateCode(language) {
+
         if (!this.config?.resource) {
             return "Resource not defined";
         }
+
         if (!this.opencgaSession?.study) {
             return "OpencgaSession not available";
         }
 
         let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: this.limit};
+
         if (this.config.resource === "FILE") {
             q = {...q, type: this.config.resource};
         }
 
         let ws = `${this.resourceMap[this.config.resource]}/${this.method}`;
+
         if (this.config.resource === "VARIANT") {
             this.method = "query";
             ws = "analysis/variant/query";
         } else if (this.config.resource === "CLINICAL_VARIANT") {
             this.method = "query_variant";
             ws = "analysis/clinical/variant/query";
-
         } else {
             this.method = "search";
         }
-
-        switch (language) {
-            case "url":
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
-            case "curl":
-                return `curl -X GET --header "Accept: application/json" --header "Authorization: \
+        // Temporal code for export in rest-api
+        if (this.config?.resource === "API") {
+            switch (language) {
+                case "url":
+                    return `${this.buildUrl()}`;
+                case "curl":
+                    return `${this.buildCurl()}`;
+                case "wget":
+                    return `${this.buildWget()}`;
+                case "cli":
+                    let client = this.resourceMap[this.config.resource];
+                    let method = this.method;
+                    if (this.config.resource === "CLINICAL_VARIANT") {
+                        client = "clinical";
+                        method = "variant-query";
+                    }
+                    const params = {...this.query};
+                    params.token = params.sid;
+                    delete params.body;
+                    delete params.sid;
+                    return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                case "js":
+                    return this.generateJs();
+                case "python":
+                    return this.generatePython();
+                case "r":
+                    return this.generateR();
+            }
+        } else {
+            switch (language) {
+                case "url":
+                    return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
+                case "curl":
+                    return `curl -X GET --header "Accept: application/json" --header "Authorization: \
                 Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
-            case "wget":
-                return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
-            case "cli":
+                case "wget":
+                    return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
+                case "cli":
                 // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
-                let client = this.resourceMap[this.config.resource];
-                let method = this.method;
-                if (this.config.resource === "CLINICAL_VARIANT") {
-                    client = "clinical";
-                    method = "variant-query";
-                }
-                const params = {...q};
-                params.token = params.sid;
-                delete params.sid;
-                return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
-            case "js":
-                return this.generateJs();
-            case "python":
-                return this.generatePython();
-            case "r":
-                return this.generateR();
+                    let client = this.resourceMap[this.config.resource];
+                    let method = this.method;
+                    if (this.config.resource === "CLINICAL_VARIANT") {
+                        client = "clinical";
+                        method = "variant-query";
+                    }
+                    const params = {...q};
+                    params.token = params.sid;
+                    delete params.sid;
+                    return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                case "js":
+                    return this.generateJs();
+                case "python":
+                    return this.generatePython();
+                case "r":
+                    return this.generateR();
+            }
         }
     }
 
