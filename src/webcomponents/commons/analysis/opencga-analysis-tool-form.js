@@ -221,7 +221,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this.config.sections.map((section, i) => html`
                          <div class="panel panel-default shadow-sm">
-                             <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
+                             <div class="panel-body" role="tab" id="${this._prefix}Heading${i}">
                                  <h4 class="panel-title">
                                      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                         href="#${this._prefix}section-${i}" aria-expanded="true" aria-controls="${this._prefix}-${i}">
@@ -248,7 +248,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     <!-- Job Info section -->
                     ${(this.config.job.visible ?? true) ? html`
                         <div class="panel panel-default shadow-sm">
-                            <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
+                            <div class="panel-body" role="tab" id="${this._prefix}HeadingJob">
                                 <h4 class="panel-title">
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                                             href="#${this._prefix}section-job" aria-expanded="true">

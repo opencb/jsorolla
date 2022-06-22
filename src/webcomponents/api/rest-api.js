@@ -105,7 +105,7 @@ export default class RestApi extends LitElement {
                                 const isFirst = category.name === this.api[0].name;
                                 return html`
                                     <div class="panel panel-default">
-                                        <div class="panel-heading" role="tab" id="${categoryName}HeadingOne">
+                                        <div class="panel-body" role="tab" id="${categoryName}HeadingOne">
                                             <h5 class="panel-title">
                                                 <div class="">
                                                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#${categoryName}CollapseOne" aria-expanded="true" aria-controls="${category.name}CollapseOne">
