@@ -89,7 +89,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
                     this.notifyError(response);
                 });
         }
@@ -106,7 +105,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                     }
                 })
                 .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
                     this.notifyError(response);
                 });
         }
@@ -119,7 +117,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                     }
                 })
                 .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
                     this.notifyError(response);
                 });
         }
@@ -137,7 +134,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                     }
                 })
                 .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
                     this.notifyError(response);
                 });
         }
@@ -152,7 +148,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                     }
                 })
                 .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
                     this.notifyError(response);
                 });
         }
@@ -181,7 +176,6 @@ export default class ClinicalAnalysisReview extends LitElement {
     // ClinicalReport
     submitCaseFinalSummary() {
         if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
-
             this.opencgaSession.opencgaClient.clinical()
                 .update(this.clinicalAnalysis.id, this.updateCaseParams, {
                     study: this.opencgaSession.study.fqn,
@@ -194,7 +188,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                 .catch(response => {
                     // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
                     this.notifyError(response);
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
                 });
         }
     }
@@ -226,6 +219,7 @@ export default class ClinicalAnalysisReview extends LitElement {
         } else {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         }
+        console.error("An error occurred updating clinicalAnalysis: ", response);
     }
 
     postUpdate(response) {
