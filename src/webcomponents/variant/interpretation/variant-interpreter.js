@@ -301,8 +301,8 @@ class VariantInterpreter extends LitElement {
             ]
         };
 
-        const settingReporter = this.settings?.tools?.filter(tool => tool?.id == "report")[0];
-        if (settingReporter && settingReporter?.component == "steiner-report") {
+        const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
+        if (settingReporter && settingReporter?.component === "steiner-report") {
             configReportTabs.items.push({
                 id: "variantReport",
                 name: "Variant Report",
