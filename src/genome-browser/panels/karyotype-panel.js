@@ -2,6 +2,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import Region from "../../core/bioinfo/region.js";
 import {SVG} from "../../core/svg.js";
 import GenomeBrowserConstants from "../genome-browser-constants.js";
+import GenomeBrowserUtils from "../genome-browser-utils.js";
 
 
 export default class KaryotypePanel {
@@ -31,13 +32,10 @@ export default class KaryotypePanel {
         // set own region object
         this.region = new Region(this.config.region);
 
-        this.species = this.config.species;
-        this.lastSpecies = this.config.species;
-
-        this.chromosomeList = [];
-
         this.regionChanging = false;
         this.rendered = false;
+
+        this.elements = {};
 
         this.#initDom();
         this.#initEvents();
@@ -47,23 +45,22 @@ export default class KaryotypePanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="unselectable">
-                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" style="user-select:none;">
+                <div style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                    <div id="${this.prefix}Collapse" style="cursor:pointer;">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
-                <div id="${this.prefix}Content" style="display:block;"></div>
+                <div id="${this.prefix}Content" style="display:block;margin-top:8px;"></div>
             </div>
         `);
 
         this.div = template.querySelector(`div#${this.prefix}`);
-        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.title = this.div.querySelector(`div#${this.prefix}Title`);
+        this.collapse = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
         // Main content
@@ -86,115 +83,30 @@ export default class KaryotypePanel {
     }
 
     #initEvents() {
-        this.titleDiv.addEventListener("click", () => {
-            this.toggleContent();
-        });
-    }
-
-    show() {
-        this.div.style.display = "block";
-        this.hidden = false;
-    }
-
-    hide() {
-        this.div.style.display = "none";
-        this.hidden = true;
-    }
-
-    setVisible(bool) {
-        bool ? this.show() : this.hide();
-    }
-
-    showContent() {
-        this.content.style.display = "inline";
-        this.collapseDiv.classList.remove("active");
-        this.collapseIcon.classList.remove("fa-plus");
-        this.collapseIcon.classList.add("fa-minus");
-        this.collapsed = false;
-    }
-
-    hideContent() {
-        this.content.style.display = "none";
-        this.collapseDiv.classList.add("active");
-        this.collapseIcon.classList.remove("fa-minus");
-        this.collapseIcon.classList.add("fa-plus");
-        this.collapsed = true;
-    }
-
-    toggleContent() {
-        this.collapsed ? this.showContent() : this.hideContent();
-    }
-
-    setTitle(title) {
-        this.titleText.textContent = title;
-    }
-
-    setWidth(width) {
-        this.width = width;
-        this.svg.setAttribute("width", width);
-
-
-        if (typeof this.chromosomeList !== "undefined") {
-            this.clean();
-            this.#drawSvg(this.chromosomeList, this.data2);
-        }
-    }
-
-    setSpecies(species) {
-        this.lastSpecies = this.species;
-        this.species = species;
-    }
-
-    clean() {
-        // TODO: add dom utility to clear a DOM element
-        $(this.svg).empty();
+        this.title.addEventListener("click", () => this.toggleContent());
+        this.collapse.addEventListener("click", () => this.toggleContent());
     }
 
     draw() {
         this.clean();
 
-        // TODO: move to utils?
-        const sortfunction = (a, b) => {
-            let IsNumber = true;
-            for (let i = 0; i < a.name.length && IsNumber == true; i++) {
-                if (isNaN(a.name[i])) {
-                    IsNumber = false;
-                }
-            }
-            if (!IsNumber) return 1;
-            return (a.name - b.name);
-        };
-
-        // Import chromosomes from cellbase
-        this.config.cellBaseClient.get("genomic", "chromosome", undefined, "search")
-            .then(data => {
-                this.chromosomeList = UtilsNew.removeDuplicates(data.response[0].result[0].chromosomes, "name");
-                this.chromosomeList.sort(sortfunction);
-                this.#drawSvg(this.chromosomeList);
-            });
-
-        if (this.collapsed) {
-            this.hideContent();
+        // to prevent negative values, we require a width size of at least 500px for drawing the karyotype.
+        if (this.width < this.config.minWidth) {
+            return;
         }
-    }
 
-    #drawSvg(chromosomeList) {
         let x = 20;
-        const xOffset = this.width / chromosomeList.length;
+        const xOffset = this.width / this.config.chromosomes.length;
         const yMargin = 2;
-
-        let biggerChr = 0;
-        chromosomeList.forEach(chromosome => {
-            if (chromosome.size > biggerChr) {
-                biggerChr = chromosome.size;
-            }
-        });
+        const biggerChr = this.config.chromosomes.reduce((maxSize, chromosome) => {
+            return Math.max(maxSize, chromosome.size);
+        }, 0);
 
         this.pixelBase = (this.height - 10) / biggerChr;
         this.chrOffsetY = {};
         this.chrOffsetX = {};
 
-        chromosomeList.forEach((chromosome, index) => {
+        this.config.chromosomes.forEach((chromosome, index) => {
             const chrSize = chromosome.size * this.pixelBase;
             let y = yMargin + (biggerChr * this.pixelBase) - chrSize;
             this.chrOffsetY[chromosome.name] = y;
@@ -209,8 +121,6 @@ export default class KaryotypePanel {
 
             // Register click event listener
             group.addEventListener("click", event => {
-                // const chrClicked = this.getAttribute("chr");
-
                 const offsetY = (event.pageY - $(this.svg).offset().top);
                 const clickPosition = parseInt((offsetY - this.chrOffsetY[chromosome.name]) / this.pixelBase);
 
@@ -225,7 +135,7 @@ export default class KaryotypePanel {
             });
 
             (chromosome.cytobands || []).forEach(cytoband => {
-                const width = 13;
+                const width = this.config.chromosomeWidth;
                 const height = this.pixelBase * (cytoband.end - cytoband.start);
                 // const color = this.colors[cytoband.stain] || "purple";
                 const color = GenomeBrowserConstants.CYTOBANDS_COLORS[cytoband.stain] || "purple";
@@ -263,6 +173,36 @@ export default class KaryotypePanel {
                 }
 
                 y += height;
+            });
+
+            // Display features of interest
+            // const featuresGroup = SVG.addChild(group, "g", {});
+            this.config.featuresOfInterest.forEach(item => {
+                if (item.display?.visible) {
+                    item.features.forEach(feature => {
+                        if (feature.chromosome === chromosome.name) {
+                            const featureHeight = Math.max(1, this.pixelBase * Math.abs(feature.end - feature.start));
+                            const featureY = yMargin + (biggerChr * this.pixelBase) - chrSize + Math.min(feature.start, feature.end) * this.pixelBase;
+
+                            // Display region rectangle
+                            SVG.addChild(group, "rect", {
+                                x: x,
+                                y: featureY,
+                                width: this.config.chromosomeWidth,
+                                height: featureHeight,
+                                fill: item.display?.color || "red",
+                                opacity: 0.5,
+                            });
+
+                            // Display triangle at the right side of the chromosome
+                            SVG.addChild(group, "path", {
+                                d: `M${x + this.config.chromosomeWidth + 4},${featureY + featureHeight / 2} l5,-5 l0,10 z`,
+                                fill: item.display?.color || "red",
+                                opacity: 1.0,
+                            });
+                        }
+                    });
+                }
             });
 
             // Generate chromosome name
@@ -319,27 +259,64 @@ export default class KaryotypePanel {
         this.positionBox.setAttribute("y2", pointerPosition);
     }
 
-    updateRegionControls() {
-        this.#recalculatePositionBox(this.region);
+    show() {
+        this.target.style.display = "block";
+        this.hidden = false;
+    }
+
+    hide() {
+        this.target.style.display = "none";
+        this.hidden = true;
+    }
+
+    setVisible(bool) {
+        bool ? this.show() : this.hide();
+    }
+
+    showContent() {
+        this.content.style.display = "block";
+        this.collapse.classList.remove("active");
+        this.collapseIcon.classList.remove("fa-plus");
+        this.collapseIcon.classList.add("fa-minus");
+        this.collapsed = false;
+    }
+
+    hideContent() {
+        this.content.style.display = "none";
+        this.collapse.classList.add("active");
+        this.collapseIcon.classList.remove("fa-minus");
+        this.collapseIcon.classList.add("fa-plus");
+        this.collapsed = true;
+    }
+
+    toggleContent() {
+        this.collapsed ? this.showContent() : this.hideContent();
+    }
+
+    clean() {
+        GenomeBrowserUtils.cleanDOMElement(this.svg);
+    }
+
+    setTitle(title) {
+        this.title.textContent = title;
+    }
+
+    setWidth(width) {
+        this.width = Math.max(0, width);
+        this.svg.setAttribute("width", this.width);
+
+        this.draw();
     }
 
     setRegion(region) {
         this.region.load(region);
-        let needDraw = false;
-
-        if (this.lastSpecies != this.species) {
-            needDraw = true;
-            this.lastSpecies = this.species;
-        }
-        if (needDraw) {
-            this.draw();
-        }
-
-        this.updateRegionControls();
+        this.#recalculatePositionBox(this.region);
     }
 
+    updateRegionControls() {
+        this.#recalculatePositionBox(this.region);
+    }
 
-    // addMark(item) {
     addMark() {
         const mark = () => {
             if (this.region.chromosome != null && this.region.start != null) {
@@ -369,20 +346,22 @@ export default class KaryotypePanel {
     }
 
     unmark() {
-        $(this.markGroup).empty();
+        GenomeBrowserUtils.cleanDOMElement(this.markGroup);
     }
 
     // Get default configuration for karyotype panel
     getDefaultConfig() {
         return {
-            species: [],
             width: 600,
+            minWidth: 500,
             height: 75,
             collapsed: false,
             collapsible: true,
-            hidden: false,
             region: null,
             title: "Karyotype",
+            chromosomes: [],
+            chromosomeWidth: 12,
+            featuresOfInterest: [],
         };
     }
 

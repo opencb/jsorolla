@@ -249,7 +249,6 @@ export default class VariantBrowserGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => {
-                    // console.log(row)
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
                 },
                 onDblClickRow: (row, element, field) => {

@@ -19,6 +19,7 @@ import {LitElement, html, nothing} from "lit";
 import LitUtils from "./utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "./forms/data-form.js";
+import NotificationUtils from "./utils/notification-utils.js";
 
 
 export default class ListUpdate extends LitElement {
@@ -122,27 +123,21 @@ export default class ListUpdate extends LitElement {
 
     onRemoveItem(e, i, node) {
         e.stopPropagation();
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Remove item",
+            message: "Are you sure you want to remove this item?",
+            display: {
+                okButtonText: "Yes, delete it!",
+            },
+            ok: () => {
                 const itemData = this.removeItem(this.data.items, i, node);
                 LitUtils.dispatchCustomEvent(this, "removeItem", itemData);
                 // trigger a update... refresh the list inside annotationFileConfigs
                 this.requestUpdate();
-                Swal.fire(
-                    "Deleted!",
-                    "The config has been deleted. (Test UI)",
-                    "success"
-                );
-            }
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "The item has been removed from list",
+                });
+            },
         });
     }
 

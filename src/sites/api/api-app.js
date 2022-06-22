@@ -124,7 +124,7 @@ class ApiApp extends LitElement {
         this.notificationManager = new NotificationManager({});
 
         // Global notification
-        this.addEventListener(NotificationUtils.NOTIFY, e => this.notificationManager.show(e.detail));
+        this.addEventListener(NotificationUtils.NOTIFY, e => this.notificationManager.showNotification(e.detail));
 
         // Shortcuts for common notifications
         this.addEventListener(NotificationUtils.NOTIFY_INFO, e => this.notificationManager.info(e.detail.title, e.detail.message));
@@ -133,7 +133,7 @@ class ApiApp extends LitElement {
         this.addEventListener(NotificationUtils.NOTIFY_ERROR, e => this.notificationManager.error(e.detail.title, e.detail.message));
 
         // Notify a response
-        this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.showResponse(e.detail));
+        this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.response(e.detail));
 
         // keeps track of the executedQueries transitioning from browser tool to facet tool
         this.queries = [];
@@ -399,7 +399,7 @@ class ApiApp extends LitElement {
                 };
 
                 // Display expiration notification
-                this.notificationManager.show({
+                this.notificationManager.showNotification({
                     type: "warning",
                     display: {
                         showIcon: true,

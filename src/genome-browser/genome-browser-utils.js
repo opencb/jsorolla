@@ -34,6 +34,29 @@ export default class GenomeBrowserUtils {
     }
 
     //
+    // Common utils
+    //
+
+    // Clean an element
+    static cleanDOMElement(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+    }
+
+    // Sort chromosomes
+    static sortChromosomes(chromosomes) {
+        return chromosomes.sort((a, b) => {
+            let isNumber = true;
+            for (let i = 0; i < a.name.length && isNumber; i++) {
+                isNumber = !isNaN(a.name[i]);
+            }
+
+            return !isNumber ? 1 : a.name - b.name;
+        });
+    }
+
+    //
     // Renderer utils
     //
 
@@ -179,8 +202,43 @@ export default class GenomeBrowserUtils {
     }
 
     // Variant tooltip text formatter
-    static variantTooltipTextFormatter(feature) {
-        return GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+    static variantTooltipTextFormatter(feature, samples) {
+        let info = GenomeBrowserUtils.featureTooltipTextFormatter(feature);
+
+        // Check for samples
+        if (samples && samples.length > 0 && feature.studies && feature.studies.length > 0) {
+            const dpIndex = feature.studies[0].sampleDataKeys?.findIndex(v => v.toUpperCase() === "DP");
+            const samplesInfo = `
+                <div style="margin-bottom:4px;margin-top:4px;">Samples:</div>
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th style=""></th>
+                            <th style="padding-left:4px;">GT</th>
+                            <th style="padding-left:4px;">DP</th>
+                            <th style="padding-left:4px;">FILTER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${samples.map((name, index) => {
+                            const sample = feature.studies[0].samples?.[index];
+                            const file = typeof sample?.fileIndex === "number" ? feature.studies[0].files?.[sample.fileIndex] : null;
+                            return `
+                                <tr>
+                                    <td style=""><strong>${name}</strong></td>
+                                    <td style="padding-left:4px;text-align:center;">${sample?.data?.[0] || "-"}</td>
+                                    <td style="padding-left:4px;text-align:center;">${sample?.data?.[dpIndex] || "-"}</td>
+                                    <td style="padding-left:4px;text-align:center;">${file ? file?.data?.["FILTER"] : "-"}</td>
+                                </tr>
+                            `;
+                        }).join("")}
+                    </tbody>
+                </table>
+            `;
+            info = info + samplesInfo;
+        }
+
+        return info;
     }
 
     // Sample genotype tooltip title formatter
@@ -324,6 +382,117 @@ export default class GenomeBrowserUtils {
             }
         }
         return 0;
+    }
+
+    //
+    // Alignments utils
+    //
+
+    // Alignment strand parser
+    static alignmentStrandParser(feature) {
+        return feature.alignment.position.strand === "POS_STRAND" ? "Forward" : "Reverse";
+    }
+
+    // Alignments flags parser
+    static alignmentFlagsParser(feature) {
+        const flags = [];
+        if (feature.numberReads > 1) {
+            flags.push("read paired");
+        }
+        if (!feature.improperPlacement) {
+            flags.push("read mapped in proper pair");
+        }
+        if (!feature.nextMatePosition) {
+            flags.push("mate unmapped");
+        }
+        if (feature.readNumber === 0) {
+            flags.push("first in pair");
+        }
+        if (feature.readNumber === (feature.numberReads - 1)) {
+            flags.push("second in pair");
+        }
+        if (feature.secondaryAlignment) {
+            flags.push("not primary alignment");
+        }
+        if (feature.failedVendorQualityChecks) {
+            flags.push("read fails platform/vendor quality checks");
+        }
+        if (feature.duplicateFragment) {
+            flags.push("read is PCR or optical duplicate");
+        }
+
+        return flags;
+    }
+
+    // Alignment flag formatter
+    static alignmentFlagFormatter(flag) {
+        return `
+            <div style="white-space:nowrap;margin-right:4px;margin-bottom:2px;background-color:#cfe2ff;padding:2px 4px;border-radius:4px;">
+                <b>${flag.replace(/\s/g, "_")}</b>
+            </div>
+        `;
+    }
+
+    // Alignment tooltip title formatter
+    static alignmentTooltipTitleFormatter(feature) {
+        return `Alignment <span class="ok">${feature.id}</span>`;
+    }
+
+    // Alignment tooltip text formatter
+    static alignmentTooltipTextFormatter(feature) {
+        const regionInfo = GenomeBrowserUtils.featureInfoFormatter({
+            start: feature.start,
+            end: feature.end,
+            strand: feature?.alignment?.position?.strand ? GenomeBrowserUtils.alignmentStrandParser(feature) : "NA",
+        });
+        const flags = GenomeBrowserUtils.alignmentFlagsParser(feature);
+        const info = Object.keys(feature.info || {}).map(key => {
+            return `${key} : ${feature.info[key][0]} : ${feature.info[key][1]}`;
+        });
+
+        return `
+            <div>
+                ${flags.length > 0 ? `
+                    <div style="display:flex;flex-wrap:wrap;margin-bottom:4px;">
+                        ${flags.map(f => GenomeBrowserUtils.alignmentFlagFormatter(f)).join("")}
+                    </div>
+                ` : ""}
+                ${regionInfo}
+                <div>Cigar: <b>${feature.cigar || "NA"}</b></div>
+                <div>Insert Size: <b>${feature.fragmentLength || "-"}</b></div>
+                <div>Mapping Quality: <b>${feature.alignment.mappingQuality || "0"}</b></div>
+                ${info.map(item => `<div>${item}</div>`).join("")}
+            </div>
+        `;
+    }
+
+    // Alignment color formatter
+    static alignmentColorFormatter(read, pairedReads) {
+        // Check for not paired read
+        if (read.numberReads === 1 || !read.nextMatePosition) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.not_paired;
+        }
+        // Check if is a translocation
+        if (read.nextMatePosition.referenceName !== read.alignment.position.referenceName) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.translocation;
+        }
+        const fragmentStart = Math.min.apply(null, pairedReads.map(r => r.end));
+        const fragmentEnd = Math.max.apply(null, pairedReads.map(r => r.start));
+        // Check for possible deletion
+        if (fragmentEnd < fragmentStart) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.possible_deletion;
+        }
+        // Check for possible insertion
+        if (fragmentEnd - fragmentStart + 1 > 500) {
+            return GenomeBrowserConstants.ALIGNMENTS_COLORS.possible_insertion;
+        }
+        // Default color
+        return GenomeBrowserConstants.ALIGNMENTS_COLORS.default;
+    }
+
+    // Alignment opacity formatter
+    static alignmentOpacityFormatter(read, pairedReads, minMappingQuality) {
+        return read.alignment.mappingQuality > minMappingQuality ? 0.6 : 0.2;
     }
 
 }

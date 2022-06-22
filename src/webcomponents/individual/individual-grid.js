@@ -340,7 +340,7 @@ export default class IndividualGrid extends LitElement {
     }
 
     sexFormatter(value, row) {
-        let sexHtml = `<span>${row.sex?.id || row.sex}</span>`;
+        let sexHtml = `<span>${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}</span>`;
         if (row.karyotypicSex) {
             sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
         }

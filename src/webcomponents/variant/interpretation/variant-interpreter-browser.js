@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
@@ -150,6 +151,123 @@ class VariantInterpreterBrowser extends LitElement {
         // Check for clinicalAnalysis
         if (this.clinicalAnalysis) {
             const type = this.clinicalAnalysis.type.toUpperCase();
+
+            // Genome browser tracks and configuration
+            const genomeBrowserTracks = [
+                {
+                    type: "gene-overview",
+                    overview: true,
+                    config: {},
+                },
+                {
+                    type: "sequence",
+                    config: {},
+                },
+                {
+                    type: "gene",
+                    config: {},
+                },
+                {
+                    type: "opencga-variant",
+                    config: {
+                        title: "Variants",
+                        query: {
+                            sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                        },
+                        height: 120,
+                    },
+                },
+                ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
+                    type: "opencga-alignment",
+                    config: {
+                        title: `Alignments - ${sample.id}`,
+                        sample: sample.id,
+                    },
+                })),
+            ];
+            const genomeBrowserConfig = {
+                cellBaseClient: this.cellbaseClient,
+                featuresOfInterest: [],
+            };
+
+            // Add interpretation panels to features of interest
+            if (this.clinicalAnalysis.interpretation.panels.length > 0) {
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Panels of the interpretation",
+                    category: true,
+                });
+
+                const colors = ["green", "blue", "darkorange", "blueviolet", "sienna", "indigo", "salmon"];
+                const assembly = this.opencgaSession.project.organism?.assembly;
+                this.clinicalAnalysis.interpretation.panels.forEach((panel, index) => {
+                    genomeBrowserConfig.featuresOfInterest.push({
+                        name: panel.name,
+                        features: panel.genes
+                            .map(gene => {
+                                const coordinates = gene.coordinates.find(c => c.assembly === assembly);
+                                if (!coordinates) {
+                                    return null;
+                                } else {
+                                    const region = new Region(coordinates.location);
+                                    return {
+                                        chromosome: region.chromosome,
+                                        start: region.start,
+                                        end: region.end,
+                                        name: `
+                                            <div>${gene.name}</div>
+                                            <div class="small text-muted">${region.toString()}</div>
+                                        `,
+                                    };
+                                }
+                            })
+                            .filter(gene => !!gene)
+                            .sort((a, b) => a.name < b.name ? -1 : +1),
+                        display: {
+                            visible: true,
+                            color: colors[index % colors.length],
+                        },
+                    });
+                });
+            }
+
+            if (this.clinicalAnalysis.interpretation?.primaryFindings.length > 0) {
+                if (genomeBrowserConfig.featuresOfInterest.length > 0) {
+                    genomeBrowserConfig.featuresOfInterest.push({separator: true});
+                }
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Variants",
+                    category: true,
+                });
+                genomeBrowserConfig.featuresOfInterest.push({
+                    name: "Primary Findings",
+                    features: this.clinicalAnalysis.interpretation.primaryFindings.map(feature => {
+                        const genes = Array.from(new Set(feature.annotation.consequenceTypes.filter(ct => !!ct.geneName).map(ct => ct.geneName)));
+                        return {
+                            id: feature.id,
+                            chromosome: feature.chromosome,
+                            start: feature.start,
+                            end: feature.end ?? (feature.start + 1),
+                            name: `
+                                <div style="padding-top:4px;padding-bottom:4px;">
+                                    <div>${feature.id} (${feature.type})</div>
+                                    ${feature.annotation.displayConsequenceType ? `
+                                        <div class="small text-primary">
+                                            <strong>${feature.annotation.displayConsequenceType}</strong>
+                                        </div>
+                                    ` : ""}
+                                    ${genes.length > 0 ? `
+                                        <div class="small text-muted">${genes.join(", ")}</div>
+                                    ` : ""}
+                                </div>
+                            `,
+                        };
+                    }),
+                    display: {
+                        visible: true,
+                        color: "red",
+                    },
+                });
+            }
 
             if (type === "SINGLE" || type === "FAMILY") {
                 items.push({
@@ -293,48 +411,24 @@ class VariantInterpreterBrowser extends LitElement {
                         });
                     }
                 }
+            }
 
-                // Append genome browser
-                items.push({
-                    id: "genome-browser",
-                    name: "Genome Browser (Experimental)",
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
+            // Append genome browser
+            items.push({
+                id: "genome-browser",
+                name: "Genome Browser (Beta)",
+                render: (clinicalAnalysis, active, opencgaSession) => html`
+                    <div style="margin-top:16px;">
                         <genome-browser
                             .opencgaSession="${opencgaSession}"
                             .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
                             .active="${active}"
-                            .config="${{
-                                cellBaseClient: this.cellbaseClient,
-                            }}"
-                            .tracks="${[
-                                {
-                                    type: "gene-overview",
-                                    overview: true,
-                                    config: {},
-                                },
-                                {
-                                    type: "sequence",
-                                    config: {},
-                                },
-                                {
-                                    type: "gene",
-                                    config: {},
-                                },
-                                {
-                                    type: "opencga-variant",
-                                    config: {
-                                        title: "Variants",
-                                        query: {
-                                            sample: clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                                        },
-                                        height: 120,
-                                    },
-                                },
-                            ]}">
+                            .config="${genomeBrowserConfig}"
+                            .tracks="${genomeBrowserTracks}">
                         </genome-browser>
-                    `,
-                });
-            }
+                    </div>
+                `,
+            });
         }
 
         // Return tabs configuration

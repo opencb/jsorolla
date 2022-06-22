@@ -9,6 +9,7 @@ import GeneTrack from "../../genome-browser/tracks/gene-track.js";
 import SequenceTrack from "../../genome-browser/tracks/sequence-track.js";
 import VariantTrack from "../../genome-browser/tracks/variant-track.js";
 import OpenCGAVariantTrack from "../../genome-browser/tracks/opencga-variant-track.js";
+import OpenCGAAlignmentTrack from "../../genome-browser/tracks/opencga-alignment-track.js";
 
 
 export default class GenomeBrowserComponent extends LitElement {
@@ -54,11 +55,12 @@ export default class GenomeBrowserComponent extends LitElement {
         this.tracks = [];
         this.config = this.getDefaultConfig();
 
+        this.defaultRegion = "13:32996311-32996450";
         this.prevRegion = null;
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession" || changedProperties.has("config") || changedProperties.has("tracks"))) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("tracks")) {
             this.opencgaSessionOrConfigObserver();
         }
 
@@ -102,6 +104,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
     initGenomeBrowser() {
         const parent = this.querySelector(`div#${this._prefix}GenomeBrowser`);
+        const initialRegion = this.region || this.defaultRegion;
         const config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -109,7 +112,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
         this.genomeBrowser = new GenomeBrowser(parent, {
             width: parent.getBoundingClientRect().width || 100,
-            region: new Region(this.region),
+            region: new Region(initialRegion),
             resizable: true,
             ...config,
         });
@@ -122,7 +125,7 @@ export default class GenomeBrowserComponent extends LitElement {
         });
 
         // Save current region
-        this.prevRegion = new Region(this.region).toString();
+        this.prevRegion = new Region(initialRegion).toString();
     }
 
     // Get only overview tracks
@@ -160,6 +163,12 @@ export default class GenomeBrowserComponent extends LitElement {
                     });
                 case "opencga-variant":
                     return new OpenCGAVariantTrack({
+                        opencgaClient: this.opencgaSession.opencgaClient,
+                        opencgaStudy: this.opencgaSession.study.fqn,
+                        ...track.config,
+                    });
+                case "opencga-alignment":
+                    return new OpenCGAAlignmentTrack({
                         opencgaClient: this.opencgaSession.opencgaClient,
                         opencgaStudy: this.opencgaSession.study.fqn,
                         ...track.config,

@@ -104,26 +104,14 @@ export default class SampleCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onClear(e) {
-        Swal.fire({
-            title: "Are you sure to clear?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then(result => {
-            if (result.isConfirmed) {
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear sample",
+            message: "Are you sure to clear?",
+            ok: () => {
                 this.sample = {};
                 this.requestUpdate();
-                Swal.fire(
-                    "Cleaned!",
-                    "The fields has been cleaned.",
-                    "success"
-                );
-            }
+            },
         });
     }
 
@@ -132,7 +120,7 @@ export default class SampleCreate extends LitElement {
         this.opencgaSession.opencgaClient
             .samples()
             .create(this.sample, {study: this.opencgaSession.study.fqn})
-            .then(res => {
+            .then(() => {
                 this.sample = {};
                 this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {

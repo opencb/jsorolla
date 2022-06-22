@@ -45,9 +45,9 @@ export default class VariantRenderer extends Renderer {
             const center = GenomeBrowserUtils.getFeatureX(start + length / 2, options);
 
             // Get variant information
-            const variantColor = this.getValueFromConfig("variantColor", [feature]);
-            const variantTooltipTitle = this.getValueFromConfig("variantTooltipTitle", [feature]);
-            const variantTooltipText = this.getValueFromConfig("variantTooltipText", [feature]);
+            const variantColor = this.getValueFromConfig("variantColor", [feature, this.config.sampleNames]);
+            const variantTooltipTitle = this.getValueFromConfig("variantTooltipTitle", [feature, this.config.sampleNames]);
+            const variantTooltipText = this.getValueFromConfig("variantTooltipText", [feature, this.config.sampleNames]);
 
             let variantElement = null;
 
@@ -115,6 +115,7 @@ export default class VariantRenderer extends Renderer {
                     position: {
                         viewport: window,
                         target: "mouse",
+                        adjust: {x: 10, y: 10},
                     },
                     style: {
                         width: true,

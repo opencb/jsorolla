@@ -125,7 +125,7 @@ export default class VariantInterpreterDetail extends LitElement {
                                     .variantAnnotation="${variant.annotation}"
                                     .consequenceTypes="${CONSEQUENCE_TYPES}"
                                     .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                    .assembly=${this.opencgaSession.project.organism.assembly}>
+                                      .assembly=${this.opencgaSession.project.organism.assembly}>
                             </cellbase-variant-annotation-summary>`;
                     }
                 },
@@ -194,8 +194,7 @@ export default class VariantInterpreterDetail extends LitElement {
                             .opencgaSession="${opencgaSession}"
                             .variantId="${variant.id}"
                             .active="${active}">
-                        </variant-samples>
-                    `,
+                        </variant-samples>`,
                 },
                 {
                     id: "beacon",
@@ -209,6 +208,12 @@ export default class VariantInterpreterDetail extends LitElement {
                                     .active="${active}">
                             </variant-beacon-network>`;
                     }
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (variant, active) => html`
+                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>`,
                 }
                 // TODO Think about the possibility of allowing plugins here
                 // {

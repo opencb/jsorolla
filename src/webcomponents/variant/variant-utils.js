@@ -101,7 +101,7 @@ export default class VariantUtils {
         flatFieldList.forEach(f => {
             if ("id" === f) {
                 headerString.push("id");
-                headerString.push("SNP ID");
+                headerString.push("SNP_ID");
             } else if (f.startsWith("cohorts.")) {
                 // Cohorts Variant Browser
                 studyIds.forEach(id => {

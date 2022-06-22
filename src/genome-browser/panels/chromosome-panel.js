@@ -2,6 +2,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import Region from "../../core/bioinfo/region.js";
 import {SVG} from "../../core/svg.js";
 import GenomeBrowserConstants from "../genome-browser-constants.js";
+import GenomeBrowserUtils from "../genome-browser-utils.js";
 
 export default class ChromosomePanel {
 
@@ -21,7 +22,6 @@ export default class ChromosomePanel {
     #init() {
         this.prefix = UtilsNew.randomString(8);
         this.pixelBase = 0;
-        this.species = this.config.species;
         this.width = this.config.width;
         this.height = this.config.height;
         this.collapsed = this.config.collapsed;
@@ -29,8 +29,8 @@ export default class ChromosomePanel {
 
         this.region = new Region(this.config.region);
 
-        this.lastChromosome = "";
-        this.data = null;
+        this.chromosome = null;
+        this.chromosomeLength = 0;
         this.status = "";
 
         this.regionChanging = false;
@@ -42,29 +42,33 @@ export default class ChromosomePanel {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" class="unselectable">
-                <div id="${this.prefix}Title" class="ocb-gv-panel-title unselectable">
-                    <div id="${this.prefix}TitleText" class="ocb-gv-panel-text">
+            <div id="${this.prefix}" style="user-select:none;">
+                <div style="display:flex;justify-content:space-between;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse" class="ocb-gv-panel-collapse-control">
+                    <div id="${this.prefix}Collapse" style="cursor:pointer;">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
+                <div id="${this.prefix}Content" style="display:block;margin-top:8px;"></div>
             </div>
         `);
 
         this.div = template.querySelector(`div#${this.prefix}`);
-        this.titleDiv = this.div.querySelector(`div#${this.prefix}Title`);
-        this.titleText = this.div.querySelector(`div#${this.prefix}TitleText`);
-        this.collapseDiv = this.div.querySelector(`div#${this.prefix}Collapse`);
+        this.title = this.div.querySelector(`div#${this.prefix}Title`);
+        this.collapse = this.div.querySelector(`div#${this.prefix}Collapse`);
         this.collapseIcon = this.div.querySelector(`span#${this.prefix}CollapseIcon`);
 
+        // Main content
+        this.content = this.div.querySelector(`div#${this.prefix}Content`);
+
         // Initialize SVG element
-        this.svg = SVG.init(this.div, {
+        this.svg = SVG.init(this.content, {
             "width": this.width,
             "height": this.height,
         });
+
         this.positionBox = null;
         this.selBox = null;
 
@@ -76,7 +80,8 @@ export default class ChromosomePanel {
             this.collapsed ? this.showContent() : this.hideContent();
         };
 
-        this.titleDiv.addEventListener("click", handleToggle);
+        this.title.addEventListener("click", handleToggle);
+        this.collapse.addEventListener("click", handleToggle);
 
         // Prevent browser context menu
         this.svg.addEventListener("contextmenu", event => {
@@ -222,89 +227,30 @@ export default class ChromosomePanel {
         });
     }
 
-    show() {
-        this.div.style.display = "block";
-        this.hidden = false;
-    }
-
-    hide() {
-        this.div.style.display = "none";
-        this.hidden = true;
-    }
-
-    setVisible(bool) {
-        bool ? this.show() : this.hide();
-    }
-
-    showContent() {
-        this.svg.style.display = "inline";
-        this.collapseDiv.classList.remove("active");
-        this.collapseIcon.classList.remove("fa-plus");
-        this.collapseIcon.classList.add("fa-minus");
-        this.collapsed = false;
-    }
-
-    hideContent() {
-        this.svg.style.display = "none";
-        this.collapseDiv.classList.add("active");
-        this.collapseIcon.classList.remove("fa-minus");
-        this.collapseIcon.classList.add("fa-plus");
-        this.collapsed = true;
-    }
-
-    setTitle(title) {
-        this.titleText.textContent = title;
-    }
-
-    setWidth(width) {
-        this.width = width;
-        this.svg.setAttribute("width", width);
-
-
-        if (this.data) {
-            this.clean();
-            this.#drawSvg(this.data);
-        }
-    }
-
-    setSpecies(species) {
-        this.lastSpecies = this.species;
-        this.species = species;
-    }
-
-    clean() {
-        // TODO: add dom utility to clear a DOM element
-        $(this.svg).empty();
-    }
-
     draw() {
         this.clean();
-        this.rendered = false;
 
-        this.config.cellBaseClient.get("genomic", "chromosome", this.region.chromosome, "info")
-            .then(data => {
-                this.data = data.response[0].result[0].chromosomes[0];
-                this.data.cytobands.sort((a, b) => a.start - b.start);
-                this.#drawSvg(this.data);
-            });
-
-        this.lastChromosome = this.region.chromosome;
-
-        if (this.collapsed) {
-            this.hideContent();
+        // to prevent negative values, we require a width size of at least 500px for drawing the chromosome.
+        if (this.width < this.config.minWidth) {
+            return;
         }
-    }
 
-    #drawSvg(chromosome) {
+        if (!this.chromosome || this.chromosome.name !== this.region.chromosome) {
+            this.chromosome = this.config.chromosomes.find(chromosome => {
+                return chromosome.name === this.region.chromosome;
+            });
+            this.chromosomeLength = this.chromosome.size;
+            this.pixelBase = (this.width - 40) / this.chromosomeLength;
+            this.setTitle(`Chromosome ${this.chromosome.name.replace("chr", "")}`);
+        }
+
         const offset = this.config.offset;
         const group = SVG.addChild(this.svg, "g", {
             cursor: "pointer",
         });
-        this.chromosomeLength = chromosome.size;
-        this.pixelBase = (this.width - 40) / this.chromosomeLength;
 
         // Draw chromosome
-        const backrect = SVG.addChild(group, "rect", {
+        SVG.addChild(group, "rect", {
             x: offset,
             y: 39,
             width: this.width - 40 + 1,
@@ -314,7 +260,7 @@ export default class ChromosomePanel {
 
         const cytobandsByStain = {};
         let textDrawingOffset = offset;
-        (chromosome.cytobands || []).forEach(rawCytoband => {
+        (this.chromosome.cytobands || []).forEach(rawCytoband => {
             const cytoband = {
                 ...rawCytoband,
                 pixelStart: rawCytoband.start * this.pixelBase,
@@ -384,14 +330,39 @@ export default class ChromosomePanel {
             });
         }
 
+        // Render features of interest
+        this.config.featuresOfInterest.forEach(item => {
+            if (item.display?.visible) {
+                item.features.forEach(feature => {
+                    if (feature.chromosome === this.chromosome.name) {
+                        const featureWidth = Math.max(1, this.pixelBase * Math.abs(feature.end - feature.start));
+                        const featureX = offset + Math.min(feature.start, feature.end) * this.pixelBase;
+
+                        // Display region rectangle
+                        SVG.addChild(group, "rect", {
+                            x: featureX,
+                            y: 39,
+                            width: featureWidth,
+                            height: 22,
+                            fill: item.display?.color || "red",
+                            opacity: 0.5,
+                        });
+
+                        // Display triangle at the right side of the chromosome
+                        SVG.addChild(group, "path", {
+                            d: `M${featureX + featureWidth / 2},62 l6,6 l-12,0 z`,
+                            fill: item.display?.color || "red",
+                            opacity: 0.6,
+                        });
+                    }
+                });
+            }
+        });
+
         // Resize elements and events
-        // let status = "";
-        this.status = "setRegion"; // Reset global status
+        this.status = "setRegion";
         const centerPosition = this.region.center();
         const pointerPosition = (centerPosition * this.pixelBase) + offset;
-        // this.svg.addEventListener("mousedown", () => {
-        //     this.status = "setRegion";
-        // });
 
         // selection box, will appear when selection is detected
         this.selBox = SVG.addChild(this.svg, "rect", {
@@ -428,7 +399,6 @@ export default class ChromosomePanel {
             opacity: 0.5,
             fill: "transparent",
             cursor: "ew-resize",
-            // visibility: "hidden",
         });
         this.resizeLeft.addEventListener("mousedown", () => {
             this.status = "resizePositionBoxLeft";
@@ -442,29 +412,10 @@ export default class ChromosomePanel {
             opacity: 0.5,
             fill: "transparent",
             cursor: "ew-resize",
-            // visibility: "hidden",
         });
         this.resizeRight.addEventListener("mousedown", () => {
             this.status = "resizePositionBoxRight";
         });
-
-        // $(this.positionBox).off('mouseenter');
-        // $(this.positionBox).off('mouseleave');
-
-        // positionGroup.addEventListener("mouseenter", () => {
-        //     this.#recalculateResizeControls();
-        //     this.#showResizeControls();
-        // });
-        // positionGroup.addEventListener("mouseleave", () => {
-        //     this.#hideResizeControls();
-        // });
-
-        // Remove event listeners
-        // $(this.svg).off('contextmenu');
-        // $(this.svg).off('mousedown');
-        // $(this.svg).off('mouseup');
-        // $(this.svg).off('mousemove');
-        // $(this.svg).off('mouseleave');
 
         this.rendered = true;
     }
@@ -525,9 +476,63 @@ export default class ChromosomePanel {
 
     #limitRegionToChromosome(region) {
         // eslint-disable-next-line no-param-reassign
-        region.start = (region.start < 1) ? 1 : region.start;
+        region.start = Math.max(1, region.start);
         // eslint-disable-next-line no-param-reassign
-        region.end = (region.end > this.chromosomeLength) ? this.chromosomeLength : region.end;
+        region.end = Math.min(region.end, this.chromosomeLength);
+    }
+
+    show() {
+        this.target.style.display = "block";
+        this.hidden = false;
+    }
+
+    hide() {
+        this.target.style.display = "none";
+        this.hidden = true;
+    }
+
+    setVisible(bool) {
+        bool ? this.show() : this.hide();
+    }
+
+    showContent() {
+        this.content.style.display = "block";
+        this.collapse.classList.remove("active");
+        this.collapseIcon.classList.remove("fa-plus");
+        this.collapseIcon.classList.add("fa-minus");
+        this.collapsed = false;
+    }
+
+    hideContent() {
+        this.content.style.display = "none";
+        this.collapse.classList.add("active");
+        this.collapseIcon.classList.remove("fa-minus");
+        this.collapseIcon.classList.add("fa-plus");
+        this.collapsed = true;
+    }
+
+    setTitle(title) {
+        this.title.textContent = title;
+    }
+
+    setWidth(width) {
+        this.width = width;
+        this.svg.setAttribute("width", width);
+        this.draw();
+    }
+
+    setRegion(region) {
+        this.region.load(region);
+
+        if (!this.chromosome || this.chromosome.name != this.region.chromosome) {
+            this.draw();
+        }
+
+        this.updateRegionControls();
+    }
+
+    clean() {
+        GenomeBrowserUtils.cleanDOMElement(this.svg);
     }
 
     updateRegionControls() {
@@ -537,29 +542,16 @@ export default class ChromosomePanel {
         this.#recalculateResizeControls();
     }
 
-    setRegion(region) {
-        // console.log('region modified chromosome')
-        this.region.load(region);
-
-        if (this.lastChromosome != this.region.chromosome) {
-            this.draw();
-        }
-
-        this.updateRegionControls();
-    }
-
-    setCellBaseHost(host) {
-        this.cellBaseHost = host;
-    }
-
     getDefaultConfig() {
         return {
             width: 600,
-            height: 75,
-            hidden: false,
+            minWidth: 500,
+            height: 85,
             collapsible: true,
             collapsed: false,
             offset: 20, // Internally used
+            chromosomes: [],
+            featuresOfInterest: [],
         };
     }
 
