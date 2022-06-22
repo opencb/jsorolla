@@ -233,6 +233,7 @@ class IvaApp extends LitElement {
         this.config = _config;
 
         // Get version from env variable
+        // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
 
         // Initially we load the SUIte config
@@ -1046,24 +1047,25 @@ class IvaApp extends LitElement {
 
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             <custom-sidebar
-                .config=${this.config}
-                .loggedIn=${this.isLoggedIn()}
-                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
-            ></custom-sidebar>
+                .config="${this.config}"
+                .loggedIn="${this.isLoggedIn()}"
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
+            </custom-sidebar>
 
             <!-- Navbar -->
             <custom-navbar
-                .app=${this.app}
-                .loggedIn=${this.isLoggedIn()}
-                .opencgaSession=${this.opencgaSession}
-                .config=${this.config}
-                @logout=${e => this.logout()}
-                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
-                @changeTool=${e => this.changeTool(e.detail.value)}
-                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
-                @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
-                @jobSelected=${e => this.onJobSelected(e)}
+                .app="${this.app}"
+                .version="${this.version}"
+                .loggedIn="${this.isLoggedIn()}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this.config}"
+                @logout="${() => this.logout()}"
+                @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
+                @changeTool="${e => this.changeTool(e.detail.value)}"
+                @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
+                @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
+                @jobSelected="${e => this.onJobSelected(e)}"
                 @route="${this.route}">
             </custom-navbar>
 

@@ -63,6 +63,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             mode: {
                 type: String
             },
+            toolId: {
+                type: String,
+            },
             settings: {
                 type: Object,
             },
@@ -120,6 +123,14 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this._config.result.grid = {
                 ...this._config.result.grid,
                 ...this.settings.table,
+            };
+        }
+
+        // Check for user configuration
+        if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
+            this._config.result.grid = {
+                ...this._config.result.grid,
+                ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
             };
         }
 
