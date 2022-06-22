@@ -106,11 +106,6 @@ export default class RestEndpoint extends LitElement {
         const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data) && dataParameter.type !== "List";
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
 
-        // const bodyElementsFiltered = this.endpoint.parameters
-        //     .filter(parameter => parameter.param === "body" && parameter.data);
-        // const dataElement = bodyElementsFiltered.map(element => element.data);
-        // console.log("bodyElements", bodyElementsFiltered);
-
         if (this.endpoint?.parameters?.length > 0) {
             const queryElements = [];
             const filterElements = [];
@@ -172,7 +167,6 @@ export default class RestEndpoint extends LitElement {
                                 }
                             }
                         }
-
                     }
                 } else { // Parameter IS NOT body,
                     //  Path and Query Params
@@ -623,7 +617,6 @@ export default class RestEndpoint extends LitElement {
                 buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
                 buttonClearText: "Clear",
                 buttonOkText: "Try it out!",
-
             },
             sections: [{
                 display: {
@@ -692,12 +685,7 @@ export default class RestEndpoint extends LitElement {
                 icon: "",
                 render: () => {
                     return html`
-                    <!-- Body Json -->
-                    <!-- <div class="pull-right" style="margin-bottom: 6px" @click=\${() => this.onViewModel()}>
-                        <button type="button" class="btn btn-primary" >
-                            Model
-                        </button>
-                    </div> -->
+                    <!-- Body Json text area -->
                     <data-form
                         .data="${this.dataJson}"
                         .config="${configJson}"
