@@ -277,28 +277,7 @@ class VariantInterpreter extends LitElement {
             display: {
                 align: "center",
             },
-            items: [
-                {
-                    id: "caseReport",
-                    name: "Case Report Review",
-                    active: true,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                        <div class="col-md-10 col-md-offset-1">
-                            <tool-header
-                                class="bg-white"
-                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <clinical-analysis-review
-                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </clinical-analysis-review>
-                        </div>
-                    `;
-                    }
-                },
-            ]
+            items: []
         };
 
         const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
@@ -320,6 +299,27 @@ class VariantInterpreter extends LitElement {
                         </case-steiner-report>
                     </div>
                 `;
+                }
+            });
+        } else {
+            configReportTabs.items.push({
+                id: "caseReport",
+                name: "Case Report Review",
+                active: true,
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <clinical-analysis-review
+                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-analysis-review>
+                        </div>
+                    `;
                 }
             });
         }
