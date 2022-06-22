@@ -36,7 +36,7 @@ const opencga = {
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
-    version: "v2.4.0-dev",
+    version: "",
     logo: "img/iva-white.svg",
     companyLogo: "",
     logoAlt: "img/iva.svg",
