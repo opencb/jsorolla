@@ -22,7 +22,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -101,6 +100,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                     <div class="row" style="padding-left: 5px">
                                         <div class="col-md-6">
                                             <span style="font-size: 1.2em">${interpretation.id}</span>
+
                                             <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
                                         </div>
                                         <div class="col-md-6">

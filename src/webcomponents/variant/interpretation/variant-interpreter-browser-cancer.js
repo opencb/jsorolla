@@ -504,7 +504,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         showExport: false,
                         detailView: true,
                         showReview: false,
-                        showActions: false,
+                        showActions: true,
                         showSelectCheckbox: true,
                         multiSelection: false,
                         nucleotideGenotype: true,
