@@ -255,7 +255,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     </div>
                                 </div>
                                 <div style="padding-top: 20px">
-                                    <h2>Rearrangements Stats</h2>
+                                    <h2>Rearrangements</h2>
                                     <div class="">
                                         <simple-chart
                                             .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
