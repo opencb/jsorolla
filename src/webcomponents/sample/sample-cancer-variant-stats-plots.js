@@ -240,7 +240,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     <div class="">
                                         <simple-chart
                                             .title="${`${this.deletionAggregationStatsResults?.[0].count} deletions and insertions`}"
-                                            xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.deletionTypeStats}"
                                             .colors="${{
@@ -260,7 +259,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                     <div class="">
                                         <simple-chart
                                             .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
-                                            xAxisTitle="types"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
                                             .colors="${{
