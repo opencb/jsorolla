@@ -480,9 +480,16 @@ export default class DataForm extends LitElement {
                 case "download":
                     content = this._createDownloadElement(element);
                     break;
+                case "object":
+                    content = this._createObjectElement(element);
+                    break;
                 default:
                     throw new Error("Element type not supported:" + element.type);
             }
+        }
+
+        if (element?.display?.nested) {
+            return content;
         }
 
         // Initialize element values
@@ -1251,6 +1258,47 @@ export default class DataForm extends LitElement {
                 name="${element.title ?? element.name}">
             </download-button>
         `;
+    }
+
+    _createObjectElement(element) {
+        // section.display = {...section.display, defaultLayout: "vertical"};
+        const contents = [];
+        for (const elem of element.elements) {
+            // make sure this elem is nested
+            elem.display = {...elem.display, nested: true};
+
+            // Call to createElement to get HTML content
+            const elemContent = this._createElement(elem);
+
+            // Read Help message
+            const helpMessage = this._getHelpMessage(element);
+            const helpMode = this._getHelpMode(element);
+
+            // Assume vertical layout for nested forms
+            contents.push(
+                html`
+                    <div class="row form-group" style="margin-left: 0;margin-right: 0">
+                        ${elem.title ? html`
+                            <div>
+                                <label class="control-label" style="padding-top: 0;">
+                                    ${elem.title}
+                                </label>
+                            </div>
+                        ` : null
+                        }
+                        <div>
+                            <div>${elemContent}</div>
+                            ${helpMessage && helpMode === "block" ? html`
+                                <div class="col-md-1" style="padding:0%; margin-top:8px" title="${helpMessage}">
+                                    <span><i class="${this._getHelpIcon(element)}"></i></span>
+                                </div>
+                            ` : null
+                            }
+                        </div>
+                    </div>
+                `);
+        }
+        return html`${contents}`;
     }
 
     postRender() {
