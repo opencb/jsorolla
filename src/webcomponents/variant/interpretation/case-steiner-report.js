@@ -915,6 +915,13 @@ class CaseSteinerReport extends LitElement {
                                                 .title="${`${this._data.deletionAggreationCount} deletions and insertions`}"
                                                 .type="${"bar"}"
                                                 .data="${this._data.deletionAggregationStats}"
+                                                .colors="${{
+                                                    "Complex": "#bebebe",
+                                                    "Insertion": "#006400",
+                                                    "Deletion-other": "#cd2626",
+                                                    "Deletion-repeat": "#ff3030",
+                                                    "Deletion-microhomology": "#8b1a1a",
+                                                }}"
                                                 ?active="${true}">
                                             </simple-chart>
                                         </div>
