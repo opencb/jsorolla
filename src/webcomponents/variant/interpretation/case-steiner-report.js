@@ -22,7 +22,7 @@ import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
 import "../../file/file-preview.js";
 
-class VariantInterpreterReport extends LitElement {
+class CaseSteinerReport extends LitElement {
 
     constructor() {
         super();
@@ -986,4 +986,4 @@ class VariantInterpreterReport extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-report", VariantInterpreterReport);
+customElements.define("case-steiner-report", CaseSteinerReport);

@@ -56,7 +56,6 @@ export default class ClinicalAnalysisView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
