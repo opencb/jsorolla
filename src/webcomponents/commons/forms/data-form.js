@@ -373,6 +373,8 @@ export default class DataForm extends LitElement {
         const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
+        const buttonsSectionVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
+
         return html`
             <div class="row" style="margin-bottom: 12px;">
                 <div class="${sectionWidth}">
@@ -393,6 +395,7 @@ export default class DataForm extends LitElement {
                     </div>
                 </div>
             </div>
+            ${buttonsSectionVisible ? this.renderButtons(null, section?.id) : null}
         `;
     }
 
@@ -1285,7 +1288,7 @@ export default class DataForm extends LitElement {
         LitUtils.dispatchCustomEvent(this, "clear", null, {}, null);
     }
 
-    onSubmit(e) {
+    onSubmit(e, section=null) {
         // Check if it has invalid fields (not valid or required not filled)
         const hasInvalidFields = this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
         if (hasInvalidFields) {
@@ -1304,7 +1307,7 @@ export default class DataForm extends LitElement {
         // Form valid --> dispatch submit event
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
-        LitUtils.dispatchCustomEvent(this, "submit", null, {}, null);
+        LitUtils.dispatchCustomEvent(this, "submit", section, {}, null);
     }
 
     onCustomEvent(e, eventName, data) {
@@ -1335,7 +1338,7 @@ export default class DataForm extends LitElement {
         return null;
     }
 
-    renderButtons(dismiss) {
+    renderButtons(dismiss, sectionId=null) {
         const btnClassName = this.config.display?.buttonsClassName ?? this.config.buttons?.classes ?? "";
         const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? "";
         const btnWidth = this.config.display?.buttonsWidth ?? 12;
@@ -1360,7 +1363,7 @@ export default class DataForm extends LitElement {
                     }
                     ${buttonOkVisible? html`
                         <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
-                                @click="${this.onSubmit}">
+                                @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
                         </button>
                     `: null
@@ -1482,8 +1485,9 @@ export default class DataForm extends LitElement {
         // Check for pills style
         if (type === "pills") {
             return html`
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                         <ul class="nav nav-pills nav-stacked">
                             ${this._getVisibleSections().map((section, index) => {
                                 const active = index === this.activeSection;
@@ -1501,6 +1505,7 @@ export default class DataForm extends LitElement {
                         ${this.renderData()}
                     </div>
                 </div>
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
             `;
         }
 

@@ -77,7 +77,7 @@ export default class DiseasePanelGrid extends LitElement {
     propertyObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "DISEASE_PANEL",
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
