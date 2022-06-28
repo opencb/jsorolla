@@ -21,6 +21,7 @@ import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
+import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 
 class CaseSteinerReport extends LitElement {
@@ -256,7 +257,7 @@ class CaseSteinerReport extends LitElement {
 
                     // End filling report data
                     this._ready = true;
-                    return this.requestUpdate();
+                    this.requestUpdate();
                 })
                 .catch(error => {
                     console.error(error);
@@ -270,7 +271,9 @@ class CaseSteinerReport extends LitElement {
 
     render() {
         if (!this.clinicalAnalysis || !this._ready) {
-            return html``;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
