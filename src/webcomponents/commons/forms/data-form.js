@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import {join} from "lodash";
 
 export default class DataForm extends LitElement {
 
@@ -72,6 +73,8 @@ export default class DataForm extends LitElement {
         this.invalidFields = new Set();
         this.activeSection = 0; // Initial active section (only for tabs and pills type)
 
+        this.objectListItems = {};
+
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
     }
@@ -98,8 +101,22 @@ export default class DataForm extends LitElement {
         let value = object;
         if (field) {
             const _object = object ? object : this.data;
-            // optional chaining is needed when "res" is undefined
-            value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+            // If field contains [] means the element type is object-list,
+            // we need to get the value from the array, information is encoded as:
+            //  1. phenotypes[].1.id: field id from second item of phenotypes
+            //  2. phenotypes[].id: when no position is found is part of the Create New Item section
+            if (field.includes("[]")) {
+                const [parentItemArray, right] = field.split("[].");
+                if (right.includes(".")) {
+                    const [itemIndex, itemFieldId] = right.split(".");
+                    value = _object[parentItemArray][itemIndex]?.[itemFieldId];
+                } else {
+                    value = this.objectListItems[parentItemArray]?.[right];
+                }
+            } else {
+                // optional chaining is needed when "res" is undefined
+                value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+            }
 
             // needed for handling falsy values
             if (value !== undefined && value !== "") {
@@ -483,11 +500,16 @@ export default class DataForm extends LitElement {
                 case "object":
                     content = this._createObjectElement(element);
                     break;
+                case "object-list":
+                    content = this._createObjectListElement(element);
+                    break;
                 default:
                     throw new Error("Element type not supported:" + element.type);
             }
         }
 
+        // Only nested in 'object' and 'object-list', in these cases we do not want to create
+        // the rest of the HTML
         if (element?.display?.nested) {
             return content;
         }
@@ -674,7 +696,7 @@ export default class DataForm extends LitElement {
                 ?required="${element.required}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </text-field-filter>
         `;
 
@@ -698,7 +720,7 @@ export default class DataForm extends LitElement {
                 .step="${step}"
                 .placeholder="${element.display?.placeholder || ""}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </number-field-filter>
         `;
 
@@ -718,7 +740,7 @@ export default class DataForm extends LitElement {
                 type="date"
                 value="${value ? UtilsNew.dateFormatter(value, "YYYY-MM-DD") : ""}"
                 class="form-control ${this._isUpdated(element) ? "updated" : ""}"
-                @change="${e => this.onFilterChange(element.field, parseInputDate(e))}"
+                @change="${e => this.onFilterChange(element, parseInputDate(e))}"
                 ?disabled="${disabled}">
         `;
 
@@ -745,7 +767,7 @@ export default class DataForm extends LitElement {
                     class="${this._prefix}FilterCheckbox"
                     .checked="${value}"
                     ?disabled="${disabled}"
-                    @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}">
+                    @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
                 <span style="margin: 0 5px">${element.text}</span>
             </label>
         `;
@@ -774,7 +796,7 @@ export default class DataForm extends LitElement {
                     .activeClass="${activeClassName}"
                     .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-switch>
                 ${disabled && element.display?.helpMessage ? html`
                     <div class="help-block small">
@@ -799,7 +821,7 @@ export default class DataForm extends LitElement {
                     .activeClass="${activeClassName}"
                     .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-buttons>
             </div>
         `;
@@ -897,7 +919,7 @@ export default class DataForm extends LitElement {
                         ?required="${element.required}"
                         .value="${defaultValue}"
                         .classes="${this._isUpdated(element) ? "updated" : ""}"
-                        @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                        @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                     </select-field-filter>
                 </div>
             `;
@@ -1261,7 +1283,6 @@ export default class DataForm extends LitElement {
     }
 
     _createObjectElement(element) {
-        // section.display = {...section.display, defaultLayout: "vertical"};
         const contents = [];
         for (const elem of element.elements) {
             // make sure this elem is nested
@@ -1301,21 +1322,122 @@ export default class DataForm extends LitElement {
         return html`${contents}`;
     }
 
+    _createObjectListElement(element) {
+        const items = this.getValue(element.field);
+        const contents = [];
+
+        // Render all existing items
+        if (items?.length > 0) {
+            const view = html`
+                <div style="padding-bottom: 10px">
+                    ${items.map((item, index) => {
+                        const _element = JSON.parse(JSON.stringify(element));
+                        // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                        // items have a virtual element associated, this will allow to get the proper value later.
+                        for (const elem of _element.elements) {
+                            const [left, right] = elem.field.split(".");
+                            elem.field = left + "." + index + "." + right;
+                        }
+                        return html`
+                            <div>
+                                ${element.display.view(item)}
+                                <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px; display: none">
+                                    ${this._createObjectElement(_element)}
+                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">Edit</button>
+                                    <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">Remove</button>
+                                </div>
+                            </div>`;
+                    })}
+                </div>
+            `;
+            contents.push(view);
+        }
+
+        // Add the form to create the next item
+        const createHtml = html`
+            <div style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px">
+                <label>Create new item</label>
+                ${this._createObjectElement(element)}
+                <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#addToObjectList(e, element)}">Add</button>
+            </div>
+        `;
+
+        contents.push(createHtml);
+        return contents;
+    }
+
+    #addToObjectList(e, element) {
+        // Check if object array exists
+        if (!this.data[element.field]) {
+            this.data[element.field] = [];
+        }
+
+        // Add the new item to the array and delete the temp item
+        this.data[element.field].push(this.objectListItems[element.field]);
+        delete this.objectListItems[element.field];
+
+        // Notify change to provoke the update
+        this.onFilterChange(element, this.data[element.field]);
+
+        // TODO clear the nested form
+        // ...
+    }
+
+    #editItemOfObjectList(e, item, index, element) {
+        const htmlElement = document.getElementById(this._prefix + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "inline" : "none";
+    }
+
+    #saveItemInObjectList(e, item, index, element) {
+        const htmlElement = document.getElementById(this._prefix + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "inline" : "none";
+
+        // Notify change to provoke the update
+        this.onFilterChange(element, this.data[element.field]);
+    }
+
+    #removeFromObjectList(e, item, index, element) {
+        // Delete the removed item
+        this.data[element.field].splice(index, 1);
+
+        // Notify change to provoke the update
+        this.onFilterChange(element, this.data[element.field]);
+    }
+
     postRender() {
         // init any jquery plugin we might have used
         // $('.json-renderer').jsonViewer(data);
     }
 
 
-    onFilterChange(field, value) {
-        this.dispatchEvent(new CustomEvent("fieldChange", {
-            detail: {
-                param: field,
-                value: value
-            },
-            bubbles: true,
-            composed: true
-        }));
+    onFilterChange(element, value) {
+        if (element.field.includes("[]")) {
+            // Example: [variants, id]
+            const [parentArrayField, itemField] = element.field.split("[].");
+            if (itemField.includes(".")) {
+                const [index, field] = itemField.split(".");
+                this.data[parentArrayField][index][field] = value;
+            } else {
+                // Check if value is empty
+                if (value) {
+                    this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
+                } else {
+                    delete this.objectListItems[parentArrayField][itemField];
+                }
+            }
+        } else {
+            this.dispatchEvent(new CustomEvent("fieldChange", {
+                detail: {
+                    param: element.field,
+                    value: value
+                },
+                bubbles: true,
+                composed: true
+            }));
+        }
     }
 
     onBlurChange(field, value) {
@@ -1533,7 +1655,7 @@ export default class DataForm extends LitElement {
         // Check for pills style
         if (type === "pills") {
             return html`
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
                 <div class="row">
                     <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                         <ul class="nav nav-pills nav-stacked">
@@ -1553,7 +1675,7 @@ export default class DataForm extends LitElement {
                         ${this.renderData()}
                     </div>
                 </div>
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
             `;
         }
 
