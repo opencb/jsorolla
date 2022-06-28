@@ -1339,16 +1339,16 @@ export default class DataForm extends LitElement {
                             elem.field = left + "." + index + "." + right;
                         }
                         return html`
-                            <div>
+                            <div style="display:flex; justify-content:space-between">
                                 ${element.display.view(item)}
-                                <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px; display: none">
-                                    ${this._createObjectElement(_element)}
-                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
-                                </div>
                                 <div>
                                     <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">Edit</button>
                                     <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">Remove</button>
                                 </div>
+                            </div>
+                            <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
+                                ${this._createObjectElement(_element)}
+                                <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
                             </div>`;
                     })}
                 </div>
@@ -1388,12 +1388,12 @@ export default class DataForm extends LitElement {
 
     #editItemOfObjectList(e, item, index, element) {
         const htmlElement = document.getElementById(this._prefix + "_" + index);
-        htmlElement.style.display = htmlElement.style.display === "none" ? "inline" : "none";
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
 
     #saveItemInObjectList(e, item, index, element) {
         const htmlElement = document.getElementById(this._prefix + "_" + index);
-        htmlElement.style.display = htmlElement.style.display === "none" ? "inline" : "none";
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
 
         // Notify change to provoke the update
         this.onFilterChange(element, this.data[element.field]);
