@@ -817,6 +817,8 @@ class IvaApp extends LitElement {
                 species: "hsapiens",
             });
         }
+        // This simplifies passing cellbaseCLient to all components
+        this.opencgaSession.cellbaseClient = this.cellbaseClient;
     }
 
     updateProject(e) {
