@@ -1354,7 +1354,9 @@ export default class DataForm extends LitElement {
                             </div>
                             <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
                                 ${this._createObjectElement(_element)}
-                                <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
+                                <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
+                                </div>
                             </div>`;
                     })}
                 </div>
@@ -1367,7 +1369,9 @@ export default class DataForm extends LitElement {
             <div style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px">
                 <label>Create new item</label>
                 ${this._createObjectElement(element)}
-                <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#addToObjectList(e, element)}">Add</button>
+                <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#addToObjectList(e, element)}">Add</button>
+                </div>
             </div>
         `;
 
