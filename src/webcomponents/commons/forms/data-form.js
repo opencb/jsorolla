@@ -1339,11 +1339,17 @@ export default class DataForm extends LitElement {
                             elem.field = left + "." + index + "." + right;
                         }
                         return html`
-                            <div style="display:flex; justify-content:space-between">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
                                 ${element.display.view(item)}
                                 <div>
-                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">Edit</button>
-                                    <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">Remove</button>
+                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
+                                        <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
+                                        Edit
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                        <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                                        Remove
+                                    </button>
                                 </div>
                             </div>
                             <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
