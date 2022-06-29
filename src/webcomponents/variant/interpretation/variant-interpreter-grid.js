@@ -1084,7 +1084,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
                 break;
             case "genome-browser":
-                const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
                 break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
