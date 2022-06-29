@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class DetailTabs extends LitElement {
 
@@ -113,6 +114,7 @@ export default class DetailTabs extends LitElement {
 
     changeTab(e) {
         this._activeTab = e.currentTarget.dataset.id;
+        LitUtils.dispatchCustomEvent(this, "activeTabChange", this._activeTab);
         this.requestUpdate();
     }
 
