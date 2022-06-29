@@ -59,26 +59,12 @@ export default class DetailTabs extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._config = null;
         this._activeTab = null;
 
         // mode by default, if the component no use this property
         this.mode = this.mode || DetailTabs.TABS_MODE;
     }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-
-    //     // Read active tabs from config, if not active tab is found then FIRST one is selected.
-    //     const _activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false})));
-
-    //     // Set default active tab
-    //     const activeIndex = this._config.items.findIndex(item => item.active);
-    //     if (activeIndex < 0) {
-    //         _activeTabs[this._config.items[0].id] = true;
-    //     }
-    //     this.activeTabs = _activeTabs;
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
@@ -93,7 +79,10 @@ export default class DetailTabs extends LitElement {
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
         // Set default active tab
         if (!this._activeTab) {
@@ -152,24 +141,26 @@ export default class DetailTabs extends LitElement {
 
     render() {
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
-            return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
+            return html`
+                <h3>No valid mode: '${this.mode || ""}'</h3>
+            `;
         }
 
         if (this._config?.items?.length === 0) {
-            return html`<h3>No items provided</h3>`;
+            return html`
+                <h3>No items provided</h3>
+            `;
         }
 
         // Allow custom tabs alignment:  "center" or "justified"
         const align = this._config?.display?.align || "";
 
         return html`
-            ${this._config.title ?
-                html`
-                    <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
-                        <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
-                    </div>` :
-                null
-            }
+            ${this._config.title ? html`
+                <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
+                    <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
+                </div>
+            ` : null}
 
             <div class="detail-tabs">
                 <!-- TABS -->
