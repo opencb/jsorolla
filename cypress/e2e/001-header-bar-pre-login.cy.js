@@ -23,8 +23,8 @@ import {goTo} from "../plugins/utils.js";
  */
 context("1. Header bar (pre-login): checks on Header Bar elements", () => {
     before(() => {
-        cy.visit("http://localhost:3000/src/sites/iva/");
-
+        // Not necessary add url if get baseUrl from config
+        cy.visit("");
     });
 
     it("1.1 - check login page content", () => {
@@ -36,7 +36,7 @@ context("1. Header bar (pre-login): checks on Header Bar elements", () => {
 
     it("1.2 - check header-bar icons resolve correctly", () => {
         goTo("iva");
-        cy.get("#welcome-page-title", {timeout: TIMEOUT}).contains("Interactive Variant Analysis");
-
+        // cy.get("#welcome-page-title", {timeout: TIMEOUT}).contains("Interactive Variant Analysis");
+        cy.getBySel("welcome-page-title", {timeout: TIMEOUT}).contains("Variant Analysis");
     });
 });

@@ -56,7 +56,7 @@ local.properties
 # Cypress
 fixtures
 screenshots
-support
+# support
 videos
 mochawesome-report
 

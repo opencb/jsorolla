@@ -25,7 +25,7 @@ export const waitTable = gridSelector => {
 };
 
 export const login = () => {
-    cy.visit("http://localhost:3000/src/sites/iva/#login");
+    cy.visit("#login");
     const username = Cypress.env("username");
     const password = Cypress.env("password");
     cy.get("user-login .panel-body #user").type(username);

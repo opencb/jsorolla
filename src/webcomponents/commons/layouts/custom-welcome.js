@@ -203,7 +203,7 @@ export default class CustomWelcome extends LitElement {
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
+                    <h1 data-cy="welcome-page-title" class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
                         ${welcomePage.title}
                     </h1>
                 `: null}
