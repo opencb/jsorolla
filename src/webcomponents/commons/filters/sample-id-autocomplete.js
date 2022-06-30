@@ -67,7 +67,7 @@ export default class SampleIdAutocomplete extends LitElement {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
-                    count: true,
+                    count: false,
                     skip: (page - 1) * this._config.limit,
                     include: "id,individualId",
                     ...id
