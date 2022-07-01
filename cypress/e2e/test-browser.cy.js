@@ -26,7 +26,7 @@ context("Case Interpreter", () => {
     //     expect(true).to.equal(true);
     // });
 
-    it("select the first case", () => {
+    it("select case: maria", () => {
         cy.get("table").within(() => {
             cy.get("tr[data-uniqueid=MARIA]").as("mariaCase");
             cy.get("@mariaCase").find("a").contains("MARIA").click();
@@ -36,9 +36,50 @@ context("Case Interpreter", () => {
         // cy.get(".variant-interpreter-wizard a.variant-interpreter-step").contains("Sample Variant Browser").click();
     });
 
-    it("select variant browser", () => {
-        // cy.getBySel("diseasePanels");
+    it("case maria: filters on variant browser", () => {
+
+        // Select Disease Panel
+        cy.get("disease-panel-filter div").contains("span", "Select Disease Panels").as("diseaseFilter");
+        cy.get("@diseaseFilter").parent().within(() => {
+            cy.get("select-field-filter select")
+                .select([4], {force: true})
+                .invoke("val")
+                .should("deep.equal", ["Amelogenesis_imperfecta-PanelAppId-269"]);
+        });
+
+        // Select Clinical Database
+        cy.get("clinical-annotation-filter ").contains("span", "Select Clinical Database").as("clinicalDbFilter");
+        cy.get("@clinicalDbFilter").parent().within(() =>{
+            cy.get("select-field-filter select")
+                .select([0], {force: true})
+                .invoke("val")
+                .should("deep.equal", ["clinvar"]);
+        });
+
+        // Select SO Terms
+        cy.get("consequence-type-select-filter label input[value='Coding Sequence']").check();
+
+        cy.get("variant-interpreter-browser-template .search-button-wrapper").contains("button", "Search").click();
     });
+
+    // Filters variant browser case
+    it("check results", ()=> {
+        // Variants Table see if has results
+        cy.wait(2000);
+        cy.get("variant-interpreter-grid .fixed-table-body").find("table tbody").first().as("variantTable");
+        cy.get("@variantTable").children().should("have.length.gt", 0);
+
+        //  with children get elements inside tbody the first level
+        // with find get element and inside those elements too, deep levels.
+        // .find("tbody tr").should("have.length.gt", 0);
+
+        // Message if it has no results
+        // table table-bordered table-hover no-records-found No matching records found
+
+        // Loading container
+        // fixed-table-loading table table-bordered table-hover loading-spinner DNA_cont
+    });
+
 });
 
 
