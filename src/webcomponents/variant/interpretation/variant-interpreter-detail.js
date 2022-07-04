@@ -93,7 +93,7 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     render() {
-        if (!this.variant?.annotation) {
+        if (!this.variant?.annotation && !Array.isArray(this.variant)) {
             return;
         }
 
