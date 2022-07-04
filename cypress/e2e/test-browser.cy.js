@@ -61,6 +61,7 @@ context("Case Interpreter", () => {
         cy.diseasePanels("genes_by_moi", "X-linked Dominant");
         cy.diseasePanels("genes_by_confidence", "LOW");
         cy.diseasePanels("genes_by_roles_in_cancer", "TUMOR_SUPPRESSOR_GENE");
+        cy.diseasePanels("panel_intersection", "ON");
 
         // Select Filters
         cy.clinicalAnnotation("clinical_database", "ClinVar");

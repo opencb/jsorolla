@@ -97,7 +97,7 @@ Cypress.Commands.add("diseasePanels", (filter, value) => {
 
     const filters = {
         "disease_panels": "Select Disease Panels",
-        "panel_intersenction": "Panel Intersenction",
+        "panel_intersection": "Panel Intersection",
         "feature_type": "Filter by Feature Type",
         "genes_by_moi": "Filter Genes by Mode of Inheritance",
         "genes_by_confidence": "Filter Genes by Confidence",
@@ -106,15 +106,20 @@ Cypress.Commands.add("diseasePanels", (filter, value) => {
 
     switch (filter) {
         case "feature_type":
-        case "panel_intersenction":
         case "genes_by_moi":
         case "genes_by_confidence":
         case "genes_by_roles_in_cancer":
             cy.get("disease-panel-filter div").contains("span", filters[filter]).as("diseaseFilter");
-            return cy.get("@diseaseFilter").parent().within(() => {
+            cy.get("@diseaseFilter").parent().within(() => {
                 cy.get("select-field-filter ul[role='presentation']").contains(value).click({force: true});
             });
-        case "":
+            break;
+        case "panel_intersection":
+            cy.get("disease-panel-filter div").contains("span", filters[filter]).as("diseaseFilter");
+            cy.get("@diseaseFilter").parent().within(() => {
+                cy.get("toggle-switch button").contains(value).click({force: true});
+            });
+            break;
 
     }
 
