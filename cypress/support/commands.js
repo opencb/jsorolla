@@ -104,14 +104,15 @@ Cypress.Commands.add("diseasePanels", (filter, value) => {
         "genes_by_roles_in_cancer": "Filter Genes by Role in Cancer"
     };
 
-    switch (filters[filter]) {
-        case "disease_panels":
-            cy.get("disease-panel-filter div").contains("span", "Select Disease Panels").as("diseaseFilter");
+    switch (filter) {
+        case "feature_type":
+        case "panel_intersenction":
+        case "genes_by_moi":
+        case "genes_by_confidence":
+        case "genes_by_roles_in_cancer":
+            cy.get("disease-panel-filter div").contains("span", filters[filter]).as("diseaseFilter");
             return cy.get("@diseaseFilter").parent().within(() => {
-                cy.get("select-field-filter select")
-                    .select([4], {force: true})
-                    .invoke("val")
-                    .should("deep.equal", [value]);
+                cy.get("select-field-filter ul[role='presentation']").contains(value).click({force: true});
             });
         case "":
 

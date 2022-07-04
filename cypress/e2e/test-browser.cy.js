@@ -56,6 +56,12 @@ context("Case Interpreter", () => {
                 .should("deep.equal", ["Amelogenesis_imperfecta-PanelAppId-269"]);
         });
 
+        // Disease Panels
+        cy.diseasePanels("feature_type", "Region");
+        cy.diseasePanels("genes_by_moi", "X-linked Dominant");
+        cy.diseasePanels("genes_by_confidence", "LOW");
+        cy.diseasePanels("genes_by_roles_in_cancer", "TUMOR_SUPPRESSOR_GENE");
+
         // Select Filters
         cy.clinicalAnnotation("clinical_database", "ClinVar");
         cy.clinicalAnnotation("clinical_significance", "Likely benign");
