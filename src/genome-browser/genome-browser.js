@@ -557,11 +557,15 @@ export default class GenomeBrowser {
 
     // Track management
     addOverviewTrack(track) {
-        this.overviewTrackListPanel.addTrack(track);
+        if (this.overviewTrackListPanel) {
+            this.overviewTrackListPanel.addTrack(track);
+        }
     }
 
     addOverviewTracks(tracks) {
-        this.overviewTrackListPanel.addTracks(tracks);
+        if (this.overviewTrackListPanel) {
+            this.overviewTrackListPanel.addTracks(tracks);
+        }
     }
 
     addTrack(track) {
