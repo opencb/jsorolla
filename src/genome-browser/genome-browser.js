@@ -195,6 +195,11 @@ export default class GenomeBrowser {
             overviewPanelVisible: this.config.overviewPanelVisible,
             featuresOfInterest: this.config.featuresOfInterest || [],
             featuresOfInterestTitle: this.config.featuresOfInterestTitle,
+            geneSearchVisible: this.config.navigationPanelGeneSearchVisible,
+            regionSearchVisible: this.config.navigationPanelRegionSearchVisible,
+            historyControlsVisible: this.config.navigationPanelHistoryControlsVisible,
+            zoomControlsVisible: this.config.navigationPanelZoomControlsVisible,
+            positionControlsVisible: this.config.navigationPanelPositionControlsVisible,
         });
 
         // Register event listeners
@@ -610,6 +615,11 @@ export default class GenomeBrowser {
             navigationPanelVisible: true,
             navigationPanelQuickSearchResultFn: null,
             navigationPanelQuickSearchDisplayKey: "name",
+            navigationPanelHistoryControlsVisible: true,
+            navigationPanelZoomControlsVisible: true,
+            navigationPanelPositionControlsVisible: true,
+            navigationPanelGeneSearchVisible: true,
+            navigationPanelRegionSearchVisible: true,
 
             // Status panel configuration
             statusPanelVisible: true,
