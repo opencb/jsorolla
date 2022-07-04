@@ -47,16 +47,8 @@ context("Case Interpreter", () => {
 
     it("case maria: filters on variant browser", () => {
 
-        // Select Disease Panels
-        cy.get("disease-panel-filter div").contains("span", "Select Disease Panels").as("diseaseFilter");
-        cy.get("@diseaseFilter").parent().within(() => {
-            cy.get("select-field-filter select")
-                .select([4], {force: true})
-                .invoke("val")
-                .should("deep.equal", ["Amelogenesis_imperfecta-PanelAppId-269"]);
-        });
-
         // Disease Panels
+        cy.diseasePanels("disease_panels", "Albinism or congenital nystagmus - Genomics England PanelApp v1.6 (41 genes, 0 regions)");
         cy.diseasePanels("feature_type", "Region");
         cy.diseasePanels("genes_by_moi", "X-linked Dominant");
         cy.diseasePanels("genes_by_confidence", "LOW");

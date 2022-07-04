@@ -104,7 +104,17 @@ Cypress.Commands.add("diseasePanels", (filter, value) => {
         "genes_by_roles_in_cancer": "Filter Genes by Role in Cancer"
     };
 
+    // Select Disease Panels
+    // cy.get("disease-panel-filter div").contains("span", "Select Disease Panels").as("diseaseFilter");
+    // cy.get("@diseaseFilter").parent().within(() => {
+    //     cy.get("select-field-filter select")
+    //         .select([4], {force: true})
+    //         .invoke("val")
+    //         .should("deep.equal", ["Amelogenesis_imperfecta-PanelAppId-269"]);
+    // });
+
     switch (filter) {
+        case "disease_panels":
         case "feature_type":
         case "genes_by_moi":
         case "genes_by_confidence":
