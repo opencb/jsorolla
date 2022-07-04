@@ -167,7 +167,7 @@ export default class VariantInterpreterDetail extends LitElement {
                 {
                     id: "fileMetrics",
                     name: "File Metrics",
-                    render: (variant, active, opencgaSession) => html`
+                    render: (variant, _active, opencgaSession) => html`
                         <opencga-variant-file-metrics
                             .opencgaSession="${opencgaSession}"
                             .variant="${variant}"
