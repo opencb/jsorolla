@@ -439,6 +439,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                         cellBaseClient: this.cellbaseClient,
                                         karyotypePanelVisible: false,
                                         overviewPanelVisible: false,
+                                        navigationPanelHistoryControlsVisible: false,
+                                        navigationPanelGeneSearchVisible: false,
+                                        navigationPanelRegionSearchVisible: false,
                                     }}">
                                 </split-genome-browser>
                             `,
