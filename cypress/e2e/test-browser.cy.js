@@ -47,23 +47,24 @@ context("Case Interpreter", () => {
 
     it("case maria: filters on variant browser", () => {
 
-        // Disease Panels
-        cy.diseasePanels("disease_panels", "Albinism or congenital nystagmus - Genomics England PanelApp v1.6 (41 genes, 0 regions)");
-        cy.diseasePanels("feature_type", "Region");
-        cy.diseasePanels("genes_by_moi", "X-linked Dominant");
-        cy.diseasePanels("genes_by_confidence", "LOW");
-        cy.diseasePanels("genes_by_roles_in_cancer", "TUMOR_SUPPRESSOR_GENE");
-        cy.diseasePanels("panel_intersection", "ON");
+        // Filter: Disease Panel
+        cy.setDiseasePanels("disease_panels", "Albinism or congenital nystagmus - Genomics England PanelApp v1.6 (41 genes, 0 regions)");
+        cy.setDiseasePanels("feature_type", "Region");
+        cy.setDiseasePanels("genes_by_moi", "X-linked Dominant");
+        cy.setDiseasePanels("genes_by_confidence", "LOW");
+        cy.setDiseasePanels("genes_by_roles_in_cancer", "TUMOR_SUPPRESSOR_GENE");
+        cy.setDiseasePanels("panel_intersection", "ON");
 
-        // Select Filters
-        cy.clinicalAnnotation("clinical_database", "ClinVar");
-        cy.clinicalAnnotation("clinical_significance", "Likely benign");
-        cy.clinicalAnnotation("clinical_status", false);
+        // Filter: Clinical Annotation
+        cy.setClinicalAnnotation("clinical_database", "ClinVar");
+        cy.setClinicalAnnotation("clinical_significance", ["Likely benign", "Benign", "Pathogenic"]);
+        cy.setClinicalAnnotation("clinical_status", false);
 
         // Select SO Terms
-        cy.get("consequence-type-select-filter label input[value='Coding Sequence']").check();
+        cy.setConsequenceType("coding_sequence", true);
+        cy.setConsequenceType("terms_manual", "coding_sequence_variant");
 
-        // cy.get("variant-interpreter-browser-template .search-button-wrapper").contains("button", "Search").click();
+        cy.get("variant-interpreter-browser-template .search-button-wrapper").contains("button", "Search").click();
     });
 
     // Filters variant browser case
