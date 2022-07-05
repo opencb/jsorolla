@@ -25,11 +25,43 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 
+import UtilsNew from "../../src/core/utilsNew.js";
+
+
 Cypress.Commands.add("setSample", (filter, value) =>{
 
 });
 
 Cypress.Commands.add("setGenomic", (filter, value) =>{
+
+    const filters = {
+        genomic_location: "Genomic Location",
+        feature_ids: "",
+        gene_biotype: "Gene Biotype",
+        variant_type: "Variant Type",
+    };
+
+    switch (filter) {
+        case "genomic_location":
+            cy.get("div[data-cy='region']").contains("span", filters[filter]);
+            cy.get("region-filter textarea").type(value);
+            break;
+        case "gene_biotype":
+            cy.get("div[data-cy='biotype']").contains("span", filters[filter]);
+            cy.get(".subsection-content biotype-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
+            break;
+        case "variant_type":
+            cy.get("div[data-cy='type']").contains("span", filters[filter]);
+            if (UtilsNew.isObject(value)) {
+                return Object.keys(value).forEach(key => {
+                    cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`).invoke("prop", "checked", value[key]);
+                });
+            }
+            if (value === "all") {
+                return cy.get("variant-type-filter button").contains("Select all").click();
+            }
+            break;
+    }
 
 });
 
@@ -113,7 +145,7 @@ Cypress.Commands.add("setConsequenceType", (filter, value) => {
             cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).invoke("prop", "checked", value);
             break;
         case "terms_manual":
-            cy.get("consequence-type-select-filter").contains("span", filters[filter]).as("ctFilter");
+            cy.get("consequence-type-select-filter").contains("span", filters[filter]);
             cy.get("consequence-type-select-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
     }
 

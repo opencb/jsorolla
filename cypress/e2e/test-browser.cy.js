@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {caseFilterVariant} from "../fixtures/caseVariantData.js";
+
 import {login, goTo} from "../plugins/utils.js";
 
 context("Case Interpreter", () => {
@@ -47,24 +49,31 @@ context("Case Interpreter", () => {
 
     it("case maria: filters on variant browser", () => {
 
+        const {diseasePanel, clinicalAnnotation, consequenceType} = caseFilterVariant;
+
         // Filter: Disease Panel
-        cy.setDiseasePanels("disease_panels", "Albinism or congenital nystagmus - Genomics England PanelApp v1.6 (41 genes, 0 regions)");
-        cy.setDiseasePanels("feature_type", "Region");
-        cy.setDiseasePanels("genes_by_moi", "X-linked Dominant");
-        cy.setDiseasePanels("genes_by_confidence", "LOW");
-        cy.setDiseasePanels("genes_by_roles_in_cancer", "TUMOR_SUPPRESSOR_GENE");
-        cy.setDiseasePanels("panel_intersection", "ON");
+        cy.setDiseasePanels("disease_panels", diseasePanel.disease_panel);
+        cy.setDiseasePanels("feature_type", diseasePanel.feature_type);
+        cy.setDiseasePanels("genes_by_moi", diseasePanel.genes_by_moi);
+        cy.setDiseasePanels("genes_by_confidence", diseasePanel.genes_by_confidence);
+        cy.setDiseasePanels("genes_by_roles_in_cancer", diseasePanel.genes_by_roles_in_cancer);
+        cy.setDiseasePanels("panel_intersection", diseasePanel.panel_intersection);
 
         // Filter: Clinical Annotation
-        cy.setClinicalAnnotation("clinical_database", "ClinVar");
-        cy.setClinicalAnnotation("clinical_significance", ["Likely benign", "Benign", "Pathogenic"]);
-        cy.setClinicalAnnotation("clinical_status", false);
+        cy.setClinicalAnnotation("clinical_database", clinicalAnnotation.clinical_database);
+        cy.setClinicalAnnotation("clinical_significance", clinicalAnnotation.clinical_significance);
+        cy.setClinicalAnnotation("clinical_status", clinicalAnnotation.clinical_status);
 
         // Select SO Terms
-        cy.setConsequenceType("coding_sequence", true);
-        cy.setConsequenceType("terms_manual", "coding_sequence_variant");
+        cy.setConsequenceType("coding_sequence", consequenceType.coding_sequence);
+        cy.setConsequenceType("terms_manual", consequenceType.terms_manual);
+        // nonsense_mediated_decay
 
-        cy.get("variant-interpreter-browser-template .search-button-wrapper").contains("button", "Search").click();
+        cy.setGenomic("gene_biotype", "nonsense_mediated_decay");
+        cy.setGenomic("genomic_location", "3:444-55555,1:1-100000");
+        // cy.setGenomic("variant_type", {"SNV": false, "INSERTION": true});
+
+        // cy.get("variant-interpreter-browser-template .search-button-wrapper").contains("button", "Search").click();
     });
 
     // Filters variant browser case
