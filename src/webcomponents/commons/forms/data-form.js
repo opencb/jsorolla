@@ -27,7 +27,6 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
-import {join} from "lodash";
 
 export default class DataForm extends LitElement {
 
@@ -751,9 +750,6 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
-        // if (element.field.endsWith("FILTER")) {
-        // }
-
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";
@@ -1092,7 +1088,7 @@ export default class DataForm extends LitElement {
     }
 
     _createPlotElement(element) {
-        // By default we use data field in the element
+        // By default, we use data field in the element
         let data = element.data;
 
         // If a valid field object or arrays is defined we use it
@@ -1172,20 +1168,13 @@ export default class DataForm extends LitElement {
         }
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
-        let data = this.data;
-        if (element.field) {
-            data = this.getValue(element.field);
-        }
+        const data = element.field ? this.getValue(element.field) : this.data;
 
-        // Call to render function if defined
-        // It covers the case the result of this.getValue is actually undefined
-
-        const result = element.display.render(data);
-        if (result) {
-            // const width = this._getWidth(element);
-            // const style = element.display.style ? element.display.style : "";
-            // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return this._createElementTemplate(element, data, result);
+        // Call to render function, it must be defined!
+        // We also allow to call to 'onFilterChange' function.
+        const content = element.display.render(data, value => this.onFilterChange(element, value));
+        if (content) {
+            return this._createElementTemplate(element, data, content);
         } else {
             return this._getErrorMessage(element);
         }
@@ -1386,8 +1375,10 @@ export default class DataForm extends LitElement {
         }
 
         // Add the new item to the array and delete the temp item
-        this.data[element.field].push(this.objectListItems[element.field]);
-        delete this.objectListItems[element.field];
+        if (this.objectListItems[element.field]) {
+            this.data[element.field].push(this.objectListItems[element.field]);
+            delete this.objectListItems[element.field];
+        }
 
         // Notify change to provoke the update
         this.onFilterChange(element, this.data[element.field]);
@@ -1417,17 +1408,12 @@ export default class DataForm extends LitElement {
         this.onFilterChange(element, this.data[element.field]);
     }
 
-    postRender() {
-        // init any jquery plugin we might have used
-        // $('.json-renderer').jsonViewer(data);
-    }
-
-
     onFilterChange(element, value) {
         if (element.field.includes("[]")) {
             // Example: [variants, id]
             const [parentArrayField, itemField] = element.field.split("[].");
             if (itemField.includes(".")) {
+                // Items in the array
                 const [index, field] = itemField.split(".");
                 this.data[parentArrayField][index][field] = value;
             } else {
@@ -1450,16 +1436,16 @@ export default class DataForm extends LitElement {
         }
     }
 
-    onBlurChange(field, value) {
-        this.dispatchEvent(new CustomEvent("blurChange", {
-            detail: {
-                param: field,
-                value: value
-            },
-            bubbles: false,
-            composed: true
-        }));
-    }
+    // onBlurChange(field, value) {
+    //     this.dispatchEvent(new CustomEvent("blurChange", {
+    //         detail: {
+    //             param: field,
+    //             value: value
+    //         },
+    //         bubbles: false,
+    //         composed: true
+    //     }));
+    // }
 
 
     onClear(e) {

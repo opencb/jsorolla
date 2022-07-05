@@ -15,14 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-update.js";
-import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
-import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 
 
 export default class DiseasePanelCreate extends LitElement {
@@ -61,6 +58,11 @@ export default class DiseasePanelCreate extends LitElement {
             //         reference: "A",
             //         alternate: "T"
             //     }
+            // ],
+            // genes: [
+            //     {
+            //         id: "BRCA2"
+            //     }
             // ]
         };
     }
@@ -75,11 +77,33 @@ export default class DiseasePanelCreate extends LitElement {
                     e.detail.value,
                 )};
         }
-        // this.opencgaSession.cellbaseClient.get("feature", "gene", )
+
+        // Get gene name and coordinates
+        if (this.diseasePanel?.genes?.length > 0) {
+            for (const gene of this.diseasePanel?.genes) {
+                if (!gene.id) {
+                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", {exclude: "transcripts,annotation"})
+                        .then(res => {
+                            const g = res.responses[0].results[0];
+                            gene.id = g.id;
+                            gene.coordinates = [
+                                {
+                                    location: `${g.chromosome}:${g.start}-${g.end}`
+                                }
+                            ];
+                            this.diseasePanel = {...this.diseasePanel};
+                            this.requestUpdate();
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                }
+            }
+        }
         this.requestUpdate();
     }
 
-    onClear(e) {
+    onClear() {
         this.diseasePanel = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
@@ -102,41 +126,17 @@ export default class DiseasePanelCreate extends LitElement {
             });
     }
 
-    onAddOrUpdateItem(e) {
-        const param = e.detail.param;
-        const value = e.detail.value;
-        if (UtilsNew.isNotEmpty(value)) {
-            switch (param) {
-                case "disorders":
-                    this.diseasePanel = {...this.diseasePanel, disorders: value};
-                    break;
-                case "phenotypes":
-                    this.diseasePanel = {...this.diseasePanel, phenotypes: value};
-                    break;
-            }
-        } else {
-            this.diseasePanel = {
-                ...this.diseasePanel,
-                [param]: []
-            };
-            delete this.diseasePanel[param];
-        }
-        this.requestUpdate();
-    }
-
     render() {
         return html`
             <data-form
                 .data="${this.diseasePanel}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${this.onSubmit}">
             </data-form>
         `;
     }
-
 
     getDefaultConfig() {
         return Types.dataFormConfig({
@@ -243,44 +243,6 @@ export default class DiseasePanelCreate extends LitElement {
                         },
                     ]
                 },
-                // {
-                //     title: "Disorders",
-                //     elements: [
-                //         {
-                //             title: "Disorder",
-                //             field: "disorders",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (disorder, callback) => html`
-                //                     <ontology-term-annotation-update
-                //                         .ontology="${disorder}"
-                //                         .entity="${"disorder"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Save",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @updateItem="${callback}">
-                //                     </ontology-term-annotation-update>
-                //                 `,
-                //                 renderCreate: (disorder, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <ontology-term-annotation-create
-                //                         .entity="${"disorder"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Add",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @addItem="${callback}">
-                //                     </ontology-term-annotation-create>
-                //                 `
-                //             }
-                //         },
-                //     ]
-                // },
                 {
                     title: "Variants",
                     elements: [
@@ -307,19 +269,21 @@ export default class DiseasePanelCreate extends LitElement {
                                 {
                                     title: "Mode of Inheritance",
                                     field: "variants[].modeOfInheritance",
-                                    type: "input-text",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
                                     display: {
-                                        placeholder: "Add mode of inheritance...",
+                                        placeholder: "Select a mode of inheritance..."
                                     }
                                 },
                                 {
                                     title: "Confidence",
                                     field: "variants[].confidence",
-                                    type: "input-text",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
                                     display: {
-                                        placeholder: "Add confidence...",
+                                        placeholder: "Select a confidence..."
                                     }
-                                }
+                                },
                             ]
                         },
                     ]
@@ -336,35 +300,47 @@ export default class DiseasePanelCreate extends LitElement {
                                 collapsedUpdate: true,
                                 view: gene => html`
                                     <div>
-                                        ${gene.id} - ${gene?.modeOfInheritance}
+                                        <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modeOfInheritance || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
                                     </div>
                                 `,
                             },
                             elements: [
                                 {
-                                    title: "Variant ID",
-                                    field: "genes[].id",
-                                    type: "input-text",
+                                    title: "Gene",
+                                    field: "genes[].name",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add variant ID...",
+                                        placeholder: "Add gene...",
+                                        render: (data, dataFormFilterChange) => {
+                                            return html`
+                                                <feature-filter
+                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                </feature-filter>
+                                            `;
+                                        },
                                     }
                                 },
                                 {
                                     title: "Mode of Inheritance",
                                     field: "genes[].modeOfInheritance",
-                                    type: "input-text",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
                                     display: {
-                                        placeholder: "Add mode of inheritance...",
+                                        placeholder: "Select a mode of inheritance..."
                                     }
                                 },
                                 {
                                     title: "Confidence",
                                     field: "genes[].confidence",
-                                    type: "input-text",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
                                     display: {
-                                        placeholder: "Add confidence...",
+                                        placeholder: "Select a confidence..."
                                     }
-                                }
+                                },
                             ]
                         },
                     ]
