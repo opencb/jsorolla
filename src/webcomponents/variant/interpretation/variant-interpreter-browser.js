@@ -204,7 +204,7 @@ class VariantInterpreterBrowser extends LitElement {
                         name: panel.name,
                         features: panel.genes
                             .map(gene => {
-                                const coordinates = gene.coordinates.find(c => c.assembly === assembly);
+                                const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
                                 if (!coordinates) {
                                     return null;
                                 } else {
