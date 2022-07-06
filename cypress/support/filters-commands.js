@@ -36,7 +36,7 @@ Cypress.Commands.add("setGenomic", (filter, value) =>{
 
     const filters = {
         genomic_location: "Genomic Location",
-        feature_ids: "",
+        feature_ids: "Feature IDs (gene, SNPs, ...)",
         gene_biotype: "Gene Biotype",
         variant_type: "Variant Type",
     };
@@ -45,6 +45,15 @@ Cypress.Commands.add("setGenomic", (filter, value) =>{
         case "genomic_location":
             cy.get("div[data-cy='region']").contains("span", filters[filter]);
             cy.get("region-filter textarea").type(value);
+            break;
+        case "feature_ids":
+            // Select2 Widgets
+            // https://www.cypress.io/blog/2020/03/20/working-with-select-elements-and-select2-widgets-in-cypress/#fetched-data
+            // <ul class="select2-selection__rendered" id="select2-DTCAOwDS-container"></ul>
+            const val = Array.isArray(value) ? value.join("{enter}") + "{enter}": value;
+            cy.get("div[data-cy='feature']").contains("span", filters[filter]);
+            cy.get("feature-filter select-token-filter ul").click({force: true});
+            cy.get("div[data-cy='feature'] .select2-search__field").type(val, {delay: 200});
             break;
         case "gene_biotype":
             cy.get("div[data-cy='biotype']").contains("span", filters[filter]);

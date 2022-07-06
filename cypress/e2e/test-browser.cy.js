@@ -71,6 +71,7 @@ context("Case Interpreter", () => {
 
         cy.setGenomic("gene_biotype", "nonsense_mediated_decay");
         cy.setGenomic("genomic_location", "3:444-55555,1:1-100000");
+        cy.setGenomic("feature_ids", ["LIN28A", "CLIC4"]);
         // cy.setGenomic("variant_type", {"SNV": false, "INSERTION": true});
 
         // cy.get("variant-interpreter-browser-template .search-button-wrapper").contains("button", "Search").click();
