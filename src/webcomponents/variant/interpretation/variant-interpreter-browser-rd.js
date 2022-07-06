@@ -343,7 +343,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 tooltip: tooltips.sample,
                             },
                             {
-                                id: "sample",
+                                id: "family-genotype",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
                                 clinicalAnalysis: this.clinicalAnalysis,
