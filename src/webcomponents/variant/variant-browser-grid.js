@@ -115,14 +115,15 @@ export default class VariantBrowserGrid extends LitElement {
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
         if (this.query?.sample) {
-            for (const sampleId of this.query.sample.split("[,;]")) {
-                _samples.push({
-                    id: sampleId.split(":")[0]
-                });
+            for (const sampleId of this.query.sample.split(new RegExp("[,;]"))) {
+                _samples.push(
+                    {
+                        id: sampleId.split(":")[0]
+                    }
+                );
             }
         }
         this.samples = _samples;
-
         this.requestUpdate();
     }
 
@@ -188,7 +189,8 @@ export default class VariantBrowserGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeStudy: "all",
-                        summary: !this.query.sample && !this.query.family,
+                        includeSampleId: "true",
+                        // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
@@ -509,13 +511,19 @@ export default class VariantBrowserGrid extends LitElement {
     _getDefaultColumns() {
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let sampleColumns = [{visible: false}];
-        if (this._columns && this.samples && this.samples.length > 0) {
+        if (this.samples?.length > 0) {
             sampleColumns = [];
             for (let i = 0; i < this.samples.length; i++) {
                 sampleColumns.push({
                     id: this.samples[i].id,
                     title: this.samples[i].id,
-                    field: "samples",
+                    // field: "samples",
+                    field: {
+                        memberIdx: i,
+                        memberName: this.samples[i].id,
+                        sampleId: this.samples[i].id,
+                        config: this._config
+                    },
                     rowspan: 1,
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
@@ -661,7 +669,7 @@ export default class VariantBrowserGrid extends LitElement {
                 {
                     id: "samples",
                     title: "Samples",
-                    field: "samples",
+                    // field: "samples",
                     rowspan: 1,
                     colspan: sampleColumns.length,
                     align: "center",
