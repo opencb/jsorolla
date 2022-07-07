@@ -20,6 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -66,9 +67,9 @@ export default class DiseasePanelGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
+                changedProperties.has("query") ||
+                changedProperties.has("config") ||
+                changedProperties.has("active")) &&
             this.active) {
             this.propertyObserver();
         }
@@ -234,99 +235,177 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [[
-            {
-                id: "id",
-                title: "Panel ID",
-                field: "id",
-                rowspan: 2,
-                colspan: 1,
-                formatter: (value, row) => {
-                    if (row?.source && row?.source?.project === "PanelApp") {
-                        return String.raw`
+        let _columns = [
+            [
+                {
+                    id: "id",
+                    title: "Panel ID",
+                    field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        if (row?.source && row?.source?.project === "PanelApp") {
+                            return String.raw`
                             <a href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
                                 ${row?.id ?? "-"} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
-                    }
-                    return row?.id ?? "-";
+                        }
+                        return row?.id ?? "-";
+                    },
+                    halign: this._config.header.horizontalAlign
                 },
-                halign: this._config.header.horizontalAlign
-            },
-            {
-                id: "name",
-                title: "Name",
-                field: "name",
-                rowspan: 2,
-                colspan: 1,
-                formatter: (value, row) => row?.name ?? "-",
-                halign: this._config.header.horizontalAlign
-            },
-            {
-                id: "stats",
-                title: "Stats",
-                field: "stats",
-                rowspan: 1,
-                colspan: 3,
-                align: "center",
-            },
-            {
-                id: "source",
-                title: "Source",
-                field: "source",
-                rowspan: 2,
-                colspan: 1,
-                formatter: (value, row) => {
-                    if (row?.source) {
-                        const {id, author, project, version} = row.source;
-                        let projectAndVersion = "";
-                        if (project?.toUpperCase() === "PANELAPP") {
-                            projectAndVersion = `
+                {
+                    id: "name",
+                    title: "Name",
+                    field: "name",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => row?.name ?? "-",
+                    halign: this._config.header.horizontalAlign
+                },
+                {
+                    id: "stats",
+                    title: "Stats",
+                    field: "stats",
+                    rowspan: 1,
+                    colspan: 3,
+                    align: "center",
+                },
+                {
+                    id: "source",
+                    title: "Source",
+                    field: "source",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        if (row?.source) {
+                            const {id, author, project, version} = row.source;
+                            let projectAndVersion = "";
+                            if (project?.toUpperCase() === "PANELAPP") {
+                                projectAndVersion = `
                             <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
                                 ${project} ${version} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
                             </a>`;
-                        } else {
-                            projectAndVersion = `${project || ""} ${version}`;
+                            } else {
+                                projectAndVersion = `${project || ""} ${version}`;
+                            }
+                            return `${author ? `${author} -` : ""} ${projectAndVersion}`;
                         }
-                        return `${author ? `${author} -` : ""} ${projectAndVersion}`;
-                    }
-                    return "-";
+                        return "-";
+                    },
+                    align: "center",
                 },
-                align: "center",
-            },
-        ],
-        [
-            {
-                id: "numberOfGenes",
-                title: "# genes",
-                field: "numberOfGenes",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            },
-            {
-                id: "numberOfRegions",
-                title: "# regions",
-                field: "numberOfRegions",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            },
-            {
-                id: "numberOfVariants",
-                title: "# variants",
-                field: "numberOfVariants",
-                rowspan: 1,
-                colspan: 1,
-                formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
-                halign: this._config.header.horizontalAlign,
-                align: "right",
-            }
-        ]
+            ],
+            [
+                {
+                    id: "numberOfGenes",
+                    title: "# genes",
+                    field: "numberOfGenes",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
+                    halign: this._config.header.horizontalAlign,
+                    align: "right",
+                },
+                {
+                    id: "numberOfRegions",
+                    title: "# regions",
+                    field: "numberOfRegions",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
+                    halign: this._config.header.horizontalAlign,
+                    align: "right",
+                },
+                {
+                    id: "numberOfVariants",
+                    title: "# variants",
+                    field: "numberOfVariants",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
+                    halign: this._config.header.horizontalAlign,
+                    align: "right",
+                }
+            ]
         ];
+
+        if (this.opencgaSession && this._config.showActions) {
+            _columns[0].push({
+                id: "actions",
+                title: "Actions",
+                rowspan: 2,
+                colspan: 1,
+                halign: this._config.header.horizontalAlign,
+                valign: "middle",
+                formatter: (value, row) => `
+                    <div class="dropdown">
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <span>Actions</span>
+                                <span class="caret" style="margin-left: 5px"></span>
+                            </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a data-action="download" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="variantStats" class="btn force-text-left"
+                                        href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Variant Stats Browser
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="cancerVariantStats" class="btn force-text-left ${row.somatic ? "" : "disabled"}"
+                                        href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Cancer Variant Plots
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
+                                </a>
+                            </li>
+                            <li>
+                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ?
+                    row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter (${clinicalAnalysis.id})
+                                        </a>
+                                    `).join("") :
+                    `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
+                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
+                                    </a>`
+                }
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>`,
+                // valign: "middle",
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
+            });
+        }
+
+debugger
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return _columns;
     }
@@ -381,7 +460,8 @@ export default class DiseasePanelGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            }
+            },
+            showActions: true
         };
     }
 

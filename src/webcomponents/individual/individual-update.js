@@ -65,15 +65,12 @@ export default class IndividualUpdate extends LitElement {
     }
 
     update(changedProperties) {
-
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -144,6 +141,7 @@ export default class IndividualUpdate extends LitElement {
                     e.detail.param,
                     e.detail.value
                 );
+                break;
         }
         this.requestUpdate();
     }
