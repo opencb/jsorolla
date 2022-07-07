@@ -213,19 +213,24 @@ export default class VariantBrowserGrid extends LitElement {
                                         species: "hsapiens",
                                     });
                                     const variantIds = variants.map(v => v.id);
-                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"})
-                                        .then(response => {
-                                            const annotatedVariants = response.responses;
-                                            for (let i = 0; i < variants.length; i++) {
-                                                for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptAnnotationFlags;
-                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptAnnotationFlags;
+                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {
+                                        assembly: this.opencgaSession.project.organism.assembly,
+                                        exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"
+                                    }).then(response => {
+                                        const annotatedVariants = response.responses;
+                                        for (let i = 0; i < variants.length; i++) {
+                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
+                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId === annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId) {
+                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
+                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
+                                                } else {
+                                                    console.error(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId' `)
                                                 }
                                             }
-                                        })
-                                        .catch(error => {
-                                            console.log(error);
-                                        });
+                                        }
+                                    }).catch(error => {
+                                        console.log(error);
+                                    });
                                 }
                             }
 
