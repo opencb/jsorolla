@@ -205,6 +205,7 @@ export default class VariantBrowserGrid extends LitElement {
                                         }
                                     }
                                 }
+
                                 if (!found) {
                                     this.cellbaseClient = new CellBaseClient({
                                         host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
@@ -219,13 +220,29 @@ export default class VariantBrowserGrid extends LitElement {
                                     }).then(response => {
                                         const annotatedVariants = response.responses;
                                         for (let i = 0; i < variants.length; i++) {
-                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId === annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId) {
-                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
-                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
-                                                } else {
-                                                    console.error(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId' `)
+                                            // Store annotatedVariant in a Map, so we can search later and we do not need them to have the same order
+                                            const annotatedVariantsMap = new Map();
+                                            for (const av of annotatedVariants[i].results[0].consequenceTypes) {
+                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                if (av.ensemblTranscriptId) {
+                                                    annotatedVariants.set(av.ensemblTranscriptId, av);
                                                 }
+                                            }
+
+                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
+                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                } else {
+                                                    console.error(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId'`);
+                                                }
+                                                // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId === annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId) {
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
+                                                // } else {
+                                                //     console.error(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId' `)
+                                                // }
                                             }
                                         }
                                     }).catch(error => {
