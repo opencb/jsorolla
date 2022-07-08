@@ -203,7 +203,7 @@ class ApiApp extends LitElement {
     }
 
     async _createOpenCGASession() {
-        // This check prevents displaying the anoying message of 'No valid token:null' when the token has expired
+        // This check prevents displaying the annoying message of 'No valid token:null' when the token has expired
         if (!this.opencgaClient._config.token) {
             return;
         }
