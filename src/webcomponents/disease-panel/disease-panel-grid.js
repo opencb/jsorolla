@@ -21,6 +21,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -227,11 +228,82 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.target.dataset;
+        const {action} = e.currentTarget.dataset;
 
         if (action === "download") {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
         }
+
+        if (action === "copy") {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: `Copy Disease Panel '${row.id}'`,
+                message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
+                display: {
+                    okButtonText: "Yes, copy it",
+                },
+                ok: () => {
+                    const copy = JSON.parse(JSON.stringify(row));
+                    copy.id = row.id + "-Copy";
+                    copy.name = "Copy of " + row.name;
+                    // Delete managed fields
+                    delete copy.uuid;
+                    delete copy.creationDate; // FIXME remove this line
+                    delete copy.modificationDate; // FIXME remove this line
+                    delete copy.internal;
+                    delete copy.release;
+                    delete copy.version;
+                    delete copy.status;
+                    this.opencgaSession.opencgaClient.panels().create(copy, {
+                        study: this.opencgaSession.study.fqn,
+                    }).then(response => {
+                        if (response.getResultEvents("ERROR").length) {
+                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                        }
+                        // Display confirmation message and update the table
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Case '${copy.id}' has been copied.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                        this.renderTable();
+                    }).catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    });
+                },
+            });
+        }
+
+        if (action === "edit") {
+            console.error("Not implemented yet");
+        }
+
+        if (action === "delete") {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: `Delete Disease Panel '${row.id}'`,
+                message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
+                display: {
+                    okButtonText: "Yes, delete it",
+                },
+                ok: () => {
+                    const diseasePanelId = row.id;
+                    this.opencgaSession.opencgaClient.panels().delete(diseasePanelId, {
+                        study: this.opencgaSession.study.fqn,
+                    }).then(response => {
+                        if (response.getResultEvents("ERROR").length) {
+                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                        }
+                        // Display confirmation message and update the table
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Case '${diseasePanelId}' has been deleted.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                        this.renderTable();
+                    }).catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    });
+                },
+            });
+        }
+
     }
 
     _getDefaultColumns() {
@@ -336,10 +408,8 @@ export default class DiseasePanelGrid extends LitElement {
                 title: "Actions",
                 rowspan: 2,
                 colspan: 1,
-                halign: this._config.header.horizontalAlign,
-                valign: "middle",
                 formatter: (value, row) => `
-                    <div class="dropdown">
+                    <div class="dropdown" style="display: flex; justify-content: center;">
                             <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                                 <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                                 <span>Actions</span>
@@ -353,51 +423,24 @@ export default class DiseasePanelGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="variantStats" class="btn force-text-left"
-                                        href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Variant Stats Browser
+                                <a data-action="copy" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Copy
                                 </a>
-                            </li>
-                            <li>
-                                <a data-action="cancerVariantStats" class="btn force-text-left ${row.somatic ? "" : "disabled"}"
-                                        href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Cancer Variant Plots
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
-                                </a>
-                            </li>
-                            <li>
-                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ?
-                    row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter (${clinicalAnalysis.id})
-                                        </a>
-                                    `).join("") :
-                    `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
-                                    </a>`
-                }
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                    href='#diseasePanelUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
                                 </a>
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
                     </div>`,
-                // valign: "middle",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -405,7 +448,6 @@ export default class DiseasePanelGrid extends LitElement {
             });
         }
 
-debugger
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return _columns;
     }

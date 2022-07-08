@@ -52,6 +52,7 @@ import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
+import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
 import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/individual/individual-browser.js";
@@ -215,6 +216,7 @@ class IvaApp extends LitElement {
             "job-view",
             "rga",
             "disease-panel",
+            "diseasePanelUpdate",
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
@@ -720,6 +722,9 @@ class IvaApp extends LitElement {
                 case "#study-admin":
                     // this.studyAdminFqn = arr[1];
                     this.changeActiveStudy(arr[1]);
+                    break;
+                case "diseasePanelUpdate":
+                    this.diseasePanelId = feature;
                     break;
             }
 
@@ -1274,6 +1279,16 @@ class IvaApp extends LitElement {
                             @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
                         </disease-panel-browser>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["diseasePanelUpdate"] ? html`
+                    <div class="content" id="disease-panel">
+                        <disease-panel-update
+                            .diseasePanelId="${this.diseasePanelId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}">
+                        </disease-panel-update>
                     </div>
                 ` : null}
 
