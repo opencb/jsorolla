@@ -57,16 +57,13 @@ export default class DiseasePanelUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // firstUpdated(changedProperties) {
-    //     if (changedProperties.has("diseasePanel")) {
-    //         this.diseasePanelObserver();
-    //     }
-    // }
-
-    update(changedProperties) {
+    firstUpdated(changedProperties) {
         if (changedProperties.has("diseasePanel")) {
             this.diseasePanelObserver();
         }
+    }
+
+    update(changedProperties) {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
@@ -90,6 +87,7 @@ export default class DiseasePanelUpdate extends LitElement {
             this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
+                    this.diseasePanelObserver();
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -156,6 +154,7 @@ export default class DiseasePanelUpdate extends LitElement {
         this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
         this.updateParams = {};
         this.diseasePanelId = "";
+        this.requestUpdate();
     }
 
     onSubmit(e) {

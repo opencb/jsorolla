@@ -1318,7 +1318,7 @@ export default class DataForm extends LitElement {
         // Render all existing items
         if (items?.length > 0) {
             const view = html`
-                <div style="padding-bottom: 10px">
+                <div style="padding-bottom: 10px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
                     ${items.map((item, index) => {
                         const _element = JSON.parse(JSON.stringify(element));
                         // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
