@@ -19,8 +19,8 @@ import FormUtils from "../commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import UtilsNew from "../../core/utilsNew";
 
 
 export default class DiseasePanelUpdate extends LitElement {
@@ -52,36 +52,21 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     _init() {
-        this.diseasePanel = {
-            // disorders: [
-            //     {
-            //         id: "disease",
-            //     }
-            // ],
-            // variants: [
-            //     {
-            //         id: "1:1:A:T",
-            //         reference: "A",
-            //         alternate: "T"
-            //     }
-            // ],
-            // genes: [
-            //     {
-            //         id: "BRCA2"
-            //     }
-            // ]
-        };
+        this.diseasePanel = {};
         this.updateParams = {};
         this._config = this.getDefaultConfig();
     }
 
-    firstUpdated(changedProperties) {
+    // firstUpdated(changedProperties) {
+    //     if (changedProperties.has("diseasePanel")) {
+    //         this.diseasePanelObserver();
+    //     }
+    // }
+
+    update(changedProperties) {
         if (changedProperties.has("diseasePanel")) {
             this.diseasePanelObserver();
         }
-    }
-
-    update(changedProperties) {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
@@ -128,7 +113,8 @@ export default class DiseasePanelUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "disorders": // arrays
+            case "variants": // arrays
+            case "genes":
                 this.updateParams = FormUtils.updateArraysObject(
                     this._diseasePanel,
                     this.diseasePanel,
@@ -138,26 +124,56 @@ export default class DiseasePanelUpdate extends LitElement {
                 );
                 break;
         }
+
+        // Get gene name and coordinates
+        if (this.diseasePanel?.genes?.length > 0) {
+            for (const gene of this.diseasePanel?.genes) {
+                if (!gene.id) {
+                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", {exclude: "transcripts,annotation"})
+                        .then(res => {
+                            const g = res.responses[0].results[0];
+                            gene.id = g.id;
+                            gene.coordinates = [
+                                {
+                                    location: `${g.chromosome}:${g.start}-${g.end}`
+                                }
+                            ];
+                            this.diseasePanel = {...this.diseasePanel};
+                            this.requestUpdate();
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                }
+            }
+        }
+
         this.requestUpdate();
     }
 
     onClear() {
-        this.diseasePanel = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
+        this.updateParams = {};
+        this.diseasePanelId = "";
     }
 
     onSubmit(e) {
-        e.stopPropagation();
+        const params = {
+            study: this.opencgaSession.study.fqn,
+        };
         this.opencgaSession.opencgaClient.panels()
-            .create(this.diseasePanel, {study: this.opencgaSession.study.fqn})
+            .update(this.diseasePanel.id, this.updateParams, params)
             .then(res => {
-                this.diseasePanel = {};
-                this.requestUpdate();
+                // this.diseasePanel = {};
+                // this.requestUpdate();
+                this._diseasePanel = UtilsNew.objectClone(this.diseasePanel);
+                this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Disease Panel",
-                    message: "New Disease Panel created correctly"
+                    title: "Disease Panel Updated",
+                    message: "Disease Panel updated correctly"
                 });
+                this.requestUpdate();
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
@@ -169,6 +185,7 @@ export default class DiseasePanelUpdate extends LitElement {
             <data-form
                 .data="${this.diseasePanel}"
                 .config="${this._config}"
+                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${this.onSubmit}">
@@ -181,16 +198,12 @@ export default class DiseasePanelUpdate extends LitElement {
             type: "form",
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Create",
+                buttonOkText: "Update",
                 titleWidth: 3,
                 width: "8",
                 defaultValue: "",
                 defaultLayout: "horizontal",
             },
-            // validation: {
-            //     validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
-            //     message: "The father and mother must be different individuals",
-            // },
             sections: [
                 {
                     title: "General Information",
@@ -354,7 +367,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                         render: (data, dataFormFilterChange) => {
                                             return html`
                                                 <feature-filter
-                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    .cellbaseClient="${this.opencgaSession?.cellbaseClient}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                                 </feature-filter>
                                             `;

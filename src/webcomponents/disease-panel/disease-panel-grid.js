@@ -406,6 +406,7 @@ export default class DiseasePanelGrid extends LitElement {
             _columns[0].push({
                 id: "actions",
                 title: "Actions",
+                halign: this._config.header.horizontalAlign,
                 rowspan: 2,
                 colspan: 1,
                 formatter: (value, row) => `

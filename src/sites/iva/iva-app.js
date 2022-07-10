@@ -723,7 +723,7 @@ class IvaApp extends LitElement {
                     // this.studyAdminFqn = arr[1];
                     this.changeActiveStudy(arr[1]);
                     break;
-                case "diseasePanelUpdate":
+                case "#diseasePanelUpdate":
                     this.diseasePanelId = feature;
                     break;
             }
