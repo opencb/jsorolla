@@ -231,13 +231,15 @@ export default class VariantBrowserGrid extends LitElement {
 
                                             for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
                                                 // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
-                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
-                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                } else {
-                                                    // Not all CT are transcript-based
-                                                    console.warn(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId'`);
+                                                const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                if (annotatedVariant) {
+                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
+                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
                                                 }
+                                                // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                // }
                                             }
                                         }
                                     }).catch(error => {
