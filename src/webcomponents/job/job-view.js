@@ -16,10 +16,11 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "../commons/forms/data-form.js";
 import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
+import "../commons/forms/data-form.js";
+import "./job-detail-log.js";
 
-export default class OpencgaJobView extends LitElement {
+export default class JobView extends LitElement {
 
     constructor() {
         super();
@@ -315,11 +316,11 @@ export default class OpencgaJobView extends LitElement {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                render: job => html`<opencga-job-detail-log
+                                render: job => html`<job-detail-log
                                                         .opencgaSession=${this.opencgaSession}
                                                         .active="${true}"
                                                         .job="${job}">
-                                                    </opencga-job-detail-log>`
+                                                    </job-detail-log>`
                             }
                         }
                     ]
@@ -339,5 +340,5 @@ export default class OpencgaJobView extends LitElement {
 
 }
 
-customElements.define("opencga-job-view", OpencgaJobView);
+customElements.define("job-view", JobView);
 
