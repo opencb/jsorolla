@@ -20,7 +20,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
-export default class OpencgaJobDetailLog extends LitElement {
+export default class JobDetailLog extends LitElement {
 
     constructor() {
         super();
@@ -271,4 +271,4 @@ export default class OpencgaJobDetailLog extends LitElement {
 
 }
 
-customElements.define("opencga-job-detail-log", OpencgaJobDetailLog);
+customElements.define("job-detail-log", JobDetailLog);
