@@ -57,7 +57,7 @@ import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
-import "../../webcomponents/job/opencga-job-view.js";
+import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
@@ -1655,11 +1655,11 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["job-view"] ? html`
                     <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
                     <div id="job-view" class="content col-md-8 col-md-offset-2">
-                        <opencga-job-view
+                        <job-view
                             mode="full"
                             .jobId="${this.jobSelected}"
                             .opencgaSession="${this.opencgaSession}">
-                        </opencga-job-view>
+                        </job-view>
                     </div>
                 ` : null
                 }

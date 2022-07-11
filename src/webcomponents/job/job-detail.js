@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "./opencga-job-detail-log.js";
-import "./opencga-job-view.js";
+import "./job-detail-log.js";
+import "./job-view.js";
 import "../commons/view/detail-tabs.js";
 
 export default class JobDetail extends LitElement {
@@ -95,7 +95,7 @@ export default class JobDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (job, active, opencgaSession) => {
-                        return html`<opencga-job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-job-view>`;
+                        return html`<job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></job-view>`;
                     }
                 },
                 {
@@ -103,11 +103,11 @@ export default class JobDetail extends LitElement {
                     name: "Logs",
                     render: (job, active, opencgaSession) => {
                         return html`
-                            <opencga-job-detail-log
+                            <job-detail-log
                                 .opencgaSession="${opencgaSession}"
                                 .active="${active}"
                                 .job="${job}">
-                            </opencga-job-detail-log>
+                            </job-detail-log>
                         `;
                     }
                 }

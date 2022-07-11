@@ -22,6 +22,8 @@ import "../commons/facet-filter.js";
 import "./job-timeline.js";
 import "./job-grid.js";
 import "./job-detail.js";
+import "./job-detail-log.js";
+import "./job-view.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -257,9 +259,9 @@ export default class JobBrowser extends LitElement {
                             active: true,
                             render: (job, active, opencgaSession) => {
                                 return html`
-                                    <opencga-job-view
+                                    <job-view
                                         .opencgaSession=${opencgaSession} mode="simple" .job="${job}">
-                                    </opencga-job-view>
+                                    </job-view>
                                 `;
                             },
                         },
@@ -268,11 +270,11 @@ export default class JobBrowser extends LitElement {
                             name: "Logs",
                             render: (job, active, opencgaSession) => {
                                 return html`
-                                    <opencga-job-detail-log
+                                    <job-detail-log
                                         .opencgaSession=${opencgaSession}
                                         .active="${active}"
                                         .job="${job}">
-                                    </opencga-job-detail-log>
+                                    </job-detail-log>
                                 `;
                             },
                         },
