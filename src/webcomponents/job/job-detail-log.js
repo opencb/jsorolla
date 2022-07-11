@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
@@ -50,21 +49,19 @@ export default class JobDetailLog extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+        this._config = this.getDefaultConfig();
 
+        this.command = this._config.defaultCommand;
+        this.type = this._config.defaultType;
         this.content = null;
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
     }
 
     async updated(changedProperties) {
         if (changedProperties.has("job")) {
             this.jobId = this.job.id;
             if (this.active) {
-                this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
+                this.fetchContent(this.job, {command: this.command, type: this.type});
             }
         }
 
@@ -72,10 +69,8 @@ export default class JobDetailLog extends LitElement {
             this.content = null;
             this.requestUpdate();
             await this.updateComplete;
-            // todo this should call fetchContent iff the job has changed
-            // console.log("new job = old job ", this.active && this.jobId === this.job.id)
             if (this.active) {
-                this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
+                this.fetchContent(this.job, {command: this.command, type: this.type});
             } else {
                 this.clearReload();
             }
@@ -83,22 +78,22 @@ export default class JobDetailLog extends LitElement {
     }
 
     setCommand(command) {
-        this._config.command = command;
+        this.command = command;
         this.clearReload();
-        this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
+        this.fetchContent(this.job, {command: this.command, type: this.type});
         this.setReloadInterval();
     }
 
     setType(type) {
-        this._config.type = type;
+        this.type = type;
         this.clearReload();
-        this.fetchContent(this.job, {command: this._config.command, type: this._config.type});
+        this.fetchContent(this.job, {command: this.command, type: this.type});
         this.setReloadInterval();
     }
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
-        if (this.active && this._config.command === "tail" && this.job.internal.status.name === "RUNNING") {
+        if (this.active && this.command === "tail" && this.job.internal.status.name === "RUNNING") {
             // console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
@@ -116,12 +111,13 @@ export default class JobDetailLog extends LitElement {
 
     clearReload() {
         this.contentOffset = 0;
+        this.loading = false;
         clearInterval(this.interval);
         this.requestUpdate();
     }
 
     async fetchContent(job, params = {}, append = false) {
-        const statusWithoutLogs = ["PENDING", "ABORTED"];
+        const statusWithoutLogs = ["PENDING", "ABORTED", "QUEUED"];
         if (!append) {
             this.content = "";
         }
@@ -129,24 +125,23 @@ export default class JobDetailLog extends LitElement {
         this.requestUpdate();
         await this.updateComplete;
 
-        const command = params.command || this._config.command;
-        // const offset = params.offset || 0;
-        // console.log("request ", "command", command, "params", params, "offset", offset, "append", append);
+        const command = params.command || this.command;
         if (!statusWithoutLogs?.includes(job?.internal?.status?.id?.toUpperCase())) {
             this.opencgaSession.opencgaClient.jobs()[command + "Log"](job.id, {
                 study: this.opencgaSession.study.fqn,
                 lines: this._config.lines,
-                type: this._config.type,
+                type: this.type,
                 offset: params.offset || 0,
                 ...params
             }).then(restResponse => {
                 const result = restResponse.getResult(0);
                 if (result.content) {
-                // if command=tail this is the first tail call (the subsequents will be head)
+                    // if command=tail this is the first tail call (the subsequents will be head)
                     if (command === "tail") {
                         this.contentOffset = result.offset;
                     }
-                    // append is true only in case of tail command (it has been kept as separate param to quickly have one-shot Tail call button (not live), just in case)
+                    // append is true only in case of tail command
+                    // (it has been kept as separate param to quickly have one-shot Tail call button (not live), just in case)
                     if (append) {
                         if (this.contentOffset !== result.offset) {
                             this.content = this.content + result.content;
@@ -155,8 +150,6 @@ export default class JobDetailLog extends LitElement {
                     } else {
                         this.content = result.content + "\n";
                     }
-                } else {
-                // this.content = "No content";
                 }
             }).catch(response => {
                 this.content = "An error occurred while fetching log.\n";
@@ -172,101 +165,101 @@ export default class JobDetailLog extends LitElement {
         }
     }
 
-    onScroll(e) {
-        // TODO custom infinite scroll
-        // console.log(e)
-    }
-
-    getDefaultConfig() {
-        return {
-            command: "head",
-            type: "stderr",
-            lines: 50
-        };
+    renderCursor() {
+        return this.loading || (this.content && this.command === "tail") ? html`<div class="cursor"></div>` : "";
     }
 
     render() {
         return html`
-        <style>
-            .wrapper {
-                height: 35px;
-                margin-top: 5px;
-            }
+            <style>
+                .wrapper {
+                    height: 35px;
+                    margin-top: 5px;
+                }
 
-            .log-wrapper {
-                min-height: 150px;
-            }
+                .log-wrapper {
+                    min-height: 150px;
+                }
 
-            .wrapper fieldset.log-type {
-                float: left;
-                width: 200px;
-            }
+                .wrapper fieldset.log-type {
+                    float: left;
+                    width: 200px;
+                }
 
-            .wrapper-label {
-                color: grey;
-                vertical-align: text-bottom;
-            }
+                .wrapper-label {
+                    color: grey;
+                    vertical-align: text-bottom;
+                }
 
-            .jobs-details-log .content-pills {
-                margin: 10px 30px 10px 0;
-            }
+                .jobs-details-log .content-pills {
+                    margin: 10px 30px 10px 0;
+                }
 
-            .cursor {
-                width: 7px;
-                height: 16px;
-                display: inline-block;
-                vertical-align: bottom;
-                background-color: #fff;
-                -webkit-animation: blink 1s infinite;
-                -moz-animation: blink 1s infinite;
-                animation: blink 1s infinite;
-            }
+                .cursor {
+                    width: 7px;
+                    height: 16px;
+                    display: inline-block;
+                    vertical-align: bottom;
+                    background-color: #fff;
+                    -webkit-animation: blink 1s infinite;
+                    -moz-animation: blink 1s infinite;
+                    animation: blink 1s infinite;
+                }
 
-            .jobs-details-log .fa-sync-alt {
-                margin-left: 10px;
-            }
+                .jobs-details-log .fa-sync-alt {
+                    margin-left: 10px;
+                }
 
-            .jobs-details-log .fa-sync-alt.disabled {
-                color: #c5c5c5;
-            }
+                .jobs-details-log .fa-sync-alt.disabled {
+                    color: #c5c5c5;
+                }
 
-            @keyframes blink {
-              0% {
-                opacity: 0;
-              }
-              50% {
-                opacity: 0;
-              }
-              51% {
-                opacity: 1;
-              }
-            }
-        </style>
-        <div class="jobs-details-log">
-            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                <div class="btn-group command-buttons" role="group">
-                    <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
-                        <i class="fas fa-align-left"></i> Head
-                    </button>
-                    <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
-                        <i class="fas fa-align-left"></i> Tail <i class="fas fa-sync-alt ${this._config.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
-                    </button>
+                @keyframes blink {
+                  0% {
+                    opacity: 0;
+                  }
+                  50% {
+                    opacity: 0;
+                  }
+                  51% {
+                    opacity: 1;
+                  }
+                }
+            </style>
+            <div class="jobs-details-log">
+                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group command-buttons" role="group">
+                        <button type="button" class="btn btn-default btn-small ${this.command === "head" ? "active" : ""}" @click="${() => this.setCommand("head")}">
+                            <i class="fas fa-align-left icon-padding"></i> Head
+                        </button>
+                        <button type="button" class="btn btn-default btn-small ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
+                            <i class="fas fa-align-left icon-padding"></i> 
+                            Tail 
+                            <i class="fas fa-sync-alt ${this.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group" role="group" style="margin-left: 0px">
+                        <button type="button" class="btn btn-default btn-small ${this.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
+                            <i class="fas fa-exclamation icon-padding"></i> Stderr
+                        </button>
+                        <button type="button" class="btn btn-default btn-small ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
+                            <i class="fas fa-info icon-padding"></i> Stout
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                <div class="btn-group" role="group" style="margin-left: 0px">
-
-                    <button type="button" class="btn btn-default btn-small ripple ${this._config.type === "stderr" ? "active" : ""}" @click="${() => this.setType("stderr")}">
-                        <i class="fas fa-exclamation"></i> Stderr
-                    </button>
-                    <button type="button" class="btn btn-default btn-small ripple ${this._config.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
-                        <i class="fas fa-info"></i> Stout
-                    </button>
-                </div>
-            </div>
-        </div>
-        <pre class="cmd log-wrapper ${this._config.command}" @scroll="${this.onScroll}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
+            <pre class="cmd log-wrapper ${this.command}">${this.content}\n${this.renderCursor()}</pre>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            defaultCommand: "head",
+            defaultType: "stderr",
+            lines: 500,
+        };
     }
 
 }
