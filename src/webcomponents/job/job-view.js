@@ -67,7 +67,6 @@ export default class JobView extends LitElement {
                 ...this.config,
             };
         }
-        console.log(this.mode);
 
         super.update(changedProperties);
     }
@@ -113,8 +112,6 @@ export default class JobView extends LitElement {
             sections: [
                 {
                     title: "Summary",
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Job ID",
@@ -130,7 +127,6 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Status",
-                            // field: "internal",
                             type: "custom",
                             display: {
                                 render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status, true))
@@ -164,13 +160,9 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Execution",
-                    display: {
-
-                    },
                     elements: [
                         {
                             name: "Start-End Date",
-                            // field: "execution",
                             type: "custom",
                             display: {
                                 render: job => job.execution ? html`
@@ -181,7 +173,6 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Input Parameters",
-                            // field: "params",
                             type: "custom",
                             display: {
                                 render: job => {
@@ -263,9 +254,7 @@ export default class JobView extends LitElement {
                     elements: [
                         {
                             type: "custom",
-                            name: "",
                             display: {
-                                name: "",
                                 defaultLayout: "vertical",
                                 render: () => AnalysisRegistry.get(this.job.tool.id)?.result(this.job, this.opencgaSession)
                             }
@@ -274,8 +263,6 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Job Dependencies",
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Dependencies",
@@ -303,10 +290,11 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Job log",
-                    visible: this.mode === "full",
+                    display: {
+                        visible: this.mode === "full",
+                    },
                     elements: [
                         {
-                            name: "",
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
