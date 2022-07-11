@@ -26,13 +26,19 @@
 
 
 import UtilsNew from "../../src/core/utilsNew.js";
+import {setCheckBox, checkLabel, setInput} from "./utils";
 
 
-Cypress.Commands.add("setSample", (filter, value) =>{
+Cypress.Commands.add("setGenomicLocation", val => {
+    checkLabel("div[data-cy='region']", "span", "Genomic Location");
+    setInput("region-filter textarea", val);
+});
+
+Cypress.Commands.add("setGenomicFeatureIds", val => {
 
 });
 
-Cypress.Commands.add("setGenomic", (filter, value) =>{
+Cypress.Commands.add("setGenomic", (filter, value) => {
 
     const filters = {
         genomic_location: "Genomic Location",
@@ -43,8 +49,8 @@ Cypress.Commands.add("setGenomic", (filter, value) =>{
 
     switch (filter) {
         case "genomic_location":
-            cy.get("div[data-cy='region']").contains("span", filters[filter]);
-            cy.get("region-filter textarea").type(value);
+            checkLabel("div[data-cy='region']", "span", filters[filter]);
+            setInput("region-filter textarea", value);
             break;
         case "feature_ids":
             // Select2 Widgets
@@ -63,7 +69,8 @@ Cypress.Commands.add("setGenomic", (filter, value) =>{
             cy.get("div[data-cy='type']").contains("span", filters[filter]);
             if (UtilsNew.isObject(value)) {
                 return Object.keys(value).forEach(key => {
-                    cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`).invoke("prop", "checked", value[key]);
+                    // cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`).invoke("prop", "checked", value[key]);
+                    setCheckBox(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`, value[key]);
                 });
             }
             if (value === "all") {
@@ -131,7 +138,8 @@ Cypress.Commands.add("setClinicalAnnotation", (filter, value) => {
             break;
         case "clinical_status":
             cy.get("@clinicalDbFilter").parent().within(() => {
-                cy.get("checkbox-field-filter input[value='Confirmed']").invoke("prop", "checked", value);
+                // cy.get("checkbox-field-filter input[value='Confirmed']").invoke("prop", "checked", value);
+                setCheckBox("checkbox-field-filter input[value='Confirmed']", value);
             });
     }
 });
@@ -151,7 +159,8 @@ Cypress.Commands.add("setConsequenceType", (filter, value) => {
         case "protein_altering":
         case "coding_sequence":
             // cy.get("consequence-type-select-filter label input[value='Coding Sequence']").check();
-            cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).invoke("prop", "checked", value);
+            // cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).invoke("prop", "checked", value);
+            setCheckBox(`consequence-type-select-filter label input[value='${filters[filter]}']`, value);
             break;
         case "terms_manual":
             cy.get("consequence-type-select-filter").contains("span", filters[filter]);
@@ -171,3 +180,4 @@ Cypress.Commands.add("setDeleteriousness", (filter, value) =>{
 
 Cypress.Commands.add("setConservation", (filter, value) =>{
 });
+
