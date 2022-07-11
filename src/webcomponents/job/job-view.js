@@ -165,11 +165,16 @@ export default class JobView extends LitElement {
                             name: "Start-End Date",
                             type: "custom",
                             display: {
-                                render: job => job.execution ? html`
-                                    ${job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-"} ${job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }
-                                ` :
-                                    "-"
-                            }
+                                render: job => {
+                                    if (job.execution) {
+                                        const start = job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-";
+                                        const end = job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : "-";
+                                        return html`${start} - ${end}`;
+                                    } else {
+                                        return "-";
+                                    }
+                                },
+                            },
                         },
                         {
                             name: "Input Parameters",
