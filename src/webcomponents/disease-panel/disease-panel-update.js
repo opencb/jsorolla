@@ -162,7 +162,7 @@ export default class DiseasePanelUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
         };
         this.opencgaSession.opencgaClient.panels()
-            .update(this.diseasePanel.id, this.updateParams, params)
+            .update(this._diseasePanel.id, this.updateParams, params)
             .then(res => {
                 // this.diseasePanel = {};
                 // this.requestUpdate();
