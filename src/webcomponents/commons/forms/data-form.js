@@ -1323,9 +1323,12 @@ export default class DataForm extends LitElement {
                         const _element = JSON.parse(JSON.stringify(element));
                         // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                         // items have a virtual element associated, this will allow to get the proper value later.
-                        for (const elem of _element.elements) {
-                            const [left, right] = elem.field.split(".");
-                            elem.field = left + "." + index + "." + right;
+                        for (let i = 0; i< _element.elements.length; i++) {
+                            const [left, right] = _element.elements[i].field.split(".");
+                            _element.elements[i].field = left + "." + index + "." + right;
+                            if (_element.elements[i].type === "custom") {
+                                _element.elements[i].display.render = element.elements[i].display.render;
+                            }
                         }
                         return html`
                             <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
