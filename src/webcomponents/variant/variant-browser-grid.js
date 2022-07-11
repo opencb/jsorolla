@@ -225,7 +225,7 @@ export default class VariantBrowserGrid extends LitElement {
                                             for (const av of annotatedVariants[i].results[0].consequenceTypes) {
                                                 // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
                                                 if (av.ensemblTranscriptId) {
-                                                    annotatedVariants.set(av.ensemblTranscriptId, av);
+                                                    annotatedVariantsMap.set(av.ensemblTranscriptId, av);
                                                 }
                                             }
 
@@ -235,14 +235,9 @@ export default class VariantBrowserGrid extends LitElement {
                                                     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
                                                     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
                                                 } else {
-                                                    console.error(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId'`);
+                                                    // Not all CT are transcript-based
+                                                    console.warn(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId'`);
                                                 }
-                                                // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId === annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId) {
-                                                //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
-                                                //     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].consequenceTypes[j].transcriptAnnotationFlags;
-                                                // } else {
-                                                //     console.error(`Transcript IDs do not match for variant '${variants[i].id}', transcripts are: '${variants[i].annotation.consequenceTypes[j].ensemblTranscriptId}' != 'annotatedVariants[i].results[0].consequenceTypes[j].ensemblTranscriptId' `)
-                                                // }
                                             }
                                         }
                                     }).catch(error => {
