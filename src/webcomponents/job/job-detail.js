@@ -49,70 +49,35 @@ export default class JobDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.job = null;
-        }
-
-        if (changedProperties.has("jobId")) {
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
+        super.update(changedProperties);
     }
 
     jobIdObserver() {
-        if (this.opencgaSession) {
-            if (this.jobId) {
-                this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        this.job = response.getResult(0);
-                    })
-                    .catch(function (reason) {
-                        console.error(reason);
-                    });
-            } else {
-                this.job = null;
-            }
-
+        if (this.opencgaSession && this.jobId) {
+            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.job = response.getResult(0);
+                })
+                .catch(function (reason) {
+                    console.error(reason);
+                });
         }
-    }
-
-    getDefaultConfig() {
-        return {
-            title: "Job",
-            showTitle: true,
-            items: [
-                {
-                    id: "job-view",
-                    name: "Overview",
-                    active: true,
-                    render: (job, active, opencgaSession) => {
-                        return html`<job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></job-view>`;
-                    }
-                },
-                {
-                    id: "job-log",
-                    name: "Logs",
-                    render: (job, active, opencgaSession) => {
-                        return html`
-                            <job-detail-log
-                                .opencgaSession="${opencgaSession}"
-                                .active="${active}"
-                                .job="${job}">
-                            </job-detail-log>
-                        `;
-                    }
-                }
-            ]
-        };
     }
 
     render() {
@@ -127,6 +92,38 @@ export default class JobDetail extends LitElement {
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Job",
+            showTitle: true,
+            items: [
+                {
+                    id: "job-view",
+                    name: "Overview",
+                    active: true,
+                    render: (job, _active, opencgaSession) => html`
+                        <job-view
+                            .opencgaSession="${opencgaSession}"
+                            mode="simple"
+                            .job="${job}">
+                        </job-view>
+                    `,
+                },
+                {
+                    id: "job-log",
+                    name: "Logs",
+                    render: (job, active, opencgaSession) => html`
+                        <job-detail-log
+                            .opencgaSession="${opencgaSession}"
+                            .active="${active}"
+                            .job="${job}">
+                        </job-detail-log>
+                    `,
+                },
+            ],
+        };
     }
 
 }
