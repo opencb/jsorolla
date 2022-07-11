@@ -230,11 +230,13 @@ export default class VariantBrowserGrid extends LitElement {
                                             }
 
                                             for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
-                                                const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                if (annotatedVariant) {
-                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
-                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
+                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                    // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                    const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                    if (annotatedVariant) {
+                                                        variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
+                                                        variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
+                                                    }
                                                 }
                                                 // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
                                                 //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
