@@ -94,10 +94,8 @@ export default class JobDetailLog extends LitElement {
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
         if (this.active && this.command === "tail" && this.job.internal.status.name === "RUNNING") {
-            // console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
-                // this.content += "\n" + UtilsNew.randomString(6);
                 if ($(".jobs-details-log", this).is(":visible")) {
                     // tail call is actually head (after the first tail call)
                     this.fetchContent(this.job, {command: "head", offset: this.contentOffset}, true);
