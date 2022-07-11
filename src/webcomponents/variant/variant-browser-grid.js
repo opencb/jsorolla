@@ -205,6 +205,7 @@ export default class VariantBrowserGrid extends LitElement {
                                         }
                                     }
                                 }
+
                                 if (!found) {
                                     this.cellbaseClient = new CellBaseClient({
                                         host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
@@ -213,19 +214,39 @@ export default class VariantBrowserGrid extends LitElement {
                                         species: "hsapiens",
                                     });
                                     const variantIds = variants.map(v => v.id);
-                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"})
-                                        .then(response => {
-                                            const annotatedVariants = response.responses;
-                                            for (let i = 0; i < variants.length; i++) {
-                                                for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                    variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptAnnotationFlags;
-                                                    variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariants[i].results[0].annotation.consequenceTypes[j].transcriptAnnotationFlags;
+                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {
+                                        assembly: this.opencgaSession.project.organism.assembly,
+                                        exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"
+                                    }).then(response => {
+                                        const annotatedVariants = response.responses;
+                                        for (let i = 0; i < variants.length; i++) {
+                                            // Store annotatedVariant in a Map, so we can search later and we do not need them to have the same order
+                                            const annotatedVariantsMap = new Map();
+                                            for (const av of annotatedVariants[i].results[0].consequenceTypes) {
+                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                if (av.ensemblTranscriptId) {
+                                                    annotatedVariantsMap.set(av.ensemblTranscriptId, av);
                                                 }
                                             }
-                                        })
-                                        .catch(error => {
-                                            console.log(error);
-                                        });
+
+                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
+                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                    // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                    const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                    if (annotatedVariant) {
+                                                        variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
+                                                        variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
+                                                    }
+                                                }
+                                                // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                // }
+                                            }
+                                        }
+                                    }).catch(error => {
+                                        console.log(error);
+                                    });
                                 }
                             }
 
