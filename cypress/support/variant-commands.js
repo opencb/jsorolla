@@ -165,22 +165,28 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) =>
 
     // 1000G
     // GNOMAD_GENOMES
+    // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
 
-    cy.get("div[data-cy='populationFrequency']")
-        .contains("span", "Select Population Frequency");
+    if (filter === "Set_All") {
+        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`).type(val);
+    } else {
+        cy.get("div[data-cy='populationFrequency']")
+            .contains("span", "Select Population Frequency");
 
-    // Show Collapse
-    cy.get(`i[data-cy='pop-freq-toggle-${population}']`).then()
+        // Show Collapse
+        cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
 
-    // Select
-    // number-field-filter-wrapper-ALL
-    cy.get(`population-frequency-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)
-        .contains(opt)
-        .click({force: true});
+        // Select
+        // number-field-filter-wrapper-ALL
+        cy.get(`population-frequency-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)
+            .contains(opt)
+            .click({force: true});
 
-    // Typing
-    cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
-        .type(val);
+        // Typing
+        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
+            .type(val);
+
+    }
 
 
 });
