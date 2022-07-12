@@ -177,7 +177,6 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) =>
         cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
 
         // Select
-        // number-field-filter-wrapper-ALL
         cy.get(`population-frequency-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)
             .contains(opt)
             .click({force: true});
@@ -191,13 +190,56 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) =>
 
 });
 
-Cypress.Commands.add("setPhenotype", (filter, value) =>{
+Cypress.Commands.add("setGoAccesions", value =>{
+    // GO Accessions (max. 100 terms)
+    // todo: remove token
+
+    cy.get("go-accessions-filter .select2").first().click({force: true})
+        .find(".select2-search__field").type(value + "{enter}", {delay: 200});
+
 });
 
-Cypress.Commands.add("setDeleteriousness", (filter, value) =>{
+
+Cypress.Commands.add("setHpoAccesions", value =>{
+// HPO Accessions
+    cy.get("hpo-accessions-filter .select2").first().click({force: true})
+        .find(".select2-search__field").type(value + "{enter}", {delay: 200});
+});
+
+Cypress.Commands.add("setProteingSubsScore", (filter, score, opt, value) =>{
+    switch (filter) {
+        case "sift":
+        case "polyphen":
+            cy.get(`protein-substitution-score-filter .${filter} .score-select .dropdown a`).contains(score).click({force: true});
+            if (score === "Score") {
+                cy.get(`protein-substitution-score-filter .${filter} .score-comparator .select-field-filter`).click();
+                cy.get(`protein-substitution-score-filter .${filter} .score-comparator .dropdown-menu`)
+                    .contains(opt)
+                    .click();
+                cy.get(`protein-substitution-score-filter .${filter} .score-value input[type='number']`)
+                    .type(value);
+            }
+            break;
+        case "operator":
+            cy.get(`protein-substitution-score-filter .rating-label-${score}`).click();
+            break;
+    }
+
+});
+
+Cypress.Commands.add("setCadd", (opt, value) =>{
+    // opt, value
+    cy.get("protein-substitution-score-filter .polyphen .score-comparator .select-field-filter").click();
+    cy.get("protein-substitution-score-filter .polyphen .score-comparator .dropdown-menu").contains(opt).click();
+    cy.get("protein-substitution-score-filter .polyphen .score-value input[type='number']").type(value);
 });
 
 Cypress.Commands.add("setConservation", (filter, value) =>{
+    cy.get(`conservation-filter .cf-${filter} input[type='text']`).type(value);
+});
+
+Cypress.Commands.add("setClinicalFullText", value =>{
+    cy.get("variant-browser-filter fulltext-search-accessions-filter textarea[name='traits']").type(value);
 });
 
 Cypress.Commands.add("sectionFilter", section => {
@@ -205,5 +247,12 @@ Cypress.Commands.add("sectionFilter", section => {
 });
 
 Cypress.Commands.add("removeActiveFilters", filterName => {
+    // cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
     cy.get(`opencga-active-filters button[data-filter-name='${filterName}']`).click();
+});
+
+Cypress.Commands.add("showVariantBrowserTab", tab => {
+    cy.get(`variant-browser-detail [data-id='${tab}']`).click();
+
+
 });
