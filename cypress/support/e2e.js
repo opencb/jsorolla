@@ -15,7 +15,7 @@
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
-import "./filters-commands";
+import "./variant-commands";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

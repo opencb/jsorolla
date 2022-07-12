@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// it's not working
 export const setCheckBox = (selectors, val) => {
     cy.get(selectors).invoke("prop", "checked", val);
 };
@@ -25,3 +26,17 @@ export const checkLabel = (selectors, tag, val) => {
 export const setInput = (selectors, val) => {
     cy.get(selectors).type(val);
 };
+
+// Select2 Widgets
+// https://www.cypress.io/blog/2020/03/20/working-with-select-elements-and-select2-widgets-in-cypress/#fetched-data
+// <ul class="select2-selection__rendered" id="select2-DTCAOwDS-container"></ul>
+export const setSelectTokenFilter = (selectors, val) => {
+    cy.get("feature-filter select-token-filter ul").click({force: true});
+    cy.get("div[data-cy='feature'] .select2-search__field").type(val, {delay: 200});
+};
+
+export const setSelectFieldFilter = (selectors, val) => {
+    cy.get("feature-filter select-token-filter ul").click({force: true});
+    cy.get("div[data-cy='feature'] .select2-search__field").type(val, {delay: 200});
+};
+

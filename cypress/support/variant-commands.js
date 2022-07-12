@@ -26,66 +26,43 @@
 
 
 import UtilsNew from "../../src/core/utilsNew.js";
-import {setCheckBox, checkLabel, setInput} from "./utils";
+import {setCheckBox, checkLabel, setInput, clickElement} from "./utils";
 
 
-Cypress.Commands.add("setGenomicLocation", val => {
+Cypress.Commands.add("setGenomicLocation", value => {
     checkLabel("div[data-cy='region']", "span", "Genomic Location");
-    setInput("region-filter textarea", val);
+    setInput("region-filter textarea", value);
 });
 
-Cypress.Commands.add("setGenomicFeatureIds", val => {
-
+Cypress.Commands.add("setFeatureIds", value => {
+    const val = Array.isArray(value) ? value.join("{enter}") + "{enter}": value;
+    // Select2 Widgets
+    cy.get("div[data-cy='feature']").contains("span", "Feature IDs (gene, SNPs...)");
+    cy.get("feature-filter select-token-filter ul").click({force: true});
+    cy.get("div[data-cy='feature'] .select2-search__field").type(val, {delay: 200});
 });
 
-Cypress.Commands.add("setGenomic", (filter, value) => {
+Cypress.Commands.add("setGeneBiotype", value => {
+    cy.get("div[data-cy='biotype']").contains("span", "Gene Biotype");
+    cy.get(".subsection-content biotype-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
+});
 
-    const filters = {
-        genomic_location: "Genomic Location",
-        feature_ids: "Feature IDs (gene, SNPs, ...)",
-        gene_biotype: "Gene Biotype",
-        variant_type: "Variant Type",
-    };
-
-    switch (filter) {
-        case "genomic_location":
-            checkLabel("div[data-cy='region']", "span", filters[filter]);
-            setInput("region-filter textarea", value);
-            break;
-        case "feature_ids":
-            // Select2 Widgets
-            // https://www.cypress.io/blog/2020/03/20/working-with-select-elements-and-select2-widgets-in-cypress/#fetched-data
-            // <ul class="select2-selection__rendered" id="select2-DTCAOwDS-container"></ul>
-            const val = Array.isArray(value) ? value.join("{enter}") + "{enter}": value;
-            cy.get("div[data-cy='feature']").contains("span", filters[filter]);
-            cy.get("feature-filter select-token-filter ul").click({force: true});
-            cy.get("div[data-cy='feature'] .select2-search__field").type(val, {delay: 200});
-            break;
-        case "gene_biotype":
-            cy.get("div[data-cy='biotype']").contains("span", filters[filter]);
-            cy.get(".subsection-content biotype-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
-            break;
-        case "variant_type":
-            cy.get("div[data-cy='type']").contains("span", filters[filter]);
-            if (UtilsNew.isObject(value)) {
-                return Object.keys(value).forEach(key => {
-                    // cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`).invoke("prop", "checked", value[key]);
-                    setCheckBox(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`, value[key]);
-                });
-            }
-            if (value === "all") {
-                return cy.get("variant-type-filter button").contains("Select all").click();
-            }
-            break;
+Cypress.Commands.add("setVariantType", value => {
+    cy.get("div[data-cy='type']").contains("span", "Variant Type");
+    if (Array.isArray(value)) {
+        value.forEach(val => {
+            // cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`).invoke("prop", "checked", value[key]);
+            // setCheckBox(`variant-type-filter checkbox-field-filter ul > li > input[value='${key}'`, value[key]);
+            cy.get(`variant-type-filter checkbox-field-filter ul > li > input[value='${val}'`).click({force: true});
+        });
     }
-
+    if (value === "all") {
+        return cy.get("variant-type-filter button").contains("Select all").click();
+    }
 });
 
 // Clinical
 Cypress.Commands.add("setDiseasePanels", (filter, value) => {
-
-    // setVariantQuery(ct,value);
-
     const filters = {
         "disease_panels": "Select Disease Panels",
         "panel_intersection": "Panel Intersection",
@@ -104,7 +81,9 @@ Cypress.Commands.add("setDiseasePanels", (filter, value) => {
         case "genes_by_confidence":
         case "genes_by_roles_in_cancer":
             cy.get("@diseaseFilter").parent().within(() => {
-                cy.get("select-field-filter ul[role='presentation']").contains(value).click({force: true});
+                value.map(val => {
+                    cy.get("select-field-filter ul[role='presentation']").contains(val).click({force: true});
+                });
             });
             break;
         case "panel_intersection":
@@ -160,12 +139,25 @@ Cypress.Commands.add("setConsequenceType", (filter, value) => {
         case "coding_sequence":
             // cy.get("consequence-type-select-filter label input[value='Coding Sequence']").check();
             // cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).invoke("prop", "checked", value);
-            setCheckBox(`consequence-type-select-filter label input[value='${filters[filter]}']`, value);
+            // setCheckBox(`consequence-type-select-filter label input[value='${filters[filter]}']`, value);
+            // cy.get("input[value*=LoF]").click({force: true});
+            cy.get(`consequence-type-select-filter label input[value='${filters[filter]}']`).click({force: true});
             break;
         case "terms_manual":
             cy.get("consequence-type-select-filter").contains("span", filters[filter]);
-            cy.get("consequence-type-select-filter select-field-filter ul[role='presentation']").contains(value).click({force: true});
+            value.forEach(val => {
+                cy.get("consequence-type-select-filter select-field-filter ul[role='presentation']").contains(val).click({force: true});
+            });
+
     }
+
+});
+
+Cypress.Commands.add("setStudyFilter", (filter, value) => {
+
+});
+
+Cypress.Commands.add("setCohortAlternateStats", (filter, value) => {
 
 });
 
@@ -181,3 +173,10 @@ Cypress.Commands.add("setDeleteriousness", (filter, value) =>{
 Cypress.Commands.add("setConservation", (filter, value) =>{
 });
 
+Cypress.Commands.add("sectionFilter", section => {
+    cy.get(`variant-browser-filter a[data-cy-section-title='${section}']`).click();
+});
+
+Cypress.Commands.add("removeActiveFilters", filterName => {
+    cy.get(`opencga-active-filters button[data-filter-name='${filterName}']`).click();
+});
