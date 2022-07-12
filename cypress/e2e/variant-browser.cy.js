@@ -16,55 +16,53 @@
 
 import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
+import {checkToolHeaderTitle, checkColumnsGridBrowser, clickAllColumnsGridBrowser, checkHeaderGridBrowser} from "../support/utils.js";
 
 context("5. Variant Browser", () => {
     before(() => {
         cy.loginByApi();
         // goTo("iva");
         // cy.visit("index.html#browser");
-        cy.get(".hi-icon-wrap > [data-id='iva']").click();
+
+        // Go to Variant Analysi
+        cy.wait(1000);
+        cy.get(".hi-icon-wrap > [data-id='iva']", {log: false}).click();
     });
 
     beforeEach(() => {
         // cy.get("a[data-id=browser]", {timeout: TIMEOUT}).click({force: true});
-        cy.get("#bs-example-navbar-collapse-1 > :nth-child(1) > :nth-child(1) > a", {timeout: TIMEOUT}).click({force: true});
+        // Go to Iva
+        cy.get("#bs-example-navbar-collapse-1 > :nth-child(1) > :nth-child(1) > a", {timeout: TIMEOUT, log: false}).click({force: true});
     });
 
     // good - refactor
     it("5.1 Columns Visibility", () => {
-        cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser");
-
+        checkToolHeaderTitle("Variant Browser");
         checkResults("variant-browser-grid");
-
-        // Check if contains columns
-        cy.get("variant-browser-grid .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
+        checkColumnsGridBrowser("variant-browser-grid");
 
         // Check is more than 1
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         // deactivate all the columns
-        cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT});
+        clickAllColumnsGridBrowser("variant-browser-grid");
 
         // testing the first level of the header
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container thead > tr:first-child > th", {timeout: TIMEOUT})
-            .should("have.lengthOf", 6);
+        checkHeaderGridBrowser("variant-browser-grid").should("have.lengthOf", 6);
 
         // reactivate all the columns
-        cy.get("variant-browser-grid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT});
-
-        cy.get("variant-browser-grid .bootstrap-table .fixed-table-container thead > tr:first-child > th", {timeout: TIMEOUT})
-            .should("have.lengthOf", 10);
+        clickAllColumnsGridBrowser("variant-browser-grid");
+        checkHeaderGridBrowser("variant-browser-grid").should("have.lengthOf", 10);
 
     });
 
     // Variant Browser: Filter controls
     it("5.2 Create/Delete canned filter", () => {
 
-        // Check Title Browser
-        cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser");
-
+        checkToolHeaderTitle("Variant Browser");
         cy.sectionFilter("ConsequenceType");
         cy.setConsequenceType("lof", true);
+
         cy.get("opencga-active-filters").contains("Consequence Types 9");
 
         cy.get("button[data-cy='filter-button']").click({force: true});
@@ -73,10 +71,9 @@ context("5. Variant Browser", () => {
             .click();
 
         const name = randomString(5);
-        // TODO Cypress doesn't type the entire string.
-        //  https://github.com/cypress-io/cypress/issues/5480  invoke("val") is a workaround
-        // cy.get("input[data-cy='modal-filter-name']").type(name);
-        cy.get("input[data-cy='modal-filter-name']").invoke("val", name);
+        // Wait modal should be visible
+        cy.wait(1000);
+        cy.get("input[data-cy='modal-filter-name']").type(name);
         cy.get("input[data-cy='modal-filter-description']").type(randomString(3));
 
         // confirm save
@@ -85,11 +82,11 @@ context("5. Variant Browser", () => {
         // Check if saved
         cy.contains(".notification-manager .alert", "Filter has been saved", {timeout: TIMEOUT})
             .should("be.visible");
+
         cy.get(".active-filter-label").click();
 
         // If contains filter saved
         cy.get("ul.saved-filter-wrapper").contains(name);
-
 
         cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
         cy.get("#myModalLabel").contains("Are you sure?");
@@ -100,17 +97,15 @@ context("5. Variant Browser", () => {
 
         cy.contains(".notification-manager .alert", "Filter has been deleted", {timeout: TIMEOUT}).should("be.visible");
 
-        // RemoveActiveFilter .. ct Acltiver is not working
-        cy.get("opencga-active-filters button[data-filter-name='ct']").click({force: true});
+        // Fix activeFilters is not removing with filter name ct
+        cy.removeActiveFilters("ct");
+        // cy.get("opencga-active-filters button[data-filter-name='ct']").click({force: true});
     });
 
     // Variant Browser: Individual filters
     // should assertion comes from Chai and it follows its logic
     it("5.3 Pagination", () => {
-        cy.get("div.page-title h2", {timeout: TIMEOUT})
-            .should("be.visible")
-            .and("contain", "Variant Browser");
-
+        checkToolHeaderTitle("Variant Browser");
         checkResults("variant-browser-grid");
         changePage("variant-browser-grid", 2);
         checkResults("variant-browser-grid");
@@ -118,12 +113,10 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-
+    // x
     it("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
         // should assertion comes from Chai and it follows its logic
-        cy.get("div.page-title h2", {timeout: TIMEOUT})
-            .should("be.visible")
-            .and("contain", "Variant Browser");
+        checkToolHeaderTitle("Variant Browser");
         cy.get("variant-browser a[href='#filters_tab']").click();
         // Study and Cohorts: Cohort Alternate Stats
         // TODO add condition
@@ -136,6 +129,7 @@ context("5. Variant Browser", () => {
 
     });
 
+    // good
     it("5.5 Filters. Genomic: Genomic Location", () => {
         cy.sectionFilter("Genomic");
         cy.setGenomicLocation("1:5000000-10000000");
@@ -149,6 +143,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
+    // good
     it("5.6 Filters. Genomic: Feature IDs", () => {
         cy.sectionFilter("Genomic");
         cy.setFeatureIds(["C5", "RS1"]);
@@ -159,8 +154,8 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
+    // good
     it("5.7 Filters. Genomic: Gene Biotype", () => {
-        // Genomic: Gene Biotype
         cy.sectionFilter("Genomic");
         cy.setGeneBiotype("protein_coding");
         cy.get("div.search-button-wrapper button").click();
@@ -169,6 +164,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
+    // good
     it("5.8 Filters. Genomic: Variant", () => {
         cy.sectionFilter("Genomic");
         cy.setVariantType(["SNV"]);
@@ -178,6 +174,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
+    // good
     it("5.9 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
         cy.sectionFilter("ConsequenceType");
@@ -186,6 +183,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
+    // good
     it("5.10 Filters. Consequence type: Missense", () => {
         // Consequence type: SO Term - Use example: Missense
         cy.sectionFilter("ConsequenceType");
@@ -197,21 +195,22 @@ context("5. Variant Browser", () => {
     });
 
     // x
-    it("5.11 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
+    it.only("5.11 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
         // Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001
-        cy.get("variant-browser-filter a[data-cy-section-title='PopulationFrequency']").click();
-        cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1kG_phase3']").click();
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3']").should("be.visible");
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
+        cy.sectionFilter("PopulationFrequency");
+        cy.setPopulationFrequency("1000G", "AFR", "<", 0.0001);
+        // cy.setPopulationFrequency("1000G", "EUR", ">", 0.0001);
+
+        // cy.get("div.search-button-wrapper button")
+        //     .click();
+        // checkResults("variant-browser-grid");
+
+        // cy.get("opencga-active-filters button[data-filter-name='populationFrequencyAlt']")
+        //     .click();
+        // checkResults("variant-browser-grid");
+
         // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] select-field-filter button").click();
         // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] select-field-filter div.dropdown-menu").find("li").contains(">").click();
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] input[data-field='value']").type("0.0001");
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select-field-filter button").click();
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select-field-filter div.dropdown-menu").find("li").contains(">").click();
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='populationFrequencyAlt']").click();
-        checkResults("variant-browser-grid");
     });
 
     // x

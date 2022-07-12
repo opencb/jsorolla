@@ -161,7 +161,28 @@ Cypress.Commands.add("setCohortAlternateStats", (filter, value) => {
 
 });
 
-Cypress.Commands.add("setPopulationFrequency", (filter, value) => {
+Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) => {
+
+    // 1000G
+    // GNOMAD_GENOMES
+
+    cy.get("div[data-cy='populationFrequency']")
+        .contains("span", "Select Population Frequency");
+
+    // Show Collapse
+    cy.get(`i[data-cy='pop-freq-toggle-${population}']`).then()
+
+    // Select
+    // number-field-filter-wrapper-ALL
+    cy.get(`population-frequency-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)
+        .contains(opt)
+        .click({force: true});
+
+    // Typing
+    cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
+        .type(val);
+
+
 });
 
 Cypress.Commands.add("setPhenotype", (filter, value) =>{

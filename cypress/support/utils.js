@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TIMEOUT} from "../plugins/constants.js";
+
 // it's not working
 export const setCheckBox = (selectors, val) => {
     cy.get(selectors).invoke("prop", "checked", val);
@@ -26,6 +28,25 @@ export const checkLabel = (selectors, tag, val) => {
 export const setInput = (selectors, val) => {
     cy.get(selectors).type(val);
 };
+
+
+export const checkToolHeaderTitle = val => {
+    cy.get("div.page-title h2", {timeout: TIMEOUT, log: false})
+        .should("be.visible")
+        .and("contain", val);
+};
+
+export const checkColumnsGridBrowser = grid => {
+    cy.get(`${grid} .columns-toggle-wrapper button`).should("be.visible").and("contain", "Columns").click();
+};
+
+export const clickAllColumnsGridBrowser = grid => {
+    cy.get(`${grid} .columns-toggle-wrapper ul li a`).click({multiple: true, timeout: TIMEOUT});
+};
+
+export const checkHeaderGridBrowser = grid =>
+    cy.get(`${grid} .bootstrap-table .fixed-table-container thead > tr:first-child > th`, {timeout: TIMEOUT});
+
 
 // Select2 Widgets
 // https://www.cypress.io/blog/2020/03/20/working-with-select-elements-and-select2-widgets-in-cypress/#fetched-data
