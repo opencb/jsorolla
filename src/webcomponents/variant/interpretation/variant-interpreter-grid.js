@@ -786,6 +786,12 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Genome Browser</li>
                                     <li>
+                                        <a class="btn force-text-left" data-action="genome-browser">
+                                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">External Genome Browsers</li>
+                                    <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser")}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
@@ -1082,6 +1088,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     $("#" + this._prefix + "ReviewSampleModal").modal("show");
                 }
+                break;
+            case "genome-browser":
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
                 break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
