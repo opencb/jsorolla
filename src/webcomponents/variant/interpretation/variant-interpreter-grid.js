@@ -326,8 +326,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -368,7 +368,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
+                onExpandRow: (index, row) => {
+                    // Automatically select this row after clicking on "+" icons
+                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO remove this
                     document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
@@ -435,8 +438,8 @@ export default class VariantInterpreterGrid extends LitElement {
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onDblClickRow: (row, element, field) => {
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onDblClickRow: (row, element) => {
                 // We detail view is active we expand the row automatically.
                 // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                 if (this._config.detailView) {
@@ -447,7 +450,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 }
             },
-            onExpandRow: (index, row, $detail) => {
+            onExpandRow: (index, row) => {
+                // Automatically select this row after clicking on "+" icons
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                 // Listen to Show/Hide link in the detail formatter consequence type table
                 document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
                 document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
