@@ -103,11 +103,10 @@ export default class CaddFilter extends LitElement {
 
     errorMessage(msg) {
         return html `
-            <div class="col-md-12">
-                <div  style="display:flex; flex-direction:row-reverse; color:#a94442">
-                    <span>${msg}</span>
-                </div>
-            </div>`;
+            <div style="display:flex; flex-direction:row-reverse; color:#a94442">
+                <span>${msg}</span>
+            </div>
+        `;
     }
 
     caddFilterChange() {
@@ -147,7 +146,9 @@ export default class CaddFilter extends LitElement {
                         <input type="number" class="${this._prefix}FilterTextInput form-control input-sm"
                             id="${this._prefix}CaddRawInput" name="caddRaw" @input="${e => this.filterChange(e, "raw")}">
                     </div>
-                    ${this.invalidData["raw"]? this.errorMessage("0 or 1"):""}
+                    <div class="col-md-12">
+                        ${this.invalidData["raw"]? this.errorMessage("0 or 1"):""}
+                    </div>
                 </div>
             </div>
 
@@ -168,7 +169,9 @@ export default class CaddFilter extends LitElement {
                         <input type="number" min="0" max="99" class="${this._prefix}FilterTextInput form-control input-sm"
                             id="${this._prefix}CaddScaledInput" name="caddScaled" @input="${e => this.filterChange(e, "scaled")}">
                     </div>
-                    ${this.invalidData["scaled"]? this.errorMessage("Invalid number, must be between 0-99"):""}
+                    <div class="col-md-12">
+                        ${this.invalidData["scaled"]? this.errorMessage("Invalid number, must be between 0-99"):""}
+                    </div>
                 </div>
             </div>
         `;

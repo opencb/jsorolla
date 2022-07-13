@@ -133,10 +133,10 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         this.notify();
     }
 
-    filterChange(e, field, data) {
+    filterChange(e, field, value) {
         if (e.target?.validity?.valid) {
             this.invalidData[field] = false;
-            this.proteinfilterChange(field, data);
+            this.proteinfilterChange(field, value);
         } else {
             this.invalidData[field] = true;
         }
@@ -145,11 +145,10 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
 
     errorMessage(msg) {
         return html `
-            <div class="col-md-12">
-                <div  style="display:flex; flex-direction:row-reverse; color:#a94442;">
-                    <span>${msg}</span>
-                </div>
-            </div>`;
+            <div style="display:flex; flex-direction:row-reverse; color:#a94442;">
+                <span>${msg}</span>
+            </div>
+        `;
     }
 
     onLogicalOperatorChange(e) {
@@ -206,7 +205,9 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                             .value="${this.state["sift"].value ?? ""}"
                             @input="${e => this.filterChange(e, "sift", {value: e.target.value})}" />
                     </div>
-                    ${this.invalidData["sift"] ? this.errorMessage("Between 0 and 1"): nothing }
+                    <div class="col-md-12">
+                        ${this.invalidData["sift"] ? this.errorMessage("Between 0 and 1"): nothing }
+                    </div>
                 </div>
             </div>
 
@@ -235,7 +236,9 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                             .value="${this.state["polyphen"].value ?? ""}"
                             @input="${e => this.filterChange(e, "polyphen", {value: e.target.value})}" />
                     </div>
-                    ${this.invalidData["polyphen"] ? this.errorMessage("between 0 and 1"): nothing }
+                    <div class="col-md-12">
+                        ${this.invalidData["polyphen"] ? this.errorMessage("between 0 and 1"): nothing }
+                    </div>
                 </div>
             </div>
 
