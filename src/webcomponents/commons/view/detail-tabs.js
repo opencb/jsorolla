@@ -107,6 +107,15 @@ export default class DetailTabs extends LitElement {
         this.requestUpdate();
     }
 
+    renderTitle() {
+        const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
+        return html`
+            <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
+                <h3 class="break-word">${title}</h3>
+            </div>
+        `;
+    }
+
     renderTabTitle() {
         return html`
             ${this._config.items.length && this._config.items.map(item => {
@@ -156,12 +165,7 @@ export default class DetailTabs extends LitElement {
         const align = this._config?.display?.align || "";
 
         return html`
-            ${this._config.title ? html`
-                <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
-                    <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
-                </div>
-            ` : null}
-
+            ${this._config.title ? this.renderTitle() : null}
             <div class="detail-tabs">
                 <!-- TABS -->
                 ${this.mode === DetailTabs.TABS_MODE ? html`

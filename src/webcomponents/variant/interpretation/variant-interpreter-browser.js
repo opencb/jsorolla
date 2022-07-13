@@ -379,6 +379,7 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${this.settings.browsers["REARRANGEMENT"]}"
+                                        ?active="${active}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-rearrangement>
                                 </div>
@@ -426,6 +427,7 @@ class VariantInterpreterBrowser extends LitElement {
                                         .somatic="${false}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${this.settings.browsers["REARRANGEMENT"]}"
+                                        ?active="${active}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-rearrangement>
                                 </div>
