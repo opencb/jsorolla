@@ -248,10 +248,10 @@ export default class VariantBrowserGrid extends LitElement {
 
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => {
+                onClickRow: (row, selectedElement) => {
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
                 },
-                onDblClickRow: (row, element, field) => {
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -268,7 +268,9 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
+                onExpandRow: (index, row) => {
+                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO Remove this
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
@@ -307,7 +309,9 @@ export default class VariantBrowserGrid extends LitElement {
                 $(".success").removeClass("success");
                 $($element).addClass("success");
             },
-            onExpandRow: (index, row, $detail) => {
+            onExpandRow: (index, row) => {
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                 // Listen to Show/Hide link in the detail formatter consequence type table
                 // TODO Remove this
                 document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
