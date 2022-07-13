@@ -121,7 +121,7 @@ export default class OpencgaJobDetailLog extends LitElement {
     }
 
     async fetchContent(job, params = {}, append = false) {
-        const statusWithoutLogs = ["PENDING", "ABORTED", "RUNNING"];
+        const statusWithoutLogs = ["PENDING", "ABORTED", "RUNNING", "QUEUED"];
         if (!append) {
             this.content = "";
         }

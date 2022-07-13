@@ -326,8 +326,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -368,7 +368,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
+                onExpandRow: (index, row) => {
+                    // Automatically select this row after clicking on "+" icons
+                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO remove this
                     document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
@@ -435,8 +438,8 @@ export default class VariantInterpreterGrid extends LitElement {
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onDblClickRow: (row, element, field) => {
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onDblClickRow: (row, element) => {
                 // We detail view is active we expand the row automatically.
                 // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                 if (this._config.detailView) {
@@ -447,7 +450,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 }
             },
-            onExpandRow: (index, row, $detail) => {
+            onExpandRow: (index, row) => {
+                // Automatically select this row after clicking on "+" icons
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                 // Listen to Show/Hide link in the detail formatter consequence type table
                 document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
                 document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
@@ -780,6 +786,12 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Genome Browser</li>
                                     <li>
+                                        <a class="btn force-text-left" data-action="genome-browser">
+                                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">External Genome Browsers</li>
+                                    <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser")}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
@@ -1076,6 +1088,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     $("#" + this._prefix + "ReviewSampleModal").modal("show");
                 }
+                break;
+            case "genome-browser":
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
                 break;
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
