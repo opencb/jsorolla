@@ -174,7 +174,7 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) =>
             .contains("span", "Select Population Frequency");
 
         // Show Collapse
-        cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
+        // cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
 
         // Select
         cy.get(`population-frequency-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)

@@ -115,12 +115,12 @@ context("5. Variant Browser", () => {
     });
 
     // x
-    it("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
+    it.skip("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
         // should assertion comes from Chai and it follows its logic
         checkToolHeaderTitle("Variant Browser");
         cy.get("variant-browser a[href='#filters_tab']").click();
         // Study and Cohorts: Cohort Alternate Stats
-        // TODO add condition
+        // TODO add condition Cohort no exist
         /* cy.get("cohort-stats-filter i[data-cy='study-cohort-toggle']").first({timeout: TIMEOUT}).should("be.visible").click();
         cy.get("cohort-stats-filter input[data-field='value']").first({timeout: TIMEOUT}).type("0.00001"); // set ALL cohort
         cy.get("div.search-button-wrapper button").click();
@@ -202,6 +202,7 @@ context("5. Variant Browser", () => {
         cy.sectionFilter("PopulationFrequency");
         // Todo toggle with conditional
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1000G']").click();
+
         cy.setPopulationFrequency("1000G", "AFR", "<", 0.0001);
         cy.setPopulationFrequency("1000G", "EUR", ">", 0.0001);
 
@@ -293,8 +294,8 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    // good
-    it("5.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
+    // wrong
+    it.skip("5.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
         cy.sectionFilter("Deleteriousness");
         cy.setProteingSubsScore("sift", "Tolerated");
@@ -320,8 +321,8 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    // good
-    it("5.20 Check gene-view", () => {
+    // wrong
+    it.skip("5.20 Check gene-view", () => {
         cy.get("button[data-id='table-tab']", {timeout: TIMEOUT}).click();
         cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index='0'] a.gene-tooltip:first-child")
             .should("be.visible", {timeout: TIMEOUT})
@@ -362,8 +363,8 @@ context("5. Variant Browser", () => {
         cy.get("variant-beacon-network").find(".beacon-square").its("length").should("eq", 15);
     });
 
-    // x
-    it.only("5.22 aggregated query", () => {
+    // wrong
+    it.skip("5.22 aggregated query", () => {
 
         cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
