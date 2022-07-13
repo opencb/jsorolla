@@ -173,6 +173,11 @@ export default class OpencgaBrowserFilter extends LitElement {
     }
 
     _createSubSection(subsection) {
+        // Prevent empty filters section when a subsection is undefined
+        if (!subsection) {
+            return "";
+        }
+
         let content = "";
 
         if (subsection.render) {
