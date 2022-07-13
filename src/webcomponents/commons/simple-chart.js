@@ -22,7 +22,7 @@ export default class SimpleChart extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -32,53 +32,54 @@ export default class SimpleChart extends LitElement {
     static get properties() {
         return {
             active: {
-                type: Boolean
+                type: Boolean,
             },
             type: {
-                type: String
+                type: String,
             },
             title: {
-                type: String
+                type: String,
             },
             subtitle: {
-                type: String
+                type: String,
             },
             data: {
-                type: Object
+                type: Object,
             },
             xAxisTitle: {
-                type: String
+                type: String,
             },
             yAxisTitle: {
-                type: String
+                type: String,
             },
             showButtons: {
-                type: Boolean
+                type: Boolean,
+            },
+            colors: {
+                type: Object,
             },
             config: {
-                // This is must be a valid Highcharts configuration object
-                type: Object
-            }
-        }
+                // This must be a valid Highcharts configuration object
+                type: Object,
+            },
+        };
     }
 
-    _init(){
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
         this.type = "column";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.colors = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         if (changedProperties.has("type") || changedProperties.has("data") || changedProperties.has("config")) {
@@ -101,7 +102,6 @@ export default class SimpleChart extends LitElement {
     }
 
     renderColumnChart() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
         Highcharts.chart(this._prefix + "chart", {
             chart: {
                 type: "column",
@@ -139,12 +139,13 @@ export default class SimpleChart extends LitElement {
                 },
                 ...this._config.plotOptions
             },
-            series: Object.entries(this.data).map( ([name, data]) => (
-                {
-                    name: name,
-                    data: Array.isArray(data) ? data : [data] // TODO Proper fix after facet-result-view refactor. Most of the variant stats are Maps with a single datapoint, in other cases we need array (facets)
-                })
-            ),
+            series: Object.entries(this.data).map(([name, data]) => ({
+                name: name,
+                // TODO Proper fix after facet-result-view refactor.
+                // Most of the variant stats are Maps with a single datapoint, in other cases we need an array (facets)
+                data: Array.isArray(data) ? data : [data],
+                color: this.colors[name] ? this.colors[name] : undefined,
+            })),
             credits: {
                 enabled: false
             },
@@ -152,53 +153,53 @@ export default class SimpleChart extends LitElement {
     }
 
     renderBarChart() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
         Highcharts.chart(this._prefix + "chart", {
             chart: {
                 type: "bar",
-                ...this._config.chart
+                ...this._config.chart,
             },
             title: {
                 text: this.title,
-                ...this._config.title
+                ...this._config.title,
             },
             subtitle: {
                 text: this.subtitle,
-                ...this._config.subtitle
+                ...this._config.subtitle,
             },
             xAxis: {
                 title: {
-                    text: this.xAxisTitle || ""
+                    text: this.xAxisTitle || "",
                 },
                 label: {
-                    enabled: true
+                    enabled: true,
                 },
                 crosshair: true,
                 // categories: Object.keys(this.data).map(elem => elem),
-                ...this._config.xAxis
+                ...this._config.xAxis,
             },
             yAxis: {
                 title: {
-                    text: this.yAxisTitle || ""
+                    text: this.yAxisTitle || "",
                 },
                 min: 0,
-                ...this._config.yAxis
+                ...this._config.yAxis,
             },
             plotOptions: {
                 column: {
                     pointPadding: 0.2,
-                    borderWidth: 0
+                    borderWidth: 0,
                 },
-                ...this._config.plotOptions
+                ...this._config.plotOptions,
             },
-            series: Object.entries(this.data).map( ([name, data]) => (
-                {
-                    name: name,
-                    data: Array.isArray(data) ? data : [data] // TODO Proper fix after facet-result-view refactor. Most of the variant stats are Maps with a single datapoint, in other cases we need array (facets)
-                })
-            ),
+            series: Object.entries(this.data).map(([name, data]) => ({
+                name: name,
+                // TODO Proper fix after facet-result-view refactor.
+                // Most of the variant stats are Maps with a single datapoint, in other cases we need an array (facets)
+                data: Array.isArray(data) ? data : [data],
+                color: this.colors[name] ? this.colors[name] : undefined,
+            })),
             credits: {
-                enabled: false
+                enabled: false,
             },
         });
     }
@@ -213,43 +214,45 @@ export default class SimpleChart extends LitElement {
             },
             title: {
                 text: this.title,
-                ...this._config.title
+                ...this._config.title,
             },
             subtitle: {
                 text: this.subtitle,
-                ...this._config.subtitle
+                ...this._config.subtitle,
             },
             accessibility: {
                 point: {
-                    valueSuffix: "%"
-                }
+                    valueSuffix: "%",
+                },
             },
             plotOptions: {
                 pie: {
                     allowPointSelect: true,
                     cursor: "pointer",
                     dataLabels: {
-                        enabled: false
+                        enabled: false,
                     },
-                    showInLegend: true
+                    showInLegend: true,
                 },
-                ...this._config.plotOptions
+                ...this._config.plotOptions,
             },
             series: [
                 {
-                    data: Object.entries(this.data).map( ([name, data]) => ({name: name, y: data}))
+                    data: Object.entries(this.data).map(([name, data]) => ({name: name, y: data})),
                 }
             ],
             credits: {
-                enabled: false
-            }
+                enabled: false,
+            },
         });
     }
 
-    /**
-     * Returns a valid Higcharts configuration object
-     * @returns {{subtitle: {text: string}, chart: {backgroundColor: {stops: [[number, string], [number, string]]}, borderWidth: number, plotBorderWidth: number, plotShadow: boolean}}}
-     */
+    render() {
+        return html`
+            <div id="${this._prefix}chart"></div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             chart: {
@@ -266,12 +269,6 @@ export default class SimpleChart extends LitElement {
                 plotBorderWidth: 1
             },
         };
-    }
-
-    render() {
-        return html`
-            <div id="${this._prefix}chart"></div>
-        `;
     }
 
 }
