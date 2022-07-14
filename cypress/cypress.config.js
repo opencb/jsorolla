@@ -12,6 +12,7 @@ module.exports = defineConfig({
     },
     env: {
         apiUrl: "https://ws.opencb.org/opencga-test/webservices/rest/v2",
+        study: "demo@family:platinum"
     },
     e2e: {
     // We've imported your old cypress plugins here.

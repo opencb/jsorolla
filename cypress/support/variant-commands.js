@@ -34,6 +34,13 @@ Cypress.Commands.add("setGenomicLocation", value => {
 });
 
 
+Cypress.Commands.add("selectStudy", fqn => {
+    // demo@family:platinum
+    cy.get("ul[class='nav navbar-nav navbar-right'] li[class='dropdown']").first().within(() => {
+        cy.get(`ul[class='dropdown-menu'] li a[data-cy-fqn='${fqn}']`).click({force: true});
+    });
+});
+
 Cypress.Commands.add("saveCurrentFilter", data =>{
     // Open the filters
     cy.get("button[data-cy='filter-button']").click({force: true});

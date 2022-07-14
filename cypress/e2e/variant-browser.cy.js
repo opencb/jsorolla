@@ -22,18 +22,18 @@ context("5. Variant Browser", () => {
     const executeQuery = () => cy.get("div.search-button-wrapper button").click();
     before(() => {
         cy.loginByApi();
-        // goTo("iva");
-        // cy.visit("index.html#browser");
-
-        // Go to Variant Analysi
+        // Go to Variant Analysis
         cy.wait(1000);
         cy.get(".hi-icon-wrap > [data-id='iva']", {log: false}).click();
+        cy.selectStudy(Cypress.env("study"));
     });
 
     beforeEach(() => {
         // cy.get("a[data-id=browser]", {timeout: TIMEOUT}).click({force: true});
-        // Go to Iva
+
+        // Go to Variant Browser
         cy.get("#bs-example-navbar-collapse-1 > :nth-child(1) > :nth-child(1) > a", {timeout: TIMEOUT, log: false}).click({force: true});
+
     });
 
     // good - refactor
@@ -86,7 +86,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    // not exits cohort
+    // Not exits cohort
     it.skip("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
         // should assertion comes from Chai and it follows its logic
         checkToolHeaderTitle("Variant Browser");
@@ -116,6 +116,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
         // close
         cy.sectionFilter("Genomic");
+        cy.wait(500);
     });
 
     // good
@@ -236,8 +237,6 @@ context("5. Variant Browser", () => {
         // Clinical and Disease: Full text. Use example: Mortality
         cy.sectionFilter("Clinical");
         cy.setClinicalFullText("Mortality");
-
-        // // cy.get("fulltext-search-accessions-filter textarea").type("centroid");
         executeQuery();
         checkResults("variant-browser-grid");
         cy.removeActiveFilters("traits");
@@ -322,16 +321,6 @@ context("5. Variant Browser", () => {
 
         cy.showVariantBrowserTab("annotationPropFreq");
         checkResults("cellbase-population-frequency-grid");
-        // Review
-        // cy.get("cellbase-population-frequency-grid")
-        //     .then($div => {
-        //         // check CB data are available
-        //         if (Cypress.$("div[data-cy='cellbase-population-frequency-table']", $div).length) {
-        //             checkResultsOrNot("cellbase-population-frequency-grid");
-        //         } else {
-        //             cy.get("cellbase-population-frequency-grid .alert-info").contains("No population frequencies found");
-        //         }
-        //     });
 
         cy.showVariantBrowserTab("annotationClinical");
         checkResultsOrNot("variant-annotation-clinical-view");

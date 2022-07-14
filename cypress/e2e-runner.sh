@@ -55,7 +55,7 @@ if test ! "$studies"; then
   # if studies not defined as opt (comma separated)
   echo -en "\nEnter the FQN (comma separated) of the studies you want to test (leave empty for default) [ENTER]: "
   read str_studies
-  readarray -d , -t studies<<<"$str_studies"
+  readarray -t studies<<<"$str_studies"
 fi
 
 # iterate over studies and run the test defined in --spec
@@ -65,7 +65,7 @@ for study in "${studies[@]}"
 do
   echo "$study"
   rm -rf mochawesome-report/ && \
-  CYPRESS_study="$study" npx cypress run  --config-file="cypress/cypress.json" --config videosFolder="cypress/videos/$study",screenshotsFolder="cypress/screenshots/$study" --headless --spec 'cypress/integration/*';  \
+  CYPRESS_study="$study" npx cypress run  --config-file="cypress/cypress.config.js" --config videosFolder="cypress/videos/$study",screenshotsFolder="cypress/screenshots/$study" --headless --spec 'cypress/e2e/variant-browser.cy.js';  \
   npx mochawesome-merge mochawesome-report/*.json -o mochawesome-report/cypress-combined-report.json && \
   npx marge --reportFilename "$study".html --charts --timestamp _dd-mm-yyyy_HH-MM --reportPageTitle "IVA $study" --reportTitle "IVA study: $study" --reportDir ./report mochawesome-report/cypress-combined-report.json && \
   rm -rf mochawesome-report/
