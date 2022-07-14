@@ -25,13 +25,42 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 
-import UtilsNew from "../../src/core/utilsNew.js";
 import {setCheckBox, checkLabel, setInput, clickElement} from "./utils";
 
 
 Cypress.Commands.add("setGenomicLocation", value => {
     checkLabel("div[data-cy='region']", "span", "Genomic Location");
     setInput("region-filter textarea", value);
+});
+
+
+Cypress.Commands.add("saveCurrentFilter", data =>{
+    // Open the filters
+    cy.get("button[data-cy='filter-button']").click({force: true});
+
+    // save current
+    cy.get("ul.saved-filter-wrapper a[data-action='active-filter-save']")
+        .contains("Save current filter")
+        .click();
+    // Wait modal should be visible
+    cy.wait(500);
+    cy.get("input[data-cy='modal-filter-name']").type(data.name);
+    cy.get("input[data-cy='modal-filter-description']").type(data.description);
+    cy.get("button[data-cy='modal-filter-save-button']").click();
+});
+
+Cypress.Commands.add("removeFilters", name => {
+    cy.get(".active-filter-label").click();
+    cy.get("ul.saved-filter-wrapper").contains(name);
+    cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
+    cy.get("#myModalLabel").contains("Are you sure?");
+    cy.get(":nth-child(5) > .modal > .modal-dialog > .modal-content > .modal-footer > .btn-primary").click();
+});
+
+
+Cypress.Commands.add("checkNotificationManager", msg => {
+    cy.get(".notification-manager", {timeout: 500}).contains(msg)
+        .should("be.visible");
 });
 
 Cypress.Commands.add("setFeatureIds", value => {
@@ -161,6 +190,11 @@ Cypress.Commands.add("setCohortAlternateStats", (filter, value) => {
 
 });
 
+Cypress.Commands.add("selectPopulationFrequency", population => {
+    // Show Collapse
+    cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
+});
+
 Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) => {
 
     // 1000G
@@ -172,9 +206,6 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) =>
     } else {
         cy.get("div[data-cy='populationFrequency']")
             .contains("span", "Select Population Frequency");
-
-        // Show Collapse
-        // cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
 
         // Select
         cy.get(`population-frequency-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)

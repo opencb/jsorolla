@@ -57,50 +57,22 @@ context("5. Variant Browser", () => {
 
     });
 
-    // Variant Browser: Filter controls
+    // Variant Browser: Filter controls good
     it("5.2 Create/Delete canned filter", () => {
 
         checkToolHeaderTitle("Variant Browser");
         cy.sectionFilter("ConsequenceType");
-        cy.setConsequenceType("lof", true);
+        cy.setConsequenceType("lof");
 
         cy.get("opencga-active-filters").contains("Consequence Types 9");
 
-        cy.get("button[data-cy='filter-button']").click({force: true});
-        cy.get("ul.saved-filter-wrapper a[data-action='active-filter-save']")
-            .contains("Save current filter")
-            .click();
-
         const name = randomString(5);
-        // Wait modal should be visible
-        cy.wait(1000);
-        cy.get("input[data-cy='modal-filter-name']").type(name);
-        cy.get("input[data-cy='modal-filter-description']").type(randomString(3));
-
-        // confirm save
-        cy.get("button[data-cy='modal-filter-save-button']").click();
-
-        // Check if saved
-        cy.contains(".notification-manager .alert", "Filter has been saved", {timeout: TIMEOUT})
-            .should("be.visible");
-
-        cy.get(".active-filter-label").click();
-
-        // If contains filter saved
-        cy.get("ul.saved-filter-wrapper").contains(name);
-
-        cy.get(`span.action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
-        cy.get("#myModalLabel").contains("Are you sure?");
-
-        // confirm deletion action
-        // cy.get(".modal-content .modal-footer .btn-primary").click();
-        cy.get(":nth-child(5) > .modal > .modal-dialog > .modal-content > .modal-footer > .btn-primary").click();
-
-        cy.contains(".notification-manager .alert", "Filter has been deleted", {timeout: TIMEOUT}).should("be.visible");
-
+        cy.saveCurrentFilter({name: name, description: randomString(3)});
+        cy.checkNotificationManager("Filter has been saved");
+        cy.removeFilters(name);
+        cy.checkNotificationManager("Filter has been deleted");
         // Fix activeFilters is not removing with filter name ct
         cy.removeActiveFilters("ct");
-        // cy.get("opencga-active-filters button[data-filter-name='ct']").click({force: true});
     });
 
     // Variant Browser: Individual filters
@@ -114,7 +86,7 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    // x
+    // not exits cohort
     it.skip("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
         // should assertion comes from Chai and it follows its logic
         checkToolHeaderTitle("Variant Browser");
@@ -142,6 +114,8 @@ context("5. Variant Browser", () => {
         // Remove ActiveFilter
         cy.removeActiveFilters("region");
         checkResults("variant-browser-grid");
+        // close
+        cy.sectionFilter("Genomic");
     });
 
     // good
@@ -178,10 +152,13 @@ context("5. Variant Browser", () => {
     // good
     it("5.9 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
+        // Open
         cy.sectionFilter("ConsequenceType");
         cy.setConsequenceType("coding_sequence", "Loss-of-Function (LoF)");
         executeQuery();
         checkResults("variant-browser-grid");
+        // Close
+        cy.sectionFilter("ConsequenceType");
     });
 
     // good
@@ -200,17 +177,17 @@ context("5. Variant Browser", () => {
         // Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001
 
         cy.sectionFilter("PopulationFrequency");
-        // Todo toggle with conditional
-        cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1000G']").click();
-
+        cy.selectPopulationFrequency("1000G");
         cy.setPopulationFrequency("1000G", "AFR", "<", 0.0001);
         cy.setPopulationFrequency("1000G", "EUR", ">", 0.0001);
-
         executeQuery();
         checkResults("variant-browser-grid");
 
         cy.removeActiveFilters("populationFrequencyAlt");
         checkResults("variant-browser-grid");
+        cy.selectPopulationFrequency("1000G");
+        cy.sectionFilter("PopulationFrequency");
+        cy.wait(200);
     });
 
     // good
@@ -218,12 +195,13 @@ context("5. Variant Browser", () => {
         // Population Frequency: gnomAD - Set all < 0.00001
 
         cy.sectionFilter("PopulationFrequency");
-        cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-GNOMAD_GENOMES']").click();
+        cy.selectPopulationFrequency("GNOMAD_GENOMES");
         cy.setPopulationFrequency("GNOMAD_GENOMES", "Set_All", "", 0.0001);
         executeQuery();
         checkResults("variant-browser-grid");
         cy.removeActiveFilters("populationFrequencyAlt");
         checkResults("variant-browser-grid");
+        cy.selectPopulationFrequency("GNOMAD_GENOMES");
     });
 
     // good
@@ -285,6 +263,7 @@ context("5. Variant Browser", () => {
     // good
     it("5.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
+        // Open Section
         cy.sectionFilter("Deleteriousness");
         cy.setProteingSubsScore("sift", "Score", "<", 0.1);
         cy.setProteingSubsScore("polyphen", "Score", "<", 0.1);
@@ -292,10 +271,12 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
         cy.removeActiveFilters("proteinSubstitution");
         checkResults("variant-browser-grid");
+        // Close Section
+        cy.sectionFilter("Deleteriousness");
+        cy.wait(500);
     });
-
-    // wrong
-    it.skip("5.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
+    // good
+    it("5.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
         cy.sectionFilter("Deleteriousness");
         cy.setProteingSubsScore("sift", "Tolerated");
@@ -321,9 +302,9 @@ context("5. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    // wrong
+    // good
     it.skip("5.20 Check gene-view", () => {
-        cy.get("button[data-id='table-tab']", {timeout: TIMEOUT}).click();
+        // cy.get("button[data-id='table-tab']", {timeout: TIMEOUT}).click();
         cy.get("variant-browser-grid .bootstrap-table .fixed-table-container tr[data-index='0'] a.gene-tooltip:first-child")
             .should("be.visible", {timeout: TIMEOUT})
             .click({force: true});
@@ -340,15 +321,17 @@ context("5. Variant Browser", () => {
         checkResults("variant-consequence-type-view");
 
         cy.showVariantBrowserTab("annotationPropFreq");
-        cy.get("cellbase-population-frequency-grid")
-            .then($div => {
-                // check CB data are available
-                if (Cypress.$("div[data-cy='cellbase-population-frequency-table']", $div).length) {
-                    checkResultsOrNot("cellbase-population-frequency-grid");
-                } else {
-                    cy.get("cellbase-population-frequency-grid .alert-info").contains("No population frequencies found");
-                }
-            });
+        checkResults("cellbase-population-frequency-grid");
+        // Review
+        // cy.get("cellbase-population-frequency-grid")
+        //     .then($div => {
+        //         // check CB data are available
+        //         if (Cypress.$("div[data-cy='cellbase-population-frequency-table']", $div).length) {
+        //             checkResultsOrNot("cellbase-population-frequency-grid");
+        //         } else {
+        //             cy.get("cellbase-population-frequency-grid .alert-info").contains("No population frequencies found");
+        //         }
+        //     });
 
         cy.showVariantBrowserTab("annotationClinical");
         checkResultsOrNot("variant-annotation-clinical-view");
@@ -363,12 +346,11 @@ context("5. Variant Browser", () => {
         cy.get("variant-beacon-network").find(".beacon-square").its("length").should("eq", 15);
     });
 
-    // wrong
-    it.skip("5.22 aggregated query", () => {
+    // good
+    it("5.22 aggregated query", () => {
 
-        cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
-        cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
-
+        cy.sectionFilter("ConsequenceType");
+        cy.setConsequenceType("lof");
         cy.get("a[href='#facet_tab']").click({force: true});
 
         Facet.selectDefaultFacet();
