@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -66,6 +67,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             if (this.opencgaSession?.study) {
                 this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
                 this.initClinicalAnalysis();
+                this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             }
 
             this.requestUpdate();
@@ -93,7 +95,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
         const param = field || e.detail.param;
         switch (param) {
             case "type":
-                this.clinicalAnalysis.type = e.detail.value.toUpperCase();
+                this.clinicalAnalysis.type = e.detail.value?.toUpperCase();
                 break;
             case "proband.id":
                 this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
@@ -128,7 +130,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 }
                 break;
             default:
-                this.clinicalAnalysis[param] = e.detail.value;
+                this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
                 break;
         }
 
@@ -160,10 +162,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Single Analyisis Configuration
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                proband: null,
-            };
+            delete this.clinicalAnalysis["proband"];
+            this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
@@ -197,11 +197,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 });
         } else {
             // Empty family fields
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                proband: null,
-                family: null,
-            };
+            delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["family"];
+            this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
@@ -211,10 +209,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis.proband = response.responses[0].results[0];
+                    this.clinicalAnalysis = {...this.clinicalAnalysis, proband: response.responses[0].results[0]};
 
-                    if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                    if (this.clinicalAnalysis?.proband?.disorders?.length === 1) {
+                        this.clinicalAnalysis = {...this.clinicalAnalysis, disorder: {id: this.clinicalAnalysis.proband.disorders[0].id}};
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -225,10 +223,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 });
         } else {
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                proband: null,
-            };
+            delete this.clinicalAnalysis["proband"];
+            this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
@@ -247,25 +243,25 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onClear() {
         this.initClinicalAnalysis();
         // This reset all date elements such as dueDate, check TASK-340
-        Array.from(this.querySelectorAll('input[type="date"]')).forEach(el => el.value = "");
+        Array.from(this.querySelectorAll("input[type='date']")).forEach(el => el.value = "");
         this.requestUpdate();
     }
 
     onSubmit() {
         // Prepare the data for the REST create
-        const data = {...this.clinicalAnalysis};
+        let data = {...this.clinicalAnalysis};
 
         // remove private fields
         delete data._users;
-
-        data.proband = {
-            id: this.clinicalAnalysis.proband?.id ? this.clinicalAnalysis.proband.id : null
-        };
+        data = {...data, proband: {id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null}};
 
         if (data.type === "FAMILY") {
-            data.family = {
-                id: this.clinicalAnalysis.family.id,
-                members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
+
+            data = {...data,
+                family: {
+                    id: this.clinicalAnalysis.family.id,
+                    members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
+                }
             };
         }
 
@@ -345,7 +341,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.clinicalAnalysis).length > 0,
+                                visible: () => !UtilsNew.objectCompare(this.clinicalAnalysis, this._clinicalAnalysis),
                                 notificationType: "warning",
                             }
                         },
