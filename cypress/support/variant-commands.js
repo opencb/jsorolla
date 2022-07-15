@@ -33,7 +33,7 @@ Cypress.Commands.add("setGenomicLocation", value => {
     setInput("region-filter textarea", value);
 });
 
-
+// Should this command be used for all tests?
 Cypress.Commands.add("selectStudy", fqn => {
     // demo@family:platinum
     cy.get("ul[class='nav navbar-nav navbar-right'] li[class='dropdown']").first().within(() => {
@@ -41,6 +41,7 @@ Cypress.Commands.add("selectStudy", fqn => {
     });
 });
 
+// All browser has filters
 Cypress.Commands.add("saveCurrentFilter", data =>{
     // Open the filters
     cy.get("button[data-cy='filter-button']").click({force: true});
@@ -56,6 +57,7 @@ Cypress.Commands.add("saveCurrentFilter", data =>{
     cy.get("button[data-cy='modal-filter-save-button']").click();
 });
 
+// All browser has filters
 Cypress.Commands.add("removeFilters", name => {
     cy.get(".active-filter-label").click();
     cy.get("ul.saved-filter-wrapper").contains(name);
@@ -64,7 +66,7 @@ Cypress.Commands.add("removeFilters", name => {
     cy.get(":nth-child(5) > .modal > .modal-dialog > .modal-content > .modal-footer > .btn-primary").click();
 });
 
-
+// Should be command for all test?
 Cypress.Commands.add("checkNotificationManager", msg => {
     cy.get(".notification-manager", {timeout: 500}).contains(msg)
         .should("be.visible");
