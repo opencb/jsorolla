@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import "./file-view.js";
 import "../loading-spinner.js";
 
-export default class OpencgaFileManager extends LitElement {
+export default class FileManager extends LitElement {
 
     constructor() {
         super();
@@ -338,4 +338,4 @@ export default class OpencgaFileManager extends LitElement {
 
 }
 
-customElements.define("opencga-file-manager", OpencgaFileManager);
+customElements.define("file-manager", FileManager);
