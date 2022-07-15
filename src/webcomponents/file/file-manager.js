@@ -310,19 +310,20 @@ export default class FileManager extends LitElement {
                             <loading-spinner></loading-spinner>
                         </div>
                     ` : null}
-                    ${this.currentRoot ?
-                        html`
-                            <div>
-                                ${this.renderFileManager(this.currentRoot)}
-                            </div>
-                            <div class="opencga-file-view">
-                                <file-view
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .fileId="${this.fileId}"
-                                    mode="full">
-                                </file-view>
-                            </div>` :
-                        null}
+                    ${this.currentRoot ? html`
+                        <div>
+                            ${this.renderFileManager(this.currentRoot)}
+                        </div>
+                            ${this.fileId ? html`
+                                <div class="opencga-file-view">
+                                    <file-view
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .fileId="${this.fileId}"
+                                        mode="full">
+                                    </file-view>
+                                </div>
+                            ` : null}
+                        ` : null}
                     </div>
                 </div>
             </div>
