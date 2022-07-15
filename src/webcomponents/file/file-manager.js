@@ -50,20 +50,35 @@ export default class FileManager extends LitElement {
         this.tree = null;
         this.fileId = null;
         this.loading = false;
+
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    async updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
+        super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        this.currentRoot = null;
+        if (this.opencgaSession) {
             this.loading = true;
-            this.currentRoot = null;
-            this.requestUpdate();
-            await this.updateComplete;
-            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"})
+            const query = {
+                study: this.opencgaSession.study.fqn,
+                maxDepth: 1,
+                include: "id,name,path,size,format",
+            };
+            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, query)
                 .then(restResponse => {
                     this.errorState = false;
                     this.tree = restResponse.getResult(0);
@@ -85,14 +100,10 @@ export default class FileManager extends LitElement {
                     this.requestUpdate();
                 });
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
     }
 
     async fetchFolder(node) {
         try {
-            // console.log("FETCHING", node)
             if (!node.visited) {
                 const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"});
                 const result = restResponse.getResult(0);
@@ -100,7 +111,6 @@ export default class FileManager extends LitElement {
                 node.visited = true;
             }
             this.errorState = false;
-            // console.log("current root", this.currentRoot)
             this.requestUpdate();
         } catch (restResponse) {
             if (restResponse.getEvents?.("ERROR")?.length) {
@@ -114,7 +124,6 @@ export default class FileManager extends LitElement {
     }
 
     searchNode(nodeId, baseNode) {
-        // console.log(`searching [${nodeId}]`)
         if (nodeId === ":") {
             return this.tree;
         }
@@ -127,9 +136,6 @@ export default class FileManager extends LitElement {
                 if (r) return r;
             }
         }
-
-        // console.error("Node not found!", nodeId);
-        // return this.tree;
     }
 
     renderFileManager(root) {
@@ -256,10 +262,7 @@ export default class FileManager extends LitElement {
     }
 
     async route(id, resetFileId = true) {
-        // console.log("route", id)
         this.currentRoot = this.searchNode(id, this.tree);
-        // console.log("setting currentRoute", this.currentRoot)
-
         this.currentRoot.exploded = true;
 
         if (!this.currentRoot.visited) {
@@ -283,13 +286,16 @@ export default class FileManager extends LitElement {
 
     onClickFile(id) {
         const path = id.split(":").slice(0, -1).join(":") + ":";
-        // console.log("PATH", path)
         this.fileId = id;
         this.route(path, false);
         this.requestUpdate();
     }
 
     render() {
+        if (!this.opencgaSession || !this.currentRoot) {
+            return null;
+        }
+
         return html`
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
