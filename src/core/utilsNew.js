@@ -655,19 +655,20 @@ export default class UtilsNew {
                     const id = typeof o === "object" ? o.id : o; // support both string ID or object
                     const obj = internal.find(e => id === e.id);
                     if (!obj) {
-                        console.error(`Config Merge failed. ${id} not found in internal config`);
+                        console.warn(`Config Merge failed. '${id}' field not found in internal config`);
+                        return null;
                     } else {
                         return typeof o === "object" ? {...o, ...obj} : {...obj};
                     }
                 });
-                return section;
+                return section.filter(s => !!s);
             } else {
                 return internal.filter(f => {
                     return !~external.indexOf(f.id);
                 });
             }
         }
-        console.error("External config not available");
+        console.warn("External config not available. Using default config");
         return internal;
     }
 
