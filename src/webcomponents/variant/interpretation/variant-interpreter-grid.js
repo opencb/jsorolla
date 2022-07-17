@@ -1349,12 +1349,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 @export="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1377,7 +1377,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1401,7 +1401,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
