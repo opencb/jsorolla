@@ -163,6 +163,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
             // Single Analyisis Configuration
             // Empty disorder and samples field when remove item from proband field.
             delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
+            // refresh the form
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
@@ -198,6 +200,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Empty family fields
             delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
             delete this.clinicalAnalysis["family"];
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
@@ -224,6 +227,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Empty disorder and samples field when remove item from proband field.
             delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
