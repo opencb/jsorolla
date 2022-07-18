@@ -70,12 +70,12 @@ export default class GenomeBrowser {
             <div id="${this.prefix}" class="panel panel-default">
                 <div id="${this.prefix}Navigation" class="panel-heading"></div>
                 <ul class="list-group">
-                    <li id="${this.prefix}Karyotype" class="list-group-item"></li>
-                    <li id="${this.prefix}Chromosome" class="list-group-item"></li>
-                    <li id="${this.prefix}Region" class="list-group-item"></li>
-                    <li id="${this.prefix}Tracks" class="list-group-item"></li>
+                    <li id="${this.prefix}Karyotype" class="list-group-item" style="display:none;"></li>
+                    <li id="${this.prefix}Chromosome" class="list-group-item" style="display:none;"></li>
+                    <li id="${this.prefix}Region" class="list-group-item" style="display:none;"></li>
+                    <li id="${this.prefix}Tracks" class="list-group-item" style="display:none;"></li>
                 </ul>
-                <div id="${this.prefix}Status" class="panel-footer"></div>
+                <div id="${this.prefix}Status" class="panel-footer" style="display:none;"></div>
             </div>
         `);
 
@@ -96,21 +96,25 @@ export default class GenomeBrowser {
     #initPanels() {
         // Create Navigation Bar
         if (this.config.navigationPanelVisible) {
+            this.navigationbarDiv.style.display = "block";
             this.navigationBar = this.#createNavigationBar(this.navigationbarDiv);
         }
 
         // Create karyotype Panel
         if (this.config.karyotypePanelVisible) {
+            this.karyotypeDiv.style.display = "block";
             this.karyotypePanel = this.#createKaryotypePanel(this.karyotypeDiv);
         }
 
         // Create Chromosome panel
         if (this.config.chromosomePanelVisible) {
+            this.chromosomeDiv.style.display = "block";
             this.chromosomePanel = this.#createChromosomePanel(this.chromosomeDiv);
         }
 
         // Create overview track list panel
         if (this.config.overviewPanelVisible) {
+            this.regionDiv.style.display = "block";
             this.overviewTrackListPanel = this.#createOverviewTrackListPanel(this.regionDiv);
         }
 
@@ -119,6 +123,7 @@ export default class GenomeBrowser {
 
         // Create status bar
         if (this.config.statusPanelVisible) {
+            this.statusbarDiv.style.display = "block";
             this.statusBar = this.#createStatusBar(this.statusbarDiv);
         }
     }

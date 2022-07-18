@@ -260,7 +260,7 @@ export default class OpencgaJobDetailLog extends LitElement {
                         <i class="fas fa-exclamation"></i> Stderr
                     </button>
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
-                        <i class="fas fa-info"></i> Stout
+                        <i class="fas fa-info"></i> Stdout
                     </button>
                 </div>
             </div>

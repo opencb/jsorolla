@@ -79,7 +79,7 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-r
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
-import "../../webcomponents/file/opencga-file-manager.js";
+import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
@@ -1611,7 +1611,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["file-manager"] ? html`
                     <div class="content" id="file-manager">
-                        <opencga-file-manager .opencgaSession="${this.opencgaSession}"></opencga-file-manager>
+                        <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
                     </div>
                 ` : null}
 
