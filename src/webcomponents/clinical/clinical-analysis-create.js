@@ -100,7 +100,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
             case "proband.id":
                 this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
                 if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-                    this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                    this.clinicalAnalysis.disorder = {
+                        id: this.clinicalAnalysis.proband.disorders[0].id
+                    };
                 }
                 break;
             case "disorder.id":
@@ -139,7 +141,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     onCustomFieldChange(field, e) {
-        this.onFieldChange({detail: {value: e.detail.value, param: field}});
+        this.onFieldChange({
+            detail: {
+                value: e.detail.value,
+                param: field
+            }
+        });
     }
 
     onIndividualChange(e) {
@@ -150,7 +157,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     this.clinicalAnalysis.proband = response.responses[0].results[0];
 
                     if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                        this.clinicalAnalysis.disorder = {
+                            id: this.clinicalAnalysis.proband.disorders[0].id
+                        };
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -188,7 +197,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     }
 
                     if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                        this.clinicalAnalysis.disorder = {
+                            id: this.clinicalAnalysis.proband.disorders[0].id
+                        };
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -212,10 +223,18 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = {...this.clinicalAnalysis, proband: response.responses[0].results[0]};
+                    this.clinicalAnalysis = {
+                        ...this.clinicalAnalysis,
+                        proband: response.responses[0].results[0]
+                    };
 
                     if (this.clinicalAnalysis?.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis = {...this.clinicalAnalysis, disorder: {id: this.clinicalAnalysis.proband.disorders[0].id}};
+                        this.clinicalAnalysis = {
+                            ...this.clinicalAnalysis,
+                            disorder: {
+                                id: this.clinicalAnalysis.proband.disorders[0].id
+                            }
+                        };
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -402,7 +421,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 render: flags => html`
                                     <clinical-flag-filter
                                         .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
                                         .multiple=${true}
                                         @filterChange="${e => this.onFieldChange(e, "flags.id")}">
                                     </clinical-flag-filter>
