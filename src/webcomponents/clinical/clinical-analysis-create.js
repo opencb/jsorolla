@@ -257,11 +257,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
         // remove private fields
         delete data._users;
-        data = {...data, proband: {id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null}};
+        data = {
+            ...data,
+            proband: {
+                id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null
+            }
+        };
 
         if (data.type === "FAMILY") {
 
-            data = {...data,
+            data = {
+                ...data,
                 family: {
                     id: this.clinicalAnalysis.family.id,
                     members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
