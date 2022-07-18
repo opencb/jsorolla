@@ -243,7 +243,7 @@ export default class JobDetailLog extends LitElement {
                             <i class="fas fa-exclamation icon-padding"></i> Stderr
                         </button>
                         <button type="button" class="btn btn-default btn-small ${this.type === "stdout" ? "active" : ""}" @click="${() => this.setType("stdout")}">
-                            <i class="fas fa-info icon-padding"></i> Stout
+                            <i class="fas fa-info icon-padding"></i> Stdout
                         </button>
                     </div>
                 </div>

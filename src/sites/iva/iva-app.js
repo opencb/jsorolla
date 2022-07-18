@@ -79,7 +79,7 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-r
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
-import "../../webcomponents/file/opencga-file-manager.js";
+import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
@@ -337,12 +337,10 @@ class IvaApp extends LitElement {
 
             this.reactomeClient = new ReactomeClient();
 
-            if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
-                // this.opencgaClient._config.token = sid;
-                this._createOpenCGASession();
-                // This must happen after creating the OpencgaClient
+            if (sid) {
                 this.checkSessionActive();
                 this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
+                this._createOpenCGASession();
             } else {
                 this._createOpencgaSessionFromConfig();
             }
@@ -362,6 +360,10 @@ class IvaApp extends LitElement {
     }
 
     async _createOpenCGASession() {
+        // This check prevents displaying the annoying message of 'No valid token:null' when the token has expired
+        if (!this.opencgaClient._config.token) {
+            return;
+        }
         this.signingIn = "Creating session..";
         this.requestUpdate();
         await this.updateComplete;
@@ -967,8 +969,6 @@ class IvaApp extends LitElement {
 
     onSessionUpdateRequest() {
         this._createOpenCGASession();
-        // this.opencgaSession
-        // debugger
     }
 
     onStudyUpdateRequest(e) {
@@ -1611,7 +1611,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["file-manager"] ? html`
                     <div class="content" id="file-manager">
-                        <opencga-file-manager .opencgaSession="${this.opencgaSession}"></opencga-file-manager>
+                        <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
                     </div>
                 ` : null}
 

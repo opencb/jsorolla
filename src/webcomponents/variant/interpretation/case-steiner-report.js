@@ -20,6 +20,8 @@ import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/simple-chart.js";
+import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 
 class CaseSteinerReport extends LitElement {
@@ -152,6 +154,8 @@ class CaseSteinerReport extends LitElement {
                 signedBy: "",
                 discussion: "",
                 hrdetect: null,
+                deletionAggreationCount: 0,
+                deletionAggregationStats: null,
             };
 
             const allPromises = [
@@ -163,6 +167,15 @@ class CaseSteinerReport extends LitElement {
                 this.opencgaSession.opencgaClient.samples().info(somaticSample.id, {
                     include: "annotationSets",
                     study: this.opencgaSession.study.fqn,
+                }),
+                this.opencgaSession.opencgaClient.variants().aggregationStatsSample({
+                    study: this.opencgaSession.study.fqn,
+                    field: "EXT_INS_DEL_TYPE",
+                    sample: somaticSample.id,
+                    region: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y",
+                    // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
+                    // ...this.query,
+                    // ...this.queries?.["INDEL"]
                 }),
             ];
 
@@ -233,9 +246,18 @@ class CaseSteinerReport extends LitElement {
                         this._data.hrdetect = hrdetectStats.annotations.probability;
                     }
 
+                    // Add deletion aggregation data
+                    if (values[2]) {
+                        const deletionData = values[2].responses[0].results[0];
+                        this._data.deletionAggreationCount = deletionData.count;
+                        this._data.deletionAggregationStats = Object.fromEntries(deletionData.buckets.map(item => {
+                            return [item.value, item.count];
+                        }));
+                    }
+
                     // End filling report data
                     this._ready = true;
-                    return this.requestUpdate();
+                    this.requestUpdate();
                 })
                 .catch(error => {
                     console.error(error);
@@ -249,7 +271,9 @@ class CaseSteinerReport extends LitElement {
 
     render() {
         if (!this.clinicalAnalysis || !this._ready) {
-            return html``;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
@@ -888,8 +912,22 @@ class CaseSteinerReport extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <div>
-                                        <span style="font-weight: bold">Pending</span>
+                                    <div class="row" style="padding:20px;">
+                                        <div class="col-md-6">
+                                            <simple-chart
+                                                .title="${`${this._data.deletionAggreationCount} deletions and insertions`}"
+                                                .type="${"bar"}"
+                                                .data="${this._data.deletionAggregationStats}"
+                                                .colors="${{
+                                                    "Complex": "#bebebe",
+                                                    "Insertion": "#006400",
+                                                    "Deletion-other": "#cd2626",
+                                                    "Deletion-repeat": "#ff3030",
+                                                    "Deletion-microhomology": "#8b1a1a",
+                                                }}"
+                                                ?active="${true}">
+                                            </simple-chart>
+                                        </div>
                                     </div>
                                 `,
                             },
