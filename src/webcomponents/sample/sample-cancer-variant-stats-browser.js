@@ -660,13 +660,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             }
             <div class="row">
                 <div class="col-md-2 left-menu">
+                    <div class="search-button-wrapper">
+                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onVariantFilterSearch}">
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            <strong>${this._config.filter.searchButtonText || "Search"}</strong>
+                        </button>
+                    </div>
                     <variant-browser-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
                                             .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
                                             .cohorts="${this.cohorts}"
-                                            .searchButton="${true}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">
