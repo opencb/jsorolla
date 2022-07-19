@@ -138,8 +138,8 @@ export default class VariantInterpreterReview extends LitElement {
                             // TODO: fix this line to get correct variants to display
                             // const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                                .filter(v => v.type !== "COPY_NUMBER")
-                                .filter(v => v.type !== "BREAKEND");
+                                ?.filter(v => v.type !== "COPY_NUMBER")
+                                ?.filter(v => v.type !== "BREAKEND");
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
                                     <tool-header
@@ -149,7 +149,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     <variant-interpreter-review-primary
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants}"
+                                        .clinicalVariants="${variants || []}"
                                         .active="${active}"
                                         .toolId="${"variantInterpreterCancerSNV"}"
                                         .gridConfig="${{
@@ -170,12 +170,12 @@ export default class VariantInterpreterReview extends LitElement {
                     name: "Somatic CNV Variants",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                            .filter(v => {
+                            ?.filter(v => {
                                 const sampleId = v.studies[0]?.samples[0]?.sampleId;
                                 const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
                                 return sample && sample.somatic;
                             })
-                            .filter(v => v.type === "COPY_NUMBER");
+                            ?.filter(v => v.type === "COPY_NUMBER");
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header
@@ -185,7 +185,7 @@ export default class VariantInterpreterReview extends LitElement {
                                 <variant-interpreter-review-primary
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .clinicalVariants="${variants}"
+                                    .clinicalVariants="${variants || []}"
                                     .active="${active}"
                                     .toolId="${"variantInterpreterCancerCNV"}"
                                     .gridConfig="${{
@@ -204,12 +204,12 @@ export default class VariantInterpreterReview extends LitElement {
                     name: "Somatic Rearrangements Variants",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                            .filter(v => {
+                            ?.filter(v => {
                                 const sampleId = v.studies[0]?.samples[0]?.sampleId;
                                 const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
                                 return sample && sample.somatic;
                             })
-                            .filter(v => v.type === "BREAKEND");
+                            ?.filter(v => v.type === "BREAKEND");
 
                         return html`
                             <div class="col-md-10 col-md-offset-1">
@@ -217,11 +217,11 @@ export default class VariantInterpreterReview extends LitElement {
                                     class="bg-white"
                                     title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
                                 </tool-header>
-                                ${variants.length > 0 ? html`
+                                ${variants?.length > 0 ? html`
                                     <variant-interpreter-rearrangement-grid
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants}"
+                                        .clinicalVariants="${variants || []}"
                                         .review="${true}">
                                     </variant-interpreter-rearrangement-grid>
                                 ` : html`
