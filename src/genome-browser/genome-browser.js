@@ -73,7 +73,7 @@ export default class GenomeBrowser {
                     <li id="${this.prefix}Karyotype" class="list-group-item" style="display:none;"></li>
                     <li id="${this.prefix}Chromosome" class="list-group-item" style="display:none;"></li>
                     <li id="${this.prefix}Region" class="list-group-item" style="display:none;"></li>
-                    <li id="${this.prefix}Tracks" class="list-group-item" style="display:none;"></li>
+                    <li id="${this.prefix}Tracks" class="list-group-item"></li>
                 </ul>
                 <div id="${this.prefix}Status" class="panel-footer" style="display:none;"></div>
             </div>
