@@ -484,7 +484,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Display Settings",
-                    buttonClass: "btn btn-primary ripple"
+                    buttonClass: "btn btn-primary"
                 },
                 labelWidth: 4,
                 labelAlign: "right",
@@ -534,7 +534,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Save Variant Stats",
-                    buttonClass: "btn btn-primary ripple"
+                    buttonClass: "btn btn-primary"
                 },
                 labelWidth: 3,
                 labelAlign: "right",
