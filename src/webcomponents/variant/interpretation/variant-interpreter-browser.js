@@ -208,7 +208,7 @@ class VariantInterpreterBrowser extends LitElement {
             };
 
             // Add interpretation panels to features of interest
-            if (this.clinicalAnalysis.interpretation.panels.length > 0) {
+            if (this.clinicalAnalysis?.interpretation?.panels?.length > 0) {
                 genomeBrowserConfig.featuresOfInterest.push({
                     name: "Panels of the interpretation",
                     category: true,

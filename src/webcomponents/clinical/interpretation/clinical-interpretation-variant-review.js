@@ -50,6 +50,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         this.mode = "form";
         this.variant = {};
         this._config = this.getDefaultconfig();
+        this.newCommentsAdded = false;
     }
 
     update(changedProperties) {
@@ -66,6 +67,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     variantObserver() {
         this.variant = this.variant || {}; // Prevent undefined variant review
+        this.newCommentsAdded = false;
     }
 
     modeObserver() {
@@ -76,7 +78,17 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         this.commentsUpdate = e.detail;
 
         if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
+            // Josemi 20220719 Note: added fix to append new comments to the variant instead of replacing
+            // the saved comment with the new comment
+            if (!this.newCommentsAdded) {
+                if (!this.variant.comments) {
+                    this.variant.comments = [];
+                }
+                this.variant.comments.push(this.commentsUpdate.newComments[0]);
+                this.newCommentsAdded = true;
+            } else {
+                this.variant.comments[this.variant.comments.length - 1] = this.commentsUpdate.newComments[0];
+            }
         }
 
         this.dispatchEvent(new CustomEvent("variantChange", {
@@ -152,9 +164,24 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                         field: "comments",
                         type: "custom",
                         display: {
+                            // Josemi 20220719 NOTE: comments field has been removed from the comment-editor properties to allow
+                            // saving more than one comment to the variant
                             render: comments => html`
+                                <div>
+                                    ${(this.variant?.comments || []).map(comment => html`
+                                        <div style="display:flex;margin-bottom:1rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="width:100%;">
+                                                <div>${comment.message || "-"}</div>
+                                                <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                            </div>
+                                        </div>
+                                    `)}
+                                </div>
                                 <clinical-analysis-comment-editor
-                                    .comments="${comments}"
+                                    .comments="${[]}"
                                     @commentChange="${e => this.onCommentChange(e)}">
                                 </clinical-analysis-comment-editor>
                             `,
