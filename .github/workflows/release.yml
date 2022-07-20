@@ -31,7 +31,7 @@ jobs:
 
   deploy:
     needs: build
-    if: ${{ github.repository == "opencb/jsorolla" }}
+#    if: ${{ github.repository == "opencb/jsorolla" }}
     uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
     with:
       version: ${{ needs.build.outputs.version }}

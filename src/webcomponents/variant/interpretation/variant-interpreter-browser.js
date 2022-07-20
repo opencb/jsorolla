@@ -191,7 +191,7 @@ class VariantInterpreterBrowser extends LitElement {
             };
 
             // Add interpretation panels to features of interest
-            if (this.clinicalAnalysis.interpretation.panels.length > 0) {
+            if (this.clinicalAnalysis?.interpretation?.panels?.length > 0) {
                 genomeBrowserConfig.featuresOfInterest.push({
                     name: "Panels of the interpretation",
                     category: true,
@@ -204,7 +204,7 @@ class VariantInterpreterBrowser extends LitElement {
                         name: panel.name,
                         features: panel.genes
                             .map(gene => {
-                                const coordinates = gene.coordinates.find(c => c.assembly === assembly);
+                                const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
                                 if (!coordinates) {
                                     return null;
                                 } else {
@@ -421,7 +421,7 @@ class VariantInterpreterBrowser extends LitElement {
                     <div style="margin-top:16px;">
                         <genome-browser
                             .opencgaSession="${opencgaSession}"
-                            .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
+                            .region="${clinicalAnalysis.interpretation?.primaryFindings?.[0] || ""}"
                             .active="${active}"
                             .config="${genomeBrowserConfig}"
                             .tracks="${genomeBrowserTracks}">
