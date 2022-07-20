@@ -22,6 +22,8 @@ import "../commons/facet-filter.js";
 import "./job-timeline.js";
 import "./job-grid.js";
 import "./job-detail.js";
+import "./job-detail-log.js";
+import "./job-view.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -60,17 +62,13 @@ export default class JobBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = this.getDefaultConfig();
-    }
-
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -148,7 +146,8 @@ export default class JobBrowser extends LitElement {
                             .active="${params.active}"
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                        </opencb-facet-results>
+                    `,
                 },
                 {
                     id: "visual-browser-tab",
@@ -158,7 +157,8 @@ export default class JobBrowser extends LitElement {
                             .opencgaSession="${params.opencgaSession}"
                             .active="${params.active}"
                             .query="${params.executedQuery}">
-                        </jobs-timeline>`
+                        </jobs-timeline>
+                    `,
                 },
             ],
             filter: {
@@ -255,39 +255,35 @@ export default class JobBrowser extends LitElement {
                             id: "job-view",
                             name: "Overview",
                             active: true,
-                            render: (job, active, opencgaSession) => {
-                                return html`
-                                    <opencga-job-view
-                                        .opencgaSession=${opencgaSession} mode="simple" .job="${job}">
-                                    </opencga-job-view>
-                                `;
-                            },
+                            render: (job, _active, opencgaSession) => html`
+                                <job-view
+                                    .opencgaSession="${opencgaSession}"
+                                    mode="simple"
+                                    .job="${job}">
+                                </job-view>
+                            `,
                         },
                         {
                             id: "job-log",
                             name: "Logs",
-                            render: (job, active, opencgaSession) => {
-                                return html`
-                                    <opencga-job-detail-log
-                                        .opencgaSession=${opencgaSession}
-                                        .active="${active}"
-                                        .job="${job}">
-                                    </opencga-job-detail-log>
-                                `;
-                            },
+                            render: (job, active, opencgaSession) => html`
+                                <job-detail-log
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}"
+                                    .job="${job}">
+                                </job-detail-log>
+                            `,
                         },
                         {
                             id: "json-view",
                             name: "JSON Data",
                             mode: "development",
-                            render: (job, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer
-                                        .data="${job}"
-                                        .active="${active}">
-                                    </json-viewer>
-                                `;
-                            },
+                            render: (job, active) => html`
+                                <json-viewer
+                                    .data="${job}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
                         },
                     ],
                 },
@@ -430,7 +426,6 @@ export default class JobBrowser extends LitElement {
             },
         };
     }
-
 
 }
 

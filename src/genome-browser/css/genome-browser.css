@@ -8,16 +8,16 @@
     line-height: 1;
 }
 .gb-icon-karyotype {
-    background-image: url(../../styles/img/ocb-icon-karyotype.png) !important;
+    background-image: url(../img/icon-karyotype.png) !important;
 }
 .gb-icon-chromosome {
-    background-image: url(../../styles/img/ocb-icon-chromosome.png) !important;
+    background-image: url(../img/icon-chromosome.png) !important;
 }
 .gb-icon-region {
-    background-image: url(../../styles/img/ocb-icon-region.png) !important;
+    background-image: url(../img/icon-region.png) !important;
 }
 .gb-icon-resize {
-    background-image: url(../../styles/img/ocb-grab-track-resize.png) !important;
+    background-image: url(../img/track-resize.png) !important;
 }
 
 /* Hack for displaying nested dropdowns */

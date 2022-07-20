@@ -339,6 +339,14 @@ export default class VariantBrowserFilter extends LitElement {
                             @filterChange="${e => this.onFilterChange("study", e.detail.value)}">
                         </study-filter>`;
                     break;
+                case "sample":
+                    content = html`
+                        <catalog-search-autocomplete
+                            .opencgaSession="${this.opencgaSession}"
+                            resource="SAMPLE"
+                            @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
+                        </catalog-search-autocomplete>`;
+                    break;
                 case "cohort":
                     // FIXME subsection.cohorts must be renamed to subsection.studies
                     if (subsection.onlyCohortAll === true || subsection.cohorts?.[0].cohorts?.length > 0) {
@@ -354,7 +362,7 @@ export default class VariantBrowserFilter extends LitElement {
                         content = "No cohort stats available.";
                     }
                     break;
-                case "sample":
+                case "family-genotype":
                     content = html`
                         <family-genotype-modal
                             .opencgaSession="${this.opencgaSession}"

@@ -173,6 +173,12 @@ export default class OpencgaBrowserFilter extends LitElement {
     }
 
     _createSubSection(subsection) {
+        // Prevent empty filters section when a subsection is undefined
+        if (!subsection?.id) {
+            console.error("Filter definition error", subsection);
+            return "";
+        }
+
         let content = "";
 
         if (subsection.render) {
@@ -324,22 +330,27 @@ export default class OpencgaBrowserFilter extends LitElement {
             }
         }
 
-        return html`
-            <div class="form-group">
-                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                    ${subsection.description ? html`
-                        <div class="tooltip-div pull-right">
-                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                    ` : null}
+        if (content) {
+            return html`
+                <div class="form-group">
+                    <div class="browser-subsection" id="${subsection.id}">
+                        ${subsection.name}
+                        ${subsection.description ? html`
+                            <div class="tooltip-div pull-right">
+                                <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        ` : null}
+                    </div>
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                        ${content}
+                    </div>
                 </div>
-                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                    ${content}
-                </div>
-            </div>
-        `;
+            `;
+        } else {
+            return "";
+        }
     }
 
     render() {

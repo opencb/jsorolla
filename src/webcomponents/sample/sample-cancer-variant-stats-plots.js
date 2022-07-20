@@ -16,9 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-// import Circos from "./test/circos.js";
-// import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/visualisation/circos-view.js";
 import "../commons/view/signature-view.js";
@@ -64,7 +61,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
-        // this.base64 = "data:image/png;base64, " + Circos.base64;
+        this.deletionTypeStats = {};
+        this.typeStats = {};
     }
 
     connectedCallback() {
@@ -212,11 +210,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             });
     }
 
-    getDefaultConfig() {
-        return {
-        };
-    }
-
     render() {
         return html`
             <div class="row">
@@ -241,32 +234,39 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                         .signature="${this.signature}"
                                         ?active="${this.active}">
                                     </signature-view>
-                                    <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                 </div>
                                 <div style="padding-top: 20px">
                                     <h2>Small Deletions and Insertions</h2>
                                     <div class="">
-                                        <h3>${this.deletionAggregationStatsResults?.[0].count} deletions and insertions</h3>
                                         <simple-chart
-                                            title="Type"
-                                            xAxisTitle="types"
+                                            .title="${`${this.deletionAggregationStatsResults?.[0].count} deletions and insertions`}"
                                             .type="${"bar"}"
                                             .data="${this.deletionTypeStats}"
+                                            .colors="${{
+                                                "Complex": "#bebebe",
+                                                "Insertion": "#006400",
+                                                "Deletion-other": "#cd2626",
+                                                "Deletion-repeat": "#ff3030",
+                                                "Deletion-microhomology": "#8b1a1a",
+                                            }}"
                                             .config="${this.facetConfig}"
                                             ?active="${true}">
                                         </simple-chart>
                                     </div>
                                 </div>
                                 <div style="padding-top: 20px">
-                                    <h2>Rearrangements Stats</h2>
-                                    <!--<img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">-->
+                                    <h2>Rearrangements</h2>
                                     <div class="">
-                                        <h3>${this.aggregationStatsResults?.[0].count} rearrangements</h3>
                                         <simple-chart
-                                            title="Type"
-                                            xAxisTitle="types"
+                                            .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
+                                            .colors="${{
+                                                "DUPLICATION": "#006400",
+                                                "DELETION": "#ee6a50",
+                                                "INVERSION": "#1c86ee",
+                                                "TRANSLOCATION": "#595959",
+                                            }}"
                                             .config="${this.facetConfig}"
                                             ?active="${true}">
                                         </simple-chart>
@@ -278,6 +278,10 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }

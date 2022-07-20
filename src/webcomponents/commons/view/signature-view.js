@@ -74,6 +74,7 @@ export default class SignatureView extends LitElement {
             return;
         }
 
+        const mode = this.mode.toUpperCase();
         const counts = this.signature.counts;
         const categories = counts.map(point => point?.context);
         const data = counts.map(point => point?.total);
@@ -115,38 +116,64 @@ export default class SignatureView extends LitElement {
                 color: "#edc8c5",
                 data: []
             },
-
             "clustered_del": {
-                color: "#31bef0",
-                data: []
+                color: "#e41a1c",
+                data: [],
+                label: "del",
+                group: "clustered",
             },
             "clustered_tds": {
-                color: "#000000",
-                data: []
+                color: "#4daf4a",
+                data: [],
+                label: "tds",
+                group: "clustered",
             },
             "clustered_inv": {
-                color: "#e62725",
-                data: []
+                color: "#377eb8",
+                data: [],
+                label: "inv",
+                group: "clustered",
             },
             "clustered_trans": {
-                color: "#cbcacb",
-                data: []
+                color: "#984ea3",
+                data: [],
+                label: "tr",
+                group: "clustered",
             },
             "non-clustered_del": {
-                color: "#31bef0",
-                data: []
+                color: "#e41a1c",
+                data: [],
+                label: "del",
+                group: "non-clustered",
             },
             "non-clustered_tds": {
-                color: "#000000",
-                data: []
+                color: "#4daf4a",
+                data: [],
+                label: "tds",
+                group: "non-clustered",
             },
             "non-clustered_inv": {
-                color: "#e62725",
-                data: []
+                color: "#377eb8",
+                data: [],
+                label: "inv",
+                group: "non-clustered",
             },
             "non-clustered_trans": {
-                color: "#cbcacb",
-                data: []
+                color: "#984ea3",
+                data: [],
+                label: "tr",
+                group: "non-clustered",
+            },
+        };
+
+        const groups = {
+            "clustered": {
+                bgColor: "#000",
+                textColor: "#fff",
+            },
+            "non-clustered": {
+                bgColor: "#f0f0f0",
+                textColor: "#000",
             },
         };
 
@@ -163,39 +190,94 @@ export default class SignatureView extends LitElement {
         });
 
         const addRects = function (chart) {
-            $(".rect", this).remove();
-            $(".rect-label", this).remove();
-            let lastStart = 0;
+            $(".rect", chart.renderTo).remove();
+            $(".rect-label", chart.renderTo).remove();
+
+            const totalLength = Object.values(dataset).reduce((sum, item) => sum + item.data.length, 0);
+            const top = mode === "SBS" ? 50 : chart.plotTop + chart.plotHeight;
+            let lastWidth = 0;
+            let lastGroup = null;
+            let lastGroupWidth = 0;
+
             Object.keys(dataset).forEach(k => {
-                // console.log("chart.categories", chart.xAxis)
-                // console.log("k", dataset[k].data.length)
-                const xAxis = chart.xAxis[0];
-                chart.renderer.rect(xAxis.toPixels(lastStart), 30, xAxis.toPixels(dataset[k].data.length) - xAxis.toPixels(1), 10, 0)
+                if (dataset[k].data.length === 0) {
+                    return;
+                }
+
+                // Display group
+                if (dataset[k].group && lastGroup !== dataset[k].group) {
+                    const group = dataset[k].group;
+                    const groupLength = Object.values(dataset).reduce((sum, item) => {
+                        return item.group === group ? sum + item.data.length : sum;
+                    }, 0);
+                    const groupWidth = groupLength * (chart.plotWidth / totalLength);
+                    const groupHeight = 20;
+                    const groupPosition = top + 22;
+
+                    // Render group background
+                    chart.renderer
+                        .rect(chart.plotLeft + lastGroupWidth, groupPosition, groupWidth, groupHeight, 0)
+                        .attr({
+                            fill: groups[group].bgColor,
+                            zIndex: 2,
+                        })
+                        .addClass("rect")
+                        .add();
+
+                    // Render group label
+                    chart.renderer
+                        .text(group, chart.plotLeft + lastGroupWidth + groupWidth / 2, groupPosition + groupHeight / 2)
+                        .css({
+                            color: groups[group].textColor,
+                            fontSize: "13px",
+                        })
+                        .attr({
+                            "dominant-baseline": "middle",
+                            "text-anchor": "middle",
+                            "zIndex": 3,
+                        })
+                        .addClass("rect-label")
+                        .add();
+
+                    lastGroup = group;
+                    lastGroupWidth = lastGroupWidth + groupWidth;
+                }
+
+                const width = dataset[k].data.length * (chart.plotWidth / totalLength);
+                const height = 20;
+                const position = top + 2;
+
+                chart.renderer
+                    .rect(chart.plotLeft + lastWidth, position, width, height, 0)
                     .attr({
                         fill: dataset[k].color,
                         zIndex: 2
-                    }).addClass("rect")
+                    })
+                    .addClass("rect")
                     .add();
 
-                // for some reason toPixels(lastStart + dataset[k].data.length / 2) isn't centered
-                chart.renderer.label(k, xAxis.toPixels(lastStart - 4 + dataset[k].data.length / 2), 0, "")
+                chart.renderer
+                    .text(dataset[k].label || k, chart.plotLeft + lastWidth + width / 2, position + height / 2)
                     .css({
-                        color: "#000",
-                        fontSize: "13px"
+                        color: "#fff",
+                        fontSize: "13px",
                     })
                     .attr({
-                        padding: 8,
-                        r: 5,
-                        zIndex: 3
-                    }).addClass("rect-label")
+                        "dominant-baseline": "middle",
+                        "text-anchor": "middle",
+                        "zIndex": 3,
+                    })
+                    .addClass("rect-label")
                     .add();
 
-                lastStart += dataset[k].data.length;
+                lastWidth = lastWidth + width;
             });
         };
 
         $(`#${this._prefix}SignatureCountsPlot`).highcharts({
-            title: "title",
+            title: {
+                text: `${counts.reduce((c, s) => c + s.total, 0)} ${mode === "SBS" ? "Substitutions" : "Rearrangements"}`,
+            },
             chart: {
                 height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
                 type: "column",
@@ -207,7 +289,7 @@ export default class SignatureView extends LitElement {
                         addRects(this);
                     }
                 },
-                marginTop: 70
+                marginTop: mode === "SBS" ? 80 : 50,
             },
             credits: {
                 enabled: false
@@ -221,11 +303,8 @@ export default class SignatureView extends LitElement {
                         const {pair, letter} = substitutionClass(this.x);
                         return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
                     } else {
-                        const {pair, letter} = rearragementClass(this.x);
-                        return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "") + `<strong>: ${this.y}</strong>`;
+                        return `${this.x}<strong>: ${this.y}</strong>`;
                     }
-                    // const {pair, letter} = substitutionClass(this.x);
-                    // return this.x.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "") + `<strong>:${this.y}</strong>`;
                 }
             },
             xAxis: {
@@ -233,16 +312,14 @@ export default class SignatureView extends LitElement {
                 labels: {
                     rotation: -90,
                     formatter: data => {
-                        if (this.mode === "SBS") {
+                        if (mode === "SBS") {
                             const {pair, letter} = substitutionClass(data.value);
                             return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
                         } else {
-                            const {pair, letter} = rearragementClass(data.value);
-                            return data.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("[", "").replace("]", "");
+                            return data.value.split("_")[2];
                         }
-                        // const {pair, letter} = substitutionClass(this.value);
-                        // return this.value.replace(pair, `<span style="color:${dataset[pair].color}">${letter}</span>`).replace("\[", "").replace("\]", "");
-                    }
+                    },
+                    y: mode === "SBS" ? 10 : 50,
                 }
             },
             colors: Object.keys(dataset).flatMap(key => Array(dataset[key].data.length).fill(dataset[key].color)),
@@ -316,14 +393,11 @@ export default class SignatureView extends LitElement {
         }
 
         return html`
-            <div style="height: ${this._config.height}px">
+            <div>
                 <i data-fa-symbol="external-link" class="fas fa-fw fa-external-link"></i>
                 ${this.signature && this.plots ? html`
 
                     ${this.plots.includes("counts") ? html `
-                        <div style="margin: 10px">
-                            <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
-                        </div>
                         <div id="${this._prefix}SignatureCountsPlot"></div>
                     ` : null}
 

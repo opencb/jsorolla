@@ -165,14 +165,10 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
     getDefaultConfig() {
         return {
             title: "",
-            height: 200,
-            maxHeight: 300,
-            resizable: true,
-            dataAdapter: null,
+            height: 0,
+            resizable: false,
             opencgaClient: null,
             opencgaStudy: "",
-            // opencgaSamples: [],
-            // opencgaFiles: [],
             query: null,
             histogramMinRegionSize: 300000000,
             histogramInterval: 10000,
