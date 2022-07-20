@@ -216,7 +216,6 @@ class CaseSteinerReport extends LitElement {
                             ...file.software,
                         });
                     });
-                    console.log(files);
 
                     // Fill filters (customFilteringInfo)
                     if (this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0) {
