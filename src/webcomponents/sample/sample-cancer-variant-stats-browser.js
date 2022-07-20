@@ -362,6 +362,12 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             });
     }
 
+    onRun() {
+        this.executedQuery = {...this.preparedQuery};
+        this.parseFileDataQuery(this.executedQuery);
+        this.requestUpdate();
+    }
+
     render() {
         if (!this.opencgaSession) {
             return;
@@ -378,7 +384,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             <div class="row">
                 <div class="col-md-2 left-menu">
                     <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary btn-block" @click="${this.onVariantFilterSearch}">
+                        <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.filter.searchButtonText || "Search"}</strong>
                         </button>
