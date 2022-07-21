@@ -24,13 +24,13 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+import UtilsTest from "../utils";
 
-import {setCheckBox, checkLabel, setInput, clickElement} from "./utils";
-
+const utils = new UtilsTest();
 
 Cypress.Commands.add("setGenomicLocation", value => {
-    checkLabel("div[data-cy='region']", "span", "Genomic Location");
-    setInput("region-filter textarea", value);
+    utils.checkLabel("div[data-cy='region']", "span", "Genomic Location");
+    utils.setInput("region-filter textarea", value);
 });
 
 // Should this command be used for all tests?
@@ -39,6 +39,17 @@ Cypress.Commands.add("selectStudy", fqn => {
     cy.get("ul[class='nav navbar-nav navbar-right'] li[class='dropdown']").first().within(() => {
         cy.get(`ul[class='dropdown-menu'] li a[data-cy-fqn='${fqn}']`).click({force: true});
     });
+});
+
+Cypress.Commands.add("selectCaseVariantBrowser", caseName =>{
+    cy.get("table").within(() => {
+        cy.get(`tr[data-uniqueid=${caseName}]`).as("selectedCase");
+        cy.get("@selectedCase").find("a").contains(caseName).click();
+    });
+});
+
+Cypress.Commands.add("variantInterpreterWizard", name => {
+    cy.get(`a[data-view=${name}]`).wait(2000).click();
 });
 
 // All browser has filters
@@ -75,7 +86,7 @@ Cypress.Commands.add("checkNotificationManager", msg => {
 Cypress.Commands.add("setFeatureIds", value => {
     const val = Array.isArray(value) ? value.join("{enter}") + "{enter}": value;
     // Select2 Widgets
-    cy.get("div[data-cy='feature']").contains("span", "Feature IDs (gene, SNPs...)");
+    cy.get("div[data-cy='feature']").contains("span", "Feature IDs (gene, SNPs, ...)");
     cy.get("feature-filter select-token-filter ul").click({force: true});
     cy.get("div[data-cy='feature'] .select2-search__field").type(val, {delay: 200});
 });
@@ -156,7 +167,7 @@ Cypress.Commands.add("setClinicalAnnotation", (filter, value) => {
         case "clinical_status":
             cy.get("@clinicalDbFilter").parent().within(() => {
                 // cy.get("checkbox-field-filter input[value='Confirmed']").invoke("prop", "checked", value);
-                setCheckBox("checkbox-field-filter input[value='Confirmed']", value);
+                utils.setCheckBox("checkbox-field-filter input[value='Confirmed']", value);
             });
     }
 });

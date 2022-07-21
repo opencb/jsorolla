@@ -55,6 +55,9 @@ local.properties
 
 # Cypress
 screenshots
+coverage
+.nyc_output
+downloads
 # support
 videos
 mochawesome-report

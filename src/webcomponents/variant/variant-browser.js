@@ -407,7 +407,7 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs...)",
+                                title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
                             },
                             {
