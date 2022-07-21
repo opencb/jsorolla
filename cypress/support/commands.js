@@ -50,3 +50,20 @@ Cypress.Commands.add("loginByApi", (
         cy.visit("");
     });
 });
+
+// Login with session and not UI
+Cypress.Commands.add("loginByApiSession", (
+    user = Cypress.env("username"),
+    password = Cypress.env("password")
+) => {
+    cy.session(["loginByApiSession", user], () => {
+        cy.request("POST", `${Cypress.env("apiUrl")}/users/login`, {
+            user,
+            password,
+        }).then(res => {
+            console.log("res", res);
+            cy.setCookie("iva-test_sid", res.body.responses[0].results[0].token);
+            cy.setCookie("iva-test_userId", user);
+        });
+    });
+});
