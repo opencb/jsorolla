@@ -5,6 +5,7 @@ module.exports = defineConfig({
     viewportWidth: 1600,
     viewportHeight: 1200,
     reporter: "mochawesome",
+    numTestsKeptInMemory: 0, // To avoid cypress app crashed
     reporterOptions: {
         overwrite: false,
         html: false,
@@ -12,16 +13,23 @@ module.exports = defineConfig({
     },
     env: {
         apiUrl: "https://ws.opencb.org/opencga-test/webservices/rest/v2",
-        study: "demo@family:platinum"
+        study: "demo@family:platinum",
+        username: "demouser",
+        password: "demouser",
+        hideXHR: true, // avoid noisy xhr
+        // coverage: true
     },
     e2e: {
-    // We've imported your old cypress plugins here.
-    // You may want to clean this up later by importing these.
+        // We've imported your old cypress plugins here.
+        // You may want to clean this up later by importing these.
+        experimentalSessionAndOrigin: true,
         baseUrl: "http://localhost:3000/src/sites/iva/",
+        // https://docs.cypress.io/guides/references/migration-guide#Plugins-File-Removed
         setupNodeEvents(on, config) {
-            // https://docs.cypress.io/guides/references/migration-guide#Plugins-File-Removed
-            // plugin here!
-            console.log(config);
+            // require("@cypress/code-coverage/task")(on, config);
+            // include any other plugin code
+            // It's IMPORTANT to return the config object
+            // with any changed environment variables
             return config;
         },
     },
