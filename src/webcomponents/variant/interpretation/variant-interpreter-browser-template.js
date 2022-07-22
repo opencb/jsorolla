@@ -261,19 +261,28 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onActiveFilterClear() {
-        const _query = {
-            study: this.opencgaSession.study.fqn,
-            sample: this._sampleQuery
+        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id)];
+        let _query = {
+            study: this.opencgaSession.study.fqn
         };
+
+        // Reset filters default
+        lockedFields.forEach(field => {
+            _query = {
+                ..._query,
+                [field]: this.query[field]
+            };
+        });
 
         // Check if panelLock is enabled
         if (this.clinicalAnalysis.panelLock) {
             _query.panel = this.query.panel;
             _query.panelIntersection = true;
         }
+        this.query = UtilsNew.objectClone(_query);
 
-        this.query = _query;
         this.requestUpdate();
+
     }
 
     async onGridConfigSave(e) {
