@@ -209,13 +209,38 @@ class CaseSteinerReport extends LitElement {
 
                     // Fill somatic and germline Calling info
                     files.filter(f => f.format === "VCF").forEach(file => {
-                        const info = this.callersInfo[file.software.name];
+                        const info = this.callersInfo[file.software.name] || {};
                         this._data[`${info.group}CallingInfo`].push({
                             type: info.type,
                             rank: info.rank,
                             ...file.software,
                         });
                     });
+
+                    // Fill filters (customFilteringInfo)
+                    if (this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0) {
+                        const filters = [];
+                        const uniqueFilters = new Set();
+                        this.clinicalAnalysis.interpretation.primaryFindings.forEach(variant => {
+                            if (variant?.filters?.fileData) {
+                                variant.filters.fileData.split(",").forEach(item => {
+                                    const [id, filter] = item.split(":");
+                                    const file = files.find(f => f.id === id || f.name === id);
+                                    if (file && filter && !uniqueFilters.has(item)) {
+                                        const info = this.callersInfo[file.software?.name] || {};
+                                        filters.push({
+                                            type: info.type || "NA",
+                                            rank: info.rank || 0,
+                                            caller: file.software?.name || "NA",
+                                            filters: filter,
+                                        });
+                                        uniqueFilters.add(item);
+                                    }
+                                });
+                            }
+                        });
+                        this._data.customFilteringInfo = filters;
+                    }
 
                     // Fill ASCAT metrics
                     const ascatFile = files.find(f => f.software.name.toUpperCase() === "ASCAT");
@@ -518,10 +543,14 @@ class CaseSteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
+                                transform: data => data.sort((a, b) => {
+                                    return a.rank - b.rank;
+                                }),
                                 headerVisible: false,
                                 columns: [
-                                    {field: "field"},
-                                    {field: "value"},
+                                    {field: "type"},
+                                    {field: "caller"},
+                                    {field: "filters"},
                                 ],
                             },
                         },
