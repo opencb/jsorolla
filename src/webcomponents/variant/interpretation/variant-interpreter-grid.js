@@ -1099,38 +1099,53 @@ export default class VariantInterpreterGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const filters = {
-            ...this.filters,
-            limit: e.detail?.exportLimit ?? 1000,
-            count: false,
-        };
-        this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
-            .then(restResponse => {
-                const results = restResponse.getResults();
-                // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
-                // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
-                const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
-                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
-                // Check if user clicked in Tab or JSON format
-                if (e.detail.option.toLowerCase() === "tab") {
-                    // List of samples for generating the TSV file
-                    const samples = this.query.sample.split(";").map(sample => ({
-                        id: sample.split(":")[0],
-                    }));
-                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
-                    UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
-                } else {
-                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
-                }
-            })
-            .catch(response => {
-                console.error(response);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            })
-            .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-                this.requestUpdate();
-            });
+
+        // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
+        // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
+        const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+        const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
+        if (this.clinicalVariants?.length > 0) {
+            // Check if user clicked in Tab or JSON format
+            if (e.detail.option.toLowerCase() === "tab") {
+                // List of samples for generating the TSV file
+                const samples = this.clinicalVariants[0].studies[0].samples.map(sample => sample.sampleId);
+                const dataString = VariantUtils.jsonToTabConvert(this.clinicalVariants, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
+            } else {
+                UtilsNew.downloadData(JSON.stringify(this.clinicalVariants, null, "\t"), filename + ".json", "application/json");
+            }
+            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            this.requestUpdate();
+        } else {
+            const filters = {
+                ...this.filters,
+                limit: e.detail?.exportLimit ?? 1000,
+                count: false,
+            };
+            this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                .then(restResponse => {
+                    const results = restResponse.getResults();
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        // List of samples for generating the TSV file
+                        const samples = this.query.sample.split(";").map(sample => ({
+                            id: sample.split(":")[0],
+                        }));
+                        const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                        UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
+                    } else {
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
+                    }
+                })
+                .catch(response => {
+                    console.error(response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                })
+                .finally(() => {
+                    this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                    this.requestUpdate();
+                });
+        }
     }
 
     showLoading() {
