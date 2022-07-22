@@ -2849,10 +2849,6 @@ opencga-export code {
     white-space: pre;
 }
 
-opencga-export button[data-tab-id="cli"][data-view-id="code"] {
-    margin-right: 10px;
-}
-
 opencga-export .btn-group-tab {
     margin-top: 20px;
 }

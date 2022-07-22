@@ -103,7 +103,9 @@ export default class DetailTabs extends LitElement {
 
     changeTab(e) {
         this._activeTab = e.currentTarget.dataset.id;
-        LitUtils.dispatchCustomEvent(this, "activeTabChange", this._activeTab);
+        LitUtils.dispatchCustomEvent(this, "activeTabChange", this._activeTab, null, null, {
+            bubbles: false,
+        });
         this.requestUpdate();
     }
 
