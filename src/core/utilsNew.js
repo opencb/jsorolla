@@ -261,7 +261,9 @@ export default class UtilsNew {
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
      */
-    static toTableString(objects, fields) {
+    static toTableString(objects, fields, transformFields) {
+        // eslint-disable-next-line no-param-reassign
+        transformFields = transformFields || {};
         const table = [];
         if (objects) {
             // Make sure objects is an array
@@ -276,9 +278,8 @@ export default class UtilsNew {
 
             // Print headers and get the rows and columns
             table.push(fields);
-            for (const object of objects) {
-                const row = [];
-                for (const field of fields) {
+            (objects || []).forEach((object, index) => {
+                const row = fields.map(field => {
                     let value;
                     const subfields = field.split(".");
                     // Check if subfields are arrays, eg. samples.id
@@ -299,10 +300,15 @@ export default class UtilsNew {
                     } else {
                         value = subfields.reduce((res, prop) => res?.[prop], object);
                     }
-                    row.push(value);
-                }
+                    // Check for custom field transform
+                    if (typeof transformFields?.[field] === "function") {
+                        value = transformFields[field](value, object, index);
+                    }
+                    return value;
+                });
+
                 table.push(row);
-            }
+            });
         }
         return table;
     }
