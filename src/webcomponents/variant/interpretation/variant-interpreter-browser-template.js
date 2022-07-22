@@ -268,7 +268,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // Reset filters default
         lockedFields.forEach(field => {
-            _query = {..._query, [field]: this.query[field]};
+            _query = {
+                ..._query,
+                [field]: this.query[field]
+            };
         });
 
         // Check if panelLock is enabled
