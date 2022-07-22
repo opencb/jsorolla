@@ -20,7 +20,6 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
-import VariantUtils from "../variant-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-grid-config.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
@@ -870,12 +869,58 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 const results = restResponse.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    // List of samples for generating the TSV file
-                    // const samples = this.query.sample.split(";").map(sample => ({
-                    //     id: sample.split(":")[0],
-                    // }));
-                    const dataString = "";
-                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                    const fields = [
+                        "id",
+                        "type",
+                        "svclass",
+                        "assemblyScore",
+                        "cnFlag",
+                        "fusionFlag",
+                    ];
+                    const transformFields = {
+                        type: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "EXT_SVTYPE", "INFO") || "-";
+                        },
+                        svclass: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "SVCLASS", "INFO") || "-";
+                        },
+                        assemblyScore: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "BAS", "INFO") || "-";
+                        },
+                        cnFlag: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "CNCH", "INFO") || "-";
+                        },
+                        fusionFlag: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "FFV", "INFO") || "-";
+                        },
+                    };
+                    // Add callers data
+                    const fileCallers = (this.clinicalAnalysis?.files || [])
+                        .filter(file => file.format === "VCF" && file.software?.name)
+                        .map(file => file.software.name);
+                    if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
+                        this._config.callers.forEach(caller => {
+                            // INFO column
+                            (caller.info || []).forEach(info => {
+                                (info.fields || []).forEach(infoField => {
+                                    fields.push(infoField);
+                                    transformFields[infoField] = (value, row) => {
+                                        return VariantGridFormatter.vcfFormatter(value, row, infoField, "INFO") || "-";
+                                    };
+                                });
+                            });
+                            // FORMAT column
+                            (caller.format || []).forEach(format => {
+                                const name = format.toLowerCase().replace(/\s/g, "");
+                                fields.push(name);
+                                transformFields[name] = (value, row) => {
+                                    return VariantGridFormatter.vcfFormatter(value, row, format, "FORMAT") || "-";
+                                };
+                            });
+                        });
+                    }
+                    const data = UtilsNew.toTableString(results, fields, transformFields);
+                    UtilsNew.downloadData(data, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "variant_interpreter_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
