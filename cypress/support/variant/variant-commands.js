@@ -35,10 +35,8 @@ Cypress.Commands.add("setGenomicLocation", value => {
 
 // Should this command be used for all tests?
 Cypress.Commands.add("selectStudy", fqn => {
-    // demo@family:platinum
-    cy.get("ul[class='nav navbar-nav navbar-right'] li[class='dropdown']").first().within(() => {
-        cy.get(`ul[class='dropdown-menu'] li a[data-cy-fqn='${fqn}']`).click({force: true});
-    });
+    // fqn example: demo@family:platinum
+    cy.get(`ul[class='dropdown-menu'] li a[data-cy-fqn='${fqn}']`, {timeout: 6000}).click({force: true});
 });
 
 Cypress.Commands.add("selectCaseVariantBrowser", caseName =>{
@@ -206,8 +204,17 @@ Cypress.Commands.add("setStudyFilter", (filter, value) => {
 
 });
 
-Cypress.Commands.add("setCohortAlternateStats", (filter, value) => {
+Cypress.Commands.add("setCohortAlternateStats", (cohort, filter, opt, value) => {
+    // cy.get("[data-cohort='ALL']");
 
+    // Select
+    cy.get(`cohort-stats-filter div[data-cy='number-field-filter-wrapper-${filter}'] select-field-filter ul[role='presentation']`)
+        .contains(opt)
+        .click({force: true});
+
+    // Typing
+    cy.get(`cohort-stats-filter div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
+        .type(value, {force: true});
 });
 
 Cypress.Commands.add("selectPopulationFrequency", population => {
@@ -215,14 +222,14 @@ Cypress.Commands.add("selectPopulationFrequency", population => {
     cy.get(`i[data-cy='pop-freq-toggle-${population}']`).click();
 });
 
-Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) => {
+Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, value) => {
 
     // 1000G
     // GNOMAD_GENOMES
     // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
 
     if (filter === "Set_All") {
-        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`).type(val);
+        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`).type(value);
     } else {
         cy.get("div[data-cy='populationFrequency']")
             .contains("span", "Select Population Frequency");
@@ -234,7 +241,7 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, val) =>
 
         // Typing
         cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
-            .type(val);
+            .type(value);
 
     }
 

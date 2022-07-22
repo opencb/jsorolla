@@ -1,11 +1,15 @@
 const {defineConfig} = require("cypress");
 
+const urlTest = {
+    local: "http://localhost:3000/src/sites/iva/",
+};
+
 module.exports = defineConfig({
     chromeWebSecurity: false,
     viewportWidth: 1600,
     viewportHeight: 1200,
     reporter: "mochawesome",
-    numTestsKeptInMemory: 0, // To avoid cypress app crashed
+    numTestsKeptInMemory: 10, // To avoid cypress app crashed
     reporterOptions: {
         overwrite: false,
         html: false,
@@ -23,7 +27,7 @@ module.exports = defineConfig({
         // We've imported your old cypress plugins here.
         // You may want to clean this up later by importing these.
         experimentalSessionAndOrigin: true,
-        baseUrl: "http://localhost:3000/src/sites/iva/",
+        baseUrl: urlTest.local,
         // https://docs.cypress.io/guides/references/migration-guide#Plugins-File-Removed
         setupNodeEvents(on, config) {
             // require("@cypress/code-coverage/task")(on, config);

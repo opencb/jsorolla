@@ -32,9 +32,7 @@ context("5. Variant Browser", () => {
 
     beforeEach(() => {
         cy.loginByApiSession();
-        // Go to Variant Browser
         cy.visit("index.html#browser");
-        cy.wait(5000);
         cy.selectStudy(Cypress.env("study"));
     });
 
