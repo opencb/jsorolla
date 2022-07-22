@@ -86,6 +86,7 @@ export default class PhenotypeNameAutocomplete extends LitElement {
                     .then(response => {
                         if (params?.data?.term) {
                             const term = params.data.term.toUpperCase();
+                            // eslint-disable-next-line no-param-reassign
                             response.responses[0].results = response.responses[0].results.filter(item => {
                                 return item.toUpperCase().includes(term);
                             });
