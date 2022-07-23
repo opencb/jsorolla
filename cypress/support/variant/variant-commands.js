@@ -47,7 +47,9 @@ Cypress.Commands.add("selectCaseVariantBrowser", caseName =>{
 });
 
 Cypress.Commands.add("variantInterpreterWizard", name => {
-    cy.get(`a[data-view=${name}]`).wait(2000).click();
+    cy.get(`a[data-view=${name}]`)
+        .should("not.have.class", "disabled")
+        .click();
 });
 
 // All browser has filters
@@ -242,21 +244,43 @@ Cypress.Commands.add("setPopulationFrequency", (population, filter, opt, value) 
         // Typing
         cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] div[data-cy='number-field-filter-wrapper-${filter}'] input[data-field='value']`)
             .type(value);
-
     }
+});
 
+Cypress.Commands.add("setPopulationFrequencyInterpreter", (population, filter, opt, value) => {
 
+    if (filter === "Set_All") {
+        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] input[data-mode='all']`).type(value);
+    } else {
+        cy.get("div[data-cy='populationFrequency']")
+            .contains("span", "Select Population Frequency");
+
+        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] select-field-filter[data-cy='comparator']`)
+            .then($elm =>{
+                // This way to know the value has default
+                const currentValue = $elm["0"].__value;
+                if (currentValue !== opt) {
+                    cy.get("population-frequency-filter select-field-filter[data-cy='comparator'] ul[role='presentation']")
+                        .contains(opt)
+                        .click({force: true});
+                } else {
+                    cy.get("population-frequency-filter  select-field-filter[data-cy='comparator'] button").contains("span", opt);
+                }
+            });
+
+        cy.get(`population-frequency-filter div[data-cy='pop-freq-codes-wrapper-${population}'] select-field-filter[placeholder='Frequency ...'] ul[role='presentation']`)
+            .contains(value)
+            .click({force: true});
+    }
 });
 
 Cypress.Commands.add("setGoAccesions", value =>{
     // GO Accessions (max. 100 terms)
     // todo: remove token
-
     cy.get("go-accessions-filter .select2").first().click({force: true})
         .find(".select2-search__field").type(value + "{enter}", {delay: 200});
 
 });
-
 
 Cypress.Commands.add("setHpoAccesions", value =>{
 // HPO Accessions
@@ -309,8 +333,11 @@ Cypress.Commands.add("removeActiveFilters", filterName => {
     cy.get(`opencga-active-filters button[data-filter-name='${filterName}']`).click();
 });
 
-Cypress.Commands.add("showVariantBrowserTab", tab => {
-    cy.get(`variant-browser-detail [data-id='${tab}']`).click();
+Cypress.Commands.add("caseInterpreterWizard", view => {
+    // select,qc,variant-browser,review,report
+    cy.get(`.variant-interpreter-step [data-view=${view}]`).click();
+});
 
-
+Cypress.Commands.add("showVariantBrowserTab", (component, tab) => {
+    cy.get(`${component} [data-id='${tab}']`).click({force: true});
 });

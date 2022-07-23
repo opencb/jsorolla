@@ -253,7 +253,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                     <div style="padding-top: 10px">
                         <div style="margin-bottom: 5px">
                             <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                               style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
+                                style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
                             </i>
                             <strong>${study.title}</strong>
                         </div>
@@ -264,20 +264,23 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         <div style="margin: 10px 0px">${popFreq.id}</div>
                                     </div>
                                     <div class="col-md-5" style="padding: 0 2px;">
-                                        <select-field-filter    .data="${this._config.comparators}"
-                                                                .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
-                                                                @filterChange="${e => {
-                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
-                                                                }}">
+                                        <select-field-filter
+                                            .data="${this._config.comparators}"
+                                            .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
+                                            data-cy="comparator"
+                                            @filterChange="${e => {
+                                                this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
+                                            }}">
                                         </select-field-filter>
                                     </div>
                                     <div class="col-md-5" style="padding: 0 0 0 5px;">
-                                        <select-field-filter    .data="${allowedFrequenciesArray}"
-                                                                .value="${this.state[study.id + ":" + popFreq.id]?.value}"
-                                                                placeholder="Frequency ..."
-                                                                @filterChange="${e => {
-                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
-                                                                }}">
+                                        <select-field-filter
+                                            .data="${allowedFrequenciesArray}"
+                                            .value="${this.state[study.id + ":" + popFreq.id]?.value}"
+                                            placeholder="Frequency ..."
+                                            @filterChange="${e => {
+                                                this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
+                                            }}">
                                         </select-field-filter>
                                     </div>
                                 </div>
@@ -302,7 +305,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                     <div style="padding-top: 10px">
                         <div style="margin-bottom: 5px">
                             <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                               style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
+                                style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
                             </i>
                             <strong>${study.title}</strong>
                         </div>
@@ -313,8 +316,8 @@ export default class PopulationFrequencyFilter extends LitElement {
                                     <!--<div class="col-md-5"></div>-->
                                     <div class="col-md-5" style="padding: 0px 2px;">
                                         <input id="${this._prefix}${study.id}Input" type="text" data-mode="all" data-study="${study.id}"
-                                               class="form-control input-sm ${this._prefix}FilterTextInput"
-                                               name="${study.id}Input" @input="${this.onSetAllFreqChange}">
+                                            class="form-control input-sm ${this._prefix}FilterTextInput"
+                                            name="${study.id}Input" @input="${this.onSetAllFreqChange}">
                                     </div>
                                 </div>
                             ` : ""}

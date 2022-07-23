@@ -63,7 +63,7 @@ export default class UtilsTest {
     };
 
     waitTable = gridSelector => {
-        cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
+        // cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
         cy.get(gridSelector + " div.fixed-table-loading", {timeout: 60000}).should("be.not.visible");
     };
 
@@ -103,11 +103,6 @@ export default class UtilsTest {
         this.waitTable(gridSelector);
         cy.get(gridSelector + " .fixed-table-body > table > tbody", {timeout: TIMEOUT}).find(" > tr", {timeout: 10000})
             .should("satisfy", $els => {
-
-                // TODO Debug this. the first print is defined the second is not
-                /* console.error("$els", $els)
-                cy.wait(1000)
-                console.error("$els", $els)*/
 
                 const $firstRow = Cypress.$($els[0]);
                 if ($firstRow) {

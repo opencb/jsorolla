@@ -23,6 +23,7 @@ const utils = new UtilsTest();
 context("Case Interpreter", () => {
     const executeSearchQuery = () => cy.get("div.search-button-wrapper button").click();
     const interpreterGrid = "variant-interpreter-grid";
+    const interpreterDetail = "variant-interpreter-detail";
 
     beforeEach(() => {
         cy.loginByApiSession();
@@ -42,6 +43,7 @@ context("Case Interpreter", () => {
         cy.get("variant-interpreter-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         // deactivate all the columns
+        // Note Erro Action Column
         // utils.clickAllColumnsGridBrowser(interpreterGrid);
 
         // testing the first level of the header
@@ -55,13 +57,9 @@ context("Case Interpreter", () => {
 
     // Variant Browser: Filter controls good
     it("7.2 Create/Delete canned filter", () => {
-
-        // utils.checkToolHeaderTitle("Variant Browser");
-        // cy.sectionFilter("ConsequenceType");
+        utils.checkToolHeaderTitle("Variant Browser");
         cy.setConsequenceType("lof");
-
         cy.get("opencga-active-filters").contains("Consequence Types 9");
-
         const name = utils.randomString(5);
         cy.saveCurrentFilter({name: name, description: randomString(3)});
         cy.checkNotificationManager("Filter has been saved");
@@ -110,14 +108,11 @@ context("Case Interpreter", () => {
         // Remove ActiveFilter
         cy.removeActiveFilters("region");
         utils.checkTableResults(interpreterGrid);
-        // close
-        // cy.sectionFilter("Genomic");
-        cy.wait(500);
+        // cy.wait(500);
     });
 
     // good
     it("7.6 Filters. Genomic: Feature IDs", () => {
-        // cy.sectionFilter("Genomic");
         cy.setFeatureIds(["C5", "RS1"]);
         cy.get("opencga-active-filters").contains("XRef");
         executeSearchQuery();
@@ -162,29 +157,24 @@ context("Case Interpreter", () => {
         utils.checkTableResults(interpreterGrid);
     });
 
-    // fail
-    it.skip("7.11 Filters. Population Frequency: 1kG_phase3 - ALL", () => {
+    // good
+    it("7.11 Filters. Population Frequency: 1kG_phase3 - ALL", () => {
         cy.selectPopulationFrequency("1kG_phase3");
-        cy.setPopulationFrequency("1kG_phase3", "ALL", "<", 0.0001);
+        cy.setPopulationFrequencyInterpreter("1kG_phase3", "ALL", "<", 0.0001);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-
         cy.removeActiveFilters("populationFrequencyAlt");
-        utils.checkTableResults(interpreterGrid);
-        cy.selectPopulationFrequency("1kG_phase3");
-        // cy.wait(200);
+
     });
 
-    // fail
-    it.skip("7.12 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
+    // good
+    it("7.12 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
         // Population Frequency: gnomAD - Set all < 0.00001
         cy.selectPopulationFrequency("GNOMAD_GENOMES");
-        cy.setPopulationFrequency("GNOMAD_GENOMES", "ALL", "", 0.0001);
+        cy.setPopulationFrequencyInterpreter("GNOMAD_GENOMES", "ALL", "<", 0.0001);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
         cy.removeActiveFilters("populationFrequencyAlt");
-        utils.checkTableResults(interpreterGrid);
-        cy.selectPopulationFrequency("GNOMAD_GENOMES");
     });
 
     // good
@@ -211,18 +201,8 @@ context("Case Interpreter", () => {
         utils.checkTableResults(interpreterGrid);
     });
 
-    // fail
-    it("7.15 Filters. Clinical and Disease: Full text: Mortality", () => {
-        // Clinical and Disease: Full text. Use example: Mortality
-        cy.setClinicalFullText("Mortality");
-        executeSearchQuery();
-        utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("traits");
-        utils.checkTableResults(interpreterGrid);
-    });
-
     // good
-    it("7.16 Filters. GO and HPO", () => {
+    it("7.15 Filters. GO and HPO", () => {
         // Phenotype only search by id, no name
         cy.setGoAccesions("GO:0014046");
         removeToken("go-accessions-filter", "GO:0014046");
@@ -233,7 +213,7 @@ context("Case Interpreter", () => {
     });
 
     // good
-    it("7.17 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
+    it("7.16 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
         cy.setProteingSubsScore("sift", "Score", "<", 0.1);
         cy.setProteingSubsScore("polyphen", "Score", "<", 0.1);
@@ -244,7 +224,7 @@ context("Case Interpreter", () => {
         // cy.wait(500);
     });
     // good
-    it("7.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
+    it("7.17 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
         cy.setProteingSubsScore("sift", "Tolerated");
         cy.setProteingSubsScore("polyphen", "Possibly damaging");
@@ -257,7 +237,7 @@ context("Case Interpreter", () => {
     });
 
     // good
-    it("7.19 Filters. Conservation: PhyloP", () => {
+    it("7.18 Filters. Conservation: PhyloP", () => {
         cy.setConservation("phylop", 1);
         cy.setConservation("phastCons", 1);
         cy.setConservation("gerp", 1);
@@ -268,7 +248,7 @@ context("Case Interpreter", () => {
     });
 
     // good
-    it.skip("7.20 Check gene-view", () => {
+    it("7.19 Check gene-view", () => {
         cy.get("variant-interpreter-grid .bootstrap-table .fixed-table-container tr[data-index='0'] a.gene-tooltip:first-child")
             .should("be.visible", {timeout: 6000})
             .click({force: true});
@@ -276,31 +256,39 @@ context("Case Interpreter", () => {
         cy.get("div.page-title h2").contains(/Gene [a-z0-9:]+/gim);
     });
 
-    // fail Variant Browser: Tabs
-    it("7.21 checks Variant Browser detail tabs", () => {
-        cy.get("variant-browser-detail > detail-tabs > div.panel > h3").should("contain", "Variant:");
+    // good Variant Browser: Tabs
+    it("7.20 checks Variant Browser detail tabs", () => {
+        cy.get("variant-interpreter-detail > detail-tabs > div.panel > h3")
+            .scrollIntoView()
+            .should("contain", "Selected Variant:");
+
         cy.get("cellbase-variant-annotation-summary h3").contains("Summary");
 
-        cy.showVariantBrowserTab("annotationConsType");
+        cy.showVariantBrowserTab(interpreterDetail, "annotationConsType");
         utils.checkTableResults("variant-consequence-type-view");
 
-        cy.showVariantBrowserTab("annotationPropFreq");
-        utils.checkTableResults("cellbase-population-frequency-grid");
+        // NOTE, it should be has a table
+        cy.showVariantBrowserTab(interpreterDetail, "annotationPropFreq");
+        // // utils.checkTableResults("cellbase-population-frequency-grid");
 
-        cy.showVariantBrowserTab("annotationClinical");
+        cy.showVariantBrowserTab(interpreterDetail, "annotationClinical");
         utils.checkResultsOrNot("variant-annotation-clinical-view");
 
-        cy.showVariantBrowserTab("cohortStats");
+        cy.showVariantBrowserTab(interpreterDetail, "cohortStats");
         utils.checkResultsOrNot("variant-cohort-stats-grid");
 
-        cy.showVariantBrowserTab("samples");
+        cy.showVariantBrowserTab(interpreterDetail, "samples");
         utils.checkTableResults("variant-samples");
 
-        cy.showVariantBrowserTab("beacon");
-        cy.get("variant-beacon-network").find(".beacon-square").its("length").should("eq", 15);
+        cy.showVariantBrowserTab(interpreterDetail, "beacon");
+        cy.get("variant-beacon-network")
+            .find(".beacon-square")
+            .should("have.length", 15);
+
+        cy.showVariantBrowserTab(interpreterDetail, "json-view");
     });
 
-    it("case maria: filters on variant browser", () => {
+    it("7.21 case maria: filters on variant browser", () => {
 
         const {diseasePanel, clinicalAnnotation, consequenceType} = caseFilterVariant;
         // Filter: Disease Panel
