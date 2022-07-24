@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
-import UtilsTest from "../support/utils";
+import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
+import UtilsTest from "../../support/utils";
 
 const utils = new UtilsTest();
 

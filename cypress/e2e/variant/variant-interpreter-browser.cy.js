@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {caseFilterVariant} from "../fixtures/caseVariantData.js";
-import UtilsTest from "../support/utils";
-import {randomString, removeToken} from "../plugins/utils.js";
+import {caseFilterVariant} from "../../fixtures/caseVariantData.js";
+import {randomString, removeToken} from "../../plugins/utils.js";
+import UtilsTest from "../../support/utils";
+import VariantAction from "../../support/variant/variantAction";
 
 const utils = new UtilsTest();
+const variantAction = new VariantAction();
 
+// Last time 4m 37s
 context("Case Interpreter", () => {
     const executeSearchQuery = () => cy.get("div.search-button-wrapper button").click();
     const interpreterGrid = "variant-interpreter-grid";
@@ -28,9 +31,9 @@ context("Case Interpreter", () => {
     beforeEach(() => {
         cy.loginByApiSession();
         cy.visit("index.html#clinicalAnalysisPortal/family/platinum");
-        cy.selectStudy(Cypress.env("study"));
-        cy.selectCaseVariantBrowser("MARIA");
-        cy.variantInterpreterWizard("variant-browser");
+        variantAction.selectStudy(Cypress.env("study"));
+        variantAction.selectCaseVariantBrowser("MARIA");
+        variantAction.variantInterpreterWizard("variant-browser");
     });
 
     // good - refactor
@@ -58,15 +61,15 @@ context("Case Interpreter", () => {
     // Variant Browser: Filter controls good
     it("7.2 Create/Delete canned filter", () => {
         utils.checkToolHeaderTitle("Variant Browser");
-        cy.setConsequenceType("lof");
+        variantAction.setConsequenceType("lof");
         cy.get("opencga-active-filters").contains("Consequence Types 9");
         const name = utils.randomString(5);
-        cy.saveCurrentFilter({name: name, description: randomString(3)});
-        cy.checkNotificationManager("Filter has been saved");
-        cy.removeFilters(name);
-        cy.checkNotificationManager("Filter has been deleted");
+        variantAction.saveCurrentFilter({name: name, description: randomString(3)});
+        variantAction.checkNotificationManager("Filter has been saved");
+        variantAction.removeFilters(name);
+        variantAction.checkNotificationManager("Filter has been deleted");
         // Fix activeFilters is not removing with filter name ct
-        cy.removeActiveFilters("ct");
+        variantAction.removeActiveFilters("ct");
     });
 
     // Variant Browser: Individual filters
@@ -81,68 +84,61 @@ context("Case Interpreter", () => {
     });
 
     it("7.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
+        // Study and Cohorts: Cohort Alternate Stats
         utils.checkToolHeaderTitle("Variant Browser");
-        cy.setCohortAlternateStats("", "ALL", "<", 1000);
+        variantAction.setCohortAlternateStats("", "ALL", "<", 0.00001);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        // Study and Cohorts: Cohort Alternate Stats
-        // TODO add condition Cohort no exist
-        /* cy.get("cohort-stats-filter i[data-cy='study-cohort-toggle']").first({timeout: TIMEOUT}).should("be.visible").click();
-        cy.get("cohort-stats-filter input[data-field='value']").first({timeout: TIMEOUT}).type("0.00001"); // set ALL cohort
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='cohortStatsAlt']").contains("Cohort ALT Stats");
-        cy.get("opencga-active-filters button[data-filter-name='cohortStatsAlt']").click();*/
     });
 
     // good
     it("7.5 Filters. Genomic: Genomic Location", () => {
 
-        // cy.sectionFilter("Genomic");
-        cy.setGenomicLocation("1:5000000-10000000");
+        // variantAction.sectionFilter("Genomic");
+        variantAction.setGenomicLocation("1:5000000-10000000");
 
         // Execute Query
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
 
         // Remove ActiveFilter
-        cy.removeActiveFilters("region");
+        variantAction.removeActiveFilters("region");
         utils.checkTableResults(interpreterGrid);
         // cy.wait(500);
     });
 
     // good
     it("7.6 Filters. Genomic: Feature IDs", () => {
-        cy.setFeatureIds(["C5", "RS1"]);
+        variantAction.setFeatureIds(["C5", "RS1"]);
         cy.get("opencga-active-filters").contains("XRef");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("xref");
+        variantAction.removeActiveFilters("xref");
         utils.checkTableResults(interpreterGrid);
     });
 
     // good
     it("7.7 Filters. Genomic: Gene Biotype", () => {
-        cy.setGeneBiotype("protein_coding");
+        variantAction.setGeneBiotype("protein_coding");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("biotype");
+        variantAction.removeActiveFilters("biotype");
         utils.checkTableResults(interpreterGrid);
     });
 
     // good
     it("7.8 Filters. Genomic: Variant", () => {
-        cy.setVariantType(["SNV"]);
+        variantAction.setVariantType(["SNV"]);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("type");
+        variantAction.removeActiveFilters("type");
         utils.checkTableResults(interpreterGrid);
     });
 
     // good
     it("7.9 Filters. Consequence type: LoF", () => {
         // Consequence type: SO Term - LoF Enabled
-        cy.setConsequenceType("coding_sequence", "Loss-of-Function (LoF)");
+        variantAction.setConsequenceType("coding_sequence", "Loss-of-Function (LoF)");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
     });
@@ -150,37 +146,37 @@ context("Case Interpreter", () => {
     // good
     it("7.10 Filters. Consequence type: Missense", () => {
         // Consequence type: SO Term - Use example: Missense
-        cy.setConsequenceType("terms_manual", ["missense_variant"]);
+        variantAction.setConsequenceType("terms_manual", ["missense_variant"]);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("ct");
+        variantAction.removeActiveFilters("ct");
         utils.checkTableResults(interpreterGrid);
     });
 
     // good
     it("7.11 Filters. Population Frequency: 1kG_phase3 - ALL", () => {
-        cy.selectPopulationFrequency("1kG_phase3");
-        cy.setPopulationFrequencyInterpreter("1kG_phase3", "ALL", "<", 0.0001);
+        variantAction.selectPopulationFrequency("1kG_phase3");
+        variantAction.setPopulationFrequencyInterpreter("1kG_phase3", "ALL", "<", 0.0001);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("populationFrequencyAlt");
+        variantAction.removeActiveFilters("populationFrequencyAlt");
 
     });
 
     // good
     it("7.12 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
         // Population Frequency: gnomAD - Set all < 0.00001
-        cy.selectPopulationFrequency("GNOMAD_GENOMES");
-        cy.setPopulationFrequencyInterpreter("GNOMAD_GENOMES", "ALL", "<", 0.0001);
+        variantAction.selectPopulationFrequency("GNOMAD_GENOMES");
+        variantAction.setPopulationFrequencyInterpreter("GNOMAD_GENOMES", "ALL", "<", 0.0001);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("populationFrequencyAlt");
+        variantAction.removeActiveFilters("populationFrequencyAlt");
     });
 
     // good
     it("7.13 Filters. Clinical: Disease Panels", () => {
         // Clinical: Disease Panels
-        cy.setDiseasePanels("disease_panels", [
+        variantAction.setDiseasePanels("disease_panels", [
             "Childhood onset dystonia or chorea or related movement disorder",
             "Amelogenesis imperfecta"
         ]);
@@ -188,13 +184,13 @@ context("Case Interpreter", () => {
         // Execute Query
         executeSearchQuery();
         utils.checkResultsOrNot(interpreterGrid);
-        cy.removeActiveFilters("panel");
+        variantAction.removeActiveFilters("panel");
     });
 
     // good
     it("7.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
         // Clinical: ClinVar Accessions. Use example: Pathogenic
-        cy.setClinicalAnnotation("clinical_significance", "Pathogenic");
+        variantAction.setClinicalAnnotation("clinical_significance", "Pathogenic");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
         cy.get("opencga-active-filters button[data-filter-name='clinicalSignificance']").click();
@@ -204,46 +200,46 @@ context("Case Interpreter", () => {
     // good
     it("7.15 Filters. GO and HPO", () => {
         // Phenotype only search by id, no name
-        cy.setGoAccesions("GO:0014046");
+        variantAction.setGoAccesions("GO:0014046");
         removeToken("go-accessions-filter", "GO:0014046");
 
         // HPO
-        cy.setHpoAccesions("HP:0030983");
+        variantAction.setHpoAccesions("HP:0030983");
         removeToken("hpo-accessions-filter", "HP:0030983");
     });
 
     // good
     it("7.16 Filters. Deleteriousness: Sift / Polyphen - OR operation", () => {
         // Deleteriousness: Sift / Polyphen - OR operation
-        cy.setProteingSubsScore("sift", "Score", "<", 0.1);
-        cy.setProteingSubsScore("polyphen", "Score", "<", 0.1);
+        variantAction.setProteingSubsScore("sift", "Score", "<", 0.1);
+        variantAction.setProteingSubsScore("polyphen", "Score", "<", 0.1);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("proteinSubstitution");
+        variantAction.removeActiveFilters("proteinSubstitution");
         utils.checkTableResults(interpreterGrid);
         // cy.wait(500);
     });
     // good
     it("7.17 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
         // Deleteriousness: Sift / Polyphen - AND operation
-        cy.setProteingSubsScore("sift", "Tolerated");
-        cy.setProteingSubsScore("polyphen", "Possibly damaging");
+        variantAction.setProteingSubsScore("sift", "Tolerated");
+        variantAction.setProteingSubsScore("polyphen", "Possibly damaging");
         // or o and
-        cy.setProteingSubsScore("operator", "and");
+        variantAction.setProteingSubsScore("operator", "and");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("proteinSubstitution");
+        variantAction.removeActiveFilters("proteinSubstitution");
         utils.checkTableResults(interpreterGrid);
     });
 
     // good
     it("7.18 Filters. Conservation: PhyloP", () => {
-        cy.setConservation("phylop", 1);
-        cy.setConservation("phastCons", 1);
-        cy.setConservation("gerp", 1);
+        variantAction.setConservation("phylop", 1);
+        variantAction.setConservation("phastCons", 1);
+        variantAction.setConservation("gerp", 1);
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.removeActiveFilters("conservation");
+        variantAction.removeActiveFilters("conservation");
         utils.checkTableResults(interpreterGrid);
     });
 
@@ -252,7 +248,7 @@ context("Case Interpreter", () => {
         cy.get("variant-interpreter-grid .bootstrap-table .fixed-table-container tr[data-index='0'] a.gene-tooltip:first-child")
             .should("be.visible", {timeout: 6000})
             .click({force: true});
-        cy.get(".qtip-content").find("a[data-cy='gene-view']").click({force: true});
+        cy.get(".qtip-content", {timeout: 6000}).find("a[data-cy='gene-view']").click({force: true});
         cy.get("div.page-title h2").contains(/Gene [a-z0-9:]+/gim);
     });
 
@@ -264,54 +260,54 @@ context("Case Interpreter", () => {
 
         cy.get("cellbase-variant-annotation-summary h3").contains("Summary");
 
-        cy.showVariantBrowserTab(interpreterDetail, "annotationConsType");
+        variantAction.showVariantBrowserTab(interpreterDetail, "annotationConsType");
         utils.checkTableResults("variant-consequence-type-view");
 
         // NOTE, it should be has a table
-        cy.showVariantBrowserTab(interpreterDetail, "annotationPropFreq");
+        variantAction.showVariantBrowserTab(interpreterDetail, "annotationPropFreq");
         // // utils.checkTableResults("cellbase-population-frequency-grid");
 
-        cy.showVariantBrowserTab(interpreterDetail, "annotationClinical");
+        variantAction.showVariantBrowserTab(interpreterDetail, "annotationClinical");
         utils.checkResultsOrNot("variant-annotation-clinical-view");
 
-        cy.showVariantBrowserTab(interpreterDetail, "cohortStats");
+        variantAction.showVariantBrowserTab(interpreterDetail, "cohortStats");
         utils.checkResultsOrNot("variant-cohort-stats-grid");
 
-        cy.showVariantBrowserTab(interpreterDetail, "samples");
+        variantAction.showVariantBrowserTab(interpreterDetail, "samples");
         utils.checkTableResults("variant-samples");
 
-        cy.showVariantBrowserTab(interpreterDetail, "beacon");
+        variantAction.showVariantBrowserTab(interpreterDetail, "beacon");
         cy.get("variant-beacon-network")
             .find(".beacon-square")
             .should("have.length", 15);
 
-        cy.showVariantBrowserTab(interpreterDetail, "json-view");
+        variantAction.showVariantBrowserTab(interpreterDetail, "json-view");
     });
 
     it("7.21 case maria: filters on variant browser", () => {
 
         const {diseasePanel, clinicalAnnotation, consequenceType} = caseFilterVariant;
         // Filter: Disease Panel
-        cy.setDiseasePanels("disease_panels", diseasePanel.disease_panel);
-        cy.setDiseasePanels("feature_type", diseasePanel.feature_type);
-        cy.setDiseasePanels("genes_by_moi", diseasePanel.genes_by_moi);
-        cy.setDiseasePanels("genes_by_confidence", diseasePanel.genes_by_confidence);
-        cy.setDiseasePanels("genes_by_roles_in_cancer", diseasePanel.genes_by_roles_in_cancer);
-        cy.setDiseasePanels("panel_intersection", diseasePanel.panel_intersection);
+        variantAction.setDiseasePanels("disease_panels", diseasePanel.disease_panel);
+        variantAction.setDiseasePanels("feature_type", diseasePanel.feature_type);
+        variantAction.setDiseasePanels("genes_by_moi", diseasePanel.genes_by_moi);
+        variantAction.setDiseasePanels("genes_by_confidence", diseasePanel.genes_by_confidence);
+        variantAction.setDiseasePanels("genes_by_roles_in_cancer", diseasePanel.genes_by_roles_in_cancer);
+        variantAction.setDiseasePanels("panel_intersection", diseasePanel.panel_intersection);
 
         // Filter: Clinical Annotation
-        cy.setClinicalAnnotation("clinical_database", clinicalAnnotation.clinical_database);
-        cy.setClinicalAnnotation("clinical_significance", clinicalAnnotation.clinical_significance);
-        cy.setClinicalAnnotation("clinical_status", clinicalAnnotation.clinical_status);
+        variantAction.setClinicalAnnotation("clinical_database", clinicalAnnotation.clinical_database);
+        variantAction.setClinicalAnnotation("clinical_significance", clinicalAnnotation.clinical_significance);
+        variantAction.setClinicalAnnotation("clinical_status", clinicalAnnotation.clinical_status);
 
         // Select SO Terms
-        cy.setConsequenceType("coding_sequence", consequenceType.coding_sequence);
-        cy.setConsequenceType("terms_manual", consequenceType.terms_manual);
+        variantAction.setConsequenceType("coding_sequence", consequenceType.coding_sequence);
+        variantAction.setConsequenceType("terms_manual", consequenceType.terms_manual);
         // nonsense_mediated_decay
 
-        cy.setGeneBiotype("nonsense_mediated_decay");
-        cy.setGenomicLocation("3:444-55555,1:1-100000");
-        cy.setFeatureIds(["LIN28A", "CLIC4"]);
+        variantAction.setGeneBiotype("nonsense_mediated_decay");
+        variantAction.setGenomicLocation("3:444-55555,1:1-100000");
+        variantAction.setFeatureIds(["LIN28A", "CLIC4"]);
         executeSearchQuery();
     });
 
