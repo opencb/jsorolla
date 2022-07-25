@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class ProteinSubstitutionScoreFilter extends LitElement {
 
@@ -71,7 +72,13 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             {id: ">", name: ">"},
             {id: ">=", name: "&#8805;"},
         ];
+
+        this.invalidData = {
+            sift: false,
+            polyphen: false
+        };
     }
+
 
     update(changedProperties) {
         if (changedProperties.has("proteinSubstitution")) {
@@ -108,7 +115,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    filterChange(field, data) {
+    proteinfilterChange(field, data) {
         this.state[field] = {...this.state[field], ...data};
         this.serialisedState = [];
         Object.entries(this.state).forEach(([_field, data]) => {
@@ -121,8 +128,27 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             }
         });
         this.logicalSwitchDisabled = this.serialisedState.length <= 1;
+
         this.requestUpdate();
         this.notify();
+    }
+
+    filterChange(e, field, value) {
+        if (e.target?.validity?.valid) {
+            this.invalidData[field] = false;
+            this.proteinfilterChange(field, value);
+        } else {
+            this.invalidData[field] = true;
+        }
+        this.requestUpdate();
+    }
+
+    errorMessage(msg) {
+        return html `
+            <div style="display:flex; flex-direction:row-reverse; color:#a94442;">
+                <span>${msg}</span>
+            </div>
+        `;
     }
 
     onLogicalOperatorChange(e) {
@@ -131,12 +157,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
     }
 
     notify() {
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.serialisedState.join(this.logicalOperator)
-            }
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.serialisedState.join(this.logicalOperator));
     }
 
     defaultState() {
@@ -168,21 +189,24 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                                 forceSelection="true"
                                 .data="${this.siftKeys}"
                                 .value=${this.state["sift"].type}
-                                @filterChange="${e => this.filterChange("sift", {type: e.detail.value})}"></select-field-filter>
+                                @filterChange="${e => this.proteinfilterChange("sift", {type: e.detail.value})}"></select-field-filter>
                     </div>
                     <div class="col-md-3 score-comparator">
                         <select-field-filter
                                 forceSelection="true"
                                 .data="${this.defaultComparators}"
                                 .value="${this.state["sift"].comparator}"
-                                @filterChange="${e => this.filterChange("sift", {comparator: e.detail.value})}" .disabled="${this.state["sift"].type !== "score"}">
+                                @filterChange="${e => this.proteinfilterChange("sift", {comparator: e.detail.value})}" .disabled="${this.state["sift"].type !== "score"}">
                         </select-field-filter>
                     </div>
                     <div class="col-md-5 score-value">
-                        <input type="number" min="0" class="form-control input-sm FilterTextInput"
-                               .disabled="${this.state["sift"].type !== "score"}"
-                               .value="${this.state["sift"].value ?? ""}"
-                               @input="${e => this.filterChange("sift", {value: e.target.value})}" />
+                        <input type="number" min="0" max="1" step="0.001" class="FilterTextInput form-control"
+                            .disabled="${this.state["sift"].type !== "score"}"
+                            .value="${this.state["sift"].value ?? ""}"
+                            @input="${e => this.filterChange(e, "sift", {value: e.target.value})}" />
+                    </div>
+                    <div class="col-md-12">
+                        ${this.invalidData["sift"] ? this.errorMessage("Between 0 and 1"): nothing }
                     </div>
                 </div>
             </div>
@@ -192,25 +216,28 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 <div class="row">
                     <div class="col-md-4 control-label score-select">
                         <select-field-filter
-                                forceSelection="true"
+                                forceSelection
                                 .data="${this.polyphenKeys}"
                                 .value=${this.state["polyphen"].type}
-                                @filterChange="${e => this.filterChange("polyphen", {type: e.detail.value})}">
+                                @filterChange="${e => this.proteinfilterChange("polyphen", {type: e.detail.value})}">
                         </select-field-filter>
                     </div>
                     <div class="col-md-3 score-comparator">
                         <select-field-filter
-                                forceSelection="true"
+                                forceselection
                                 .data="${this.defaultComparators}"
                                 .value="${this.state["polyphen"].comparator}"
-                                @filterChange="${e => this.filterChange("polyphen", {comparator: e.detail.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
+                                @filterChange="${e => this.proteinfilterChange("polyphen", {comparator: e.detail.value})}" .disabled="${this.state["polyphen"].type !== "score"}">
                         </select-field-filter>
                     </div>
                     <div class="col-md-5 score-value">
-                        <input type="number" min="0" class="form-control input-sm FilterTextInput"
-                               .disabled="${this.state["polyphen"].type !== "score"}"
-                               .value="${this.state["polyphen"].value ?? ""}"
-                               @input="${e => this.filterChange("polyphen", {value: e.target.value})}" />
+                        <input type="number" min="0" max="1" step="0.001" class="FilterTextInput form-control"
+                            .disabled="${this.state["polyphen"].type !== "score"}"
+                            .value="${this.state["polyphen"].value ?? ""}"
+                            @input="${e => this.filterChange(e, "polyphen", {value: e.target.value})}" />
+                    </div>
+                    <div class="col-md-12">
+                        ${this.invalidData["polyphen"] ? this.errorMessage("between 0 and 1"): nothing }
                     </div>
                 </div>
             </div>
@@ -219,14 +246,15 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                 <label style="font-weight: normal;">Logical Operator</label>
                 <div class="switch-toggle text-white alert alert-light">
                     <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value=","
-                           class="radio-or ${this._prefix}FilterRadio" checked .disabled="${this.logicalSwitchDisabled}"
-                           @change="${this.onLogicalOperatorChange}"/>
+                        class="radio-or ${this._prefix}FilterRadio" checked ?disabled="${this.logicalSwitchDisabled}"
+                        @change="${this.onLogicalOperatorChange}"/>
                     <label for="${this._prefix}pssOrRadio"
-                           class="rating-label rating-label-or">OR</label>
+                        class="rating-label rating-label-or">OR</label>
                     <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value=";"
-                           class="radio-and ${this._prefix}FilterRadio" .disabled="${this.logicalSwitchDisabled}" @change="${this.onLogicalOperatorChange}"/>
+                        class="radio-and ${this._prefix}FilterRadio" ?disabled="${this.logicalSwitchDisabled}"
+                        @change="${this.onLogicalOperatorChange}"/>
                     <label for="${this._prefix}pssAndRadio"
-                           class="rating-label rating-label-and">AND</label>
+                        class="rating-label rating-label-and">AND</label>
                     <a class="btn btn-primary ripple btn-small"></a>
                 </div>
             </fieldset>

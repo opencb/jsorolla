@@ -64,8 +64,11 @@ export default class VariantInterpreterDetail extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    firstUpdated(_changedProperties) {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    firstUpdated() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
 
     update(changedProperties) {
@@ -74,7 +77,10 @@ export default class VariantInterpreterDetail extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         super.update(changedProperties);
@@ -93,7 +99,7 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     render() {
-        if (!this.variant?.annotation) {
+        if (!this.variant?.annotation && !Array.isArray(this.variant)) {
             return;
         }
 
@@ -119,72 +125,66 @@ export default class VariantInterpreterDetail extends LitElement {
                     id: "annotationSummary",
                     name: "Summary",
                     active: true,
-                    render: variant => {
-                        return html`
-                            <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant.annotation}"
-                                    .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                      .assembly=${this.opencgaSession.project.organism.assembly}>
-                            </cellbase-variant-annotation-summary>`;
-                    }
+                    render: variant => html`
+                        <cellbase-variant-annotation-summary
+                            .variantAnnotation="${variant.annotation}"
+                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                            .assembly="${this.opencgaSession.project.organism.assembly}">
+                        </cellbase-variant-annotation-summary>
+                    `,
                 },
                 {
                     id: "annotationConsType",
                     name: "Consequence Type",
-                    render: (variant, active) => {
-                        return html`
-                            <variant-consequence-type-view
-                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
-                                    .active="${active}">
-                            </variant-consequence-type-view>`;
-                    }
+                    render: (variant, active) => html`
+                        <variant-consequence-type-view
+                            .consequenceTypes="${variant.annotation.consequenceTypes}"
+                            .active="${active}">
+                        </variant-consequence-type-view>
+                    `,
                 },
                 {
                     id: "annotationPropFreq",
                     name: "Population Frequencies",
-                    render: (variant, active) => {
-                        return html`
-                            <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
-                                    .active="${active}">
-                            </cellbase-population-frequency-grid>`;
-                    }
+                    render: (variant, active) => html`
+                        <cellbase-population-frequency-grid
+                            .populationFrequencies="${variant.annotation.populationFrequencies}"
+                            .active="${active}">
+                        </cellbase-population-frequency-grid>
+                    `,
                 },
                 {
                     id: "annotationClinical",
                     name: "Clinical",
-                    render: variant => {
-                        return html`
-                            <variant-annotation-clinical-view
-                                    .traitAssociation="${variant.annotation.traitAssociation}"
-                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
-                            </variant-annotation-clinical-view>`;
-                    }
+                    render: variant => html`
+                        <variant-annotation-clinical-view
+                            .traitAssociation="${variant.annotation.traitAssociation}"
+                            .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                        </variant-annotation-clinical-view>
+                    `,
                 },
                 {
                     id: "fileMetrics",
                     name: "File Metrics",
-                    render: (variant, active, opencgaSession) => {
-                        return html`
-                            <opencga-variant-file-metrics
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .files="${this.clinicalAnalysis}">
-                            </opencga-variant-file-metrics>`;
-                    }
+                    render: (variant, _active, opencgaSession) => html`
+                        <opencga-variant-file-metrics
+                            .opencgaSession="${opencgaSession}"
+                            .variant="${variant}"
+                            .files="${this.clinicalAnalysis}">
+                        </opencga-variant-file-metrics>
+                    `,
                 },
                 {
                     id: "cohortStats",
                     name: "Cohort Stats",
-                    render: (variant, active, opencgaSession) => {
-                        return html`
-                            <variant-cohort-stats
-                                    .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
-                                    .active="${active}">
-                            </variant-cohort-stats>`;
-                    }
+                    render: (variant, active, opencgaSession) => html`
+                        <variant-cohort-stats
+                            .opencgaSession="${opencgaSession}"
+                            .variantId="${variant.id}"
+                            .active="${active}">
+                        </variant-cohort-stats>
+                    `,
                 },
                 {
                     id: "samples",
@@ -194,26 +194,27 @@ export default class VariantInterpreterDetail extends LitElement {
                             .opencgaSession="${opencgaSession}"
                             .variantId="${variant.id}"
                             .active="${active}">
-                        </variant-samples>`,
+                        </variant-samples>
+                    `,
                 },
                 {
                     id: "beacon",
                     name: "Beacon",
-                    render: (variant, active, opencgaSession) => {
-                        return html`
-                            <variant-beacon-network
-                                    .variant="${variant.id}"
-                                    .assembly="${opencgaSession.project.organism.assembly}"
-                                    .config="${this.beaconConfig}"
-                                    .active="${active}">
-                            </variant-beacon-network>`;
-                    }
+                    render: (variant, active, opencgaSession) => html`
+                        <variant-beacon-network
+                            .variant="${variant.id}"
+                            .assembly="${opencgaSession.project.organism.assembly}"
+                            .config="${this.beaconConfig}"
+                            .active="${active}">
+                        </variant-beacon-network>
+                    `,
                 },
                 {
                     id: "json-view",
                     name: "JSON Data",
                     render: (variant, active) => html`
-                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>`,
+                        <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                    `,
                 }
                 // TODO Think about the possibility of allowing plugins here
                 // {

@@ -16,10 +16,11 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import "../commons/forms/data-form.js";
 import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
+import "../commons/forms/data-form.js";
+import "./job-detail-log.js";
 
-export default class OpencgaJobView extends LitElement {
+export default class JobView extends LitElement {
 
     constructor() {
         super();
@@ -55,24 +56,19 @@ export default class OpencgaJobView extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
-        /* if (changedProperties.has("mode")) {
-        }*/
+        super.update(changedProperties);
     }
 
     jobIdObserver() {
@@ -88,30 +84,17 @@ export default class OpencgaJobView extends LitElement {
         }
     }
 
-    dependsOnMap(node) {
-        console.log("node", node);
-        return {text: node.id, nodes: node.elements?.map(n => this.dependsOnMap(n))};
-    }
-
-    renderResults() {
-        /** alternative solutions:
-         *  1. using the switch to render a result component like <opencga-knockout-analysis-result>. At that point having a `result` field in analysis configuration makes no sense anymore.
-         *  2. using the switch to dynamic import the config and call render
-         */
-
-        console.log("this.job.tool.id", this.job.tool.id);
-        switch (this.job.tool.id) {
-            case "knockout":
-                return html`<opencga-knockout-analysis-result></opencga-knockout-analysis-result>`;
-            /* case "knockout":
-                let config = await import("./../variant/analysis/opencga-knockout-analysis.js")
-                return config.default.config().result();
-                break*/
-            default:
-                return "results";
+    render() {
+        if (!this.opencgaSession || !this.job) {
+            return null;
         }
 
-
+        return html`
+            <data-form
+                .data="${this.job}"
+                .config="${this._config}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -129,8 +112,6 @@ export default class OpencgaJobView extends LitElement {
             sections: [
                 {
                     title: "Summary",
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Job ID",
@@ -146,7 +127,6 @@ export default class OpencgaJobView extends LitElement {
                         },
                         {
                             name: "Status",
-                            // field: "internal",
                             type: "custom",
                             display: {
                                 render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status, true))
@@ -180,28 +160,38 @@ export default class OpencgaJobView extends LitElement {
                 },
                 {
                     title: "Execution",
-                    display: {
-
-                    },
                     elements: [
                         {
                             name: "Start-End Date",
-                            // field: "execution",
                             type: "custom",
                             display: {
-                                render: job => job.execution ? html`
-                                    ${job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-"} ${job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }
-                                ` :
-                                    "-"
-                            }
+                                render: job => {
+                                    if (job.execution) {
+                                        const start = job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-";
+                                        const end = job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : "-";
+                                        return html`${start} - ${end}`;
+                                    } else {
+                                        return "-";
+                                    }
+                                },
+                            },
                         },
                         {
                             name: "Input Parameters",
-                            // field: "params",
                             type: "custom",
                             display: {
-                                render: job => job.params ? Object.entries(job.params).map(([param, value]) => html`<div><label>${param}</label>: ${value ? value : "-"}</div>`) : "-"
-                            }
+                                render: job => {
+                                    if (job.params) {
+                                        return Object.entries(job.params).map(([param, value]) => html`
+                                            <div>
+                                                <label>${param}</label>: ${value ? value : "-"}
+                                            </div>
+                                        `);
+                                    } else {
+                                        return "-";
+                                    }
+                                },
+                            },
                         },
                         {
                             name: "Input Files",
@@ -269,9 +259,7 @@ export default class OpencgaJobView extends LitElement {
                     elements: [
                         {
                             type: "custom",
-                            name: "",
                             display: {
-                                name: "",
                                 defaultLayout: "vertical",
                                 render: () => AnalysisRegistry.get(this.job.tool.id)?.result(this.job, this.opencgaSession)
                             }
@@ -280,8 +268,6 @@ export default class OpencgaJobView extends LitElement {
                 },
                 {
                     title: "Job Dependencies",
-                    display: {
-                    },
                     elements: [
                         {
                             name: "Dependencies",
@@ -306,38 +292,33 @@ export default class OpencgaJobView extends LitElement {
                         }
 
                     ]
-                }, {
+                },
+                {
                     title: "Job log",
-                    visible: this.mode === "full",
+                    display: {
+                        visible: this.mode === "full",
+                    },
                     elements: [
                         {
-                            name: "",
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                render: job => html`<opencga-job-detail-log
-                                                        .opencgaSession=${this.opencgaSession}
-                                                        .active="${true}"
-                                                        .job="${job}">
-                                                    </opencga-job-detail-log>`
-                            }
-                        }
-                    ]
-                }
-            ]
+                                render: job => html`
+                                    <job-detail-log
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .active="${true}"
+                                        .job="${job}">
+                                    </job-detail-log>
+                                `,
+                            },
+                        },
+                    ],
+                },
+            ],
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.job}
-                .config="${this._config}">
-            </data-form>
-        `;
     }
 
 }
 
-customElements.define("opencga-job-view", OpencgaJobView);
+customElements.define("job-view", JobView);
 
