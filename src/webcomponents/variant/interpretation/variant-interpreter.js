@@ -118,12 +118,7 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            // Josemi 20220712 NOTE
-            // Temporally exclude files field from clinical analysis object
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {
-                study: this.opencgaSession.study.fqn,
-                exclude: "files",
-            })
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })
