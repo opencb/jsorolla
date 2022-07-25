@@ -589,7 +589,7 @@ export default class VariantInterpreterGrid extends LitElement {
         let vcfDataColumns = [];
         const vcfDataColumnNames = [];
         const variantTypes = new Set(this._config.variantTypes || []);
-        const fileCallers = this.clinicalAnalysis?.files
+        const fileCallers = (this.clinicalAnalysis?.files || [])
             .filter(file => file.format === "VCF" && file.software?.name)
             .map(file => file.software.name.toUpperCase());
 
