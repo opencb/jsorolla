@@ -427,7 +427,7 @@ export default class VariantInterpreterGridFormatter {
 
                 // Render genotypes
                 let content;
-                switch (this.field.config.genotype.type.toUpperCase()) {
+                switch (this.field.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
                         break;
@@ -526,6 +526,13 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push(allele);
                         }
                         break;
+                    case "?":
+                        if (mode === "alleles") {
+                            alleles.push(variant.reference ? variant.reference : "-");
+                        } else {
+                            alleles.push("0");
+                        }
+                        break;
                 }
             }
 
@@ -545,7 +552,7 @@ export default class VariantInterpreterGridFormatter {
 
             const allelesHtml = [];
             for (let i = 0; i < allelesSeq.length; i++) {
-                const color = allelesArray[i] === "0" ? "black" : "darkorange";
+                const color = (allelesArray[i] === "0" || allelesArray[i] === "?") ? "black" : "darkorange";
                 allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
             }
 

@@ -167,7 +167,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
                 // Files matching the selected Variant Callers
-                this.files = this.clinicalAnalysis.files
+                this.files = (this.clinicalAnalysis.files || [])
                     .filter(file => file.format.toUpperCase() === "VCF")
                     .filter(file =>
                         nonSvGermlineVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
@@ -197,12 +197,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                     // Update query with default 'fileData' parameters
                     this.query.fileData = fileDataFilters.join(",");
                 } else {
-                    this.files = this.clinicalAnalysis.files
-                        .filter(file => file.format.toUpperCase() === "VCF");
+                    this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
                 }
             } else {
-                this.files = this.clinicalAnalysis.files
-                    .filter(file => file.format.toUpperCase() === "VCF");
+                this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
             // 5. Read defaultFilter from study internal configuration
@@ -343,7 +341,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 tooltip: tooltips.sample,
                             },
                             {
-                                id: "sample",
+                                id: "family-genotype",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
                                 clinicalAnalysis: this.clinicalAnalysis,

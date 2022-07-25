@@ -18,7 +18,7 @@ const buildPath = path.join(__dirname, "build");
 // eslint-disable-next-line no-undef
 const sitesPath = path.join(__dirname, "src/sites");
 const patternConfig = /(config|settings|constants|tools)/gi;
-const internalCss = /(global|magic-check|style|toggle-switch)/gi;
+const internalCss = /(global|magic-check|style|toggle-switch|genome-browser)/gi;
 
 // Get target sites to build
 // const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
@@ -84,6 +84,10 @@ const getCopyTargets = site => {
         },
         {
             src: "./styles/fonts",
+            dest: `${buildPath}/${site}/`,
+        },
+        {
+            src: "./src/genome-browser/img",
             dest: `${buildPath}/${site}/`,
         },
         {

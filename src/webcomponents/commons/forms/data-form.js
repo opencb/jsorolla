@@ -855,7 +855,7 @@ export default class DataForm extends LitElement {
             defaultValue = this.getValue(element.field);
             if (defaultValue) {
                 // If apply is defined we need to apply the same transformation to be selected
-                if (element.display?.apply) {
+                if (element.display?.apply && allowedValues) {
                     for (const allowedValue of allowedValues) {
                         if (allowedValue.includes(defaultValue)) {
                             defaultValue = allowedValue;

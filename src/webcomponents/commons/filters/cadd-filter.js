@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class CaddFilter extends LitElement {
 
@@ -44,6 +45,10 @@ export default class CaddFilter extends LitElement {
 
     _init() {
         this._prefix = "caddf-" + UtilsNew.randomString(6) + "_";
+        this.invalidData = {
+            raw: false,
+            scaled: false
+        };
     }
 
     updated(_changedProperties) {
@@ -86,8 +91,25 @@ export default class CaddFilter extends LitElement {
         }
     }
 
-    // TODO refactor
-    filterChange(e) {
+    filterChange(e, field) {
+        if (e.target?.validity?.valid) {
+            this.invalidData[field] = false;
+            this.caddFilterChange();
+        } else {
+            this.invalidData[field] = true;
+        }
+        this.requestUpdate();
+    }
+
+    errorMessage(msg) {
+        return html `
+            <div style="display:flex; flex-direction:row-reverse; color:#a94442">
+                <span>${msg}</span>
+            </div>
+        `;
+    }
+
+    caddFilterChange() {
         const cadd = [];
         const caddRawInput = PolymerUtils.getElementById(this._prefix + "CaddRawInput");
         const caddScaledInput = PolymerUtils.getElementById(this._prefix + "CaddScaledInput");
@@ -100,12 +122,7 @@ export default class CaddFilter extends LitElement {
             }
         }
         console.log("filterChange", cadd && cadd.length ? cadd.join(",") : null);
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: cadd && cadd.length ? cadd.join(",") : null
-            }
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", cadd && cadd.length ? cadd.join(",") : null);
     }
 
     render() {
@@ -118,7 +135,7 @@ export default class CaddFilter extends LitElement {
                     <div class="col-md-3" style="padding: 0px 5px">
                         <select name="caddRawOperator" id="${this._prefix}CaddRawOperator"
                                 class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.filterChange}">
+                                @change="${this.caddFilterChange}">
                             <option value="<">&lt;</option>
                             <option value="<=">&le;</option>
                             <option value=">" selected>&gt;</option>
@@ -126,10 +143,12 @@ export default class CaddFilter extends LitElement {
                         </select>
                     </div>
                     <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}CaddRawInput" name="caddRaw" @input="${this.filterChange}">
+                        <input type="number" class="${this._prefix}FilterTextInput form-control input-sm"
+                            id="${this._prefix}CaddRawInput" name="caddRaw" @input="${e => this.filterChange(e, "raw")}">
                     </div>
-
+                    <div class="col-md-12">
+                        ${this.invalidData["raw"]? this.errorMessage("0 or 1"):""}
+                    </div>
                 </div>
             </div>
 
@@ -139,7 +158,7 @@ export default class CaddFilter extends LitElement {
                     <div class="col-md-3" style="padding: 0px 5px">
                         <select name="caddRScaledOperator" id="${this._prefix}CaddScaledOperator"
                                 class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.filterChange}">
+                                @change="${this.caddFilterChange}">
                             <option value="<" selected>&lt;</option>
                             <option value="<=">&le;</option>
                             <option value=">">&gt;</option>
@@ -147,8 +166,11 @@ export default class CaddFilter extends LitElement {
                         </select>
                     </div>
                     <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}CaddScaledInput" name="caddScaled" @input="${this.filterChange}">
+                        <input type="number" min="0" max="99" class="${this._prefix}FilterTextInput form-control input-sm"
+                            id="${this._prefix}CaddScaledInput" name="caddScaled" @input="${e => this.filterChange(e, "scaled")}">
+                    </div>
+                    <div class="col-md-12">
+                        ${this.invalidData["scaled"]? this.errorMessage("Invalid number, must be between 0-99"):""}
                     </div>
                 </div>
             </div>

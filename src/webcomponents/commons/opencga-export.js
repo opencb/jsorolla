@@ -485,11 +485,11 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
                                     <span class="export-buttons-text">TSV</span>
                                 </button>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
                                 </button>
@@ -523,8 +523,8 @@ const client = new OpenCGAClient({
                     </form>
 
                     <div class="modal-footer" style="padding-top: 25px">
-                        <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onDownloadClick}">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" @click="${this.onDownloadClick}">
                             ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                             <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
                         </button>
@@ -549,17 +549,17 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
                                     <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
                                 </button>
                                 ${this.config.resource === "VARIANT" ? html`
-                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
+                                    <button type="button" class="btn export-buttons ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
                                         <i class="fas fa-file-code fa-2x"></i>
                                         <span class="export-buttons-text">Ensembl VEP</span>
                                     </button>` : null
                                 }
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
                                 </button>
@@ -579,20 +579,20 @@ const client = new OpenCGAClient({
                     </form>
 
                     <div class="modal-footer" style="padding-top: 25px">
-                        <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary ripple" @click="${this.launchJob}">Launch job</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" @click="${this.launchJob}">Launch job</button>
                     </div>
                 </div>
 
                 <div id="link" class="tab-pane ${classMap({active: this.tabs[0] === "link"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="url">URL
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="curl">cURL
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="wget">WGET
                         </button>
                     </div>
@@ -624,7 +624,7 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -632,16 +632,16 @@ const client = new OpenCGAClient({
 
                 <div id="code" class="tab-pane ${classMap({active: this.tabs[0] === "code"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["cli"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="cli">CLI
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["python"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="python">Python
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["r"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="r">R
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["js"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="js">Javascript
                         </button>
                     </div>
@@ -681,7 +681,7 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
