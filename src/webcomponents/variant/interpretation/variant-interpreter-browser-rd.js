@@ -298,10 +298,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                 searchButtonText: "Search",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types"
+                        "ct": "Consequence Types",
+                        "sample": "Sample Genotype"
                     },
                     complexFields: [
                         {id: "sample", separator: ";"},
