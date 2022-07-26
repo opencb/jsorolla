@@ -117,8 +117,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "CLINICAL_VARIANT",
-                columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-                gridColumns: defaultColumns, // original column structure
             };
         }
     }
