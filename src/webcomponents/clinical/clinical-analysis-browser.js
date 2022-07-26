@@ -59,7 +59,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
     update(changedProperties) {
-        if (changedProperties.has("settings") || changedProperties.has("config")) {
+        if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
 
@@ -110,7 +110,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         return {
             title: "Clinical Analysis Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Search",
+            // searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -121,8 +121,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         <clinical-analysis-grid
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
-                            .search="${params.executedQuery}"
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
@@ -150,6 +150,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         name: "section title",

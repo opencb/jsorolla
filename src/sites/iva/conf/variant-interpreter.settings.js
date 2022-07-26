@@ -27,7 +27,8 @@ const VARIANT_INTERPRETER_SETTINGS = {
                 CANCER_CNV: VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS,
                 RD: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS,
                 REARRANGEMENT: VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS,
-            }
+            },
+            // hideGenomeBrowser: false
         },
         {
             id: "review"

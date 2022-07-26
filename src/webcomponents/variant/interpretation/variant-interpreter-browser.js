@@ -437,21 +437,23 @@ class VariantInterpreterBrowser extends LitElement {
             }
 
             // Append genome browser
-            items.push({
-                id: "genome-browser",
-                name: "Genome Browser (Beta)",
-                render: (clinicalAnalysis, active, opencgaSession) => html`
-                    <div style="margin-top:16px;">
-                        <genome-browser
-                            .opencgaSession="${opencgaSession}"
-                            .region="${genomeBrowserRegion}"
-                            .active="${active}"
-                            .config="${genomeBrowserConfig}"
-                            .tracks="${genomeBrowserTracks}">
-                        </genome-browser>
-                    </div>
-                `,
-            });
+            if (this.settings.hideGenomeBrowser === undefined || this.settings.hideGenomeBrowser === false) {
+                items.push({
+                    id: "genome-browser",
+                    name: "Genome Browser (Beta)",
+                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <div style="margin-top:16px;">
+                            <genome-browser
+                                .opencgaSession="${opencgaSession}"
+                                .region="${clinicalAnalysis.interpretation?.primaryFindings?.[0] || ""}"
+                                .active="${active}"
+                                .config="${genomeBrowserConfig}"
+                                .tracks="${genomeBrowserTracks}">
+                            </genome-browser>
+                        </div>
+                    `,
+                });
+            }
         }
 
         // Return tabs configuration
