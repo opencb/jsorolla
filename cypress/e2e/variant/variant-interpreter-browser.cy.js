@@ -37,14 +37,13 @@ context("Case Interpreter", () => {
     });
 
     // good - refactor
-    it("7.1 Columns Visibility", () => {
+    it.only("7.1 Columns Visibility", () => {
         utils.checkToolHeaderTitle("Case Interpreter");
         utils.checkTableResults(interpreterGrid);
         utils.checkColumnsGridBrowser(interpreterGrid);
 
         // Check is more than 1
-        cy.get("variant-interpreter-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
-
+        utils.actionColumnGridBrowser(interpreterGrid, "get").and("have.length.gt", 1);
         // deactivate all the columns
         // Note Erro Action Column
         // utils.clickAllColumnsGridBrowser(interpreterGrid);
@@ -110,7 +109,7 @@ context("Case Interpreter", () => {
     // good
     it("7.6 Filters. Genomic: Feature IDs", () => {
         variantAction.setFeatureIds(["C5", "RS1"]);
-        cy.get("opencga-active-filters").contains("XRef");
+        variantAction.getActiveFilter().contains("XRef");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
         variantAction.removeActiveFilters("xref");
@@ -193,7 +192,8 @@ context("Case Interpreter", () => {
         variantAction.setClinicalAnnotation("clinical_significance", "Pathogenic");
         executeSearchQuery();
         utils.checkTableResults(interpreterGrid);
-        cy.get("opencga-active-filters button[data-filter-name='clinicalSignificance']").click();
+        // cy.get("opencga-active-filters button[data-filter-name='clinicalSignificance']").click();
+        variantAction.removeActiveFilters("clinicalSignificance");
         utils.checkTableResults(interpreterGrid);
     });
 
@@ -201,11 +201,11 @@ context("Case Interpreter", () => {
     it("7.15 Filters. GO and HPO", () => {
         // Phenotype only search by id, no name
         variantAction.setGoAccesions("GO:0014046");
-        removeToken("go-accessions-filter", "GO:0014046");
+        variantAction.removeToken("go-accessions-filter", "GO:0014046");
 
         // HPO
         variantAction.setHpoAccesions("HP:0030983");
-        removeToken("hpo-accessions-filter", "HP:0030983");
+        variantAction.removeToken("hpo-accessions-filter", "HP:0030983");
     });
 
     // good
@@ -217,7 +217,6 @@ context("Case Interpreter", () => {
         utils.checkTableResults(interpreterGrid);
         variantAction.removeActiveFilters("proteinSubstitution");
         utils.checkTableResults(interpreterGrid);
-        // cy.wait(500);
     });
     // good
     it("7.17 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {

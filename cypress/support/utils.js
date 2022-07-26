@@ -38,7 +38,10 @@ export default class UtilsTest {
     };
 
     checkColumnsGridBrowser = grid => {
-        cy.get(`${grid} .columns-toggle-wrapper button`).should("be.visible").and("contain", "Columns").click();
+        cy.get(`${grid} .columns-toggle-wrapper button`)
+            .should("be.visible")
+            .and("contain", "Columns")
+            .click();
     };
 
     clickAllColumnsGridBrowser = grid => {
@@ -48,6 +51,26 @@ export default class UtilsTest {
     checkHeaderGridBrowser = grid =>
         cy.get(`${grid} .bootstrap-table .fixed-table-container thead > tr:first-child > th`, {timeout: TIMEOUT});
 
+
+    // other Approach:
+    // is It possible to create a utility file for the table or grid only.
+    actionColumnGridBrowser = (grid, action) => {
+
+        // button columns
+        const selector = `${grid} .columns-toggle-wrapper`;
+        switch (action) {
+            case "clickAll":
+                return cy.get(`${selector} ul li a`)
+                    .click({multiple: true, timeout: TIMEOUT});
+            case "get":
+                return cy.get(`${selector} button ul li`);
+            case "checkVisible":
+                return cy.get(`${selector} button`)
+                    .should("be.visible")
+                    .and("contain", "Columns")
+                    .click();
+        }
+    }
 
     // Select2 Widgets
     // https://www.cypress.io/blog/2020/03/20/working-with-select-elements-and-select2-widgets-in-cypress/#fetched-data

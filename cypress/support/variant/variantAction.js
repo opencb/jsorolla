@@ -315,10 +315,38 @@ export default class VariantAction {
         cy.get(`variant-browser-filter a[data-cy-section-title='${section}']`).click();
     };
 
-    removeActiveFilters = filterName => {
-        // cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
-        cy.get(`opencga-active-filters button[data-filter-name='${filterName}']`).click();
+    getActiveFilter = () => {
+        cy.get("opencga-active-filters");
+    }
+
+    removeActiveFilters = filter => {
+        cy.get(`opencga-active-filters button[data-filter-name='${filter}']`).click();
     };
+
+    /**
+         * Remove from a token from a select2 textarea
+         * @param {String} filterSelector CSS selector of the filter
+         * @param {Number} value value to look for in the autocomplete dropdown
+     */
+    removeToken = (filterSelector, value) => {
+        cy.get(`${filterSelector} .select2`)
+            .first()
+            .contains(".select2-selection__choice", value)
+            .find(".select2-selection__choice__remove")
+            .click();
+        cy.get(`${filterSelector} .select2-selection`)
+            .first()
+            .focus()
+            .blur();
+        // TODO better check how reliable it is to blur the textarea
+    };
+
+    // Soon
+    actionActiveFilter = () => {
+        // get
+        // remove
+
+    }
 
     caseInterpreterWizard = view => {
         // select,qc,variant-browser,review,report
