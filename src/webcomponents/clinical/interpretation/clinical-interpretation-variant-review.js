@@ -169,9 +169,14 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             render: comments => html`
                                 <div>
                                     ${(this.variant?.comments || []).map(comment => html`
-                                        <div style="display:flex;margin-bottom:1rem;">
-                                            <div style="padding-right:1rem;">
-                                                <i class="fas fa-comment-dots"></i>
+                                        <div style="margin-bottom:1rem;">
+                                            <div style="display:flex;">
+                                                <div style="padding-right:1rem;">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                </div>
+                                                <div style="font-weight:bold">
+                                                    ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                                </div>
                                             </div>
                                             <div style="width:100%;">
                                                 <div>${comment.message || "-"}</div>
