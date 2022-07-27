@@ -169,7 +169,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             render: comments => html`
                                 <div>
                                     ${(comments || []).map(comment => html`
-                                        <div style="margin-bottom:1rem;">
+                                        <div style="margin-bottom:2rem;">
                                             <div style="display:flex;margin-bottom:0.5rem;">
                                                 <div style="padding-right:1rem;">
                                                     <i class="fas fa-comment-dots"></i>
