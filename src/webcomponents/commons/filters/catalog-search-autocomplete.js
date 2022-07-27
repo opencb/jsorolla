@@ -154,7 +154,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 }
             },
             "FILE": {
-                searchField: "id",
+                searchField: "name",
                 placeholder: "eg. samples.tsv, phenotypes.vcf...",
                 client: this.opencgaSession.opencgaClient.files(),
                 fields: item => ({
@@ -195,6 +195,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
         return {
             limit: 10,
             placeholder: this.RESOURCES[this.resource].placeholder,
+            searchField: this.RESOURCES[this.resource].searchField,
             fields: this.RESOURCES[this.resource].fields,
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
