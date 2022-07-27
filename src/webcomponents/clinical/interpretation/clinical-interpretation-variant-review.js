@@ -168,9 +168,9 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             // saving more than one comment to the variant
                             render: comments => html`
                                 <div>
-                                    ${(this.variant?.comments || []).map(comment => html`
+                                    ${(comments || []).map(comment => html`
                                         <div style="margin-bottom:1rem;">
-                                            <div style="display:flex;">
+                                            <div style="display:flex;margin-bottom:0.5rem;">
                                                 <div style="padding-right:1rem;">
                                                     <i class="fas fa-comment-dots"></i>
                                                 </div>
@@ -179,7 +179,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                                                 </div>
                                             </div>
                                             <div style="width:100%;">
-                                                <div>${comment.message || "-"}</div>
+                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
                                                 <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
                                             </div>
                                         </div>
