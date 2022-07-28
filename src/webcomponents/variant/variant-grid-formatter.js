@@ -60,7 +60,7 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantFormatter(value, row, index, assembly, config) {
+    static variantFormatter(value, row, index, assembly, config = {}) {
         if (!row) {
             return;
         }
@@ -96,7 +96,7 @@ export default class VariantGridFormatter {
 
         // Add highlight icons
         let iconHighlights = [];
-        if (config.highlights && config.activeHighlights) {
+        if (config?.highlights && config.activeHighlights) {
             iconHighlights = config.activeHighlights.map(id => {
                 const highlight = config.highlights.find(item => item.id === id);
                 if (highlight.condition(row, index) && highlight.style?.icon) {
