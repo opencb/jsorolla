@@ -20,7 +20,6 @@ import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 export default class IndividualView extends LitElement {
@@ -232,7 +231,7 @@ export default class IndividualView extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
-                                contentLayout: this.individual?.disorders?.length > 1 ? "bullets" : "vertical",
+                                contentLayout: "vertical",
                                 render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
                                 defaultValue: "N/A"
                             }
