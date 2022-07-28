@@ -89,6 +89,13 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             } else {
                 this.variant.comments[this.variant.comments.length - 1] = this.commentsUpdate.newComments[0];
             }
+
+            // Assign comment author and date (TASK-1473)
+            this.variant.comments[this.variant.comments.length - 1] = {
+                ...this.variant.comments[this.variant.comments.length - 1],
+                author: this.opencgaSession?.user?.id || "-",
+                date: UtilsNew.getDatetime(),
+            };
         }
 
         this.dispatchEvent(new CustomEvent("variantChange", {
@@ -110,10 +117,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                     delete this.updateParams[e.detail.param];
                 }
                 break;
-        }
-
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
         }
 
         this.dispatchEvent(new CustomEvent("variantChange", {
