@@ -175,8 +175,7 @@ export default class SelectTokenFilter extends LitElement {
         // join by "," only as the operator (, or ;) is not a concern of this component.
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
-        const prop = this._config?.searchField ? this._config?.searchField : "id";
-        const selection = this.select.select2("data").map(el => el[prop]).join(",");
+        const selection = this.select.select2("data").map(el => el.id).join(",");
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: selection

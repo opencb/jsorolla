@@ -164,7 +164,20 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 }),
                 query: {
                     type: "FILE",
-                    include: "id,name,format,size",
+                    include: "id,name,format,size,path",
+                }
+            },
+            "DIRECTORY": {
+                searchField: "path",
+                placeholder: "eg. /data/platinum-grch38...",
+                client: this.opencgaSession.opencgaClient.files(),
+                fields: item => ({
+                    name: item.name,
+                    path: `/${item.path.replace(`/${item.name}`, "")}`
+                }),
+                query: {
+                    type: "DIRECTORY",
+                    include: "id,path",
                 }
             }
         };
@@ -195,7 +208,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
         return {
             limit: 10,
             placeholder: this.RESOURCES[this.resource].placeholder,
-            searchField: this.RESOURCES[this.resource].searchField,
+            searchField: this.searchField || this.RESOURCES[this.resource].searchField,
             fields: this.RESOURCES[this.resource].fields,
             source: (params, success, failure) => {
                 const page = params?.data?.page || 1;
@@ -216,7 +229,13 @@ export default class CatalogSearchAutocomplete extends LitElement {
             },
             preprocessResults(results) {
                 // if results come with null, emtpy or undefined it'll removed.
-                const resultsCleaned = results.filter(r => r);
+                let resultsCleaned = results.filter(r => r);
+                if (this.searchField && this.searchField !== "id") {
+                    resultsCleaned = resultsCleaned.map(item => {
+                        item["id"] = item[this.searchField];
+                        return item;
+                    });
+                }
                 if (resultsCleaned.length) {
                     if ("string" === typeof resultsCleaned[0]) {
                         return resultsCleaned.map(s => ({id: s}));
