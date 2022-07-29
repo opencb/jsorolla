@@ -171,7 +171,7 @@ export default class VariantSamples extends LitElement {
             this.numUserTotalSamples = 0;
 
             const stats = result.studies[0].stats;
-            this.numSamples = variantResponse.responses[0]?.attributes?.numSamples;
+            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
 
             // Get the total number of samples from stats if OpenCGA does not return them
             if (!this.numSamples) {
