@@ -212,7 +212,7 @@ export default class FormUtils {
                 };
             } else {
                 // original[field][prop] = _original[field][prop];
-                delete _updateParams[field][prop];
+                delete _updateParams?.[field]?.[prop];
 
                 if (UtilsNew.isEmpty(_updateParams[field])) {
                     delete _updateParams[field];
