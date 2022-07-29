@@ -327,7 +327,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     showReview: true,
                     showActions: true,
 
-                    showSelectCheckbox: false,
+                    showSelectCheckbox: true,
                     multiSelection: false,
                     nucleotideGenotype: true,
                     alleleStringLengthMax: 10,
