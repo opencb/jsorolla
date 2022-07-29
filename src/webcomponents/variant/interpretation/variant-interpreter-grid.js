@@ -67,6 +67,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._rows = [];
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
@@ -494,8 +495,8 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            },
-            onLoadSuccess: () => {
+                this._rows = data;
+
                 // Add events for displaying genes list
                 const gridElement = document.querySelector(`#${this.gridId}`);
                 if (gridElement) {
