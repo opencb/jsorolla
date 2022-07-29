@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import FormUtils from "../../commons/forms/form-utils.js";
 
 export default class ClinicalInterpretationVariantReview extends LitElement {
 
@@ -49,6 +49,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         this.updateParams = {};
         this.mode = "form";
         this.variant = {};
+        this._variant = {};
         this._config = this.getDefaultconfig();
         this.newCommentsAdded = false;
     }
@@ -67,6 +68,9 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     variantObserver() {
         this.variant = this.variant || {}; // Prevent undefined variant review
+        this._variant = UtilsNew.objectClone(this.variant);
+        this.updateParams = {};
+        this._config = this.getDefaultconfig();
         this.newCommentsAdded = false;
     }
 
@@ -107,15 +111,22 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     }
 
     onSaveFieldChange(e) {
-        switch (e.detail.param) {
-            case "status":
-            case "discussion":
-                if (e.detail.value !== null) {
-                    this.variant[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
+        const param = e.detail.param;
+        switch (param) {
+            case "discussion.text":
+                // After TASK-1472, discussion is now an object containing text, author and date
+                this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
+                if (typeof this.updateParams?.discussion?.text !== "undefined") {
+                    this.variant.discussion.author = this.opencgaSession.user?.id || "-";
+                    this.variant.discussion.date = UtilsNew.getDatetime();
                 } else {
-                    delete this.updateParams[e.detail.param];
+                    // We need to reset discussion author and date
+                    this.variant.discussion.author = this._variant.discussion?.author;
+                    this.variant.discussion.date = this._variant.discussion?.date;
                 }
+                break;
+            case "status":
+                this.updateParams = FormUtils.updateScalar(this._variant, this.variant, this.updateParams, param, e.detail.value);
                 break;
         }
 
@@ -138,6 +149,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     }
 
     getDefaultconfig() {
+        const discussion = this.variant?.discussion || {};
         const sections = [
             {
                 elements: [
@@ -155,11 +167,12 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                     },
                     {
                         title: "Discussion",
-                        field: "discussion",
+                        field: "discussion.text",
                         type: "input-text",
                         display: {
                             placeholder: "Add a discussion",
                             rows: 5,
+                            helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                         },
                     },
                     {
