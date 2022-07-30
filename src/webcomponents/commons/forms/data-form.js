@@ -1315,11 +1315,19 @@ export default class DataForm extends LitElement {
         const items = this.getValue(element.field);
         const contents = [];
 
+        const collapsed = this._getBooleanValue(element.display.collapsed, true);
+        let maxNumItems;
+        if (collapsed) {
+            maxNumItems = element.display.maxNumItems || items?.length;
+        } else {
+            maxNumItems = items?.length;
+        }
+
         // Render all existing items
-        if (items?.length > 0) {
+        if (maxNumItems > 0) {
             const view = html`
                 <div style="padding-bottom: 10px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
-                    ${items.map((item, index) => {
+                    ${items.slice(0, maxNumItems).map((item, index) => {
                         const _element = JSON.parse(JSON.stringify(element));
                         // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                         // items have a virtual element associated, this will allow to get the proper value later.
@@ -1332,16 +1340,24 @@ export default class DataForm extends LitElement {
                         }
                         return html`
                             <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
-                                ${element.display.view(item)}
                                 <div>
-                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
-                                        <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
-                                        Edit
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                        <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                        Remove
-                                    </button>
+                                    ${element.display.view(item)}
+                                </div>
+                                <div>
+                                    ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
+                                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
+                                            Edit
+                                        </button>
+                                    ` : null
+                                    }
+                                    ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                        <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                                            Remove
+                                        </button>
+                                    ` : null
+                                    }
                                 </div>
                             </div>
                             <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
@@ -1352,6 +1368,20 @@ export default class DataForm extends LitElement {
                             </div>`;
                     })}
                 </div>
+
+                ${collapsed && maxNumItems !== items?.length ? html`
+                    <div style="padding: 0 0 10px 0">
+                        <button type="button" class="btn btn-link" @click="${e => this.#toggleObjectListCollapse(element, false)}">Show more ... (${items.length} items)</button>
+                    </div>
+                ` : null
+                }
+
+                ${!collapsed ? html`
+                    <div style="padding: 0 0 10px 0">
+                        <button type="button" class="btn btn-link" @click="${e => this.#toggleObjectListCollapse(element, true)}">Show less ...</button>
+                    </div>
+                ` : null
+                }
             `;
             contents.push(view);
         }
@@ -1369,6 +1399,11 @@ export default class DataForm extends LitElement {
 
         contents.push(createHtml);
         return contents;
+    }
+
+    #toggleObjectListCollapse(element, collapsed) {
+        element.display.collapsed = collapsed;
+        this.requestUpdate();
     }
 
     #addToObjectList(e, element) {
