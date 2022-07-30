@@ -164,6 +164,16 @@ class ClinicalAnalysisUpdate extends LitElement {
                 this.updateParams = FormUtils
                     .updateObjectArray(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value, e.detail.data);
                 break;
+            case "comments":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._clinicalAnalysis,
+                    this.clinicalAnalysis,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+                this.updateParams.comments = this.updateParams.comments.filter(comment => !comment.author);
+                break;
         }
         // Enable this only when a dynamic property in the config can change
         // this.config = this.getDefaultConfig();
@@ -515,6 +525,51 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 rows: 3,
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
+                        },
+                        {
+                            title: "Comments",
+                            field: "comments",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                maxNumItems: 2,
+                                showEditItemListButton: true,
+                                showDeleteItemListButton: false,
+                                view: comment => html`
+                                    <div>
+                                        <label>
+                                            <i aria-hidden="true" class="fas fa-comment-dots icon-padding"></i>
+                                            <label>${comment?.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                        </div>
+
+                                        <div style="padding: 5px 20px">
+                                            ${comment?.message}
+                                        </div>
+                                        <div style="padding: 5px 20px">
+                                            Tags: ${comment?.tags || "NA"}
+                                        </div>
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ]
                         },
                         {
                             title: "Comments",

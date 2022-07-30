@@ -114,8 +114,9 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     render() {
         return html`
-            <data-form 
+            <data-form
                 .data="${this.variant}"
+                .updateParams="${this.updateParams}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onSaveFieldChange(e)}">
             </data-form>
@@ -146,6 +147,51 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             placeholder: "Add a discussion",
                             rows: 5,
                         },
+                    },
+                    {
+                        title: "Comments",
+                        field: "comments",
+                        type: "object-list",
+                        display: {
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            // collapsedUpdate: true,
+                            showEditItemListButton: true,
+                            showDeleteItemListButton: false,
+                            view: comment => html`
+                                <div>
+                                    <label>
+                                        <i aria-hidden="true" class="fas fa-comment-dots icon-padding"></i>
+                                        <label>${comment?.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                </div>
+
+                                <div style="padding: 5px 20px">
+                                    ${comment?.message}
+                                </div>
+                                <div style="padding: 5px 20px">
+                                    Tags: ${comment?.tags || "NA"}
+                                </div>
+                                </div>
+                            `,
+                        },
+                        elements: [
+                            {
+                                title: "Message",
+                                field: "comments[].message",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Add comment...",
+                                    rows: 3
+                                }
+                            },
+                            {
+                                title: "Tags",
+                                field: "comments[].tags",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Add tags..."
+                                }
+                            },
+                        ]
                     },
                     {
                         title: "Comments",
