@@ -173,6 +173,12 @@ export default class OpencgaBrowserFilter extends LitElement {
     }
 
     _createSubSection(subsection) {
+        // Prevent empty filters section when a subsection is undefined
+        if (!subsection?.id) {
+            console.error("Filter definition error", subsection);
+            return "";
+        }
+
         let content = "";
 
         if (subsection.render) {
@@ -183,7 +189,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "id":
                 case "name":
                 case "fileIds":
-                case "directory":
                 case "father":
                 case "mother":
                 case "samples":
@@ -198,6 +203,17 @@ export default class OpencgaBrowserFilter extends LitElement {
                         <catalog-search-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
                             .resource="${this.filterToResource[subsection.id] || this.resource}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${subsection}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        </catalog-search-autocomplete>
+                    `;
+                    break;
+                case "directory": // Temporal Solution
+                    content = html`
+                        <catalog-search-autocomplete
+                            .value="${this.preparedQuery[subsection.id]}"
+                            resource="DIRECTORY"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${subsection}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
@@ -324,22 +340,27 @@ export default class OpencgaBrowserFilter extends LitElement {
             }
         }
 
-        return html`
-            <div class="form-group">
-                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                    ${subsection.description ? html`
-                        <div class="tooltip-div pull-right">
-                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                    ` : null}
+        if (content) {
+            return html`
+                <div class="form-group">
+                    <div class="browser-subsection" id="${subsection.id}">
+                        ${subsection.name}
+                        ${subsection.description ? html`
+                            <div class="tooltip-div pull-right">
+                                <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        ` : null}
+                    </div>
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                        ${content}
+                    </div>
                 </div>
-                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                    ${content}
-                </div>
-            </div>
-        `;
+            `;
+        } else {
+            return "";
+        }
     }
 
     render() {

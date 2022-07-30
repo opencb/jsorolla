@@ -261,7 +261,9 @@ export default class UtilsNew {
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
      */
-    static toTableString(objects, fields) {
+    static toTableString(objects, fields, transformFields) {
+        // eslint-disable-next-line no-param-reassign
+        transformFields = transformFields || {};
         const table = [];
         if (objects) {
             // Make sure objects is an array
@@ -276,9 +278,8 @@ export default class UtilsNew {
 
             // Print headers and get the rows and columns
             table.push(fields);
-            for (const object of objects) {
-                const row = [];
-                for (const field of fields) {
+            (objects || []).forEach((object, index) => {
+                const row = fields.map(field => {
                     let value;
                     const subfields = field.split(".");
                     // Check if subfields are arrays, eg. samples.id
@@ -299,10 +300,15 @@ export default class UtilsNew {
                     } else {
                         value = subfields.reduce((res, prop) => res?.[prop], object);
                     }
-                    row.push(value);
-                }
+                    // Check for custom field transform
+                    if (typeof transformFields?.[field] === "function") {
+                        value = transformFields[field](value, object, index);
+                    }
+                    return value;
+                });
+
                 table.push(row);
-            }
+            });
         }
         return table;
     }
@@ -655,19 +661,20 @@ export default class UtilsNew {
                     const id = typeof o === "object" ? o.id : o; // support both string ID or object
                     const obj = internal.find(e => id === e.id);
                     if (!obj) {
-                        console.error(`Config Merge failed. ${id} not found in internal config`);
+                        console.warn(`Config Merge failed. '${id}' field not found in internal config`);
+                        return null;
                     } else {
                         return typeof o === "object" ? {...o, ...obj} : {...obj};
                     }
                 });
-                return section;
+                return section.filter(s => !!s);
             } else {
                 return internal.filter(f => {
                     return !~external.indexOf(f.id);
                 });
             }
         }
-        console.error("External config not available");
+        console.warn("External config not available. Using default config");
         return internal;
     }
 

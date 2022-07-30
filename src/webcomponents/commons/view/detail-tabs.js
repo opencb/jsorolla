@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class DetailTabs extends LitElement {
 
@@ -47,6 +48,9 @@ export default class DetailTabs extends LitElement {
             mode: {// accepted values:  tabs, pills
                 type: String
             },
+            activeTab: {
+                type: String,
+            },
             config: {
                 type: Object
             }
@@ -55,54 +59,77 @@ export default class DetailTabs extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._config = null;
+        this._activeTab = null;
 
         // mode by default, if the component no use this property
         this.mode = this.mode || DetailTabs.TABS_MODE;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-
-        // Read active tabs from config, if not active tab is found then FIRST one is selected.
-        const _activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false})));
-
-        // Set default active tab
-        const activeIndex = this._config.items.findIndex(item => item.active);
-        if (activeIndex < 0) {
-            _activeTabs[this._config.items[0].id] = true;
-        }
-        this.activeTabs = _activeTabs;
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
+
+        if (changedProperties.has("activeTab")) {
+            this.activeTabObserver();
+        }
+
         super.update(changedProperties);
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        // Set default active tab
+        if (!this._activeTab) {
+            const activeIndex = this._config.items.findIndex(item => item.active);
+            if (activeIndex >= 0) {
+                this._activeTab = this._config.items[activeIndex].id;
+            } else {
+                this._activeTab = this._config.items[0].id;
+            }
+        }
     }
 
-    changeBottomTab(e) {
-        this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
-        const tabId = e.currentTarget.dataset.id;
-        this.activeTabs[tabId] = true;
+    activeTabObserver() {
+        if (this.activeTab) {
+            this._activeTab = this.activeTab;
+        }
+    }
+
+    changeTab(e) {
+        this._activeTab = e.currentTarget.dataset.id;
+        LitUtils.dispatchCustomEvent(this, "activeTabChange", this._activeTab, null, null, {
+            bubbles: false,
+        });
         this.requestUpdate();
+    }
+
+    renderTitle() {
+        const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
+        return html`
+            <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
+                <h3 class="break-word">${title}</h3>
+            </div>
+        `;
     }
 
     renderTabTitle() {
         return html`
             ${this._config.items.length && this._config.items.map(item => {
                 if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                    const isActive = this._activeTab === item.id;
                     return html`
-                        <li role="presentation" class="${this._config.display?.tabTitleClass} ${this.activeTabs[item.id] ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this.changeBottomTab}">
+                        <li role="presentation" class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
+                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this.changeTab}">
                                 <span>${item.name}</span>
                             </a>
-                        </li>`;
+                        </li>
+                    `;
                 }
             })}
         `;
@@ -112,10 +139,12 @@ export default class DetailTabs extends LitElement {
         return html`
             ${this._config.items.length && this._config.items.map(item => {
                 if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                    const isActive = this._activeTab === item.id;
                     return html`
-                        <div id="${item.id}-tab" role="tabpanel" style="display: ${this.activeTabs[item.id] ? "block" : "none"}">
-                            ${item.render(this.data, this.activeTabs[item.id], this.opencgaSession, this.cellbaseClient)}
-                        </div>`;
+                        <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                            ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
+                        </div>
+                    `;
                 }
             })}
         `;
@@ -123,25 +152,22 @@ export default class DetailTabs extends LitElement {
 
     render() {
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
-            return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
+            return html`
+                <h3>No valid mode: '${this.mode || ""}'</h3>
+            `;
         }
 
         if (this._config?.items?.length === 0) {
-            return html`<h3>No items provided</h3>`;
+            return html`
+                <h3>No items provided</h3>
+            `;
         }
 
         // Allow custom tabs alignment:  "center" or "justified"
         const align = this._config?.display?.align || "";
 
         return html`
-            ${this._config.title ?
-                html`
-                    <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
-                        <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
-                    </div>` :
-                null
-            }
-
+            ${this._config.title ? this.renderTitle() : null}
             <div class="detail-tabs">
                 <!-- TABS -->
                 ${this.mode === DetailTabs.TABS_MODE ? html`

@@ -20,7 +20,6 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
-import VariantUtils from "../variant-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-grid-config.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
@@ -66,17 +65,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        // Config for the grid toolbar
-        this.toolbarConfig = {
-            download: ["JSON"],
-            columns: [
-                {title: "Variant", field: "id"},
-                {title: "Genes", field: "genes"},
-                {title: "Type", field: "type"},
-                {title: "Gene Annotations", field: "consequenceType"}
-            ]
-        };
-
+        this.toolbarConfig = {};
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
@@ -118,10 +107,17 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            // Nacho (14/11/2020) - Commented since it does not look necessary
-            // this.requestUpdate();
+            const defaultColumns = this._createDefaultColumns();
+            this.toolbarConfig = {
+                ...this._config,
+                ...this._config.toolbar, // it comes from external settings
+                resource: "CLINICAL_VARIANT",
+            };
         }
     }
 
@@ -422,6 +418,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     if (caller.info?.length > 0) {
                         for (let i = 0; i < caller.info.length; i++) {
                             vcfDataColumns.push({
+                                id: caller.info[i].name.toLowerCase().replace(/\s/g, ""),
                                 title: `${caller.info[i].name}<br><span class="help-block" style="margin: 0px">${caller.info[i].fields.join(", ")}</span>`,
                                 rowspan: 1,
                                 colspan: 1,
@@ -435,6 +432,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                         for (let i = 0; i < caller.info.length; i++) {
                             vcfDataColumns2.push({
+                                id: caller.info[i].name.toLowerCase().replace(/\s/g, ""),
                                 title: `${caller.info[i].name}<br><span class="help-block" style="margin: 0px">${caller.info[i].fields.join(", ")}</span>`,
                                 rowspan: 1,
                                 colspan: 1,
@@ -451,6 +449,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     if (caller.format?.length > 0) {
                         for (let i = 0; i < caller.format.length; i++) {
                             vcfDataColumns.push({
+                                id: caller.format[i].toLowerCase().replace(/\s/g, ""),
                                 title: caller.format[i],
                                 field: {
                                     vcfColumn: "format",
@@ -619,7 +618,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click a": this.onActionClick.bind(this)
                     },
-                    visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
+                    visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions"),
+                    excludeFromExport: true,
                 }
             ],
             [
@@ -655,6 +655,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         "click input": event => this.onRowCheck(event),
                     },
                     visible: this._config.showSelectCheckbox,
+                    excludeFromExport: true // this is used in opencga-export
                 },
                 {
                     title: "Review",
@@ -679,6 +680,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     },
                     // visible: this._config.showReview
                     visible: !!this.review,
+                    excludeFromExport: true // this is used in opencga-export
                 },
             ]
         ];
@@ -728,6 +730,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             if (samples.length > 0) {
                 _columns[0].splice(4, 0, {
+                    id: "zygosity",
                     title: "Sample Genotypes",
                     field: "zygosity",
                     rowspan: 1,
@@ -750,6 +753,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     }
 
                     _columns[1].splice(i, 0, {
+                        id: samples[i].id,
                         title: `
                             <div style="color:${color};word-break:break-all;max-width:192px;white-space:break-spaces;">${samples[i].id}</div>
                             <div style="color:${color};font-style:italic;">${sampleInfo[samples[i].id].role}, ${affected}</div>
@@ -789,6 +793,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
 
                 _columns[0].splice(4, 0, {
+                    id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
                     colspan: samples.length,
@@ -799,6 +804,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     const color = sample?.somatic ? "darkred" : "black";
 
                     _columns[1].splice(i, 0, {
+                        id: sample.id,
                         title: `<span>${sample.id}</span><br>
                                 <span class="help-block" style="margin: 0px">PS / RC</span>`,
                         field: {
@@ -828,9 +834,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
     }
 
-    // TODO fix tab jsonToTabConvert isn't working!
     async onDownload(e) {
-        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.toolbarConfig = {
+            ...this.toolbarConfig,
+            downloading: true,
+        };
         this.requestUpdate();
         await this.updateComplete;
         if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
@@ -859,15 +867,64 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 const results = restResponse.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, this.samples, this._config.nucleotideGenotype);
-                    console.log("dataString", dataString);
-                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                    const fields = [
+                        "id",
+                        "type",
+                        "svclass",
+                        "assemblyScore",
+                        "cnFlag",
+                        "fusionFlag",
+                    ];
+                    const transformFields = {
+                        type: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "EXT_SVTYPE", "INFO") || "-";
+                        },
+                        svclass: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "SVCLASS", "INFO") || "-";
+                        },
+                        assemblyScore: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "BAS", "INFO") || "-";
+                        },
+                        cnFlag: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "CNCH", "INFO") || "-";
+                        },
+                        fusionFlag: (value, row) => {
+                            return VariantGridFormatter.vcfFormatter(value, row, "FFV", "INFO") || "-";
+                        },
+                    };
+                    // Add callers data
+                    const fileCallers = (this.clinicalAnalysis?.files || [])
+                        .filter(file => file.format === "VCF" && file.software?.name)
+                        .map(file => file.software.name);
+                    if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
+                        this._config.callers.forEach(caller => {
+                            // INFO column
+                            (caller.info || []).forEach(info => {
+                                (info.fields || []).forEach(infoField => {
+                                    fields.push(infoField);
+                                    transformFields[infoField] = (value, row) => {
+                                        return VariantGridFormatter.vcfFormatter(value, row, infoField, "INFO") || "-";
+                                    };
+                                });
+                            });
+                            // FORMAT column
+                            (caller.format || []).forEach(format => {
+                                const name = format.toLowerCase().replace(/\s/g, "");
+                                fields.push(name);
+                                transformFields[name] = (value, row) => {
+                                    return VariantGridFormatter.vcfFormatter(value, row, format, "FORMAT") || "-";
+                                };
+                            });
+                        });
+                    }
+                    const data = UtilsNew.toTableString(results, fields, transformFields);
+                    UtilsNew.downloadData(data, "variant_interpreter_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                 } else {
                     UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "variant_interpreter_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
             })
             .catch(response => {
-                // console.log(response);
+                console.log(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
@@ -1021,6 +1078,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 .rightToolbar="${this.getRightToolbar()}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
+                @export="${this.onDownload}"
                 @sharelink="${this.onShare}">
             </opencb-grid-toolbar>
 
@@ -1082,7 +1140,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
+            showExport: true,
             detailView: true,
             showReview: true,
             showSelectCheckbox: false,

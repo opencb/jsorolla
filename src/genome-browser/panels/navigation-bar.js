@@ -36,15 +36,17 @@ export default class NavigationBar {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="display:flex;flex-wrap:wrap;gap:4px;">
                 <!-- Region history -->
-                <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
-                    <i class="fa fa-redo"></i>
-                </button>
-                <div title="Region history" class="dropdown" style="display:inline-block;">
-                    <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-history"></i>
-                        <span class="caret"></span>
+                <div id="${this.prefix}HistoryControls">
+                    <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
+                        <i class="fa fa-redo"></i>
                     </button>
-                    <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
+                    <div title="Region history" class="dropdown" style="display:inline-block;">
+                        <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-history"></i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
+                    </div>
                 </div>
                 
                 <!-- Panels buttons -->
@@ -60,29 +62,25 @@ export default class NavigationBar {
                     </button>
                 </div>
 
-                <!-- Zoom control -->
-                <button title="Minimum window size" id="${this.prefix}ZoomMinButton" class="btn btn-default btn-sm" style="display:none;">
-                    <span>Min</span>
-                </button>
-                <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
-                    <span class="fa fa-search-minus"></span>
-                </button>
-                <div class="" style="display:inline-block;">
-                    <div class="" style="padding-top:7px;padding-bottom:7px;">
-                        <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
+                <!-- Zoom controls -->
+                <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;">
+                    <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
+                        <span class="fa fa-search-minus"></span>
+                    </button>
+                    <div class="" style="display:inline-block;">
+                        <div class="" style="padding-top:7px;padding-bottom:7px;">
+                            <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
+                        </div>
                     </div>
-                </div>
-                <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
-                    <span class="fa fa-search-plus"></span>
-                </button>
-                <button title="Maximum window size" id="${this.prefix}ZoomMaxButton" class="btn btn-default btn-sm" style="display:none;">
-                    <span>Max</span>
-                </button>
+                    <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
+                        <span class="fa fa-search-plus"></span>
+                    </button>
 
-                <!-- Window size input -->
-                <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
-                    <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
-                    <span class="input-group-addon">nts</span>
+                    <!-- Window size input -->
+                    <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
+                        <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
+                        <span class="input-group-addon">nts</span>
+                    </div>
                 </div>
 
                 <!-- Features of interest -->
@@ -112,8 +110,8 @@ export default class NavigationBar {
                     </div>
                 </div>
 
-                <!-- Region controls -->
-                <div class="btn-group" style="display:inline-block">
+                <!-- Position controls -->
+                <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
                     <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
                         <i class="fa fa-angle-double-left"></i>
                     </button>
@@ -163,6 +161,7 @@ export default class NavigationBar {
         this.elements.overviewButton = this.div.querySelector(`button#${this.prefix}OverviewButton`);
 
         // Zooming controls
+        this.elements.zoomControls = this.div.querySelector(`div#${this.prefix}ZoomControls`);
         this.elements.zoomRange = this.div.querySelector(`input#${this.prefix}ZoomRange`);
         this.elements.zoomOutButton = this.div.querySelector(`button#${this.prefix}ZoomOutButton`);
         this.elements.zoomInButton = this.div.querySelector(`button#${this.prefix}ZoomInButton`);
@@ -176,11 +175,13 @@ export default class NavigationBar {
         this.elements.regionSubmit = this.div.querySelector(`button#${this.prefix}RegionSubmit`);
 
         // Region history buttons
+        this.elements.historyControls = this.div.querySelector(`div#${this.prefix}HistoryControls`);
         this.elements.regionHistoryRestore = this.div.querySelector(`button#${this.prefix}RegionHistoryRestore`);
         this.elements.regionHistoryMenu = this.div.querySelector(`ul#${this.prefix}RegionHistoryMenu`);
         this.elements.regionHistoryButton = this.div.querySelector(`div#${this.prefix}RegionHistoryButton`);
 
         // Position controls
+        this.elements.positionControls = this.div.querySelector(`div#${this.prefix}PositionControls`);
         this.elements.moveFurtherLeftButton = this.div.querySelector(`button#${this.prefix}MoveFurtherLeftButton`);
         this.elements.moveFurtherRightButton = this.div.querySelector(`button#${this.prefix}MoveFurtherRightButton`);
         this.elements.moveLeftButton = this.div.querySelector(`button#${this.prefix}MoveLeftButton`);
@@ -214,6 +215,26 @@ export default class NavigationBar {
             if (!this.config.overviewPanelVisible) {
                 this.elements.overviewButton.style.display = "none";
             }
+        }
+
+        if (!this.config.historyControlsVisible) {
+            this.elements.historyControls.style.display = "none";
+        }
+
+        if (!this.config.positionControlsVisible) {
+            this.elements.positionControls.style.display = "none";
+        }
+
+        if (!this.config.zoomControlsVisible) {
+            this.elements.zoomControls.style.display = "none";
+        }
+
+        if (!this.config.regionSearchVisible) {
+            this.elements.regionForm.style.display = "none";
+        }
+
+        if (!this.config.geneSearchVisible) {
+            this.elements.searchForm.style.display = "none";
         }
 
         // Fill features of interest dropdown
@@ -530,6 +551,11 @@ export default class NavigationBar {
             width: 100,
             featuresOfInterest: [],
             featuresOfInterestTitle: "Features of Interest",
+            historyControlsVisible: true,
+            zoomControlsVisible: true,
+            positionControlsVisible: true,
+            geneSearchVisible: true,
+            regionSearchVisible: true,
         };
     }
 
