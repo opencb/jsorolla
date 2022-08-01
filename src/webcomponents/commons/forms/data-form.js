@@ -1315,10 +1315,21 @@ export default class DataForm extends LitElement {
         const items = this.getValue(element.field);
         const contents = [];
 
-        const collapsed = this._getBooleanValue(element.display.collapsed, true);
+        // Get initial collapsed status, only executed the first time
+        const collapsable = this._getBooleanValue(element.display.collapsable, true);
+        if (typeof element.display.collapsed === "undefined") {
+            // eslint-disable-next-line no-param-reassign
+            element.display.collapsed = collapsable;
+        }
+
         let maxNumItems;
-        if (collapsed) {
-            maxNumItems = element.display.maxNumItems || items?.length;
+        if (element.display.collapsed) {
+            maxNumItems = element.display.maxNumItems ?? 5;
+            if (maxNumItems >= items?.length) {
+                // eslint-disable-next-line no-param-reassign
+                element.display.collapsed = false;
+                maxNumItems = items?.length;
+            }
         } else {
             maxNumItems = items?.length;
         }
@@ -1326,8 +1337,8 @@ export default class DataForm extends LitElement {
         // Render all existing items
         if (maxNumItems > 0) {
             const view = html`
-                <div style="padding-bottom: 10px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
-                    ${items.slice(0, maxNumItems).map((item, index) => {
+                <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                    ${items?.slice(0, maxNumItems).map((item, index) => {
                         const _element = JSON.parse(JSON.stringify(element));
                         // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                         // items have a virtual element associated, this will allow to get the proper value later.
@@ -1348,16 +1359,12 @@ export default class DataForm extends LitElement {
                                         <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
                                             <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
                                             Edit
-                                        </button>
-                                    ` : null
-                                    }
+                                        </button>` : null}
                                     ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
                                         <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                             <i aria-hidden="true" class="fas fa-trash-alt"></i>
                                             Remove
-                                        </button>
-                                    ` : null
-                                    }
+                                        </button>` : null}
                                 </div>
                             </div>
                             <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
@@ -1369,16 +1376,22 @@ export default class DataForm extends LitElement {
                     })}
                 </div>
 
-                ${collapsed && maxNumItems !== items?.length ? html`
+                ${element.display.collapsed ? html`
                     <div style="padding: 0 0 10px 0">
-                        <button type="button" class="btn btn-link" @click="${e => this.#toggleObjectListCollapse(element, false)}">Show more ... (${items.length} items)</button>
+                        <button type="button" class="btn btn-link" style="padding: 0"
+                                @click="${e => this.#toggleObjectListCollapse(element, false)}">
+                            Show more ... (${items?.length} items)
+                        </button>
                     </div>
                 ` : null
                 }
 
-                ${!collapsed ? html`
+                ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
                     <div style="padding: 0 0 10px 0">
-                        <button type="button" class="btn btn-link" @click="${e => this.#toggleObjectListCollapse(element, true)}">Show less ...</button>
+                        <button type="button" class="btn btn-link" style="padding: 0"
+                                @click="${e => this.#toggleObjectListCollapse(element, true)}">
+                            Show less ...
+                        </button>
                     </div>
                 ` : null
                 }
@@ -1388,7 +1401,7 @@ export default class DataForm extends LitElement {
 
         // Add the form to create the next item
         const createHtml = html`
-            <div style="border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px">
+            <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
                 <label>Create new item</label>
                 ${this._createObjectElement(element)}
                 <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
@@ -1402,6 +1415,7 @@ export default class DataForm extends LitElement {
     }
 
     #toggleObjectListCollapse(element, collapsed) {
+        // eslint-disable-next-line no-param-reassign
         element.display.collapsed = collapsed;
         this.requestUpdate();
     }
