@@ -76,6 +76,7 @@ export default class CatalogDistinctAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
+            disablePagination: true,
             source: (params, success, failure) => {
                 const RESOURCES = {
                     "SAMPLE": this.opencgaSession.opencgaClient.samples(),
