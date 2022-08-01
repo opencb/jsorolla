@@ -345,7 +345,7 @@ const client = new OpenCGAClient({
     }
 
     async launchJob(e) {
-        if (this.config.resource === "VARIANT") {
+        if (this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") {
             try {
                 const data = {...this.query,
                     study: this.opencgaSession.study.fqn,
