@@ -21,13 +21,9 @@ export default class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
-        const dataString = [];
-        const variantString = [];
         let populationMap = {};
 
         const headerString = [];
-        const header = {};
-
         const sampleIds = samples?.forEach(sample => sample.id);
 
         // took from the first result. Is there a better way?
@@ -44,6 +40,7 @@ export default class VariantUtils {
                     // alleleCount, altAlleleFreq
 
                     // cohort ALL is always the first element in study.stats
+                    // Remove
                     alleleStats.push({
                         id: studyId,
                         stats: study.stats,
@@ -54,7 +51,6 @@ export default class VariantUtils {
             });
         }
 
-        const popIds = studiesPopFrequencies?.flatMap(study => study.populations.map(pop => "popfreq." + study.id + "_" + pop.id));
         const popStudyIds = studiesPopFrequencies?.map(study => "popfreq." + study.id);
 
         /* // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field) */
@@ -128,16 +124,13 @@ export default class VariantUtils {
 
         });
 
+        //  TSV header
         rows.push(headerString.join("\t"));
 
-        for (let i = 0; i < json.length; i++) {
+        for (const v of json) {
             const row = [];
-            const v = json[i]; // variant
-
-
             let genes = new Set();
             let ct = new Set();
-            const pfArray = [];
             let sift, polyphen;
             let cadd = "-";
             let phylop = "-";
@@ -150,13 +143,13 @@ export default class VariantUtils {
             let prediction = "-";
 
             populationMap = {};
+            const dataToTsv = {};
 
             const description = {sift: "-", polyphen: "-"};
             let min = 10;
             let max = 0;
             if (typeof v.annotation !== "undefined") {
                 if (typeof v.annotation.consequenceTypes !== "undefined" && v.annotation.consequenceTypes.length > 0) {
-                    const visitedCT = new Set();
                     for (let j = 0; j < v.annotation.consequenceTypes.length; j++) {
                         const cT = v.annotation.consequenceTypes[j];
                         // gene
@@ -266,7 +259,9 @@ export default class VariantUtils {
                 if (v.annotation?.traitAssociation?.length) {
                     v.annotation.traitAssociation.forEach(clinicalData => {
                         if (clinicalData.source.name === "clinvar") {
-                            clinvar.add(`${clinicalData.id} (${clinicalData.variantClassification.clinicalSignificance})`);
+                            // Verify isn't undefined
+                            const clinicalSignificance = clinicalData?.variantClassification?.clinicalSignificance ? ` (${clinicalData?.variantClassification?.clinicalSignificance})`: "";
+                            clinvar.add(`${clinicalData.id}${clinicalSignificance}`);
                         }
                         if (clinicalData.source.name === "cosmic") {
                             if (clinicalData?.somaticInformation?.primaryHistology) {
@@ -278,6 +273,7 @@ export default class VariantUtils {
                         }
                     });
                 }
+
                 genes = genes.size > 0 ? [...genes].join(",") : "-";
                 ct = ct.size > 0 ? [...ct].join(",") : "-";
                 sift = typeof description.sift !== "undefined" ? description.sift : "-";
@@ -293,65 +289,70 @@ export default class VariantUtils {
                 });
             }
 
-
             // ID
             if (flatFieldList.includes("id")) {
-                row.push(v.chromosome + ":" + v.start + " " + v.reference + "/" + v.alternate);
+                dataToTsv["id"] = v.chromosome + ":" + v.start + " " + v.reference + "/" + v.alternate;
 
                 // SNP ID
                 if (v?.id?.startsWith("rs")) {
-                    row.push(v.id);
+                    dataToTsv["SNP_ID"] = v.id;
                 } else if (typeof v.annotation !== "undefined" && typeof v.annotation.xrefs !== "undefined" && v.annotation.xrefs.length > 0) {
                     const annotation = v.annotation.xrefs.find(el => el.source === "dbSNP");
                     if (typeof annotation !== "undefined") {
-                        row.push(annotation.id);
+                        dataToTsv["SNP_ID"] = annotation.id;
                     } else {
-                        row.push("-");
+                        dataToTsv["SNP_ID"] = "-";
                     }
                 } else {
-                    row.push("-");
+                    dataToTsv["SNP_ID"] = "-";
                 }
             }
 
             // Genes
             if (flatFieldList.includes("gene")) {
-                row.push(genes);
+                dataToTsv["gene"] = genes;
             }
 
             // type
             if (flatFieldList.includes("type")) {
-                row.push(v.type);
+                dataToTsv["type"] = v.type;
             }
 
             // consequence type
             if (flatFieldList.includes("consequenceType")) {
-                row.push(ct);
+                dataToTsv["consequenceType"] = ct;
             }
 
             // gt samples
-            row.push(...this.getGenotypeSamples(v, samples, nucleotideGenotype));
+            if (samples?.length > 0) {
+                const gtSamples = this.getGenotypeSamples(v, samples, nucleotideGenotype);
+                Object.keys(gtSamples).forEach(key => {
+                    dataToTsv[key] = gtSamples[key];
+                });
+            }
 
             // deleteriousness
             if (flatFieldList.includes("deleteriousness.SIFT")) {
-                row.push(sift);
+                dataToTsv["deleteriousness.SIFT"] = sift;
             }
             if (flatFieldList.includes("deleteriousness.polyphen")) {
-                row.push(polyphen);
+                dataToTsv["deleteriousness.polyphen"] = polyphen;
             }
             if (flatFieldList.includes("deleteriousness.revel")) {
                 row.push("-"); // TODO deleteriousness Revel is missing
+                dataToTsv["deleteriousness.revel"] = "-";
             }
             if (flatFieldList.includes("deleteriousness.cadd")) {
-                row.push(cadd);
+                dataToTsv["deleteriousness.cadd"] = cadd;
             }
             if (flatFieldList.includes("conservation.phylop")) {
-                row.push(phylop);
+                dataToTsv["conservation.phylop"] = phylop;
             }
             if (flatFieldList.includes("conservation.phastCons")) {
-                row.push(phastCons);
+                dataToTsv["deleteriousness.phastCons"] = phastCons;
             }
             if (flatFieldList.includes("conservation.gerp")) {
-                row.push(gerp);
+                dataToTsv["deleteriousness.gerp"] = gerp;
             }
 
             // Allele stats (VB)
@@ -364,8 +365,8 @@ export default class VariantUtils {
                         ac.push(`${cohort.cohortId}:${cohort.alleleCount}`);
                         af.push(`${cohort.cohortId}:${cohort.altAlleleFreq}`);
                     });
-                    row.push(ac.join(";"));
-                    row.push(af.join(";"));
+                    dataToTsv[`cohorts.${study.id}.alleleCount`] = ac.join(";");
+                    dataToTsv[`cohorts.${study.id}.altAlleleFreq`] = af.join(";");
                 }
             });
 
@@ -373,25 +374,24 @@ export default class VariantUtils {
                 study.populations.forEach(pop => {
                     if (flatFieldList.includes("popfreq." + study.id) || flatFieldList.includes("frequencies.populationFrequencies")) {
                         const valuePopFreq = populationMap[study.id + "_" + pop.id];
-                        row.push(UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "-");
+                        dataToTsv[`popfreq.${study.id}_${pop.id}`] = UtilsNew.isNotEmpty(valuePopFreq) ? valuePopFreq : "-";
                     }
                 });
             });
 
             if (flatFieldList.includes("clinicalInfo.clinvar")) {
-                row.push(clinvar);
+                dataToTsv["clinicalInfo.clinvar"] = clinvar;
             }
 
             if (flatFieldList.includes("clinicalInfo.cosmic")) {
-                row.push(cosmic);
+                dataToTsv["clinicalInfo.cosmic"] = cosmic;
             }
 
             if (flatFieldList.includes("interpretation.prediction")) {
-                row.push(prediction);
+                dataToTsv["interpretation.prediction"] = prediction;
             }
-
-
-            rows.push(row.join("\t"));
+            const rowValues = headerString.map(head => dataToTsv[head]);
+            rows.push(rowValues.join("\t"));
         }
 
         return rows;
@@ -477,11 +477,8 @@ export default class VariantUtils {
 
                             const referenceIndex = parseInt(reference);
                             const alternateIndex = parseInt(alternate);
-                            colText = referenceValueColText + "/" + alternateValueColText;
+                            colText = {[study.samples?.[indexSample]?.id]: referenceValueColText + "/" + alternateValueColText};
                             res.push(colText);
-
-                            // res = "<span class='sampleGenotype' data-text='" + tooltipText + "'> " + colText + " </span>";
-
                         }
                     }
                 });
@@ -493,10 +490,10 @@ export default class VariantUtils {
                         if (study.samples?.[indexSample]?.data.length > 0) {
                             const currentGenotype = study.samples?.[indexSample]?.data;
                             if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
-                                res.push(currentGenotype[0]);
+                                res.push({[study?.samples?.[indexSample]?.id]: currentGenotype[0]});
                             }
                         }
-                        res.push("-");
+                        res.push({[study?.samples?.[indexSample]?.id]: "-"});
                     });
                 });
             }
