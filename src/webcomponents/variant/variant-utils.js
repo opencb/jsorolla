@@ -31,6 +31,9 @@ export default class VariantUtils {
         const cohortAlleleStatsColumns = [];
         const alleleStats = [];
         const studyIds = [];
+
+        // Code to Remove
+        // ###
         if (json[0].studies?.length) {
             json[0].studies.forEach(study => {
                 if (study.studyId.includes("@")) {
@@ -50,6 +53,7 @@ export default class VariantUtils {
                 }
             });
         }
+        // #####
 
         const popStudyIds = studiesPopFrequencies?.map(study => "popfreq." + study.id);
 
@@ -357,16 +361,31 @@ export default class VariantUtils {
 
             // Allele stats (VB)
             // frequencies.cohort (SVB)
-            alleleStats.forEach(study => {
-                if (flatFieldList.includes(`cohorts.${study.id}`) || flatFieldList.includes("frequencies.cohort")) {
+            // alleleStats.forEach(study => {
+
+            //     if (flatFieldList.includes(`cohorts.${study.id}`) || flatFieldList.includes("frequencies.cohort")) {
+            //         const ac = [];
+            //         const af = [];
+            //         study.stats.map(cohort => {
+            //             ac.push(`${cohort.cohortId}:${cohort.alleleCount}`);
+            //             af.push(`${cohort.cohortId}:${cohort.altAlleleFreq}`);
+            //         });
+            //         dataToTsv[`cohorts.${study.id}.alleleCount`] = ac.join(";");
+            //         dataToTsv[`cohorts.${study.id}.altAlleleFreq`] = af.join(";");
+            //     }
+            // });
+
+            v?.studies.forEach(study => {
+                const studyId = study.studyId.split(":")[1];
+                if (flatFieldList.includes(`cohorts.${studyId}`) || flatFieldList.includes("frequencies.cohort")) {
                     const ac = [];
                     const af = [];
-                    study.stats.map(cohort => {
+                    study?.stats.map(cohort => {
                         ac.push(`${cohort.cohortId}:${cohort.alleleCount}`);
                         af.push(`${cohort.cohortId}:${cohort.altAlleleFreq}`);
                     });
-                    dataToTsv[`cohorts.${study.id}.alleleCount`] = ac.join(";");
-                    dataToTsv[`cohorts.${study.id}.altAlleleFreq`] = af.join(";");
+                    dataToTsv[`cohorts.${studyId}.alleleCount`] = ac.join(";");
+                    dataToTsv[`cohorts.${studyId}.altAlleleFreq`] = af.join(";");
                 }
             });
 
