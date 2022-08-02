@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
 import "../loading-spinner.js";
@@ -234,15 +235,8 @@ export default class FamilyView extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("disorders"),
-                                contentLayout: "bullets",
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name} (${id})`;
-                                },
+                                contentLayout: "vertical",
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
                                 defaultValue: "N/A"
                             }
                         },

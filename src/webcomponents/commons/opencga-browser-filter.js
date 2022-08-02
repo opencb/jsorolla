@@ -189,7 +189,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "id":
                 case "name":
                 case "fileIds":
-                case "directory":
                 case "father":
                 case "mother":
                 case "samples":
@@ -204,6 +203,17 @@ export default class OpencgaBrowserFilter extends LitElement {
                         <catalog-search-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
                             .resource="${this.filterToResource[subsection.id] || this.resource}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${subsection}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        </catalog-search-autocomplete>
+                    `;
+                    break;
+                case "directory": // Temporal Solution
+                    content = html`
+                        <catalog-search-autocomplete
+                            .value="${this.preparedQuery[subsection.id]}"
+                            resource="DIRECTORY"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${subsection}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">

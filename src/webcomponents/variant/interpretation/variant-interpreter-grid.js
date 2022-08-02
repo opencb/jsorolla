@@ -67,12 +67,14 @@ export default class VariantInterpreterGrid extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._rows = [];
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
 
         // Set colors
+        // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
@@ -84,7 +86,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.table = $("#" + this.gridId);
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
@@ -120,13 +122,13 @@ export default class VariantInterpreterGrid extends LitElement {
 
             // Config for the grid toolbar
             // some columns have tooltips in title, we cannot used them for the dropdown
+            const defaultColumns = this._getDefaultColumns();
             this.toolbarConfig = {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "CLINICAL_VARIANT",
-                // showExport: true,
-                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-                gridColumns: this._getDefaultColumns() // original column structure
+                columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
+                gridColumns: defaultColumns, // original column structure
             };
             this.requestUpdate();
             this.renderVariants();
@@ -493,8 +495,8 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            },
-            onLoadSuccess: () => {
+                this._rows = data;
+
                 // Add events for displaying genes list
                 const gridElement = document.querySelector(`#${this.gridId}`);
                 if (gridElement) {
@@ -523,10 +525,8 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
-    /*
-     *  GRID FORMATTERS
-     */
-    detailFormatter(value, row, a) {
+    // Grid formatters
+    detailFormatter(value, row) {
         let variant = row;
         if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
             variant = this.checkedVariants.get(variant.id);

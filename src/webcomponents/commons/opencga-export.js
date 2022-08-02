@@ -497,10 +497,10 @@ const client = new OpenCGAClient({
                         </div>
                         <div>
                             ${this.format === "tab" && this.exportFields?.length ? html`
-                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#exportFields">
+                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#${this._prefix}exportFields">
                                     Customise export fields
                                 </span>
-                                <div id="exportFields" class="collapse">
+                                <div id="${this._prefix}exportFields" class="collapse">
                                     <ul>
                                         ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                         <li>

@@ -197,7 +197,7 @@ export default class FormUtils {
         const isValueDifferent = (_obj, val) => _obj !== val && val !== null;
 
         // sometimes original object come as value undefined or empty but is not the same.
-        const isNotEmtpy = (_obj, val) => _obj !== undefined || val !== "";
+        const isNotEmtpy = (_obj, val) => typeof _obj !== "undefined" || val !== "";
 
         if (prop) {
             if (isValueDifferent(_original?.[field]?.[prop], value) && isNotEmtpy(_original?.[field]?.[prop], value)) {
@@ -211,8 +211,13 @@ export default class FormUtils {
                     [prop]: value
                 };
             } else {
-                // original[field][prop] = _original[field][prop];
-                delete _updateParams[field][prop];
+                // Josemi (2022-07-29) uncommented this as is not restoring the initial value in the original object
+                // Added this if check to prevent rare cases where original[field] is not defined
+                if (typeof original?.[field]?.[prop] !== "undefined") {
+                    original[field][prop] = _original?.[field]?.[prop];
+                }
+
+                delete _updateParams?.[field]?.[prop];
 
                 if (UtilsNew.isEmpty(_updateParams[field])) {
                     delete _updateParams[field];

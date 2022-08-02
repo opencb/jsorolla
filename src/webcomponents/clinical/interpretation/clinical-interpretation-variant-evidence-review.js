@@ -61,32 +61,55 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     update(changedProperties) {
-        if (changedProperties.has("variantEvidence")) {
+        if (changedProperties.has("review")) {
             this.variantEvidenceObserver();
         }
+
         if (changedProperties.has("somatic")) {
             this.config = this.getDefaultConfig();
         }
+
         if (changedProperties.has("mode")) {
             this.config = this.getDefaultConfig();
         }
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this.config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     variantEvidenceObserver() {
         this.review = this.review || {}; // Prevent undefined clinical evidence review
         this._review = UtilsNew.objectClone(this.review);
+        this.config = this.getDefaultConfig();
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        // Fix clinical significance value --> must be in uppercase
-        const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
-        this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
+
+        switch (param) {
+            case "clinicalSignificance":
+            case "acmg":
+            case "tier":
+                // Fix clinical significance value --> must be in uppercase
+                const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
+                this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
+                break;
+            case "discussion.text":
+                this.updateParams = FormUtils.updateObjectParams(this._review, this.review, this.updateParams, param, e.detail.value);
+                if (typeof this.updateParams?.discussion?.text !== "undefined") {
+                    this.review.discussion.author = this.opencgaSession.user?.id || "-";
+                    this.review.discussion.date = UtilsNew.getDatetime();
+                } else {
+                    // We need to reset discussion author and date
+                    this.review.discussion.author = this._review.discussion?.author;
+                    this.review.discussion.date = this._review.discussion?.date;
+                }
+                break;
+        }
 
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
             value: this.review,
@@ -105,6 +128,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     getDefaultConfig() {
+        const discussion = this.review?.discussion || {};
         const sections = [
             {
                 elements: [
@@ -148,11 +172,12 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                     },
                     {
                         title: "Discussion",
-                        field: "discussion",
+                        field: "discussion.text",
                         type: "input-text",
                         display: {
                             placeholder: "Add a discussion",
                             rows: 5,
+                            helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                         },
                     },
                 ]

@@ -19,6 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
@@ -208,24 +209,10 @@ export default class DiseasePanelSummary extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
-                                render: disorder => {
-                                    let id = disorder.id;
-
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-
-                                    if (disorder.id.startsWith("HP:")) {
-                                        id = html`
-                                            <a href="https://hpo.jax.org/app/browse/term/${disorder.id}" target="_blank">${disorder.id}
-                                                <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                                            </a>`;
-                                    }
-                                    return html`${disorder.name} (${id})`;
-                                },
-                                defaultValue: "N/A",
-                            },
+                                contentLayout: "vertical",
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                                defaultValue: "N/A"
+                            }
                         },
                         {
                             title: "# Genes",

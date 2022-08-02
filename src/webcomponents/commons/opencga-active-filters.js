@@ -577,40 +577,6 @@ export default class OpencgaActiveFilters extends LitElement {
         return UtilsNew.isNotUndefined(item.items);
     }
 
-    getDefaultConfig() {
-        return {
-            searchButtonText: "SEARCH",
-            alias: {
-                "region": "Region",
-                "gene": "Gene",
-                "genotype": "Sample Genotype",
-                "sample": "Sample Genotype",
-                "maf": "Cohort Stat MAF",
-                "cohortStatsAlt": "Cohort ALT Stats",
-                "xref": "XRef",
-                "panel": "Disease Panel",
-                "file": "Files",
-                "qual": "QUAL",
-                "filter": "FILTER",
-                "annot-xref": "XRef",
-                "biotype": "Biotype",
-                "ct": "Consequence Type",
-                "annot-ct": "Consequence Type",
-                "alternate_frequency": "Population ALT Frequency",
-                "annot-functional-score": "CADD",
-                "proteinSubstitution": "Protein Substitution",
-                "annot-go": "GO",
-                "annot-hpo": "HPO"
-            },
-            complexFields: [],
-            hiddenFields: [],
-            lockedFields: [],
-            save: {
-                ignoreParams: ["study", "sample", "sampleData", "file", "fileData"]
-            }
-        };
-    }
-
     render() {
         return html`
             ${this.facetActive ? html`
@@ -859,6 +825,40 @@ export default class OpencgaActiveFilters extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            searchButtonText: "SEARCH",
+            alias: {
+                "region": "Region",
+                "gene": "Gene",
+                "genotype": "Sample Genotype",
+                "sample": "Sample ID",
+                "maf": "Cohort Stat MAF",
+                "cohortStatsAlt": "Cohort ALT Stats",
+                "xref": "XRef",
+                "panel": "Disease Panel",
+                "file": "Files",
+                "qual": "QUAL",
+                "filter": "FILTER",
+                "annot-xref": "XRef",
+                "biotype": "Biotype",
+                "ct": "Consequence Type",
+                "annot-ct": "Consequence Type",
+                "alternate_frequency": "Population ALT Frequency",
+                "annot-functional-score": "CADD",
+                "proteinSubstitution": "Protein Substitution",
+                "annot-go": "GO",
+                "annot-hpo": "HPO"
+            },
+            complexFields: [],
+            hiddenFields: [],
+            lockedFields: [],
+            save: {
+                ignoreParams: ["study", "sample", "sampleData", "file", "fileData"]
+            }
+        };
     }
 
 }

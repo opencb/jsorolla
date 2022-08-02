@@ -51,7 +51,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     _init() {
         this._prefix = "ovfc" + UtilsNew.randomString(6);
-        this.modeOfInheritance = "none";
+        this.modeOfInheritance = null;
 
         // TODO This is configurable via constants
         // if (application.appConfig === "opencb") {
@@ -203,8 +203,11 @@ export default class FamilyGenotypeFilter extends LitElement {
     notifySampleFilterChange() {
         // Notify the sample change
         const _sample = [];
-        // const _sampleData = [];
-        if (this.state) {
+
+        if (this.modeOfInheritance === "X_LINKED_RECESSIVE") {
+            const probandSampleId = this.clinicalAnalysis.proband.samples[0].id;
+            _sample.push(`${probandSampleId}:X_LINKED_RECESSIVE`);
+        } else if (this.state) {
             Object.keys(this.state).forEach(id => {
                 const sample = this.state[id];
                 if (sample.genotypes.length) {
@@ -228,8 +231,6 @@ export default class FamilyGenotypeFilter extends LitElement {
     // Queries variant/family/genotypes to get the genotypes according to family pedigree
     // @param mode {String} Mode of inheritance
     onModeOfInheritance(mode) {
-        this.modeOfInheritance = mode;
-
         this.opencgaSession.opencgaClient.variants().genotypesFamily(mode, {
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
@@ -254,6 +255,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 this.errorState = countGenoypes <= 0 ? "The selected Mode of Inheritance is not compatible with the family pedigree" : false;
                 // keeps the last legal state
                 if (!this.errorState) {
+                    this.modeOfInheritance = mode;
                     this.state = {...state};
                 }
                 this.notifySampleFilterChange();
@@ -298,6 +300,7 @@ export default class FamilyGenotypeFilter extends LitElement {
     // Change the mode and handle the different cases
     setMode(e) {
         this.mode = e.detail.value.toUpperCase();
+        this.modeOfInheritance = null;
         this.errorState = false;
         if (this.mode === "CUSTOM") {
             this.tableData.forEach(sample => {
