@@ -213,8 +213,8 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Gene",
                     field: "genes",
-                    rowspan: 2
-                // formatter: (value, row) => this.geneFormatter(value, row)
+                    rowspan: 2,
+                    formatter: value => value?.length ? value.join(", ") : "-"
                 },
                 {
                     title: "dbSNP",
@@ -512,8 +512,6 @@ export default class RgaVariantView extends LitElement {
                 this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters)
                     .then(rgaVariantResponse => {
                         this.isApproximateCount = rgaVariantResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
-
-                        console.log("rgaVariant", rgaVariantResponse);
                         params.success(rgaVariantResponse);
                     })
                     .catch(e => {
