@@ -49,7 +49,7 @@ export default class VariantSamples extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovcs" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
@@ -135,15 +135,14 @@ export default class VariantSamples extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 const tableOptions = this.table.bootstrapTable("getOptions");
-                // let limit = tableOptions.pageSize || 10;
-                // let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
                 const query = {
                     variant: this.variantId,
                     study: this.opencgaSession.study.fqn,
                     limit: params.data.limit || tableOptions.pageSize,
                     skip: params.data.offset || 0,
                     count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
-                    genotype: "0/1,1/1,1/2"
+                    // Nacho (27/07/2022): removed to let all possibles genotypes to be displayed.
+                    // genotype: "0/1,1/1,1/2"
                 };
                 try {
                     const data = await this.fetchData(query);
@@ -167,26 +166,24 @@ export default class VariantSamples extends LitElement {
 
     async fetchData(query, batchSize) {
         try {
-
             const variantResponse = await this.opencgaSession.opencgaClient.variants().querySample(query);
             const result = variantResponse.getResult(0);
             this.numUserTotalSamples = 0;
 
-            // Get the total number of samples
-            // TODO count only the genotypes filtered
-            // _this.numSamples = result.studies[0].samples.length;
-            this.numSamples = 0;
             const stats = result.studies[0].stats;
-            for (const stat of stats) {
-                if (stat.cohortId === "ALL") {
-                    for (const gt of Object.keys(stat.genotypeCount)) {
-                        if (gt !== "0/0" && gt !== "./." && gt !== "./1" && gt !== "./0") {
-                            this.numSamples += stat.genotypeCount[gt];
+            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
+
+            // Get the total number of samples from stats if OpenCGA does not return them
+            if (!this.numSamples) {
+                for (const stat of stats) {
+                    if (stat.cohortId === "ALL") {
+                        for (const gt of Object.keys(stat.genotypeCount)) {
+                            if (gt !== "0/0" && gt !== "./." && gt !== "./1" && gt !== "./0") {
+                                this.numSamples += stat.genotypeCount[gt];
+                            }
                         }
+                        break;
                     }
-                    // this.numSamples = stat.genotypeCount["0/1"] + stat.genotypeCount["1/1"]
-                    // this.numSamples = stat.sampleCount - stat.genotypeCount["0/0"]
-                    break;
                 }
             }
 
@@ -356,7 +353,8 @@ export default class VariantSamples extends LitElement {
                 variant: this.variantId,
                 study: this.opencgaSession.study.fqn,
                 limit: 1000,
-                genotype: "0/1,1/1,1/2"
+                // Nacho (27/07/2022): removed to let all possibles genotypes to be displayed.
+                // genotype: "0/1,1/1,1/2"
             };
 
             const samples = await this.fetchData(query, BATCH_SIZE);
