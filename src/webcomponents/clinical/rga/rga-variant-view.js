@@ -120,7 +120,10 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Homozygous",
                     field: "individualStats.numHomAlt"
-
+                },
+                {
+                    title: "Deletion Overlap",
+                    field: "individualStats.numDelOverlap"
                 },
                 {
                     title: "CH - Definite",
@@ -253,7 +256,7 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Recessive Individuals",
                     field: "",
-                    colspan: 5
+                    colspan: 6
                 }
             ], [
 
@@ -265,6 +268,12 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Homozygous",
                     field: "individualStats.numHomAlt",
+                    formatter: value => value > 0 ? value : "-"
+
+                },
+                {
+                    title: "Deletion Overlap",
+                    field: "individualStats.numDelOverlap",
                     formatter: value => value > 0 ? value : "-"
 
                 },
@@ -571,10 +580,11 @@ export default class RgaVariantView extends LitElement {
                                 "Allele count",
                                 "Consequence type",
                                 "Clinical Significance",
-                                "Individuals - HOM",
-                                "Individuals - CH Definite",
-                                "Individuals - CH Probable",
-                                "Individuals - CH Possible"
+                                "Individuals_HOM",
+                                "Individuals_DELETION_OVERLAP",
+                                "Individuals_CH_Definite",
+                                "Individuals_CH_Probable",
+                                "Individuals_CH_Possible"
                             ].join("\t"),
                             ...results.map(_ => [
                                 _.id,
@@ -583,8 +593,9 @@ export default class RgaVariantView extends LitElement {
                                 _.type,
                                 _.allelePairs ? _.allelePairs.length : "",
                                 _.sequenceOntologyTerms?.length ? _.sequenceOntologyTerms.map(ct => `${ct.name} (${ct.accession})`) : "",
-                                _.clinicalSignificances ? _.clinicalSignificances?.join(",") : "-",
+                                _.clinicalSignificances?.length ? _.clinicalSignificances.join(",") : "-",
                                 _.individualStats?.numHomAlt,
+                                _.individualStats?.numDelOverlap,
                                 _.individualStats?.bothParents?.numCompHet,
                                 _.individualStats?.singleParent?.numCompHet,
                                 _.individualStats?.missingParents?.numCompHet

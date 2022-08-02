@@ -348,6 +348,10 @@ export default class RgaIndividualView extends LitElement {
                     field: ""
                 },
                 {
+                    title: "Deletion Overlap",
+                    field: ""
+                },
+                {
                     title: "Compound Heterozygous",
                     field: "ch",
                     colspan: 3
@@ -376,6 +380,13 @@ export default class RgaIndividualView extends LitElement {
                 {
                     title: "Total",
                     field: "variantStats.numHomAlt",
+                    formatter: value => {
+                        return value > 0 ? value : "-";
+                    }
+                },
+                {
+                    title: "Total",
+                    field: "variantStats.numDelOverlap",
                     formatter: value => {
                         return value > 0 ? value : "-";
                     }
@@ -456,7 +467,7 @@ export default class RgaIndividualView extends LitElement {
             count: false,
             include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
             ...this._query,
-            limit: e.detail?.exportLimit ?? 1000,
+            limit: e.detail?.exportLimit ?? 1,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(params)
             .then(restResponse => {
@@ -469,10 +480,11 @@ export default class RgaIndividualView extends LitElement {
                                 "IndividualId",
                                 "Sample",
                                 "Gene",
-                                "Total HOM",
-                                "CH Definite",
-                                "CH Probable",
-                                "CH Possible",
+                                "HOM",
+                                "DELETION_OVERLAP",
+                                "CH_Definite",
+                                "CH_Probable",
+                                "CH_Possible",
                                 "Phenotypes",
                                 "Disorders"
                             ].join("\t"),
@@ -481,6 +493,7 @@ export default class RgaIndividualView extends LitElement {
                                 _.sampleId,
                                 _.genes.join(", "),
                                 _.variantStats.numHomAlt,
+                                _.variantStats.numDelOverlap,
                                 this.getChConfidenceFormatter(_, 2),
                                 this.getChConfidenceFormatter(_, 1),
                                 this.getChConfidenceFormatter(_, 0),
