@@ -60,7 +60,7 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantFormatter(value, row, index, assembly, config) {
+    static variantFormatter(value, row, index, assembly, config = {}) {
         if (!row) {
             return;
         }
