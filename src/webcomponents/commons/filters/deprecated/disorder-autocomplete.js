@@ -50,6 +50,18 @@ export default class DisorderAutocomplete extends LitElement {
         super.update(changedProperties);
     }
 
+    filterResults(response, term) {
+        if (term) {
+            // eslint-disable-next-line no-param-reassign
+            term = term.toUpperCase();
+            // eslint-disable-next-line no-param-reassign
+            response.responses[0].results = response.responses[0].results.filter(item => {
+                return item.toUpperCase().includes(term);
+            });
+        }
+        return response;
+    }
+
     onFilterChange(key, value) {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
@@ -67,16 +79,16 @@ export default class DisorderAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            limit: 10,
+            limit: 9999,
             source: (params, success, failure) => {
                 // Prepare query params
-                const page = params?.data?.page || 1;
+                // const page = params?.data?.page || 1;
                 const disorders = params?.data?.term ? {disorders: "~/" + params?.data?.term + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: this._config.limit,
+                    // limit: this._config.limit,
                     count: false,
-                    skip: (page - 1) * this._config.limit,
+                    // skip: (page - 1) * this._config.limit,
                     ...disorders
                 };
 
@@ -84,17 +96,17 @@ export default class DisorderAutocomplete extends LitElement {
                 switch (this.resource?.toUpperCase()) {
                     case "INDIVIDUAL":
                         this.opencgaSession.opencgaClient.individuals().distinct("disorders.id", filters)
-                            .then(response => success(response))
+                            .then(response => success(this.filterResults(response, params?.data?.term)))
                             .catch(error => failure(error));
                         break;
                     case "FAMILY":
                         this.opencgaSession.opencgaClient.families().distinct("disorders.id", filters)
-                            .then(response => success(response))
+                            .then(response => success(this.filterResults(response, params?.data?.term)))
                             .catch(error => failure(error));
                         break;
                     case "CLINICAL_ANALYSIS":
                         this.opencgaSession.opencgaClient.clinical().distinct("disorder.id", filters)
-                            .then(response => success(response))
+                            .then(response => success(this.filterResults(response, params?.data?.term)))
                             .catch(error => failure(error));
                         break;
                     default:
