@@ -287,7 +287,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         approximateCountSamplingSize: 500,
 
                         ...internalQuery,
-                        unknownGenotype: "0/0"
+                        unknownGenotype: "0/0",
+                        includeInterpretation: this.clinicalAnalysis?.interpretation?.id,
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(this.filters)
@@ -302,30 +303,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-
-                    // Merge response rows with user information (comments, status, ...) stored in primaryFindings
-                    if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
-                        result.response.rows = result.response.rows.map(row => {
-                            if (!this.checkedVariants.has(row.id)) {
-                                return row;
-                            }
-
-                            // Merge row with comments and other user properties
-                            const savedVariant = this.checkedVariants.get(row.id);
-                            return {
-                                ...row,
-                                comments: savedVariant.comments,
-                                status: savedVariant.status,
-                                attributes: savedVariant.attributes,
-                                discussion: savedVariant.discussion,
-                                evidences: row.evidences.map((evidence, index) => ({
-                                    ...evidence,
-                                    review: savedVariant.evidences[index],
-                                })),
-                            };
-                        });
-                    }
-
                     return result.response;
                 },
                 onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
