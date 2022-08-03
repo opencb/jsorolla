@@ -346,7 +346,6 @@ export default class VariantFileInfoFilter extends LitElement {
             })
             .join(",");
 
-        console.log(fileData);
         LitUtils.dispatchCustomEvent(this, "filterChange", fileData);
     }
 
