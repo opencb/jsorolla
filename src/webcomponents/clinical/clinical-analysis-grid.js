@@ -692,7 +692,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         _.interpretation?.id ? `${_.interpretation.id}(primary)${_.secondaryInterpretations.length ? (", " + _.secondaryInterpretations.map(s => s.id).join(", ")) : ""}` : "-",
                         _.status?.id ?? "-",
                         _.priority?.id ?? "-",
-                        _.analyst?.assignee ?? "-",
+                        _.analyst?.id ?? "-",
                         _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
                     ].join("\t"))];
 
