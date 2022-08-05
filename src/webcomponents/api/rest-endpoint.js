@@ -264,6 +264,7 @@ export default class RestEndpoint extends LitElement {
                             display: {
                                 render: () => html`
                                     <detail-tabs
+                                        .data="${{}}"
                                         .config="${this.getTabsConfig(bodyElementsForm)}"
                                         .mode="${DetailTabs.PILLS_MODE}">
                                     </detail-tabs>

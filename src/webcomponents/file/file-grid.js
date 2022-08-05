@@ -371,4 +371,4 @@ export default class OpencgaFileGrid extends LitElement {
 
 }
 
-customElements.define("opencga-file-grid", OpencgaFileGrid);
+customElements.define("file-grid", OpencgaFileGrid);
