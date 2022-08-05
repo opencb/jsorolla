@@ -241,145 +241,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
             });
     }
 
-    getSaveConfig() {
-        return {
-            title: "Save",
-            icon: "fas fa-save",
-            type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: "Save"
-            },
-            display: {
-                style: "margin: 0px 25px 0px 0px",
-                mode: {
-                    type: "modal",
-                    title: "Save Variant Stats",
-                    buttonClass: "btn btn-primary ripple",
-                    disabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
-                },
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultValue: "",
-                defaultLayout: "horizontal"
-            },
-            sections: [
-                {
-                    elements: [
-                        {
-                            name: "Filter ID",
-                            field: "id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a filter ID"
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a filter description",
-                                rows: 2
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
-    }
-
-    getDefaultConfig() {
-        return {
-            title: "Sample Variant Stats",
-            icon: "fas fa-search",
-            showTitle: false,
-            titleClass: "",
-            titleIcon: "fas fa-user",
-            filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Run",
-                activeFilters: {
-                    alias: {
-                        ct: "Consequence Types"
-                    },
-                    complexFields: [
-                        {id: "genotype", separator: ";"},
-                    ],
-                    hiddenFields: []
-                },
-                sections: [ // sections and subsections, structure and order is respected
-                    {
-                        title: "Filters",
-                        collapsed: false,
-                        filters: [
-                            {
-                                id: "variant-file-sample-filter",
-                                title: "File Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                // showDepth: application.appConfig === "opencb"
-                            },
-                            {
-                                id: "region",
-                                title: "Genomic Location",
-                                tooltip: tooltips.region
-                            },
-                            // {
-                            //     id: "feature",
-                            //     title: "Feature IDs (gene, SNPs, ...)",
-                            //     tooltip: tooltips.feature
-                            // },
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: SAMPLE_STATS_BIOTYPES,
-                                tooltip: tooltips.biotype
-                            },
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
-                                id: "type",
-                                title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
-                                tooltip: tooltips.type
-                            },
-                            {
-                                id: "consequence-type",
-                                title: "Consequence Type",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    }
-                ],
-                examples: [
-                    {
-                        id: "Example missense",
-                        active: false,
-                        query: {
-                            ct: "missense_variant"
-                        }
-                    },
-                    {
-                        id: "INDEL LoF",
-                        query: {
-                            type: "INDEL",
-                            ct: "lof"
-                        }
-                    }
-                ],
-                result: {
-                    grid: {}
-                },
-                detail: {}
-            }
-        };
-    }
-
     selectVariantStats(id, defaultQcVariantStats) {
         let qcVariantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(qcVariantStats => qcVariantStats.id === id);
         if (!qcVariantStats && defaultQcVariantStats) {
@@ -525,6 +386,145 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getSaveConfig() {
+        return {
+            title: "Save",
+            icon: "fas fa-save",
+            type: "form",
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                okText: "Save"
+            },
+            display: {
+                style: "margin: 0px 25px 0px 0px",
+                mode: {
+                    type: "modal",
+                    title: "Save Variant Stats",
+                    buttonClass: "btn btn-primary ripple",
+                    disabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
+                },
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultValue: "",
+                defaultLayout: "horizontal"
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            name: "Filter ID",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter ID"
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter description",
+                                rows: 2
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Sample Variant Stats",
+            icon: "fas fa-search",
+            showTitle: false,
+            titleClass: "",
+            titleIcon: "fas fa-user",
+            filter: {
+                title: "Filter",
+                searchButton: true,
+                searchButtonText: "Run",
+                activeFilters: {
+                    alias: {
+                        ct: "Consequence Types"
+                    },
+                    complexFields: [
+                        {id: "genotype", separator: ";"},
+                    ],
+                    hiddenFields: []
+                },
+                sections: [ // sections and subsections, structure and order is respected
+                    {
+                        title: "Filters",
+                        collapsed: false,
+                        filters: [
+                            {
+                                id: "variant-file-sample-filter",
+                                title: "File Quality Filters",
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                // showDepth: application.appConfig === "opencb"
+                            },
+                            {
+                                id: "region",
+                                title: "Genomic Location",
+                                tooltip: tooltips.region
+                            },
+                            // {
+                            //     id: "feature",
+                            //     title: "Feature IDs (gene, SNPs, ...)",
+                            //     tooltip: tooltips.feature
+                            // },
+                            {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: SAMPLE_STATS_BIOTYPES,
+                                tooltip: tooltips.biotype
+                            },
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "type",
+                                title: "Variant Type",
+                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
+                                tooltip: tooltips.type
+                            },
+                            {
+                                id: "consequence-type",
+                                title: "Consequence Type",
+                                tooltip: tooltips.consequenceTypeSelect
+                            }
+                        ]
+                    }
+                ],
+                examples: [
+                    {
+                        id: "Example missense",
+                        active: false,
+                        query: {
+                            ct: "missense_variant"
+                        }
+                    },
+                    {
+                        id: "INDEL LoF",
+                        query: {
+                            type: "INDEL",
+                            ct: "lof"
+                        }
+                    }
+                ],
+                result: {
+                    grid: {}
+                },
+                detail: {}
+            }
+        };
     }
 
 }
