@@ -68,13 +68,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.save = {};
         this.preparedQuery = {};
         this.loading = false;
-        this.errorState = false;
         this.sampleVariantStats = null;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.consequenceTypes = SAMPLE_STATS_CONSEQUENCE_TYPES;
     }
 
@@ -82,15 +77,19 @@ export default class SampleVariantStatsBrowser extends LitElement {
         if ((changedProperties.has("sample") || changedProperties.has("active")) && this.active) {
             this.sampleObserver();
         }
+
         if ((changedProperties.has("sampleId") || changedProperties.has("active")) && this.active) {
             this.sampleIdObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -130,10 +129,12 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
     }
 
-
     settingsObserver() {
         // merging misc 1st level props from settings and then delete useless prop `menu`
-        this._config = {...this.getDefaultConfig(), ...this.settings};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.settings,
+        };
         delete this._config?.menu;
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
@@ -146,7 +147,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onVariantFilterSearch(e) {
+    onVariantFilterSearch(e) {
         this.query = {...e.detail.query};
         this.renderVariantStats();
     }
@@ -159,7 +160,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.renderVariantStats();
     }
 
-    onActiveFilterClear(e) {
+    onActiveFilterClear() {
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
         this.executedQuery = {...this.query};
@@ -169,7 +170,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     async renderVariantStats() {
         this.loading = true;
-        this.errorState = false;
         this.requestUpdate();
         await this.updateComplete;
 
@@ -181,7 +181,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 };
             })
             .catch(response => {
-                // console.log(response);
                 this.sampleQcVariantStats = null;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
@@ -202,7 +201,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
     }
 
-    onSave(e) {
+    onSave() {
         const variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
@@ -233,11 +232,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     title: "Success",
                     message: "Variant Stats saved successfully"
                 });
-                // Swal.fire({
-                //     title: "Success",
-                //     icon: "success",
-                //     html: "Variant Stats saved successfully"
-                // });
             })
             .catch(restResponse => {
                 console.error(restResponse);
@@ -432,11 +426,13 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
 
         return html`
-            ${this.sample && this._config.showTitle ?
-            html`
-                    <tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>` :
-            null
-        }
+            ${this.sample && this._config.showTitle ? html`
+                <tool-header
+                    title="${this._config.title} - ${this.sample.id}"
+                    icon="${this._config.titleIcon}"
+                    class="${this._config.titleClass}">
+                </tool-header>
+            ` : null}
             <div class="row">
                 <div class="col-md-2 left-menu">
                     <div class="search-button-wrapper">
@@ -445,16 +441,17 @@ export default class SampleVariantStatsBrowser extends LitElement {
                             <strong>${this._config.filter.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
-                    <variant-browser-filter .opencgaSession=${this.opencgaSession}
-                                            .query="${this.query}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${this.consequenceTypes}"
-                                            .cohorts="${this.cohorts}"
-                                            .searchButton="${true}"
-                                            .config="${this._config.filter}"
-                                            @queryChange="${this.onVariantFilterChange}"
-                                            @querySearch="${this.onVariantFilterSearch}">
+                    <variant-browser-filter
+                        .opencgaSession="${this.opencgaSession}"
+                        .query="${this.query}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .populationFrequencies="${this.populationFrequencies}"
+                        .consequenceTypes="${this.consequenceTypes}"
+                        .cohorts="${this.cohorts}"
+                        .searchButton="${true}"
+                        .config="${this._config.filter}"
+                        @queryChange="${this.onVariantFilterChange}"
+                        @querySearch="${this.onVariantFilterSearch}">
                     </variant-browser-filter>
                 </div>
 
@@ -471,7 +468,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                     ${this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
                                         this.sample.qualityControl[this._variantStatsPath].variantStats.map(qcVariantStat => html`
                                             <li>
-                                                <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
+                                                <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${() => this.selectVariantStats(qcVariantStat.id)}">
                                                     ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
                                                 </a>
                                             </li>`) :
@@ -480,52 +477,49 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 </ul>
                             </div>
                             <div class="btn-group">
-                                <data-form  .data=${this.save}
-                                            .config="${this.getSaveConfig()}"
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}"
-                                            @submit="${this.onSave}">
+                                <data-form 
+                                    .data=${this.save}
+                                    .config="${this.getSaveConfig()}"
+                                    @fieldChange="${e => this.onSaveFieldChange(e)}"
+                                    @submit="${this.onSave}">
                                 </data-form>
                             </div>
                         </div>
                     </div>
-
                     <div>
-                        <opencga-active-filters resource="VARIANT"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession.study.fqn}"
-                                                .query="${this.preparedQuery}"
-                                                .executedQuery="${this.executedQuery}"
-                                                .alias="${this.activeFilterAlias}"
-                                                .filters="${this._config.filter.examples}"
-                                                .config="${this._config.filter.activeFilters}"
-                                                @activeFilterChange="${this.onActiveFilterChange}"
-                                                @activeFilterClear="${this.onActiveFilterClear}">
+                        <opencga-active-filters
+                            resource="VARIANT"
+                            .opencgaSession="${this.opencgaSession}"
+                            .defaultStudy="${this.opencgaSession.study.fqn}"
+                            .query="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
+                            .alias="${this.activeFilterAlias}"
+                            .filters="${this._config.filter.examples}"
+                            .config="${this._config.filter.activeFilters}"
+                            @activeFilterChange="${this.onActiveFilterChange}"
+                            @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
                         <div class="main-view">
-                            ${this.loading ?
-                                html`
-                                    <div id="loading">
-                                        <loading-spinner></loading-spinner>
-                                    </div>` :
-                                this.sampleQcVariantStats ?
-                                    html`
-                                        <div style="padding: 0px 15px">
-                                            <sample-variant-stats-view  .sampleVariantStats="${this.sampleQcVariantStats}"
-                                                                        .query="${this.sampleQcVariantStats.query}"
-                                                                        .description="${this.sampleQcVariantStats.description}">
-                                            </sample-variant-stats-view>
-                                        </div>` :
-                                    this.errorState ?
-                                        html`
-                                            <div id="error" class="alert alert-danger" role="alert">
-                                                ${this.errorState.messages.map(error => html`<p><b>${error.name}</b></p><p>${error.message}</p>`)}
-                                            </div>` :
-                                        html`
-                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px">
-                                                <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
-                                            </div>`
-                                }
+                            ${this.loading ? html`
+                                <div id="loading">
+                                    <loading-spinner></loading-spinner>
+                                </div>
+                            ` : html`
+                                ${this.sampleQcVariantStats ? html`
+                                    <div style="padding: 0px 15px">
+                                        <sample-variant-stats-view 
+                                            .sampleVariantStats="${this.sampleQcVariantStats}"
+                                            .query="${this.sampleQcVariantStats.query}"
+                                            .description="${this.sampleQcVariantStats.description}">
+                                        </sample-variant-stats-view>
+                                    </div>
+                                ` : html`
+                                    <div class="alert alert-info" role="alert" style="margin: 0px 15px">
+                                        <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                    </div>
+                                `}
+                            `}
                         </div>
                     </div>
                 </div>
