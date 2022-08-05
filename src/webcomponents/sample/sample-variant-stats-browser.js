@@ -439,6 +439,12 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
             <div class="row">
                 <div class="col-md-2 left-menu">
+                    <div class="search-button-wrapper">
+                        <button type="button" class="btn btn-primary btn-block" @click="${() => this.renderVariantStats()}">
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            <strong>${this._config.filter.searchButtonText || "Search"}</strong>
+                        </button>
+                    </div>
                     <variant-browser-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
