@@ -320,7 +320,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                         <div class="pull-right" role="group">
                             <div class="btn-group" style="margin-right: 2px">
-                                <button type="button" class="btn btn-primary ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                             aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
                                     <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
                                 </button>
@@ -403,7 +403,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Save Variant Stats",
-                    buttonClass: "btn btn-primary ripple",
+                    buttonClass: "btn btn-primary",
                     disabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
                 },
                 labelWidth: 3,
