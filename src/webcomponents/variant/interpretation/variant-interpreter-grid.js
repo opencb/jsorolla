@@ -283,6 +283,9 @@ export default class VariantInterpreterGrid extends LitElement {
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeSampleId: "true",
 
+                        // TODO to be enabled once this is supported in OpenCGA
+                        // interpretationId: this.clinicalAnalysis?.interpretation.id,
+
                         approximateCount: true,
                         approximateCountSamplingSize: 500,
 
@@ -303,17 +306,19 @@ export default class VariantInterpreterGrid extends LitElement {
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
-                    // Merge response rows with user information (comments, status, ...) stored in primaryFindings
+                    // Merge response rows with user information (comments, status, ...) stored in the interpretation.primaryFindings
                     if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
                         result.response.rows = result.response.rows.map(row => {
                             if (!this.checkedVariants.has(row.id)) {
                                 return row;
                             }
 
+                            // TODO to be removed once this is returned by OpenCGA
                             // Merge row with comments and other user properties
                             const savedVariant = this.checkedVariants.get(row.id);
                             return {
                                 ...row,
+                                filters: savedVariant.filters,
                                 comments: savedVariant.comments,
                                 status: savedVariant.status,
                                 attributes: savedVariant.attributes,
