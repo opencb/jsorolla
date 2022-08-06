@@ -40,21 +40,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
             query: {
                 type: Object
             },
-            // analyses: {
-            //     type: Array
-            // },
             opencgaSession: {
                 type: Object
             },
             config: {
                 type: Object
             },
+            active: {
+                type: Boolean
+            }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
     }
 
@@ -66,7 +66,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
         }
     }
