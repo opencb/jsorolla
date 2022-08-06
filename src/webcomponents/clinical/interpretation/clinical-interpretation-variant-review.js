@@ -200,11 +200,12 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                         type: "object-list",
                         display: {
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                            // collapsedUpdate: true,
-                            showEditItemListButton: true,
+                            // collapsable: false,
+                            // maxNumItems: 5,
+                            showEditItemListButton: false,
                             showDeleteItemListButton: false,
                             view: comment => html`
-                                <div style="margin-bottom:2rem;">
+                                <div style="margin-bottom:1rem;">
                                     <div style="display:flex;margin-bottom:0.5rem;">
                                         <div style="padding-right:1rem;">
                                             <i class="fas fa-comment-dots"></i>

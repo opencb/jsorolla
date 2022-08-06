@@ -1400,17 +1400,18 @@ export default class DataForm extends LitElement {
         }
 
         // Add the form to create the next item
-        const createHtml = html`
-            <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
-                <label>Create new item</label>
-                ${this._createObjectElement(element)}
-                <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#addToObjectList(e, element)}">Add</button>
-                </div>
-            </div>
-        `;
+        if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
+            const createHtml = html`
+                <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
+                    <label>Create new item</label>
+                    ${this._createObjectElement(element)}
+                    <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#addToObjectList(e, element)}">Add</button>
+                    </div>
+                </div>`;
+            contents.push(createHtml);
+        }
 
-        contents.push(createHtml);
         return contents;
     }
 
@@ -1433,7 +1434,7 @@ export default class DataForm extends LitElement {
         }
 
         // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field]);
+        this.onFilterChange(element, this.data[element.field], "added", this.data[element.field].length - 1);
 
         // TODO clear the nested form
         // ...
@@ -1449,7 +1450,7 @@ export default class DataForm extends LitElement {
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
 
         // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field]);
+        this.onFilterChange(element, this.data[element.field], "updated", index);
     }
 
     #removeFromObjectList(e, item, index, element) {
@@ -1457,10 +1458,10 @@ export default class DataForm extends LitElement {
         this.data[element.field].splice(index, 1);
 
         // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field]);
+        this.onFilterChange(element, this.data[element.field], "removed", index);
     }
 
-    onFilterChange(element, value) {
+    onFilterChange(element, value, objectListAction, objectListIndex) {
         if (element.field.includes("[]")) {
             // Example: [variants, id]
             const [parentArrayField, itemField] = element.field.split("[].");
@@ -1477,11 +1478,15 @@ export default class DataForm extends LitElement {
                 }
             }
         } else {
+            const detail = {
+                param: element.field,
+                value: value
+            };
+            if (objectListAction) {
+                detail[objectListAction] = objectListIndex;
+            }
             this.dispatchEvent(new CustomEvent("fieldChange", {
-                detail: {
-                    param: element.field,
-                    value: value
-                },
+                detail: detail,
                 bubbles: true,
                 composed: true
             }));

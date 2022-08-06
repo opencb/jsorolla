@@ -532,21 +532,23 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                maxNumItems: 2,
-                                showEditItemListButton: true,
+                                // collapsable: false,
+                                // maxNumItems: 5,
+                                showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => html`
-                                    <div>
-                                        <label>
-                                            <i aria-hidden="true" class="fas fa-comment-dots icon-padding"></i>
-                                            <label>${comment?.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            </div>
                                         </div>
-
-                                        <div style="padding: 5px 20px">
-                                            ${comment?.message}
-                                        </div>
-                                        <div style="padding: 5px 20px">
-                                            Tags: ${comment?.tags || "NA"}
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
                                         </div>
                                     </div>
                                 `,
@@ -571,21 +573,21 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             ]
                         },
-                        {
-                            title: "Comments",
-                            field: "comments",
-                            type: "custom",
-                            display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor
-                                        .opencgaSession=${this.opencgaSession}
-                                        .comments="${comments}"
-                                        .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
-                                `,
-                            }
-                        }
+                        // {
+                        //     title: "Comments",
+                        //     field: "comments",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: comments => html`
+                        //             <clinical-analysis-comment-editor
+                        //                 .opencgaSession=${this.opencgaSession}
+                        //                 .comments="${comments}"
+                        //                 .disabled="${!!this.clinicalAnalysis?.locked}"
+                        //                 @commentChange="${e => this.onCommentChange(e)}">
+                        //             </clinical-analysis-comment-editor>
+                        //         `,
+                        //     }
+                        // }
                     ]
                 }
             ]
