@@ -388,21 +388,21 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                 },
                             ]
                         },
-                        {
-                            title: "Comments",
-                            field: "comments",
-                            type: "custom",
-                            display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .comments="${comments}"
-                                        .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
-                                `,
-                            }
-                        }
+                        // {
+                        //     title: "Comments",
+                        //     field: "comments",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: comments => html`
+                        //             <clinical-analysis-comment-editor
+                        //                 .opencgaSession="${this.opencgaSession}"
+                        //                 .comments="${comments}"
+                        //                 .disabled="${!!this.clinicalAnalysis?.locked}"
+                        //                 @commentChange="${e => this.onCommentChange(e)}">
+                        //             </clinical-analysis-comment-editor>
+                        //         `,
+                        //     }
+                        // }
                     ]
                 },
             ]
