@@ -84,7 +84,7 @@ export default class RgaGeneView extends LitElement {
                 }, {
 
                     title: "Recessive Individuals",
-                    field: "individualStats.count,individualStats.numHomAlt,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.missingParents.numCompHet"
+                    field: "individualStats.count,individualStats.numHomAlt,individualStats.numDelOverlap,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.missingParents.numCompHet"
                 }, {
 
                     title: "Recessive Variants",
@@ -243,7 +243,7 @@ export default class RgaGeneView extends LitElement {
                 },
                 {
                     title: "Recessive Individuals",
-                    colspan: 5
+                    colspan: 6
                 },
                 {
                     title: "Recessive Variants",
@@ -269,7 +269,12 @@ export default class RgaGeneView extends LitElement {
                     title: "Homozygous",
                     field: "individualStats.numHomAlt",
                     formatter: value => value > 0 ? value : "-"
+                },
 
+                {
+                    title: "Deletion Overlap",
+                    field: "individualStats.numDelOverlap",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 /* {
                     title: "CH Tot",
@@ -399,7 +404,8 @@ export default class RgaGeneView extends LitElement {
                             [
                                 "Gene",
                                 "Individuals_Total",
-                                "Individuals_Total_HOM",
+                                "Individuals_HOM",
+                                "Individuals_DELETION_OVERLAP",
                                 "Individuals_CH_Definite",
                                 "Individuals_CH_Probable",
                                 "Individuals_CH_Possible",
@@ -411,6 +417,7 @@ export default class RgaGeneView extends LitElement {
                                 _.name,
                                 _.individualStats.count,
                                 _.individualStats.numHomAlt,
+                                _.individualStats.numDelOverlap,
                                 _.individualStats.bothParents.numCompHet,
                                 _.individualStats.singleParent.numCompHet,
                                 _.individualStats.missingParents.numCompHet,

@@ -201,9 +201,9 @@ export default class RgaVariantIndividual extends LitElement {
             const round = Math.pow(10, totalRows.toString().length - 2);
             res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>~${Number((Math.round(totalRows/round))*round).toLocaleString()}</b> records `;
         }
-        if (this.hiddenIndividuals) {
+        /* if (this.hiddenIndividuals) {
             tooltip += (this.isApproximateCount ? "<br>" : "") + `${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.`;
-        }
+        }*/
         if (tooltip) {
             res += ` <a tooltip-title="Warning" tooltip-text='${tooltip}'> <i class="fas fa-exclamation-circle text-muted"></i></a>`;
         }

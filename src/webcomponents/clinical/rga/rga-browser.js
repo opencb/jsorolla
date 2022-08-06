@@ -277,7 +277,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "knockoutType",
                                 name: "Knockout Type",
-                                allowedValues: [{id: "COMP_HET", name: "Compound Heterozygous"}, {id: "HOM_ALT", name: "Homozygous"}]
+                                allowedValues: [{id: "COMP_HET", name: "Compound Heterozygous"}, {id: "HOM_ALT", name: "Homozygous"}, {id: "DELETION_OVERLAP", name: "Deletion Overlap"}]
                             }
                         ]
                     },
