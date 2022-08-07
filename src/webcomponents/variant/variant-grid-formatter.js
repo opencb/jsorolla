@@ -1012,10 +1012,10 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
-                                        .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                                        .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
-                                        .join("")
-                                    }
+                            .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                            .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                            .join("")
+                        }
                                 </div>
                             </div>`;
                     }
@@ -1049,10 +1049,10 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${histologies?.size > 0 && Array.from(histologies.values())
-                                        .filter(histology => histology && histology !== "null")
-                                        .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
-                                        .join("")
-                                    }
+                            .filter(histology => histology && histology !== "null")
+                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .join("")
+                        }
                                 </div>
                             </div>`;
                     }
@@ -1199,24 +1199,117 @@ export default class VariantGridFormatter {
         }
     }
 
-    // TODO Remove since it is DEPRECATED
-    // addTooltip(selector, title, content, config) {
-    //     $(selector).qtip({
-    //         content: {
-    //             title: title,
-    //             text: function (event, api) {
-    //                 if (UtilsNew.isNotEmpty(content)) {
-    //                     return content;
-    //                 } else {
-    //                     return $(this).attr("data-tooltip-text");
-    //                 }
-    //             }
-    //         },
-    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-    //         style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-    //         show: {delay: 200},
-    //         hide: {fixed: true, delay: 300}
-    //     });
-    // }
+    static reportedVariantFormatter(value, variant, index) {
+        return `
+            ${variant.interpretations?.length > 0 ? `
+                <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
+                <div class="text-muted">
+                    <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
+                    <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
+                </div>` : `
+                <div>No cases found</div>`
+        }
+        `;
+    }
+
+    static reportedVariantDetailFormatter(value, row, opencgaSession) {
+        if (row?.interpretations?.length > 0) {
+            let reportedHtml = `
+                <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Interpretation</th>
+                            <th rowspan="2">Disease Panel</th>
+                            <th rowspan="2">Status</th>
+                            <th rowspan="2">Discussion</th>
+                            <th rowspan="1" colspan="5" style="text-align: center; padding-top: 5px; padding-right: 2px">Evidences</th>
+                        </tr>
+                        <tr style="margin: 5px">
+                            <th rowspan="1" style="padding-top: 5px">Gene</th>
+                            <th rowspan="1">Transcript</th>
+                            <th rowspan="1">ACMG</th>
+                            <th rowspan="1">Tier</th>
+                            <th rowspan="1">Clinical Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            for (const interpretation of row.interpretations) {
+                // Prepare data info for columns
+                const caseId = interpretation.id.split(".")[0];
+                const interpretationIdHtml = `
+                    <div>
+                        <label>
+                            ${caseId}
+                       </label>
+                    </div>
+                `;
+
+                const panelsHtml = `
+                    <div>
+                        ${interpretation.panels?.map(panel => {
+                            if (panel?.source?.project === "PanelApp") {
+                                return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
+                            } else {
+                                return `<span>${panel.name || "-"}</span>`;
+                            }
+                        })?.join("<br>")}
+                    </div>`;
+
+                const interpretedVariant = interpretation.primaryFindings.find(variant => variant.id === row.id);
+                const statusHtml = `
+                    <div>
+                        ${interpretedVariant.status || "-"}
+                    </div>`;
+                const discussionHtml = `
+                    <div>
+                        ${interpretedVariant?.discussion?.text || "-"}
+                    </div>`;
+
+                const genes = [];
+                const transcripts = [];
+                const acmgClassifications = [];
+                const tierClassifications = [];
+                const clinicalSignificances = [];
+                for (const evidence of interpretedVariant.evidences.filter(ev => ev.review.select)) {
+                    genes.push(`
+                        <a href="${BioinfoUtils.getGeneLink(evidence.genomicFeature.geneName, "HGNC")}" target="_blank">
+                            ${evidence.genomicFeature.geneName}
+                        </a>
+                    `);
+                    transcripts.push(`
+                        <a href="${BioinfoUtils.getTranscriptLink(evidence.genomicFeature.transcriptId)}" target="_blank">
+                            ${evidence.genomicFeature.transcriptId}
+                        </a>
+                    `);
+                    acmgClassifications.push(evidence.review.acmg?.join(", ")|| "-");
+                    tierClassifications.push(evidence.review.tier || "-");
+                    clinicalSignificances.push(`
+                        <span style="color:${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance?.toUpperCase()]?.color || "black"}">
+                            ${evidence.review.clinicalSignificance || "-"}
+                        </span>
+                    `);
+                }
+
+                // Create the table row
+                reportedHtml += `
+                    <tr class="detail-view-row">
+                        <td>${interpretationIdHtml}</td>
+                        <td>${interpretation?.panels?.length > 0 ? panelsHtml : "-"}</td>
+                        <td>${statusHtml}</td>
+                        <td>${discussionHtml}</td>
+
+                        <td>${genes.length > 0 ? genes.join("<br>") : "-"}</td>
+                        <td>${transcripts.length > 0 ? transcripts.join("<br>") : "-"}</td>
+                        <td>${acmgClassifications.length > 0 ? acmgClassifications.join("<br>") : "-"}</td>
+                        <td>${tierClassifications.length > 0 ? tierClassifications.join("<br>") : "-"}</td>
+                        <td>${clinicalSignificances.length > 0 ? clinicalSignificances.join("<br>") : "-"}</td>
+                   </tr>`;
+            }
+            reportedHtml += "</tbody></table>";
+            return reportedHtml;
+        }
+        return "-";
+    }
 
 }

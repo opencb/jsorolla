@@ -294,9 +294,72 @@ export default class VariantInterpreterGrid extends LitElement {
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(this.filters)
-                        .then(res => {
-                            this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-                            params.success(res);
+                        .then(variantQueryResponse => {
+                            this.isApproximateCount = variantQueryResponse.responses[0].attributes?.approximateCount ?? false;
+
+                            // FIXME Temporary code to check which variants are being interpreted or have been reported
+                            // This should be implemented by OpenCGA
+                            const variantIds = variantQueryResponse.responses[0].results.map(variant => variant.id);
+                            this.opencgaSession.opencgaClient.clinical().searchInterpretation({primaryFindings: variantIds.join(","), study: this.opencgaSession.study.fqn})
+                                .then(interpretationSearchResponse => {
+                                    const interpretations = interpretationSearchResponse.responses[0]?.results;
+                                    if (interpretations?.length > 0) {
+                                        // Prepare queried variants to contain the interpretations
+                                        const queriedVariants = {};
+                                        variantQueryResponse.responses[0].results
+                                            .forEach(variant => queriedVariants[variant.id] = variant);
+
+                                        // Add interpretations to the variants to be returned
+                                        for (const interpretation of interpretations) {
+                                            for (const variant of interpretation.primaryFindings) {
+                                                if (queriedVariants[variant.id]) {
+                                                    if (!queriedVariants[variant.id].interpretations) {
+                                                        queriedVariants[variant.id].interpretations = [];
+                                                    }
+                                                    queriedVariants[variant.id].interpretations.push(interpretation);
+                                                }
+                                            }
+                                        }
+
+                                        // Calculate stats
+                                        for (const variant of variantQueryResponse.responses[0].results) {
+                                            if (variant.interpretations) {
+                                                variant.interpretationStats = {
+                                                    status: {},
+                                                    tier: {},
+                                                    clinicalSignificance: {},
+                                                };
+                                                for (const interpretation of variant.interpretations) {
+                                                    interpretation?.primaryFindings
+                                                        ?.filter(primaryFinding => primaryFinding.id === variant.id)
+                                                        .forEach(primaryFinding => {
+                                                            // Status stats
+                                                            if (!variant.interpretationStats.status[primaryFinding.status]) {
+                                                                variant.interpretationStats.status[primaryFinding.status] = 0;
+                                                            }
+                                                            variant.interpretationStats.status[primaryFinding.status]++;
+
+                                                            // Tier stats
+                                                            primaryFinding.evidences
+                                                                .filter(evidence => evidence.review.tier)
+                                                                .forEach(evidence => {
+                                                                    if (!variant.interpretationStats.tier[evidence.review.tier]) {
+                                                                        variant.interpretationStats.tier[evidence.review.tier] = 0;
+                                                                    }
+                                                                    variant.interpretationStats.tier[evidence.review.tier]++;
+                                                                });
+                                                        });
+                                                }
+                                            }
+                                        }
+                                    }
+                                    params.success(variantQueryResponse);
+                                })
+                                .catch(e => params.error(e))
+                                .finally(() => {
+                                    LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                                });
+                            // params.success(variantQueryResponse);
                         })
                         .catch(e => params.error(e))
                         .finally(() => {
@@ -544,6 +607,11 @@ export default class VariantInterpreterGrid extends LitElement {
             detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, variant, this, this.query, this.review, this._config);
             detailHtml += "</div>";
 
+            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Reported Cases</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, row, this.opencgaSession);
+            detailHtml += "</div>";
+
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this, this.query, this._config, this.opencgaSession.project.organism.assembly);
@@ -752,7 +820,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                     halign: "center"
                 },
                 {
@@ -878,6 +946,16 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: !this._config.hideClinicalInfo,
                 },
                 // Interpretation Column
+                {
+                    id: "reported",
+                    title: `Interpreted and/or<br> Reported`,
+                    // field: "prediction",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: VariantGridFormatter.reportedVariantFormatter,
+                    align: "center",
+                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
                 {
                     id: "prediction",
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
@@ -1335,9 +1413,9 @@ export default class VariantInterpreterGrid extends LitElement {
             return [
                 {
                     render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
+                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                        </button>`
                 }
             ];
         }
@@ -1374,7 +1452,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1397,7 +1475,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1421,7 +1499,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
