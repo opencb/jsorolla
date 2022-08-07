@@ -220,9 +220,9 @@ export default class ClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.assignee",
+                            field: "analyst.id",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee"),
+                                visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
                             },
                         },
                         {
