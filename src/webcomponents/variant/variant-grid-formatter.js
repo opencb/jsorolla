@@ -1012,10 +1012,10 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
-                                        .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                                        .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
-                                        .join("")
-                                    }
+                            .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                            .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                            .join("")
+                        }
                                 </div>
                             </div>`;
                     }
@@ -1049,10 +1049,10 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${histologies?.size > 0 && Array.from(histologies.values())
-                                        .filter(histology => histology && histology !== "null")
-                                        .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
-                                        .join("")
-                                    }
+                            .filter(histology => histology && histology !== "null")
+                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .join("")
+                        }
                                 </div>
                             </div>`;
                     }
@@ -1199,24 +1199,17 @@ export default class VariantGridFormatter {
         }
     }
 
-    // TODO Remove since it is DEPRECATED
-    // addTooltip(selector, title, content, config) {
-    //     $(selector).qtip({
-    //         content: {
-    //             title: title,
-    //             text: function (event, api) {
-    //                 if (UtilsNew.isNotEmpty(content)) {
-    //                     return content;
-    //                 } else {
-    //                     return $(this).attr("data-tooltip-text");
-    //                 }
-    //             }
-    //         },
-    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-    //         style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-    //         show: {delay: 200},
-    //         hide: {fixed: true, delay: 300}
-    //     });
-    // }
+    static reportedVariantFormatter(value, variant, index) {
+        return `
+            ${variant.interpretations?.length > 0 ? `
+                <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
+                <div class="text-muted">
+                    <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
+                    <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
+                </div>` : `
+                <div>No cases found</div>`
+            }
+        `;
+    }
 
 }
