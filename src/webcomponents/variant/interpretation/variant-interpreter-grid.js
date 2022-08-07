@@ -609,7 +609,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Reported Cases</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, row, this, this.query, this._config);
+            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, row, this.opencgaSession);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";

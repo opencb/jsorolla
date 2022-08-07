@@ -1212,7 +1212,7 @@ export default class VariantGridFormatter {
         `;
     }
 
-    static reportedVariantDetailFormatter(value, row, variantGrid, query, filter) {
+    static reportedVariantDetailFormatter(value, row, opencgaSession) {
         if (row?.interpretations?.length > 0) {
             let reportedHtml = `
                 <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
@@ -1236,21 +1236,24 @@ export default class VariantGridFormatter {
 
             for (const interpretation of row.interpretations) {
                 // Prepare data info for columns
+                const caseId = interpretation.id.split(".")[0];
                 const interpretationIdHtml = `
                     <div>
-                        <label>${interpretation.id}</label>
+                        <label>
+                            ${caseId}
+                       </label>
                     </div>
                 `;
 
                 const panelsHtml = `
                     <div>
-                        ${interpretation.panels.map(panel => {
+                        ${interpretation.panels?.map(panel => {
                             if (panel?.source?.project === "PanelApp") {
                                 return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
                             } else {
                                 return `<span>${panel.name || "-"}</span>`;
                             }
-                        }).join("<br>")}
+                        })?.join("<br>")}
                     </div>`;
 
                 const interpretedVariant = interpretation.primaryFindings.find(variant => variant.id === row.id);
@@ -1292,7 +1295,7 @@ export default class VariantGridFormatter {
                 reportedHtml += `
                     <tr class="detail-view-row">
                         <td>${interpretationIdHtml}</td>
-                        <td>${panelsHtml}</td>
+                        <td>${interpretation?.panels?.length > 0 ? panelsHtml : "-"}</td>
                         <td>${statusHtml}</td>
                         <td>${discussionHtml}</td>
 
