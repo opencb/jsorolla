@@ -172,6 +172,7 @@ export default class StudyAdminVariable extends LitElement {
         return html`
             <div style="margin: 20px">
                 <detail-tabs
+                    .data="${{}}"
                     .config="${this._config}"
                     .mode=${DetailTabs.PILLS_MODE}
                     .opencgaSession="${this.opencgaSession}">

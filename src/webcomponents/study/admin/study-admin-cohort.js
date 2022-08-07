@@ -177,6 +177,7 @@ export default class StudyAdminCohort extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
+                        .data="${{}}"
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
                         .opencgaSession="${this.opencgaSession}">

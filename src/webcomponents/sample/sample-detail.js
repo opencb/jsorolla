@@ -85,14 +85,18 @@ export default class SampleDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.sample ?
-            html`
-                <detail-tabs
-                    .data="${this.sample}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>
-            ` : null;
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.sample}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+            `;
     }
 
     getDefaultConfig() {
@@ -126,7 +130,7 @@ export default class SampleDetail extends LitElement {
                     id: "file-view",
                     name: "Files",
                     render: (sample, active, opencgaSession) => {
-                        return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></opencga-file-grid>`;
+                        return html`<file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></file-grid>`;
                     }
                 }
             ]

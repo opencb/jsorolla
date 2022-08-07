@@ -253,12 +253,12 @@ export default class SampleBrowser extends LitElement {
                             id: "file-view",
                             name: "Files",
                             render: (sample, active, opencgaSession) => html`
-                                <opencga-file-grid
+                                <file-grid
                                     .query="${{sampleIds: sample.id}}"
                                     .active="${active}"
                                     .config="${{downloadFile: this.config.downloadFile}}"
                                     .opencgaSession="${opencgaSession}">
-                                </opencga-file-grid>
+                                </file-grid>
                             `,
                         },
                         {

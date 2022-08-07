@@ -99,6 +99,11 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     render() {
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
         if (!this.variant?.annotation && !Array.isArray(this.variant)) {
             return;
         }
