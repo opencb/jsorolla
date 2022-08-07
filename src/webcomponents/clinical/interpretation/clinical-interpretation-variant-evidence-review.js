@@ -171,6 +171,65 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         },
                     },
                     {
+                        title: "ACMG",
+                        field: "acmg",
+                        type: "object-list",
+                        display: {
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            // collapsable: false,
+                            // maxNumItems: 5,
+                            showEditItemListButton: true,
+                            showDeleteItemListButton: true,
+                            view: acmg => html`
+                                <div style="margin-bottom:1rem;">
+                                    <div style="display:flex;margin-bottom:0.5rem;">
+                                        <div style="font-weight:bold">
+                                            ${acmg.author || "-"} - ${UtilsNew.dateFormatter(acmg.date)}
+                                        </div>
+                                    </div>
+                                    <div style="width:100%;">
+                                        <div style="margin-bottom:0.5rem;">${acmg.comment || acmg}</div>
+                                    </div>
+                                </div>
+                                `,
+                        },
+                        elements: [
+                            {
+                                title: "Message",
+                                field: "acmg[].classification",
+                                type: "custom",
+                                display: {
+                                    visible: !this.somatic,
+                                    render: (acmg, dataFormFilterChange) => html`
+                                        <acmg-filter
+                                            .acmg="${acmg || []}"
+                                            .multiple="${false}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value?.[0])}">
+                                        </acmg-filter>
+                                    `,
+                                    defaultValue: [],
+                                }
+                            },
+                            {
+                                title: "Strength",
+                                field: "acmg[].strength",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Add strength..."
+                                }
+                            },
+                            {
+                                title: "Message",
+                                field: "acmg[].comment",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Add comment...",
+                                    rows: 3
+                                }
+                            },
+                        ]
+                    },
+                    {
                         title: "Discussion",
                         field: "discussion.text",
                         type: "input-text",
