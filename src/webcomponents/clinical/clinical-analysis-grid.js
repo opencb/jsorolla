@@ -40,21 +40,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
             query: {
                 type: Object
             },
-            // analyses: {
-            //     type: Array
-            // },
             opencgaSession: {
                 type: Object
             },
             config: {
                 type: Object
             },
+            active: {
+                type: Boolean
+            }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
     }
 
@@ -66,7 +66,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
         }
     }
@@ -677,25 +681,24 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     download(restResponse, format = "JSON") {
         const result = restResponse.getResults();
-        let dataString;
         if (result) {
             // Check if user clicked in Tab or JSON format
-            if (format?.toLowerCase() === "tab") {
-                dataString = [
+            if (format?.toUpperCase() === "TAB") {
+                const dataString = [
                     ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretation IDs", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
-                    ...result.map(_ => [
-                        _.id,
-                        _.proband.id,
-                        _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "-",
-                        _?.disorder?.id ?? "-",
-                        _.type ?? "-",
-                        _.interpretation?.id ? `${_.interpretation.id}(primary)${_.secondaryInterpretations.length ? (", " + _.secondaryInterpretations.map(s => s.id).join(", ")) : ""}` : "-",
-                        _.status?.id ?? "-",
-                        _.priority?.id ?? "-",
-                        _.analyst?.assignee ?? "-",
-                        _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
-                    ].join("\t"))];
-
+                    ...result.map(row => [
+                        row.id,
+                        row.proband.id,
+                        row.family?.id && row.family?.members?.length ? `${row.family.id} (${row.family.members.length})` : "-",
+                        row.disorder?.id ?? "-",
+                        row.type ?? "-",
+                        row.interpretation?.id ? [`${row.interpretation.id} (primary)`, ...(row.secondaryInterpretations || []).map(s => s.id)].join(", ") : "-",
+                        row.status?.id ?? "-",
+                        row.priority?.id ?? "-",
+                        row.analyst?.id ?? "-",
+                        row.creationDate ? CatalogGridFormatter.dateFormatter(row.creationDate) : "-"
+                    ].join("\t")),
+                ];
                 UtilsNew.downloadData([dataString.join("\n")], result[0].id + ".tsv", "text/plain");
             } else {
                 const json = JSON.stringify(result, null, "\t");

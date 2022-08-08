@@ -60,6 +60,7 @@ export default class UserProfile extends LitElement {
                     </div>
                     <div class="col-md-8">
                         <detail-tabs
+                            .data="${{}}"
                             .config="${this.config}"
                             .opencgaSession="${this.opencgaSession}">
                         </detail-tabs>

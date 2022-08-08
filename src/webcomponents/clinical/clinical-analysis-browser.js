@@ -59,7 +59,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
 
@@ -67,24 +67,23 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     settingsObserver() {
-        const defaultConfig = this.getDefaultConfig();
         this._config = {
-            ...defaultConfig,
+            ...this.getDefaultConfig(),
             ...(this.settings || {}),
             ...(this.config || {})
         };
 
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(defaultConfig.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config.filter, this.settings);
         }
 
         if (this.settings?.table) {
             this._config.filter.result.grid = {
-                ...defaultConfig.filter.result.grid,
+                ...this._config.filter.result.grid,
                 ...this.settings.table,
                 toolbar: {
-                    ...defaultConfig.filter.result.grid.toolbar,
+                    ...this._config.filter.result.grid.toolbar,
                     ...(this.settings.table.toolbar || {}),
                 },
             };

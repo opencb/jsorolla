@@ -65,15 +65,12 @@ export default class IndividualUpdate extends LitElement {
     }
 
     update(changedProperties) {
-
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -134,6 +131,16 @@ export default class IndividualUpdate extends LitElement {
                     this.updateParams,
                     param,
                     e.detail.value);
+                break;
+            case "phenotypes": // arrays
+            case "disorders": // arrays
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._individual,
+                    this.individual,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
                 break;
         }
         this.requestUpdate();
@@ -420,81 +427,202 @@ export default class IndividualUpdate extends LitElement {
                         }
                     ]
                 },
+                // {
+                //     title: "Phenotypes",
+                //     elements: [
+                //         {
+                //             title: "Phenotype",
+                //             field: "phenotypes",
+                //             type: "custom-list",
+                //             display: {
+                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                //                 collapsedUpdate: true,
+                //                 renderUpdate: (pheno, callback) => {
+                //                     return html`
+                //                         <ontology-term-annotation-update
+                //                             .ontology="${pheno}"
+                //                             .entity="${"phenotype"}"
+                //                             .displayConfig="${{
+                //                                 defaultLayout: "vertical",
+                //                                 buttonOkText: "Save",
+                //                                 buttonClearText: "",
+                //                             }}"
+                //                             @updateItem="${callback}">
+                //                         </ontology-term-annotation-update>
+                //                     `;
+                //                 },
+                //                 renderCreate: (pheno, callback) => html`
+                //                     <label>Create new item</label>
+                //                     <ontology-term-annotation-create
+                //                         .entity="${"phenotype"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Add",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @addItem="${callback}">
+                //                     </ontology-term-annotation-create>
+                //                 `,
+                //             }
+                //         },
+                //     ]
+                // },
                 {
                     title: "Phenotypes",
                     elements: [
                         {
-                            title: "Phenotype",
+                            title: "Phenotypes",
                             field: "phenotypes",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (pheno, callback) => {
-                                    return html`
-                                        <ontology-term-annotation-update
-                                            .ontology="${pheno}"
-                                            .entity="${"phenotype"}"
-                                            .displayConfig="${{
-                                                defaultLayout: "vertical",
-                                                buttonOkText: "Save",
-                                                buttonClearText: "",
-                                            }}"
-                                            @updateItem="${callback}">
-                                        </ontology-term-annotation-update>
-                                    `;
-                                },
-                                renderCreate: (pheno, callback) => html`
-                                    <label>Create new item</label>
-                                    <ontology-term-annotation-create
-                                        .entity="${"phenotype"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </ontology-term-annotation-create>
+                                view: pheno => html`
+                                    <div>${pheno.id} - ${pheno?.name}</div>
                                 `,
-                            }
+                            },
+                            elements: [
+                                {
+                                    title: "Phenotype ID",
+                                    field: "phenotypes[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    }
+                                },
+                                {
+                                    title: "name",
+                                    field: "phenotypes[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    }
+                                },
+                                {
+                                    title: "Source",
+                                    field: "phenotypes[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    }
+                                },
+                                {
+                                    title: "Age of onset",
+                                    field: "phenotypes[].ageOfOnset",
+                                    type: "input-num",
+                                    display: {
+                                        placeholder: "Add an age of onset..."
+                                    }
+                                },
+                                {
+                                    title: "Status",
+                                    field: "phenotypes[].status",
+                                    type: "select",
+                                    allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                                    display: {
+                                        placeholder: "Select a status..."
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "phenotypes[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
                     ]
                 },
+                // {
+                //     title: "Disorders",
+                //     elements: [
+                //         {
+                //             title: "Disorder",
+                //             field: "disorders",
+                //             type: "custom-list",
+                //             display: {
+                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                //                 collapsedUpdate: true,
+                //                 renderUpdate: (disorder, callback) => html`
+                //                     <ontology-term-annotation-update
+                //                         .ontology="${disorder}"
+                //                         .entity="${"disorder"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Save",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @updateItem="${callback}">
+                //                     </ontology-term-annotation-update>
+                //                 `,
+                //                 renderCreate: (disorder, callback) => html`
+                //                     <label>Create new item</label>
+                //                     <ontology-term-annotation-create
+                //                         .entity="${"disorder"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Add",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @addItem="${callback}">
+                //                     </ontology-term-annotation-create>
+                //                 `,
+                //             }
+                //         },
+                //     ]
+                // },
                 {
                     title: "Disorders",
                     elements: [
                         {
-                            title: "Disorder",
+                            title: "Disorders",
                             field: "disorders",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (disorder, callback) => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${disorder}"
-                                        .entity="${"disorder"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </ontology-term-annotation-update>
+                                view: disorder => html`
+                                    <div>${disorder.id} - ${disorder?.name}</div>
                                 `,
-                                renderCreate: (disorder, callback) => html`
-                                    <label>Create new item</label>
-                                    <ontology-term-annotation-create
-                                        .entity="${"disorder"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </ontology-term-annotation-create>
-                                `,
-                            }
+                            },
+                            elements: [
+                                {
+                                    title: "Disorder ID",
+                                    field: "disorders[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    }
+                                },
+                                {
+                                    title: "name",
+                                    field: "disorders[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    }
+                                },
+                                {
+                                    title: "Source",
+                                    field: "disorders[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "disorders[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
                     ]
                 },

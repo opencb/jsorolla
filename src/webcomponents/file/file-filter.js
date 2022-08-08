@@ -276,4 +276,4 @@ export default class OpencgaFileFilter extends LitElement {
 
 }
 
-customElements.define("opencga-file-filter", OpencgaFileFilter);
+customElements.define("file-filter", OpencgaFileFilter);

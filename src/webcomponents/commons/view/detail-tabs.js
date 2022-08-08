@@ -151,6 +151,17 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
+
+        // If data is undefined or null
+        if (!this.data) {
+            if (this._config?.errorMessage) {
+                return html`<h3>${this._config?.errorMessage}</h3>`;
+            } else {
+                console.log("Detail Tabs: No Data");
+                return "";
+            }
+        }
+
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
             return html`
                 <h3>No valid mode: '${this.mode || ""}'</h3>

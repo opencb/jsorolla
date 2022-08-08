@@ -302,7 +302,7 @@ export default class VariantFileInfoFilter extends LitElement {
         const splits = e.detail.param.split(".");
         // Caller name can be a file name and contain dots, we join all parts but last one.
         const caller = splits.slice(0, -1).join(".");
-        const field = splits.slice(-1);
+        const field = splits.slice(-1)[0];
         const value = e.detail.value;
 
         // Check if this is the first filter of this caller
@@ -313,6 +313,15 @@ export default class VariantFileInfoFilter extends LitElement {
         // ADD, UPDATE or DELETE the field
         if (value) {
             this.fileDataQuery[caller][field] = value;
+
+            // Fix categorical fields (related to TASK-1458)
+            const callerInfo = this.callers?.find(c => c.id === caller);
+            if (callerInfo) {
+                const fieldInfo = callerInfo.dataFilters?.find(f => f.id === field);
+                if (fieldInfo && fieldInfo.type === "CATEGORICAL") {
+                    this.fileDataQuery[caller][field] = "=" + value;
+                }
+            }
         } else {
             delete this.fileDataQuery[caller][field];
             // If not filter left we delete the caller section

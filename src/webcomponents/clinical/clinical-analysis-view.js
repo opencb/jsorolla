@@ -179,12 +179,13 @@ export default class ClinicalAnalysisView extends LitElement {
                         {
                             title: "Flags",
                             field: "flags",
-                            type: "list",
+                            type: "custom",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("flags"),
-                                contentLayout: "horizontal",
-                                render: field => html`
-                                    <span class="badge badge-secondary">${field?.id}</span>
+                                render: flags => html`
+                                    ${flags.map(flag => html`
+                                        <span class="badge badge-secondary">${flag?.id || "-"}</span>
+                                    `)}
                                 `,
                             }
                         },
@@ -219,9 +220,9 @@ export default class ClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.assignee",
+                            field: "analyst.id",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee"),
+                                visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
                             },
                         },
                         {
