@@ -15,8 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -71,12 +69,6 @@ class CaseSteinerReport extends LitElement {
         this._ready = false;
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     update(changedProperties) {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -84,6 +76,13 @@ class CaseSteinerReport extends LitElement {
 
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         super.update(changedProperties);
