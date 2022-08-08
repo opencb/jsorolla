@@ -878,4 +878,23 @@ export default class UtilsNew {
         return UtilsNew.importFile(url).then(content => content && JSON.parse(content) || null);
     }
 
+    // Convert an SVG to PNG
+    static convertSvgToPng(svgElement) {
+        return new Promise((resolve, reject) => {
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const canvas = document.createElement("canvas");
+            canvas.width = svgElement.getAttribute("width");
+            canvas.height = svgElement.getAttribute("height");
+            const ctx = canvas.getContext("2d");
+            const img = document.createElement("img");
+
+            img.setAttribute("src", `data:image/svg+xml;base64,${window.btoa(svgString)}`);
+            img.addEventListener("load", () => {
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL("image/png"));
+            });
+            img.addEventListener("error", e => reject(e));
+        });
+    }
+
 }
