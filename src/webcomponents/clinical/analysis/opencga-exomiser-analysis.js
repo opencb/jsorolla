@@ -19,7 +19,7 @@ import UtilsNew from "./../../../core/utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaRdTieringAnalysis extends LitElement {
+export default class OpencgaExomiserAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -58,7 +58,6 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
         }
         super.update(changedProperties);
     }
@@ -74,17 +73,17 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "rd-tiering",
+            id: "exomiser",
             // title: `${this.title ?? "RD Tiering"}`,
             icon: "",
             requires: "2.0.0",
-            description: "Tiering GEL-based",
+            description: "",
             links: [
-                {
-                    title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
-                    icon: ""
-                }
+                // {
+                //     title: "OpenCGA",
+                //     url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
+                //     icon: ""
+                // }
             ],
             form: {
                 sections: [
@@ -99,41 +98,11 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                                 showList: true
                             }
                         ]
-                    },
-                    {
-                        title: "Configuration Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "panels",
-                                title: "Select disease panels",
-                                type: "DISEASE_PANEL_FILTER",
-                                showList: true
-                            },
-                            {
-                                id: "penetrance",
-                                title: "Select penetrance",
-                                type: "category",
-                                defaultValue: "UNKNOWN",
-                                allowedValues: ["COMPLETE", "INCOMPLETE", "UNKNOWN"],
-                                multiple: false,
-                            },
-                            {
-                                id: "secondary",
-                                title: "Save as secondary",
-                                type: "boolean",
-                            },
-                            {
-                                id: "index",
-                                title: "Index result",
-                                type: "boolean",
-                            }
-                        ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "rd-tiering-$DATE",
+                    id: "exomiser-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -143,7 +112,7 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.clinical().runTiering(data, params);
+                opencgaSession.opencgaClient.clinical().runInterpreterExomiser(data, params);
             },
             result: {
             }
@@ -152,4 +121,4 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
 
 }
 
-customElements.define("opencga-rd-tiering-analysis", OpencgaRdTieringAnalysis);
+customElements.define("opencga-exomiser-analysis", OpencgaExomiserAnalysis);
