@@ -217,12 +217,14 @@ export default class FilePreview extends LitElement {
             <div class="row">
                 <div class="col-md-12">
                     ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
-                        <div style="margin: 25px 0 5px 0">
-                            <label>
-                                <span>${fileWithContent.name}</span>
-                                <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
-                            </label>
-                        </div>
+                        ${this._config.showFileTitle ? html `
+                            <div style="margin: 25px 0 5px 0">
+                                <label>
+                                    <span>${fileWithContent.name}</span>
+                                    <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                </label>
+                            </div>
+                        ` : null}
 
                         ${fileWithContent.contentType === "unsupported" ? html`
                             <p class="alert alert-warning">${fileWithContent.content}</p>
@@ -247,7 +249,9 @@ export default class FilePreview extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            showFileTitle: true,
+        };
     }
 
 }
