@@ -78,9 +78,8 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     render() {
-        if (!this.file) {
-            return html`
-                <div class="alert alert-info" style="margin-top:12px"><i class="fas fa-3x fa-info-circle align-middle"></i> File not found.</div>`;
+        if (!this.opencgaSession) {
+            return "";
         }
 
         return html`
@@ -126,4 +125,4 @@ export default class OpencgaFileDetail extends LitElement {
 
 }
 
-customElements.define("opencga-file-detail", OpencgaFileDetail);
+customElements.define("file-detail", OpencgaFileDetail);

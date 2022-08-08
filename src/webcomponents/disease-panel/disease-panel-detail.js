@@ -83,14 +83,18 @@ export default class DiseasePanelDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.diseasePanel ?
-            html`
-                <detail-tabs
-                    .data="${this.diseasePanel}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>
-            ` : null;
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.diseasePanel}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
     }
 
     getDefaultConfig() {

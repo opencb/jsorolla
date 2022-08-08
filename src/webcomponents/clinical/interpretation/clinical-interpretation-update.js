@@ -169,6 +169,16 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 this.updateParams = FormUtils
                     .updateObjectArray(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value, e.detail.data);
                 break;
+            case "comments":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._interpretation,
+                    this.interpretation,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+                this.updateParams.comments = this.updateParams.comments.filter(comment => !comment.author);
+                break;
         }
         // Enable this only when a dynamic property in the config can change
         // this.config = this.getDefaultConfig();
@@ -334,18 +344,65 @@ export default class ClinicalInterpretationCreate extends LitElement {
                         {
                             title: "Comments",
                             field: "comments",
-                            type: "custom",
+                            type: "object-list",
                             display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .comments="${comments}"
-                                        .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // collapsable: false,
+                                // maxNumItems: 5,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => html`
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            </div>
+                                        </div>
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                        </div>
+                                    </div>
                                 `,
-                            }
-                        }
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ]
+                        },
+                        // {
+                        //     title: "Comments",
+                        //     field: "comments",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: comments => html`
+                        //             <clinical-analysis-comment-editor
+                        //                 .opencgaSession="${this.opencgaSession}"
+                        //                 .comments="${comments}"
+                        //                 .disabled="${!!this.clinicalAnalysis?.locked}"
+                        //                 @commentChange="${e => this.onCommentChange(e)}">
+                        //             </clinical-analysis-comment-editor>
+                        //         `,
+                        //     }
+                        // }
                     ]
                 },
             ]

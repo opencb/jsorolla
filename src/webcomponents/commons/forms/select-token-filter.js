@@ -76,7 +76,7 @@ export default class SelectTokenFilter extends LitElement {
                     return {
                         results: this._config.preprocessResults(restResponse.getResults()),
                         pagination: {
-                            more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            more: !this._config.disablePagination && (_params.page * this._config.limit) < restResponse.getResponse().numMatches,
                         }
                     };
                 }
@@ -192,6 +192,7 @@ export default class SelectTokenFilter extends LitElement {
         return {
             separator: [","],
             limit: 10,
+            disablePagination: false,
             minimumInputLength: 0,
             maxItems: 0,
             placeholder: "Start typing",

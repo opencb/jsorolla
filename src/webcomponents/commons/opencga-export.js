@@ -344,17 +344,20 @@ const client = new OpenCGAClient({
         return this.lineSplitter(str);
     }
 
-    async launchJob(e) {
-        if (this.config.resource === "VARIANT") {
+    async launchJob() {
+        if (this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") {
             try {
-                const data = {...this.query,
+                const data = {
+                    ...this.query,
                     study: this.opencgaSession.study.fqn,
                     summary: true,
-                    outputFileName: "variants"
+                    outputFileName: "variants",
                 };
-                let params = {study: this.opencgaSession.study.fqn};
+                const params = {
+                    study: this.opencgaSession.study.fqn,
+                };
                 if (this.jobId) {
-                    params = {...params, jobId: this.jobId};
+                    params["jobId"] = this.jobId;
                 }
                 const restResponse = await this.opencgaSession.opencgaClient.variants().runExport(data, params);
                 const job = restResponse.getResult(0);
