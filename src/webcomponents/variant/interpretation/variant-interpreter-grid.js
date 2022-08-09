@@ -981,9 +981,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
             if (samples.length > 0) {
                 _columns[0].splice(5, 0, {
-                    id: "zygosity",
+                    id: "sampleGenotypes",
                     title: "Sample Genotypes",
-                    field: "zygosity",
                     rowspan: 1,
                     colspan: samples.length,
                     align: "center"
