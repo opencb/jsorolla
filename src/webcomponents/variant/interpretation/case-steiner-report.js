@@ -318,6 +318,7 @@ class CaseSteinerReport extends LitElement {
             detailView: true,
             showReview: false,
             showActions: false,
+            showSettings: false,
 
             showSelectCheckbox: false,
             multiSelection: false,
@@ -335,9 +336,8 @@ class CaseSteinerReport extends LitElement {
                 qual: 30,
                 dp: 20,
             },
-            // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
             evidences: {
-                showSelectCheckbox: true,
+                showSelectCheckbox: false,
             },
         };
 
