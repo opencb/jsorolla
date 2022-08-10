@@ -325,6 +325,8 @@ class CaseSteinerReport extends LitElement {
             showReview: false,
             showActions: false,
             showSettings: false,
+            showColumns: false,
+            showDownload: false,
 
             showSelectCheckbox: false,
             multiSelection: false,
@@ -344,6 +346,11 @@ class CaseSteinerReport extends LitElement {
             },
             evidences: {
                 showSelectCheckbox: false,
+            },
+            toolbar: {
+                showColumns: false,
+                showDownload: false,
+                showExport: false,
             },
         };
 
