@@ -73,6 +73,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         };
 
         this.queries = {};
+        this.circosPlot = null;
+        this.deletionAggregationStatsPlot = null;
     }
 
     connectedCallback() {
@@ -297,6 +299,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.circosPlot = e.detail.circosPlot;
     }
 
+    onChangeDeletionAggregationStatsChart(e) {
+        this.deletionAggregationStatsPlot = e.detail.value;
+    }
+
     onSave() {
         // Check object is defined
         if (!this.sample?.qualityControl?.variant) {
@@ -324,22 +330,51 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
         }
 
-        // Save Circos and SNV Signature
-        const genomePlotBase64 = this.circosPlot.split(", ")[1];
-        this.opencgaSession.opencgaClient.files().create(
-            {content: genomePlotBase64, path: "/circos/" + this.save.id + ".png", type: "FILE", format: "IMAGE"},
-            {study: this.opencgaSession.study.fqn, parents: true}
-        )
-            .then(restResponse => {
+        // Prepare file params
+        const circosPlotParams = {
+            content: this.circosPlot.split(", ")[1],
+            path: "/circos/" + this.save.id + ".png",
+            type: "FILE",
+            format: "IMAGE",
+        };
+        const deletionAggregationStatsPlotParams = {
+            content: this.deletionAggregationStatsPlot.split("base64,")[1].trim(),
+            path: `/deletionAggregationStats/${this.sample.id}-${this.save.id}.png`,
+            type: "FILE",
+            format: "IMAGE",
+        };
+
+        Promise.all([
+            this.opencgaSession.opencgaClient.files().create(circosPlotParams, {
+                study: this.opencgaSession.study.fqn,
+                parents: true,
+            }),
+            this.opencgaSession.opencgaClient.files().create(deletionAggregationStatsPlotParams, {
+                study: this.opencgaSession.study.fqn,
+                parents: true,
+            }),
+        ])
+            .then(results => {
+                // results[0] --> circos plot response
+                // results[1] --> deletion aggregation plot response
+
                 // Check genomePlot object exists
                 if (!this.sample.qualityControl.variant.genomePlot) {
                     this.sample.qualityControl.variant["genomePlot"] = {};
                 }
-                this.sample.qualityControl.variant.genomePlot.file = restResponse.responses[0].results[0].id;
+                this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
 
-                this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
+                // Append the deletion aggregation plot
+                this.sample.qualityControl.variant.files.push(results[1].responses[0].results[0].id);
+
+                // Update sample
+                const sampleParams = {
+                    qualityControl: this.sample.qualityControl,
+                };
+                this.opencgaSession.opencgaClient.samples().update(this.sample.id, sampleParams, {
+                    study: this.opencgaSession.study.fqn,
+                })
                     .then(restResponse => {
-                        console.log(restResponse);
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: "Success",
                             message: "Variant Stats saved successfully"
@@ -454,6 +489,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                         .sampleId="${this.sample?.id}"
                                         @changeSignature="${this.onChangeSignature}"
                                         @changeCircosPlot="${this.onChangeCircosPlot}"
+                                        @changeDeletionAggregationStatsChart="${this.onChangeDeletionAggregationStatsChart}"
                                         @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                                     </sample-cancer-variant-stats-plots>
                                 </div>

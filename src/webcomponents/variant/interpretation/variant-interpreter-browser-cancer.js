@@ -479,21 +479,21 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     }
                 ],
                 examples: [
-                    {
-                        id: "Example 1 - BRCA2",
-                        active: false,
-                        query: {
-                            gene: "BRCA2"
-                        }
-                    },
-                    {
-                        id: "Example 2 - LoF and missense variants",
-                        active: false,
-                        query: {
-                            ct: "frameshift_variant,incomplete_terminal_codon_variant,start_lost,stop_gained,stop_lost," +
-                                "splice_acceptor_variant,splice_donor_variant,feature_truncation,transcript_ablation,missense_variant"
-                        }
-                    }
+                    // {
+                    //     id: "Example 1 - BRCA2",
+                    //     active: false,
+                    //     query: {
+                    //         gene: "BRCA2"
+                    //     }
+                    // },
+                    // {
+                    //     id: "Example 2 - LoF and missense variants",
+                    //     active: false,
+                    //     query: {
+                    //         ct: "frameshift_variant,incomplete_terminal_codon_variant,start_lost,stop_gained,stop_lost," +
+                    //             "splice_acceptor_variant,splice_donor_variant,feature_truncation,transcript_ablation,missense_variant"
+                    //     }
+                    // }
                 ],
                 result: {
                     grid: {

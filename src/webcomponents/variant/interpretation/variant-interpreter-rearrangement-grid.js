@@ -246,6 +246,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                         ...internalQuery,
                         includeSampleId: "true",
+                        includeInterpretation: this.clinicalAnalysis?.interpretation?.id,
                         type: "BREAKEND"
                     };
 
