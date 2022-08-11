@@ -131,6 +131,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this._config.result.grid = {
                 ...this._config.result.grid,
                 ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+                showGenomeBrowserLink: false,
             };
         }
 
@@ -326,6 +327,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     detailView: true,
                     showReview: true,
                     showActions: true,
+                    showGenomeBrowserLink: false,
 
                     showSelectCheckbox: true,
                     multiSelection: false,

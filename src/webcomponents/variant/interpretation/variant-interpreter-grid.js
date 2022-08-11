@@ -855,12 +855,14 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">Genome Browser</li>
-                                    <li>
-                                        <a class="btn force-text-left" data-action="genome-browser">
-                                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
-                                        </a>
-                                    </li>
+                                    ${this._config.showGenomeBrowserLink ? `
+                                        <li class="dropdown-header">Genome Browser</li>
+                                        <li>
+                                            <a class="btn force-text-left" data-action="genome-browser">
+                                                <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                            </a>
+                                        </li>
+                                    ` : ""}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
@@ -1518,6 +1520,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showActions: true,
             showEditReview: true,
             showType: true,
+            showGenomeBrowserLink: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
