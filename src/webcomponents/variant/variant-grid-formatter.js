@@ -1298,14 +1298,15 @@ export default class VariantGridFormatter {
                         <td>${interpretationIdHtml}</td>
                         <td>${interpretation?.panels?.length > 0 ? panelsHtml : "-"}</td>
                         <td>${statusHtml}</td>
-                        <td>${discussionHtml}</td>
+                        <td style="max-width:280px;">${discussionHtml}</td>
 
                         <td>${genes.length > 0 ? genes.join("<br>") : "-"}</td>
                         <td>${transcripts.length > 0 ? transcripts.join("<br>") : "-"}</td>
                         <td>${acmgClassifications.length > 0 ? acmgClassifications.join("<br>") : "-"}</td>
                         <td>${tierClassifications.length > 0 ? tierClassifications.join("<br>") : "-"}</td>
                         <td>${clinicalSignificances.length > 0 ? clinicalSignificances.join("<br>") : "-"}</td>
-                   </tr>`;
+                    </tr>
+                `;
             }
             reportedHtml += "</tbody></table>";
             return reportedHtml;
