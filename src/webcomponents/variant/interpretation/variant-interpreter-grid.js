@@ -740,7 +740,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "consequenceType",
-                    title: "Gene Annotation",
+                    title: "Consequence Type",
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
