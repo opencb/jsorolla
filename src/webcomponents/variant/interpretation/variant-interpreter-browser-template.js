@@ -136,6 +136,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             };
         }
 
+        // Check to hide the genome browser link
+        if (this.settings?.hideGenomeBrowser) {
+            this._config.filter.result.grid.showGenomeBrowserLink = false;
+        }
+
         // Add copy.execute functions
         if (this._config.filter.result.grid?.copies?.length > 0) {
             for (const copy of this._config.filter.result.grid?.copies) {
