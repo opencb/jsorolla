@@ -740,7 +740,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "consequenceType",
-                    title: "Gene Annotation",
+                    title: "Consequence Type",
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
@@ -766,18 +766,30 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: vcfDataColumns?.length > 1
                 },
                 {
-                    id: "frequencies",
-                    title: `Variant Allele Frequency
+                    id: "cohort",
+                    title: "Cohort Stats",
+                    field: "cohort",
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center",
+                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
+                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "populationFrequencies",
+                    title: `Reference Population Frequency
                         <a class="pop-preq-info-icon"
-                            tooltip-title="Population Frequencies"
+                            tooltip-title="Reference Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </a>`,
-                    field: "frequencies",
-                    rowspan: 1,
-                    colspan: 2,
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    colspan: 1,
                     align: "center",
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
                 },
                 {
                     id: "clinicalInfo",
@@ -893,24 +905,6 @@ export default class VariantInterpreterGrid extends LitElement {
             ],
             [
                 ...vcfDataColumns,
-                {
-                    id: "cohort",
-                    title: "Cohorts",
-                    field: "cohort",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                },
-                {
-                    id: "populationFrequencies",
-                    title: "Population Frequencies",
-                    field: "populationFrequencies",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
-                    visible: !this._config.hidePopulationFrequencies,
-                },
                 {
                     id: "clinvar",
                     title: "ClinVar",
