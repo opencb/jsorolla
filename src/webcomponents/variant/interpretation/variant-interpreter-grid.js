@@ -71,6 +71,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
+        this.queriedVariants = {};
         this.review = false;
 
         // Set colors
@@ -180,6 +181,69 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    // FIXME Temporary code to check which variants are being interpreted or have been reported
+    // This should be implemented by OpenCGA
+    fillReportedVariants(variants) {
+        // Prepare queried variants to contain the interpretations
+        this.queriedVariants = {};
+        return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
+            primaryFindings: variants.map(variant => variant.id).join(","),
+            study: this.opencgaSession.study.fqn,
+        })
+            .then(interpretationSearchResponse => {
+                const interpretations = interpretationSearchResponse.responses[0]?.results;
+                if (interpretations?.length > 0) {
+                    variants.forEach(variant => this.queriedVariants[variant.id] = {...variant});
+
+                    // Add interpretations to the variants to be returned
+                    for (const interpretation of interpretations) {
+                        for (const variant of interpretation.primaryFindings) {
+                            if (this.queriedVariants[variant.id]) {
+                                if (!this.queriedVariants[variant.id].interpretations) {
+                                    this.queriedVariants[variant.id].interpretations = [];
+                                }
+                                this.queriedVariants[variant.id].interpretations.push(interpretation);
+                            }
+                        }
+                    }
+
+                    // Calculate stats
+                    for (const v of variants) {
+                        const variant = this.queriedVariants[v.id];
+                        if (variant.interpretations) {
+                            variant.interpretationStats = {
+                                status: {},
+                                tier: {},
+                                clinicalSignificance: {},
+                            };
+                            for (const interpretation of variant.interpretations) {
+                                interpretation?.primaryFindings
+                                    ?.filter(primaryFinding => primaryFinding.id === variant.id)
+                                    .forEach(primaryFinding => {
+                                        // Status stats
+                                        if (!variant.interpretationStats.status[primaryFinding.status]) {
+                                            variant.interpretationStats.status[primaryFinding.status] = 0;
+                                        }
+                                        variant.interpretationStats.status[primaryFinding.status]++;
+
+                                        // Tier stats
+                                        primaryFinding.evidences
+                                            .filter(evidence => evidence.review.tier)
+                                            .forEach(evidence => {
+                                                if (!variant.interpretationStats.tier[evidence.review.tier]) {
+                                                    variant.interpretationStats.tier[evidence.review.tier] = 0;
+                                                }
+                                                variant.interpretationStats.tier[evidence.review.tier]++;
+                                            });
+                                    });
+                            }
+                        }
+                    }
+                }
+                return this.queriedVariants;
+            });
+    }
+
     renderVariants() {
         if (this._config.renderLocal) {
             // FIXME remove this ASAP
@@ -187,7 +251,11 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (this.clinicalVariants?.length > 0) {
-            this.renderLocalVariants();
+            // FIXME Temporary code to check which variants are being interpreted or have been reported
+            // This should be implemented by OpenCGA
+            this.fillReportedVariants(this.clinicalVariants)
+                .catch(error => console.error(error))
+                .finally(() => this.renderLocalVariants());
         } else {
             this.renderRemoteVariants();
         }
@@ -294,75 +362,17 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeInterpretation: this.clinicalAnalysis?.interpretation?.id,
                     };
 
+                    let variantResponse = null;
                     this.opencgaSession.opencgaClient.clinical().queryVariant(this.filters)
                         .then(variantQueryResponse => {
                             this.isApproximateCount = variantQueryResponse.responses[0].attributes?.approximateCount ?? false;
+                            variantResponse = variantQueryResponse;
 
                             // FIXME Temporary code to check which variants are being interpreted or have been reported
                             // This should be implemented by OpenCGA
-                            // Prepare queried variants to contain the interpretations
-                            this.queriedVariants = {};
-                            const variantIds = variantQueryResponse.responses[0].results.map(variant => variant.id);
-                            this.opencgaSession.opencgaClient.clinical().searchInterpretation({primaryFindings: variantIds.join(","), study: this.opencgaSession.study.fqn})
-                                .then(interpretationSearchResponse => {
-                                    const interpretations = interpretationSearchResponse.responses[0]?.results;
-                                    if (interpretations?.length > 0) {
-                                        variantQueryResponse.responses[0].results
-                                            .forEach(variant => this.queriedVariants[variant.id] = {...variant});
-
-                                        // Add interpretations to the variants to be returned
-                                        for (const interpretation of interpretations) {
-                                            for (const variant of interpretation.primaryFindings) {
-                                                if (this.queriedVariants[variant.id]) {
-                                                    if (!this.queriedVariants[variant.id].interpretations) {
-                                                        this.queriedVariants[variant.id].interpretations = [];
-                                                    }
-                                                    this.queriedVariants[variant.id].interpretations.push(interpretation);
-                                                }
-                                            }
-                                        }
-
-                                        // Calculate stats
-                                        for (const v of variantQueryResponse.responses[0].results) {
-                                            const variant = this.queriedVariants[v.id];
-                                            if (variant.interpretations) {
-                                                variant.interpretationStats = {
-                                                    status: {},
-                                                    tier: {},
-                                                    clinicalSignificance: {},
-                                                };
-                                                for (const interpretation of variant.interpretations) {
-                                                    interpretation?.primaryFindings
-                                                        ?.filter(primaryFinding => primaryFinding.id === variant.id)
-                                                        .forEach(primaryFinding => {
-                                                            // Status stats
-                                                            if (!variant.interpretationStats.status[primaryFinding.status]) {
-                                                                variant.interpretationStats.status[primaryFinding.status] = 0;
-                                                            }
-                                                            variant.interpretationStats.status[primaryFinding.status]++;
-
-                                                            // Tier stats
-                                                            primaryFinding.evidences
-                                                                .filter(evidence => evidence.review.tier)
-                                                                .forEach(evidence => {
-                                                                    if (!variant.interpretationStats.tier[evidence.review.tier]) {
-                                                                        variant.interpretationStats.tier[evidence.review.tier] = 0;
-                                                                    }
-                                                                    variant.interpretationStats.tier[evidence.review.tier]++;
-                                                                });
-                                                        });
-                                                }
-                                            }
-                                        }
-                                    }
-                                    params.success(variantQueryResponse);
-                                })
-                                .catch(e => params.error(e))
-                                .finally(() => {
-                                    LitUtils.dispatchCustomEvent(this, "queryComplete", null);
-                                });
-                            // params.success(variantQueryResponse);
+                            return this.fillReportedVariants(variantResponse.responses[0].results);
                         })
+                        .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);

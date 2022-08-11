@@ -1201,7 +1201,7 @@ export default class VariantGridFormatter {
 
     static reportedVariantFormatter(value, variant, index) {
         return `
-            ${variant.interpretations?.length > 0 ? `
+            ${variant?.interpretations?.length > 0 ? `
                 <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
                 <div class="text-muted">
                     <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
