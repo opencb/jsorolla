@@ -300,30 +300,31 @@ export default class VariantInterpreterGrid extends LitElement {
 
                             // FIXME Temporary code to check which variants are being interpreted or have been reported
                             // This should be implemented by OpenCGA
+                            // Prepare queried variants to contain the interpretations
+                            this.queriedVariants = {};
                             const variantIds = variantQueryResponse.responses[0].results.map(variant => variant.id);
                             this.opencgaSession.opencgaClient.clinical().searchInterpretation({primaryFindings: variantIds.join(","), study: this.opencgaSession.study.fqn})
                                 .then(interpretationSearchResponse => {
                                     const interpretations = interpretationSearchResponse.responses[0]?.results;
                                     if (interpretations?.length > 0) {
-                                        // Prepare queried variants to contain the interpretations
-                                        const queriedVariants = {};
                                         variantQueryResponse.responses[0].results
-                                            .forEach(variant => queriedVariants[variant.id] = variant);
+                                            .forEach(variant => this.queriedVariants[variant.id] = {...variant});
 
                                         // Add interpretations to the variants to be returned
                                         for (const interpretation of interpretations) {
                                             for (const variant of interpretation.primaryFindings) {
-                                                if (queriedVariants[variant.id]) {
-                                                    if (!queriedVariants[variant.id].interpretations) {
-                                                        queriedVariants[variant.id].interpretations = [];
+                                                if (this.queriedVariants[variant.id]) {
+                                                    if (!this.queriedVariants[variant.id].interpretations) {
+                                                        this.queriedVariants[variant.id].interpretations = [];
                                                     }
-                                                    queriedVariants[variant.id].interpretations.push(interpretation);
+                                                    this.queriedVariants[variant.id].interpretations.push(interpretation);
                                                 }
                                             }
                                         }
 
                                         // Calculate stats
-                                        for (const variant of variantQueryResponse.responses[0].results) {
+                                        for (const v of variantQueryResponse.responses[0].results) {
+                                            const variant = this.queriedVariants[v.id];
                                             if (variant.interpretations) {
                                                 variant.interpretationStats = {
                                                     status: {},
@@ -584,7 +585,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Reported Cases</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, row, this.opencgaSession);
+            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, this.queriedVariants[row.id], this.opencgaSession);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
@@ -927,7 +928,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     // field: "prediction",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: VariantGridFormatter.reportedVariantFormatter,
+                    formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
                     align: "center",
                     // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                 },

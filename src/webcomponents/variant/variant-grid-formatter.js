@@ -1206,6 +1206,7 @@ export default class VariantGridFormatter {
                 <div class="text-muted">
                     <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
                     <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
+                    <div>DISCARDED: ${variant.interpretationStats?.status?.DISCARDED || 0} times</div>
                 </div>` : `
                 <div>No cases found</div>`
         }

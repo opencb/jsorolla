@@ -138,8 +138,10 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                 );
 
                 // Assign comment author and date (TASK-1473)
+                const lastComment = this.variant.comments[this.variant.comments.length - 1];
                 this.variant.comments[this.variant.comments.length - 1] = {
-                    ...this.variant.comments[this.variant.comments.length - 1],
+                    ...lastComment,
+                    tags: Array.isArray(lastComment.tags) ? lastComment.tags : (lastComment.tags || "").split(" "),
                     author: this.opencgaSession?.user?.id || "-",
                     date: UtilsNew.getDatetime(),
                 };
