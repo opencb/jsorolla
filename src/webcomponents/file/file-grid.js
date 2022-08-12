@@ -88,6 +88,7 @@ export default class OpencgaFileGrid extends LitElement {
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns().filter(column => column.visible !== false)
         };
+        console.log(this.toolbarConfig);
         this.renderTable();
     }
 
@@ -229,7 +230,7 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 id: "directory",
                 title: "Directory",
-                // field: "path",
+                field: "path",
                 formatter: (value, row) => "/" + row.path.replace("/" + row.name, "")
             },
             {
