@@ -282,16 +282,14 @@ export default class OpencgaFileGrid extends LitElement {
                         this.opencgaSession.token,
                     ];
                     return `
-                        <a class="btn btn-small btn-default ripple one-line" target="_blank" href="${url.join("")}">
-                            <i class="fas fa-download"></i> Download
+                        <a class="btn btn-small btn-default" target="_blank" href="${url.join("")}">
+                            <i class="fas fa-download icon-padding"></i>Download
                         </a>
                     `;
                 },
+                align: "center",
                 valign: "middle",
-                events: {
-                    "click button": this.downloadFile,
-                }
-            }
+            },
         ];
 
         if (this._config.showSelectCheckbox) {
