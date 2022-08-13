@@ -111,7 +111,9 @@ export default class DiseasePanelUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "variants": // arrays
+            case "disorders": // arrays
+            case "variants":
+            case "regions":
             case "genes":
                 this.updateParams = FormUtils.updateArraysObject(
                     this._diseasePanel,
@@ -330,31 +332,43 @@ export default class DiseasePanelUpdate extends LitElement {
                     ]
                 },
                 {
-                    title: "Variants",
+                    title: "Genes",
                     elements: [
                         {
-                            title: "Variants",
-                            field: "variants",
+                            title: "Genes",
+                            field: "genes",
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: variant => html`
-                                    <div>${variant.id} - ${variant?.modeOfInheritance}</div>
+                                view: gene => html`
+                                    <div>
+                                        <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modeOfInheritance || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
+                                    </div>
                                 `,
                             },
                             elements: [
                                 {
-                                    title: "Variant ID",
-                                    field: "variants[].id",
-                                    type: "input-text",
+                                    title: "Gene",
+                                    field: "genes[].name",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add variant ID...",
+                                        placeholder: "Add gene...",
+                                        render: (data, dataFormFilterChange) => {
+                                            return html`
+                                                <feature-filter
+                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                </feature-filter>
+                                            `;
+                                        },
                                     }
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "variants[].modeOfInheritance",
+                                    field: "genes[].modeOfInheritance",
                                     type: "select",
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
@@ -363,11 +377,20 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Confidence",
-                                    field: "variants[].confidence",
+                                    field: "genes[].confidence",
                                     type: "select",
                                     allowedValues: DISEASE_PANEL_CONFIDENCE,
                                     display: {
                                         placeholder: "Select a confidence..."
+                                    }
+                                },
+                                {
+                                    title: "Imprinted",
+                                    field: "genes[].imprinted",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_IMPRINTED,
+                                    display: {
+                                        placeholder: "Select imprinted..."
                                     }
                                 },
                             ]
@@ -420,43 +443,31 @@ export default class DiseasePanelUpdate extends LitElement {
                     ]
                 },
                 {
-                    title: "Genes",
+                    title: "Variants",
                     elements: [
                         {
-                            title: "Genes",
-                            field: "genes",
+                            title: "Variants",
+                            field: "variants",
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: gene => html`
-                                    <div>
-                                        <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
-                                        <div style="margin: 5px 0">MoI: ${gene?.modeOfInheritance || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
-                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
-                                    </div>
+                                view: variant => html`
+                                    <div>${variant.id} - ${variant?.modeOfInheritance || "-"}</div>
                                 `,
                             },
                             elements: [
                                 {
-                                    title: "Gene",
-                                    field: "genes[].name",
-                                    type: "custom",
+                                    title: "Variant ID",
+                                    field: "variants[].id",
+                                    type: "input-text",
                                     display: {
-                                        placeholder: "Add gene...",
-                                        render: (data, dataFormFilterChange) => {
-                                            return html`
-                                                <feature-filter
-                                                    .cellbaseClient="${this.opencgaSession?.cellbaseClient}"
-                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                                </feature-filter>
-                                            `;
-                                        },
+                                        placeholder: "Add variant ID...",
                                     }
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "genes[].modeOfInheritance",
+                                    field: "variants[].modeOfInheritance",
                                     type: "select",
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
@@ -465,7 +476,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Confidence",
-                                    field: "genes[].confidence",
+                                    field: "variants[].confidence",
                                     type: "select",
                                     allowedValues: DISEASE_PANEL_CONFIDENCE,
                                     display: {

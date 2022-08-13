@@ -280,96 +280,6 @@ export default class DiseasePanelCreate extends LitElement {
                     ]
                 },
                 {
-                    title: "Variants",
-                    elements: [
-                        {
-                            title: "Variants",
-                            field: "variants",
-                            type: "object-list",
-                            display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsedUpdate: true,
-                                view: variant => html`
-                                    <div>${variant.id} - ${variant?.modeOfInheritance || "-"}</div>
-                                `,
-                            },
-                            elements: [
-                                {
-                                    title: "Variant ID",
-                                    field: "variants[].id",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add variant ID...",
-                                    }
-                                },
-                                {
-                                    title: "Mode of Inheritance",
-                                    field: "variants[].modeOfInheritance",
-                                    type: "select",
-                                    allowedValues: MODE_OF_INHERITANCE,
-                                    display: {
-                                        placeholder: "Select a mode of inheritance..."
-                                    }
-                                },
-                                {
-                                    title: "Confidence",
-                                    field: "variants[].confidence",
-                                    type: "select",
-                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
-                                    display: {
-                                        placeholder: "Select a confidence..."
-                                    }
-                                },
-                            ]
-                        },
-                    ]
-                },
-                {
-                    title: "Regions",
-                    elements: [
-                        {
-                            title: "Regions",
-                            field: "regions",
-                            type: "object-list",
-                            display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsedUpdate: true,
-                                view: region => html`
-                                    <div>${region.id} - ${region?.modeOfInheritance || "-"}</div>
-                                `,
-                            },
-                            elements: [
-                                {
-                                    title: "Region ID",
-                                    field: "regions[].id",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add region...",
-                                    }
-                                },
-                                {
-                                    title: "Mode of Inheritance",
-                                    field: "regions[].modeOfInheritance",
-                                    type: "select",
-                                    allowedValues: MODE_OF_INHERITANCE,
-                                    display: {
-                                        placeholder: "Select a mode of inheritance..."
-                                    }
-                                },
-                                {
-                                    title: "Confidence",
-                                    field: "regions[].confidence",
-                                    type: "select",
-                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
-                                    display: {
-                                        placeholder: "Select a confidence..."
-                                    }
-                                },
-                            ]
-                        },
-                    ]
-                },
-                {
                     title: "Genes",
                     elements: [
                         {
@@ -429,6 +339,96 @@ export default class DiseasePanelCreate extends LitElement {
                                     allowedValues: DISEASE_PANEL_IMPRINTED,
                                     display: {
                                         placeholder: "Select imprinted..."
+                                    }
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    title: "Regions",
+                    elements: [
+                        {
+                            title: "Regions",
+                            field: "regions",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: region => html`
+                                    <div>${region.id} - ${region?.modeOfInheritance || "-"}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Region ID",
+                                    field: "regions[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add region...",
+                                    }
+                                },
+                                {
+                                    title: "Mode of Inheritance",
+                                    field: "regions[].modeOfInheritance",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
+                                    display: {
+                                        placeholder: "Select a mode of inheritance..."
+                                    }
+                                },
+                                {
+                                    title: "Confidence",
+                                    field: "regions[].confidence",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
+                                    display: {
+                                        placeholder: "Select a confidence..."
+                                    }
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    title: "Variants",
+                    elements: [
+                        {
+                            title: "Variants",
+                            field: "variants",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: variant => html`
+                                    <div>${variant.id} - ${variant?.modeOfInheritance || "-"}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Variant ID",
+                                    field: "variants[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add variant ID...",
+                                    }
+                                },
+                                {
+                                    title: "Mode of Inheritance",
+                                    field: "variants[].modeOfInheritance",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
+                                    display: {
+                                        placeholder: "Select a mode of inheritance..."
+                                    }
+                                },
+                                {
+                                    title: "Confidence",
+                                    field: "variants[].confidence",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
+                                    display: {
+                                        placeholder: "Select a confidence..."
                                     }
                                 },
                             ]
