@@ -236,13 +236,40 @@ export default class DiseasePanelUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
+                            title: "Disorders",
+                            field: "disorders",
+                            type: "object-list",
                             display: {
-                                placeholder: "Add a description...",
-                                rows: 3,
-                            }
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: disorder => html`
+                                    <div>${disorder.id} ${disorder?.name ? `- ${disorder?.name}` : ""}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Disorder ID",
+                                    field: "disorders[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add variant ID...",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "disorders[].name",
+                                    type: "input-text",
+                                    display: {
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "disorders[].description",
+                                    type: "input-text",
+                                    display: {
+                                    }
+                                },
+                            ]
                         },
                         {
                             title: "Source",
@@ -291,6 +318,15 @@ export default class DiseasePanelUpdate extends LitElement {
                                 }
                             ]
                         },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a description...",
+                                rows: 3,
+                            }
+                        },
                     ]
                 },
                 {
@@ -328,6 +364,51 @@ export default class DiseasePanelUpdate extends LitElement {
                                 {
                                     title: "Confidence",
                                     field: "variants[].confidence",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
+                                    display: {
+                                        placeholder: "Select a confidence..."
+                                    }
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    title: "Regions",
+                    elements: [
+                        {
+                            title: "Regions",
+                            field: "regions",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: region => html`
+                                    <div>${region.id} - ${region?.modeOfInheritance || "-"}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Region ID",
+                                    field: "regions[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add region...",
+                                    }
+                                },
+                                {
+                                    title: "Mode of Inheritance",
+                                    field: "regions[].modeOfInheritance",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
+                                    display: {
+                                        placeholder: "Select a mode of inheritance..."
+                                    }
+                                },
+                                {
+                                    title: "Confidence",
+                                    field: "regions[].confidence",
                                     type: "select",
                                     allowedValues: DISEASE_PANEL_CONFIDENCE,
                                     display: {
