@@ -53,6 +53,12 @@ class CaseSteinerReport extends LitElement {
     }
 
     _init() {
+        this.gridTypes = {
+            snv: "variantInterpreterCancerSNV",
+            cnv: "variantInterpreterCancerCNV",
+            rearrangements: "variantInterpreterRearrangement",
+        };
+
         this.callersInfo = {
             "caveman": {type: "Substitutions", group: "somatic", rank: 1},
             "pindel": {type: "Indels", group: "somatic", rank: 2},
@@ -318,6 +324,9 @@ class CaseSteinerReport extends LitElement {
             detailView: true,
             showReview: false,
             showActions: false,
+            showSettings: false,
+            showColumns: false,
+            showDownload: false,
 
             showSelectCheckbox: false,
             multiSelection: false,
@@ -335,9 +344,13 @@ class CaseSteinerReport extends LitElement {
                 qual: 30,
                 dp: 20,
             },
-            // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
             evidences: {
-                showSelectCheckbox: true,
+                showSelectCheckbox: false,
+            },
+            toolbar: {
+                showColumns: false,
+                showDownload: false,
+                showExport: false,
             },
         };
 
@@ -701,6 +714,7 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${{
+                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
                                                 ...defaultGridConfig,
                                                 somatic: false,
                                                 variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
@@ -731,7 +745,10 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                                ...defaultGridConfig,
+                                            }}">
                                         </variant-interpreter-rearrangement-grid>
                                     `: null;
                                 },
@@ -774,6 +791,7 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${{
+                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
                                                 ...defaultGridConfig,
                                                 somatic: true,
                                                 variantTypes: ["SNV", "INDEL"],
@@ -804,7 +822,10 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
-                                            .config="${defaultGridConfig}">
+                                            .config="${{
+                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                                ...defaultGridConfig,
+                                            }}">
                                         </variant-interpreter-rearrangement-grid>
                                     ` : null;
                                 },
@@ -833,6 +854,7 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalVariants="${filteredVariants}"
                                             .review="${false}"
                                             .config="${{
+                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
                                                 ...defaultGridConfig,
                                                 somatic: true,
                                                 variantTypes: ["COPY_NUMBER", "CNV"],

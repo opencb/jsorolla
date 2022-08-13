@@ -85,8 +85,8 @@ export default class DetailTabs extends LitElement {
         };
 
         // Set default active tab
-        if (!this._activeTab) {
-            const activeIndex = this._config.items?.findIndex(item => item.active);
+        if (this._config?.items?.length > 0 && !this._activeTab) {
+            const activeIndex = this._config.items.findIndex(item => item.active);
             if (activeIndex >= 0) {
                 this._activeTab = this._config.items?.[activeIndex].id;
             } else {

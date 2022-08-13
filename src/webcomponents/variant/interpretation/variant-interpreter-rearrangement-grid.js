@@ -112,12 +112,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...this.config,
             };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            const defaultColumns = this._createDefaultColumns();
             this.toolbarConfig = {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "CLINICAL_VARIANT",
             };
+            this.requestUpdate();
+            this.renderVariants();
         }
     }
 
@@ -1048,15 +1049,18 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>
-                `,
-            }
-        ];
+        if (this._config?.showSettings) {
+            return [
+                {
+                    render: () => html`
+                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                        </button>
+                    `,
+                }
+            ];
+        }
+        return [];
     }
 
     render() {
@@ -1142,6 +1146,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showExport: true,
+            showSettings: true,
             detailView: true,
             showReview: true,
             showSelectCheckbox: false,
