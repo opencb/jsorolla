@@ -160,7 +160,6 @@ export default class VariantGridFormatter {
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
-        // debugger
         // FIXME
         if (!variant.annotation) {
             variant.annotation = {
@@ -203,30 +202,7 @@ export default class VariantGridFormatter {
 
                     const tooltipText = `
                         ${geneViewMenuLink}
-
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
-    border-top: 1px solid #d9d9d9;'>External Links</div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
-                        </div>
-
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
-    border-top: 1px solid #d9d9d9;'>Clinical Resources</div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
-                        </div>
+                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
                     `;
 
                     // If query.ct exists
@@ -276,38 +252,36 @@ export default class VariantGridFormatter {
                     </div>
                 `;
             }
-
-            // First, print Genes with query CT
-            // if (query?.ct) {
-            //     for (let i = 0; i < geneWithCtLinks.length; i++) {
-            //         resultHtml += geneWithCtLinks[i];
-            //         if (i + 1 !== geneWithCtLinks.length) {
-            //             resultHtml += ",";
-            //         }
-            //         genesCount++;
-            //     }
-            //     resultHtml += "<br>";
-            // }
-
-            // // Second, the other genes
-            // for (let i = 0; i < geneLinks.length && genesCount < 10; i++) {
-            //     resultHtml += geneLinks[i];
-            //     if (i + 1 !== geneLinks.length) {
-            //         if (i === 0) {
-            //             resultHtml += ",";
-            //         } else if ((i + 1) % 2 !== 0) {
-            //             resultHtml += ",";
-            //         } else {
-            //             resultHtml += "<br>";
-            //         }
-            //     }
-            //     genesCount++;
-            // }
             return resultHtml;
-
         } else {
             return "-";
         }
+    }
+
+    static getGeneTooltip(geneName, assembly) {
+        return `
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold'>External Links</div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+            </div>
+
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold'>Clinical Resources</div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+            </div>
+        `;
     }
 
     static hgvsFormatter(variant, gridConfig) {
@@ -1249,12 +1223,12 @@ export default class VariantGridFormatter {
                 const panelsHtml = `
                     <div>
                         ${interpretation.panels?.map(panel => {
-                            if (panel?.source?.project === "PanelApp") {
-                                return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
-                            } else {
-                                return `<span>${panel.name || "-"}</span>`;
-                            }
-                        })?.join("<br>")}
+                    if (panel?.source?.project === "PanelApp") {
+                        return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
+                    } else {
+                        return `<span>${panel.name || "-"}</span>`;
+                    }
+                })?.join("<br>")}
                     </div>`;
 
                 const interpretedVariant = interpretation.primaryFindings.find(variant => variant.id === row.id);

@@ -32,14 +32,14 @@ export default class DiseasePanelDetail extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             diseasePanel: {
                 type: Object
             },
             diseasePanelId: {
                 type: String
+            },
+            opencgaSession: {
+                type: Object
             },
             config: {
                 type: Object
@@ -51,7 +51,7 @@ export default class DiseasePanelDetail extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.sample = null;
         }
@@ -62,28 +62,26 @@ export default class DiseasePanelDetail extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     diseasePanelIdObserver() {
         if (this.opencgaSession && this.diseasePanelId) {
             this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, {
                 study: this.opencgaSession.study.fqn,
-            })
-                .then(response => {
-                    this.diseasePanel = response.getResult(0);
-                })
-                .catch(reason => {
-                    console.error(reason);
-                });
+            }).then(response => {
+                this.diseasePanel = response.getResult(0);
+            }).catch(reason => {
+                console.error(reason);
+            });
         } else {
             this.diseasePanel = null;
         }
     }
 
     render() {
-
         if (!this.opencgaSession) {
             return "";
         }
@@ -119,10 +117,10 @@ export default class DiseasePanelDetail extends LitElement {
                     name: "Genes",
                     render: (diseasePanel, active, opencgaSession) => {
                         return html`
-                            <gene-grid
+                            <disease-panel-gene-view
                                 .genePanels="${diseasePanel.genes}"
                                 .opencgaSession=${opencgaSession}>
-                            </gene-grid>`;
+                            </disease-panel-gene-view>`;
                     }
                 },
                 {

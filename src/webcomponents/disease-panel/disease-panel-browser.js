@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {construction} from "../commons/under-construction.js";
-import "../gene/gene-grid.js";
+import "./disease-panel-gene-view.js";
 import "../commons/opencga-browser.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-grid.js";
@@ -230,10 +230,10 @@ export default class DiseasePanelBrowser extends LitElement {
                             id: "disease-panel-genes",
                             name: "Genes",
                             render: (diseasePanel, _active, opencgaSession) => html`
-                                <gene-grid
+                                <disease-panel-gene-view
                                     .genePanels="${diseasePanel.genes}"
                                     .opencgaSession=${opencgaSession}>
-                                </gene-grid>
+                                </disease-panel-gene-view>
                             `,
                         },
                         {
