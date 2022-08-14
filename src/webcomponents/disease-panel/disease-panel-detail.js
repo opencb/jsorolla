@@ -15,8 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../commons/view/detail-tabs.js";
 import "./disease-panel-summary.js";
+import "./disease-panel-gene-view.js";
+import "./disease-panel-region-view.js";
+import "../commons/view/detail-tabs.js";
 import {construction} from "../commons/under-construction.js";
 
 export default class DiseasePanelDetail extends LitElement {
@@ -126,7 +128,13 @@ export default class DiseasePanelDetail extends LitElement {
                 {
                     id: "disease-panel-regions",
                     name: "Regions",
-                    render: () => construction
+                    render: (diseasePanel, active, opencgaSession) => {
+                        return html`
+                            <disease-panel-region-view
+                                .regions="${diseasePanel.regions}"
+                                .opencgaSession=${opencgaSession}>
+                            </disease-panel-region-view>`;
+                    }
                 },
                 {
                     id: "disease-panel-variants",

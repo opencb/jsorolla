@@ -21,7 +21,7 @@ import VariantGridFormatter from "../variant/variant-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
 
-export default class DiseasePanelGeneView extends LitElement {
+export default class DiseasePanelRegionView extends LitElement {
 
     constructor() {
         super();
@@ -37,7 +37,7 @@ export default class DiseasePanelGeneView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            genePanels: {
+            regions: {
                 type: Array
             },
             config: {
@@ -58,7 +58,7 @@ export default class DiseasePanelGeneView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("genePanels")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("regions")) {
             this.propertyObserver();
         }
     }
@@ -81,7 +81,7 @@ export default class DiseasePanelGeneView extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this.getDefaultColumns(),
-            data: this.genePanels,
+            data: this.regions,
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
@@ -113,37 +113,6 @@ export default class DiseasePanelGeneView extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    geneFormatter(geneName, opencgaSession) {
-        const geneLinks = [];
-
-        if (geneName) {
-            const tooltipText = `
-                ${VariantGridFormatter.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
-            `;
-
-            geneLinks.push(`
-                <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
-                    ${geneName}
-                </a>`);
-        }
-
-        // let resultHtml = "";
-        // Second, the other genes
-        // for (let i = 0; i < geneLinks.length; i++) {
-        //     resultHtml += geneLinks[i];
-        //     if (i + 1 !== geneLinks.length) {
-        //         if (i === 0) {
-        //             resultHtml += ",";
-        //         } else if ((i + 1) % 2 !== 0) {
-        //             resultHtml += ",";
-        //         } else {
-        //             resultHtml += "<br>";
-        //         }
-        //     }
-        // }
-        return geneLinks.join("");
-    }
-
     generateList(arr, field) {
         return arr ? arr
             .map(item => `<li>${field ? item[field] : item}</li>`)
@@ -155,9 +124,9 @@ export default class DiseasePanelGeneView extends LitElement {
             [
                 {
                     id: "name",
-                    title: "Gene",
+                    title: "Region",
                     field: "name",
-                    formatter: (value, row) => this.geneFormatter(row.name, this.opencgaSession),
+                    formatter: (value, row) => `${row.id}`,
                     halign: this._config.header.horizontalAlign
                 },
                 {
@@ -259,4 +228,4 @@ export default class DiseasePanelGeneView extends LitElement {
 
 }
 
-customElements.define("disease-panel-gene-view", DiseasePanelGeneView);
+customElements.define("disease-panel-region-view", DiseasePanelRegionView);
