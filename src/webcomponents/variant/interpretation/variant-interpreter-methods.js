@@ -17,6 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/view/detail-tabs.js";
+import "../../clinical/analysis/rd-tiering-analysis.js";
+import "../../clinical/analysis/exomiser-analysis.js";
 import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
 import "../../clinical/analysis/opencga-exomiser-analysis.js";
 
@@ -115,35 +117,68 @@ class VariantInterpreterMethods extends LitElement {
             const probandId = this.clinicalAnalysis.proband.id;
 
             if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
+                // items.push({
+                //     id: "rd-tiering",
+                //     name: "RD Tiering",
+                //     active: true,
+                //     render: (clinicalAnalysis, active, opencgaSession) => {
+                //         return html`
+                //             <div class="col-md-12">
+                //                 <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
+                //                 <opencga-rd-tiering-analysis
+                //                     .clinicalAnalysis="${clinicalAnalysis}"
+                //                     .opencgaSession="${opencgaSession}"
+                //                     .title="${""}">
+                //                 </opencga-rd-tiering-analysis>
+                //             </div>
+                //         `;
+                //     },
+                // });
                 items.push({
                     id: "rd-tiering",
                     name: "RD Tiering",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-12">
+                            <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
-                                <opencga-rd-tiering-analysis
+                                <rd-tiering-analysis
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .opencgaSession="${opencgaSession}"
                                     .title="${""}">
-                                </opencga-rd-tiering-analysis>
+                                </rd-tiering-analysis>
                             </div>
                         `;
                     },
                 });
+                // items.push({
+                //     id: "exomiser",
+                //     name: "Exomiser",
+                //     render: (clinicalAnalysis, active, opencgaSession) => {
+                //         return html`
+                //             <div class="col-md-12">
+                //                 <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
+                //                 <opencga-exomiser-analysis
+                //                     .clinicalAnalysis="${clinicalAnalysis}"
+                //                     .opencgaSession="${opencgaSession}"
+                //                     .title="">
+                //                 </opencga-exomiser-analysis>
+                //             </div>
+                //         `;
+                //     },
+                // });
                 items.push({
                     id: "exomiser",
                     name: "Exomiser",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-12">
+                            <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
-                                <opencga-exomiser-analysis
+                                <exomiser-analysis
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .opencgaSession="${opencgaSession}"
                                     .title="">
-                                </opencga-exomiser-analysis>
+                                </exomiser-analysis>
                             </div>
                         `;
                     },
