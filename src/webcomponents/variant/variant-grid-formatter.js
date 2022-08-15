@@ -15,6 +15,7 @@
  */
 
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 
 
 export default class VariantGridFormatter {
@@ -1193,8 +1194,10 @@ export default class VariantGridFormatter {
                 <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
-                            <th rowspan="2">Interpretation</th>
+                            <th rowspan="2">Case</th>
                             <th rowspan="2">Disease Panel</th>
+                            <th rowspan="2">Sample</th>
+                            <th rowspan="2">Genotype</th>
                             <th rowspan="2">Status</th>
                             <th rowspan="2">Discussion</th>
                             <th rowspan="1" colspan="5" style="text-align: center; padding-top: 5px; padding-right: 2px">Evidences</th>
@@ -1232,6 +1235,18 @@ export default class VariantGridFormatter {
                     </div>`;
 
                 const interpretedVariant = interpretation.primaryFindings.find(variant => variant.id === row.id);
+
+                const sampleHtml = `
+                    <div>
+                        <label>${interpretedVariant.studies[0]?.samples[0]?.sampleId || "-"}</label>
+                    </div>`;
+
+                const genotype = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, interpretedVariant.studies[0]?.samples[0], "call");
+                const genotypeHtml = `
+                    <div>
+                        <span>${genotype || "-"}</span>
+                    </div>`;
+
                 const statusHtml = `
                     <div>
                         ${interpretedVariant.status || "-"}
@@ -1271,6 +1286,8 @@ export default class VariantGridFormatter {
                     <tr class="detail-view-row">
                         <td>${interpretationIdHtml}</td>
                         <td>${interpretation?.panels?.length > 0 ? panelsHtml : "-"}</td>
+                        <td>${sampleHtml}</td>
+                        <td>${genotypeHtml}</td>
                         <td>${statusHtml}</td>
                         <td style="max-width:280px;">${discussionHtml}</td>
 
