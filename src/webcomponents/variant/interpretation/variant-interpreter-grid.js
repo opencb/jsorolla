@@ -777,7 +777,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "populationFrequencies",
-                    title: `Reference Population Frequency
+                    title: `Reference <br> Population Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
@@ -1168,8 +1168,27 @@ export default class VariantInterpreterGrid extends LitElement {
             default:
                 const copy = this._config.copies.find(copy => copy.id === action);
                 if (copy) {
-                    BioinfoUtils.sort(row.annotation?.consequenceTypes, v => v.geneName);
-                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation?.consequenceTypes, this._config).indexes;
+                    // Sort and group CTs by Gene name
+                    BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+
+                    // we need to prepare evidences to be filtered properly,
+                    // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
+                    // so we need to add consequenceType information
+                    const transcriptMap = new Map();
+                    row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
+                    const newEvidences = [];
+                    row.evidences.forEach((evidence, index) => {
+                        // we are missing regulatory variants
+                        if (evidence.genomicFeature?.transcriptId) {
+                            const newEvidence = {
+                                index,
+                                ...evidence,
+                                ...transcriptMap.get(evidence.genomicFeature.transcriptId)
+                            };
+                            newEvidences.push(newEvidence);
+                        }
+                    });
+                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
 
                     navigator.clipboard.writeText(copy.execute(row, showArrayIndexes));
                 }
