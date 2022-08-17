@@ -148,21 +148,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         },
                     },
                     {
-                        title: "ACMG",
-                        type: "custom",
-                        field: "acmg",
-                        display: {
-                            visible: !this.somatic,
-                            render: acmg => html`
-                                <acmg-filter
-                                    .acmg="${acmg || []}"
-                                    @filterChange="${e => this.onFieldChange(e, "acmg")}">
-                                </acmg-filter>
-                            `,
-                            defaultValue: [],
-                        },
-                    },
-                    {
                         title: "Tier",
                         field: "tier",
                         type: "input-text",
@@ -182,20 +167,21 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             showDeleteItemListButton: true,
                             view: acmg => html`
                                 <div style="margin-bottom:1rem;">
-                                    <div style="display:flex;margin-bottom:0.5rem;">
-                                        <div style="font-weight:bold">
-                                            ${acmg.author || "-"} - ${UtilsNew.dateFormatter(acmg.date)}
+                                    <div>
+                                        <div>
+                                            <label>${acmg.classification || "-"}</label>
+                                            <span>  -  ${acmg.strength || html`<span style="color: gray; font-style: italic">No strength level found</span>`}</span>
                                         </div>
+                                        <div>${acmg.comment || "No comment found"}</div>
                                     </div>
-                                    <div style="width:100%;">
-                                        <div style="margin-bottom:0.5rem;">${acmg.comment || acmg}</div>
+                                    <div class="help-block" style="margin: 5px">
+                                        Added by <b>${acmg.author}</b> on <b>${UtilsNew.dateFormatter(acmg.date)}</b>.
                                     </div>
-                                </div>
-                                `,
+                                </div>`,
                         },
                         elements: [
                             {
-                                title: "Message",
+                                title: "Classification",
                                 field: "acmg[].classification",
                                 type: "custom",
                                 display: {
@@ -207,24 +193,24 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                             @filterChange="${e => dataFormFilterChange(e.detail.value?.[0])}">
                                         </acmg-filter>
                                     `,
-                                    defaultValue: [],
                                 }
                             },
                             {
                                 title: "Strength",
                                 field: "acmg[].strength",
-                                type: "input-text",
+                                type: "select",
+                                allowedValues: ACMG_STRENGTH_LEVEL,
                                 display: {
                                     placeholder: "Add strength..."
                                 }
                             },
                             {
-                                title: "Message",
+                                title: "Comment",
                                 field: "acmg[].comment",
                                 type: "input-text",
                                 display: {
+                                    rows: 3,
                                     placeholder: "Add comment...",
-                                    rows: 3
                                 }
                             },
                         ]

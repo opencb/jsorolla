@@ -289,7 +289,7 @@ export default class VariantUtils {
             // prediction
             if (v.evidences) {
                 v.evidences.forEach(e => {
-                    prediction = e.classification.clinicalSignificance + (e.classification.acmg.length ? ("(" + e.classification.acmg.join(",") + ")") : "");
+                    prediction = e.classification.clinicalSignificance + (e.classification.acmg.length ? ("(" + e.classification.acmg.map(acmg => acmg.classification).join(",") + ")") : "");
                 });
             }
 

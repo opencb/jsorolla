@@ -1282,7 +1282,7 @@ export default class VariantGridFormatter {
                             ${evidence.genomicFeature.transcriptId}
                         </a>
                     `);
-                    acmgClassifications.push(evidence.review.acmg?.join(", ")|| "-");
+                    acmgClassifications.push(evidence.review.acmg?.map(acmg => acmg.classification)?.join(", ")|| "-");
                     tierClassifications.push(evidence.review.tier || "-");
                     clinicalSignificances.push(`
                         <span style="color:${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance?.toUpperCase()]?.color || "black"}">
