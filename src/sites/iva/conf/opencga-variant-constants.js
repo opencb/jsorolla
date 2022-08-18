@@ -73,6 +73,8 @@ const DISEASE_PANEL_CONFIDENCE = ["HIGH", "MEDIUM", "LOW", "REJECTED"];
 
 const DISEASE_PANEL_IMPRINTED = ["NOT", "MATERNALLY", "PATERNALLY", "UNKNOWN"];
 
+const ACMG_STRENGTH_LEVEL = ["SUPPORTING", "MODERATE", "STRONG", "VERY_STRONG"];
+
 const CONSEQUENCE_TYPES = {
     style: {
         // This is the impact color. It allows to customise both the impact categories and desired colors
