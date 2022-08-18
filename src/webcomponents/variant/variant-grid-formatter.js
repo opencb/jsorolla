@@ -15,6 +15,7 @@
  */
 
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 
 
 export default class VariantGridFormatter {
@@ -160,7 +161,6 @@ export default class VariantGridFormatter {
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
-        // debugger
         // FIXME
         if (!variant.annotation) {
             variant.annotation = {
@@ -203,30 +203,7 @@ export default class VariantGridFormatter {
 
                     const tooltipText = `
                         ${geneViewMenuLink}
-
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
-    border-top: 1px solid #d9d9d9;'>External Links</div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
-                        </div>
-
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
-    border-top: 1px solid #d9d9d9;'>Clinical Resources</div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
-                        </div>
+                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
                     `;
 
                     // If query.ct exists
@@ -276,38 +253,36 @@ export default class VariantGridFormatter {
                     </div>
                 `;
             }
-
-            // First, print Genes with query CT
-            // if (query?.ct) {
-            //     for (let i = 0; i < geneWithCtLinks.length; i++) {
-            //         resultHtml += geneWithCtLinks[i];
-            //         if (i + 1 !== geneWithCtLinks.length) {
-            //             resultHtml += ",";
-            //         }
-            //         genesCount++;
-            //     }
-            //     resultHtml += "<br>";
-            // }
-
-            // // Second, the other genes
-            // for (let i = 0; i < geneLinks.length && genesCount < 10; i++) {
-            //     resultHtml += geneLinks[i];
-            //     if (i + 1 !== geneLinks.length) {
-            //         if (i === 0) {
-            //             resultHtml += ",";
-            //         } else if ((i + 1) % 2 !== 0) {
-            //             resultHtml += ",";
-            //         } else {
-            //             resultHtml += "<br>";
-            //         }
-            //     }
-            //     genesCount++;
-            // }
             return resultHtml;
-
         } else {
             return "-";
         }
+    }
+
+    static getGeneTooltip(geneName, assembly) {
+        return `
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold'>External Links</div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+            </div>
+
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold'>Clinical Resources</div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+            </div>
+        `;
     }
 
     static hgvsFormatter(variant, gridConfig) {
@@ -1201,11 +1176,12 @@ export default class VariantGridFormatter {
 
     static reportedVariantFormatter(value, variant, index) {
         return `
-            ${variant.interpretations?.length > 0 ? `
+            ${variant?.interpretations?.length > 0 ? `
                 <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
                 <div class="text-muted">
                     <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
                     <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
+                    <div>DISCARDED: ${variant.interpretationStats?.status?.DISCARDED || 0} times</div>
                 </div>` : `
                 <div>No cases found</div>`
         }
@@ -1218,8 +1194,10 @@ export default class VariantGridFormatter {
                 <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
-                            <th rowspan="2">Interpretation</th>
+                            <th rowspan="2">Case</th>
                             <th rowspan="2">Disease Panel</th>
+                            <th rowspan="2">Sample</th>
+                            <th rowspan="2">Genotype</th>
                             <th rowspan="2">Status</th>
                             <th rowspan="2">Discussion</th>
                             <th rowspan="1" colspan="5" style="text-align: center; padding-top: 5px; padding-right: 2px">Evidences</th>
@@ -1248,15 +1226,27 @@ export default class VariantGridFormatter {
                 const panelsHtml = `
                     <div>
                         ${interpretation.panels?.map(panel => {
-                            if (panel?.source?.project === "PanelApp") {
-                                return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
-                            } else {
-                                return `<span>${panel.name || "-"}</span>`;
-                            }
-                        })?.join("<br>")}
+                    if (panel?.source?.project === "PanelApp") {
+                        return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
+                    } else {
+                        return `<span>${panel.name || "-"}</span>`;
+                    }
+                })?.join("<br>")}
                     </div>`;
 
                 const interpretedVariant = interpretation.primaryFindings.find(variant => variant.id === row.id);
+
+                const sampleHtml = `
+                    <div>
+                        <label>${interpretedVariant.studies[0]?.samples[0]?.sampleId || "-"}</label>
+                    </div>`;
+
+                const genotype = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, interpretedVariant.studies[0]?.samples[0], "call");
+                const genotypeHtml = `
+                    <div>
+                        <span>${genotype || "-"}</span>
+                    </div>`;
+
                 const statusHtml = `
                     <div>
                         ${interpretedVariant.status || "-"}
@@ -1296,15 +1286,18 @@ export default class VariantGridFormatter {
                     <tr class="detail-view-row">
                         <td>${interpretationIdHtml}</td>
                         <td>${interpretation?.panels?.length > 0 ? panelsHtml : "-"}</td>
+                        <td>${sampleHtml}</td>
+                        <td>${genotypeHtml}</td>
                         <td>${statusHtml}</td>
-                        <td>${discussionHtml}</td>
+                        <td style="max-width:280px;">${discussionHtml}</td>
 
                         <td>${genes.length > 0 ? genes.join("<br>") : "-"}</td>
                         <td>${transcripts.length > 0 ? transcripts.join("<br>") : "-"}</td>
                         <td>${acmgClassifications.length > 0 ? acmgClassifications.join("<br>") : "-"}</td>
                         <td>${tierClassifications.length > 0 ? tierClassifications.join("<br>") : "-"}</td>
                         <td>${clinicalSignificances.length > 0 ? clinicalSignificances.join("<br>") : "-"}</td>
-                   </tr>`;
+                    </tr>
+                `;
             }
             reportedHtml += "</tbody></table>";
             return reportedHtml;

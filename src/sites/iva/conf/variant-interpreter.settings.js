@@ -17,9 +17,9 @@ const VARIANT_INTERPRETER_SETTINGS = {
                 {id: "geneCoverage"}
             ],
         },
-        /* {
+        {
             id: "methods"
-        },*/
+        },
         {
             id: "variant-browser",
             browsers: {

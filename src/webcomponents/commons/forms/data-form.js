@@ -1376,7 +1376,7 @@ export default class DataForm extends LitElement {
                     })}
                 </div>
 
-                ${element.display.collapsed ? html`
+                ${element.display.collapsed && items?.length > 0? html`
                     <div style="padding: 0 0 10px 0">
                         <button type="button" class="btn btn-link" style="padding: 0"
                                 @click="${e => this.#toggleObjectListCollapse(element, false)}">

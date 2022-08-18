@@ -25,7 +25,7 @@ import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/section-filter.js";
 import "./forms/select-token-filter-static.js";
-import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
 export default class OpencgaBrowserFilter extends LitElement {
 
