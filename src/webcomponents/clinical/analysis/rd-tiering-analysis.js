@@ -16,9 +16,10 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/forms/data-form.js";
 import NotificationUtils from "../../commons/utils/notification-utils";
 import FormUtils from "../../commons/forms/form-utils";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class RdTieringAnalysis extends LitElement {
@@ -26,7 +27,7 @@ export default class RdTieringAnalysis extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,14 +51,10 @@ export default class RdTieringAnalysis extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
+    #init() {
+        this.clinicalAnalysis = {};
         this.updateParams = {};
-        this.config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
+        this.config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -101,15 +98,15 @@ export default class RdTieringAnalysis extends LitElement {
 
         if (UtilsNew.isNotEmpty(toolParams)) {
             this.opencgaSession.opencgaClient.clinical().runInterpreterTiering(toolParams, params)
-                .then(response => {
-                    console.log(response);
+                .then(() => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         title: "RD Tiering launched",
                         message: "RD Tiering has been launched successfully",
                     });
                 })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                .catch(errorResponse => {
+                    console.log(errorResponse);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, errorResponse);
                 });
         }
     }
@@ -129,12 +126,10 @@ export default class RdTieringAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "clinical-interpretation",
-            title: "Edit Interpretation",
-            icon: "fas fa-edit",
-            // type: this.mode,
-            description: "Update an interpretation",
-            // display: this.displayConfig || this.displayConfigDefault,
+            id: "rd-tiering-interpretation",
+            title: "RD Tiering Interpretation",
+            // icon: "fas fa-edit",
+            description: "RD Tiering Interpretation Analysis",
             sections: [
                 {
                     title: "General Information",
@@ -149,11 +144,18 @@ export default class RdTieringAnalysis extends LitElement {
                         },
                         {
                             title: "Clinical Analysis ID",
-                            field: "id",
-                            type: "input-text",
-                            defaultValue: this.id,
+                            type: "custom",
                             display: {
-                                disabled: true,
+                                render: clinicalAnalysis => {
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .value="${clinicalAnalysis?.id}"
+                                            .resource="${"CLINICAL_ANALYSIS"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{multiple: false, disabled: !!clinicalAnalysis.id}}"
+                                            @filterChange="${e => this.onFilterChange(e)}">
+                                        </catalog-search-autocomplete>`;
+                                }
                             },
                         },
                         {
@@ -161,7 +163,6 @@ export default class RdTieringAnalysis extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                disabled: true,
                                 render: panels => {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
