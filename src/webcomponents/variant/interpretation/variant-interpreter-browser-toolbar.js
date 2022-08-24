@@ -40,6 +40,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            write: {
+                type: Boolean
+            },
             state: {
                 type: Object
             },
@@ -51,6 +54,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this.write = false;
     }
 
     connectedCallback() {
@@ -155,7 +159,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
                     <div class="btn-group" style="margin-right: 2px">
                         <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Remove not saved variants">
+                                aria-expanded="false" title="Remove not saved variants" ?disabled="${!this.write}">
                             <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
                             <strong>Reset</strong>
                         </button>
@@ -202,7 +206,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                     </div>
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}SaveMenu" class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server" ?disabled="${!this.write}">
                             <i class="fas fa-save icon-padding" aria-hidden="true"></i>
                             <strong>Save</strong>
                             ${hasVariantsToSave ? html`
