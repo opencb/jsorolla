@@ -17,16 +17,18 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 export default class IndividualView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -41,6 +43,9 @@ export default class IndividualView extends LitElement {
             individualId: {
                 type: String
             },
+            search: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
@@ -50,8 +55,9 @@ export default class IndividualView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.individual = {};
+        this.search = false;
         this.isLoading = false;
     }
 
@@ -62,11 +68,10 @@ export default class IndividualView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("individual")) {
-            // to update disorders if has more than one
+            // to update disorders if it has more than one
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("individualId")) {
-            this.isLoading = true;
             this.individualIdObserver();
         }
         if (changedProperties.has("config")) {
@@ -81,23 +86,25 @@ export default class IndividualView extends LitElement {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
+            this.isLoading = true;
+            this.opencgaSession.opencgaClient.individuals().info(this.individualId || "", query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
-                    this.isLoading = false;
-                    console.log("individual: ", this.individual);
                 })
-                .catch(function (reason) {
+                .catch(reason => {
                     this.individual = {};
                     error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
                     this.requestUpdate();
-                    this.notify(error);
                 });
-            this.individualId = "";
+            // this.individualId = "";
+        } else {
+            this.individual = {};
         }
     }
 
@@ -105,24 +112,13 @@ export default class IndividualView extends LitElement {
         this.individualId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("individualSearch", {
-            detail: {
-                value: this.individual,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.individual?.id && this.search === false) {
+            return html`<div>No valid object found</div>`;
         }
 
         return html`
@@ -149,12 +145,12 @@ export default class IndividualView extends LitElement {
                 {
                     title: "Search",
                     display: {
-                        visible: individual => !individual?.id,
+                        visible: individual => !individual?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Individual ID",
-                            field: "individualId",
+                            // field: "individualId",
                             type: "custom",
                             display: {
                                 render: () => html `
@@ -164,8 +160,7 @@ export default class IndividualView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
+                                    </catalog-search-autocomplete>`,
                             }
                         }
                     ]

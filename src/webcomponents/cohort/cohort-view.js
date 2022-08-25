@@ -20,13 +20,14 @@ import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 export default class CohortView extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -41,6 +42,9 @@ export default class CohortView extends LitElement {
             cohortId: {
                 type: String
             },
+            search: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
@@ -50,8 +54,9 @@ export default class CohortView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.cohort = {};
+        this.search = false;
         this.isLoading = false;
     }
 
@@ -64,23 +69,19 @@ export default class CohortView extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-
         super.update(changedProperties);
     }
 
     cohortIdObserver() {
         if (this.cohortId && this.opencgaSession) {
-            this.isLoading = true;
             let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
-                .then(res => {
-                    this.cohort = res.responses[0].results[0];
-                    console.log("this cohort:", this.cohort);
-                    this.isLoading = false;
+                .then(response => {
+                    this.cohort = response.responses[0].results[0];
                 })
                 .catch(reason => {
                     this.cohort = {};
@@ -89,10 +90,13 @@ export default class CohortView extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this._config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {}, error);
                     this.requestUpdate();
-                    this.notify(error);
                 });
-            this.cohortId = "";
+            // this.cohortId = "";
+        } else {
+            this.cohort = {};
         }
     }
 
@@ -100,26 +104,14 @@ export default class CohortView extends LitElement {
         this.cohortId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("cohortSearch", {
-            detail: {
-                value: this.cohort,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
             return html`
-                <loading-spinner></loading-spinner>
-            `;
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.cohort?.id && this.search === false) {
+            return html`<div>No valid object found</div>`;
         }
 
         return html`
@@ -146,12 +138,12 @@ export default class CohortView extends LitElement {
                 {
                     title: "Search",
                     display: {
-                        visible: cohort => !cohort?.id
+                        visible: cohort => !cohort?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Cohort ID",
-                            field: "cohortId",
+                            // field: "cohortId",
                             type: "custom",
                             display: {
                                 render: () => html `
@@ -161,8 +153,7 @@ export default class CohortView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
+                                    </catalog-search-autocomplete>`,
                             }
                         }
                     ]

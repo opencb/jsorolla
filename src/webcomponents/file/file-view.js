@@ -16,14 +16,17 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils";
 import "./file-preview.js";
 import "../commons/forms/data-form.js";
+import "../loading-spinner.js";
 
 export default class FileView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -37,6 +40,9 @@ export default class FileView extends LitElement {
             },
             fileId: {
                 type: String
+            },
+            search: {
+                type: Boolean
             },
             opencgaSession: {
                 type: Object
@@ -53,8 +59,9 @@ export default class FileView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.file = {};
+        this.search = false;
         this.preview = false;
         this.config = this.getDefaultConfig();
     }
@@ -76,22 +83,36 @@ export default class FileView extends LitElement {
     }
 
     fileIdObserver() {
-        if (this.opencgaSession && this.fileId) {
+        if (this.fileId && this.opencgaSession) {
+            let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.file = response.responses[0].results[0];
                 })
-                .catch(response => {
-                    this.file = null;
-                    console.error(response);
+                .catch(reason => {
+                    this.file = {};
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "fileSearch", this.file, {}, error);
+                    this.requestUpdate();
                 });
+        } else {
+            this.file = {};
         }
     }
 
     render() {
-        if (!this.file) {
-            return html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> File not found.</div>`;
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.file?.id && this.search === false) {
+            return html`<div>No valid object found</div>`;
         }
 
         return html`
@@ -114,6 +135,30 @@ export default class FileView extends LitElement {
                 defaultValue: "-",
             },
             sections: [
+                {
+                    title: "Search",
+                    display: {
+                        visible: file => !file?.id && this.search === true,
+                    },
+                    elements: [
+                        {
+                            title: "File",
+                            // field: "fileId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <catalog-search-autocomplete
+                                        .value="${this.file?.id}"
+                                        .resource="${"FILE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                            }
+                        }
+                    ]
+                },
                 {
                     title: "General",
                     display: {
