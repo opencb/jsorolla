@@ -64,7 +64,6 @@ export default class DiseasePanelSummary extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("diseasePanelId")) {
-            this.isLoading = true;
             this.diseasePanelIdObserver();
         }
 
@@ -82,6 +81,7 @@ export default class DiseasePanelSummary extends LitElement {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
@@ -94,8 +94,14 @@ export default class DiseasePanelSummary extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
                     this.requestUpdate();
-                    LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.diseasePanel, {}, error);
+                    LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.diseasePanel, {
+                        status: {
+                            // true if error is defined and not empty
+                            error: !!error,
+                            message: error
+                        }}, error);
                 });
             this.diseasePanelId = "";
         }
@@ -106,34 +112,17 @@ export default class DiseasePanelSummary extends LitElement {
         this.diseasePanelId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("diseasePanelSearch", {
-            detail: {
-                value: this.diseasePanel,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
             return html`
-                <loading-spinner></loading-spinner>
-            `;
+                <loading-spinner></loading-spinner>`;
         }
 
         return html`
             <data-form
                 .data=${this.diseasePanel}
                 .config="${this._config}">
-            </data-form>
-        `;
+            </data-form>`;
     }
 
     getDefaultConfig() {
@@ -148,33 +137,6 @@ export default class DiseasePanelSummary extends LitElement {
                 defaultValue: "-"
             },
             sections: [
-                // {
-                //     title: "Search",
-                //     display: {
-                //         visible: diseasePanel => !diseasePanel?.id,
-                //     },
-                //     elements: [
-                //         {
-                //             title: "diseasePanel ID",
-                //             field: "diseasePanelId",
-                //             type: "custom",
-                //             display: {
-                //                 render: () => html`
-                //                     <sample-id-autocomplete
-                //                         .value="${this.sample?.id}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         .config="${{
-                //                             select2Config: {
-                //                                 multiple: false
-                //                             }
-                //                         }}"
-                //                         @filterChange="${e => this.onFilterChange(e)}">
-                //                     </sample-id-autocomplete>
-                //                 `,
-                //             }
-                //         }
-                //     ]
-                // },
                 {
                     title: "General",
                     collapsed: false,
@@ -196,13 +158,7 @@ export default class DiseasePanelSummary extends LitElement {
                                     }
                                     return data?.id ?? "-";
                                 }
-                                // render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
                             }
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                            defaultValue: "N/A",
                         },
                         {
                             title: "Disorders",
@@ -215,46 +171,37 @@ export default class DiseasePanelSummary extends LitElement {
                             }
                         },
                         {
-                            title: "# Genes",
+                            title: "Number of Genes",
                             field: "stats.numberOfGenes",
                             defaultValue: "N/A",
                         },
                         {
-                            title: "# Regions",
+                            title: "Number of Regions",
                             field: "stats.numberOfRegions",
                             defaultValue: "N/A",
                         },
                         {
-                            title: "# Variants",
+                            title: "Number of Variants",
                             field: "stats.numberOfVariants",
                             defaultValue: "N/A",
                         },
                         {
-                            title: "Creation Date",
-                            field: "creationDate",
+                            title: "Creation/Modification Date",
+                            // field: "creationDate",
                             type: "custom",
                             display: {
                                 render: field => {
-                                    return field? html`${UtilsNew.dateFormatter(field)}`: "N/A";
+                                    const creationDate = UtilsNew.dateFormatter(field?.creationDate);
+                                    const modificationDate = field.modificationDate ? UtilsNew.dateFormatter(field?.modificationDate) : "-";
+                                    return field ? html`${creationDate}/${modificationDate}`: "N/A";
                                 },
                             },
                         },
-                        // {
-                        //     title: "Phenotypes",
-                        //     field: "phenotypes",
-                        //     type: "list",
-                        //     defaultValue: "N/A",
-                        //     display: {
-                        //         contentLayout: "bullets",
-                        //         render: phenotype => {
-                        //             let id = phenotype?.id;
-                        //             if (phenotype?.id?.startsWith("HP:")) {
-                        //                 id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
-                        //             }
-                        //             return html`${phenotype?.name} (${id})`;
-                        //         },
-                        //     }
-                        // },
+                        {
+                            title: "Description",
+                            field: "description",
+                            defaultValue: "N/A",
+                        },
                     ]
                 }
             ]

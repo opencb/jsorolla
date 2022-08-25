@@ -15,8 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../commons/view/detail-tabs.js";
 import "./disease-panel-summary.js";
+import "./disease-panel-gene-view.js";
+import "./disease-panel-region-view.js";
+import "../commons/view/detail-tabs.js";
 import {construction} from "../commons/under-construction.js";
 
 export default class DiseasePanelDetail extends LitElement {
@@ -32,14 +34,14 @@ export default class DiseasePanelDetail extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             diseasePanel: {
                 type: Object
             },
             diseasePanelId: {
                 type: String
+            },
+            opencgaSession: {
+                type: Object
             },
             config: {
                 type: Object
@@ -51,7 +53,7 @@ export default class DiseasePanelDetail extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.sample = null;
         }
@@ -62,28 +64,26 @@ export default class DiseasePanelDetail extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     diseasePanelIdObserver() {
         if (this.opencgaSession && this.diseasePanelId) {
             this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, {
                 study: this.opencgaSession.study.fqn,
-            })
-                .then(response => {
-                    this.diseasePanel = response.getResult(0);
-                })
-                .catch(reason => {
-                    console.error(reason);
-                });
+            }).then(response => {
+                this.diseasePanel = response.getResult(0);
+            }).catch(reason => {
+                console.error(reason);
+            });
         } else {
             this.diseasePanel = null;
         }
     }
 
     render() {
-
         if (!this.opencgaSession) {
             return "";
         }
@@ -119,16 +119,22 @@ export default class DiseasePanelDetail extends LitElement {
                     name: "Genes",
                     render: (diseasePanel, active, opencgaSession) => {
                         return html`
-                            <gene-grid
+                            <disease-panel-gene-view
                                 .genePanels="${diseasePanel.genes}"
                                 .opencgaSession=${opencgaSession}>
-                            </gene-grid>`;
+                            </disease-panel-gene-view>`;
                     }
                 },
                 {
                     id: "disease-panel-regions",
                     name: "Regions",
-                    render: () => construction
+                    render: (diseasePanel, active, opencgaSession) => {
+                        return html`
+                            <disease-panel-region-view
+                                .regions="${diseasePanel.regions}"
+                                .opencgaSession=${opencgaSession}>
+                            </disease-panel-region-view>`;
+                    }
                 },
                 {
                     id: "disease-panel-variants",

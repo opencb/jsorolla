@@ -336,6 +336,27 @@ export default class DiseasePanelGrid extends LitElement {
                     halign: this._config.header.horizontalAlign
                 },
                 {
+                    id: "disorders",
+                    title: "Disorders",
+                    field: "disorders",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: disorders => {
+                        if (disorders?.length > 0) {
+                            const disordersHtml = [];
+                            for (const disorder of disorders) {
+                                let result = disorder.id;
+                                if (disorder.name) {
+                                    result += " - " + disorder.name;
+                                }
+                                disordersHtml.push(`<div style="margin: 5px 0">${result}</div>`);
+                            }
+                            return disordersHtml.join("");
+                        }
+                    },
+                    halign: this._config.header.horizontalAlign
+                },
+                {
                     id: "stats",
                     title: "Stats",
                     field: "stats",

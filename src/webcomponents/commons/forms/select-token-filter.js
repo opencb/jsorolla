@@ -195,6 +195,7 @@ export default class SelectTokenFilter extends LitElement {
             disablePagination: false,
             minimumInputLength: 0,
             maxItems: 0,
+            disabled: false,
             placeholder: "Start typing",
             freeTag: false,
             fileUpload: false,
@@ -235,7 +236,12 @@ export default class SelectTokenFilter extends LitElement {
 
         return html`
             <div>
-                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                <select
+                    class="form-control"
+                    id="${this._prefix}"
+                    ?disabled="${this._config.disabled}"
+                    @change="${this.filterChange}">
+                </select>
             </div>
         `;
     }

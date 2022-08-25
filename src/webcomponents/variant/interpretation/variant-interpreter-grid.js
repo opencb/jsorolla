@@ -740,7 +740,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "consequenceType",
-                    title: "Gene Annotation",
+                    title: "Consequence Type",
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
@@ -766,18 +766,30 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: vcfDataColumns?.length > 1
                 },
                 {
-                    id: "frequencies",
-                    title: `Variant Allele Frequency
+                    id: "cohort",
+                    title: "Cohort Stats",
+                    field: "cohort",
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center",
+                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
+                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "populationFrequencies",
+                    title: `Reference <br> Population Frequencies
                         <a class="pop-preq-info-icon"
-                            tooltip-title="Population Frequencies"
+                            tooltip-title="Reference Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </a>`,
-                    field: "frequencies",
-                    rowspan: 1,
-                    colspan: 2,
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    colspan: 1,
                     align: "center",
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
                 },
                 {
                     id: "clinicalInfo",
@@ -843,12 +855,14 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">Genome Browser</li>
-                                    <li>
-                                        <a class="btn force-text-left" data-action="genome-browser">
-                                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
-                                        </a>
-                                    </li>
+                                    ${this._config.showGenomeBrowserLink ? `
+                                        <li class="dropdown-header">Genome Browser</li>
+                                        <li>
+                                            <a class="btn force-text-left" data-action="genome-browser">
+                                                <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                            </a>
+                                        </li>
+                                    ` : ""}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
@@ -893,24 +907,6 @@ export default class VariantInterpreterGrid extends LitElement {
             ],
             [
                 ...vcfDataColumns,
-                {
-                    id: "cohort",
-                    title: "Cohorts",
-                    field: "cohort",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                },
-                {
-                    id: "populationFrequencies",
-                    title: "Population Frequencies",
-                    field: "populationFrequencies",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
-                    visible: !this._config.hidePopulationFrequencies,
-                },
                 {
                     id: "clinvar",
                     title: "ClinVar",
@@ -1172,8 +1168,27 @@ export default class VariantInterpreterGrid extends LitElement {
             default:
                 const copy = this._config.copies.find(copy => copy.id === action);
                 if (copy) {
-                    BioinfoUtils.sort(row.annotation?.consequenceTypes, v => v.geneName);
-                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation?.consequenceTypes, this._config).indexes;
+                    // Sort and group CTs by Gene name
+                    BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+
+                    // we need to prepare evidences to be filtered properly,
+                    // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
+                    // so we need to add consequenceType information
+                    const transcriptMap = new Map();
+                    row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
+                    const newEvidences = [];
+                    row.evidences.forEach((evidence, index) => {
+                        // we are missing regulatory variants
+                        if (evidence.genomicFeature?.transcriptId) {
+                            const newEvidence = {
+                                index,
+                                ...evidence,
+                                ...transcriptMap.get(evidence.genomicFeature.transcriptId)
+                            };
+                            newEvidences.push(newEvidence);
+                        }
+                    });
+                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
 
                     navigator.clipboard.writeText(copy.execute(row, showArrayIndexes));
                 }
@@ -1524,6 +1539,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showActions: true,
             showEditReview: true,
             showType: true,
+            showGenomeBrowserLink: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,

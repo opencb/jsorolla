@@ -207,6 +207,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
+            disabled: false,
             placeholder: this.RESOURCES[this.resource].placeholder,
             searchField: this.searchField || this.RESOURCES[this.resource].searchField,
             fields: this.RESOURCES[this.resource].fields,

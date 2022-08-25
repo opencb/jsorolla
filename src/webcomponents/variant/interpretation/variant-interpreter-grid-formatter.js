@@ -84,7 +84,7 @@ export default class VariantInterpreterGridFormatter {
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 clinicalSignificanceHtml = `
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
-                    <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                    <div class="help-block">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
                 `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
                                                         <form class='form-horizontal'>
@@ -306,7 +306,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.classification.acmg?.join(", ")}</div>
+                        <div class="help-block">${re.classification.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
                     `;
                 }
 
@@ -320,7 +320,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.review.acmg?.join(", ")}</div>
+                        <div class="help-block">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
                     `;
                 }
 

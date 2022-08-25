@@ -163,7 +163,7 @@ export default class IndividualGrid extends LitElement {
                                     .then(caseResponse => {
                                         individualResponse.getResults().forEach(individual => {
                                             for (const clinicalAnalysis of caseResponse.getResults()) {
-                                                if (clinicalAnalysis?.proband?.id === individual.id || clinicalAnalysis?.family?.members.find(member => member.id === individual.id)) {
+                                                if (clinicalAnalysis?.proband?.id === individual.id || clinicalAnalysis?.family?.members?.find(member => member.id === individual.id)) {
                                                     if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                                         individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                                     } else {
