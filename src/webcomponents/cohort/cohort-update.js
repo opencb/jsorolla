@@ -21,12 +21,14 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 export default class CohortUpdate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,7 +52,7 @@ export default class CohortUpdate extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.cohort = {};
         this.updateParams = {};
         this._config = this.getDefaultConfig();
@@ -58,41 +60,56 @@ export default class CohortUpdate extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("cohort")) {
-            this.cohortObserver();
+            // this.cohortObserver();
+            this.initOriginalObject();
         }
     }
 
     update(changedProperties) {
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
         super.update(changedProperties);
     }
 
-    cohortObserver() {
+    initOriginalObject() {
         if (this.cohort) {
             this._cohort = UtilsNew.objectClone(this.cohort);
         }
     }
+    // cohortObserver() {
+    //     if (this.cohort) {
+    //         this._cohort = UtilsNew.objectClone(this.cohort);
+    //     }
+    // }
 
     cohortIdObserver() {
         if (this.opencgaSession && this.cohortId) {
             const query = {
                 study: this.opencgaSession.study.fqn
             };
+            let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
                 .then(response => {
                     this.cohort = response.responses[0].results[0];
+                    this.initOriginalObject();
                 })
                 .catch(reason => {
+                    this.cohort = {};
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {query: {...query}}, error);
+                    this.requestUpdate();
                 });
+        } else {
+            this.cohort = {};
         }
     }
 
@@ -135,33 +152,55 @@ export default class CohortUpdate extends LitElement {
 
 
     onClear() {
-        this._config = this.getDefaultConfig();
-        this.cohort = UtilsNew.objectClone(this._cohort);
+        // this._config = this.getDefaultConfig();
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.updateParams = {};
         this.cohortId = "";
+        this.cohort = UtilsNew.objectClone(this._cohort);
     }
 
-    onSubmit(e) {
+    onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
             samplesAction: "SET",
             annotationSetsAction: "SET",
+            includeResult: true
         };
+        let error;
+        this.isLoading = true;
         this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
-            .then(res => {
-                this._cohort = UtilsNew.objectClone(this.cohort);
+            .then(response => {
+                // this._cohort = UtilsNew.objectClone(this.cohort);
+                this._cohort = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Update Cohort",
                     message: "cohort updated correctly"
                 });
+                this.requestUpdate();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                this.cohort = {};
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(() => {
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.isLoading = false;
+                LitUtils.dispatchCustomEvent(this, "cohortUpdate", this.cohort, {}, error);
+                this.requestUpdate();
             });
     }
 
     render() {
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.cohort?.id) {
+            return html`<div>No valid object found</div>`;
+        }
+
         return html`
             <data-form
                 .data="${this.cohort}"
