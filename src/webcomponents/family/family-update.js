@@ -61,21 +61,17 @@ export default class FamilyUpdate extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("family")) {
-            // this.familyObserver();
             this.initOriginalObject();
         }
     }
 
     update(changedProperties) {
-
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -84,11 +80,6 @@ export default class FamilyUpdate extends LitElement {
             this._family = UtilsNew.objectClone(this.family);
         }
     }
-    // familyObserver() {
-    //     if (this.family) {
-    //         this._family = UtilsNew.objectClone(this.family);
-    //     }
-    // }
 
     familyIdObserver() {
         if (this.familyId && this.opencgaSession) {
@@ -104,6 +95,7 @@ export default class FamilyUpdate extends LitElement {
                 })
                 .catch(reason => {
                     this.family = {};
+                    error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
@@ -113,6 +105,8 @@ export default class FamilyUpdate extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
                     this.requestUpdate();
                 });
+        } else {
+            this.family = {};
         }
     }
 
@@ -154,7 +148,6 @@ export default class FamilyUpdate extends LitElement {
     }
 
     onClear() {
-        // this._config = this.getDefaultConfig();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.updateParams = {};
         this.familyId = "";
@@ -179,13 +172,12 @@ export default class FamilyUpdate extends LitElement {
                     title: "Family Update",
                     message: "Family updated correctly"
                 });
-                this.requestUpdate();
+                // this.requestUpdate();
             })
             .catch(reason => {
                 this.family = {};
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, reason);
-                // error = reason;
-                // console.error(reason);
+                error = reason;
+                console.error(reason);
             })
             .finally(() => {
                 this._config = {...this.getDefaultConfig(), ...this.config};
@@ -196,8 +188,15 @@ export default class FamilyUpdate extends LitElement {
     }
 
     render() {
-        // CAUTION: recipe missing:
-        //  @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.family?.id) {
+            return html`<div>No valid object found</div>`;
+        }
+
         return html`
             <data-form
                 .data="${this.family}"

@@ -187,7 +187,7 @@ export default class SampleUpdate extends LitElement {
                     title: "Sample Update",
                     message: "Sample updated correctly"
                 });
-                this.requestUpdate();
+                // this.requestUpdate();
             })
             .catch(reason => {
                 this.sample = {};

@@ -96,6 +96,7 @@ export default class IndividualUpdate extends LitElement {
                 })
                 .catch(reason => {
                     this.individual = {};
+                    error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
@@ -185,13 +186,12 @@ export default class IndividualUpdate extends LitElement {
                     title: "Individual Update",
                     message: "Individual updated correctly",
                 });
-                this.requestUpdate();
+                // this.requestUpdate();
             })
             .catch(reason => {
                 this.individual = {};
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, reason);
-                // error = reason;
-                // console.error(reason);
+                error = reason;
+                console.error(reason);
             })
             .finally(() => {
                 this._config = {...this.getDefaultConfig(), ...this.config};

@@ -60,7 +60,6 @@ export default class CohortUpdate extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("cohort")) {
-            // this.cohortObserver();
             this.initOriginalObject();
         }
     }
@@ -80,11 +79,6 @@ export default class CohortUpdate extends LitElement {
             this._cohort = UtilsNew.objectClone(this.cohort);
         }
     }
-    // cohortObserver() {
-    //     if (this.cohort) {
-    //         this._cohort = UtilsNew.objectClone(this.cohort);
-    //     }
-    // }
 
     cohortIdObserver() {
         if (this.opencgaSession && this.cohortId) {
@@ -100,6 +94,7 @@ export default class CohortUpdate extends LitElement {
                 })
                 .catch(reason => {
                     this.cohort = {};
+                    error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
@@ -152,7 +147,6 @@ export default class CohortUpdate extends LitElement {
 
 
     onClear() {
-        // this._config = this.getDefaultConfig();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.updateParams = {};
         this.cohortId = "";
@@ -177,11 +171,12 @@ export default class CohortUpdate extends LitElement {
                     title: "Update Cohort",
                     message: "cohort updated correctly"
                 });
-                this.requestUpdate();
+                // this.requestUpdate();
             })
             .catch(reason => {
                 this.cohort = {};
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                error = reason;
+                console.error(reason);
             })
             .finally(() => {
                 this._config = {...this.getDefaultConfig(), ...this.config};
