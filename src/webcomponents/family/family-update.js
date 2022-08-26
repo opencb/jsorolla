@@ -166,6 +166,7 @@ export default class FamilyUpdate extends LitElement {
             study: this.opencgaSession.study.fqn,
             annotationSetsAction: "SET",
             updateRoles: false,
+            includeResult: true
         };
         let error;
         this.isLoading = true;
@@ -183,6 +184,8 @@ export default class FamilyUpdate extends LitElement {
             .catch(reason => {
                 this.family = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, reason);
+                // error = reason;
+                // console.error(reason);
             })
             .finally(() => {
                 this._config = {...this.getDefaultConfig(), ...this.config};
