@@ -90,7 +90,6 @@ export default class IndividualView extends LitElement {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId || "", query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
-                    console.log("individual: ", this.individual);
                 })
                 .catch(reason => {
                     this.individual = {};
@@ -103,6 +102,7 @@ export default class IndividualView extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
                     this.requestUpdate();
                 });
+            // this.individualId = "";
         } else {
             this.individual = {};
         }

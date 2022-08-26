@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
 import "../loading-spinner.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class FamilyView extends LitElement {
@@ -28,7 +29,7 @@ export default class FamilyView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,6 +47,9 @@ export default class FamilyView extends LitElement {
             individualId: {
                 type: Object
             },
+            search: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
@@ -55,8 +59,9 @@ export default class FamilyView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.family = {};
+        this.search = false;
         this.isLoading = false;
     }
 
@@ -93,27 +98,28 @@ export default class FamilyView extends LitElement {
 
     familyIdObserver() {
         if (this.familyId && this.opencgaSession) {
-            this.isLoading = true;
             const query = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.families().info(this.familyId, query)
                 .then(response => {
-                    this.isLoading = false;
-                    this.family = response.getResult(0);
-                    console.log("Family", this.family);
+                    this.family = response.responses[0].results[0];
                 })
-                .catch(function (reason) {
+                .catch(reason => {
                     this.family = {};
                     error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
                     this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
                     this.requestUpdate();
-                    this.notify(error);
                 });
+        } else {
+            this.family = {};
         }
     }
 
@@ -124,22 +130,25 @@ export default class FamilyView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.families().search(query)
                 .then(response => {
-                    // Only takes the first family
-                    this.family = response.getResult(0);
+                    this.family = response.responses[0].results[0];
                 })
-                .catch(function (reason) {
+                .catch(reason => {
                     this.family = {};
                     error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
                     this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
                     this.requestUpdate();
-                    this.notify(error);
                 });
-            this.familyId = "";
+            // this.familyId = "";
+        } else {
+            this.familyId = {};
         }
     }
 
@@ -147,26 +156,14 @@ export default class FamilyView extends LitElement {
         this.familyId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("familySearch", {
-            detail: {
-                value: this.family,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
             return html`
-                <loading-spinner></loading-spinner>
-            `;
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.family?.id && this.search === false) {
+            return html`<div>No valid object found</div>`;
         }
 
         return html`
@@ -191,12 +188,12 @@ export default class FamilyView extends LitElement {
                 {
                     title: "Search",
                     display: {
-                        visible: family => !family?.id,
+                        visible: family => !family?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Family ID",
-                            field: "familyId",
+                            // field: "familyId",
                             type: "custom",
                             display: {
                                 render: () => html `
@@ -206,8 +203,7 @@ export default class FamilyView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
+                                    </catalog-search-autocomplete>`,
                             }
                         }
                     ]

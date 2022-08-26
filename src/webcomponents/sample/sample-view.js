@@ -28,7 +28,7 @@ export default class SampleView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,6 +43,9 @@ export default class SampleView extends LitElement {
             sampleId: {
                 type: String
             },
+            search: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
@@ -52,8 +55,9 @@ export default class SampleView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.sample = {};
+        this.search = false;
         this.isLoading = false;
     }
 
@@ -64,30 +68,25 @@ export default class SampleView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
-            this.isLoading = true;
             this.sampleIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     sampleIdObserver() {
         if (this.sampleId && this.opencgaSession) {
-            console.log("loading: ", this.sampleId);
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
             };
             let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    console.log("sample:", this.sample);
-                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.sample = {};
@@ -96,10 +95,13 @@ export default class SampleView extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
+                    this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
+                    this.requestUpdate();
                 });
-            this.sampleId = "";
+            // this.sampleId = "";
+        } else {
+            this.sample = {};
         }
     }
 
@@ -108,29 +110,14 @@ export default class SampleView extends LitElement {
         this.sampleId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("sampleSearch", {
-            detail: {
-                value: this.sample,
-                query: {
-                    includeIndividual: true
-                },
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
             return html`
-                <loading-spinner></loading-spinner>
-            `;
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.sample?.id && this.search === false) {
+            return html`<div>No valid object found</div>`;
         }
 
         return html`
@@ -156,12 +143,12 @@ export default class SampleView extends LitElement {
                 {
                     title: "Search",
                     display: {
-                        visible: sample => !sample?.id,
+                        visible: sample => !sample?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Sample ID",
-                            field: "sampleId",
+                            // field: "sampleId",
                             type: "custom",
                             display: {
                                 render: () => html`
@@ -171,8 +158,7 @@ export default class SampleView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
+                                    </catalog-search-autocomplete>`,
                             }
                         }
                     ]

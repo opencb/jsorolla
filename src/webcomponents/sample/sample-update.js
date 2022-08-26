@@ -50,16 +50,23 @@ export default class SampleUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
     #init() {
         this.sample = {};
         this.updateParams = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            defaultLayout: "horizontal",
+            labelAlign: "right",
+            labelWidth: 3,
+            buttonOkText: "Update"
+        };
+        this._config = {...this.getDefaultConfig()};
     }
 
     firstUpdated(changedProperties) {
@@ -72,8 +79,9 @@ export default class SampleUpdate extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -258,18 +266,11 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
-
     getDefaultConfig() {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
             type: "form",
-            display: {
-                style: "margin: 10px",
-                defaultLayout: "horizontal",
-                labelAlign: "right",
-                labelWidth: 3,
-                buttonOkText: "Update"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",

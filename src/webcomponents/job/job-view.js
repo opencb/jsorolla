@@ -17,15 +17,17 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "./job-detail-log.js";
+import "../loading-spinner.js";
 
 export default class JobView extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,13 +36,16 @@ export default class JobView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            job: {
                 type: Object
             },
             jobId: {
                 type: String
             },
-            job: {
+            search: {
+                type: Boolean
+            },
+            opencgaSession: {
                 type: Object
             },
             mode: {
@@ -52,7 +57,9 @@ export default class JobView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this.job = {};
+        this.search = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -60,33 +67,43 @@ export default class JobView extends LitElement {
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
-
         if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     jobIdObserver() {
-        if (this.opencgaSession && this.jobId) {
+        if (this.jobId && this.opencgaSession) {
+            let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.job = response.getResult(0);
-                    this.requestUpdate();
+                    this.job = response.responses[0].results[0];
                 })
                 .catch(reason => {
+                    this.job = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.family, {}, error);
+                    this.requestUpdate();
                 });
+        } else {
+            this.job = {};
         }
     }
 
     render() {
-        if (!this.opencgaSession || !this.job) {
-            return null;
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.job?.id && this.search === false) {
+            return html`<div>No valid object found</div>`;
         }
 
         return html`
@@ -110,6 +127,29 @@ export default class JobView extends LitElement {
                 defaultValue: "-"
             },
             sections: [
+                {
+                    title: "Search",
+                    display: {
+                        visible: job => !job?.id && this.search === true,
+                    },
+                    elements: [
+                        {
+                            title: "Job ID",
+                            // field: "jobId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <catalog-search-autocomplete
+                                        .value="${this.job?.id}"
+                                        .resource="${"JOB"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </catalog-search-autocomplete>`,
+                            }
+                        }
+                    ]
+                },
                 {
                     title: "Summary",
                     elements: [
