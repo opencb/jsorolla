@@ -176,7 +176,7 @@ export default class SampleUpdate extends LitElement {
                 this._sample = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Update Sample",
+                    title: "Sample Update",
                     message: "Sample updated correctly"
                 });
                 this.requestUpdate();

@@ -19,6 +19,7 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils";
 import "../commons/tool-header.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -28,7 +29,8 @@ export default class IndividualUpdate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -52,7 +54,7 @@ export default class IndividualUpdate extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.individual = {};
         this.updateParams = {};
         this._config = this.getDefaultConfig();
@@ -60,7 +62,7 @@ export default class IndividualUpdate extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("individual")) {
-            this.individualObserver();
+            this.initOriginalObject();
         }
     }
 
@@ -74,24 +76,37 @@ export default class IndividualUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    individualObserver() {
+    initOriginalObject() {
         if (this.individual) {
             this._individual = UtilsNew.objectClone(this.individual);
         }
     }
 
     individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
+        if (this.individualId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn,
             };
+            let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
+                    this.initOriginalObject();
                 })
                 .catch(reason => {
+                    this.individual = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {query: {...query}}, error);
+                    this.requestUpdate();
                 });
+        } else {
+            this.individual = {};
         }
     }
 
@@ -115,7 +130,7 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
-            // case "dateOfBirth": Problem
+                // case "dateOfBirth": Problem
                 this.updateParams = FormUtils.updateObjectParams(
                     this._individual,
                     this.individual,
@@ -148,31 +163,41 @@ export default class IndividualUpdate extends LitElement {
 
     onClear() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.individual = UtilsNew.objectClone(this._individual);
         this.updateParams = {};
         this.individualId = "";
+        this.individual = UtilsNew.objectClone(this._individual);
     }
 
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET",
-            disordersAction: "SET"
+            disordersAction: "SET",
+            includeResult: true
         };
-        console.log("individualId", this.individual.id, "updateParams:", this.updateParams, "param:", params);
-        this.opencgaSession.opencgaClient.individuals()
-            .update(this.individual.id, this.updateParams, params)
-            .then(() => {
-                // TODO get individual from database, ideally it should be returned by OpenCGA
-                this._individual = UtilsNew.objectClone(this.individual);
+        let error;
+        this.isLoading = true;
+        this.opencgaSession.opencgaClient.individuals().update(this.individual.id, this.updateParams, params)
+            .then(response => {
+                // this._individual = UtilsNew.objectClone(this.individual);
+                this._individual = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Individual Updated",
+                    title: "Individual Update",
                     message: "Individual updated correctly",
                 });
+                this.requestUpdate();
             })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            .catch(reason => {
+                this.individual = {};
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.isLoading = false;
+                LitUtils.dispatchCustomEvent(this, "individualUpdate", this.individual, {}, error);
+                this.requestUpdate();
             });
     }
 
@@ -195,6 +220,15 @@ export default class IndividualUpdate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.individual?.id) {
+            return html`<div>No valid object found</div>`;
+        }
+
         return html`
             <data-form
                 .data="${this.individual}"
