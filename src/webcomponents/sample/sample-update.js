@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -66,7 +66,7 @@ export default class SampleUpdate extends LitElement {
             labelWidth: 3,
             buttonOkText: "Update"
         };
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
@@ -112,7 +112,7 @@ export default class SampleUpdate extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this._config = this.getDefaultConfig();
                     this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {...query}}, error);
                     this.requestUpdate();
@@ -195,7 +195,7 @@ export default class SampleUpdate extends LitElement {
                 console.error(reason);
             })
             .finally(() => {
-                this._config = {...this.getDefaultConfig(), ...this.config};
+                this._config = this.getDefaultConfig();
                 this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
                 this.requestUpdate();
@@ -211,8 +211,7 @@ export default class SampleUpdate extends LitElement {
         const showBrowser = () => {
             LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query}, null);
             const hash = window.location.hash.split("/");
-            const newHash = "#sample/" + hash[1] + "/" + hash[2];
-            window.location.hash = newHash;
+            window.location.hash = "#sample/" + hash[1] + "/" + hash[2];
         };
 
         return html `
@@ -244,8 +243,7 @@ export default class SampleUpdate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.sample?.id) {

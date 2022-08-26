@@ -48,7 +48,7 @@ export default class IndividualUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -57,6 +57,12 @@ export default class IndividualUpdate extends LitElement {
     #init() {
         this.individual = {};
         this.updateParams = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Update",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -70,8 +76,9 @@ export default class IndividualUpdate extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -100,7 +107,7 @@ export default class IndividualUpdate extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this._config = this.getDefaultConfig();
                     this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {query: {...query}}, error);
                     this.requestUpdate();
@@ -153,7 +160,7 @@ export default class IndividualUpdate extends LitElement {
                     this._individual,
                     this.individual,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value
                 );
                 break;
@@ -194,7 +201,7 @@ export default class IndividualUpdate extends LitElement {
                 console.error(reason);
             })
             .finally(() => {
-                this._config = {...this.getDefaultConfig(), ...this.config};
+                this._config = this.getDefaultConfig();
                 this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "individualUpdate", this.individual, {}, error);
                 this.requestUpdate();
@@ -221,8 +228,7 @@ export default class IndividualUpdate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.individual?.id) {
@@ -245,12 +251,7 @@ export default class IndividualUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Update",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
