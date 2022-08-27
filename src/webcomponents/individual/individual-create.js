@@ -23,12 +23,14 @@ import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class IndividualCreate extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -41,15 +43,31 @@ export default class IndividualCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
     }
 
     #init() {
-        this._config = this.getDefaultConfig();
         this.individual = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Create",
+            titleWidth: 3,
+            with: "8",
+            defaultValue: "",
+            defaultLayout: "horizontal"
+        };
+        this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e, field) {
@@ -72,20 +90,28 @@ export default class IndividualCreate extends LitElement {
     }
 
     onSubmit(e) {
-        e.stopPropagation();
-        console.log("saved", this.individual);
-        this.opencgaSession.opencgaClient.individuals()
-            .create(this.individual, {study: this.opencgaSession.study.fqn})
-            .then(res => {
+        // e.stopPropagation();
+        let error;
+        this.isLoading = true;
+        this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
+            .then(() => {
                 this.individual = {};
-                this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Individual",
+                    title: "Individual Create",
                     message: "New Individual created correctly"
                 });
+                // this.requestUpdate();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                this.individual = {};
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this._config = this.getDefaultConfig();
+                this.isLoading = false;
+                LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);
+                this.requestUpdate();
             });
     }
 
@@ -113,6 +139,10 @@ export default class IndividualCreate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.individual}"
@@ -125,22 +155,10 @@ export default class IndividualCreate extends LitElement {
         `;
     }
 
-
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                titleWidth: 3,
-                with: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal"
-            },
-            // validation: {
-            //     validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
-            //     message: "The father and mother must be different individuals",
-            // },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -187,11 +205,11 @@ export default class IndividualCreate extends LitElement {
                                         .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
-                                            detail: {
-                                                param: "father",
-                                                value: {id: e.detail.value}
-                                            }
-                                        })}">
+                                                detail: {
+                                                    param: "father",
+                                                    value: {id: e.detail.value}
+                                                }
+                                            })}">
                                     </catalog-search-autocomplete>
                                 `,
                             }
@@ -210,11 +228,11 @@ export default class IndividualCreate extends LitElement {
                                         .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
-                                            detail: {
-                                                param: "mother",
-                                                value: {id: e.detail.value}
-                                            }
-                                        })}">
+                                                detail: {
+                                                    param: "mother",
+                                                    value: {id: e.detail.value}
+                                                }
+                                            })}">
                                     </catalog-search-autocomplete>
                                 `,
                             }
@@ -224,10 +242,7 @@ export default class IndividualCreate extends LitElement {
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         },
                         {
