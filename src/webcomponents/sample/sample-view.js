@@ -49,7 +49,7 @@ export default class SampleView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -59,19 +59,34 @@ export default class SampleView extends LitElement {
         this.sample = {};
         this.search = false;
         this.isLoading = false;
+
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-"
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
+
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = this.getDefaultConfig();
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -83,7 +98,7 @@ export default class SampleView extends LitElement {
                 includeIndividual: true
             };
             let error;
-            this.isLoading = true;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
@@ -94,10 +109,9 @@ export default class SampleView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
             // this.sampleId = "";
         } else {
@@ -112,8 +126,7 @@ export default class SampleView extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.sample?.id && this.search === false) {
@@ -132,13 +145,7 @@ export default class SampleView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",

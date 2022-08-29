@@ -49,7 +49,7 @@ export default class IndividualView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -59,12 +59,27 @@ export default class IndividualView extends LitElement {
         this.individual = {};
         this.search = false;
         this.isLoading = false;
+
+        this.displayConfigDefault = {
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+            defaultLayout: "horizontal",
+            buttonsVisible: false
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
+
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = this.getDefaultConfig();
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("individual")) {
@@ -74,8 +89,9 @@ export default class IndividualView extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -86,7 +102,7 @@ export default class IndividualView extends LitElement {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.isLoading = true;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.individuals().info(this.individualId || "", query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
@@ -98,9 +114,8 @@ export default class IndividualView extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
             // this.individualId = "";
         } else {
@@ -133,14 +148,7 @@ export default class IndividualView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal",
-                buttonsVisible: false
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
