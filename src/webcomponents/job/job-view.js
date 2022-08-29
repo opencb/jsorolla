@@ -247,33 +247,6 @@ export default class JobView extends LitElement {
                                 contentLayout: "bullets"
                             }
                         },
-                        // {
-                        //     name: "Output Files",
-                        //     field: "output",
-                        //     type: "table",
-                        //     defaultValue: "N/A",
-                        //     display: {
-                        //         columns: [
-                        //             {
-                        //                 name: "File Name", field: "name"
-                        //             },
-                        //             {
-                        //                 name: "Size", field: "size"
-                        //             },
-                        //             {
-                        //                 name: "Download", display: {
-                        //                     render: file => {
-                        //                         debugger
-                        //                         return html`<download-button .name="${file.name}" .json="${file}"></download-button>`
-                        //                     },
-                        //                 }
-                        //                 //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
-                        //             }
-                        //         ],
-                        //         border: true
-                        //         // contentLayout: "bullets",
-                        //     }
-                        // },
                         {
                             name: "Output Directory",
                             field: "outDir.path"
@@ -281,11 +254,34 @@ export default class JobView extends LitElement {
                         {
                             name: "Output Files",
                             field: "output",
-                            type: "list",
-                            defaultValue: "N/A",
+                            type: "custom",
                             display: {
-                                template: "${name}",
-                                contentLayout: "bullets"
+                                render: output => {
+                                    if (output?.length > 0) {
+                                        return html`${output.map(file => {
+                                            const url = [
+                                                this.opencgaSession.server.host,
+                                                "/webservices/rest/",
+                                                this.opencgaSession.server.version,
+                                                "/files/",
+                                                file.id,
+                                                "/download?study=",
+                                                this.opencgaSession.study.fqn,
+                                                "&sid=",
+                                                this.opencgaSession.token,
+                                            ];
+                                            return html`
+                                                <div>
+                                                    <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
+                                                    <a href="${url.join("")}" target="_blank">
+                                                        <i class="fas fa-download icon-padding"></i>
+                                                    </a>
+                                                </div>`;
+                                        })}`;
+                                    } else {
+                                        return html`<div>No output files found.</div>`;
+                                    }
+                                }
                             }
                         },
                         {
@@ -334,7 +330,6 @@ export default class JobView extends LitElement {
                                 border: true
                             }
                         }
-
                     ]
                 },
                 {
