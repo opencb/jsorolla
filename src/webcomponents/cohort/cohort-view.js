@@ -48,7 +48,7 @@ export default class CohortView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -58,19 +58,35 @@ export default class CohortView extends LitElement {
         this.cohort = {};
         this.search = false;
         this.isLoading = false;
+
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleAlign: "left",
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
+
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this.configObserver();
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -81,7 +97,7 @@ export default class CohortView extends LitElement {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.isLoading = true;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
                 .then(response => {
                     this.cohort = response.responses[0].results[0];
@@ -93,9 +109,8 @@ export default class CohortView extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this._config};
-                    this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
             // this.cohortId = "";
         } else {
@@ -109,8 +124,7 @@ export default class CohortView extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.cohort?.id && this.search === false) {
@@ -129,14 +143,7 @@ export default class CohortView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleAlign: "left",
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
