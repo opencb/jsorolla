@@ -60,6 +60,7 @@ export default class JobView extends LitElement {
     #init() {
         this.job = {};
         this.search = false;
+        this.isLoading = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -75,9 +76,12 @@ export default class JobView extends LitElement {
 
     jobIdObserver() {
         if (this.jobId && this.opencgaSession) {
+            const query = {
+                study: this.opencgaSession.study.fqn
+            };
             let error;
             this.isLoading = true;
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.jobs().info(this.jobId, query)
                 .then(response => {
                     this.job = response.responses[0].results[0];
                 })
