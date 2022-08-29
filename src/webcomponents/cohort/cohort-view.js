@@ -77,9 +77,12 @@ export default class CohortView extends LitElement {
 
     cohortIdObserver() {
         if (this.cohortId && this.opencgaSession) {
+            const query = {
+                study: this.opencgaSession.study.fqn,
+            };
             let error;
             this.isLoading = true;
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
                 .then(response => {
                     this.cohort = response.responses[0].results[0];
                 })
