@@ -407,7 +407,7 @@ export default class RgaIndividualFamily extends LitElement {
                     formatter: (value, row) => this.consequenceTypeFormatter(value, row)
                 },
                 {
-                    title: "Knockout Type",
+                    title: "Recessive Genotype",
                     field: "knockoutType",
                     rowspan: 2,
                     formatter: (value, row) => this.uniqueFieldFormatter(value, row, "knockoutType")
