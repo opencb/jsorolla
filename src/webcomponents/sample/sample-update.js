@@ -69,6 +69,11 @@ export default class SampleUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     firstUpdated(changedProperties) {
         if (changedProperties.has("sample")) {
             this.initOriginalObject();
@@ -100,7 +105,7 @@ export default class SampleUpdate extends LitElement {
                 includeIndividual: true
             };
             let error;
-            this.isLoading = true;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
@@ -113,9 +118,8 @@ export default class SampleUpdate extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {...query}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
         } else {
             this.sample = {};
@@ -177,7 +181,7 @@ export default class SampleUpdate extends LitElement {
             includeResult: true
         };
         let error;
-        this.isLoading = true;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, params)
             .then(response => {
                 // this._sample = UtilsNew.objectClone(this.sample);
@@ -196,9 +200,8 @@ export default class SampleUpdate extends LitElement {
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();
-                this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
-                this.requestUpdate();
+                this.#setLoading(false);
             });
     }
 
