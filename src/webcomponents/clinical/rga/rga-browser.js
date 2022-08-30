@@ -67,7 +67,7 @@ export default class RgaBrowser extends LitElement {
         this.executedQuery = {};
         this.activeFilterAlias = {
         };
-        this.activeTab = {"variant-tab": true};
+        this.activeTab = {"gene-tab": true};
         this.detail = {};
         this.resource = "RGA";
 
@@ -236,9 +236,10 @@ export default class RgaBrowser extends LitElement {
             ],
             views: [
                 {
-                    id: "variant-tab",
-                    name: "Variants",
-                    icon: "fas fa-table"
+                    id: "gene-tab",
+                    name: "Genes",
+                    icon: "fa fa-table",
+                    active: true
                 },
                 {
                     id: "individual-tab",
@@ -246,10 +247,9 @@ export default class RgaBrowser extends LitElement {
                     icon: "fas fa-table"
                 },
                 {
-                    id: "gene-tab",
-                    name: "Genes",
-                    icon: "fa fa-table",
-                    active: true
+                    id: "variant-tab",
+                    name: "Variants",
+                    icon: "fas fa-table"
                 }
             ],
             filter: {
@@ -444,7 +444,7 @@ export default class RgaBrowser extends LitElement {
                         </opencga-active-filters>
 
                         <div class="main-view">
-                            <div id="gene-tab" class="content-tab">
+                            <div id="gene-tab" class="content-tab active">
                                 <rga-gene-view .query=${this.executedQuery}
                                                .config=${this._config}
                                                .opencgaSession="${this.opencgaSession}"
@@ -460,7 +460,7 @@ export default class RgaBrowser extends LitElement {
                                 </rga-individual-view>
                             </div>
 
-                            <div id="variant-tab" class="content-tab active">
+                            <div id="variant-tab" class="content-tab">
                                 <rga-variant-view .query=${this.executedQuery}
                                                   .config=${this._config}
                                                   .opencgaSession="${this.opencgaSession}"
