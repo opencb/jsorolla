@@ -803,26 +803,27 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 });
                 for (let i = 0; i < samples.length; i++) {
                     const sample = samples[i];
-                    const color = sample?.somatic ? "darkred" : "black";
 
                     _columns[1].splice(i, 0, {
                         id: sample.id,
-                        title: `<span>${sample.id}</span><br>
-                                <span class="help-block" style="margin: 0px">PS / RC</span>`,
+                        title: `
+                            <span>${sample.id}</span>
+                            <br>
+                            <span class="help-block" style="margin: 0px">PS / RC</span>
+                        `,
                         field: {
                             sampleId: sample.id,
                             quality: this._config.quality,
                             config: this._config,
-                            clinicalAnalysis: this.clinicalAnalysis
+                            clinicalAnalysis: this.clinicalAnalysis,
                         },
                         rowspan: 1,
                         colspan: 1,
-                        // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         formatter: (value, row) => {
                             return `${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")}`;
                         },
                         align: "center",
-                        nucleotideGenotype: true
+                        nucleotideGenotype: true,
                     });
                 }
             }
