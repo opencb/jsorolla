@@ -82,6 +82,12 @@ export default class OpencgaExport extends LitElement {
             "DISEASE_PANEL": "panelClient"
         };
 
+        this.outputFileFormats = {
+            "tab": "VCF",
+            "vep": "ENSEMBL_VEP",
+            "json": "JSON",
+        };
+
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
@@ -352,6 +358,7 @@ const client = new OpenCGAClient({
                     study: this.opencgaSession.study.fqn,
                     summary: true,
                     outputFileName: "variants",
+                    outputFileFormat: this.outputFileFormats[this.format],
                 };
                 const params = {
                     study: this.opencgaSession.study.fqn,
