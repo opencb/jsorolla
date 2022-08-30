@@ -452,13 +452,6 @@ const client = new OpenCGAClient({
         }));
     }
 
-    getDefaultConfig() {
-        return {
-            exportNote: "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.\n (If you need all records, please use 'Export Query')",
-            exportLimit: 1000,
-        };
-    }
-
     render() {
         return html`
             <div>
@@ -690,6 +683,16 @@ const client = new OpenCGAClient({
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            exportNote: [
+                "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.",
+                "(If you need all records, please use 'Export Query')",
+            ].join("\n"),
+            exportLimit: 1000,
+        };
     }
 
 }
