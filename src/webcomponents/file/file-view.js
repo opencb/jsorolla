@@ -62,6 +62,7 @@ export default class FileView extends LitElement {
     #init() {
         this.file = {};
         this.search = false;
+        this.isLoading = false;
         this.preview = false;
         this.config = this.getDefaultConfig();
     }
@@ -84,9 +85,12 @@ export default class FileView extends LitElement {
 
     fileIdObserver() {
         if (this.fileId && this.opencgaSession) {
+            const query = {
+                study: this.opencgaSession.study.fqn
+            };
             let error;
             this.isLoading = true;
-            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.files().info(this.fileId, query)
                 .then(response => {
                     this.file = response.responses[0].results[0];
                 })
@@ -96,7 +100,7 @@ export default class FileView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this._config = {...this.getDefaultConfig(), ...this.config};
                     this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "fileSearch", this.file, {}, error);
                     this.requestUpdate();

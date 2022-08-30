@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import VariantGridFormatter from "../variant/variant-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
 
@@ -25,7 +24,8 @@ export default class DiseasePanelRegionView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,7 +46,7 @@ export default class DiseasePanelRegionView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "GenePanelBrowserGrid";
     }
@@ -120,7 +120,8 @@ export default class DiseasePanelRegionView extends LitElement {
     }
 
     getDefaultColumns() {
-        const _columns = [
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return [
             [
                 {
                     id: "name",
@@ -162,7 +163,7 @@ export default class DiseasePanelRegionView extends LitElement {
                     field: "phenotypes",
                     formatter: (value, row) => {
                         const phenotypesContent = this.generateList(row.phenotypes, "name");
-                        return String.raw `
+                        return String.raw`
                         ${phenotypesContent ? String.raw`
                                 <ul>
                                     ${phenotypesContent}
@@ -175,8 +176,8 @@ export default class DiseasePanelRegionView extends LitElement {
                     field: "evidences",
                     formatter: (value, row) => {
                         const evidencesContent = this.generateList(row.evidences, "");
-                        return String.raw `
-                        ${evidencesContent ? String.raw `
+                        return String.raw`
+                        ${evidencesContent ? String.raw`
                                 <ul>
                                     ${evidencesContent}
                                 </ul>` : "-"}`;
@@ -184,9 +185,6 @@ export default class DiseasePanelRegionView extends LitElement {
                 }
             ],
         ];
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
     }
 
     render() {

@@ -60,6 +60,7 @@ export default class JobView extends LitElement {
     #init() {
         this.job = {};
         this.search = false;
+        this.isLoading = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -75,9 +76,12 @@ export default class JobView extends LitElement {
 
     jobIdObserver() {
         if (this.jobId && this.opencgaSession) {
+            const query = {
+                study: this.opencgaSession.study.fqn
+            };
             let error;
             this.isLoading = true;
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.jobs().info(this.jobId, query)
                 .then(response => {
                     this.job = response.responses[0].results[0];
                 })
@@ -243,45 +247,39 @@ export default class JobView extends LitElement {
                                 contentLayout: "bullets"
                             }
                         },
-                        // {
-                        //     name: "Output Files",
-                        //     field: "output",
-                        //     type: "table",
-                        //     defaultValue: "N/A",
-                        //     display: {
-                        //         columns: [
-                        //             {
-                        //                 name: "File Name", field: "name"
-                        //             },
-                        //             {
-                        //                 name: "Size", field: "size"
-                        //             },
-                        //             {
-                        //                 name: "Download", display: {
-                        //                     render: file => {
-                        //                         debugger
-                        //                         return html`<download-button .name="${file.name}" .json="${file}"></download-button>`
-                        //                     },
-                        //                 }
-                        //                 //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
-                        //             }
-                        //         ],
-                        //         border: true
-                        //         // contentLayout: "bullets",
-                        //     }
-                        // },
                         {
                             name: "Output Directory",
                             field: "outDir.path"
                         },
                         {
                             name: "Output Files",
-                            field: "output",
-                            type: "list",
-                            defaultValue: "N/A",
+                            type: "custom",
                             display: {
-                                template: "${name}",
-                                contentLayout: "bullets"
+                                render: job => {
+                                    const outputFiles= [...job.output];
+                                    outputFiles.push(job.stdout);
+                                    outputFiles.push(job.stderr);
+                                    return html`${outputFiles.map(file => {
+                                        const url = [
+                                            this.opencgaSession.server.host,
+                                            "/webservices/rest/",
+                                            this.opencgaSession.server.version,
+                                            "/files/",
+                                            file.id,
+                                            "/download?study=",
+                                            this.opencgaSession.study.fqn,
+                                            "&sid=",
+                                            this.opencgaSession.token,
+                                        ];
+                                        return html`
+                                            <div>
+                                                <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
+                                                <a href="${url.join("")}" target="_blank">
+                                                    <i class="fas fa-download icon-padding"></i>
+                                                </a>
+                                            </div>`;
+                                    })}`;
+                                }
                             }
                         },
                         {
@@ -330,7 +328,6 @@ export default class JobView extends LitElement {
                                 border: true
                             }
                         }
-
                     ]
                 },
                 {
