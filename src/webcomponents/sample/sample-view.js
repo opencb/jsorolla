@@ -60,6 +60,7 @@ export default class SampleView extends LitElement {
         this.sample = {};
         this.search = false;
         this.isLoading = false;
+
         this.displayConfigDefault = {
             buttonsVisible: false,
             collapsable: true,

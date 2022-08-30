@@ -76,11 +76,6 @@ export default class IndividualView extends LitElement {
         this.requestUpdate();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = this.getDefaultConfig();
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("individual")) {
             // to update disorders if it has more than one
@@ -136,7 +131,7 @@ export default class IndividualView extends LitElement {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    The sample does not have an Individual ID.
+                    Individual ID not found.
                 </div>
             `;
         }

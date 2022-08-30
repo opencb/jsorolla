@@ -64,6 +64,7 @@ export default class FileView extends LitElement {
         this.search = false;
         this.preview = false;
         this.isLoading = false;
+
         this.displayConfigDefault = {
             buttonsVisible: false,
             collapsable: true,
@@ -93,9 +94,6 @@ export default class FileView extends LitElement {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-        // if (changedProperties.has("config")) {
-        //     this.config = {...this.getDefaultConfig(), ...this.config};
-        // }
         super.update(changedProperties);
     }
 

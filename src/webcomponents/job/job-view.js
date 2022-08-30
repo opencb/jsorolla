@@ -61,6 +61,7 @@ export default class JobView extends LitElement {
         this.job = {};
         this.search = false;
         this.isLoading = false;
+
         this.displayConfigDefault = {
             collapsable: true,
             showTitle: false,

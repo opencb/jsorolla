@@ -82,7 +82,6 @@ export default class FamilyView extends LitElement {
         this.requestUpdate();
     }
 
-
     update(changedProperties) {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
@@ -147,8 +146,10 @@ export default class FamilyView extends LitElement {
             };
             let error;
             this.#setLoading(true);
-            this.opencgaSession.opencgaClient.families().search(query)
+            this.opencgaSession.opencgaClient.families()
+                .search(query)
                 .then(response => {
+                    // We use the first family found
                     this.family = response.responses[0].results[0];
                 })
                 .catch(reason => {
@@ -161,7 +162,6 @@ export default class FamilyView extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
                     this.#setLoading(false);
                 });
-            // this.familyId = "";
         } else {
             this.familyId = {};
         }
@@ -173,8 +173,7 @@ export default class FamilyView extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.family?.id && this.search === false) {

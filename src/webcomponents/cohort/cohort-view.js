@@ -16,11 +16,11 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 export default class CohortView extends LitElement {
 
