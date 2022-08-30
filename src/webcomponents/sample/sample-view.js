@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
@@ -127,7 +128,7 @@ export default class SampleView extends LitElement {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    The sample does not have a Sample ID.
+                    Sample ID not found.
                 </div>
             `;
         }
@@ -249,12 +250,12 @@ export default class SampleView extends LitElement {
                                     let id = phenotype?.id;
                                     if (phenotype?.id?.startsWith("HP:")) {
                                         id = html`
-                                            <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
+                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
                                                 ${phenotype.id}
                                             </a>
                                         `;
                                     }
-                                    return html`${phenotype?.name} (${id})`;
+                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
                                 },
                             },
                         },
