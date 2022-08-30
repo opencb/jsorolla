@@ -46,6 +46,9 @@ export default class CohortUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            displayConfig: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -55,6 +58,14 @@ export default class CohortUpdate extends LitElement {
     #init() {
         this.cohort = {};
         this.updateParams = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Update",
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "",
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -68,6 +79,12 @@ export default class CohortUpdate extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -81,7 +98,7 @@ export default class CohortUpdate extends LitElement {
     }
 
     cohortIdObserver() {
-        if (this.opencgaSession && this.cohortId) {
+        if (this.cohortId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn
             };
@@ -162,16 +179,15 @@ export default class CohortUpdate extends LitElement {
         };
         let error;
         this.isLoading = true;
-        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, params)
+        this.opencgaSession.opencgaClient.cohorts()
+            .update(this.cohort.id, this.updateParams, params)
             .then(response => {
-                // this._cohort = UtilsNew.objectClone(this.cohort);
                 this._cohort = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Update Cohort",
                     message: "cohort updated correctly"
                 });
-                // this.requestUpdate();
             })
             .catch(reason => {
                 this.cohort = {};
@@ -212,14 +228,7 @@ export default class CohortUpdate extends LitElement {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Update",
-                style: "margin: 10px",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",

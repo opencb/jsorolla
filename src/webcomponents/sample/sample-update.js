@@ -67,11 +67,24 @@ export default class SampleUpdate extends LitElement {
             buttonOkText: "Update"
         };
         this._config = this.getDefaultConfig();
+        this.isLoading = false;
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
+    #initOriginalObject() {
+        // When updating we need to keep a private copy of the original object
+        if (this.sample) {
+            this._sample = UtilsNew.objectClone(this.sample);
+        }
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("sample")) {
-            this.initOriginalObject();
+            this.#initOriginalObject();
         }
     }
 
@@ -79,18 +92,13 @@ export default class SampleUpdate extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-        super.update(changedProperties);
-    }
 
-    initOriginalObject() {
-        // When updating we need to keep a private copy of the original object
-        if (this.sample) {
-            this._sample = UtilsNew.objectClone(this.sample);
-        }
+        super.update(changedProperties);
     }
 
     sampleIdObserver() {
@@ -177,17 +185,16 @@ export default class SampleUpdate extends LitElement {
             includeResult: true
         };
         let error;
-        this.isLoading = true;
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, params)
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.samples()
+            .update(this.sample.id, this.updateParams, params)
             .then(response => {
-                // this._sample = UtilsNew.objectClone(this.sample);
                 this._sample = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Update",
                     message: "Sample updated correctly"
                 });
-                // this.requestUpdate();
             })
             .catch(reason => {
                 this.sample = {};
@@ -196,9 +203,8 @@ export default class SampleUpdate extends LitElement {
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();
-                this.isLoading = false;
+                this.#setLoading(false);
                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
-                this.requestUpdate();
             });
     }
 
@@ -425,6 +431,8 @@ export default class SampleUpdate extends LitElement {
                             title: "Quantity",
                             field: "processing.quantity",
                             type: "input-num",
+                            allowedValues: [1, 10],
+                            step: 2,
                             display: {
                                 placeholder: "Add a quantity..."
                             }

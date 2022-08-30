@@ -46,6 +46,9 @@ export default class FamilyUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            displayConfig: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -55,6 +58,14 @@ export default class FamilyUpdate extends LitElement {
     #init() {
         this.family = {};
         this.updateParams = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Update",
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "",
+        };
         this.phenotype = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
@@ -69,6 +80,12 @@ export default class FamilyUpdate extends LitElement {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -130,7 +147,6 @@ export default class FamilyUpdate extends LitElement {
                     this._family,
                     this.family,
                     this.updateParams,
-                    // e.detail.param,
                     param,
                     e.detail.value);
                 break;
@@ -163,16 +179,15 @@ export default class FamilyUpdate extends LitElement {
         };
         let error;
         this.isLoading = true;
-        this.opencgaSession.opencgaClient.families().update(this.family.id, this.updateParams, params)
+        this.opencgaSession.opencgaClient.families()
+            .update(this.family.id, this.updateParams, params)
             .then(response => {
-                // this._family = UtilsNew.objectClone(this.family);
                 this._family = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Family Update",
                     message: "Family updated correctly"
                 });
-                // this.requestUpdate();
             })
             .catch(reason => {
                 this.family = {};
@@ -189,8 +204,7 @@ export default class FamilyUpdate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.family?.id) {
@@ -211,14 +225,7 @@ export default class FamilyUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Update",
-                style: "margin: 10px",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",

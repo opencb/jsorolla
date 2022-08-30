@@ -21,13 +21,15 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class DiseasePanelUpdate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,21 +47,32 @@ export default class DiseasePanelUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            displayConfig: {
+                type: Object
+            },
             config: {
                 type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this.diseasePanel = {};
         this.updateParams = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Update",
+            titleWidth: 3,
+            width: "8",
+            defaultValue: "",
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("diseasePanel")) {
-            this.diseasePanelObserver();
+            this.initOriginalObject();
         }
     }
 
@@ -67,31 +80,49 @@ export default class DiseasePanelUpdate extends LitElement {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
 
-    diseasePanelObserver() {
+    initOriginalObject() {
         if (this.diseasePanel) {
             this._diseasePanel = UtilsNew.objectClone(this.diseasePanel);
         }
     }
 
     diseasePanelIdObserver() {
-        if (this.opencgaSession && this.diseasePanelId) {
+        if (this.diseasePanelId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn,
             };
+            let error;
+            this.isLoading = true;
             this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
-                    this.diseasePanelObserver();
+                    this.initOriginalObject();
                 })
                 .catch(reason => {
+                    this.diseasePanel = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.isLoading = false;
+                    LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.individual, {query: {...query}}, error);
+                    this.requestUpdate();
                 });
+        } else {
+            this.diseasePanel = {};
         }
     }
 
@@ -119,7 +150,7 @@ export default class DiseasePanelUpdate extends LitElement {
                     this._diseasePanel,
                     this.diseasePanel,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value
                 );
                 break;
@@ -153,35 +184,50 @@ export default class DiseasePanelUpdate extends LitElement {
 
     onClear() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
         this.updateParams = {};
         this.diseasePanelId = "";
-        this.requestUpdate();
+        this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
     }
 
-    onSubmit(e) {
+    onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
+            includeResult: true
         };
+        let error;
+        this.isLoading = true;
         this.opencgaSession.opencgaClient.panels()
             .update(this._diseasePanel.id, this.updateParams, params)
-            .then(res => {
-                // this.diseasePanel = {};
-                // this.requestUpdate();
-                this._diseasePanel = UtilsNew.objectClone(this.diseasePanel);
+            .then(response => {
+                this._diseasePanel = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Disease Panel Updated",
                     message: "Disease Panel updated correctly"
                 });
-                this.requestUpdate();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                this.diseasePanel = {};
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.isLoading = false;
+                LitUtils.dispatchCustomEvent(this, "diseasePanelUpdate", this.family, {}, error);
+                this.requestUpdate();
             });
     }
 
     render() {
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.diseasePanel?.id) {
+            return html`<div>No valid object found</div>`;
+        }
         return html`
             <data-form
                 .data="${this.diseasePanel}"
@@ -196,15 +242,9 @@ export default class DiseasePanelUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            icon: "fas fa-edit",
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Update",
-                titleWidth: 3,
-                width: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",

@@ -76,10 +76,12 @@ export default class IndividualUpdate extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -184,16 +186,15 @@ export default class IndividualUpdate extends LitElement {
         };
         let error;
         this.isLoading = true;
-        this.opencgaSession.opencgaClient.individuals().update(this.individual.id, this.updateParams, params)
+        this.opencgaSession.opencgaClient.individuals()
+            .update(this.individual.id, this.updateParams, params)
             .then(response => {
-                // this._individual = UtilsNew.objectClone(this.individual);
                 this._individual = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Individual Update",
                     message: "Individual updated correctly",
                 });
-                // this.requestUpdate();
             })
             .catch(reason => {
                 this.individual = {};
