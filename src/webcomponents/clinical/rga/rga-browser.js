@@ -298,7 +298,11 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "numParents",
                                 name: "Include families with",
-                                tooltip: "Confidence selection",
+                                tooltip: `<ul>
+                                    <li><b>Definite Compounds Heterozygous</b> are those where both parents have been sequenced and one variant is inherited from each.</li>
+                                    <li><b>Probable Compounds Heterozygous</b> are when one parents has been sequenced and that parent carries one of the two variants and not the other.
+                                    There is a chance that the second variant is a de novo on the same chromosome and therefore that the participant is not a Compounds Heterozygous.</li>
+                                    </ul>`,
                                 type: "checkbox",
                                 allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             }
