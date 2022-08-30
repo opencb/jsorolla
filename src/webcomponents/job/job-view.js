@@ -253,34 +253,32 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Output Files",
-                            field: "output",
                             type: "custom",
                             display: {
-                                render: output => {
-                                    if (output?.length > 0) {
-                                        return html`${output.map(file => {
-                                            const url = [
-                                                this.opencgaSession.server.host,
-                                                "/webservices/rest/",
-                                                this.opencgaSession.server.version,
-                                                "/files/",
-                                                file.id,
-                                                "/download?study=",
-                                                this.opencgaSession.study.fqn,
-                                                "&sid=",
-                                                this.opencgaSession.token,
-                                            ];
-                                            return html`
-                                                <div>
-                                                    <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
-                                                    <a href="${url.join("")}" target="_blank">
-                                                        <i class="fas fa-download icon-padding"></i>
-                                                    </a>
-                                                </div>`;
-                                        })}`;
-                                    } else {
-                                        return html`<div>No output files found.</div>`;
-                                    }
+                                render: job => {
+                                    const outputFiles= [...job.output];
+                                    outputFiles.push(job.stdout);
+                                    outputFiles.push(job.stderr);
+                                    return html`${outputFiles.map(file => {
+                                        const url = [
+                                            this.opencgaSession.server.host,
+                                            "/webservices/rest/",
+                                            this.opencgaSession.server.version,
+                                            "/files/",
+                                            file.id,
+                                            "/download?study=",
+                                            this.opencgaSession.study.fqn,
+                                            "&sid=",
+                                            this.opencgaSession.token,
+                                        ];
+                                        return html`
+                                            <div>
+                                                <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
+                                                <a href="${url.join("")}" target="_blank">
+                                                    <i class="fas fa-download icon-padding"></i>
+                                                </a>
+                                            </div>`;
+                                    })}`;
                                 }
                             }
                         },
