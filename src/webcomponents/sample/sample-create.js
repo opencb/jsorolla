@@ -61,7 +61,14 @@ export default class SampleCreate extends LitElement {
             buttonOkText: "Create"
         };
         this._config = this.getDefaultConfig();
+        this.isLoading = false;
     }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
@@ -115,34 +122,36 @@ export default class SampleCreate extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this.sample = {};
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
         });
     }
 
-    onSubmit(e) {
-        // e.stopPropagation();
+    onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: true
+        };
         let error;
-        this.isLoading = true;
-        this.opencgaSession.opencgaClient.samples().create(this.sample, {study: this.opencgaSession.study.fqn})
-            .then(() => {
-                this.sample = {};
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.samples()
+            .create(this.sample, params)
+            .then(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Create",
                     message: "Sample created correctly"
                 });
-                // this.requestUpdate();
             })
             .catch(reason => {
-                this.sample = {};
                 error = reason;
                 console.error(reason);
             })
             .finally(() => {
+                this.sample = {};
                 this._config = this.getDefaultConfig();
-                this.isLoading = false;
+                this.#setLoading(false);
                 LitUtils.dispatchCustomEvent(this, "sampleCreate", this.sample, {}, error);
-                this.requestUpdate();
             });
     }
 

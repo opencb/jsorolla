@@ -83,31 +83,30 @@ export default class IndividualCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onClear(e) {
+    onClear() {
         this.individual = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
-    onSubmit(e) {
-        // e.stopPropagation();
+    onSubmit() {
         let error;
         this.isLoading = true;
-        this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.individuals()
+            .create(this.individual, {study: this.opencgaSession.study.fqn})
             .then(() => {
-                this.individual = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Individual Create",
                     message: "New Individual created correctly"
                 });
-                // this.requestUpdate();
             })
             .catch(reason => {
-                this.individual = {};
                 error = reason;
                 console.error(reason);
             })
             .finally(() => {
+                this.individual = {};
                 this._config = this.getDefaultConfig();
                 this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);

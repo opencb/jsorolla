@@ -28,7 +28,8 @@ export default class FamilyCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,25 +41,35 @@ export default class FamilyCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this.family = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Create",
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "",
+        };
         this.members = "";
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
 
     onFieldChange(e, field) {
-        e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
             case "members":
@@ -90,26 +101,35 @@ export default class FamilyCreate extends LitElement {
     onClear(e) {
         this.family = {};
         this.members = "";
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     // https://ws.opencb.org/opencga-prod/webservices/#!/Families/createFamilyPOST
-    onSubmit(e) {
-        console.log("Family Saved", this.family);
-        this.opencgaSession.opencgaClient
-            .families()
+    onSubmit() {
+        let error;
+        this.isLoading = true;
+        this.opencgaSession.opencgaClient.families()
             .create(this.family, {study: this.opencgaSession.study.fqn, members: this.members})
-            .then(res => {
+            .then(() => {
                 // TODO: Add a condition to confirm if the information has been saved to the server.
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Family",
-                    message: "family created correctly"
+                    title: "Family Create",
+                    message: "New family created correctly"
                 });
+                console.log("Family Saved", this.family);
                 this.onClear();
             })
-            .catch(err => {
+            .catch(reason => {
+                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            })
+            .finally(() => {
+                this.family = {};
+                this._config = this.getDefaultConfig();
+                this.isLoading = false;
+                LitUtils.dispatchCustomEvent(this, "familyCreate", this.family, {}, error);
+                this.requestUpdate();
             });
     }
 
@@ -126,16 +146,9 @@ export default class FamilyCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                style: "margin: 10px",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -268,7 +281,7 @@ export default class FamilyCreate extends LitElement {
                 //     ]
                 // }
             ]
-        };
+        });
     }
 
 }
