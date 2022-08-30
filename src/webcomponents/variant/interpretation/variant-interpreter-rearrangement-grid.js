@@ -819,7 +819,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         colspan: 1,
                         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         formatter: (value, row) => {
-                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`;
+                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")}`;
                         },
                         align: "center",
                         nucleotideGenotype: true
