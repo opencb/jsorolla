@@ -604,7 +604,8 @@ export default class OpencgaActiveFilters extends LitElement {
                 "annot-functional-score": "CADD",
                 "proteinSubstitution": "Protein Substitution",
                 "annot-go": "GO",
-                "annot-hpo": "HPO"
+                "annot-hpo": "HPO",
+                "knockoutType": "Recessive Genotype"
             },
             complexFields: [],
             hiddenFields: [],
