@@ -93,24 +93,17 @@ export default class OpencgaExport extends LitElement {
         this.query = {};
 
         this.tabs = ["download", "export", "link", "script"]; // default tabs to show
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        /* if (changedProperties.has("opencgaSession")) {
-        }*/
-
         if (changedProperties.has("query") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            if (this.config?.resource) {
-                document.querySelectorAll("code").forEach(block => {
-                //     // hljs.highlightBlock(block);
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
 
-                });
+            if (this.config?.resource) {
                 new ClipboardJS(".clipboard-button");
             }
             if (this.config.gridColumns) {
