@@ -34,38 +34,39 @@ export default class DiseasePanelRegionView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             regions: {
                 type: Array
             },
-            config: {
+            opencgaSession: {
                 type: Object
             },
         };
     }
 
     #init() {
+        this.regions = {};
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "GenePanelBrowserGrid";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        this.displayConfigDefault = {};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig()};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("regions")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("regions")) {
             this.propertyObserver();
         }
     }
 
     propertyObserver() {
         // With each property change we must update config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config?.toolbar,
@@ -128,7 +129,7 @@ export default class DiseasePanelRegionView extends LitElement {
                     title: "Region",
                     field: "name",
                     formatter: (value, row) => `${row.id}`,
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
                 },
                 {
                     id: "modeOfInheritance",
@@ -155,7 +156,7 @@ export default class DiseasePanelRegionView extends LitElement {
                             return "-";
                         }
                     },
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
                 },
                 {
                     id: "phenotypes",
@@ -168,7 +169,7 @@ export default class DiseasePanelRegionView extends LitElement {
                                 <ul>
                                     ${phenotypesContent}
                                 </ul>` : "-"}`;
-                    }
+                    },
                 },
                 {
                     id: "evidences",
@@ -181,8 +182,8 @@ export default class DiseasePanelRegionView extends LitElement {
                                 <ul>
                                     ${evidencesContent}
                                 </ul>` : "-"}`;
-                    }
-                }
+                    },
+                },
             ],
         ];
     }

@@ -39,36 +39,49 @@ export default class FamilyView extends LitElement {
     static get properties() {
         return {
             family: {
-                type: Object
+                type: Object,
             },
             familyId: {
-                type: String
+                type: String,
             },
             individualId: {
-                type: Object
+                type: Object,
             },
             search: {
-                type: Boolean
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             settings: {
-                type: Object
-            }
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
         this.family = {};
         this.search = false;
+
         this.isLoading = false;
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-"
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
+
 
     update(changedProperties) {
         if (changedProperties.has("familyId")) {
@@ -80,18 +93,21 @@ export default class FamilyView extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         if (this.settings?.fields?.length) {
             this._config.hiddenFields = null;
             this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.fields);
         } else if (this.settings?.hiddenFields?.length) {
             this._config.hiddenFields = this.settings.hiddenFields;
             this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
-
         }
         this.requestUpdate();
     }
@@ -102,8 +118,9 @@ export default class FamilyView extends LitElement {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.families().info(this.familyId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.families()
+                .info(this.familyId, query)
                 .then(response => {
                     this.family = response.responses[0].results[0];
                 })
@@ -113,10 +130,9 @@ export default class FamilyView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
         } else {
             this.family = {};
@@ -130,7 +146,7 @@ export default class FamilyView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             let error;
-            this.isLoading = true;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.families().search(query)
                 .then(response => {
                     this.family = response.responses[0].results[0];
@@ -141,10 +157,9 @@ export default class FamilyView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
             // this.familyId = "";
         } else {
@@ -163,27 +178,27 @@ export default class FamilyView extends LitElement {
         }
 
         if (!this.family?.id && this.search === false) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Family ID found.
+                </div>
+            `;
         }
 
         return html`
             <data-form
                 .data="${this.family}"
                 .config="${this._config}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
@@ -203,7 +218,8 @@ export default class FamilyView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
+                                    </catalog-search-autocomplete>
+                                `,
                             }
                         }
                     ]

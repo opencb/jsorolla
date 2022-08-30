@@ -53,7 +53,7 @@ export default class FileView extends LitElement {
             mode: {
                 type: String
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -62,9 +62,21 @@ export default class FileView extends LitElement {
     #init() {
         this.file = {};
         this.search = false;
-        this.isLoading = false;
         this.preview = false;
-        this.config = this.getDefaultConfig();
+        this.isLoading = false;
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+        };
+        this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -72,14 +84,18 @@ export default class FileView extends LitElement {
             this.fileIdObserver();
         }
         if (changedProperties.has("preview")) {
-            this.config = this.getDefaultConfig();
+            this._config = this.getDefaultConfig();
         }
         if (changedProperties.has("mode")) {
-            this.config = this.getDefaultConfig();
+            this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("config")) {
-            this.config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
+        // if (changedProperties.has("config")) {
+        //     this.config = {...this.getDefaultConfig(), ...this.config};
+        // }
         super.update(changedProperties);
     }
 
@@ -89,8 +105,9 @@ export default class FileView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.files().info(this.fileId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.files()
+                .info(this.fileId, query)
                 .then(response => {
                     this.file = response.responses[0].results[0];
                 })
@@ -100,10 +117,9 @@ export default class FileView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "fileSearch", this.file, {}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
         } else {
             this.file = {};
@@ -116,13 +132,18 @@ export default class FileView extends LitElement {
         }
 
         if (!this.file?.id && this.search === false) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No File ID found.
+                </div>
+            `;
         }
 
         return html`
             <data-form
                 .data="${this.file}"
-                .config="${this.config}">
+                .config="${this._config}">
             </data-form>
         `;
     }
@@ -131,13 +152,7 @@ export default class FileView extends LitElement {
         return {
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
@@ -159,15 +174,14 @@ export default class FileView extends LitElement {
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
                     display: {
-                        // width: 10,
-                        collapsed: false
+                        collapsed: false,
                     },
                     elements: [
                         {
@@ -177,15 +191,15 @@ export default class FileView extends LitElement {
                                 render: data => html`
                                     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Name",
-                            field: "name"
+                            field: "name",
                         },
                         {
                             title: "Study Path",
-                            field: "path"
+                            field: "path",
                         },
                         {
                             title: "Size",
@@ -193,14 +207,14 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.getDiskUsage(field)}`
-                            }
+                            },
                         },
                         {
                             title: "Format (Bioformat)",
                             type: "complex",
                             display: {
                                 template: "${format} (${bioformat})",
-                            }
+                            },
                         },
                         {
                             title: "Tags",
@@ -208,7 +222,7 @@ export default class FileView extends LitElement {
                             type: "list",
                             display: {
                                 separator: ", ",
-                            }
+                            },
                         },
                         {
                             title: "Creation Date",
@@ -216,7 +230,7 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Status",
@@ -224,7 +238,7 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
-                            }
+                            },
                         },
                         {
                             title: "Index Status",
@@ -232,21 +246,20 @@ export default class FileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "File Preview",
                     display: {
                         visible: () => this.preview === true || this.mode === "full",
                         layout: "vertical",
-                        collapsed: false
+                        collapsed: false,
                     },
                     elements: [
                         {
-                            // title: "Name",
-                            field: "name"
+                            field: "name",
                         },
                         {
                             // title: "Preview",
@@ -259,11 +272,11 @@ export default class FileView extends LitElement {
                                         .active="${true}">
                                     </file-preview>
                                 `,
-                            }
-                        }
-                    ]
-                }
-            ]
+                            },
+                        },
+                    ],
+                },
+            ],
         };
     }
 

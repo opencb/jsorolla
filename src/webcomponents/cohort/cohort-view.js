@@ -50,15 +50,15 @@ export default class CohortView extends LitElement {
             },
             displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
     #init() {
         this.cohort = {};
         this.search = false;
-        this.isLoading = false;
 
+        this.isLoading = false;
         this.displayConfigDefault = {
             buttonsVisible: false,
             collapsable: true,
@@ -74,11 +74,6 @@ export default class CohortView extends LitElement {
         this.isLoading = value;
         this.requestUpdate();
     }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("cohortId")) {
@@ -98,7 +93,8 @@ export default class CohortView extends LitElement {
             };
             let error;
             this.#setLoading(true);
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
+            this.opencgaSession.opencgaClient.cohorts()
+                .info(this.cohortId, query)
                 .then(response => {
                     this.cohort = response.responses[0].results[0];
                 })
@@ -108,11 +104,10 @@ export default class CohortView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this._config};
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {}, error);
                     this.#setLoading(false);
                 });
-            // this.cohortId = "";
         } else {
             this.cohort = {};
         }
@@ -128,7 +123,12 @@ export default class CohortView extends LitElement {
         }
 
         if (!this.cohort?.id && this.search === false) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Cohort ID found.
+                </div>
+            `;
         }
 
         return html`
@@ -164,9 +164,9 @@ export default class CohortView extends LitElement {
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>`,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
@@ -178,7 +178,7 @@ export default class CohortView extends LitElement {
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
                             title: "Cohort Id",
-                            field: "id"
+                            field: "id",
                         },
                         {
                             title: "Cohort Type",
@@ -194,7 +194,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
-                            }
+                            },
                         },
                         {
                             title: "Creation date",
@@ -202,7 +202,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Modification Date",
@@ -210,7 +210,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Annotation sets",
@@ -223,9 +223,9 @@ export default class CohortView extends LitElement {
                                         .annotationSets="${field}">
                                     </annotation-set-view>
                                 `,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Samples",
@@ -255,15 +255,15 @@ export default class CohortView extends LitElement {
                                         defaultValue: "-",
                                         display: {
                                             render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
-                                        }
-                                    }
+                                        },
+                                    },
                                 ],
                                 defaultValue: "No phenotypes found",
-                            }
-                        }
-                    ]
-                }
-            ]
+                            },
+                        },
+                    ],
+                },
+            ],
         });
     }
 
