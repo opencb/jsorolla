@@ -142,7 +142,7 @@ export default class SampleUpdate extends LitElement {
             case "processing.quantity":
             case "processing.date":
             case "collection.tissue":
-            case "collection.organ":
+            case "collection.type":
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
@@ -486,11 +486,11 @@ export default class SampleUpdate extends LitElement {
                             },
                         },
                         {
-                            title: "Organ",
-                            field: "collection.organ",
+                            title: "Type",
+                            field: "collection.type",
                             type: "input-text",
                             display: {
-                                placeholder: "Add an organ...",
+                                placeholder: "Add the type of sample collection...",
                             },
                         },
                         {
