@@ -67,7 +67,7 @@ export default class RgaBrowser extends LitElement {
         this.executedQuery = {};
         this.activeFilterAlias = {
         };
-        this.activeTab = {"variant-tab": true};
+        this.activeTab = {"gene-tab": true};
         this.detail = {};
         this.resource = "RGA";
 
@@ -236,9 +236,10 @@ export default class RgaBrowser extends LitElement {
             ],
             views: [
                 {
-                    id: "variant-tab",
-                    name: "Variants",
-                    icon: "fas fa-table"
+                    id: "gene-tab",
+                    name: "Genes",
+                    icon: "fa fa-table",
+                    active: true
                 },
                 {
                     id: "individual-tab",
@@ -246,10 +247,9 @@ export default class RgaBrowser extends LitElement {
                     icon: "fas fa-table"
                 },
                 {
-                    id: "gene-tab",
-                    name: "Genes",
-                    icon: "fa fa-table",
-                    active: true
+                    id: "variant-tab",
+                    name: "Variants",
+                    icon: "fas fa-table"
                 }
             ],
             filter: {
@@ -276,7 +276,7 @@ export default class RgaBrowser extends LitElement {
                             },
                             {
                                 id: "knockoutType",
-                                name: "Knockout Type",
+                                name: "Recessive Genotype",
                                 allowedValues: [{id: "COMP_HET", name: "Compound Heterozygous"}, {id: "HOM_ALT", name: "Homozygous"}, {id: "DELETION_OVERLAP", name: "Deletion Overlap"}]
                             }
                         ]
@@ -298,7 +298,11 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "numParents",
                                 name: "Include families with",
-                                tooltip: "Confidence selection",
+                                tooltip: `<ul>
+                                    <li><b>Definite Compounds Heterozygous</b> are those where both parents have been sequenced and one variant is inherited from each.</li>
+                                    <li><b>Probable Compounds Heterozygous</b> are when one parents has been sequenced and that parent carries one of the two variants and not the other.
+                                    There is a chance that the second variant is a de novo on the same chromosome and therefore that the participant is not a Compounds Heterozygous.</li>
+                                    </ul>`,
                                 type: "checkbox",
                                 allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             }
@@ -444,7 +448,7 @@ export default class RgaBrowser extends LitElement {
                         </opencga-active-filters>
 
                         <div class="main-view">
-                            <div id="gene-tab" class="content-tab">
+                            <div id="gene-tab" class="content-tab active">
                                 <rga-gene-view .query=${this.executedQuery}
                                                .config=${this._config}
                                                .opencgaSession="${this.opencgaSession}"
@@ -460,7 +464,7 @@ export default class RgaBrowser extends LitElement {
                                 </rga-individual-view>
                             </div>
 
-                            <div id="variant-tab" class="content-tab active">
+                            <div id="variant-tab" class="content-tab">
                                 <rga-variant-view .query=${this.executedQuery}
                                                   .config=${this._config}
                                                   .opencgaSession="${this.opencgaSession}"
