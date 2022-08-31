@@ -47,7 +47,7 @@ context("3. Login", () => {
         expect(username, "username was set").to.be.a("string").and.not.be.empty;
         expect(password, "password was set").to.be.a("string").and.not.be.empty;
         cy.get("user-login .panel-body #user").type(username);
-        cy.get("user-login .panel-body #password").type(password);
+        cy.get("user-login .panel-body #password").type(password, {log: false});
         cy.get("button.btn-primary").contains("Sign In").click();
 
         cy.get(".login-overlay", {timeout: TIMEOUT}).should("be.visible");
