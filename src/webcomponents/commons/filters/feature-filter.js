@@ -42,6 +42,9 @@ export default class FeatureFilter extends LitElement {
             },
             query: {
                 type: Object
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -57,6 +60,10 @@ export default class FeatureFilter extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("cellbaseClient")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
         // TODO temp solution to handle CB being not available https://github.com/opencb/jsorolla/issues/426
         if (changedProperties.has("cellbaseClient")) {
             this.cellbaseClient.getMeta("about").then(() => {
