@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
@@ -38,20 +39,20 @@ export default class SampleView extends LitElement {
     static get properties() {
         return {
             sample: {
-                type: Object
+                type: Object,
             },
             sampleId: {
-                type: String
+                type: String,
             },
             search: {
-                type: Boolean
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -65,7 +66,7 @@ export default class SampleView extends LitElement {
             collapsable: true,
             titleVisible: false,
             titleWidth: 2,
-            defaultValue: "-"
+            defaultValue: "-",
         };
         this._config = this.getDefaultConfig();
     }
@@ -74,11 +75,6 @@ export default class SampleView extends LitElement {
         this.isLoading = value;
         this.requestUpdate();
     }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = this.getDefaultConfig();
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
@@ -95,11 +91,12 @@ export default class SampleView extends LitElement {
         if (this.sampleId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn,
-                includeIndividual: true
+                includeIndividual: true,
             };
             let error;
             this.#setLoading(true);
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
+            this.opencgaSession.opencgaClient.samples()
+                .info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
                 })
@@ -113,7 +110,6 @@ export default class SampleView extends LitElement {
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
                     this.#setLoading(false);
                 });
-            // this.sampleId = "";
         } else {
             this.sample = {};
         }
@@ -130,7 +126,12 @@ export default class SampleView extends LitElement {
         }
 
         if (!this.sample?.id && this.search === false) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    Sample ID not found.
+                </div>
+            `;
         }
 
         return html`
@@ -165,10 +166,11 @@ export default class SampleView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
-                            }
-                        }
-                    ]
+                                    </catalog-search-autocomplete>
+                                `,
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
@@ -183,7 +185,7 @@ export default class SampleView extends LitElement {
                             display: {
                                 visible: sample => sample?.id,
                                 render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
-                            }
+                            },
                         },
                         {
                             title: "Individual ID",
@@ -195,19 +197,19 @@ export default class SampleView extends LitElement {
                             type: "list",
                             display: {
                                 defaultValue: "Files not found or empty",
-                                contentLayout: "bullets"
-                            }
+                                contentLayout: "bullets",
+                            },
                         },
                         {
                             title: "Somatic",
                             field: "somatic",
                             display: {
-                                defaultValue: "false"
-                            }
+                                defaultValue: "false",
+                            },
                         },
                         {
                             title: "Version",
-                            field: "version"
+                            field: "version",
                         },
                         {
                             title: "Status",
@@ -215,7 +217,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
-                            }
+                            },
                         },
                         {
                             title: "Creation Date",
@@ -223,7 +225,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Modification Date",
@@ -231,7 +233,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Description",
@@ -248,11 +250,15 @@ export default class SampleView extends LitElement {
                                 render: phenotype => {
                                     let id = phenotype?.id;
                                     if (phenotype?.id?.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                        id = html`
+                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                                                ${phenotype.id}
+                                            </a>
+                                        `;
                                     }
-                                    return html`${phenotype?.name} (${id})`;
+                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
                                 },
-                            }
+                            },
                         },
                         /*
                             {
@@ -264,9 +270,9 @@ export default class SampleView extends LitElement {
                                 }
                             }
                         */
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         });
     }
 

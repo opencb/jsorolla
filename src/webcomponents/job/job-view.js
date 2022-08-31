@@ -37,23 +37,23 @@ export default class JobView extends LitElement {
     static get properties() {
         return {
             job: {
-                type: Object
+                type: Object,
             },
             jobId: {
-                type: String
+                type: String,
             },
             search: {
-                type: Boolean
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             mode: {
-                type: String
+                type: String,
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
@@ -61,15 +61,29 @@ export default class JobView extends LitElement {
         this.job = {};
         this.search = false;
         this.isLoading = false;
+
+        this.displayConfigDefault = {
+            collapsable: true,
+            showTitle: false,
+            labelWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "-",
+        };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -80,8 +94,9 @@ export default class JobView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.jobs()
+                .info(this.jobId, query)
                 .then(response => {
                     this.job = response.responses[0].results[0];
                 })
@@ -91,10 +106,9 @@ export default class JobView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
-                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.family, {}, error);
-                    this.requestUpdate();
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.file, {}, error);
+                    this.#setLoading(false);
                 });
         } else {
             this.job = {};
@@ -107,7 +121,12 @@ export default class JobView extends LitElement {
         }
 
         if (!this.job?.id && this.search === false) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Job ID found.
+                </div>
+            `;
         }
 
         return html`
@@ -123,13 +142,7 @@ export default class JobView extends LitElement {
             title: "Summary",
             icon: "",
             nullData: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
@@ -150,24 +163,24 @@ export default class JobView extends LitElement {
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>`,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Summary",
                     elements: [
                         {
                             name: "Job ID",
-                            field: "id"
+                            field: "id",
                         },
                         {
                             name: "User",
-                            field: "userId"
+                            field: "userId",
                         },
                         {
                             name: "Tool ID",
-                            field: "tool.id"
+                            field: "tool.id",
                         },
                         {
                             name: "Status",
@@ -178,7 +191,7 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Priority",
-                            field: "priority"
+                            field: "priority",
                         },
                         {
                             name: "Tags",
@@ -198,9 +211,9 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Description",
-                            field: "description"
+                            field: "description",
                         }
-                    ]
+                    ],
                 },
                 {
                     title: "Execution",
@@ -244,12 +257,12 @@ export default class JobView extends LitElement {
                             defaultValue: "N/A",
                             display: {
                                 template: "${name}",
-                                contentLayout: "bullets"
-                            }
+                                contentLayout: "bullets",
+                            },
                         },
                         {
                             name: "Output Directory",
-                            field: "outDir.path"
+                            field: "outDir.path",
                         },
                         {
                             name: "Output Files",
@@ -279,18 +292,17 @@ export default class JobView extends LitElement {
                                                 </a>
                                             </div>`;
                                     })}`;
-                                }
-                            }
+                                },
+                            },
                         },
                         {
                             name: "Command Line",
                             type: "complex",
                             display: {
-                                template: "<div class='cmd'>${commandLine}</div>"
-                            }
-                        }
-
-                    ]
+                                template: "<div class='cmd'>${commandLine}</div>",
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Results",
@@ -300,9 +312,9 @@ export default class JobView extends LitElement {
                             display: {
                                 defaultLayout: "vertical",
                                 render: () => AnalysisRegistry.get(this.job.tool.id)?.result(this.job, this.opencgaSession)
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Job Dependencies",
@@ -325,10 +337,10 @@ export default class JobView extends LitElement {
                                         // format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
                                     }
                                 ],
-                                border: true
-                            }
-                        }
-                    ]
+                                border: true,
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Job log",

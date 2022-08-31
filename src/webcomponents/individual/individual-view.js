@@ -38,35 +38,35 @@ export default class IndividualView extends LitElement {
     static get properties() {
         return {
             individual: {
-                type: Object
+                type: Object,
             },
             individualId: {
-                type: String
+                type: String,
             },
             search: {
-                type: Boolean
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     #init() {
         this.individual = {};
         this.search = false;
-        this.isLoading = false;
 
+        this.isLoading = false;
         this.displayConfigDefault = {
             collapsable: true,
             titleVisible: false,
             titleWidth: 2,
             defaultValue: "-",
             defaultLayout: "horizontal",
-            buttonsVisible: false
+            buttonsVisible: false,
         };
         this._config = this.getDefaultConfig();
     }
@@ -76,15 +76,10 @@ export default class IndividualView extends LitElement {
         this.requestUpdate();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = this.getDefaultConfig();
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("individual")) {
             // to update disorders if it has more than one
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = this.getDefaultConfig();
         }
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
@@ -103,7 +98,8 @@ export default class IndividualView extends LitElement {
             };
             let error;
             this.#setLoading(true);
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId || "", query)
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId || "", query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                 })
@@ -113,11 +109,10 @@ export default class IndividualView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
                     this.#setLoading(false);
                 });
-            // this.individualId = "";
         } else {
             this.individual = {};
         }
@@ -133,7 +128,12 @@ export default class IndividualView extends LitElement {
         }
 
         if (!this.individual?.id && this.search === false) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    Individual ID not found.
+                </div>
+            `;
         }
 
         return html`
@@ -169,9 +169,9 @@ export default class IndividualView extends LitElement {
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>`,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
@@ -191,17 +191,17 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Name",
-                            field: "name"
+                            field: "name",
                         },
                         {
                             title: "Father ID",
                             field: "father.id",
-                            type: "basic"
+                            type: "basic",
                         },
                         {
                             title: "Mother ID",
                             field: "mother.id",
-                            type: "basic"
+                            type: "basic",
                         },
                         {
                             title: "Reported Sex (Karyotypic)",
@@ -210,7 +210,7 @@ export default class IndividualView extends LitElement {
                                 render: individual => `
                                     ${individual.sex?.id ?? individual.sex ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Inferred Karyotypic Sex",
@@ -223,7 +223,7 @@ export default class IndividualView extends LitElement {
                                         return "-";
                                     }
                                 },
-                            }
+                            },
                         },
                         {
                             title: "Ethnicity",
@@ -236,8 +236,8 @@ export default class IndividualView extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
-                                defaultValue: "N/A"
-                            }
+                                defaultValue: "N/A",
+                            },
                         },
                         {
                             title: "Phenotypes",
@@ -248,20 +248,24 @@ export default class IndividualView extends LitElement {
                                 render: phenotype => {
                                     let id = phenotype.id;
                                     if (phenotype.id.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                        id = html`
+                                            <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
+                                                ${phenotype.id}
+                                            </a>
+                                        `;
                                     }
                                     return html`${phenotype.name} (${id})`;
                                 },
-                                defaultValue: "N/A"
-                            }
+                                defaultValue: "N/A",
+                            },
                         },
                         {
                             title: "Life Status",
-                            field: "lifeStatus"
+                            field: "lifeStatus",
                         },
                         {
                             title: "Version",
-                            field: "version"
+                            field: "version",
                         },
                         {
                             title: "Status",
@@ -269,7 +273,7 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
-                            }
+                            },
                         },
                         {
                             title: "Creation Date",
@@ -277,7 +281,7 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
-                            }
+                            },
                         },
                         {
                             title: "Modification Date",
@@ -285,13 +289,13 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
-                            }
+                            },
                         },
                         {
                             title: "Description",
-                            field: "description"
-                        }
-                    ]
+                            field: "description",
+                        },
+                    ],
                 },
                 {
                     title: "Samples",
@@ -322,14 +326,14 @@ export default class IndividualView extends LitElement {
                                         display: {
                                             render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
                                         },
-                                    }
+                                    },
                                 ],
-                                defaultValue: "No phenotypes found"
-                            }
-                        }
-                    ]
-                }
-            ]
+                                defaultValue: "No phenotypes found",
+                            },
+                        },
+                    ],
+                },
+            ],
         });
     }
 
