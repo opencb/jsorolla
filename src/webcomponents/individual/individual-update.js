@@ -58,6 +58,7 @@ export default class IndividualUpdate extends LitElement {
         this.individual = {};
         this.updateParams = {};
         this.isLoading = false;
+
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -82,12 +83,10 @@ export default class IndividualUpdate extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 

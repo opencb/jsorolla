@@ -54,6 +54,8 @@ export default class SampleCreate extends LitElement {
         this.sample = {};
         this.collection = {from: []};
         this.annotationSet = {};
+        this.isLoading = false;
+
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -61,7 +63,6 @@ export default class SampleCreate extends LitElement {
             buttonOkText: "Create"
         };
         this._config = this.getDefaultConfig();
-        this.isLoading = false;
     }
 
     #setLoading(value) {

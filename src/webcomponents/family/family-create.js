@@ -49,6 +49,7 @@ export default class FamilyCreate extends LitElement {
 
     #init() {
         this.family = {};
+        this.members = "";
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Create",
@@ -57,7 +58,6 @@ export default class FamilyCreate extends LitElement {
             defaultLayout: "horizontal",
             defaultValue: "",
         };
-        this.members = "";
         this._config = this.getDefaultConfig();
     }
 

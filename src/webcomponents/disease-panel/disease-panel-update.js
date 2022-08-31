@@ -50,15 +50,13 @@ export default class DiseasePanelUpdate extends LitElement {
             displayConfig: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
         };
     }
 
     #init() {
         this.diseasePanel = {};
         this.updateParams = {};
+
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -68,6 +66,11 @@ export default class DiseasePanelUpdate extends LitElement {
             defaultLayout: "horizontal",
         };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     firstUpdated(changedProperties) {
@@ -80,14 +83,9 @@ export default class DiseasePanelUpdate extends LitElement {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
@@ -104,8 +102,9 @@ export default class DiseasePanelUpdate extends LitElement {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.panels()
+                .info(this.diseasePanelId, query)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
                     this.initOriginalObject();
@@ -117,9 +116,8 @@ export default class DiseasePanelUpdate extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
                     LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.individual, {query: {...query}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
         } else {
             this.diseasePanel = {};
@@ -178,7 +176,6 @@ export default class DiseasePanelUpdate extends LitElement {
                 }
             }
         }
-
         this.requestUpdate();
     }
 
@@ -195,7 +192,7 @@ export default class DiseasePanelUpdate extends LitElement {
             includeResult: true
         };
         let error;
-        this.isLoading = true;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.panels()
             .update(this._diseasePanel.id, this.updateParams, params)
             .then(response => {
@@ -213,21 +210,20 @@ export default class DiseasePanelUpdate extends LitElement {
             })
             .finally(() => {
                 this._config = {...this.getDefaultConfig(), ...this.config};
-                this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "diseasePanelUpdate", this.family, {}, error);
-                this.requestUpdate();
+                this.#setLoading(false);
             });
     }
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.diseasePanel?.id) {
             return html`<div>No valid object found</div>`;
         }
+
         return html`
             <data-form
                 .data="${this.diseasePanel}"

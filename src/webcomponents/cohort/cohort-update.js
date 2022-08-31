@@ -49,15 +49,13 @@ export default class CohortUpdate extends LitElement {
             displayConfig: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
         };
     }
 
     #init() {
         this.cohort = {};
         this.updateParams = {};
+
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -67,6 +65,11 @@ export default class CohortUpdate extends LitElement {
             defaultValue: "",
         };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     firstUpdated(changedProperties) {
@@ -79,14 +82,9 @@ export default class CohortUpdate extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }

@@ -49,15 +49,14 @@ export default class FamilyUpdate extends LitElement {
             displayConfig: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
         };
     }
 
     #init() {
         this.family = {};
+        this.phenotype = {};
         this.updateParams = {};
+
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -66,8 +65,12 @@ export default class FamilyUpdate extends LitElement {
             defaultLayout: "horizontal",
             defaultValue: "",
         };
-        this.phenotype = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     firstUpdated(changedProperties) {
@@ -80,14 +83,9 @@ export default class FamilyUpdate extends LitElement {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
@@ -104,8 +102,9 @@ export default class FamilyUpdate extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.families().info(this.familyId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.families()
+                .info(this.familyId, query)
                 .then(response => {
                     this.family = response.responses[0].results[0];
                     this.initOriginalObject();
@@ -117,10 +116,9 @@ export default class FamilyUpdate extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
                     // CAUTION: two new lines, double-check if needed
                     LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(false);
                 });
         } else {
             this.family = {};
@@ -178,7 +176,7 @@ export default class FamilyUpdate extends LitElement {
             includeResult: true
         };
         let error;
-        this.isLoading = true;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.families()
             .update(this.family.id, this.updateParams, params)
             .then(response => {
@@ -196,9 +194,8 @@ export default class FamilyUpdate extends LitElement {
             })
             .finally(() => {
                 this._config = {...this.getDefaultConfig(), ...this.config};
-                this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "familyUpdate", this.family, {}, error);
-                this.requestUpdate();
+                this.#setLoading(false);
             });
     }
 

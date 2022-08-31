@@ -60,6 +60,7 @@ export default class SampleUpdate extends LitElement {
         this.sample = {};
         this.updateParams = {};
         this.isLoading = false;
+
         this.displayConfigDefault = {
             style: "margin: 10px",
             defaultLayout: "horizontal",
@@ -85,12 +86,10 @@ export default class SampleUpdate extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
