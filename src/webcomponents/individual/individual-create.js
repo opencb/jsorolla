@@ -62,6 +62,11 @@ export default class IndividualCreate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -84,17 +89,26 @@ export default class IndividualCreate extends LitElement {
     }
 
     onClear() {
-        this.individual = {};
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear individual",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.individual = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: true
+        };
         let error;
         this.isLoading = true;
         this.opencgaSession.opencgaClient.individuals()
-            .create(this.individual, {study: this.opencgaSession.study.fqn})
+            .create(this.individual, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Individual Create",
@@ -108,9 +122,8 @@ export default class IndividualCreate extends LitElement {
             .finally(() => {
                 this.individual = {};
                 this._config = this.getDefaultConfig();
-                this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);
-                this.requestUpdate();
+                this.#setLoading(false);
             });
     }
 
@@ -168,7 +181,7 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 visible: () => Object.keys(this.individual).length > 0,
                                 notificationType: "warning",
-                            }
+                            },
                         },
                         {
                             title: "Individual ID",
@@ -178,17 +191,17 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 placeholder: "Add an ID...",
                                 help: {
-                                    text: "Add an ID"
-                                }
-                            }
+                                    text: "Add an ID",
+                                },
+                            },
                         },
                         {
                             title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the Individual name..."
-                            }
+                                placeholder: "Add the Individual name...",
+                            },
                         },
                         {
                             title: "Father ID",
@@ -206,12 +219,12 @@ export default class IndividualCreate extends LitElement {
                                             this.onFieldChange({
                                                 detail: {
                                                     param: "father",
-                                                    value: {id: e.detail.value}
+                                                    value: {id: e.detail.value},
                                                 }
                                             })}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Mother ID",
@@ -229,12 +242,12 @@ export default class IndividualCreate extends LitElement {
                                             this.onFieldChange({
                                                 detail: {
                                                     param: "mother",
-                                                    value: {id: e.detail.value}
+                                                    value: {id: e.detail.value},
                                                 }
                                             })}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Date of Birth",
@@ -242,7 +255,7 @@ export default class IndividualCreate extends LitElement {
                             type: "input-date",
                             display: {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
+                            },
                         },
                         {
                             title: "Sex",
@@ -259,7 +272,7 @@ export default class IndividualCreate extends LitElement {
                                         @fieldChange="${e => this.onFieldChange(e, "sex")}">
                                     </ontology-term-annotation-create>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Ethnicity",
@@ -276,7 +289,7 @@ export default class IndividualCreate extends LitElement {
                                         @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
                                     </ontology-term-annotation-create>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Karyotypic Sex",
@@ -284,8 +297,8 @@ export default class IndividualCreate extends LitElement {
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
                             display: {
-                                placeholder: "Select the Karyotypic Sex..."
-                            }
+                                placeholder: "Select the Karyotypic Sex...",
+                            },
                         },
                         {
                             title: "Life Status",
@@ -293,16 +306,16 @@ export default class IndividualCreate extends LitElement {
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
                             display: {
-                                placeholder: "Select the life status..."
-                            }
+                                placeholder: "Select the life status...",
+                            },
                         },
                         {
                             title: "Parental Consanguinity",
                             field: "parentalConsanguinity",
                             type: "checkbox",
-                            checked: false
+                            checked: false,
                         },
-                    ]
+                    ],
                 },
                 {
                     title: "Location Info",
@@ -312,42 +325,42 @@ export default class IndividualCreate extends LitElement {
                             field: "location.address",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the location info..."
-                            }
+                                placeholder: "Add the location info...",
+                            },
                         },
                         {
                             title: "Postal code",
                             field: "location.postalCode",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the postal code..."
-                            }
+                                placeholder: "Add the postal code...",
+                            },
                         },
                         {
                             title: "City",
                             field: "location.city",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the city name..."
-                            }
+                                placeholder: "Add the city name...",
+                            },
                         },
                         {
                             title: "State",
                             field: "location.state",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the state name..."
-                            }
+                                placeholder: "Add the state name...",
+                            },
                         },
                         {
                             title: "Country",
                             field: "location.country",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the country name..."
-                            }
-                        }
-                    ]
+                                placeholder: "Add the country name...",
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Population Info",
@@ -357,16 +370,16 @@ export default class IndividualCreate extends LitElement {
                             field: "population.name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the population name..."
-                            }
+                                placeholder: "Add the population name...",
+                            },
                         },
                         {
                             title: "Sub-population",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the sub-population name..."
-                            }
+                                placeholder: "Add the sub-population name...",
+                            },
                         },
                         {
                             title: "Population Description",
@@ -378,10 +391,10 @@ export default class IndividualCreate extends LitElement {
                             },
                             display: {
                                 rows: 3,
-                                placeholder: "Add a description about the population..."
-                            }
-                        }
-                    ]
+                                placeholder: "Add a description about the population...",
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Phenotypes",
@@ -404,7 +417,7 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add phenotype ID...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "name",
@@ -412,7 +425,7 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add a name...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Source",
@@ -420,15 +433,15 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add a source...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
                                     type: "input-num",
                                     display: {
-                                        placeholder: "Add an age of onset..."
-                                    }
+                                        placeholder: "Add an age of onset...",
+                                    },
                                 },
                                 {
                                     title: "Status",
@@ -436,8 +449,8 @@ export default class IndividualCreate extends LitElement {
                                     type: "select",
                                     allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
                                     display: {
-                                        placeholder: "Select a status..."
-                                    }
+                                        placeholder: "Select a status...",
+                                    },
                                 },
                                 {
                                     title: "Description",
@@ -445,12 +458,12 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         rows: 3,
-                                        placeholder: "Add a description..."
-                                    }
+                                        placeholder: "Add a description...",
+                                    },
                                 },
-                            ]
+                            ],
                         },
-                    ]
+                    ],
                 },
                 // {
                 //     title: "Phenotypes",
@@ -580,7 +593,7 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add phenotype ID...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "name",
@@ -588,7 +601,7 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add a name...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Source",
@@ -596,7 +609,7 @@ export default class IndividualCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add a source...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Description",
@@ -605,11 +618,11 @@ export default class IndividualCreate extends LitElement {
                                     display: {
                                         rows: 3,
                                         placeholder: "Add a description..."
-                                    }
+                                    },
                                 },
-                            ]
+                            ],
                         },
-                    ]
+                    ],
                 },
                 // {
                 //     title: "Annotations Sets",

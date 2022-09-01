@@ -46,7 +46,7 @@ export default class SampleCreate extends LitElement {
             },
             displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
@@ -55,7 +55,6 @@ export default class SampleCreate extends LitElement {
         this.collection = {from: []};
         this.annotationSet = {};
         this.isLoading = false;
-
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -84,8 +83,8 @@ export default class SampleCreate extends LitElement {
         switch (param) {
             case "id":
             case "description":
-            case "somatic":
             case "individualId":
+            case "somatic":
             case "status": // it's object
             case "source": // it's object
             case "processing.product": // it's object
@@ -138,7 +137,7 @@ export default class SampleCreate extends LitElement {
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.samples()
             .create(this.sample, params)
-            .then(response => {
+            .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Create",
                     message: "Sample created correctly"
@@ -151,8 +150,8 @@ export default class SampleCreate extends LitElement {
             .finally(() => {
                 this.sample = {};
                 this._config = this.getDefaultConfig();
-                this.#setLoading(false);
                 LitUtils.dispatchCustomEvent(this, "sampleCreate", this.sample, {}, error);
+                this.#setLoading(false);
             });
     }
 
@@ -212,7 +211,7 @@ export default class SampleCreate extends LitElement {
                             display: {
                                 visible: () => Object.keys(this.sample).length > 0,
                                 notificationType: "warning",
-                            }
+                            },
                         },
                         {
                             title: "Sample ID",
@@ -240,17 +239,17 @@ export default class SampleCreate extends LitElement {
                                             this.onFieldChange({
                                                 detail: {
                                                     param: "individualId",
-                                                    value: e.detail.value
+                                                    value: e.detail.value,
                                                 }
                                             })}">
                                     </catalog-search-autocomplete>`
-                            }
+                            },
                         },
                         {
                             title: "Somatic",
                             field: "somatic",
                             type: "checkbox",
-                            checked: false
+                            checked: false,
                         },
                         {
                             title: "Description",
@@ -258,8 +257,8 @@ export default class SampleCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add a description..."
-                            }
+                                placeholder: "Add a description...",
+                            },
                         },
                         {
                             title: "Source",
@@ -277,7 +276,7 @@ export default class SampleCreate extends LitElement {
                                         }}"
                                         @fieldChange="${e => this.onFieldChange(e, "source")}">
                                     </external-source-create>`
-                            }
+                            },
                         },
                         {
                             title: "Status",
@@ -295,9 +294,9 @@ export default class SampleCreate extends LitElement {
                                         }}"
                                         @fieldChange="${e => this.onFieldChange(e, "status")}">
                                     </status-create>`
-                            }
+                            },
                         },
-                    ]
+                    ],
                 },
                 {
                     title: "Processing Info",
@@ -317,39 +316,39 @@ export default class SampleCreate extends LitElement {
                                         }}"
                                         @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
                                     </ontology-term-annotation-create>`
-                            }
+                            },
                         },
                         {
                             title: "Preparation Method",
                             field: "processing.preparationMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a preparation method..."
-                            }
+                                placeholder: "Add a preparation method...",
+                            },
                         },
                         {
                             title: "Extraction Method",
                             field: "processing.extractionMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a extraction method..."
-                            }
+                                placeholder: "Add a extraction method...",
+                            },
                         },
                         {
                             title: "Lab Sample ID",
                             field: "processing.labSambpleId",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the lab sample ID..."
-                            }
+                                placeholder: "Add the lab sample ID...",
+                            },
                         },
                         {
                             title: "Quantity",
                             field: "processing.quantity",
                             type: "input-num",
                             display: {
-                                placeholder: "Add a quantity..."
-                            }
+                                placeholder: "Add a quantity...",
+                            },
                         },
                         {
                             title: "Date",
@@ -357,9 +356,9 @@ export default class SampleCreate extends LitElement {
                             type: "input-date",
                             display: {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Collection Info",
@@ -394,31 +393,31 @@ export default class SampleCreate extends LitElement {
                                         }}"
                                         @addItem="${callback}">
                                     </ontology-term-annotation-create>`
-                            }
+                            },
                         },
                         {
                             title: "Type",
                             field: "collection.type",
                             type: "input-text",
                             display: {
-                                placeholder: "Add an type..."
-                            }
+                                placeholder: "Add an type...",
+                            },
                         },
                         {
                             title: "Quantity",
                             field: "collection.quantity",
                             type: "input-num",
                             display: {
-                                placeholder: "Add a quantity..."
-                            }
+                                placeholder: "Add a quantity...",
+                            },
                         },
                         {
                             title: "Method",
                             field: "collection.method",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a method..."
-                            }
+                                placeholder: "Add a method...",
+                            },
                         },
                         {
                             title: "Date",
@@ -426,9 +425,9 @@ export default class SampleCreate extends LitElement {
                             type: "input-date",
                             display: {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
+                            },
                         },
-                    ]
+                    ],
                 },
                 {
                     title: "Phenotypes",
@@ -464,9 +463,9 @@ export default class SampleCreate extends LitElement {
                                         @addItem="${callback}">
                                     </ontology-term-annotation-create>
                                 `
-                            }
+                            },
                         },
-                    ]
+                    ],
                 },
                 // {
                 //     title: "Annotations Sets",
@@ -490,7 +489,7 @@ export default class SampleCreate extends LitElement {
                 //         }
                 //     ]
                 // }
-            ]
+            ],
         });
     }
 

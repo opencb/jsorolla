@@ -58,7 +58,6 @@ export default class IndividualUpdate extends LitElement {
         this.individual = {};
         this.updateParams = {};
         this.isLoading = false;
-
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",

@@ -56,7 +56,7 @@ export default class FamilyUpdate extends LitElement {
         this.family = {};
         this.phenotype = {};
         this.updateParams = {};
-
+        this.isLoading = false;
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -115,7 +115,7 @@ export default class FamilyUpdate extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this._config = this.getDefaultConfig();
                     // CAUTION: two new lines, double-check if needed
                     LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
                     this.#setLoading(false);
@@ -162,7 +162,7 @@ export default class FamilyUpdate extends LitElement {
     }
 
     onClear() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.updateParams = {};
         this.familyId = "";
         this.family = UtilsNew.objectClone(this._family);
@@ -193,7 +193,7 @@ export default class FamilyUpdate extends LitElement {
                 console.error(reason);
             })
             .finally(() => {
-                this._config = {...this.getDefaultConfig(), ...this.config};
+                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "familyUpdate", this.family, {}, error);
                 this.#setLoading(false);
             });
@@ -205,7 +205,12 @@ export default class FamilyUpdate extends LitElement {
         }
 
         if (!this.family?.id) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Family ID found.
+                </div>
+            `;
         }
 
         return html`

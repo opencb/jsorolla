@@ -55,7 +55,7 @@ export default class CohortUpdate extends LitElement {
     #init() {
         this.cohort = {};
         this.updateParams = {};
-
+        this.isLoading = false;
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -101,8 +101,9 @@ export default class CohortUpdate extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.cohorts()
+                .info(this.cohortId, query)
                 .then(response => {
                     this.cohort = response.responses[0].results[0];
                     this.initOriginalObject();
@@ -113,10 +114,9 @@ export default class CohortUpdate extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {query: {...query}}, error);
-                    this.requestUpdate();
+                    this.#setLoading(true);
                 });
         } else {
             this.cohort = {};
@@ -162,7 +162,7 @@ export default class CohortUpdate extends LitElement {
 
 
     onClear() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.updateParams = {};
         this.cohortId = "";
         this.cohort = UtilsNew.objectClone(this._cohort);
@@ -176,7 +176,7 @@ export default class CohortUpdate extends LitElement {
             includeResult: true
         };
         let error;
-        this.isLoading = true;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.cohorts()
             .update(this.cohort.id, this.updateParams, params)
             .then(response => {
@@ -193,21 +193,24 @@ export default class CohortUpdate extends LitElement {
                 console.error(reason);
             })
             .finally(() => {
-                this._config = {...this.getDefaultConfig(), ...this.config};
-                this.isLoading = false;
+                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "cohortUpdate", this.cohort, {}, error);
-                this.requestUpdate();
+                this.#setLoading(false);
             });
     }
 
     render() {
         if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>`;
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         if (!this.cohort?.id) {
-            return html`<div>No valid object found</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No cohort ID found.
+                </div>
+            `;
         }
 
         return html`

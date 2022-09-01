@@ -60,7 +60,6 @@ export default class SampleUpdate extends LitElement {
         this.sample = {};
         this.updateParams = {};
         this.isLoading = false;
-
         this.displayConfigDefault = {
             style: "margin: 10px",
             defaultLayout: "horizontal",
@@ -188,7 +187,6 @@ export default class SampleUpdate extends LitElement {
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updateParams, params)
             .then(response => {
-                // this._sample = UtilsNew.objectClone(this.sample);
                 this._sample = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
