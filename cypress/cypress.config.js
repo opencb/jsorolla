@@ -27,8 +27,17 @@ const {defineConfig} = require("cypress");
 });*/
 
 module.exports = defineConfig({
+    chromeWebSecurity: false,
+    viewportWidth: 1600,
+    viewportHeight: 1200,
+    reporter: "mochawesome",
+    reporterOptions: {
+        overwrite: false,
+        html: false,
+        json: true,
+    },
     e2e: {
-        baseUrl: 'http://localhost:3000',
+        baseUrl: "http://localhost:3000",
         setupNodeEvents(on, config) {
             // implement node event listeners here
         },
