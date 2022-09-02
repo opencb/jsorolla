@@ -547,14 +547,16 @@ const client = new OpenCGAClient({
                                 <h4 class="export-section-title">Select Output Format</h4>
                                 <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
-                                    <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
+                                    <span class="export-buttons-text">
+                                        ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
+                                    </span>
                                 </button>
-                                ${this.config.resource === "VARIANT" ? html`
+                                ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
                                     <button type="button" class="btn export-buttons ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
                                         <i class="fas fa-file-code fa-2x"></i>
                                         <span class="export-buttons-text">Ensembl VEP</span>
-                                    </button>` : null
-                                }
+                                    </button>
+                                ` : null}
                                 <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
