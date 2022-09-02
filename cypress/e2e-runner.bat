@@ -54,7 +54,7 @@ set study=!tmp::=!
 echo STUDY: %%~a DIR: !study!
 rem mkdir !study! && dir !study!
 (if exist mochawesome-report rmdir /S/Q mochawesome-report)^
- && call npx cypress run --env username=%opencgaUser%,password=%opencgaPassword%,study=%%~a --config videosFolder="cypress/videos/!study!",screenshotsFolder="cypress/screenshots/!study!" --headless --spec "cypress/integration/*.js"^
+ && call npx cypress run --env username=%opencgaUser%,password=%opencgaPassword%,study=%%~a --config videosFolder="cypress/videos/!study!",screenshotsFolder="cypress/screenshots/!study!" --headless --spec "cypress/e2e/*.js"^
  & call npx mochawesome-merge mochawesome-report/*.json -o mochawesome-report/cypress-combined-report.json^
  && call npx marge --reportFilename !study!.html --charts --timestamp _HH-MM_dd-mm-yyyy --reportPageTitle IVA_%%~a --reportTitle IVA__%%~a --reportDir report mochawesome-report/cypress-combined-report.json^
  && (if exist mochawesome-report rmdir /S/Q mochawesome-report)

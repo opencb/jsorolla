@@ -181,6 +181,7 @@ export default class RgaFilter extends LitElement {
                             .cellbaseClient="${this.cellbaseClient}"
                             .query="${this.preparedQuery}"
                             .separator="${",;"}"
+                            .config="${{freeTag: false}}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </feature-filter>`;
                 break;
