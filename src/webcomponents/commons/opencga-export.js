@@ -82,29 +82,28 @@ export default class OpencgaExport extends LitElement {
             "DISEASE_PANEL": "panelClient"
         };
 
+        this.outputFileFormats = {
+            "tab": "VCF",
+            "vep": "ENSEMBL_VEP",
+            "json": "JSON",
+        };
+
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
 
         this.tabs = ["download", "export", "link", "script"]; // default tabs to show
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        /* if (changedProperties.has("opencgaSession")) {
-        }*/
-
         if (changedProperties.has("query") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            if (this.config?.resource) {
-                document.querySelectorAll("code").forEach(block => {
-                //     // hljs.highlightBlock(block);
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
 
-                });
+            if (this.config?.resource) {
                 new ClipboardJS(".clipboard-button");
             }
             if (this.config.gridColumns) {
@@ -352,6 +351,7 @@ const client = new OpenCGAClient({
                     study: this.opencgaSession.study.fqn,
                     summary: true,
                     outputFileName: "variants",
+                    outputFileFormat: this.outputFileFormats[this.format],
                 };
                 const params = {
                     study: this.opencgaSession.study.fqn,
@@ -450,13 +450,6 @@ const client = new OpenCGAClient({
                 exportLimit: this._config.exportLimit
             }
         }));
-    }
-
-    getDefaultConfig() {
-        return {
-            exportNote: "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.\n (If you need all records, please use 'Export Query')",
-            exportLimit: 1000,
-        };
     }
 
     render() {
@@ -690,6 +683,16 @@ const client = new OpenCGAClient({
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            exportNote: [
+                "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.",
+                "(If you need all records, please use 'Export Query')",
+            ].join("\n"),
+            exportLimit: 1000,
+        };
     }
 
 }
