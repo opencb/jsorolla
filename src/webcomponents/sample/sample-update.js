@@ -184,6 +184,9 @@ export default class SampleUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
+        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        //  Remove when form-utils.js revisited
+        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.sample[key]);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updateParams, params)
             .then(response => {
@@ -434,6 +437,7 @@ export default class SampleUpdate extends LitElement {
                             title: "Quantity",
                             field: "processing.quantity",
                             type: "input-num",
+                            allowedValues: [0, 10],
                             display: {
                                 placeholder: "Add a quantity...",
                             },

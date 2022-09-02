@@ -190,6 +190,9 @@ export default class IndividualUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
+        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        //  Remove when form-utils.js revisited
+        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.individual[key]);
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
             .then(response => {

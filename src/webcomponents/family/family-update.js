@@ -177,6 +177,9 @@ export default class FamilyUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
+        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        //  Remove when form-utils.js revisited
+        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.family[key]);
         this.opencgaSession.opencgaClient.families()
             .update(this.family.id, this.updateParams, params)
             .then(response => {
