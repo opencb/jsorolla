@@ -211,7 +211,7 @@ export default class IndividualCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: father => html`
                                     <catalog-search-autocomplete
-                                        .value="${father}"
+                                        .value="${father?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
@@ -234,7 +234,7 @@ export default class IndividualCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: mother => html`
                                     <catalog-search-autocomplete
-                                        .value="${mother}"
+                                        .value="${mother?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
