@@ -324,6 +324,7 @@ export default class FamilyUpdate extends LitElement {
                             title: "Expected Size",
                             field: "expectedSize",
                             type: "input-num",
+                            allowedValues: [0],
                             display: {
                                 placeholder: "Add a expected size...",
                             }

@@ -438,6 +438,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.quantity",
                             type: "input-num",
                             allowedValues: [0, 10],
+                            step: 0.01,
                             display: {
                                 placeholder: "Add a quantity...",
                             },

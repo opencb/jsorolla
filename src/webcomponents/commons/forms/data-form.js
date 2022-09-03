@@ -180,7 +180,7 @@ export default class DataForm extends LitElement {
 
     /**
      * Check if visible field is defined and not null, be careful since 'visible' can be a 'boolean' or a 'function'.
-     * @param visible Filed from config
+     * @param value
      * @param defaultValue
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
@@ -545,7 +545,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <div class="col-md-${titleWidth}">
-                            <label class="control-label ${titleClassName}" style="padding-top: 0px; text-align:${titleAlign};${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0; text-align:${titleAlign};${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         </div>
@@ -553,7 +553,7 @@ export default class DataForm extends LitElement {
                     <div class="col-md-${(width - titleWidth)}">
                         <div>${content}</div>
                         ${helpMessage && helpMode === "block" ? html`
-                            <div class="col-md-1" style="padding:0%; margin-top:8px" title="${helpMessage}">
+                            <div class="col-md-1" style="padding:0; margin-top:8px" title="${helpMessage}">
                                 <span><i class="${this._getHelpIcon(element, section)}"></i></span>
                             </div>
                         ` : null}
@@ -565,7 +565,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="control-label ${titleClassName}" style="padding-top: 0px; ${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0; ${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         ` : null}
@@ -684,6 +684,8 @@ export default class DataForm extends LitElement {
     _createInputElement(element, type) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const [min = undefined, max = undefined] = element.allowedValues || [];
+        const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
 
         const content = html`
@@ -693,6 +695,9 @@ export default class DataForm extends LitElement {
                 .type="${type}"
                 ?disabled="${disabled}"
                 ?required="${element.required}"
+                .min="${min}"
+                .max="${max}"
+                .step="${step}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
                 @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
@@ -757,7 +762,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <label style="padding-top: 0px; font-weight: normal;margin: 0">
+            <label style="padding-top: 0; font-weight: normal;margin: 0">
                 <input
                     type="checkbox"
                     class="${this._prefix}FilterCheckbox"
@@ -1299,7 +1304,7 @@ export default class DataForm extends LitElement {
                         <div>
                             <div>${elemContent}</div>
                             ${helpMessage && helpMode === "block" ? html`
-                                <div class="col-md-1" style="padding:0%; margin-top:8px" title="${helpMessage}">
+                                <div class="col-md-1" style="padding:0; margin-top:8px" title="${helpMessage}">
                                     <span><i class="${this._getHelpIcon(element)}"></i></span>
                                 </div>
                             ` : null
