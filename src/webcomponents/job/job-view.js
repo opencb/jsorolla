@@ -269,6 +269,17 @@ export default class JobView extends LitElement {
                             type: "custom",
                             display: {
                                 render: job => {
+                                    // CAUTION: Temporary patch for managing outputFiles array of nulls.
+                                    //  See details in: https://app.clickup.com/t/36631768/TASK-1704
+                                    if (job.output.length > 0 && job.output.every(jobOut => jobOut === null)) {
+                                        return html`
+                                            <div class="alert alert-danger" role="alert">
+                                                <i class="fas fa-1x fa-exclamation-circle align-middle">
+                                                    The output files are not accessible at the moment. We are working on fixing this issue.
+                                                </i>
+                                            </div>
+                                        `;
+                                    }
                                     const outputFiles= [...job.output];
                                     outputFiles.push(job.stdout);
                                     outputFiles.push(job.stderr);
