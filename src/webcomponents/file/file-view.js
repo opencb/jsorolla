@@ -99,13 +99,13 @@ export default class FileView extends LitElement {
 
     fileIdObserver() {
         if (this.fileId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.files()
-                .info(this.fileId, query)
+                .info(this.fileId, params)
                 .then(response => {
                     this.file = response.responses[0].results[0];
                 })
@@ -122,6 +122,10 @@ export default class FileView extends LitElement {
         } else {
             this.file = {};
         }
+    }
+
+    onFilterChange(e) {
+        this.fileId = e.detail.value;
     }
 
     render() {
@@ -180,6 +184,7 @@ export default class FileView extends LitElement {
                     title: "General",
                     display: {
                         collapsed: false,
+                        visible: file => file?.id,
                     },
                     elements: [
                         {
@@ -251,7 +256,7 @@ export default class FileView extends LitElement {
                 {
                     title: "File Preview",
                     display: {
-                        visible: () => this.preview === true || this.mode === "full",
+                        visible: file => file?.id && this.preview === true || this.mode === "full",
                         layout: "vertical",
                         collapsed: false,
                     },

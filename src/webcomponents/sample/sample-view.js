@@ -89,14 +89,14 @@ export default class SampleView extends LitElement {
 
     sampleIdObserver() {
         if (this.sampleId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true,
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.samples()
-                .info(this.sampleId, query)
+                .info(this.sampleId, params)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
                 })
@@ -116,7 +116,6 @@ export default class SampleView extends LitElement {
     }
 
     onFilterChange(e) {
-        // This must call sampleIdObserver function
         this.sampleId = e.detail.value;
     }
 

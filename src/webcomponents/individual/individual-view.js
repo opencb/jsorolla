@@ -77,10 +77,10 @@ export default class IndividualView extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("individual")) {
-            // to update disorders if it has more than one
-            this._config = this.getDefaultConfig();
-        }
+        // to update disorders if it has more than one
+        // if (changedProperties.has("individual")) {
+        //     this._config = this.getDefaultConfig();
+        // }
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
@@ -93,13 +93,13 @@ export default class IndividualView extends LitElement {
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.individuals()
-                .info(this.individualId || "", query)
+                .info(this.individualId, params)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                 })
