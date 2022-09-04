@@ -18,12 +18,28 @@
 import {login, goTo, getResult, checkResults, checkResultsOrNot, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
+const timeout = 180000; // 3 mins
 let ENABLED = false;
 
 context("16.  RGA Browser", () => {
     before(() => {
         login();
         goTo("iva");
+
+        // Check availability for current study
+        /* cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
+        cy.get("rga-browser", {timeout: TIMEOUT}).then($comp => {
+            if (!Cypress.$("tool-header[title='Recessive Variant Browser']", $comp).length) {
+                cy.get("div.guard-page h3").contains("not enabled to Recessive Variant Analysis");
+            } else {
+                ENABLED = true;
+            }
+        });*/
+    });
+
+    beforeEach(() => {
+        // TODO use beforeEach to check ENABLED?
+        // return;
     });
 
     it("16.0 - RGA Check availability for current study", () => {
@@ -46,8 +62,9 @@ context("16.  RGA Browser", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Recessive Variant Browser");
         cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
 
-        checkResults("rga-variant-view");
+        checkResults("rga-variant-view", timeout);
 
+        // checks columns togglability
         cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
         cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
@@ -60,11 +77,11 @@ context("16.  RGA Browser", () => {
         cy.get("button.active-filter-label").click();
         cy.get("a[data-action='active-filter-clear']").click();
 
-        checkResults("rga-variant-view");
+        checkResults("rga-variant-view", timeout);
 
         cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
         cy.get("div.search-button-wrapper button").click();
-        checkResults("rga-variant-view");
+        checkResults("rga-variant-view", timeout);
 
         // variantId
         let variantId;
@@ -73,13 +90,13 @@ context("16.  RGA Browser", () => {
             const [, pos, ref, alt] = v.trim().match(/(\d+:\d+)\s{2}(\w+)\/(\w+)/);
             cy.get("div[data-cy='variants'] input").type(pos + ":" + ref + ":" + alt);
             cy.get("div.search-button-wrapper button").click();
-            checkResults("rga-variant-view");
+            checkResults("rga-variant-view", timeout);
             getResult("rga-variant-view", 0).then($resultCell => {
                 cy.wrap($resultCell).should("contain", variantId);
             });
         });
         cy.get("opencga-active-filters button[data-filter-name='variants']").click();
-        checkResults("rga-variant-view");
+        checkResults("rga-variant-view", timeout);
 
 
         // gene Name
@@ -89,18 +106,18 @@ context("16.  RGA Browser", () => {
             geneName = $text.split(",")[0];
             selectToken("feature-filter", geneName, true);
             cy.get("div.search-button-wrapper button").click();
-            checkResults("rga-variant-view");
+            checkResults("rga-variant-view", timeout);
             getResult("rga-variant-view", 1).then($resultCell => {
                 cy.wrap($resultCell).should("contain", geneName);
             });
         });
 
         cy.get("opencga-active-filters button[data-filter-name='geneName']").click();
-        checkResults("rga-variant-view");
+        checkResults("rga-variant-view", timeout);
 
         // detail-tabs allele pairs table
         cy.get("rga-variant-view detail-tabs ul.nav-tabs > li > a").contains("Allele Pairs").click();
-        checkResults("rga-variant-allele-pairs");
+        checkResults("rga-variant-allele-pairs", timeout);
         getResult("rga-variant-allele-pairs", 0).then($resultCell => {
             // check the variant id stored before
             const variant = $resultCell.trim();
@@ -112,17 +129,17 @@ context("16.  RGA Browser", () => {
         // 2. use it to filter Variant View
         // 3. check individual to be present in variant-individual-grid
         cy.get("button[data-tab-id='individual-tab']", {timeout: TIMEOUT}).click({force: true});
-        checkResults("rga-individual-view");
+        checkResults("rga-individual-view", timeout);
         let IndividualId= "";
         getResult("rga-individual-view", 0).then($text => {
             IndividualId = $text;
             cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
-            checkResults("rga-variant-view");
+            checkResults("rga-variant-view", timeout);
             selectToken("individual-id-autocomplete", IndividualId);
             cy.get("div.search-button-wrapper button").click();
-            checkResults("rga-variant-view");
+            checkResults("rga-variant-view", timeout);
 
-            checkResults("rga-variant-individual");
+            checkResults("rga-variant-individual", timeout);
             getResult("rga-variant-individual", 0).then($resultCell => {
                 cy.wrap($resultCell).should("contain", IndividualId);
             });
@@ -130,7 +147,7 @@ context("16.  RGA Browser", () => {
             cy.get("opencga-active-filters button[data-filter-name='individualId']").click(); // remove individual id
             cy.get("opencga-active-filters button[data-filter-name='type']").click(); // remove variant type
 
-            checkResults("rga-variant-individual");
+            checkResults("rga-variant-individual", timeout);
         });
     });
 

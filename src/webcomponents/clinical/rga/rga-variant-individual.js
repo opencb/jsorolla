@@ -319,7 +319,7 @@ export default class RgaVariantIndividual extends LitElement {
                 field: "sampleId"
             },
             {
-                title: "knockoutType",
+                title: "Recessive Genotype",
                 field: "_",
                 formatter: (_, row) => this.uniqueFieldFormatter(_, row, "knockoutType")
             },
