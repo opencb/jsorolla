@@ -503,25 +503,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
                     halign: "center"
                 },
-                // {
-                //     title: "SVCLASS",
-                //     // field: "type",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: (value, row) => {
-                //         return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "SVCLASS", "INFO")}</div>`;
-                //     },
-                //     halign: "center"
-                // },
-                {
-                    title: "Assembly<br>Score",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "BAS", "INFO") || "-"}</div>`;
-                    },
-                    halign: "center"
-                },
                 {
                     title: "CN Flag",
                     rowspan: 2,
