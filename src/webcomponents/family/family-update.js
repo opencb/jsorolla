@@ -98,13 +98,13 @@ export default class FamilyUpdate extends LitElement {
 
     familyIdObserver() {
         if (this.familyId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.families()
-                .info(this.familyId, query)
+                .info(this.familyId, params)
                 .then(response => {
                     this.family = response.responses[0].results[0];
                     this.initOriginalObject();
@@ -117,7 +117,7 @@ export default class FamilyUpdate extends LitElement {
                 .finally(() => {
                     this._config = this.getDefaultConfig();
                     // CAUTION: two new lines, double-check if needed
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
                     this.#setLoading(false);
                 });
         } else {
@@ -177,7 +177,7 @@ export default class FamilyUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        // CAUTION: workaround for avoiding overwrite non updated keys in an object.
         //  Remove when form-utils.js revisited
         Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.family[key]);
         this.opencgaSession.opencgaClient.families()

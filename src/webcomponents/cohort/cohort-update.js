@@ -160,7 +160,6 @@ export default class CohortUpdate extends LitElement {
         this.requestUpdate();
     }
 
-
     onClear() {
         this._config = this.getDefaultConfig();
         this.updateParams = {};
@@ -177,7 +176,7 @@ export default class CohortUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        // CAUTION: workaround for avoiding overwrite non updated keys in an object.
         //  Remove when form-utils.js revisited
         Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.cohort[key]);
         this.opencgaSession.opencgaClient.cohorts()

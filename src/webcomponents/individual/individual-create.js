@@ -106,7 +106,7 @@ export default class IndividualCreate extends LitElement {
             includeResult: true
         };
         let error;
-        this.isLoading = true;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.individuals()
             .create(this.individual, params)
             .then(() => {

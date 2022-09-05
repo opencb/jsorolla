@@ -61,6 +61,11 @@ export default class FamilyCreate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -107,29 +112,32 @@ export default class FamilyCreate extends LitElement {
 
     // https://ws.opencb.org/opencga-prod/webservices/#!/Families/createFamilyPOST
     onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            members: this.members,
+            includeResult: true
+        };
         let error;
-        this.isLoading = true;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.families()
-            .create(this.family, {study: this.opencgaSession.study.fqn, members: this.members})
+            .create(this.family, params)
             .then(() => {
                 // TODO: Add a condition to confirm if the information has been saved to the server.
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Family Create",
                     message: "New family created correctly"
                 });
-                console.log("Family Saved", this.family);
-                this.onClear();
+                // this.onClear();
             })
             .catch(reason => {
                 error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                console.error(reason);
             })
             .finally(() => {
                 this.family = {};
                 this._config = this.getDefaultConfig();
-                this.isLoading = false;
                 LitUtils.dispatchCustomEvent(this, "familyCreate", this.family, {}, error);
-                this.requestUpdate();
+                this.#setLoading(false);
             });
     }
 

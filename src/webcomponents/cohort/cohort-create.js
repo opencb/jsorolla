@@ -46,7 +46,7 @@ export default class CohortCreate extends LitElement {
                 type: String
             },
             displayConfig: {
-                type: String
+                type: Object
             },
         };
     }
@@ -108,7 +108,6 @@ export default class CohortCreate extends LitElement {
         this.requestUpdate();
     }
 
-
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: "Clear cohort",
@@ -135,7 +134,7 @@ export default class CohortCreate extends LitElement {
                     title: "New Cohort",
                     message: "cohort created correctly"
                 });
-                this.onClear();
+                // this.onClear();
             })
             .catch(reason => {
                 error = reason;
@@ -148,7 +147,6 @@ export default class CohortCreate extends LitElement {
                 this.#setLoading(false);
             });
     }
-
 
     render() {
         if (this.isLoading) {
@@ -165,7 +163,6 @@ export default class CohortCreate extends LitElement {
             </data-form>
         `;
     }
-
 
     getDefaultConfig() {
         return Types.dataFormConfig({

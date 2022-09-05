@@ -101,14 +101,14 @@ export default class SampleUpdate extends LitElement {
 
     sampleIdObserver() {
         if (this.sampleId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.samples()
-                .info(this.sampleId, query)
+                .info(this.sampleId, params)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
                     this.initOriginalObject();
@@ -120,7 +120,7 @@ export default class SampleUpdate extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {...query}}, error);
+                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {...params}}, error);
                     this.#setLoading(false);
                 });
         } else {

@@ -97,13 +97,13 @@ export default class IndividualUpdate extends LitElement {
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.individuals()
-                .info(this.individualId, query)
+                .info(this.individualId, params)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                     this.initOriginalObject();
@@ -115,7 +115,7 @@ export default class IndividualUpdate extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {query: {...query}}, error);
+                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {query: {...params}}, error);
                     this.#setLoading(false);
                 });
         } else {
@@ -190,7 +190,7 @@ export default class IndividualUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        // CAUTION: workaround for avoiding overwrite non updated keys in an object.
         //  Remove when form-utils.js revisited
         Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.individual[key]);
         this.opencgaSession.opencgaClient.individuals()
