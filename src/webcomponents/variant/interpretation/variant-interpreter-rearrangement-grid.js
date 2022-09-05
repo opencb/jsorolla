@@ -504,15 +504,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "CN Flag",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "CNCH", "INFO") || "-"}</div>`;
-                    },
-                    halign: "center"
-                },
-                {
                     title: "VCF Data 1",
                     rowspan: 1,
                     colspan: vcfDataColumns.vcf1?.length,
