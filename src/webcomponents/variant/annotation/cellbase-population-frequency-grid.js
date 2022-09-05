@@ -138,9 +138,6 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 },
                 max: 0.5
             },
-            //                        tooltip: {
-            //                            valueSuffix: ' millions'
-            //                        },
             plotOptions: {
                 bar: {
                     dataLabels: {
@@ -278,7 +275,11 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     render() {
         if (!this.populationFrequencies) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.
+                </div>
+            `;
         }
 
         return html`
