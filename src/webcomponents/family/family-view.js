@@ -45,7 +45,7 @@ export default class FamilyView extends LitElement {
                 type: String,
             },
             individualId: {
-                type: Object,
+                type: String,
             },
             search: {
                 type: Boolean,
@@ -113,13 +113,13 @@ export default class FamilyView extends LitElement {
 
     familyIdObserver() {
         if (this.familyId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.families()
-                .info(this.familyId, query)
+                .info(this.familyId, params)
                 .then(response => {
                     this.family = response.responses[0].results[0];
                 })
@@ -130,7 +130,7 @@ export default class FamilyView extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
                     this.#setLoading(false);
                 });
         } else {
@@ -140,14 +140,14 @@ export default class FamilyView extends LitElement {
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
-            const query = {
+            const params = {
                 members: this.individualId,
                 study: this.opencgaSession.study.fqn
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.families()
-                .search(query)
+                .search(params)
                 .then(response => {
                     // We use the first family found
                     this.family = response.responses[0].results[0];
@@ -159,7 +159,7 @@ export default class FamilyView extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...query}}, error);
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
                     this.#setLoading(false);
                 });
         } else {

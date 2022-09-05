@@ -90,13 +90,13 @@ export default class JobView extends LitElement {
 
     jobIdObserver() {
         if (this.jobId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn
             };
             let error;
             this.#setLoading(true);
             this.opencgaSession.opencgaClient.jobs()
-                .info(this.jobId, query)
+                .info(this.jobId, params)
                 .then(response => {
                     this.job = response.responses[0].results[0];
                 })
@@ -113,6 +113,10 @@ export default class JobView extends LitElement {
         } else {
             this.job = {};
         }
+    }
+
+    onFilterChange(e) {
+        this.jobId = e.detail.value;
     }
 
     render() {
@@ -169,6 +173,9 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Summary",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             name: "Job ID",
@@ -217,6 +224,9 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Execution",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             name: "Start-End Date",
@@ -269,6 +279,17 @@ export default class JobView extends LitElement {
                             type: "custom",
                             display: {
                                 render: job => {
+                                    // CAUTION: Temporary patch for managing outputFiles array of nulls.
+                                    //  See details in: https://app.clickup.com/t/36631768/TASK-1704
+                                    if (job.output.length > 0 && job.output.every(jobOut => jobOut === null)) {
+                                        return html`
+                                            <div class="alert alert-danger" role="alert">
+                                                <i class="fas fa-1x fa-exclamation-circle align-middle">
+                                                    The output files are not accessible at the moment. We are working on fixing this issue.
+                                                </i>
+                                            </div>
+                                        `;
+                                    }
                                     const outputFiles= [...job.output];
                                     outputFiles.push(job.stdout);
                                     outputFiles.push(job.stderr);
@@ -306,6 +327,9 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Results",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             type: "custom",
@@ -318,6 +342,9 @@ export default class JobView extends LitElement {
                 },
                 {
                     title: "Job Dependencies",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             name: "Dependencies",
@@ -345,7 +372,7 @@ export default class JobView extends LitElement {
                 {
                     title: "Job log",
                     display: {
-                        visible: this.mode === "full",
+                        visible: job => job?.id && this.mode === "full",
                     },
                     elements: [
                         {
