@@ -518,15 +518,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     visible: vcfDataColumns.vcf2?.length > 1
                 },
                 {
-                    title: "Fusion Flag",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "FFV", "INFO") || "-"}</div>`;
-                    },
-                    halign: "center"
-                },
-                {
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
