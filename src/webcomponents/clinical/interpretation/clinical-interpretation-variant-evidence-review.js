@@ -74,7 +74,10 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         }
 
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig,
+            };
             this.config = this.getDefaultConfig();
         }
 
@@ -117,7 +120,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                     e.detail.value
                 );
 
-                // Assign ACMG comment author and date (TASK-1473)
+                // Assign ACMG comment author and date (similar as implemented in TASK-1473)
                 const lastReview = this.review.acmg[this.review.acmg.length - 1];
                 this.review.acmg[this.review.acmg.length - 1] = {
                     ...lastReview,
@@ -126,7 +129,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                 };
                 this.review = {...this.review};
                 break;
-
         }
 
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
