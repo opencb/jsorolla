@@ -288,6 +288,7 @@ export default class SampleGrid extends LitElement {
             {
                 id: "individualId",
                 title: "Individual ID",
+                field: "individualId",
                 formatter: (value, row) => row?.individualId ?? "-"
             },
             {
@@ -315,6 +316,7 @@ export default class SampleGrid extends LitElement {
             {
                 id: "cellLine",
                 title: "Cell Line",
+                field: "cellLine",
                 formatter: (value, row) => row.somatic ? "Somatic" : "Germline"
             },
             {
@@ -340,6 +342,7 @@ export default class SampleGrid extends LitElement {
             _columns.push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
@@ -449,21 +452,6 @@ export default class SampleGrid extends LitElement {
             });
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            showSelectCheckbox: true,
-            showToolbar: true,
-            showActions: true
-        };
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -480,6 +468,21 @@ export default class SampleGrid extends LitElement {
                 <table id="${this._prefix}SampleBrowserGrid"></table>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false,
+            detailView: false,
+            detailFormatter: null, // function with the detail formatter
+            multiSelection: false,
+            showSelectCheckbox: true,
+            showToolbar: true,
+            showActions: true
+        };
     }
 
 }
