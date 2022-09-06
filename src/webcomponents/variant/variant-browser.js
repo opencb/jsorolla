@@ -358,15 +358,7 @@ export default class VariantBrowser extends LitElement {
             filter: {
                 title: "Filter",
                 activeFilters: {
-                    alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types",
-                        "biotype": "Biotype",
-                        "alternate_frequency": "Population Frequency",
-                        "proteinSubstitution": "Protein Substitution"
-                    },
+                    alias: {},
                     complexFields: [],
                     hiddenFields: []
                 },

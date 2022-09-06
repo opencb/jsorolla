@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import Types from "../commons/types.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -28,7 +28,8 @@ export default class DiseasePanelSummary extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -52,40 +53,43 @@ export default class DiseasePanelSummary extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.diseasePanel = {};
         this.isLoading = false;
+
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     diseasePanelIdObserver() {
         if (this.diseasePanelId && this.opencgaSession) {
-            console.log("loading: ", this.diseasePanelId);
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.isLoading = true;
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, params)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
-                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.diseasePanel = {};
@@ -94,28 +98,35 @@ export default class DiseasePanelSummary extends LitElement {
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.isLoading = false;
-                    this.requestUpdate();
                     LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.diseasePanel, {
                         status: {
                             // true if error is defined and not empty
                             error: !!error,
                             message: error
                         }}, error);
+                    this.#setLoading(false);
                 });
-            this.diseasePanelId = "";
+        } else {
+            this.diseasePanel = {};
         }
     }
 
     onFilterChange(e) {
-        // This must call diseasePanelIdObserver function
         this.diseasePanelId = e.detail.value;
     }
 
     render() {
         if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.diseasePanel?.id) {
             return html`
-                <loading-spinner></loading-spinner>`;
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Disease Panel ID found.
+                </div>
+            `;
         }
 
         return html`

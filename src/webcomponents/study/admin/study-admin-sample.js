@@ -107,7 +107,7 @@ export default class StudyAdminSample extends LitElement {
 
     onSampleSearch(e) {
         if (e.detail.status?.error) {
-            console.log(this, "error:", e.detail.status?.error);
+            console.log(this, "error:", e.detail.status.error);
         } else {
             this.sample = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -146,6 +146,7 @@ export default class StudyAdminSample extends LitElement {
                                     ` : html`
                                         <sample-view
                                             .sample="${this.sample}"
+                                            .search="${true}"
                                             .opencgaSession="${opencgaSession}"
                                             @sampleSearch="${e => this.onSampleSearch(e)}">
                                         </sample-view>`}
