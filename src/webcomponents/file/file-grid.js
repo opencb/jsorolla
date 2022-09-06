@@ -132,6 +132,10 @@ export default class OpencgaFileGrid extends LitElement {
                         include: "id,name,path,uuid,samples,status,format,bioformat,size,creationDate,modificationDate,internal",
                         ...this.query
                     };
+                    // When searching by directory we must also show directories
+                    if (filters.directory) {
+                        filters.type = "FILE,DIRECTORY";
+                    }
                     this.opencgaSession.opencgaClient.files().search(filters)
                         .then(res => params.success(res))
                         .catch(e => {
