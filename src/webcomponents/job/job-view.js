@@ -205,7 +205,10 @@ export default class JobView extends LitElement {
                             field: "tags",
                             type: "list",
                             display: {
-                                render: field => UtilsNew.renderHTML(`<span class="badge badge-pill badge-primary">${field}</span>`)
+                                separator: "",
+                                render: tag => {
+                                    return html`<span class="badge badge-pill badge-primary">${tag}</span>`;
+                                }
                             },
                             defaultValue: "-"
                         },
