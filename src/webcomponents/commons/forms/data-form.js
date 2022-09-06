@@ -986,8 +986,13 @@ export default class DataForm extends LitElement {
         let content = "-";
         switch (contentLayout) {
             case "horizontal":
-                const separator = element?.display?.separator || ", ";
-                content = html`${values.join(separator)}`;
+                const separator = element?.display?.separator ?? ", ";
+                content = html`
+                    ${values.map(elem => html`
+                        <span>${elem}</span>
+                        ${separator ? html`<span>${separator}</span>` : ""}
+                    `)}
+                `;
                 break;
             case "vertical":
                 content = html`
