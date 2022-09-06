@@ -22,13 +22,15 @@ import "../commons/tool-header.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/status/status-create.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class CohortCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,31 +45,42 @@ export default class CohortCreate extends LitElement {
             mode: {
                 type: String
             },
-            display: {
-                type: String
-            },
-            config: {
+            displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.cohort = {};
+        this.annotationSet = {};
+        this.isLoading = false;
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Create",
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "",
+        };
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     onFieldChange(e, field) {
-        e.stopPropagation();
         const param = field || e.detail.param;
-
         switch (param) {
             case "samples":
                 let samples = [];
@@ -95,28 +108,51 @@ export default class CohortCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onSubmit(e) {
-        e.stopPropagation();
-        console.log("Cohort Saved", this.cohort);
-        this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear cohort",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.cohort = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
+    }
+
+    onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: true
+        };
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.cohorts()
+            .create(this.cohort, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Cohort",
                     message: "cohort created correctly"
                 });
-                this.onClear();
+                // this.onClear();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this.cohort = {};
+                this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "cohortCreate", this.cohort, {}, error);
+                this.#setLoading(false);
             });
     }
 
-    onClear() {
-        this.cohort = {};
-        this.requestUpdate();
-    }
-
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.cohort}"
@@ -128,18 +164,10 @@ export default class CohortCreate extends LitElement {
         `;
     }
 
-
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                style: "margin: 10px",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -150,7 +178,7 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 visible: () => Object.keys(this.cohort).length > 0,
                                 notificationType: "warning",
-                            }
+                            },
                         },
                         {
                             title: "Cohort ID",
@@ -160,7 +188,7 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 helpMessage: "short Sample id",
-                            }
+                            },
                         },
                         // TODO we need first to support ID copy into the autocomplete elements.
                         {
@@ -176,7 +204,7 @@ export default class CohortCreate extends LitElement {
                                     @filterChange="${e => this.onFieldChange(e, "samples")}">
                                 </catalog-search-autocomplete>
                                 `
-                            }
+                            },
                         },
                         {
                             title: "Description",
@@ -185,7 +213,7 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Add a cohort description...",
-                            }
+                            },
                         },
                         {
                             title: "Status",
@@ -202,7 +230,7 @@ export default class CohortCreate extends LitElement {
                                         }}"
                                         @fieldChange="${e => this.onFieldChange(e, "status")}">
                                     </status-create>`
-                            }
+                            },
                         },
                         // {
                         //     title: "Creation Date",
@@ -226,7 +254,7 @@ export default class CohortCreate extends LitElement {
                         //             )
                         //     }
                         // },
-                    ]
+                    ],
                 },
                 // {
                 //     title: "Annotations Sets",
@@ -250,7 +278,7 @@ export default class CohortCreate extends LitElement {
                 //         }
                 //     ]
                 // }
-            ]
+            ],
         });
     }
 

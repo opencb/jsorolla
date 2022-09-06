@@ -108,7 +108,6 @@ export default class FileBrowser extends LitElement {
     }
 
     render() {
-
         if (!this.opencgaSession || !this._config) {
             return "";
         }
@@ -197,6 +196,14 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "genomes/resources/files/...",
                                 description: ""
+                            },
+                            {
+                                id: "jobId",
+                                name: "Job ID",
+                                placeholder: "Job ID ...",
+                                allowedValues: "",
+                                defaultValue: "",
+                                description: "",
                             },
                             {
                                 id: "format",

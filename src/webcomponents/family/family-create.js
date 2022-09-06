@@ -28,7 +28,8 @@ export default class FamilyCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,25 +41,40 @@ export default class FamilyCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this.family = {};
         this.members = "";
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Create",
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "",
+        };
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
 
     onFieldChange(e, field) {
-        e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
             case "members":
@@ -90,26 +106,38 @@ export default class FamilyCreate extends LitElement {
     onClear(e) {
         this.family = {};
         this.members = "";
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     // https://ws.opencb.org/opencga-prod/webservices/#!/Families/createFamilyPOST
-    onSubmit(e) {
-        console.log("Family Saved", this.family);
-        this.opencgaSession.opencgaClient
-            .families()
-            .create(this.family, {study: this.opencgaSession.study.fqn, members: this.members})
-            .then(res => {
+    onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            members: this.members,
+            includeResult: true
+        };
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.families()
+            .create(this.family, params)
+            .then(() => {
                 // TODO: Add a condition to confirm if the information has been saved to the server.
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Family",
-                    message: "family created correctly"
+                    title: "Family Create",
+                    message: "New family created correctly"
                 });
-                this.onClear();
+                // this.onClear();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this.family = {};
+                this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "familyCreate", this.family, {}, error);
+                this.#setLoading(false);
             });
     }
 
@@ -126,16 +154,9 @@ export default class FamilyCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
+        return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                style: "margin: 10px",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -268,7 +289,7 @@ export default class FamilyCreate extends LitElement {
                 //     ]
                 // }
             ]
-        };
+        });
     }
 
 }

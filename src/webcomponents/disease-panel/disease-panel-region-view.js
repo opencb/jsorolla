@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import VariantGridFormatter from "../variant/variant-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
 
@@ -25,7 +24,8 @@ export default class DiseasePanelRegionView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,38 +34,39 @@ export default class DiseasePanelRegionView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             regions: {
                 type: Array
             },
-            config: {
+            opencgaSession: {
                 type: Object
             },
         };
     }
 
-    _init() {
+    #init() {
+        this.regions = {};
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "GenePanelBrowserGrid";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        this.displayConfigDefault = {};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig()};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("regions")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("regions")) {
             this.propertyObserver();
         }
     }
 
     propertyObserver() {
         // With each property change we must update config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config?.toolbar,
@@ -120,14 +121,15 @@ export default class DiseasePanelRegionView extends LitElement {
     }
 
     getDefaultColumns() {
-        const _columns = [
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return [
             [
                 {
                     id: "name",
                     title: "Region",
                     field: "name",
                     formatter: (value, row) => `${row.id}`,
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
                 },
                 {
                     id: "modeOfInheritance",
@@ -154,7 +156,7 @@ export default class DiseasePanelRegionView extends LitElement {
                             return "-";
                         }
                     },
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
                 },
                 {
                     id: "phenotypes",
@@ -162,12 +164,12 @@ export default class DiseasePanelRegionView extends LitElement {
                     field: "phenotypes",
                     formatter: (value, row) => {
                         const phenotypesContent = this.generateList(row.phenotypes, "name");
-                        return String.raw `
+                        return String.raw`
                         ${phenotypesContent ? String.raw`
                                 <ul>
                                     ${phenotypesContent}
                                 </ul>` : "-"}`;
-                    }
+                    },
                 },
                 {
                     id: "evidences",
@@ -175,18 +177,15 @@ export default class DiseasePanelRegionView extends LitElement {
                     field: "evidences",
                     formatter: (value, row) => {
                         const evidencesContent = this.generateList(row.evidences, "");
-                        return String.raw `
-                        ${evidencesContent ? String.raw `
+                        return String.raw`
+                        ${evidencesContent ? String.raw`
                                 <ul>
                                     ${evidencesContent}
                                 </ul>` : "-"}`;
-                    }
-                }
+                    },
+                },
             ],
         ];
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
     }
 
     render() {
