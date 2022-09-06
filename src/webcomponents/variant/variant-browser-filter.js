@@ -342,8 +342,10 @@ export default class VariantBrowserFilter extends LitElement {
                 case "sample":
                     content = html`
                         <catalog-search-autocomplete
+                            .value="${this.preparedQuery.sample}"
                             .opencgaSession="${this.opencgaSession}"
-                            resource="SAMPLE"
+                            .resource="${"SAMPLE"}"
+                            .config="${{multiple: true, maxItems: 3}}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
                         </catalog-search-autocomplete>`;
                     break;

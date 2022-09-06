@@ -373,11 +373,11 @@ export default class VariantBrowser extends LitElement {
                                 visible: () => this.opencgaSession.project.studies.length > 1,
                                 tooltip: tooltips.study
                             },
-                            // {
-                            //     id: "sample",
-                            //     title: "Sample Filter (<5 samples)",
-                            //     tooltip: tooltips.study
-                            // },
+                            {
+                                id: "sample",
+                                title: "Sample Filter (up to 3 samples)",
+                                tooltip: "Select up to 3 samples"
+                            },
                             {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
