@@ -61,7 +61,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -76,8 +79,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        // With each property change we must update config and create the columns again. No extra checks are needed.
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
@@ -179,13 +185,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
             const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
 
             return `
-                <div style="margin: 5px 0px">
+                <div style="margin: 5px 0">
                     <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
                         ${row.id}
                         ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
                     </a>
                 </div>
-                <div style="margin: 5px 0px" data-cy="case-type">
+                <div style="margin: 5px 0" data-cy="case-type">
                     <span class="help-block">${row.type}</span>
                 </div>
             `;
@@ -275,7 +281,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         return `
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
-                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0px;">
+                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0;">
                         ${currentPriorityText}
                     </span>
                     <span class="caret"></span>
@@ -488,7 +494,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                 <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
                             </div>
                             <div>
-                                <span class="help-block" style="margin: 5px 0px">${row.family.members.length} members</span>
+                                <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>
                             </div>
                         `;
                     }
@@ -507,7 +513,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
                     return `
                         <div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
-                        <div style="margin: 5px 0px">${panelHtml}</div>
+                        <div style="margin: 5px 0">${panelHtml}</div>
                     `;
                 },
             },
@@ -591,6 +597,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             _columns.push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => {
@@ -646,7 +653,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 },
                 events: {
                     "click a": this.onActionClick.bind(this)
-                }
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
 
@@ -745,7 +753,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            // it comes from external settings and it is used in _getDefaultColumns()
+            // It comes from external settings, and it is used in _getDefaultColumns()
             // columns: []
         };
     }
