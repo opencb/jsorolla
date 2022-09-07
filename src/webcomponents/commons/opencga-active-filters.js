@@ -266,7 +266,7 @@ export default class OpencgaActiveFilters extends LitElement {
             for (const filtersKey of this._filters) {
                 let match = true;
                 for (const key of Object.keys(this.query)) {
-                    if (key !== "study") {
+                    if (key !== "study" && filtersKey.query[key]) {
                         match = match && filtersKey.query[key] === this.query[key];
                     }
                 }

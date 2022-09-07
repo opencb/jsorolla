@@ -910,25 +910,21 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
         // const width = this._getWidth(element);
 
-        if (allowedValues && allowedValues.length > 0) {
-            const content = html`
-                <div class="">
-                    <select-field-filter
-                        .data="${allowedValues}"
-                        ?multiple="${element.multiple}"
-                        ?disabled="${disabled}"
-                        ?required="${element.required}"
-                        .value="${defaultValue}"
-                        .classes="${this._isUpdated(element) ? "updated" : ""}"
-                        @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
-                    </select-field-filter>
-                </div>
-            `;
+        const content = html`
+            <div class="">
+                <select-field-filter
+                    .data="${allowedValues}"
+                    ?multiple="${element.multiple}"
+                    ?disabled="${disabled}"
+                    ?required="${element.required}"
+                    .value="${defaultValue}"
+                    .classes="${this._isUpdated(element) ? "updated" : ""}"
+                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
+                </select-field-filter>
+            </div>
+        `;
 
-            return this._createElementTemplate(element, null, content);
-        } else {
-            return this._getErrorMessage(element);
-        }
+        return this._createElementTemplate(element, null, content);
     }
 
     _createComplexElement(element, data = this.data) {
