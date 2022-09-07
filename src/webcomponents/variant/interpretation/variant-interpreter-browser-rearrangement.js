@@ -394,7 +394,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: !!this.somatic,
+                        variantTypes: ["BREAKEND"],
                     }
                 },
                 detail: {

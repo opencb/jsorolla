@@ -690,6 +690,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
     download(restResponse, format = "JSON") {
         const result = restResponse.getResults();
         if (result) {
+            const study = this.opencgaSession.study.id;
+            const filename = result.length > 1 ? `clinical-analysis-${study}` : `${result[0].id}-${study}`;
             // Check if user clicked in Tab or JSON format
             if (format?.toUpperCase() === "TAB") {
                 const dataString = [
@@ -707,10 +709,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         row.creationDate ? CatalogGridFormatter.dateFormatter(row.creationDate) : "-"
                     ].join("\t")),
                 ];
-                UtilsNew.downloadData([dataString.join("\n")], result[0].id + ".tsv", "text/plain");
+                UtilsNew.downloadData([dataString.join("\n")], filename + ".tsv", "text/plain");
             } else {
                 const json = JSON.stringify(result, null, "\t");
-                UtilsNew.downloadData(json, result[0].id + ".json", "application/json");
+                UtilsNew.downloadData(json, filename + ".json", "application/json");
             }
         } else {
             console.error("Error in result format");

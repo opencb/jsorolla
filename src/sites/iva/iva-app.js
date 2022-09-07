@@ -424,10 +424,10 @@ class IvaApp extends LitElement {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-                this.signingIn = false;
-                this.requestUpdate();
-                // this.updateComplete;
-            });
+            this.signingIn = false;
+            this.requestUpdate();
+            // this.updateComplete;
+        });
     }
 
     // TODO turn this into a Promise
@@ -1324,9 +1324,10 @@ class IvaApp extends LitElement {
                         <sample-update
                             .sampleId="${this.sampleId}"
                             .opencgaSession="${this.opencgaSession}"
-                            .config=${{display: {
+                            .displayConfig=${
+                                {
                                     showBtnSampleBrowser: true,
-                                    width: "8",
+                                    width: "10",
                                     style: "margin: 10px",
                                     labelWidth: 3,
                                     labelAlign: "right",
@@ -1334,7 +1335,9 @@ class IvaApp extends LitElement {
                                     defaultValue: "",
                                     help: {
                                         mode: "block" // icon
-                                    }}}}>
+                                    }
+                                }
+                            }>
                         </sample-update>
                     </div>
                 ` : null}

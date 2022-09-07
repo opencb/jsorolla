@@ -154,6 +154,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .updateScalar(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
                 break;
             case "status.id":
+            case "disorder.id":
             case "priority.id":
             case "analyst.id":
                 this.updateParams = FormUtils
@@ -449,6 +450,23 @@ class ClinicalAnalysisUpdate extends LitElement {
                     title: "General",
                     elements: [
                         {
+                            title: "Disorder",
+                            field: "disorder.id",
+                            type: "select",
+                            defaultValue: this.clinicalAnalysis?.disorder.id,
+                            allowedValues: () => {
+                                if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+                                    return this.clinicalAnalysis.proband.disorders.map(disorder => disorder.id);
+                                } else {
+                                    return [];
+                                }
+                            },
+                            display: {
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                helpMessage: "Case disorder must be one of the proband's disorder",
+                            }
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
@@ -581,21 +599,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Comments",
-                        //     field: "comments",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: comments => html`
-                        //             <clinical-analysis-comment-editor
-                        //                 .opencgaSession=${this.opencgaSession}
-                        //                 .comments="${comments}"
-                        //                 .disabled="${!!this.clinicalAnalysis?.locked}"
-                        //                 @commentChange="${e => this.onCommentChange(e)}">
-                        //             </clinical-analysis-comment-editor>
-                        //         `,
-                        //     }
-                        // }
                     ]
                 }
             ]
