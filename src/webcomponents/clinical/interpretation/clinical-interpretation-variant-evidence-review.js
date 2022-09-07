@@ -74,7 +74,10 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         }
 
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig,
+            };
             this.config = this.getDefaultConfig();
         }
 
@@ -92,7 +95,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
         switch (param) {
             case "clinicalSignificance":
-            case "acmg":
             case "tier":
                 // Fix clinical significance value --> must be in uppercase
                 const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
@@ -109,12 +111,32 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                     this.review.discussion.date = this._review.discussion?.date;
                 }
                 break;
+            case "acmg":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._review,
+                    this.review,
+                    this.updateParams,
+                    param,
+                    e.detail.value
+                );
+
+                // Assign ACMG comment author and date (similar as implemented in TASK-1473)
+                const lastReview = this.review.acmg[this.review.acmg.length - 1];
+                this.review.acmg[this.review.acmg.length - 1] = {
+                    ...lastReview,
+                    author: this.opencgaSession?.user?.id || "-",
+                    date: UtilsNew.getDatetime(),
+                };
+                this.review = {...this.review};
+                break;
         }
 
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
             value: this.review,
             update: this.updateParams,
         });
+
+        this.requestUpdate();
     }
 
     render() {

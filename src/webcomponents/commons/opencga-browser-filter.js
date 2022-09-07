@@ -87,6 +87,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "individualId": "INDIVIDUAL",
             "members": "INDIVIDUAL",
             "family": "FAMILY",
+            "jobId": "JOB",
             "input": "FILE",
             "output": "FILE",
         };
@@ -198,6 +199,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "members":
                 case "family":
                 case "input":
+                case "jobId":
                 case "output":
                     content = html`
                         <catalog-search-autocomplete

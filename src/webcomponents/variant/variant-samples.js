@@ -174,7 +174,8 @@ export default class VariantSamples extends LitElement {
             this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
 
             // Get the total number of samples from stats if OpenCGA does not return them
-            if (!this.numSamples) {
+            if (typeof this.numSamples !== "number" || isNaN(this.numSamples)) {
+                this.numSamples = 0;
                 for (const stat of stats) {
                     if (stat.cohortId === "ALL") {
                         for (const gt of Object.keys(stat.genotypeCount)) {

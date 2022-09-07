@@ -106,8 +106,8 @@ export default class StudyAdminIndividual extends LitElement {
     }
 
     onIndividualSearch(e) {
-        if (e.detail.status.error) {
-            // inform
+        if (e.detail?.status?.error) {
+            console.log(this, "error:", e.detail.status.error);
         } else {
             this.individual = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -145,6 +145,7 @@ export default class StudyAdminIndividual extends LitElement {
                                     ` : html`
                                         <individual-view
                                             .individual="${this.individual}"
+                                            .search="${true}"
                                             .opencgaSession="${opencgaSession}"
                                             @individualSearch="${e => this.onIndividualSearch(e)}">
                                         </individual-view>`}
