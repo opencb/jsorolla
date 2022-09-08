@@ -34,119 +34,123 @@ export default class NavigationBar {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" style="display:flex;flex-wrap:wrap;gap:4px;">
+            <div id="${this.prefix}" style="display:flex;justify-content:space-between;">
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
 
-                <!-- Region input -->
-                <div id="${this.prefix}RegionForm" title="Position" class="form-group" style="margin:0px;">
-                    <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
+                    <!-- Region input -->
+                    <div id="${this.prefix}RegionForm" title="Position" class="form-group" style="margin:0px;">
+                        <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
+                            <input
+                                type="text"
+                                id="${this.prefix}RegionInput"
+                                class="form-control input-sm"
+                                placeholder="1:10000-20000"
+                                style="width:170px;display:inline-block;" 
+                            />
+                            <span class="input-group-btn">
+                                <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
+                                    <strong>Go!</strong>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Gene search -->
+                    <div id="${this.prefix}SearchForm" class="input-group input-group-sm" style="margin:0px!important;">
                         <input
                             type="text"
-                            id="${this.prefix}RegionInput"
+                            id="${this.prefix}SearchInput"
+                            list="${this.prefix}SearchDataList"
                             class="form-control input-sm"
-                            placeholder="1:10000-20000"
-                            style="width:170px;display:inline-block;" 
+                            placeholder="gene"
+                            style="display:inline-block;max-width:90px;"
                         />
-                        <span class="input-group-btn">
-                            <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
-                                <strong>Go!</strong>
+                        <datalist id="${this.prefix}SearchDataList"></datalist>
+                        <span class="input-group-btn" style="display:inline-block;">
+                            <button id="${this.prefix}SearchButton" class="btn btn-default btn-sm">
+                                <i class="fa fa-search"></i>
                             </button>
                         </span>
                     </div>
-                </div>
 
-                <!-- Gene search -->
-                <div id="${this.prefix}SearchForm" class="input-group input-group-sm" style="margin:0px!important;">
-                    <input
-                        type="text"
-                        id="${this.prefix}SearchInput"
-                        list="${this.prefix}SearchDataList"
-                        class="form-control input-sm"
-                        placeholder="gene"
-                        style="display:inline-block;max-width:90px;"
-                    />
-                    <datalist id="${this.prefix}SearchDataList"></datalist>
-                    <span class="input-group-btn" style="display:inline-block;">
-                        <button id="${this.prefix}SearchButton" class="btn btn-default btn-sm">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
-                </div>
-
-                <!-- Features of interest -->
-                <div id="${this.prefix}FeaturesOfInterest" class="dropdown" style="display:none;">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-                        ${this.config.featuresOfInterestTitle}
-                        <span class="caret"></span>
-                    </button>
-                    <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
-                </div>
-
-
-                <!-- Position controls -->
-                <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
-                    <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
-                        <i class="fa fa-angle-double-left"></i>
-                    </button>
-                    <button id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
-                        <i class="fa fa-angle-left"></i>
-                    </button>
-                    <button id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
-                        <i class="fa fa-angle-right"></i>
-                    </button>
-                    <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
-                        <i class="fa fa-angle-double-right"></i>
-                    </button>
-                </div>
-
-                <!-- Zoom controls -->
-                <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;">
-                    <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
-                        <span class="fa fa-search-minus"></span>
-                    </button>
-                    <div class="" style="display:inline-block;">
-                        <div class="" style="padding-top:7px;padding-bottom:7px;">
-                            <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
-                        </div>
-                    </div>
-                    <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
-                        <span class="fa fa-search-plus"></span>
-                    </button>
-
-                    <!-- Window size input -->
-                    <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
-                        <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
-                        <span class="input-group-addon">nts</span>
-                    </div>
-                </div>
-
-
-                <!-- Panels buttons -->
-                <div id="${this.prefix}PanelButtons" class="btn-group" style="display:inline-block;">
-                    <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm active">
-                        <span class="gb-icon gb-icon-karyotype" style="display:block;width:16px;height:18px;"></span>
-                    </button>
-                    <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm active">
-                        <span class="gb-icon gb-icon-chromosome" style="display:block;width:16px;height:18px;"></span>
-                    </button>
-                    <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-default btn-sm active">
-                        <span class="gb-icon gb-icon-region" style="display:block;width:16px;height:18px;"></span>
-                    </button>
-                </div>
-
-                <!-- Region history -->
-                <div id="${this.prefix}HistoryControls">
-                    <div title="Region history" class="dropdown" style="display:inline-block;">
-                        <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-history"></i>
+                    <!-- Features of interest -->
+                    <div id="${this.prefix}FeaturesOfInterest" class="dropdown" style="display:none;">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                            ${this.config.featuresOfInterestTitle}
                             <span class="caret"></span>
                         </button>
-                        <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
+                        <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
                     </div>
-                    <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
-                        <i class="fa fa-redo"></i>
-                    </button>
-                </div>
 
+
+                    <!-- Position controls -->
+                    <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
+                        <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
+                            <i class="fa fa-angle-double-left"></i>
+                        </button>
+                        <button id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
+                            <i class="fa fa-angle-left"></i>
+                        </button>
+                        <button id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+                        <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
+                            <i class="fa fa-angle-double-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Zoom controls -->
+                    <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;">
+                        <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
+                            <span class="fa fa-search-minus"></span>
+                        </button>
+                        <div class="" style="display:inline-block;">
+                            <div class="" style="padding-top:7px;padding-bottom:7px;">
+                                <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
+                            </div>
+                        </div>
+                        <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
+                            <span class="fa fa-search-plus"></span>
+                        </button>
+
+                        <!-- Window size input -->
+                        <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
+                            <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
+                            <span class="input-group-addon">nts</span>
+                        </div>
+                    </div>
+
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+
+                    <!-- Panels buttons -->
+                    <div id="${this.prefix}PanelButtons" class="btn-group" style="display:inline-block;">
+                        <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm active">
+                            <span class="gb-icon gb-icon-karyotype" style="display:block;width:16px;height:18px;"></span>
+                        </button>
+                        <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm active">
+                            <span class="gb-icon gb-icon-chromosome" style="display:block;width:16px;height:18px;"></span>
+                        </button>
+                        <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-default btn-sm active">
+                            <span class="gb-icon gb-icon-region" style="display:block;width:16px;height:18px;"></span>
+                        </button>
+                    </div>
+
+                    <!-- Region history -->
+                    <div id="${this.prefix}HistoryControls">
+                        <div title="Region history" class="dropdown" style="display:inline-block;">
+                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-history"></i>
+                                <span class="caret"></span>
+                            </button>
+                            <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
+                        </div>
+                        <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
+                            <i class="fa fa-redo"></i>
+                        </button>
+                    </div>
+
+                </div>
             </div>
         `);
 
