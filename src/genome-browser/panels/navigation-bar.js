@@ -82,8 +82,7 @@ export default class NavigationBar {
                         <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
                     </div>
 
-                    <!-- Space between regions and controls -->
-                    <div style="width:1rem"></div>
+                    <div id="${this.prefix}ControlsSpace" style="width:1rem;display:none;"></div>
 
                     <!-- Position controls -->
                     <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
@@ -199,6 +198,9 @@ export default class NavigationBar {
         this.elements.featuresOfInterest = this.div.querySelector(`div#${this.prefix}FeaturesOfInterest`);
         this.elements.featuresOfInterestMenu = this.div.querySelector(`ul#${this.prefix}FeaturesOfInterestMenu`);
 
+        // Spacing elements
+        this.elements.controlsSpace = this.div.querySelector(`div#${this.prefix}ControlsSpace`);
+
         // Hide panel buttons
         if (!this.config.karyotypePanelVisible && !this.config.chromosomePanelVisible && !this.overviewPanelVisible) {
             this.elements.panelButtons.style.display = "none";
@@ -230,15 +232,20 @@ export default class NavigationBar {
 
         if (!this.config.regionSearchVisible) {
             this.elements.regionForm.style.display = "none";
+        } else {
+            this.elements.controlsSpace.style.display = "block";
         }
 
         if (!this.config.geneSearchVisible) {
             this.elements.searchForm.style.display = "none";
+        } else {
+            this.elements.controlsSpace.style.display = "block";
         }
 
         // Fill features of interest dropdown
         if (this.config.featuresOfInterest.length > 0) {
             this.#fillFeaturesOfInterestDropdown();
+            this.elements.controlsSpace.style.display = "block";
         }
 
         this.target.appendChild(this.div);
