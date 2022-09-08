@@ -146,11 +146,6 @@ export default class NavigationBar {
                         <i class="fa fa-redo"></i>
                     </button>
                 </div>
-                
-                <!-- Autoheight -->
-                <button id="${this.prefix}AutoheightButton" class="btn btn-default btn-sm">
-                    <i class="fa fa-compress"></i>
-                </button>
 
             </div>
         `);
@@ -189,9 +184,6 @@ export default class NavigationBar {
         this.elements.moveFurtherRightButton = this.div.querySelector(`button#${this.prefix}MoveFurtherRightButton`);
         this.elements.moveLeftButton = this.div.querySelector(`button#${this.prefix}MoveLeftButton`);
         this.elements.moveRightButton = this.div.querySelector(`button#${this.prefix}MoveRightButton`);
-
-        // Autoheight button
-        this.elements.autoheightButton = this.div.querySelector(`button#${this.prefix}AutoheightButton`);
 
         // Gene search elements
         this.elements.searchForm = this.div.querySelector(`div#${this.prefix}SearchForm`);
@@ -284,8 +276,6 @@ export default class NavigationBar {
         this.elements.moveLeftButton.addEventListener("click", () => this.#handleMoveRegion(1));
         this.elements.moveRightButton.addEventListener("click", () => this.#handleMoveRegion(-1));
 
-        this.elements.autoheightButton.addEventListener("click", () => this.#handleAutoHeightToggle());
-
         this.elements.searchButton.addEventListener("click", () => this.#quickSearchSubmit());
         this.elements.searchInput.addEventListener("keyup", event => {
             this.elements.searchInput.classList.remove("has-error");
@@ -328,15 +318,6 @@ export default class NavigationBar {
 
         this.trigger(`${panelName}-button:change`, {
             selected: target.classList.contains("active"),
-        });
-    }
-
-    #handleAutoHeightToggle() {
-        this.elements.autoheightButton.classList.toggle("active");
-
-        this.trigger("autoHeight-button:change", {
-            selected: this.elements.autoheightButton.classList.contains("active"),
-            sender: this,
         });
     }
 
