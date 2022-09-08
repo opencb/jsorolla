@@ -280,6 +280,7 @@ export default class SampleGrid extends LitElement {
             {
                 id: "individualId",
                 title: "Individual ID",
+                field: "individualId",
                 formatter: (value, row) => row?.individualId ?? "-"
             },
             {
@@ -307,6 +308,7 @@ export default class SampleGrid extends LitElement {
             {
                 id: "cellLine",
                 title: "Cell Line",
+                field: "cellLine",
                 formatter: (value, row) => row.somatic ? "Somatic" : "Germline"
             },
             {
@@ -329,6 +331,7 @@ export default class SampleGrid extends LitElement {
             _columns.push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
                         <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">

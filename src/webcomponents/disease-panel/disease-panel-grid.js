@@ -427,6 +427,7 @@ export default class DiseasePanelGrid extends LitElement {
             _columns[0].push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 halign: this._config.header.horizontalAlign,
                 rowspan: 2,
                 colspan: 1,
@@ -466,7 +467,7 @@ export default class DiseasePanelGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: !this._config.columns?.hidden?.includes("actions"),
             });
         }
 
