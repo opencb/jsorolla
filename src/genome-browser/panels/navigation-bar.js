@@ -82,6 +82,8 @@ export default class NavigationBar {
                         <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
                     </div>
 
+                    <!-- Space between regions and controls -->
+                    <div style="width:1rem"></div>
 
                     <!-- Position controls -->
                     <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
