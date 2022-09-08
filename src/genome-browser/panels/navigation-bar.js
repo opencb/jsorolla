@@ -100,14 +100,12 @@ export default class NavigationBar {
                     </div>
 
                     <!-- Zoom controls -->
-                    <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;">
+                    <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
                         <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
                             <span class="fa fa-search-minus"></span>
                         </button>
                         <div class="" style="display:inline-block;">
-                            <div class="" style="padding-top:7px;padding-bottom:7px;">
-                                <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
-                            </div>
+                            <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
                         </div>
                         <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
                             <span class="fa fa-search-plus"></span>
