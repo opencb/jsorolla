@@ -304,7 +304,7 @@ export default class RgaBrowser extends LitElement {
                                     There is a chance that the second variant is a de novo on the same chromosome and therefore that the participant is not a Compounds Heterozygous.</li>
                                     </ul>`,
                                 type: "checkbox",
-                                allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
+                                allowedValues: [/* {id: 0, name: "No parents"},*/{id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             }
                             /* {
                                 id: "probandOnly",

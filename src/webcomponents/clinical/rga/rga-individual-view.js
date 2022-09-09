@@ -104,7 +104,7 @@ export default class RgaIndividualView extends LitElement {
                 {
 
                     title: "Compound Heterozygous",
-                    field: "ch_def,ch_prob,ch_poss"
+                    field: "ch_def,ch_prob"
                 },
                 {
                     title: "Phenotypes",
@@ -252,7 +252,6 @@ export default class RgaIndividualView extends LitElement {
         });
     }
 
-    // TODO move this into utils class
     formatShowingRows(pageFrom, pageTo, totalRows) {
         const pagedFromFormatted = Number(pageFrom).toLocaleString();
         const pagedToFormatted = Number(pageTo).toLocaleString();
@@ -355,7 +354,7 @@ export default class RgaIndividualView extends LitElement {
                 {
                     title: "Compound Heterozygous",
                     field: "ch",
-                    colspan: 3
+                    colspan: 2
                 },
                 {
                     title: "Phenotypes",
@@ -409,12 +408,12 @@ export default class RgaIndividualView extends LitElement {
                     title: "Probable",
                     field: "ch_prob",
                     formatter: (value, row) => this.getChConfidenceFormatter(row, 1)
-                },
+                }/* ,
                 {
                     title: "Possible",
                     field: "ch_poss",
                     formatter: (value, row) => this.getChConfidenceFormatter(row, 0)
-                }
+                }*/
             ]
         ];
     }
@@ -485,7 +484,7 @@ export default class RgaIndividualView extends LitElement {
                                 "DELETION_OVERLAP",
                                 "CH_Definite",
                                 "CH_Probable",
-                                "CH_Possible",
+                                // "CH_Possible",
                                 "Phenotypes",
                                 "Disorders"
                             ].join("\t"),
@@ -497,7 +496,7 @@ export default class RgaIndividualView extends LitElement {
                                 _.variantStats.numDelOverlap,
                                 this.getChConfidenceFormatter(_, 2),
                                 this.getChConfidenceFormatter(_, 1),
-                                this.getChConfidenceFormatter(_, 0),
+                                // this.getChConfidenceFormatter(_, 0),
                                 _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
                                 _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
                             ].join("\t"))];
