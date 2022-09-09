@@ -1027,7 +1027,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         sampleInfo[member.samples[0].id] = {
                             proband: member.id === this.clinicalAnalysis.proband.id,
                             affected: member.disorders && member.disorders.length > 0 && member.disorders[0].id === this.clinicalAnalysis.disorder.id,
-                            role: this.clinicalAnalysis.family?.roles[this.clinicalAnalysis.proband.id][member.id]?.toLowerCase(),
+                            role: this.clinicalAnalysis.family?.roles[this.clinicalAnalysis.proband.id]?.[member.id]?.toLowerCase(),
                             sex: member.sex
                         };
                     }
