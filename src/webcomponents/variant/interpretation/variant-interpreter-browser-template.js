@@ -136,6 +136,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             };
         }
 
+        // Check to hide the genome browser link
+        if (this.settings?.hideGenomeBrowser) {
+            this._config.filter.result.grid.showGenomeBrowserLink = false;
+        }
+
         // Add copy.execute functions
         if (this._config.filter.result.grid?.copies?.length > 0) {
             for (const copy of this._config.filter.result.grid?.copies) {
@@ -203,8 +208,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onFilterVariants(e) {
         const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
         const variantIds = e.detail.variants.map(v => v.id);
-        this.executedQuery = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
-        this.preparedQuery = {...this.executedQuery};
+        this.query = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
         this.requestUpdate();
     }
 
@@ -386,17 +390,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
                 <div class="col-md-10">
                     <div>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ?
-                            html`
-                                <variant-interpreter-browser-toolbar
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .state="${this.clinicalAnalysisManager.state}"
-                                    @filterVariants="${this.onFilterVariants}"
-                                    @resetVariants="${this.onResetVariants}"
-                                    @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-browser-toolbar>
-                            ` : null
-                        }
+                        <variant-interpreter-browser-toolbar
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .state="${this.clinicalAnalysisManager.state}"
+                            .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
+                            @filterVariants="${this.onFilterVariants}"
+                            @resetVariants="${this.onResetVariants}"
+                            @saveInterpretation="${this.onSaveVariants}">
+                        </variant-interpreter-browser-toolbar>
                     </div>
 
                     <div id="${this._prefix}MainContent">

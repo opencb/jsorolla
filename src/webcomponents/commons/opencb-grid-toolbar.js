@@ -110,7 +110,7 @@ export default class OpencbGridToolbar extends LitElement {
 
     }
 
-    onShareLink(e) {
+    onShareLink() {
         this.dispatchEvent(new CustomEvent("sharelink", {
             detail: {
             }, bubbles: true, composed: true
@@ -121,21 +121,8 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
-    openModal(e) {
+    openModal() {
         $(`#${this._prefix}export-modal`, this).modal("show");
-    }
-
-    getDefaultConfig() {
-        return {
-            label: "records",
-            columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
-            download: ["Tab", "JSON"],
-            showShareLink: false,
-            buttons: ["columns", "download"],
-            rightToolbar: {
-                // render
-            }
-        };
     }
 
     render() {
@@ -146,8 +133,6 @@ export default class OpencbGridToolbar extends LitElement {
             }
         }
 
-        // console.log(this._config)
-        // debugger
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {
@@ -251,6 +236,19 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            label: "records",
+            columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
+            download: ["Tab", "JSON"],
+            showShareLink: false,
+            buttons: ["columns", "download"],
+            rightToolbar: {
+                // render
+            }
+        };
     }
 
 }

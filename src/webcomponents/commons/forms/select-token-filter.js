@@ -67,6 +67,7 @@ export default class SelectTokenFilter extends LitElement {
             allowClear: true,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
+            maximumSelectionLength: this._config.maxItems || 0,
             ajax: {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 // NOTE processResults() expects a RestResponse instance, override the whole ajax() method in case of external data source (not Opencga)
@@ -76,7 +77,7 @@ export default class SelectTokenFilter extends LitElement {
                     return {
                         results: this._config.preprocessResults(restResponse.getResults()),
                         pagination: {
-                            more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            more: !this._config.disablePagination && (_params.page * this._config.limit) < restResponse.getResponse().numMatches,
                         }
                     };
                 }
@@ -176,7 +177,6 @@ export default class SelectTokenFilter extends LitElement {
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
         const selection = this.select.select2("data").map(el => el.id).join(",");
-        console.log("filterChange", selection);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: selection
@@ -193,8 +193,10 @@ export default class SelectTokenFilter extends LitElement {
         return {
             separator: [","],
             limit: 10,
+            disablePagination: false,
             minimumInputLength: 0,
             maxItems: 0,
+            disabled: false,
             placeholder: "Start typing",
             freeTag: false,
             fileUpload: false,
@@ -235,7 +237,12 @@ export default class SelectTokenFilter extends LitElement {
 
         return html`
             <div>
-                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                <select
+                    class="form-control"
+                    id="${this._prefix}"
+                    ?disabled="${this._config.disabled}"
+                    @change="${this.filterChange}">
+                </select>
             </div>
         `;
     }

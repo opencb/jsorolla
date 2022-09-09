@@ -52,6 +52,7 @@ import "../../webcomponents/sample/sample-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
 import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
+import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
 import "../../webcomponents/family/family-browser.js";
 import "../../webcomponents/individual/individual-browser.js";
@@ -215,6 +216,7 @@ class IvaApp extends LitElement {
             "job-view",
             "rga",
             "disease-panel",
+            "diseasePanelUpdate",
             "clinicalAnalysis",
             "projects-admin",
             "opencga-admin",
@@ -422,10 +424,10 @@ class IvaApp extends LitElement {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-                this.signingIn = false;
-                this.requestUpdate();
-                // this.updateComplete;
-            });
+            this.signingIn = false;
+            this.requestUpdate();
+            // this.updateComplete;
+        });
     }
 
     // TODO turn this into a Promise
@@ -723,6 +725,9 @@ class IvaApp extends LitElement {
                     // this.studyAdminFqn = arr[1];
                     this.changeActiveStudy(arr[1]);
                     break;
+                case "#diseasePanelUpdate":
+                    this.diseasePanelId = feature;
+                    break;
             }
 
             if (UtilsNew.isNotEmpty(feature)) {
@@ -819,6 +824,8 @@ class IvaApp extends LitElement {
                 species: "hsapiens",
             });
         }
+        // This simplifies passing cellbaseCLient to all components
+        this.opencgaSession.cellbaseClient = this.cellbaseClient;
     }
 
     updateProject(e) {
@@ -1275,6 +1282,16 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["diseasePanelUpdate"] ? html`
+                    <div class="content" id="disease-panel">
+                        <disease-panel-update
+                            .diseasePanelId="${this.diseasePanelId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}">
+                        </disease-panel-update>
+                    </div>
+                ` : null}
+
                 <!--todo check-->
                 ${this.config.enabledComponents.gene ? html`
                     <div class="content" id="gene">
@@ -1307,9 +1324,10 @@ class IvaApp extends LitElement {
                         <sample-update
                             .sampleId="${this.sampleId}"
                             .opencgaSession="${this.opencgaSession}"
-                            .config=${{display: {
+                            .displayConfig=${
+                                {
                                     showBtnSampleBrowser: true,
-                                    width: "8",
+                                    width: "10",
                                     style: "margin: 10px",
                                     labelWidth: 3,
                                     labelAlign: "right",
@@ -1317,7 +1335,9 @@ class IvaApp extends LitElement {
                                     defaultValue: "",
                                     help: {
                                         mode: "block" // icon
-                                    }}}}>
+                                    }
+                                }
+                            }>
                         </sample-update>
                     </div>
                 ` : null}

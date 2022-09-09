@@ -17,9 +17,11 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
 import "../loading-spinner.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class FamilyView extends LitElement {
@@ -27,7 +29,7 @@ export default class FamilyView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -37,31 +39,47 @@ export default class FamilyView extends LitElement {
     static get properties() {
         return {
             family: {
-                type: Object
+                type: Object,
             },
             familyId: {
-                type: String
+                type: String,
             },
             individualId: {
-                type: Object
+                type: String,
+            },
+            search: {
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             settings: {
-                type: Object
-            }
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.family = {};
+        this.search = false;
+
         this.isLoading = false;
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-"
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -74,71 +92,78 @@ export default class FamilyView extends LitElement {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         if (this.settings?.fields?.length) {
             this._config.hiddenFields = null;
             this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.fields);
         } else if (this.settings?.hiddenFields?.length) {
             this._config.hiddenFields = this.settings.hiddenFields;
             this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
-
         }
         this.requestUpdate();
     }
 
     familyIdObserver() {
         if (this.familyId && this.opencgaSession) {
-            this.isLoading = true;
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.opencgaSession.opencgaClient.families().info(this.familyId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.families()
+                .info(this.familyId, params)
                 .then(response => {
-                    this.isLoading = false;
-                    this.family = response.getResult(0);
-                    console.log("Family", this.family);
+                    this.family = response.responses[0].results[0];
                 })
-                .catch(function (reason) {
+                .catch(reason => {
                     this.family = {};
                     error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
-                    this.notify(error);
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
+                    this.#setLoading(false);
                 });
+        } else {
+            this.family = {};
         }
     }
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
-            const query = {
+            const params = {
                 members: this.individualId,
                 study: this.opencgaSession.study.fqn
             };
             let error;
-            this.opencgaSession.opencgaClient.families().search(query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.families()
+                .search(params)
                 .then(response => {
-                    // Only takes the first family
-                    this.family = response.getResult(0);
+                    // We use the first family found
+                    this.family = response.responses[0].results[0];
                 })
-                .catch(function (reason) {
+                .catch(reason => {
                     this.family = {};
                     error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
-                    this.notify(error);
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
+                    this.#setLoading(false);
                 });
-            this.familyId = "";
+        } else {
+            this.familyId = {};
         }
     }
 
@@ -146,25 +171,17 @@ export default class FamilyView extends LitElement {
         this.familyId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("familySearch", {
-            detail: {
-                value: this.family,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.family?.id && this.search === false) {
             return html`
-                <loading-spinner></loading-spinner>
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Family ID found.
+                </div>
             `;
         }
 
@@ -172,30 +189,25 @@ export default class FamilyView extends LitElement {
             <data-form
                 .data="${this.family}"
                 .config="${this._config}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: family => !family?.id,
+                        visible: family => !family?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Family ID",
-                            field: "familyId",
+                            // field: "familyId",
                             type: "custom",
                             display: {
                                 render: () => html `
@@ -234,15 +246,8 @@ export default class FamilyView extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("disorders"),
-                                contentLayout: "bullets",
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name} (${id})`;
-                                },
+                                contentLayout: "vertical",
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
                                 defaultValue: "N/A"
                             }
                         },

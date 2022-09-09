@@ -40,6 +40,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            write: {
+                type: Boolean
+            },
             state: {
                 type: Object
             },
@@ -51,6 +54,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this.write = false;
     }
 
     connectedCallback() {
@@ -125,7 +129,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                     <div class="btn-group" style="margin-right: 2px">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Show saved variants">
-                            <i class="fas fa-eye icon-padding" aria-hidden="true"></i> 
+                            <i class="fas fa-eye icon-padding" aria-hidden="true"></i>
                             <strong>View</strong>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
@@ -144,7 +148,8 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.clinicalAnalysis.interpretation?.primaryFindings?.length ? "" : "disabled"}"
+                                    <button type="button" ?disabled="${!this.clinicalAnalysis.interpretation?.primaryFindings?.length}"
+                                            class="btn btn-primary ${this.clinicalAnalysis.interpretation?.primaryFindings?.length ? "" : "disabled"}"
                                             @click="${this.onFilterPrimaryFindingVariants}" style="margin: 5px">Filter
                                     </button>
                                 </div>
@@ -154,8 +159,8 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
                     <div class="btn-group" style="margin-right: 2px">
                         <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false" title="Remove not saved variants">
-                            <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> 
+                                aria-expanded="false" title="Remove not saved variants" ?disabled="${!this.write}">
+                            <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
                             <strong>Reset</strong>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
@@ -187,10 +192,12 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
+                                    <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
+                                            class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
                                             @click="${this.onFilterModifiedVariants}" style="margin: 5px">Filter
                                     </button>
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
+                                    <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
+                                            class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
                                             @click="${this.onResetModifiedVariants}" style="margin: 5px">Reset
                                     </button>
                                 </div>
@@ -199,7 +206,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                     </div>
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}SaveMenu" class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server" ?disabled="${!this.write}">
                             <i class="fas fa-save icon-padding" aria-hidden="true"></i>
                             <strong>Save</strong>
                             ${hasVariantsToSave ? html`
@@ -248,7 +255,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}"
+                                    <button type="button" ?disabled="${!hasVariantsToSave}" class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}"
                                             @click="${this.onSaveInterpretation}" style="margin: 5px">Save
                                     </button>
                                 </div>

@@ -154,6 +154,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .updateScalar(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
                 break;
             case "status.id":
+            case "disorder.id":
             case "priority.id":
             case "analyst.id":
                 this.updateParams = FormUtils
@@ -163,6 +164,24 @@ class ClinicalAnalysisUpdate extends LitElement {
             case "flags.id":
                 this.updateParams = FormUtils
                     .updateObjectArray(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value, e.detail.data);
+                break;
+            case "comments":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._clinicalAnalysis,
+                    this.clinicalAnalysis,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+
+                // Get new comments and fix tags
+                this.updateParams.comments = this.updateParams.comments
+                    .filter(comment => !comment.author)
+                    .map(comment => {
+                        // eslint-disable-next-line no-param-reassign
+                        comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
+                        return comment;
+                    });
                 break;
         }
         // Enable this only when a dynamic property in the config can change
@@ -431,6 +450,23 @@ class ClinicalAnalysisUpdate extends LitElement {
                     title: "General",
                     elements: [
                         {
+                            title: "Disorder",
+                            field: "disorder.id",
+                            type: "select",
+                            defaultValue: this.clinicalAnalysis?.disorder.id,
+                            allowedValues: () => {
+                                if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+                                    return this.clinicalAnalysis.proband.disorders.map(disorder => disorder.id);
+                                } else {
+                                    return [];
+                                }
+                            },
+                            display: {
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                helpMessage: "Case disorder must be one of the proband's disorder",
+                            }
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
@@ -519,18 +555,50 @@ class ClinicalAnalysisUpdate extends LitElement {
                         {
                             title: "Comments",
                             field: "comments",
-                            type: "custom",
+                            type: "object-list",
                             display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor
-                                        .opencgaSession=${this.opencgaSession}
-                                        .comments="${comments}"
-                                        .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // collapsable: false,
+                                // maxNumItems: 5,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => html`
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            </div>
+                                        </div>
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                        </div>
+                                    </div>
                                 `,
-                            }
-                        }
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ]
+                        },
                     ]
                 }
             ]

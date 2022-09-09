@@ -377,7 +377,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         pagination: true,
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        showExport: false,
+                        showExport: true,
                         detailView: true,
                         showReview: false,
                         showActions: true,
@@ -394,7 +394,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: !!this.somatic,
+                        variantTypes: ["BREAKEND"],
                     }
                 },
                 detail: {

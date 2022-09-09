@@ -76,6 +76,7 @@ export default class CatalogDistinctAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
+            disablePagination: true,
             source: (params, success, failure) => {
                 const RESOURCES = {
                     "SAMPLE": this.opencgaSession.opencgaClient.samples(),
@@ -101,7 +102,15 @@ export default class CatalogDistinctAutocomplete extends LitElement {
 
                 // The exact name of the field, see the example above about 'disorders' and 'disorders.id'
                 RESOURCES[this.resource].distinct(this.distinctField, filters)
-                    .then(response => success(response))
+                    .then(response => {
+                        if (params?.data?.term) {
+                            const term = params.data.term.toUpperCase();
+                            response.responses[0].results = response.responses[0].results.filter(item => {
+                                return item.toUpperCase().includes(term);
+                            });
+                        }
+                        success(response);
+                    })
                     .catch(error => failure(error));
 
             },

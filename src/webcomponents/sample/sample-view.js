@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
@@ -28,7 +29,7 @@ export default class SampleView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -38,56 +39,66 @@ export default class SampleView extends LitElement {
     static get properties() {
         return {
             sample: {
-                type: Object
+                type: Object,
             },
             sampleId: {
-                type: String
+                type: String,
+            },
+            search: {
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.sample = {};
+        this.search = false;
         this.isLoading = false;
+
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
-            this.isLoading = true;
             this.sampleIdObserver();
         }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
     sampleIdObserver() {
         if (this.sampleId && this.opencgaSession) {
-            console.log("loading: ", this.sampleId);
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
-                includeIndividual: true
+                includeIndividual: true,
             };
             let error;
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.samples()
+                .info(this.sampleId, params)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    console.log("sample:", this.sample);
-                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.sample = {};
@@ -95,41 +106,30 @@ export default class SampleView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
+                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
+                    this.#setLoading(false);
                 });
-            this.sampleId = "";
+        } else {
+            this.sample = {};
         }
     }
 
     onFilterChange(e) {
-        // This must call sampleIdObserver function
         this.sampleId = e.detail.value;
-    }
-
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("sampleSearch", {
-            detail: {
-                value: this.sample,
-                query: {
-                    includeIndividual: true
-                },
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
     }
 
     render() {
         if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.sample?.id && this.search === false) {
             return html`
-                <loading-spinner></loading-spinner>
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    Sample ID not found.
+                </div>
             `;
         }
 
@@ -145,23 +145,17 @@ export default class SampleView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: sample => !sample?.id,
+                        visible: sample => !sample?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Sample ID",
-                            field: "sampleId",
+                            // field: "sampleId",
                             type: "custom",
                             display: {
                                 render: () => html`
@@ -173,9 +167,9 @@ export default class SampleView extends LitElement {
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
@@ -190,7 +184,7 @@ export default class SampleView extends LitElement {
                             display: {
                                 visible: sample => sample?.id,
                                 render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
-                            }
+                            },
                         },
                         {
                             title: "Individual ID",
@@ -202,19 +196,19 @@ export default class SampleView extends LitElement {
                             type: "list",
                             display: {
                                 defaultValue: "Files not found or empty",
-                                contentLayout: "bullets"
-                            }
+                                contentLayout: "bullets",
+                            },
                         },
                         {
                             title: "Somatic",
                             field: "somatic",
                             display: {
-                                defaultValue: "false"
-                            }
+                                defaultValue: "false",
+                            },
                         },
                         {
                             title: "Version",
-                            field: "version"
+                            field: "version",
                         },
                         {
                             title: "Status",
@@ -222,7 +216,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
-                            }
+                            },
                         },
                         {
                             title: "Creation Date",
@@ -230,7 +224,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Modification Date",
@@ -238,7 +232,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Description",
@@ -255,11 +249,15 @@ export default class SampleView extends LitElement {
                                 render: phenotype => {
                                     let id = phenotype?.id;
                                     if (phenotype?.id?.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                        id = html`
+                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                                                ${phenotype.id}
+                                            </a>
+                                        `;
                                     }
-                                    return html`${phenotype?.name} (${id})`;
+                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
                                 },
-                            }
+                            },
                         },
                         /*
                             {
@@ -271,9 +269,9 @@ export default class SampleView extends LitElement {
                                 }
                             }
                         */
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         });
     }
 

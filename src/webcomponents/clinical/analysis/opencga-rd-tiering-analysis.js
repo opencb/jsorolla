@@ -36,6 +36,9 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            title: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -43,7 +46,7 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
     }
 
     _init() {
-        this._prefix = "ota-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
@@ -52,17 +55,27 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
         super.connectedCallback();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
+    }
+
+    render() {
+        return html`
+            <opencga-analysis-tool
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}">
+            </opencga-analysis-tool>
+        `;
     }
 
     getDefaultConfig() {
         return {
             id: "rd-tiering",
-            title: "RD Tiering",
+            // title: `${this.title ?? "RD Tiering"}`,
             icon: "",
             requires: "2.0.0",
             description: "Tiering GEL-based",
@@ -137,11 +150,6 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
         };
     }
 
-    render() {
-        return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
-        `;
-    }
 }
 
 customElements.define("opencga-rd-tiering-analysis", OpencgaRdTieringAnalysis);

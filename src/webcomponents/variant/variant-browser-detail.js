@@ -101,6 +101,10 @@ export default class VariantBrowserDetail extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return "";
+        }
+
         if (!this.variant?.annotation) {
             return;
         }
