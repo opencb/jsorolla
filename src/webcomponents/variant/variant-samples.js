@@ -191,7 +191,7 @@ export default class VariantSamples extends LitElement {
             // Prepare sample variant data for next query
             const variantSamples = result.studies[0].samples;
 
-            if (variantSamples && variantSamples.length > 0) {
+            if (variantSamples?.length > 0) {
                 const variantSampleInfo = {};
                 const sampleIds = [];
                 const samples = [];
@@ -253,7 +253,11 @@ export default class VariantSamples extends LitElement {
                 };
             } else {
                 this.requestUpdate();
-                await Promise.reject(new Error("No samples found"));
+                // await Promise.reject(new Error("No samples found"));
+                return {
+                    total: 0,
+                    rows: []
+                };
             }
         } catch (e) {
             await Promise.reject(e);
